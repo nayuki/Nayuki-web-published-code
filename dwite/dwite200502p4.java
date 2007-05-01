@@ -1,55 +1,53 @@
 import java.io.*;
-import java.util.StringTokenizer;
+import java.util.*;
 
 
 public class dwite200502p4{
 
- private static String problem="41";
+ static String problem="41";
+ static boolean DEBUGIN =false;
+ static boolean DEBUGOUT=false;
 
 
- private static void main(BufferedReader in,PrintWriter out) throws IOException{
-  for(int ii=0;ii<5;ii++){
-   StringTokenizer st=new StringTokenizer(in.readLine()," ");
-   int[] dimension=new int[st.countTokens()-1];
-   for(int i=0;i<dimension.length;i++)dimension[i]=Integer.parseInt(st.nextToken());
-   int[] cost=calculateCost(dimension);
-   out.println(cost[0]+" "+cost[1]);}}
-
- private static int[] calculateCost(int[] dimension){
-  int n=dimension.length-1;
-  int[] min=new int[n*n],max=new int[n*n];
-  for(int i=0;i<n-1;i++)max[i*(n+1)+1]=min[i*(n+1)+1]=dimension[i]*dimension[i+1]*dimension[i+2];
-  for(int i=3;i<=n;i++){
-   for(int j=0;j<=n-i;j++){
-    int tp=dimension[j]*dimension[j+i];
-    int tpmin0=tp*dimension[j+1];
-    int tpmax0=tpmin0+max[(j+1)*n+j+i-1];
-    tpmin0+=min[(j+1)*n+j+i-1];
-    for(int k=2;k<i;k++){
-     int tpmin1=tp*dimension[j+k];
-     int tpmax1=tpmin1+max[j*(n+1)+k-1]+max[(j+k)*n+j+i-1];
-     tpmin1+=min[j*(n+1)+k-1]+min[(j+k)*n+j+i-1];
-     if(tpmin1<tpmin0)tpmin0=tpmin1;
-     if(tpmax1>tpmax0)tpmax0=tpmax1;}
-    min[j*(n+1)+i-1]=tpmin0;
-    max[j*(n+1)+i-1]=tpmax0;}}
-  return new int[]{min[n-1],max[n-1]};}
+ static void main(BufferedReader in,PrintWriter out) throws IOException{
+  List<Integer> dimensions=new ArrayList<Integer>();
+  StringTokenizer st=new StringTokenizer(in.readLine()," ");
+  while(true){
+   int temp=Integer.parseInt(st.nextToken());
+   if(temp==0)break;
+   dimensions.add(temp);}
+  int[][] mincost=new int[dimensions.size()-1][dimensions.size()]; // mincost[i][j] is the minimum cost of multiplying the chain from i (inclusive) to j (inclusive).
+  int[][] maxcost=new int[dimensions.size()-1][dimensions.size()];
+  for(int i=0;i<mincost.length;i++){ // Let uninitialized positions be invalid
+   for(int j=0;j<mincost[i].length;j++)mincost[i][j]=maxcost[i][j]=-1;}
+  for(int i=0;i+1<dimensions.size();i++){ // The cost for a single matrix (zero)
+   mincost[i][i+1]=maxcost[i][i+1]=0;}
+  for(int i=2;i<dimensions.size();i++){ // For each number of consecutive matrices
+   for(int j=0;j+i<dimensions.size();j++){ // For each starting position
+    int min=Integer.MAX_VALUE;
+    int max=0;
+    for(int k=1;k<i;k++){ // For each split position
+     int cost=dimensions.get(j)*dimensions.get(j+k)*dimensions.get(j+i); // The cost of the current operation
+     min=Math.min(cost+mincost[j][j+k]+mincost[j+k][j+i],min);
+     max=Math.max(cost+maxcost[j][j+k]+maxcost[j+k][j+i],max);}
+    mincost[j][j+i]=min;
+    maxcost[j][j+i]=max;}}
+  out.printf("%d %d%n",mincost[0][dimensions.size()-1],maxcost[0][dimensions.size()-1]);}
 
 
- public static void main(String[] arg) throws IOException{
-  Object[] streams;
-  streams=diskStreams();
-  InputStreamReader in1=new InputStreamReader((InputStream)streams[0],"US-ASCII");
+ public static void main(String[] args) throws IOException{
+  InputStream  in0 =DEBUGIN ?System.in :new FileInputStream("DATA"+problem+".txt");
+  OutputStream out0=DEBUGOUT?System.out:new FileOutputStream("OUT"+problem+".txt");
+  InputStreamReader in1=new InputStreamReader(in0,"US-ASCII");
   BufferedReader in2=new BufferedReader(in1);
-  BufferedOutputStream out1=new BufferedOutputStream((OutputStream)streams[1]);
+  BufferedOutputStream out1=new BufferedOutputStream(out0);
   OutputStreamWriter out2=new OutputStreamWriter(out1,"US-ASCII");
   PrintWriter out3=new PrintWriter(out2,true);
-  main(in2,out3);
+  for(int i=0;i<5;i++)main(in2,out3);
   in2.close();
   in1.close();
+  in0.close();
   out3.close();
   out2.close();
-  out1.close();}
-
- private static Object[] diskStreams() throws IOException{
-  return new Object[]{new FileInputStream("DATA"+problem+".txt"),new FileOutputStream("OUT"+problem+".txt")};}}
+  out1.close();
+  out0.close();}}
