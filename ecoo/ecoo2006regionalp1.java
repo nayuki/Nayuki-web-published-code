@@ -1,7 +1,14 @@
 import java.io.*;
+import java.util.Random;
 
 
 public class ecoo2006regionalp1{
+
+ static String alphabet0="ABCDEFGHIJKLMNOP";
+ static String alphabet1="QRSTUVWXYZKLMNOP";
+
+ static Random rand=new Random();
+
 
  static void main(BufferedReader in) throws IOException{
   /* // Old version, converts to hexadecimal first
@@ -14,19 +21,39 @@ public class ecoo2006regionalp1{
   System.out.println(decrypt(in.readLine()));
   System.out.println();}
 
- static String decrypt(String in){
-  char[] out=new char[in.length()/2];
-  for(int i=0,last=0,buffer=0;i<in.length();buffer<<=4){
-   int curr=(in.charAt(i)-'A')&0xF;
-   buffer|=(curr-last)&0xF;
-   last=curr;
-   i++;
-   if(i%2==0){
-    out[(i>>>1)-1]=(char)buffer;
-    buffer=0;}}
-  return new String(out);}
+ static String encrypt(String plaintext){ // Bonus
+  StringBuffer ciphertext=new StringBuffer();
+  int lastdigit=0;
+  for(int i=0;i<plaintext.length();i++){
+   if(plaintext.charAt(i)>=0x80)throw new AssertionError("Not ASCII");
+   int high=plaintext.charAt(i)>>>4&0xF;
+   int low =plaintext.charAt(i)>>>0&0xF;
+   lastdigit=high+=lastdigit;
+   if(rand.nextBoolean())ciphertext.append(alphabet0.charAt(high&0xF));
+   else                  ciphertext.append(alphabet1.charAt(high&0xF));
+   lastdigit=low+=lastdigit;
+   if(rand.nextBoolean())ciphertext.append(alphabet0.charAt(low &0xF));
+   else                  ciphertext.append(alphabet1.charAt(low &0xF));}
+  return ciphertext.toString();}
+
+ static String decrypt(String ciphertext){
+  StringBuffer plaintext=new StringBuffer();
+  int lastdigit=0;
+  int currchar=0;
+  for(int i=0;i<ciphertext.length();i++){
+   int digit;
+   if     (alphabet0.indexOf(ciphertext.charAt(i))!=-1)digit=alphabet0.indexOf(ciphertext.charAt(i));
+   else if(alphabet1.indexOf(ciphertext.charAt(i))!=-1)digit=alphabet1.indexOf(ciphertext.charAt(i));
+   else throw new AssertionError("Malformed ciphertext");
+   currchar=currchar<<4|((digit-lastdigit)&0xF);
+   lastdigit=digit;
+   if((i+1)%2==0){
+    plaintext.append((char)currchar);
+    currchar=0;}}
+  return plaintext.toString();}
 
 
- public static void main(String[] arg) throws IOException{
-  BufferedReader in=new BufferedReader(new FileReader("DATA11.txt"));
-  for(int i=0;i<5;i++)main(in);}}
+ public static void main(String[] args) throws IOException{
+  BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream("DATA11.txt"),"US-ASCII"));
+  for(int i=0;i<5;i++)main(in);
+  in.close();}}

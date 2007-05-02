@@ -3,20 +3,22 @@ import java.io.*;
 
 public class ecoo2006regionalp2{
 
- static int[] next=new int[10001]; // Points to x, where subtracting x^2 and going to that index will eventually lead to 0.
+ static int[] next=new int[10000]; // Subtract next[i]*next[i] from i to get one step closer to i=0.
 
  static{
   for(int i=0;i<next.length;i++)next[i]=-1;
-  next[0]=0; // The only sum reachable with 0 terms.
-  int[] tp=next.clone();
-  for(int i=0;i<4;i++){
-   for(int j=sqrt(next.length-1);j>=1;j--){
-    for(int jj=j*j,k=next.length-1;k>=0;k--){
-     if(next[k]!=-1&&k+jj<next.length&&tp[k+jj]==-1)tp[k+jj]=j;}}
-   for(int j=0;j<next.length;j++)next[j]=tp[j];}}
+  next[0]=0;
+  for(int i=0;i<4;i++){ // For 4 addends
+   int[] newnext=next.clone();
+   for(int j=sqrt(next.length-1);j>=1;j--){ // For each square
+    for(int jsqr=j*j,k=next.length-jsqr-1;k>=0;k--){ // For each number
+     if(next[k]!=-1&&newnext[k+jsqr]==-1)newnext[k+jsqr]=j;}}
+   next=newnext;}}
+
 
  static void main(BufferedReader in) throws IOException{
   int n=Integer.parseInt(in.readLine());
+  if(n<=0)throw new AssertionError();
   System.out.print(n+" = ");
   while(true){
    System.out.print(next[n]+" squared");
@@ -33,6 +35,7 @@ public class ecoo2006regionalp2{
   return y;}
 
 
- public static void main(String[] arg) throws IOException{
-  BufferedReader in=new BufferedReader(new FileReader("DATA21.txt"));
-  for(int i=0;i<5;i++)main(in);}}
+ public static void main(String[] args) throws IOException{
+  BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream("DATA21.txt"),"US-ASCII"));
+  for(int i=0;i<5;i++)main(in);
+  in.close();}}
