@@ -8,62 +8,62 @@ public class dwite200502p2{
 
 
  private static void main(BufferedReader in,PrintWriter out) throws IOException{
-  for(int ii=0;ii<5;ii++){
-   StringTokenizer st=new StringTokenizer(in.readLine()," ");
-   int h=Integer.parseInt(st.nextToken());
-   int w=Integer.parseInt(st.nextToken());
-   int[] snake=new int[(w+2)*(h+2)];
-   for(int y=1;y<=h;y++){
-    String s=in.readLine();
-    int off=y*(w+2);
-    for(int x=0;x<w;x++)snake[off+x+1]=(s.charAt(x)-'.')/('X'-'.');}
-   int[] length=calculateLength(snake,w,h);
-   out.println(length[0]+" "+length[1]);}}
-
- private static int[] calculateLength(int[] snake,int w,int h){
-  int coiled=0,uncoiled=0;
-  int i=2;
+  StringTokenizer st=new StringTokenizer(in.readLine()," ");
+  int h=Integer.parseInt(st.nextToken());
+  int w=Integer.parseInt(st.nextToken());
+  int[][] grid=new int[h+2][w+2];
+  for(int y=0;y<grid.length;y++){
+   for(int x=0;x<grid[y].length;x++)grid[y][x]='.';}
+  for(int y=0;y<h;y++){
+   String s=in.readLine();
+   for(int x=0;x<w;x++)grid[y+1][x+1]=s.charAt(x);}
+  int maxcoiled=0;
+  int maxuncoiled=0;
   for(int y=1;y<=h;y++){
-   int off=y*(w+2);
    for(int x=1;x<=w;x++){
-    if(snake[off+x]==1){
-     int tp=calculateLength(snake,w+2,x,y,i);
-     if(isCoiled(snake,w,h,i)){
-      if(tp>coiled)coiled=tp;}
-     else if(tp>uncoiled)uncoiled=tp;
-     i++;}}}
-  return new int[]{coiled,uncoiled};}
+    int temp=markSnakeAndGetLength(grid,x,y);
+    if(isCurrentSnakeCoiled(grid))maxcoiled=Math.max(temp,maxcoiled);
+    else maxuncoiled=Math.max(temp,maxuncoiled);
+    clearCurrentSnake(grid);}}
+  out.println(maxcoiled+" "+maxuncoiled);}
 
- private static int calculateLength(int[] snake,int w,int x,int y,int i){
-  int len=1;
-  int off=y*w+x;
-  snake[y*w+x]=i;
-  if(snake[off-w-1]==1)len+=calculateLength(snake,w,x-1,y-1,i);
-  if(snake[off-w  ]==1)len+=calculateLength(snake,w,x  ,y-1,i);
-  if(snake[off-w+1]==1)len+=calculateLength(snake,w,x+1,y-1,i);
-  if(snake[off  -1]==1)len+=calculateLength(snake,w,x-1,y  ,i);
-  if(snake[off  +1]==1)len+=calculateLength(snake,w,x+1,y  ,i);
-  if(snake[off+w-1]==1)len+=calculateLength(snake,w,x-1,y+1,i);
-  if(snake[off+w  ]==1)len+=calculateLength(snake,w,x  ,y+1,i);
-  if(snake[off+w+1]==1)len+=calculateLength(snake,w,x+1,y+1,i);
-  return len;}
 
- private static boolean isCoiled(int[] snake,int w,int h,int i){
-  for(int y=1;y<=h;y++){
-   int off=y*(w+2)+1;
-   for(int x=1;x<=w;x++,off++){
-    if(snake[off]==i){
-     int neigh=0;
-     if(snake[off-w-3]==i)neigh++;
-     if(snake[off-w-2]==i)neigh++;
-     if(snake[off-w-1]==i)neigh++;
-     if(snake[off  -1]==i)neigh++;
-     if(snake[off  +1]==i)neigh++;
-     if(snake[off+w+1]==i)neigh++;
-     if(snake[off+w+2]==i)neigh++;
-     if(snake[off+w+3]==i)neigh++;
-     if(neigh>=3)return true;}}}
+ private static boolean isCurrentSnakeCoiled(int[][] grid){
+  for(int y=1;y<grid.length-1;y++){
+   for(int x=1;x<grid[y].length-1;x++){
+    if(grid[y][x]=='O'&&countCurrentNeighbours(grid,x,y)>=3)return true;}}
   return false;}
+
+ private static int markSnakeAndGetLength(int[][] grid,int x,int y){
+  if(grid[y][x]!='X')return 0;
+  int count=1;
+  grid[y][x]='O';
+  count+=markSnakeAndGetLength(grid,x-1,y-1);
+  count+=markSnakeAndGetLength(grid,x-1,y+0);
+  count+=markSnakeAndGetLength(grid,x-1,y+1);
+  count+=markSnakeAndGetLength(grid,x+0,y-1);
+  count+=markSnakeAndGetLength(grid,x+0,y+1);
+  count+=markSnakeAndGetLength(grid,x+1,y-1);
+  count+=markSnakeAndGetLength(grid,x+1,y+0);
+  count+=markSnakeAndGetLength(grid,x+1,y+1);
+  return count;}
+
+ private static int countCurrentNeighbours(int[][] grid,int x,int y){
+  int count=0;
+  if(grid[y-1][x-1]=='O')count++;
+  if(grid[y-1][x+0]=='O')count++;
+  if(grid[y-1][x+1]=='O')count++;
+  if(grid[y+0][x-1]=='O')count++;
+  if(grid[y+0][x+1]=='O')count++;
+  if(grid[y+1][x-1]=='O')count++;
+  if(grid[y+1][x+0]=='O')count++;
+  if(grid[y+1][x+1]=='O')count++;
+  return count;}
+
+ private static void clearCurrentSnake(int[][] grid){
+  for(int y=1;y<grid.length-1;y++){
+   for(int x=1;x<grid[y].length-1;x++){
+    if(grid[y][x]=='O')grid[y][x]='.';}}}
 
 
  public static void main(String[] arg) throws IOException{
@@ -74,7 +74,7 @@ public class dwite200502p2{
   BufferedOutputStream out1=new BufferedOutputStream((OutputStream)streams[1]);
   OutputStreamWriter out2=new OutputStreamWriter(out1,"US-ASCII");
   PrintWriter out3=new PrintWriter(out2,true);
-  main(in2,out3);
+  for(int i=0;i<5;i++)main(in2,out3);
   in2.close();
   in1.close();
   out3.close();
