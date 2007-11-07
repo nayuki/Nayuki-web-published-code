@@ -2,36 +2,52 @@ import java.io.*;
 import java.util.StringTokenizer;
 
 
-public class dwite200501p5{
-
- private static String problem="51";
-
-
- private static void main(BufferedReader in,PrintWriter out) throws IOException{
-  for(int ii=0;ii<5;ii++){
-   StringTokenizer st=new StringTokenizer(in.readLine()," ");
-   String tp=st.nextToken();
-   int a=Integer.parseInt(tp,Integer.parseInt(st.nextToken()));
-   st=new StringTokenizer(in.readLine()," ");
-   tp=st.nextToken();
-   int b=Integer.parseInt(tp,Integer.parseInt(st.nextToken()));
-   out.println(Integer.toString(a*b,Integer.parseInt(in.readLine())));}}
-
-
- public static void main(String[] arg) throws IOException{
-  Object[] streams;
-  streams=diskStreams();
-  InputStreamReader in1=new InputStreamReader((InputStream)streams[0],"US-ASCII");
-  BufferedReader in2=new BufferedReader(in1);
-  BufferedOutputStream out1=new BufferedOutputStream((OutputStream)streams[1]);
-  OutputStreamWriter out2=new OutputStreamWriter(out1,"US-ASCII");
-  PrintWriter out3=new PrintWriter(out2,true);
-  main(in2,out3);
-  in2.close();
-  in1.close();
-  out3.close();
-  out2.close();
-  out1.close();}
-
- private static Object[] diskStreams() throws IOException{
-  return new Object[]{new FileInputStream("DATA"+problem+".txt"),new FileOutputStream("OUT"+problem+".txt")};}}
+// DWITE - January 2005 - Problem 5: Different Bases Multiplication
+public class dwite200501p5 {
+	
+	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		for (int i = 0; i < 5; i++)
+			mainOnce(in, out);
+	}	
+	
+	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		StringTokenizer st;
+		st = new StringTokenizer(in.readLine(), " ");
+		String xstr = st.nextToken();
+		String xbase = st.nextToken();
+		st = new StringTokenizer(in.readLine(), " ");
+		String ystr = st.nextToken();
+		String ybase = st.nextToken();
+		String outbase = in.readLine();
+		int x = Integer.parseInt(xstr, Integer.parseInt(xbase));
+		int y = Integer.parseInt(ystr, Integer.parseInt(ybase));
+		out.println(Integer.toString(x * y, Integer.parseInt(outbase)));
+	}
+	
+	
+	static String infile = "DATA51.txt";  // Specify null to use System.in
+	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	
+	public static void main(String[] args) throws IOException {
+		InputStream in0;
+		if (infile != null) in0 = new FileInputStream(infile);
+		else in0 = System.in;
+		Reader in1 = new InputStreamReader(in0, "US-ASCII");
+		BufferedReader in = new BufferedReader(in1);
+		
+		OutputStream out0;
+		if (outfile != null) out0 = new FileOutputStream(outfile);
+		else out0 = System.out;
+		Writer out1 = new OutputStreamWriter(out0, "US-ASCII");
+		PrintWriter out = new PrintWriter(out1, true);
+		
+		main(in, out);
+		
+		in.close();
+		in1.close();
+		in0.close();
+		out.close();
+		out1.close();
+		out0.close();
+	}
+}

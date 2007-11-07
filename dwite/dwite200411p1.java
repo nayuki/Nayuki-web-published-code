@@ -1,53 +1,80 @@
 import java.io.*;
 
 
-public class dwite200411p1{
-
- public static void main(String[] arg) throws IOException{
-  in0=new FileInputStream("DATA11.txt");
-  out0=new FileOutputStream("OUT11.txt");
-  in1=new InputStreamReader(in0,"US-ASCII");
-  out1=new BufferedOutputStream(out0);
-  out2=new OutputStreamWriter(out1,"US-ASCII");
-  in=new BufferedReader(in1);
-  out=new PrintWriter(out2,true);
-  for(int ii=0;ii<5;ii++){
-   int[] dig=toDigits(in.readLine());
-   int sum=calculateLUHNSum(dig);
-   if(sum%10==0)out.println("VALID");
-   else{
-    for(int i=0;i<10;i++){
-     dig[dig.length-1]=i;
-     if(calculateLUHNSum(dig)%10==0){
-      out.println("INVALID "+dig[dig.length-1]);
-      break;}}}}
-  in.close();
-  in1.close();
-  in0.close();
-  out.close();
-  out2.close();
-  out1.close();
-  out0.close();}
-
- private static int[] toDigits(String s){
-  int[] d=new int[s.length()];
-  for(int i=0;i<d.length;i++)d[i]=s.charAt(i)-'0';
-  return d;}
-
- private static int calculateLUHNSum(int[] d){
-  int sum=0;
-  for(int i=0;i<d.length;i++){
-   if((i+d.length)%2==1)sum+=d[i];
-   else sum+=d[i]/5+d[i]%5*2;}
-  return sum;}
-
-
- private static InputStream in0;
- private static OutputStream out0;
-
- private static InputStreamReader in1;
- private static BufferedOutputStream out1;
- private static OutputStreamWriter out2;
-
- private static BufferedReader in;
- private static PrintWriter out;}
+// DWITE - November 2004 - Problem 1: Credit Card Check Digit
+public class dwite200411p1 {
+	
+	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		for (int i = 0; i < 5; i++)
+			mainOnce(in, out);
+	}
+	
+	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		int[] digits = toDigits(in.readLine());
+		int sum = calculateLuhnSum(digits);
+		if (sum % 10 == 0)
+			out.println("VALID");
+		else {
+			for (int i = 0; i < 10; i++) {  // Try all values for last digit
+				digits[digits.length - 1] = i;
+				if (calculateLuhnSum(digits) % 10 == 0) {
+					out.printf("INVALID %d%n", digits[digits.length - 1]);
+					break;
+				}
+			}
+		}
+	}
+	
+	static int[] toDigits(String str) {
+		int[] digits = new int[str.length()];
+		for (int i = 0; i < digits.length; i++) {
+			char c = str.charAt(i);
+			if (c < '0' || c > '9')
+				throw new IllegalArgumentException();
+			digits[i] = c - '0';
+		}
+		return digits;
+	}
+	
+	static int calculateLuhnSum(int[] digits) {
+		int sum = 0;
+		for (int i = 0; i < digits.length; i++) {
+			if ((i + digits.length) % 2 == 1)
+				sum += digits[i];
+			else
+				sum += digits[i] / 5 + digits[i] % 5 * 2;
+		}
+		return sum;
+	}
+	
+	
+	static String infile = "DATA11.txt"; // Specify null to use System.in
+	static String outfile = "OUT11.txt"; // Specify null to use System.out
+	
+	public static void main(String[] args) throws IOException {
+		InputStream in0;
+		if (infile != null)
+			in0 = new FileInputStream(infile);
+		else
+			in0 = System.in;
+		Reader in1 = new InputStreamReader(in0, "US-ASCII");
+		BufferedReader in = new BufferedReader(in1);
+		
+		OutputStream out0;
+		if (outfile != null)
+			out0 = new FileOutputStream(outfile);
+		else
+			out0 = System.out;
+		Writer out1 = new OutputStreamWriter(out0, "US-ASCII");
+		PrintWriter out = new PrintWriter(out1, true);
+		
+		main(in, out);
+		
+		in.close();
+		in1.close();
+		in0.close();
+		out.close();
+		out1.close();
+		out0.close();
+	}
+}

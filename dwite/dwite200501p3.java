@@ -1,39 +1,65 @@
 import java.io.*;
 
 
-public class dwite200501p3{
-
- private static String problem="31";
-
-
- private static void main(BufferedReader in,PrintWriter out) throws IOException{
-  for(int ii=0;ii<5;ii++){
-   int start=Integer.parseInt(in.readLine());
-   int end=Integer.parseInt(in.readLine());
-   int runmax=0,runcurr=0;
-   for(int i=start;i<=end;i++){
-    if(i%(i%10+i/10%10+i/100%10+i/1000%10+i/10000%10+i/100000%10+i/1000000%10)==0)runcurr++;
-    else{
-     if(runcurr>runmax)runmax=runcurr;
-     runcurr=0;}}
-   if(runcurr>runmax)runmax=runcurr;
-   out.println(runmax);}}
-
-
- public static void main(String[] arg) throws IOException{
-  Object[] streams;
-  streams=diskStreams();
-  InputStreamReader in1=new InputStreamReader((InputStream)streams[0],"US-ASCII");
-  BufferedReader in2=new BufferedReader(in1);
-  BufferedOutputStream out1=new BufferedOutputStream((OutputStream)streams[1]);
-  OutputStreamWriter out2=new OutputStreamWriter(out1,"US-ASCII");
-  PrintWriter out3=new PrintWriter(out2,true);
-  main(in2,out3);
-  in2.close();
-  in1.close();
-  out3.close();
-  out2.close();
-  out1.close();}
-
- private static Object[] diskStreams() throws IOException{
-  return new Object[]{new FileInputStream("DATA"+problem+".txt"),new FileOutputStream("OUT"+problem+".txt")};}}
+// DWITE - January 2005 - Problem 3: Harshad Numbers
+public class dwite200501p3 {
+	
+	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		for (int i = 0; i < 5; i++)
+			mainOnce(in, out);
+	}
+	
+	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		int start = Integer.parseInt(in.readLine());
+		int end = Integer.parseInt(in.readLine());
+		int runmax = 0;
+		int runcurr = 0;
+		for (int i = start; i <= end; i++) {
+			if (i % digitSum(i) == 0)
+				runcurr++;
+			else {
+				runmax = Math.max(runcurr, runmax);
+				runcurr = 0;
+			}
+		}
+		runmax = Math.max(runcurr, runmax);
+		out.println(runmax);
+	}
+	
+	static int digitSum(int n) {  // Valid for 0 <= n < 10 000 000
+		return n /       1 % 10
+		     + n /      10 % 10
+		     + n /     100 % 10
+		     + n /    1000 % 10
+		     + n /   10000 % 10
+		     + n /  100000 % 10
+		     + n / 1000000 % 10;
+	}
+	
+	
+	static String infile = "DATA31.txt";  // Specify null to use System.in
+	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	
+	public static void main(String[] args) throws IOException {
+		InputStream in0;
+		if (infile != null) in0 = new FileInputStream(infile);
+		else in0 = System.in;
+		Reader in1 = new InputStreamReader(in0, "US-ASCII");
+		BufferedReader in = new BufferedReader(in1);
+		
+		OutputStream out0;
+		if (outfile != null) out0 = new FileOutputStream(outfile);
+		else out0 = System.out;
+		Writer out1 = new OutputStreamWriter(out0, "US-ASCII");
+		PrintWriter out = new PrintWriter(out1, true);
+		
+		main(in, out);
+		
+		in.close();
+		in1.close();
+		in0.close();
+		out.close();
+		out1.close();
+		out0.close();
+	}
+}

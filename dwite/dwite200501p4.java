@@ -2,47 +2,72 @@ import java.io.*;
 import java.util.StringTokenizer;
 
 
-public class dwite200501p4{
-
- private static String problem="41";
-
-
- private static void main(BufferedReader in,PrintWriter out) throws IOException{
-  String[] month={"JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"};
-  String[] dayofweek={"SATURDAY","SUNDAY","MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"};
-  for(int ii=0;ii<5;ii++){
-   StringTokenizer st=new StringTokenizer(in.readLine()," ");
-   String ms=st.nextToken();
-   String ds=st.nextToken();
-   int y=Integer.parseInt(st.nextToken());
-   int m=-1;
-   for(int i=0;i<month.length;i++){
-    if(ms.equals(month[i]))m=i+1;}
-   if(m<=2){
-    m+=12;
-    y--;}
-   int c=y/100;
-   y%=100;
-   int d=Integer.parseInt(ds.substring(0,ds.length()-1));
-   int dw=(26*(m+1)/10+d+y+y/4+c/4-2*c)%7;
-   if(dw<0)dw+=7;
-   out.println(dayofweek[dw]);}}
-
-
- public static void main(String[] arg) throws IOException{
-  Object[] streams;
-  streams=diskStreams();
-  InputStreamReader in1=new InputStreamReader((InputStream)streams[0],"US-ASCII");
-  BufferedReader in2=new BufferedReader(in1);
-  BufferedOutputStream out1=new BufferedOutputStream((OutputStream)streams[1]);
-  OutputStreamWriter out2=new OutputStreamWriter(out1,"US-ASCII");
-  PrintWriter out3=new PrintWriter(out2,true);
-  main(in2,out3);
-  in2.close();
-  in1.close();
-  out3.close();
-  out2.close();
-  out1.close();}
-
- private static Object[] diskStreams() throws IOException{
-  return new Object[]{new FileInputStream("DATA"+problem+".txt"),new FileOutputStream("OUT"+problem+".txt")};}}
+// DWITE - January 2005 - Problem 4: Zeller's Congruence
+public class dwite200501p4 {
+	
+	static String[] months = {"JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"};
+	static String[] daysofweek = {"SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"};
+	
+	
+	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		for (int i = 0; i < 5; i++)
+			mainOnce(in, out);
+	}
+	
+	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
+		int m = getMonth(st.nextToken());
+		String daystr = st.nextToken();
+		int d = Integer.parseInt(daystr.substring(0, daystr.length() - 1));
+		int y = Integer.parseInt(st.nextToken());
+		
+		// Zeller's congruence computation
+		if (m <= 2) {
+			m += 12;
+			y--;
+		}
+		int c = y / 100;
+		y %= 100;
+		int dow = (26*(m+1)/10 + d + y + y/4 + c/4 - 2*c) % 7;
+		if (dow < 0)
+			dow += 7;
+		
+		out.println(daysofweek[dow]);
+	}
+	
+	// Returns the month number corresponding to the string, starting with January = 1.
+	static int getMonth(String s) {
+		for (int i = 0; i < months.length; i++) {
+			if (s.equals(months[i]))
+				return i + 1;
+		}
+		throw new AssertionError();
+	}
+	
+	
+	static String infile = "DATA41.txt";  // Specify null to use System.in
+	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	
+	public static void main(String[] args) throws IOException {
+		InputStream in0;
+		if (infile != null) in0 = new FileInputStream(infile);
+		else in0 = System.in;
+		Reader in1 = new InputStreamReader(in0, "US-ASCII");
+		BufferedReader in = new BufferedReader(in1);
+		
+		OutputStream out0;
+		if (outfile != null) out0 = new FileOutputStream(outfile);
+		else out0 = System.out;
+		Writer out1 = new OutputStreamWriter(out0, "US-ASCII");
+		PrintWriter out = new PrintWriter(out1, true);
+		
+		main(in, out);
+		
+		in.close();
+		in1.close();
+		in0.close();
+		out.close();
+		out1.close();
+		out0.close();
+	}
+}

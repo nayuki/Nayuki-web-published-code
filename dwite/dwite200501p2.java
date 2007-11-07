@@ -1,46 +1,85 @@
 import java.io.*;
-import java.util.StringTokenizer;
+import java.util.*;
 
 
-public class dwite200501p2{
-
- private static String problem="21";
-
-
- private static void main(BufferedReader in,PrintWriter out) throws IOException{
-  StringTokenizer st=new StringTokenizer(in.readLine()," ");
-  int h=Integer.parseInt(st.nextToken());
-  int w=Integer.parseInt(st.nextToken());
-  int[] neighbouringmine=new int[(w+2)*(h+2)];
-  int[] abcdex=new int[5],abcdey=new int[5];
-  for(int y=0;y<h;y++){
-   String line=in.readLine();
-   for(int x=0;x<w;x++){
-    char c=line.charAt(x);
-    if(c=='.');
-    else if(c=='*'){
-     for(int yy=y;yy<=y+2;yy++){
-      for(int xx=x;xx<=x+2;xx++)neighbouringmine[yy*(w+2)+xx]++;}}
-    else{
-     abcdex[c-'a']=x;
-     abcdey[c-'a']=y;}}}
-  for(int i=0;i<5;i++)out.println((char)('a'+i)+"-"+neighbouringmine[(abcdey[i]+1)*(w+2)+abcdex[i]+1]);}
-
-
- public static void main(String[] arg) throws IOException{
-  Object[] streams;
-  streams=diskStreams();
-  InputStreamReader in1=new InputStreamReader((InputStream)streams[0],"US-ASCII");
-  BufferedReader in2=new BufferedReader(in1);
-  BufferedOutputStream out1=new BufferedOutputStream((OutputStream)streams[1]);
-  OutputStreamWriter out2=new OutputStreamWriter(out1,"US-ASCII");
-  PrintWriter out3=new PrintWriter(out2,true);
-  main(in2,out3);
-  in2.close();
-  in1.close();
-  out3.close();
-  out2.close();
-  out1.close();}
-
- private static Object[] diskStreams() throws IOException{
-  return new Object[]{new FileInputStream("DATA"+problem+".txt"),new FileOutputStream("OUT"+problem+".txt")};}}
+// DWITE - January 2005 - Problem 2: Minesweeper
+public class dwite200501p2 {
+	
+	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
+		int h = Integer.parseInt(st.nextToken());
+		int w = Integer.parseInt(st.nextToken());
+		int[][] neighbouringmines = new int[h + 2][w + 2];
+		Map<Character,Point> queries = new HashMap<Character,Point>();
+		for (int y = 0; y < h; y++) {
+			String line = in.readLine();
+			for (int x = 0; x < w; x++) {
+				char c = line.charAt(x);
+				if (c == '.') ;
+				else if (c == '*')
+					incrementNeighbours(neighbouringmines, x, y);
+				else if (c >= 'a' && c <= 'z')
+					queries.put(c, new Point(x, y));
+				else
+					throw new AssertionError();
+			}
+		}
+		
+		SortedSet<Character> querykeys = new TreeSet<Character>(queries.keySet());
+		for (Character key : querykeys) {
+			Point p = queries.get(key);
+			out.printf("%c-%d%n", key, neighbouringmines[p.y + 1][p.x + 1]);
+		}
+	}
+	
+	static void incrementNeighbours(int[][] neighmines, int x, int y) {  // Uses the Moore neighbourhood
+		for (int yy = y - 1; yy <= y+1; yy++) {
+			for (int xx = x - 1; xx <= x+1; xx++) {
+				if (xx != x || yy != y)
+					neighmines[yy + 1][xx + 1]++;
+			}
+		}
+	}
+	
+	
+	static String infile = "DATA21.txt";  // Specify null to use System.in
+	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
+	public static void main(String[] args) throws IOException {
+		InputStream in0;
+		if (infile != null) in0 = new FileInputStream(infile);
+		else in0 = System.in;
+		Reader in1 = new InputStreamReader(in0, "US-ASCII");
+		BufferedReader in = new BufferedReader(in1);
+		
+		OutputStream out0;
+		if (outfile != null) out0 = new FileOutputStream(outfile);
+		else out0 = System.out;
+		Writer out1 = new OutputStreamWriter(out0, "US-ASCII");
+		PrintWriter out = new PrintWriter(out1, true);
+		
+		main(in, out);
+		
+		in.close();
+		in1.close();
+		in0.close();
+		out.close();
+		out1.close();
+		out0.close();
+	}
+	
+	
+	
+	static class Point {
+		
+		int x;
+		int y;
+		
+		
+		Point(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+		
+	}
+}
