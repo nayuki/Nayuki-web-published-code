@@ -14,16 +14,11 @@ public class dwite200411p5 {
 		int wind = Integer.parseInt(in.readLine());  // Variable V10metre
 		long wct = Math.round(13.12 + 0.6215 * temp - 11.37 * Math.pow(wind, 0.16) + 0.3965 * temp * Math.pow(wind, 0.16));
 		String rating;
-		if (wct > -10)
-			rating = "LOW";
-		else if (wct > -25)
-			rating = "MODERATE";
-		else if (wct > -45)
-			rating = "COLD";
-		else if (wct > -60)
-			rating = "EXTREME";
-		else
-			rating = "DANGER";
+		if (wct > -10)      rating = "LOW";
+		else if (wct > -25) rating = "MODERATE";
+		else if (wct > -45) rating = "COLD";
+		else if (wct > -60) rating = "EXTREME";
+		else                rating = "DANGER";
 		out.printf("%d %s%n", wct, rating);
 	}
 	

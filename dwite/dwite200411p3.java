@@ -157,9 +157,9 @@ public class dwite200411p3 {
 			return new Polynomial(coef);
 		}
 	}
-
-
-
+	
+	
+	
 	static class Fraction {
 		
 		int num;

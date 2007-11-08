@@ -13,11 +13,10 @@ public class dwite200410p2 {
 		String line = in.readLine();
 		int hour = Integer.parseInt(line.substring(0, 2));
 		String ap;
-		if (hour < 12)
-			ap = "AM";
-		else
-			ap = "PM";
-		out.printf("%d:%s %s%n", (hour + 11) % 12 + 1, line.substring(3, 5), ap);
+		if (hour < 12) ap = "AM";
+		else           ap = "PM";
+		hour = (hour + 11) % 12 + 1;  // Convert hour from [0, 24) to [1, 12] branchlessly using modular arithmetic magic
+		out.printf("%d:%s %s%n", hour, line.substring(3, 5), ap);
 	}
 	
 	

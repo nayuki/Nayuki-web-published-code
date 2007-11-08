@@ -12,23 +12,14 @@ public class dwite200502p2 {
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
-		int h = Integer.parseInt(st.nextToken());
-		int w = Integer.parseInt(st.nextToken());
-		int[][] grid = new int[h + 2][w + 2];
-		for (int y = 0; y < grid.length; y++) {  // Fill the grid with '.'
-			for (int x = 0; x < grid[y].length; x++)
-				grid[y][x] = '.';
-		}
-		for (int y = 0; y < h; y++) {  // Fill the inner part of the grid from the input
-			String s = in.readLine();
-			for (int x = 0; x < w; x++)
-				grid[y + 1][x + 1] = s.charAt(x);
-		}
+		int height = Integer.parseInt(st.nextToken());
+		int width = Integer.parseInt(st.nextToken());
+		char[][] grid = readGridAndPad(in, width, height, '.');
 		
 		int maxcoiled = 0;
 		int maxuncoiled = 0;
-		for (int y = 1; y <= h; y++) {
-			for (int x = 1; x <= w; x++) {
+		for (int y = 1; y <= height; y++) {
+			for (int x = 1; x <= width; x++) {
 				int temp = markSnakeAndGetLength(grid, x, y);
 				if (isCurrentSnakeCoiled(grid))
 					maxcoiled = Math.max(temp, maxcoiled);
@@ -41,7 +32,7 @@ public class dwite200502p2 {
 	}
 	
 	
-	static boolean isCurrentSnakeCoiled(int[][] grid) {
+	static boolean isCurrentSnakeCoiled(char[][] grid) {
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[y].length - 1; x++) {
 				if (grid[y][x] == 'O' && countCurrentNeighbours(grid, x, y) >= 3)
@@ -51,7 +42,7 @@ public class dwite200502p2 {
 		return false;
 	}
 	
-	static int markSnakeAndGetLength(int[][] grid, int x, int y) {
+	static int markSnakeAndGetLength(char[][] grid, int x, int y) {
 		if (grid[y][x] != 'X')
 			return 0;
 		int count = 1;
@@ -67,7 +58,7 @@ public class dwite200502p2 {
 		return count;
 	}
 	
-	static int countCurrentNeighbours(int[][] grid, int x, int y) {
+	static int countCurrentNeighbours(char[][] grid, int x, int y) {
 		int count = 0;
 		if (grid[y - 1][x - 1] == 'O') count++;
 		if (grid[y - 1][x + 0] == 'O') count++;
@@ -80,13 +71,29 @@ public class dwite200502p2 {
 		return count;
 	}
 	
-	static void clearCurrentSnake(int[][] grid) {
+	static void clearCurrentSnake(char[][] grid) {
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[y].length - 1; x++) {
 				if (grid[y][x] == 'O')
 					grid[y][x] = '.';
 			}
 		}
+	}
+	
+	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
+		char[][] map = new char[height + 2][width + 2];
+		for (int y = 1; y <= height; y++) {
+			String line = in.readLine();
+			for (int x = 1; x <= width; x++)
+				map[y][x] = line.charAt(x - 1);
+			map[y][0] = border;
+			map[y][width + 1] = border;
+		}
+		for (int x = 0; x < width + 2; x++) {
+			map[0][x] = border;
+			map[height + 1][x] = border;
+		}
+		return map;
 	}
 	
 	

@@ -32,23 +32,19 @@ public class dwite200410p4 {
 	}
 	
 	
-	static String infile = "DATA4"; // Specify null to use System.in
-	static String outfile = "OUT4"; // Specify null to use System.out
+	static String infile = "DATA4";  // Specify null to use System.in
+	static String outfile = "OUT4";  // Specify null to use System.out
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
-		if (infile != null)
-			in0 = new FileInputStream(infile);
-		else
-			in0 = System.in;
+		if (infile != null) in0 = new FileInputStream(infile);
+		else in0 = System.in;
 		Reader in1 = new InputStreamReader(in0, "US-ASCII");
 		BufferedReader in = new BufferedReader(in1);
 		
 		OutputStream out0;
-		if (outfile != null)
-			out0 = new FileOutputStream(outfile);
-		else
-			out0 = System.out;
+		if (outfile != null) out0 = new FileOutputStream(outfile);
+		else out0 = System.out;
 		Writer out1 = new OutputStreamWriter(out0, "US-ASCII");
 		PrintWriter out = new PrintWriter(out1, true);
 		
