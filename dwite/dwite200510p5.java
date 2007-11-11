@@ -35,6 +35,7 @@ public class dwite200510p5 {
 	}
 	
 	static void permute(int[] array, int perm) {
+		// A modification of the Knuth shuffle
 		for (int i = array.length - 1; i >= 0; i--) {
 			int temp = array[i];
 			array[i] = array[perm % (i + 1)];
@@ -45,8 +46,8 @@ public class dwite200510p5 {
 	
 	static int factorial(int x) {
 		int prod = 1;
-		for (; x >= 2; x--)
-			prod *= x;
+		for (int i = 1; i <= x; i++)
+			prod *= i;
 		return prod;
 	}
 	
@@ -76,4 +77,5 @@ public class dwite200510p5 {
 		out1.close();
 		out0.close();
 	}
+	
 }

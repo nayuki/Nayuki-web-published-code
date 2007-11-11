@@ -1,40 +1,60 @@
 import java.io.*;
 
 
-public class dwite200602p2{
-
- private static String problem="21";
- private static boolean DEBUGIN =false;
- private static boolean DEBUGOUT=false;
-
-
- private static void main(BufferedReader in,PrintWriter out) throws IOException{
-  boolean[] possible=new boolean[1441];
-  possible[0]=true;
-  int n=Integer.parseInt(in.readLine());
-  for(int i=0;i<n;i++){
-   int size=Integer.parseInt(in.readLine());
-   for(int j=possible.length-1;j>=0;j--){
-    if(possible[j]&&j+size<possible.length)possible[j+size]=true;}}
-  for(int i=possible.length-1;i>=0;i--){
-   if(possible[i]){
-    out.println(1440-i);
-    break;}}}
-
-
- public static void main(String[] arg) throws IOException{
-  InputStream  in0 =DEBUGIN ?System.in :new FileInputStream("DATA"+problem+".txt");
-  OutputStream out0=DEBUGOUT?System.out:new FileOutputStream("OUT"+problem+".txt");
-  InputStreamReader in1=new InputStreamReader(in0,"US-ASCII");
-  BufferedReader in2=new BufferedReader(in1);
-  BufferedOutputStream out1=new BufferedOutputStream(out0);
-  OutputStreamWriter out2=new OutputStreamWriter(out1,"US-ASCII");
-  PrintWriter out3=new PrintWriter(out2,true);
-  for(int i=0;i<5;i++)main(in2,out3);
-  in2.close();
-  in1.close();
-  in0.close();
-  out3.close();
-  out2.close();
-  out1.close();
-  out0.close();}}
+// DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
+public class dwite200602p2 {
+	
+	static final int CAPACITY = 1440;
+	
+	
+	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		for (int i = 0; i < 5; i++)
+			mainOnce(in, out);
+	}
+	
+	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		boolean[] possible = new boolean[CAPACITY + 1];
+		possible[0] = true;
+		int n = Integer.parseInt(in.readLine());
+		for (int i = 0; i < n; i++) {
+			int size = Integer.parseInt(in.readLine());
+			for (int j = CAPACITY - size; j >= 0; j--)
+				possible[j + size] |= possible[j];
+		}
+		
+		for (int i = CAPACITY; i >= 0; i--) {
+			if (possible[i]) {  // Guaranteed to execute before loop ends
+				out.println(CAPACITY - i);
+				break;
+			}
+		}
+	}
+	
+	
+	static String infile = "DATA21.txt";  // Specify null to use System.in
+	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
+	public static void main(String[] args) throws IOException {
+		InputStream in0;
+		if (infile != null) in0 = new FileInputStream(infile);
+		else in0 = System.in;
+		Reader in1 = new InputStreamReader(in0, "US-ASCII");
+		BufferedReader in = new BufferedReader(in1);
+		
+		OutputStream out0;
+		if (outfile != null) out0 = new FileOutputStream(outfile);
+		else out0 = System.out;
+		Writer out1 = new OutputStreamWriter(out0, "US-ASCII");
+		PrintWriter out = new PrintWriter(out1, true);
+		
+		main(in, out);
+		
+		in.close();
+		in1.close();
+		in0.close();
+		out.close();
+		out1.close();
+		out0.close();
+	}
+	
+}

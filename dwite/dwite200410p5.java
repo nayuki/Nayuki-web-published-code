@@ -22,10 +22,8 @@ public class dwite200410p5 {
 		int carry = 0;
 		for (int i = 0; i < Math.max(x.length(), y.length()); i++) {
 			int sum = carry;
-			if (i < x.length())
-				sum += x.charAt(x.length() - 1 - i) - '0';
-			if (i < y.length())
-				sum += y.charAt(y.length() - 1 - i) - '0';
+			if (i < x.length()) sum += x.charAt(x.length() - 1 - i) - '0';
+			if (i < y.length()) sum += y.charAt(y.length() - 1 - i) - '0';
 			sb.insert(0, sum % 10);
 			carry = sum / 10;
 		}
@@ -60,4 +58,5 @@ public class dwite200410p5 {
 		out1.close();
 		out0.close();
 	}
+	
 }

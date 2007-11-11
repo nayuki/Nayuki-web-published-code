@@ -12,29 +12,17 @@ public class dwite200502p3 {
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
 		int d = Integer.parseInt(in.readLine());
-		int gcd = gcd(n, d);
-		n /= gcd;
-		d /= gcd;
 		do {
-			int q = n / d;
-			out.print(q);
-			q = n - q * d;
-			if (q == 0)
+			out.print(n / d);  // Output whole part
+			n %= d;  // Take fractional part
+			if (n == 0)
 				break;
+			int temp = n;  // Reciprocate
 			n = d;
-			d = q;
+			d = temp;
 			out.print(",");
 		} while (true);
 		out.println();
-	}
-	
-	static int gcd(int x, int y) {
-		while (y != 0) {
-			int z = x % y;
-			x = y;
-			y = z;
-		}
-		return x;
 	}
 	
 	
@@ -63,4 +51,5 @@ public class dwite200502p3 {
 		out1.close();
 		out0.close();
 	}
+	
 }

@@ -14,7 +14,7 @@ public class dwite200510p3 {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int a = Integer.parseInt(st.nextToken());
 		int b = Integer.parseInt(st.nextToken());
-		if (a > b) {
+		if (a > b) {  // Let a be smaller than or equal to b
 			int tp = a;
 			a = b;
 			b = tp;
@@ -30,7 +30,7 @@ public class dwite200510p3 {
 			if (a != b)
 				sb.append("+");
 		}
-
+		
 		out.printf("%s=%d%n", sb, sum);
 	}
 	
@@ -60,4 +60,5 @@ public class dwite200510p3 {
 		out1.close();
 		out0.close();
 	}
+	
 }

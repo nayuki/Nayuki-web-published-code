@@ -31,7 +31,6 @@ public class dwite200502p2 {
 		out.println(maxcoiled + " " + maxuncoiled);
 	}
 	
-	
 	static boolean isCurrentSnakeCoiled(char[][] grid) {
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[y].length - 1; x++) {
@@ -80,6 +79,7 @@ public class dwite200502p2 {
 		}
 	}
 	
+	
 	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
 		char[][] map = new char[height + 2][width + 2];
 		for (int y = 1; y <= height; y++) {
@@ -122,4 +122,5 @@ public class dwite200502p2 {
 		out1.close();
 		out0.close();
 	}
+	
 }

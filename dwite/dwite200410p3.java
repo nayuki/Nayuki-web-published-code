@@ -51,7 +51,7 @@ public class dwite200410p3 {
 	
 	
 	static class Student implements Comparable<Student> {
-
+		
 		String name;
 		double height;  // In millimetres
 		
@@ -69,7 +69,7 @@ public class dwite200410p3 {
 			else
 				throw new AssertionError();
 		}
-
+		
 		
 		public int compareTo(Student s) {  // Compares by descending height, then by ascending name
 			if (height != s.height)
@@ -77,5 +77,7 @@ public class dwite200410p3 {
 			else
 				return name.compareTo(s.name);
 		}
+		
 	}
+	
 }

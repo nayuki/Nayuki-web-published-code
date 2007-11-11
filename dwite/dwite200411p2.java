@@ -3,7 +3,7 @@ import java.io.*;
 
 // DWITE - November 2004 - Problem 2: Squareland
 public class dwite200411p2 {
-
+	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
@@ -54,4 +54,5 @@ public class dwite200411p2 {
 		out1.close();
 		out0.close();
 	}
+	
 }

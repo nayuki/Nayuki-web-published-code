@@ -2,47 +2,62 @@ import java.io.*;
 import java.util.StringTokenizer;
 
 
-public class dwite200602p1{
-
- private static String problem="11";
- private static boolean DEBUGIN =false;
- private static boolean DEBUGOUT=false;
-
-
- private static int[] px,py;
-
- private static void main(BufferedReader in,PrintWriter out) throws IOException{
-  StringTokenizer st=new StringTokenizer(in.readLine()," ");
-  int x1=Integer.parseInt(st.nextToken());
-  int y1=Integer.parseInt(st.nextToken());
-  int x2=Integer.parseInt(st.nextToken());
-  int y2=Integer.parseInt(st.nextToken());
-  int n=0;
-  for(int i=0;i<px.length;i++){
-   if((px[i]-x1)*(py[i]-y2)==(px[i]-x2)*(py[i]-y1))n++;}
-  out.println(n);}
-
-
- public static void main(String[] arg) throws IOException{
-  InputStream  in0 =DEBUGIN ?System.in :new FileInputStream("DATA"+problem+".txt");
-  OutputStream out0=DEBUGOUT?System.out:new FileOutputStream("OUT"+problem+".txt");
-  InputStreamReader in1=new InputStreamReader(in0,"US-ASCII");
-  BufferedReader in2=new BufferedReader(in1);
-  BufferedOutputStream out1=new BufferedOutputStream(out0);
-  OutputStreamWriter out2=new OutputStreamWriter(out1,"US-ASCII");
-  PrintWriter out3=new PrintWriter(out2,true);
-  int n=Integer.parseInt(in2.readLine());
-  px=new int[n];
-  py=new int[n];
-  for(int i=0;i<n;i++){
-   StringTokenizer st=new StringTokenizer(in2.readLine()," ");
-   px[i]=Integer.parseInt(st.nextToken());
-   py[i]=Integer.parseInt(st.nextToken());}
-  for(int i=0;i<5;i++)main(in2,out3);
-  in2.close();
-  in1.close();
-  in0.close();
-  out3.close();
-  out2.close();
-  out1.close();
-  out0.close();}}
+// DWITE - February 2006 - Problem 1: Points on a Line
+public class dwite200602p1 {
+	
+	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		int n = Integer.parseInt(in.readLine());
+		int[] px = new int[n];
+		int[] py = new int[n];
+		for (int i = 0; i < n; i++) {
+			StringTokenizer st = new StringTokenizer(in.readLine(), " ");
+			px[i] = Integer.parseInt(st.nextToken());
+			py[i] = Integer.parseInt(st.nextToken());
+		}
+		
+		for (int i = 0; i < 5; i++)
+			mainOnce(in, out, px, py);
+	}
+	
+	static void mainOnce(BufferedReader in, PrintWriter out, int[] px, int[] py) throws IOException {
+		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
+		int x1 = Integer.parseInt(st.nextToken());
+		int y1 = Integer.parseInt(st.nextToken());
+		int x2 = Integer.parseInt(st.nextToken());
+		int y2 = Integer.parseInt(st.nextToken());
+		int count = 0;
+		for (int i = 0; i < px.length; i++) {
+			if ((px[i]-x1) * (py[i]-y2) == (px[i]-x2) * (py[i]-y1))
+				count++;
+		}
+		out.println(count);
+	}
+	
+	
+	static String infile = "DATA21.txt";  // Specify null to use System.in
+	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
+	public static void main(String[] args) throws IOException {
+		InputStream in0;
+		if (infile != null) in0 = new FileInputStream(infile);
+		else in0 = System.in;
+		Reader in1 = new InputStreamReader(in0, "US-ASCII");
+		BufferedReader in = new BufferedReader(in1);
+		
+		OutputStream out0;
+		if (outfile != null) out0 = new FileOutputStream(outfile);
+		else out0 = System.out;
+		Writer out1 = new OutputStreamWriter(out0, "US-ASCII");
+		PrintWriter out = new PrintWriter(out1, true);
+		
+		main(in, out);
+		
+		in.close();
+		in1.close();
+		in0.close();
+		out.close();
+		out1.close();
+		out0.close();
+	}
+	
+}

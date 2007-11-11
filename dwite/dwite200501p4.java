@@ -6,7 +6,7 @@ import java.util.StringTokenizer;
 public class dwite200501p4 {
 	
 	static String[] months = {"JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"};
-	static String[] daysofweek = {"SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"};
+	static String[] daysOfWeek = {"SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"};
 	
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
@@ -32,7 +32,7 @@ public class dwite200501p4 {
 		if (dow < 0)
 			dow += 7;
 		
-		out.println(daysofweek[dow]);
+		out.println(daysOfWeek[dow]);
 	}
 	
 	// Returns the month number corresponding to the string, starting with January = 1.
@@ -70,4 +70,5 @@ public class dwite200501p4 {
 		out1.close();
 		out0.close();
 	}
+	
 }

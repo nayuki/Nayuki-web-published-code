@@ -39,6 +39,7 @@ public class dwite200412p2 {
 		return sum;
 	}
 	
+	
 	static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
@@ -75,4 +76,5 @@ public class dwite200412p2 {
 		out1.close();
 		out0.close();
 	}
+	
 }

@@ -12,18 +12,18 @@ public class dwite200501p3 {
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int start = Integer.parseInt(in.readLine());
 		int end = Integer.parseInt(in.readLine());
-		int runmax = 0;
-		int runcurr = 0;
+		int longestrun = 0;
+		int currentrun = 0;
 		for (int i = start; i <= end; i++) {
 			if (i % digitSum(i) == 0)
-				runcurr++;
+				currentrun++;
 			else {
-				runmax = Math.max(runcurr, runmax);
-				runcurr = 0;
+				longestrun = Math.max(currentrun, longestrun);
+				currentrun = 0;
 			}
 		}
-		runmax = Math.max(runcurr, runmax);
-		out.println(runmax);
+		longestrun = Math.max(currentrun, longestrun);
+		out.println(longestrun);
 	}
 	
 	static int digitSum(int n) {  // Valid for 0 <= n < 10 000 000
@@ -62,4 +62,5 @@ public class dwite200501p3 {
 		out1.close();
 		out0.close();
 	}
+	
 }

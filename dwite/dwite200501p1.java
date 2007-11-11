@@ -64,19 +64,11 @@ public class dwite200501p1 {
 		
 		public int compareTo(Golfer g) {
 			if (score != g.score)
-				return compare(score, g.score);
+				return score - g.score;
 			else
 				return name.compareTo(g.name);
 		}
 		
-		
-		static int compare(int x, int y) {
-			if (x < y)
-				return -1;
-			else if (x > y)
-				return 1;
-			else
-				return 0;
-		}
 	}
+	
 }

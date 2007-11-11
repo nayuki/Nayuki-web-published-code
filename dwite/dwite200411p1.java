@@ -11,19 +11,31 @@ public class dwite200411p1 {
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int[] digits = toDigits(in.readLine());
-		int sum = calculateLuhnSum(digits);
+		int sum = getLuhnSum(digits);
 		if (sum % 10 == 0)
 			out.println("VALID");
 		else {
 			for (int i = 0; i < 10; i++) {  // Try all values for last digit
 				digits[digits.length - 1] = i;
-				if (calculateLuhnSum(digits) % 10 == 0) {
+				if (getLuhnSum(digits) % 10 == 0) {
 					out.printf("INVALID %d%n", digits[digits.length - 1]);
 					break;
 				}
 			}
 		}
 	}
+	
+	static int getLuhnSum(int[] digits) {
+		int sum = 0;
+		for (int i = 0; i < digits.length; i++) {
+			if ((i + digits.length) % 2 == 1)
+				sum += digits[i];
+			else
+				sum += digits[i] / 5 + digits[i] % 5 * 2;
+		}
+		return sum;
+	}
+	
 	
 	static int[] toDigits(String str) {
 		int[] digits = new int[str.length()];
@@ -34,17 +46,6 @@ public class dwite200411p1 {
 			digits[i] = c - '0';
 		}
 		return digits;
-	}
-	
-	static int calculateLuhnSum(int[] digits) {
-		int sum = 0;
-		for (int i = 0; i < digits.length; i++) {
-			if ((i + digits.length) % 2 == 1)
-				sum += digits[i];
-			else
-				sum += digits[i] / 5 + digits[i] % 5 * 2;
-		}
-		return sum;
 	}
 	
 	
@@ -73,4 +74,5 @@ public class dwite200411p1 {
 		out1.close();
 		out0.close();
 	}
+	
 }

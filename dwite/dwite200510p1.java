@@ -26,7 +26,6 @@ public class dwite200510p1 {
 		out.printf("%s %d%n", toString(r2), diff);
 	}
 	
-	
 	static int[] solveSlow(int n1, int d2, int[] r2) {
 		while (countOccurrences(r2, d2) != n1)
 			increment(r2, r2.length - 1);
@@ -66,7 +65,6 @@ public class dwite200510p1 {
 		return r2;
 	}
 	
-	
 	static int countOccurrences(int[] digits, int digit) {
 		int count = 0;
 		for (int i = 0; i < digits.length; i++) {
@@ -90,13 +88,6 @@ public class dwite200510p1 {
 		}
 	}
 	
-	static int[] toDigits(String s) {
-		int[] digits = new int[s.length()];
-		for (int i = 0; i < digits.length; i++)
-			digits[i] = s.charAt(i) - '0';
-		return digits;
-	}
-	
 	static BigInteger toNumber(int[] digits) {
 		final BigInteger TEN = BigInteger.valueOf(10);
 		BigInteger sum = BigInteger.ZERO;
@@ -112,6 +103,14 @@ public class dwite200510p1 {
 		for (int i = 0; i < digits.length; i++)
 			sb.append((char)('0' + digits[i]));
 		return sb.toString();
+	}
+	
+	
+	static int[] toDigits(String s) {
+		int[] digits = new int[s.length()];
+		for (int i = 0; i < digits.length; i++)
+			digits[i] = s.charAt(i) - '0';
+		return digits;
 	}
 	
 	
@@ -140,4 +139,5 @@ public class dwite200510p1 {
 		out1.close();
 		out0.close();
 	}
+	
 }

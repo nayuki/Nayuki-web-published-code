@@ -2,12 +2,24 @@ import java.io.*;
 
 
 // DWITE - December 2004 - Problem 4: Waring's Prime Number Conjecture
-public class dwite200412p4 { // FIXME
+public class dwite200412p4 {
 	
 	static boolean[] isPrime;
+	static int[] primes;
+	static int primesLength;
 	
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		isPrime = sievePrimes(99999);
+		primes = new int[isPrime.length];
+		primesLength = 0;
+		for (int i = 0; i < isPrime.length; i++) {
+			if (isPrime[i]) {
+				primes[primesLength] = i;
+				primesLength++;
+			}
+		}
+		
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
 	}
@@ -16,13 +28,14 @@ public class dwite200412p4 { // FIXME
 		int n = Integer.parseInt(in.readLine());
 		if (isPrime[n])
 			out.println("PRIME");
-		// else out.println(countSums(n,3,0));
-		// else out.println(countSumsSemifast(n,3,0,0));
 		else
+			// out.println(countSums(n, 3, 0));
+			// out.println(countSumsSemifast(n, 3, 0, 0));
 			out.println(countSumsFast(n));
 	}
 	
-	static int countSums(int sum, int terms, int minimum) { // Returns the number of unordered sums that add up to 'sum' with exactly 'terms' prime terms, each of which is at least 'minimum'.
+	// Returns the number of unordered sums that add up to 'sum' with exactly 'terms' prime terms, each of which is at least 'minimum'.
+	static int countSums(int sum, int terms, int minimum) {
 		if (terms == 1) {
 			if (isPrime[sum] && sum >= minimum)
 				return 1;
@@ -38,20 +51,8 @@ public class dwite200412p4 { // FIXME
 		}
 	}
 	
-	static int[] primes;
-	static int primesLength;
-	
-	static int countSumsSemifast(int sum, int terms, int minimum, int minimumIndex) { // Assumed: primes[minimumIndex] >= minimum
-		if (primes == null) {
-			primes = new int[isPrime.length];
-			primesLength = 0;
-			for (int i = 0; i < isPrime.length; i++) {
-				if (isPrime[i]) {
-					primes[primesLength] = i;
-					primesLength++;
-				}
-			}
-		}
+	// Assumes that primes[minimumIndex] >= minimum.
+	static int countSumsSemifast(int sum, int terms, int minimum, int minimumIndex) {
 		if (terms == 1) {
 			if (isPrime[sum] && sum >= minimum)
 				return 1;
@@ -65,45 +66,37 @@ public class dwite200412p4 { // FIXME
 		}
 	}
 	
+	// Hard-coded for 3-term sums.
 	static int countSumsFast(int sum) {
-		if (primes == null) {
-			primes = new int[isPrime.length];
-			primesLength = 0;
-			for (int i = 0; i < isPrime.length; i++) {
-				if (isPrime[i]) {
-					primes[primesLength] = i;
-					primesLength++;
-				}
-			}
-		}
 		int count = 0;
 		for (int i = 0, iend = sum / 3; i < primesLength && primes[i] <= iend; i++) {
 			int temp = sum - primes[i];
 			for (int j = i, jend = temp / 2; j < primesLength && primes[j] <= jend; j++) {
+				// temp-primes[j] >= primes[j] because of jend
 				if (isPrime[temp - primes[j]])
 					count++;
 			}
-		} // Implicit: temp-primes[j] >= primes[j] (because of jend)
+		}
 		return count;
 	}
 	
 	
-	static boolean[] sievePrime(int n) {
-		boolean[] prime = new boolean[n + 1];
+	static boolean[] sievePrimes(int n) {
+		boolean[] isPrime = new boolean[n + 1];
 		if (n >= 2)
-			prime[2] = true;
+			isPrime[2] = true;
 		for (int i = 3; i <= n; i += 2)
-			prime[i] = true;
-		for (int i = 3, e = sqrt(n); i <= e; i += 2) {
-			if (prime[i]) {
+			isPrime[i] = true;
+		for (int i = 3, end = sqrt(n); i <= end; i += 2) {
+			if (isPrime[i]) {
 				for (int j = i * 3; j <= n; j += i << 1)
-					prime[j] = false;
+					isPrime[j] = false;
 			}
 		}
-		return prime;
+		return isPrime;
 	}
 	
-	private static int sqrt(int x) {
+	static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
 			y |= 1 << i;
@@ -139,4 +132,5 @@ public class dwite200412p4 { // FIXME
 		out1.close();
 		out0.close();
 	}
+	
 }

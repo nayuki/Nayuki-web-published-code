@@ -50,4 +50,5 @@ public class dwite200501p5 {
 		out1.close();
 		out0.close();
 	}
+	
 }

@@ -31,7 +31,7 @@ public class dwite200412p5 {
 			out.println("NO PROVINCE FOUND");
 	}
 	
-	static String process(String s) {
+	static String process(String s) {  // Converts to lowercase and strips all non-letters
 		return s.toLowerCase().replaceAll("[^a-z]", "");
 	}
 	
@@ -61,4 +61,5 @@ public class dwite200412p5 {
 		out1.close();
 		out0.close();
 	}
+	
 }

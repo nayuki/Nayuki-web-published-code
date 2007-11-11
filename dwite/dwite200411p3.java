@@ -59,6 +59,7 @@ public class dwite200411p3 {
 		return null;
 	}
 	
+	
 	static int gcd(int x, int y) {
 		while (y != 0) {
 			int z = x % y;
@@ -156,6 +157,27 @@ public class dwite200411p3 {
 			}
 			return new Polynomial(coef);
 		}
+		
+		
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			boolean initial = true;
+			for (int i = getDegree(); i >= 0; i--) {
+				if (initial) {
+					if (getCoefficient(i) < 0)
+						sb.append("-");
+					initial = false;
+				} else {
+					if (getCoefficient(i) >= 0)
+						sb.append(" + ");
+					else
+						sb.append(" - ");
+				}
+				sb.append(Math.abs(getCoefficient(i))).append(" x^").append(i);
+			}
+			return sb.toString();
+		}
+		
 	}
 	
 	
@@ -202,5 +224,7 @@ public class dwite200411p3 {
 			num /= gcd;
 			denom /= gcd;
 		}
+		
 	}
+	
 }

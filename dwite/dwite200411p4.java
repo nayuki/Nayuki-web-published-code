@@ -42,11 +42,12 @@ public class dwite200411p4 {
 	}
 	
 	static int executeOnce(int sum, int i, List<String> formula) {
+		// Dijkstra's shunting yard algorithm
 		Stack<Integer> operands = new Stack<Integer>();
 		Stack<Character> operators = new Stack<Character>();
 		for (String token : formula) {
 			// Operators
-			if (token.equals("+") || token.equals("-") || token.equals("*") || token.equals("\\")) {
+			if (isOperator(token)) {
 				while (!operators.empty() && canEvaluate(operators.peek(), token.charAt(0))) {
 					int y = operands.pop();
 					int x = operands.pop();
@@ -101,6 +102,13 @@ public class dwite200411p4 {
 		}
 	}
 	
+	static boolean isOperator(String s) {
+		return s.equals("+")
+		    || s.equals("-")
+		    || s.equals("*")
+		    || s.equals("\\");
+	}
+	
 	
 	static String infile = "DATA41.txt";  // Specify null to use System.in
 	static String outfile = "OUT41.txt";  // Specify null to use System.out
@@ -127,4 +135,5 @@ public class dwite200411p4 {
 		out1.close();
 		out0.close();
 	}
+	
 }
