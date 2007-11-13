@@ -1,11 +1,8 @@
 import java.io.*;
 
 
-// DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
-public class dwite200602p2 {
-	
-	static final int CAPACITY = 1440;
-	
+// DWITE - January 2007 - Problem 1: Filling The Cone
+public class dwite200701p1 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
@@ -13,27 +10,15 @@ public class dwite200602p2 {
 	}
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		// Subset sum problem using dynamic programming
-		boolean[] possible = new boolean[CAPACITY + 1];
-		possible[0] = true;
-		int n = Integer.parseInt(in.readLine());
-		for (int i = 0; i < n; i++) {
-			int filesize = Integer.parseInt(in.readLine());
-			for (int j = CAPACITY - filesize; j >= 0; j--)
-				possible[j + filesize] |= possible[j];
-		}
-		
-		for (int i = CAPACITY; i >= 0; i--) {
-			if (possible[i]) {  // Guaranteed to execute before loop ends
-				out.println(CAPACITY - i);
-				break;
-			}
-		}
+		double height = Double.parseDouble(in.readLine());
+		double radius = Double.parseDouble(in.readLine());
+		double watervolume = Double.parseDouble(in.readLine());
+		out.printf("%.2f%n", Math.cbrt(watervolume / (Math.PI * radius * radius * height / 3)) * height);
 	}
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	static String infile = "DATA11.txt";  // Specify null to use System.in
+	static String outfile = "OUT11.txt";  // Specify null to use System.out
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

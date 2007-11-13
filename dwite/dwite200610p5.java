@@ -1,11 +1,9 @@
 import java.io.*;
+import java.math.BigInteger;
 
 
-// DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
-public class dwite200602p2 {
-	
-	static final int CAPACITY = 1440;
-	
+// DWITE - October 2006 - Problem 5: Bad Input II
+public class dwite200610p5 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
@@ -13,27 +11,28 @@ public class dwite200602p2 {
 	}
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		// Subset sum problem using dynamic programming
-		boolean[] possible = new boolean[CAPACITY + 1];
-		possible[0] = true;
-		int n = Integer.parseInt(in.readLine());
-		for (int i = 0; i < n; i++) {
-			int filesize = Integer.parseInt(in.readLine());
-			for (int j = CAPACITY - filesize; j >= 0; j--)
-				possible[j + filesize] |= possible[j];
+		BigInteger x = new BigInteger(sanitizeUsingRegex(in.readLine()));
+		BigInteger y = new BigInteger(sanitizeUsingRegex(in.readLine()));
+		out.println(x.add(y));
+	}
+	
+	static String sanitize(String s) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c >= '0' && c <= '9')
+				sb.append(c);
 		}
-		
-		for (int i = CAPACITY; i >= 0; i--) {
-			if (possible[i]) {  // Guaranteed to execute before loop ends
-				out.println(CAPACITY - i);
-				break;
-			}
-		}
+		return sb.toString();
+	}
+	
+	static String sanitizeUsingRegex(String s) {
+		return s.replaceAll("[^0-9]", "");
 	}
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	static String infile = "DATA51.txt";  // Specify null to use System.in
+	static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

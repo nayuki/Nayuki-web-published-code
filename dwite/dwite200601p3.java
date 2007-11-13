@@ -7,7 +7,7 @@ public class dwite200601p3 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
-		List<Player> players = new ArrayList<Player>();
+		Collection<Player> players = new ArrayList<Player>();
 		for (int i = 0; i < n; i++) {
 			StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 			int playernum = Integer.parseInt(st.nextToken());

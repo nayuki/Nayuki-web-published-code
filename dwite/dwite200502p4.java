@@ -33,6 +33,8 @@ public class dwite200502p4 {
 			}
 		}
 		
+		// Dynamic programming lies ahead
+		
 		// The cost for multiplying a single matrix is zero
 		for (int i = 0; i + 1 < dimensions.size(); i++) {
 			mincost[i][i + 1] = 0;

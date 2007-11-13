@@ -1,11 +1,8 @@
 import java.io.*;
 
 
-// DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
-public class dwite200602p2 {
-	
-	static final int CAPACITY = 1440;
-	
+// DWITE - December 2006 - Problem 5: Caesar's Cipher
+public class dwite200612p5 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
@@ -13,27 +10,31 @@ public class dwite200602p2 {
 	}
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		// Subset sum problem using dynamic programming
-		boolean[] possible = new boolean[CAPACITY + 1];
-		possible[0] = true;
-		int n = Integer.parseInt(in.readLine());
-		for (int i = 0; i < n; i++) {
-			int filesize = Integer.parseInt(in.readLine());
-			for (int j = CAPACITY - filesize; j >= 0; j--)
-				possible[j + filesize] |= possible[j];
+		String ciphertext = in.readLine();
+		String someplaintext = in.readLine();
+		int shift = (ciphertext.charAt(0) - someplaintext.charAt(0) + 26) % 26;  // Derive shift from the leading character
+		out.println(decrypt(ciphertext, shift));
+	}
+	
+	static String encrypt(String s, int shift) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c >= 'A' && c <= 'Z')
+				sb.append((char)((c - 'A' + shift) % 26 + 'A'));
+			else
+				sb.append(c);
 		}
-		
-		for (int i = CAPACITY; i >= 0; i--) {
-			if (possible[i]) {  // Guaranteed to execute before loop ends
-				out.println(CAPACITY - i);
-				break;
-			}
-		}
+		return sb.toString();
+	}
+	
+	static String decrypt(String s, int shift) {
+		return encrypt(s, (26 - shift) % 26);
 	}
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	static String infile = "DATA51.txt";  // Specify null to use System.in
+	static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

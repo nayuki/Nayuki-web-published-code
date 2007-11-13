@@ -1,11 +1,9 @@
 import java.io.*;
+import java.util.StringTokenizer;
 
 
-// DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
-public class dwite200602p2 {
-	
-	static final int CAPACITY = 1440;
-	
+// DWITE - January 2007 - Problem 4: Number Theory
+public class dwite200701p4 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
@@ -13,27 +11,27 @@ public class dwite200602p2 {
 	}
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		// Subset sum problem using dynamic programming
-		boolean[] possible = new boolean[CAPACITY + 1];
-		possible[0] = true;
-		int n = Integer.parseInt(in.readLine());
-		for (int i = 0; i < n; i++) {
-			int filesize = Integer.parseInt(in.readLine());
-			for (int j = CAPACITY - filesize; j >= 0; j--)
-				possible[j + filesize] |= possible[j];
-		}
-		
-		for (int i = CAPACITY; i >= 0; i--) {
-			if (possible[i]) {  // Guaranteed to execute before loop ends
-				out.println(CAPACITY - i);
-				break;
-			}
-		}
+		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
+		int n = Integer.parseInt(st.nextToken());
+		int r = Integer.parseInt(st.nextToken());
+		out.println(partition(n, r));
+	}
+	
+	// Returns the number of ways n can be written as a sum of k positive integers.
+	static int partition(int n, int k) {
+		if (k > n)
+			return 0;
+		else if (k == n)
+			return 1;
+		else if (k == 0)
+			return 0;
+		else
+			return partition(n - 1, k - 1) + partition(n - k, k);
 	}
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	static String infile = "DATA41.txt";  // Specify null to use System.in
+	static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

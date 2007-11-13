@@ -2,8 +2,8 @@ import java.io.*;
 import java.util.*;
 
 
-// DWITE - December 2005 - Problem 5: How Many Sums
-public class dwite200512p5 {
+// DWITE - January 2007 - Problem 5: Dutch Solitaire
+public class dwite200701p5 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
@@ -11,33 +11,39 @@ public class dwite200512p5 {
 	}
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		int total = Integer.parseInt(in.readLine());
-		int n = Integer.parseInt(in.readLine());
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
-		// 'instances' maps a number to the number of instances of it available
-		Map<Integer,Integer> instances = new HashMap<Integer,Integer>();
-		for (int i = 0; i < n; i++) {
-			int x = Integer.parseInt(st.nextToken());
-			if (!instances.containsKey(x))
-				instances.put(x, 1);
-			else
-				instances.put(x, instances.get(x) + 1);
-		}
+		st.nextToken();  // Discard N, the number of candies
+		int piles = Integer.parseInt(st.nextToken());
+		List<Integer> state = new ArrayList<Integer>();
+		for (int i = 0; i < piles; i++)
+			state.add(Integer.parseInt(st.nextToken()));
+		Collections.sort(state, Collections.reverseOrder());
 		
-		// Subset sum problem using dynamic programming
-		int[] sums = new int[total + 1];
-		sums[0] = 1;
-		// For each number
-		for (int x : instances.keySet()) {
-			int inst = instances.get(x);
-			// For each starting point
-			for (int j = total; j >= 0; j--) {
-				// For each number of instances
-				for (int k = 1; k <= inst && j + k * x <= total; k++)
-					sums[j + k * x] += sums[j];
+		Set<List<Integer>> paststates = new HashSet<List<Integer>>();
+		paststates.add(state);
+		for (int i = 0; i < 100; i++) {
+			List<Integer> nextstate = new ArrayList<Integer>();
+			int newpile = 0;
+			for (int candies : state) {  // Note: All elements of 'state' are positive
+				newpile++;
+				if (candies > 1)
+					nextstate.add(candies - 1);				
 			}
+			nextstate.add(newpile);
+			Collections.sort(nextstate, Collections.reverseOrder());
+			
+			if (nextstate.equals(state)) {
+				out.printf("WIN-%d%n", i);
+				break;
+			}
+			if (paststates.contains(nextstate)) {
+				out.printf("LOSS-%d%n", i + 1);
+				break;
+			}
+			
+			paststates.add(nextstate);
+			state = nextstate;
 		}
-		out.println(sums[total]);
 	}
 	
 	

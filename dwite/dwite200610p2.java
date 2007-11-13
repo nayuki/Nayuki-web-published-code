@@ -1,11 +1,9 @@
 import java.io.*;
+import java.util.StringTokenizer;
 
 
-// DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
-public class dwite200602p2 {
-	
-	static final int CAPACITY = 1440;
-	
+// DWITE - October 2006 - Problem 2: Body Mass Index
+public class dwite200610p2 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
@@ -13,22 +11,25 @@ public class dwite200602p2 {
 	}
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		// Subset sum problem using dynamic programming
-		boolean[] possible = new boolean[CAPACITY + 1];
-		possible[0] = true;
-		int n = Integer.parseInt(in.readLine());
-		for (int i = 0; i < n; i++) {
-			int filesize = Integer.parseInt(in.readLine());
-			for (int j = CAPACITY - filesize; j >= 0; j--)
-				possible[j + filesize] |= possible[j];
-		}
+		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
+		double height = Double.parseDouble(st.nextToken());
+		double weight = Double.parseDouble(st.nextToken());
+		String system = in.readLine();
+		double bmi = weight / (height * height);
 		
-		for (int i = CAPACITY; i >= 0; i--) {
-			if (possible[i]) {  // Guaranteed to execute before loop ends
-				out.println(CAPACITY - i);
-				break;
-			}
-		}
+		if      (system.equals("METRIC"  )) bmi *= 1;
+		else if (system.equals("IMPERIAL")) bmi *= 703;
+		else throw new AssertionError();
+		
+		String category;
+		if      (bmi <  15.0) category = "STARVATION";
+		else if (bmi <  18.5) category = "UNDERWEIGHT";
+		else if (bmi <= 25.0) category = "IDEAL";
+		else if (bmi <= 30.0) category = "OVERWEIGHT";
+		else if (bmi <= 40.0) category = "OBESE";
+		else                  category = "MORBIDLY OBESE";
+		
+		out.printf("%.2f-%s%n", bmi, category);
 	}
 	
 	

@@ -1,11 +1,9 @@
 import java.io.*;
+import java.util.StringTokenizer;
 
 
-// DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
-public class dwite200602p2 {
-	
-	static final int CAPACITY = 1440;
-	
+// DWITE - December 2006 - Problem 1: Jimmy's Lost His Marbles
+public class dwite200612p1 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
@@ -13,27 +11,30 @@ public class dwite200602p2 {
 	}
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		int capacity = Integer.parseInt(in.readLine());  // Capacity of storage box
+		int bags = Integer.parseInt(in.readLine());
+		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
+		
 		// Subset sum problem using dynamic programming
-		boolean[] possible = new boolean[CAPACITY + 1];
+		boolean[] possible = new boolean[capacity + 1];
 		possible[0] = true;
-		int n = Integer.parseInt(in.readLine());
-		for (int i = 0; i < n; i++) {
-			int filesize = Integer.parseInt(in.readLine());
-			for (int j = CAPACITY - filesize; j >= 0; j--)
-				possible[j + filesize] |= possible[j];
+		for (int i = 0; i < bags; i++) {
+			int marbles = Integer.parseInt(st.nextToken());
+			for (int j = capacity - marbles; j >= 0; j--)
+				possible[j + marbles] |= possible[j];
 		}
 		
-		for (int i = CAPACITY; i >= 0; i--) {
-			if (possible[i]) {  // Guaranteed to execute before loop ends
-				out.println(CAPACITY - i);
+		for (int i = capacity; i >= 0; i--) {
+			if (possible[i]) {  // Guaranteed to execute before the loop ends
+				out.println(i);
 				break;
 			}
 		}
 	}
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	static String infile = "DATA11.txt";  // Specify null to use System.in
+	static String outfile = "OUT11.txt";  // Specify null to use System.out
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

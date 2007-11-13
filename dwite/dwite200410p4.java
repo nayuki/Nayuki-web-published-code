@@ -15,6 +15,7 @@ public class dwite200410p4 {
 		int capacity = Integer.parseInt(st.nextToken());  // Variable A
 		int files = Integer.parseInt(st.nextToken());     // Variable n
 		
+		// Subset sum problem using dynamic programming
 		boolean[] possible = new boolean[capacity + 1];
 		possible[0] = true;
 		for (int i = 0; i < files; i++) {

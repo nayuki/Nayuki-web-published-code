@@ -8,8 +8,7 @@ public class dwite200412p4 {
 	static int[] primes;
 	static int primesLength;
 	
-	
-	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+	static {
 		isPrime = sievePrimes(99999);
 		primes = new int[isPrime.length];
 		primesLength = 0;
@@ -19,7 +18,10 @@ public class dwite200412p4 {
 				primesLength++;
 			}
 		}
-		
+	}
+	
+	
+	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
 	}
