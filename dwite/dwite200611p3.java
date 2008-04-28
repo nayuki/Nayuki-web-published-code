@@ -25,58 +25,45 @@ public class dwite200611p3 {
 		int a1 = a * d + b * c;
 		int a0 = b * d;
 		
-		out.printf("(%s)(%s)=%s%n", formatPolynomial(new int[]{a, b}), formatPolynomial(new int[]{c, d}), formatPolynomial(new int[]{a2, a1, a0}));
+		out.printf("(%s)(%s)=%s%n", formatPolynomial(a, b), formatPolynomial(c, d), formatPolynomial(a2, a1, a0));
 	}
 	
 	
-	static String formatPolynomial(int[] coefs) {
-		if (isZero(coefs))
-			return "0";
-		else {
-			StringBuilder sb = new StringBuilder();
-			boolean leading = true;
-			for (int i = 0; i < coefs.length; i++) {
-				if (coefs[i] == 0)
-					continue;
+	static String formatPolynomial(int... coefs) {
+		StringBuilder sb = new StringBuilder();
+		boolean leading = true;
+		for (int i = 0; i < coefs.length; i++) {
+			if (coefs[i] != 0) {
 				sb.append(formatCoefficient(coefs[i], coefs.length - 1 - i, leading));
 				leading = false;
 			}
-			return sb.toString();
 		}
-	}
-	
-	
-	static String formatCoefficient(int coef, int pow, boolean leading) {
-		if (coef == 0)
+		
+		if (leading)  // The polynomial had only coefficients of zero
 			return "0";
-		else {
-			String sign;
-			if      (coef > 0 &&  leading) sign = "";
-			else if (coef > 0 && !leading) sign = "+";
-			else if (coef < 0            ) sign = "-";
-			else throw new AssertionError();
+		else
+			return sb.toString();
+	}
+	
+	
+	static String formatCoefficient(int coef, int power, boolean isLeading) {
+		String sign;
+		if      (coef > 0 &&  isLeading) sign = "";
+		else if (coef > 0 && !isLeading) sign = "+";
+		else if (coef < 0              ) sign = "-";
+		else throw new IllegalArgumentException("Formatting zero coefficient not supported");
 			
-			String num;
-			if (pow != 0 && (coef == -1 || coef == 1)) num = "";
-			else num = Integer.toString(Math.abs(coef));
-			return String.format("%s%s%s", sign, num, formatPowerOfX(pow));
-		}
+		String num;
+		if (power != 0 && (coef == -1 || coef == 1)) num = "";
+		else num = Integer.toString(Math.abs(coef));
+		return String.format("%s%s%s", sign, num, formatPowerOfX(power));
 	}
 	
 	
-	static String formatPowerOfX(int pow) {
-		if (pow == 0) return "";
-		else if (pow == 1) return "x";
-		else return String.format("x^%d", pow);
-	}
-	
-	
-	static boolean isZero(int[] poly) {
-		for (int i = 0; i < poly.length; i++) {
-			if (poly[i] != 0)
-				return false;
-		}
-		return true;
+	static String formatPowerOfX(int power) {
+		if (power == 0) return "";
+		else if (power == 1) return "x";
+		else return String.format("x^%d", power);
 	}
 	
 	

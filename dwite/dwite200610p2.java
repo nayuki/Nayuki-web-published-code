@@ -22,15 +22,18 @@ public class dwite200610p2 {
 		else if (system.equals("IMPERIAL")) bmi *= 703;
 		else throw new AssertionError("Invalid measurement system");
 		
-		String category;
-		if      (bmi <  15.0) category = "STARVATION";
-		else if (bmi <  18.5) category = "UNDERWEIGHT";
-		else if (bmi <= 25.0) category = "IDEAL";
-		else if (bmi <= 30.0) category = "OVERWEIGHT";
-		else if (bmi <= 40.0) category = "OBESE";
-		else                  category = "MORBIDLY OBESE";
-		
-		out.printf("%.2f-%s%n", bmi, category);
+		out.printf("%.2f-%s%n", bmi, getCategory(bmi));
+	}
+	
+	
+	static String getCategory(double bmi) {
+		if      (               bmi <  15.0) return "STARVATION";
+		else if (15.0 <= bmi && bmi <  18.5) return "UNDERWEIGHT";
+		else if (18.5 <= bmi && bmi <= 25.0) return "IDEAL";
+		else if (25.0 <  bmi && bmi <= 30.0) return "OVERWEIGHT";
+		else if (30.0 <  bmi && bmi <= 40.0) return "OBESE";
+		else if (40.0 <  bmi               ) return "MORBIDLY OBESE";
+		else throw new IllegalArgumentException("Invalid BMI");
 	}
 	
 	

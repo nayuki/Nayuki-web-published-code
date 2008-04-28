@@ -26,12 +26,18 @@ public class dwite200602p1 {
 		int y1 = Integer.parseInt(st.nextToken());
 		int x2 = Integer.parseInt(st.nextToken());
 		int y2 = Integer.parseInt(st.nextToken());
+		
 		int count = 0;
 		for (int i = 0; i < px.length; i++) {
-			if ((px[i]-x1) * (py[i]-y2) == (px[i]-x2) * (py[i]-y1))
+			if (areCollinear(x1, y1, x2, y2, px[i], py[i]))
 				count++;
 		}
 		out.println(count);
+	}
+	
+	
+	static boolean areCollinear(int x0, int y0, int x1, int y1, int x2, int y2) {
+		return (x1 - x0) * (y2 - y1) == (x2 - x1) * (y1 - y0);
 	}
 	
 	

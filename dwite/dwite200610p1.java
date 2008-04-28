@@ -111,6 +111,10 @@ public class dwite200610p1 {
 		 */
 		int paperClass;
 		
+		/*
+		 * true for colour copies
+		 * false for black and white copies
+		 */
 		boolean colour;
 		
 		

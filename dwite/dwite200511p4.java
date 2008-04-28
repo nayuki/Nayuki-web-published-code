@@ -5,6 +5,9 @@ import java.util.StringTokenizer;
 // DWITE - November 2005 - Problem 4: Stacking Blocks
 public class dwite200511p4 {
 	
+	static final int MAX_HEIGHT = 32000;
+	
+	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
@@ -12,19 +15,20 @@ public class dwite200511p4 {
 	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		int[] minBlocks = new int[32001];  // minBlocks[i] is the minimum number of blocks to build a tower of height i
+		int[] minBlocks = new int[MAX_HEIGHT + 1];  // minBlocks[i] is the minimum number of blocks to build a tower of height i
 		minBlocks[0] = 0;
 		for (int i = 1; i < minBlocks.length; i++)
 			minBlocks[i] = Integer.MAX_VALUE / 2;
 		
-		int n = Integer.parseInt(in.readLine());
+		int n = Integer.parseInt(in.readLine());  // The number of kinds of blocks
 		for (int i = 0; i < n; i++) {
 			StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 			int h = Integer.parseInt(st.nextToken());
 			int m = Integer.parseInt(st.nextToken());
 			update(minBlocks, h, m);
 		}
-		int t = Integer.parseInt(in.readLine());
+		
+		int t = Integer.parseInt(in.readLine());  // The desired height of the tower
 		out.println(minBlocks[t]);
 	}
 	

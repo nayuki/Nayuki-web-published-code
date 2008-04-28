@@ -16,7 +16,7 @@ public class dwite200501p3 {
 		int longestrun = 0;
 		int currentrun = 0;
 		for (int i = start; i <= end; i++) {
-			if (i % digitSum(i) == 0)
+			if (i % getDigitSum(i) == 0)
 				currentrun++;
 			else {
 				longestrun = Math.max(currentrun, longestrun);
@@ -28,7 +28,7 @@ public class dwite200501p3 {
 	}
 	
 	
-	static int digitSum(int n) {  // Valid for 0 <= n < 10 000 000
+	static int getDigitSum(int n) {  // Valid for 0 <= n < 10 000 000
 		return n /       1 % 10
 		     + n /      10 % 10
 		     + n /     100 % 10

@@ -18,12 +18,12 @@ public class dwite200412p5 {
 	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		String line = process(in.readLine());
+		String line = normalize(in.readLine());
 		int minindex = -1;
 		String minprovince = null;
 		
 		for (String prov : provinces) {
-			int index = line.indexOf(process(prov));
+			int index = line.indexOf(normalize(prov));
 			if (index != -1 && (minindex == -1 || index < minindex)) {
 				minindex = index;
 				minprovince = prov;
@@ -37,7 +37,8 @@ public class dwite200412p5 {
 	}
 	
 	
-	static String process(String s) {  // Converts to lowercase and strips all non-letters
+	// Converts to lowercase and strips all non-letters
+	static String normalize(String s) {
 		return s.toLowerCase().replaceAll("[^a-z]", "");
 	}
 	

@@ -11,10 +11,11 @@ public class dwite200701p1 {
 	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		double height = Double.parseDouble(in.readLine());
-		double radius = Double.parseDouble(in.readLine());
+		double coneheight = Double.parseDouble(in.readLine());
+		double coneradius = Double.parseDouble(in.readLine());
 		double watervolume = Double.parseDouble(in.readLine());
-		out.printf("%.2f%n", Math.cbrt(watervolume / (Math.PI * radius * radius * height / 3)) * height);
+		double waterheight = Math.cbrt(watervolume / (Math.PI * coneradius * coneradius * coneheight / 3)) * coneheight;
+		out.printf("%.2f%n", waterheight);
 	}
 	
 	

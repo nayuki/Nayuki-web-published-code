@@ -27,9 +27,19 @@ public class dwite200612p3 {
 		for (int i = 0; i < s.length(); i++) {
 			if (!isPrime[Integer.parseInt(s)])
 				return false;
-			s = s.substring(1, s.length()) + s.substring(0, 1);
+			s = rotateLeft(s, 1);
 		}
 		return true;
+	}
+	
+	
+	static String rotateLeft(String str, int shift) {
+		if (str.equals(""))
+			return str;
+		else {
+			shift %= str.length();
+			return str.substring(shift, str.length()) + str.substring(0, shift);
+		}
 	}
 	
 	

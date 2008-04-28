@@ -27,13 +27,18 @@ public class dwite200502p1 {
 	
 	
 	static double getArea(int A, int B, int C, int D) {
-		int temp = distSqr(B, C) + distSqr(D, A) - distSqr(A, B) - distSqr(C, D);
-		return Math.sqrt(4*distSqr(B, D)*distSqr(A, C) - temp*temp) / 4;
+		int temp = distanceSquared(B,C) + distanceSquared(D,A) - distanceSquared(A,B) - distanceSquared(C,D);
+		return Math.sqrt(4*distanceSquared(B,D)*distanceSquared(A,C) - temp*temp) / 4;
 	}
 	
 	
-	static int distSqr(int a, int b) {
-		return (x[a]-x[b])*(x[a]-x[b]) + (y[a]-y[b])*(y[a]-y[b]);
+	static int distanceSquared(int A, int B) {
+		return magnitudeSquared(x[A] - x[B], y[A] - y[B]);
+	}
+	
+	
+	static int magnitudeSquared(int x, int y) {
+		return x * x + y * y;
 	}
 	
 	

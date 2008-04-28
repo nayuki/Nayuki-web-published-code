@@ -14,13 +14,16 @@ public class dwite200511p1 {
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		double x = 0;
 		double y = 0;
+		
+		// Take the arithmetic mean
 		for (int i = 0; i < 4; i++) {
 			StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 			x += Double.parseDouble(st.nextToken());
 			y += Double.parseDouble(st.nextToken());
 		}
-		x /= 4;  // Take the arithmetic mean
+		x /= 4;
 		y /= 4;
+		
 		x = Math.round(x * 100) / 100.0;
 		y = Math.round(y * 100) / 100.0;
 		out.printf("%.2f %.2f%n", x, y);

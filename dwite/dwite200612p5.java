@@ -24,7 +24,7 @@ public class dwite200612p5 {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			if (c >= 'A' && c <= 'Z')
+			if (isUppercase(c))
 				sb.append((char)((c - 'A' + shift) % 26 + 'A'));
 			else
 				sb.append(c);
@@ -35,6 +35,11 @@ public class dwite200612p5 {
 	
 	static String decrypt(String s, int shift) {
 		return encrypt(s, (26 - shift) % 26);
+	}
+	
+	
+	static boolean isUppercase(char c) {
+		return c >= 'A' && c <= 'Z';
 	}
 	
 	

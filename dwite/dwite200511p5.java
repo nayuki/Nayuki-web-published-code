@@ -18,9 +18,9 @@ public class dwite200511p5 {
 				word = word << 6 | fromBase64(line.charAt(i + j));
 			
 			String str;
-			if      (line.charAt(i + 3) != '=') str = toString(word, 3);
-			else if (line.charAt(i + 2) != '=') str = toString(word, 2);
-			else if (line.charAt(i + 1) != '=') str = toString(word, 1);
+			if      (line.charAt(i+3) != '=') str = toString(word, 3);
+			else if (line.charAt(i+2) != '=') str = toString(word, 2);
+			else if (line.charAt(i+1) != '=') str = toString(word, 1);
 			else throw new AssertionError("Invalid Base64-encoded string");
 			out.print(str);
 		}

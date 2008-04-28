@@ -22,19 +22,7 @@ public class dwite200501p4 {
 		String daystr = st.nextToken();
 		int d = Integer.parseInt(daystr.substring(0, daystr.length() - 1));
 		int y = Integer.parseInt(st.nextToken());
-		
-		// Zeller's congruence computation
-		if (m <= 2) {
-			m += 12;
-			y--;
-		}
-		int c = y / 100;
-		y %= 100;
-		int dow = (26*(m+1)/10 + d + y + y/4 + c/4 - 2*c) % 7;
-		if (dow < 0)
-			dow += 7;
-		
-		out.println(daysOfWeek[dow]);
+		out.println(daysOfWeek[getDayOfWeek(y, m, d)]);
 	}
 	
 	
@@ -45,6 +33,21 @@ public class dwite200501p4 {
 				return i + 1;
 		}
 		throw new IllegalArgumentException("Invalid month");
+	}
+	
+	
+	// Zeller's congruence computation
+	static int getDayOfWeek(int y, int m, int d) {
+		if (m <= 2) {
+			m += 12;
+			y--;
+		}
+		int c = y / 100;
+		y %= 100;
+		int dow = (26*(m+1)/10 + d + y + y/4 + c/4 - 2*c) % 7;
+		if (dow < 0)
+			dow += 7;
+		return dow;
 	}
 	
 	

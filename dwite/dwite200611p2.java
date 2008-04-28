@@ -15,25 +15,29 @@ public class dwite200611p2 {
 	static void mainOnce(BufferedReader in, PrintWriter out, List<Integer> winningNumbers) throws IOException {
 		List<Integer> numbers = parseNumbers(in.readLine());
 		
-		int regularmatch = 0;
+		int regularMatches = 0;
 		for (int i = 0; i < 6; i++) {
 			if (numbers.contains(winningNumbers.get(i)))
-				regularmatch++;
+				regularMatches++;
 		}
 		
-		int bonusmatch = 0;
+		int bonusMatches = 0;
 		if (numbers.contains(winningNumbers.get(6)))
-			bonusmatch++;
+			bonusMatches++;
 		
-		String prize;
-		if      (regularmatch <= 2) prize = "No Prize";
-		else if (regularmatch == 3) prize = "Fifth Prize";
-		else if (regularmatch == 4) prize = "Fourth Prize";
-		else if (regularmatch == 5 && bonusmatch == 0) prize = "Third Prize";
-		else if (regularmatch == 5 && bonusmatch == 1) prize = "Second Prize";
-		else if (regularmatch == 6) prize = "First Prize";
-		else throw new AssertionError("Invalid lottery result");
+		String prize = getPrize(regularMatches, bonusMatches);
 		out.println(prize);
+	}
+	
+	
+	static String getPrize(int regularMatches, int bonusMatches) {
+		if      (regularMatches <= 2) return "No Prize";
+		else if (regularMatches == 3) return "Fifth Prize";
+		else if (regularMatches == 4) return "Fourth Prize";
+		else if (regularMatches == 5 && bonusMatches == 0) return "Third Prize";
+		else if (regularMatches == 5 && bonusMatches == 1) return "Second Prize";
+		else if (regularMatches == 6) return "First Prize";
+		else throw new IllegalArgumentException("Invalid lottery result");
 	}
 	
 	

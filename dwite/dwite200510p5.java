@@ -30,10 +30,10 @@ public class dwite200510p5 {
 	
 	
 	static int toNumber(int[] digits) {
-		int s = 0;
+		int num = 0;
 		for (int i = digits.length - 1; i >= 0; i--)
-			s = s * 10 + digits[i];
-		return s;
+			num = num * 10 + digits[i];
+		return num;
 	}
 	
 	

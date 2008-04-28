@@ -15,18 +15,18 @@ public class dwite200601p4 {
 	 * 1 tablespoon =  3 teaspoons    =    3 teaspoons
 	 * 1 teaspoon   = ~5 millilitres  =    1 teaspoon
 	 */
-	static final Map<String,Integer> teaspoons;
+	static final Map<String,Integer> teaspoonsByUnit;
 	
 	static {
-		teaspoons = new HashMap<String,Integer>();
-		teaspoons.put("TEASPOONS"  ,    1);
-		teaspoons.put("TABLESPOONS",    3);
-		teaspoons.put("CUPS"       ,   48);
-		teaspoons.put("PINTS"      ,   96);
-		teaspoons.put("QUARTS"     ,  192);
-		teaspoons.put("GALLONS"    ,  768);
-		teaspoons.put("PECKS"      , 1536);
-		teaspoons.put("BUSHELS"    , 6144);
+		teaspoonsByUnit = new HashMap<String,Integer>();
+		teaspoonsByUnit.put("TEASPOONS"  ,    1);
+		teaspoonsByUnit.put("TABLESPOONS",    3);
+		teaspoonsByUnit.put("CUPS"       ,   48);
+		teaspoonsByUnit.put("PINTS"      ,   96);
+		teaspoonsByUnit.put("QUARTS"     ,  192);
+		teaspoonsByUnit.put("GALLONS"    ,  768);
+		teaspoonsByUnit.put("PECKS"      , 1536);
+		teaspoonsByUnit.put("BUSHELS"    , 6144);
 	}
 	
 	
@@ -44,7 +44,7 @@ public class dwite200601p4 {
 		if (!st.nextToken().equals("=")) throw new AssertionError("Expected \"=\"");
 		if (!st.nextToken().equals("?")) throw new AssertionError("Expected \"?\"");
 		String tounit = st.nextToken();
-		out.printf("%.2f%n", (double)x * teaspoons.get(fromunit) / teaspoons.get(tounit));
+		out.printf("%.2f%n", (double)x * teaspoonsByUnit.get(fromunit) / teaspoonsByUnit.get(tounit));
 	}
 	
 	

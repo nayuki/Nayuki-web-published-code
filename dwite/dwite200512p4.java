@@ -15,7 +15,7 @@ public class dwite200512p4 {
 		int[] freq = new int[26];
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
-			if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z')
+			if (isLetter(c))
 				freq[(c - 'A') % 32]++;
 		}
 		
@@ -28,6 +28,12 @@ public class dwite200512p4 {
 			}
 		}
 		out.println();
+	}
+	
+	
+	static boolean isLetter(char c) {
+		return c >= 'A' && c <= 'Z'
+		    || c >= 'a' && c <= 'z';
 	}
 	
 	

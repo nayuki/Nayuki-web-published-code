@@ -17,9 +17,13 @@ public class dwite200410p1 {
 		double y1 = Double.parseDouble(st.nextToken());
 		double x2 = Double.parseDouble(st.nextToken());
 		double y2 = Double.parseDouble(st.nextToken());
-		out.printf("%.3f%n", 3.14159 * magnitudeSquared(x1 - x2, y1 - y2));
+		out.printf("%.3f%n", 3.14159 * distanceSquared(x1, y1, x2, y2));
 	}
 	
+	
+	static double distanceSquared(double x0, double y0, double x1, double y1) {
+		return magnitudeSquared(x0 - x1, y0 - y1);
+	}
 	
 	static double magnitudeSquared(double x, double y) {
 		return x * x + y * y;
