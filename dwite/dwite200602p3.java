@@ -9,6 +9,7 @@ public class dwite200602p3 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String line = in.readLine();
 		if (line.length() != 12)
@@ -16,6 +17,7 @@ public class dwite200602p3 {
 		int sum = getUpcSumWithoutCheckDigit(toDigits(line));
 		out.printf("%s%d%n", line.substring(0, 11), (10 - sum) % 10);
 	}
+	
 	
 	static int getUpcSumWithoutCheckDigit(int[] digits) {
 		int sum = 0;
@@ -27,6 +29,7 @@ public class dwite200602p3 {
 	}
 	
 	
+	
 	static int[] toDigits(String s) {
 		int[] digits = new int[s.length()];
 		for (int i = 0; i < digits.length; i++)
@@ -35,8 +38,10 @@ public class dwite200602p3 {
 	}
 	
 	
+	
 	static String infile = "DATA31.txt";  // Specify null to use System.in
 	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

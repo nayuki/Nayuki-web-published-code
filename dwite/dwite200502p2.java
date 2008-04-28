@@ -8,7 +8,8 @@ public class dwite200502p2 {
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
-	}	
+	}
+	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
@@ -31,6 +32,7 @@ public class dwite200502p2 {
 		out.println(maxcoiled + " " + maxuncoiled);
 	}
 	
+	
 	static boolean isCurrentSnakeCoiled(char[][] grid) {
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[y].length - 1; x++) {
@@ -40,6 +42,7 @@ public class dwite200502p2 {
 		}
 		return false;
 	}
+	
 	
 	static int markSnakeAndGetLength(char[][] grid, int x, int y) {
 		if (grid[y][x] != 'X')
@@ -57,6 +60,7 @@ public class dwite200502p2 {
 		return count;
 	}
 	
+	
 	static int countCurrentNeighbours(char[][] grid, int x, int y) {
 		int count = 0;
 		if (grid[y - 1][x - 1] == 'O') count++;
@@ -70,6 +74,7 @@ public class dwite200502p2 {
 		return count;
 	}
 	
+	
 	static void clearCurrentSnake(char[][] grid) {
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[y].length - 1; x++) {
@@ -78,6 +83,7 @@ public class dwite200502p2 {
 			}
 		}
 	}
+	
 	
 	
 	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
@@ -97,8 +103,10 @@ public class dwite200502p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

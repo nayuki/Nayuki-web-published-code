@@ -10,6 +10,7 @@ public class dwite200511p2 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int height = Integer.parseInt(st.nextToken());
@@ -25,6 +26,7 @@ public class dwite200511p2 {
 		
 		out.println(countTotalAlive(grid));
 	}
+	
 	
 	
 	static void iterate(char[][] grid, boolean[] live, boolean[] birth) {
@@ -46,6 +48,7 @@ public class dwite200511p2 {
 		}
 	}
 	
+	
 	static int countLiveNeighbours(char[][] grid, int x, int y) {
 		int count = 0;
 		if (grid[y - 1][x - 1] == 'X') count++;
@@ -59,6 +62,7 @@ public class dwite200511p2 {
 		return count;
 	}
 	
+	
 	static int countTotalAlive(char[][] grid) {
 		int count = 0;
 		for (int y = 1; y < grid.length - 1; y++) {
@@ -70,6 +74,7 @@ public class dwite200511p2 {
 		return count;
 	}
 	
+	
 	// For example, turns "235" into [false, false, true, true, false, true, false, false, false]
 	static boolean[] parseRule(String s) {
 		boolean[] result = new boolean[9];
@@ -77,6 +82,7 @@ public class dwite200511p2 {
 			result[s.charAt(i) - '0'] = true;
 		return result;
 	}
+	
 	
 	
 	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
@@ -96,8 +102,10 @@ public class dwite200511p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

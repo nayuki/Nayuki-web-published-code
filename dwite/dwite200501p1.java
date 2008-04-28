@@ -22,8 +22,10 @@ public class dwite200501p1 {
 	}
 	
 	
+	
 	static String infile = "DATA11.txt";  // Specify null to use System.in
 	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
@@ -56,10 +58,12 @@ public class dwite200501p1 {
 		int score;
 		
 		
+		
 		Golfer(String name, int score) {
 			this.name = name;
 			this.score = score;
 		}
+		
 		
 		
 		public int compareTo(Golfer g) {

@@ -9,6 +9,7 @@ public class dwite200411p1 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int[] digits = toDigits(in.readLine());
 		int sum = getLuhnSum(digits);
@@ -24,6 +25,7 @@ public class dwite200411p1 {
 			}
 		}
 	}
+	
 	
 	static int getLuhnSum(int[] digits) {
 		int sum = 0;
@@ -49,8 +51,10 @@ public class dwite200411p1 {
 	}
 	
 	
+	
 	static String infile = "DATA11.txt";  // Specify null to use System.in
 	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

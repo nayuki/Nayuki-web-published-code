@@ -9,6 +9,7 @@ public class dwite200410p2 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String line = in.readLine();
 		int hour = Integer.parseInt(line.substring(0, 2));
@@ -20,8 +21,10 @@ public class dwite200410p2 {
 	}
 	
 	
+	
 	static String infile = "DATA2";  // Specify null to use System.in
 	static String outfile = "OUT2";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

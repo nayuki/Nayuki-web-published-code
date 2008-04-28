@@ -17,6 +17,7 @@ public class dwite200510p2 {
 		}
 	}
 	
+	
 	static void nextGeneration(char[][] grid) {
 		char[][] gridnew = new char[grid.length][grid[0].length];
 		for (int y = 1; y < grid.length - 1; y++) {
@@ -36,6 +37,7 @@ public class dwite200510p2 {
 		}
 	}
 	
+	
 	static int countLiveNeighbours(char[][] grid, int x, int y) {
 		int count = 0;
 		if (grid[y - 1][x - 1] == 'X') count++;
@@ -49,6 +51,7 @@ public class dwite200510p2 {
 		return count;
 	}
 	
+	
 	static int countTotalAlive(char[][] grid) {
 		int count = 0;
 		for (int y = 1; y < grid.length - 1; y++) {
@@ -60,9 +63,11 @@ public class dwite200510p2 {
 		return count;
 	}
 	
+	
 	static boolean isBreakpoint(int i) {
 		return i == 1 || i == 5 || i == 10 || i == 50 || i == 100;
 	}
+	
 	
 	
 	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
@@ -82,8 +87,10 @@ public class dwite200510p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

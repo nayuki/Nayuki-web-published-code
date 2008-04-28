@@ -10,6 +10,7 @@ public class dwite200612p1 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int capacity = Integer.parseInt(in.readLine());  // Capacity of storage box
 		int bags = Integer.parseInt(in.readLine());
@@ -33,8 +34,10 @@ public class dwite200612p1 {
 	}
 	
 	
+	
 	static String infile = "DATA11.txt";  // Specify null to use System.in
 	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

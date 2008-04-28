@@ -10,6 +10,7 @@ public class dwite200510p5 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int d1 = Integer.parseInt(st.nextToken());
@@ -27,12 +28,14 @@ public class dwite200510p5 {
 	}
 	
 	
+	
 	static int toNumber(int[] digits) {
 		int s = 0;
 		for (int i = digits.length - 1; i >= 0; i--)
 			s = s * 10 + digits[i];
 		return s;
 	}
+	
 	
 	static void permute(int[] array, int perm) {
 		// A modification of the Knuth shuffle
@@ -44,6 +47,7 @@ public class dwite200510p5 {
 		}
 	}
 	
+	
 	static int factorial(int x) {
 		int prod = 1;
 		for (int i = 1; i <= x; i++)
@@ -52,8 +56,10 @@ public class dwite200510p5 {
 	}
 	
 	
+	
 	static String infile = "DATA51.txt";  // Specify null to use System.in
 	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

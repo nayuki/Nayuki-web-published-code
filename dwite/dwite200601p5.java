@@ -20,7 +20,8 @@ public class dwite200601p5 {
 			
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out, graph);
-	}	
+	}
+	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out, Graph graph) throws IOException {
 		String line = in.readLine();
@@ -53,8 +54,10 @@ public class dwite200601p5 {
 	}
 	
 	
+	
 	static String infile = "DATA31.txt";  // Specify null to use System.in
 	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
@@ -87,10 +90,12 @@ public class dwite200601p5 {
 		Map<String,Node> nodeByName;
 		
 		
+		
 		Graph() {
 			nodes = new ArrayList<Node>();
 			nodeByName = new HashMap<String,Node>();
 		}
+		
 		
 		
 		Node getOrAddNode(String name) {
@@ -101,6 +106,7 @@ public class dwite200601p5 {
 			}
 			return nodeByName.get(name);
 		}
+		
 		
 		void clearDistances() {
 			for (Node node : nodes)
@@ -119,11 +125,13 @@ public class dwite200601p5 {
 		int distance;
 		
 		
+		
 		Node(String name) {
 			this.name = name;
 			edges = new ArrayList<Edge>();
 			distance = -1;
 		}
+		
 		
 		
 		void addEdge(Edge e) {
@@ -147,6 +155,7 @@ public class dwite200601p5 {
 		
 		Node destination;
 		int distance;
+		
 		
 		
 		Edge(Node dest, int dist) {

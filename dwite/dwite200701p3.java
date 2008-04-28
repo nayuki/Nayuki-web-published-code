@@ -8,10 +8,12 @@ public class dwite200701p3 {
 	static int[] cumulativeDays = {-1, -1, -1, 0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 337};
 	
 	
+	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
 	}
+	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " /:");
@@ -23,6 +25,7 @@ public class dwite200701p3 {
 		int sec = Integer.parseInt(st.nextToken());
 		out.println(toSeconds(yr, mth, day, hr, min, sec) - toSeconds(2000, 1, 1, 0, 0, 0));
 	}
+	
 	
 	/*
 	 * Returns the number of seconds after an arbitrary, fixed epoch.
@@ -38,8 +41,10 @@ public class dwite200701p3 {
 	}
 	
 	
+	
 	static String infile = "DATA31.txt";  // Specify null to use System.in
 	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

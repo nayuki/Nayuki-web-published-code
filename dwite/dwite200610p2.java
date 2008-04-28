@@ -10,6 +10,7 @@ public class dwite200610p2 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		double height = Double.parseDouble(st.nextToken());
@@ -33,8 +34,10 @@ public class dwite200610p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

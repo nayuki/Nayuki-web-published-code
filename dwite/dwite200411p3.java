@@ -10,6 +10,7 @@ public class dwite200411p3 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		Polynomial poly = parsePolynomial(in.readLine()).reduce();
 		ArrayList<Integer> output = new ArrayList<Integer>();
@@ -32,6 +33,7 @@ public class dwite200411p3 {
 		out.println();
 	}
 	
+	
 	static Polynomial parsePolynomial(String line) {
 		StringTokenizer st = new StringTokenizer(line, " ");
 		int degree = Integer.parseInt(st.nextToken());
@@ -40,6 +42,7 @@ public class dwite200411p3 {
 			coef.add(Integer.parseInt(st.nextToken()));
 		return new Polynomial(coef);
 	}
+	
 	
 	static Fraction findRoot(Polynomial poly) {
 		int p = Math.abs(poly.getCoefficient(0));
@@ -60,6 +63,7 @@ public class dwite200411p3 {
 	}
 	
 	
+	
 	static int gcd(int x, int y) {
 		while (y != 0) {
 			int z = x % y;
@@ -70,8 +74,10 @@ public class dwite200411p3 {
 	}
 	
 	
+	
 	static String infile = "DATA31.txt";  // Specify null to use System.in
 	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
@@ -103,19 +109,23 @@ public class dwite200411p3 {
 		List<Integer> coefficients;  // From highest power downward
 		
 		
+		
 		Polynomial(List<Integer> coef) {
 			coefficients = new ArrayList<Integer>(coef);
 		}
+		
 		
 		
 		int getDegree() {
 			return coefficients.size() - 1;
 		}
 		
+		
 		// Returns the coefficient of the monomial with the specified power.
 		int getCoefficient(int i) {
 			return coefficients.get(coefficients.size() - 1 - i);
 		}
+		
 		
 		// Returns this polynomial divided by the GCD of all coefficients.
 		Polynomial reduce() {
@@ -131,6 +141,7 @@ public class dwite200411p3 {
 			
 		}
 		
+		
 		Fraction evaluateAt(Fraction x) {
 			Fraction result = new Fraction(0);
 			for (int i = 0; i < coefficients.size(); i++) {
@@ -140,9 +151,11 @@ public class dwite200411p3 {
 			return result;
 		}
 		
+		
 		boolean hasRootAt(Fraction x) {
 			return evaluateAt(x).isZero();
 		}
+		
 		
 		// Returns a new polynomial representing this polynomial divided by (ax + b).
 		Polynomial divide(int a, int b) {
@@ -188,9 +201,11 @@ public class dwite200411p3 {
 		int denom;
 		
 		
+		
 		Fraction(int num) {
 			this(num, 1);
 		}
+		
 		
 		Fraction(int num, int denom) {
 			if (denom == 0)
@@ -201,13 +216,16 @@ public class dwite200411p3 {
 		}
 		
 		
+		
 		Fraction add(Fraction x) {
 			return new Fraction(num * x.denom + x.num * denom, denom * x.denom);
 		}
 		
+		
 		Fraction multiply(Fraction x) {
 			return new Fraction(num * x.num, denom * x.denom);
 		}
+		
 		
 		boolean isZero() {
 			return num == 0;

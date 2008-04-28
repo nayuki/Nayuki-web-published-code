@@ -22,8 +22,10 @@ public class dwite200410p3 {
 	}
 	
 	
+	
 	static String infile = "DATA3";  // Specify null to use System.in
 	static String outfile = "OUT3";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
@@ -56,6 +58,7 @@ public class dwite200410p3 {
 		double height;  // In millimetres
 		
 		
+		
 		Student(String name, double height, String unit) {
 			this.name = name;
 			if (unit.equals("m"))
@@ -69,6 +72,7 @@ public class dwite200410p3 {
 			else
 				throw new AssertionError();
 		}
+		
 		
 		
 		public int compareTo(Student s) {  // Compares by descending height, then by ascending name

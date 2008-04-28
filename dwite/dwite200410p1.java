@@ -10,6 +10,7 @@ public class dwite200410p1 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		double x1 = Double.parseDouble(st.nextToken());
@@ -19,13 +20,16 @@ public class dwite200410p1 {
 		out.printf("%.3f%n", 3.14159 * magnitudeSquared(x1 - x2, y1 - y2));
 	}
 	
+	
 	static double magnitudeSquared(double x, double y) {
 		return x * x + y * y;
 	}
 	
 	
+	
 	static String infile = "DATA1";  // Specify null to use System.in
 	static String outfile = "OUT1";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

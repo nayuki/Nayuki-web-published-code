@@ -9,6 +9,7 @@ public class dwite200602p4 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int[][] board = new int[6][7];  // 0 = unfilled, 1 = red, 2 = blue
 		String moves = in.readLine();
@@ -24,6 +25,7 @@ public class dwite200602p4 {
 		}
 	}
 	
+	
 	static void drop(int[][] board, int x, int color) {
 		for (int y = board.length-1; y >= 0; y--) {
 			if (board[y][x] == 0) {
@@ -34,12 +36,14 @@ public class dwite200602p4 {
 		throw new AssertionError();
 	}
 	
+	
 	static boolean hasWinner(int[][] board) {
 		return hasWinner(board,  1, 0)   // Horizontal
 		    || hasWinner(board,  0, 1)   // Vertical
 		    || hasWinner(board,  1, 1)   // Forward diagonal
 		    || hasWinner(board, -1, 1);  // Backward diagonal
 	}
+	
 	
 	static boolean hasWinner(int[][] board, int dirX, int dirY) {
 		for (int y = 0; y < board.length; y++) {
@@ -50,6 +54,7 @@ public class dwite200602p4 {
 		}
 		return false;
 	}
+	
 	
 	static boolean isWinner(int[][] board, int startX, int startY, int dirX, int dirY) {
 		if (board[startY][startX] == 0)
@@ -65,8 +70,10 @@ public class dwite200602p4 {
 	}
 	
 	
+	
 	static String infile = "DATA41.txt";  // Specify null to use System.in
 	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

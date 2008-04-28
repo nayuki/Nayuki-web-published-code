@@ -9,9 +9,11 @@ public class dwite200412p1 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		out.println(factor(Integer.parseInt(in.readLine())));
 	}
+	
 	
 	static String factor(int x) {
 		for (int i = 2, end = sqrt(x); i <= end; i++) {
@@ -20,6 +22,7 @@ public class dwite200412p1 {
 		}
 		return Integer.toString(x);  // x is prime
 	}
+	
 	
 	
 	static int sqrt(int x) {
@@ -33,8 +36,10 @@ public class dwite200412p1 {
 	}
 	
 	
+	
 	static String infile = "DATA11.txt";  // Specify null to use System.in
 	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

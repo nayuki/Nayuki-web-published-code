@@ -10,6 +10,7 @@ public class dwite200410p4 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int capacity = Integer.parseInt(st.nextToken());  // Variable A
@@ -33,8 +34,10 @@ public class dwite200410p4 {
 	}
 	
 	
+	
 	static String infile = "DATA4";  // Specify null to use System.in
 	static String outfile = "OUT4";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

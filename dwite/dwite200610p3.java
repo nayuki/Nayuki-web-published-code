@@ -23,8 +23,10 @@ public class dwite200610p3 {
 	}
 	
 	
+	
 	static String infile = "DATA31.txt";  // Specify null to use System.in
 	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
@@ -58,6 +60,7 @@ public class dwite200610p3 {
 		int time;  // In minutes
 		
 		
+		
 		Player(String name, int foulShots, int fieldGoals, int threePointBaskets, int time) {
 			this.name = name;
 			score = foulShots*1 + fieldGoals*2 + threePointBaskets*3;
@@ -65,9 +68,11 @@ public class dwite200610p3 {
 		}
 		
 		
+		
 		double getPpm() {
 			return (double)score/time;
 		}
+		
 		
 		public int compareTo(Player p) {
 			return Double.compare(getPpm(), p.getPpm());

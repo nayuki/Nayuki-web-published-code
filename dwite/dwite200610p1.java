@@ -48,10 +48,12 @@ public class dwite200610p1 {
 	}
 	
 	
+	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
 	}
+	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
@@ -61,8 +63,10 @@ public class dwite200610p1 {
 	}
 	
 	
+	
 	static String infile = "DATA11.txt";  // Specify null to use System.in
 	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
@@ -110,6 +114,7 @@ public class dwite200610p1 {
 		boolean colour;
 		
 		
+		
 		PrintingConfiguration(int quantity, String paperSize, String colour) {
 			if      (quantity <   100) quantityClass = 0;
 			else if (quantity <   500) quantityClass = 1;
@@ -128,6 +133,7 @@ public class dwite200610p1 {
 		}
 		
 		
+		
 		public boolean equals(Object o) {
 			if (this == o)
 				return true;
@@ -141,8 +147,9 @@ public class dwite200610p1 {
 			}
 		}
 		
+		
 		public int hashCode() {
-			return quantityClass << 16 ^ paperClass << 8 ^ (colour ? 1 : 0); 
+			return quantityClass << 16 ^ paperClass << 8 ^ (colour ? 1 : 0);
 		}
 		
 	}

@@ -10,10 +10,11 @@ public class dwite200611p3 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		
-		// Given the coefficients for (ax+b) and (cx+d)... 
+		// Given the coefficients for (ax+b) and (cx+d)...
 		int a = Integer.parseInt(st.nextToken());
 		int b = Integer.parseInt(st.nextToken());
 		int c = Integer.parseInt(st.nextToken());
@@ -26,6 +27,7 @@ public class dwite200611p3 {
 		
 		out.printf("(%s)(%s)=%s%n", formatPolynomial(new int[]{a, b}), formatPolynomial(new int[]{c, d}), formatPolynomial(new int[]{a2, a1, a0}));
 	}
+	
 	
 	static String formatPolynomial(int[] coefs) {
 		if (isZero(coefs))
@@ -42,6 +44,7 @@ public class dwite200611p3 {
 			return sb.toString();
 		}
 	}
+	
 	
 	static String formatCoefficient(int coef, int pow, boolean leading) {
 		if (coef == 0)
@@ -60,11 +63,13 @@ public class dwite200611p3 {
 		}
 	}
 	
+	
 	static String formatPowerOfX(int pow) {
 		if (pow == 0) return "";
 		else if (pow == 1) return "x";
 		else return String.format("x^%d", pow);
 	}
+	
 	
 	static boolean isZero(int[] poly) {
 		for (int i = 0; i < poly.length; i++) {
@@ -75,8 +80,10 @@ public class dwite200611p3 {
 	}
 	
 	
+	
 	static String infile = "DATA31.txt";  // Specify null to use System.in
 	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

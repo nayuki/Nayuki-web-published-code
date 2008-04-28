@@ -10,6 +10,7 @@ public class dwite200512p2 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int height = Integer.parseInt(st.nextToken());
@@ -32,6 +33,7 @@ public class dwite200512p2 {
 		out.println(findShortestPathBfs(grid, startx, starty) - 1);
 	}
 	
+	
 	static int findShortestPathDfs(char[][] grid, int x, int y) {
 		if (grid[y][x] == 'X')
 			return 0;
@@ -47,6 +49,7 @@ public class dwite200512p2 {
 		grid[y][x] = '.';
 		return 1 + min;
 	}
+	
 	
 	static int findShortestPathBfs(char[][] grid, int startx, int starty) {
 		Queue<Point> queue = new LinkedList<Point>();
@@ -73,6 +76,7 @@ public class dwite200512p2 {
 	}
 	
 	
+	
 	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
 		char[][] grid = new char[height + 2][width + 2];
 		for (int y = 1; y <= height; y++) {
@@ -90,8 +94,10 @@ public class dwite200512p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
@@ -123,6 +129,7 @@ public class dwite200512p2 {
 		int x;
 		int y;
 		int distance;
+		
 		
 		
 		Point(int x, int y, int dist) {

@@ -9,12 +9,14 @@ public class dwite200612p5 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String ciphertext = in.readLine();
 		String someplaintext = in.readLine();
 		int shift = (ciphertext.charAt(0) - someplaintext.charAt(0) + 26) % 26;  // Derive shift from the leading character
 		out.println(decrypt(ciphertext, shift));
 	}
+	
 	
 	static String encrypt(String s, int shift) {
 		StringBuilder sb = new StringBuilder();
@@ -28,13 +30,16 @@ public class dwite200612p5 {
 		return sb.toString();
 	}
 	
+	
 	static String decrypt(String s, int shift) {
 		return encrypt(s, (26 - shift) % 26);
 	}
 	
 	
+	
 	static String infile = "DATA51.txt";  // Specify null to use System.in
 	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

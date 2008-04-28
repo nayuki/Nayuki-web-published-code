@@ -10,6 +10,7 @@ public class dwite200701p5 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		st.nextToken();  // Discard N, the number of candies
@@ -27,7 +28,7 @@ public class dwite200701p5 {
 			for (int candies : state) {  // Note: All elements of 'state' are positive
 				newpile++;
 				if (candies > 1)
-					nextstate.add(candies - 1);				
+					nextstate.add(candies - 1);
 			}
 			nextstate.add(newpile);
 			Collections.sort(nextstate, Collections.reverseOrder());
@@ -47,8 +48,10 @@ public class dwite200701p5 {
 	}
 	
 	
+	
 	static String infile = "DATA51.txt";  // Specify null to use System.in
 	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

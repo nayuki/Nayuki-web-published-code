@@ -12,21 +12,25 @@ public class dwite200611p5 {
 	}
 	
 	
+	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
 	}
+	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
 		out.printf("%d=%s%n", n, solve(n));
 	}
 	
+	
 	static String solve(int n) {
 		if (n <= 7)
 			throw new AssertionError();
 		return solve(n, 3, Integer.MAX_VALUE);
 	}
+	
 	
 	static String solve(int n, int terms, int max) {
 		if (n > max)
@@ -49,6 +53,7 @@ public class dwite200611p5 {
 	}
 	
 	
+	
 	static boolean[] sievePrimes(int n) {
 		boolean[] isPrime = new boolean[n + 1];
 		if (n >= 2)
@@ -64,6 +69,7 @@ public class dwite200611p5 {
 		return isPrime;
 	}
 	
+	
 	static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
@@ -75,8 +81,10 @@ public class dwite200611p5 {
 	}
 	
 	
+	
 	static String infile = "DATA51.txt";  // Specify null to use System.in
 	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

@@ -9,6 +9,7 @@ public class dwite200512p4 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String line = in.readLine();
 		int[] freq = new int[26];
@@ -32,8 +33,10 @@ public class dwite200512p4 {
 	}
 	
 	
+	
 	static String infile = "DATA41.txt";  // Specify null to use System.in
 	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

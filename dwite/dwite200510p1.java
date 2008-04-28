@@ -10,6 +10,7 @@ public class dwite200510p1 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int[] r1 = toDigits(in.readLine());
 		int d1 = Integer.parseInt(in.readLine());
@@ -26,11 +27,13 @@ public class dwite200510p1 {
 		out.printf("%s %d%n", toString(r2), diff);
 	}
 	
+	
 	static int[] solveSlow(int n1, int d2, int[] r2) {
 		while (countOccurrences(r2, d2) != n1)
 			increment(r2, r2.length - 1);
 		return r2;
 	}
+	
 	
 	static int[] solveFast(int n1, int d2, int[] r2) {
 		while (true) {
@@ -65,6 +68,7 @@ public class dwite200510p1 {
 		return r2;
 	}
 	
+	
 	static int countOccurrences(int[] digits, int digit) {
 		int count = 0;
 		for (int i = 0; i < digits.length; i++) {
@@ -73,6 +77,7 @@ public class dwite200510p1 {
 		}
 		return count;
 	}
+	
 	
 	static void increment(int[] digits, int index) {
 		if (index < 0)
@@ -88,6 +93,7 @@ public class dwite200510p1 {
 		}
 	}
 	
+	
 	static BigInteger toNumber(int[] digits) {
 		final BigInteger TEN = BigInteger.valueOf(10);
 		BigInteger sum = BigInteger.ZERO;
@@ -98,12 +104,14 @@ public class dwite200510p1 {
 		return sum;
 	}
 	
+	
 	static String toString(int[] digits) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < digits.length; i++)
 			sb.append((char)('0' + digits[i]));
 		return sb.toString();
 	}
+	
 	
 	
 	static int[] toDigits(String s) {
@@ -114,8 +122,10 @@ public class dwite200510p1 {
 	}
 	
 	
+	
 	static String infile = "DATA11.txt";  // Specify null to use System.in
 	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

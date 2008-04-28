@@ -9,6 +9,7 @@ public class dwite200512p1 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int s = Integer.parseInt(in.readLine());
 		int e = Integer.parseInt(in.readLine());
@@ -20,6 +21,7 @@ public class dwite200512p1 {
 		out.println(sp);
 	}
 	
+	
 	static boolean isSemiprime(int n) {
 		for (int i = 2, end = sqrt(n); i <= end; i++) {
 			if (n % i == 0) {  // One factor found (always prime)
@@ -28,6 +30,7 @@ public class dwite200512p1 {
 		}
 		return false;
 	}
+	
 	
 	
 	static boolean isPrime(int n) {
@@ -49,8 +52,10 @@ public class dwite200512p1 {
 	}
 	
 	
+	
 	static String infile = "DATA11.txt";  // Specify null to use System.in
 	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

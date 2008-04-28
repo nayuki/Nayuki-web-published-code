@@ -12,6 +12,7 @@ public class dwite200612p3 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
 		int i = n;
@@ -19,6 +20,7 @@ public class dwite200612p3 {
 			i++;
 		out.println(i);
 	}
+	
 	
 	static boolean isCircularPrime(int n) {
 		String s = Integer.toString(n);
@@ -29,6 +31,7 @@ public class dwite200612p3 {
 		}
 		return true;
 	}
+	
 	
 	
 	static boolean[] sievePrimes(int n) {
@@ -46,6 +49,7 @@ public class dwite200612p3 {
 		return isPrime;
 	}
 	
+	
 	static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
@@ -55,6 +59,7 @@ public class dwite200612p3 {
 		}
 		return y;
 	}
+	
 	
 	
 	static String infile = "DATA31.txt";  // Specify null to use System.in

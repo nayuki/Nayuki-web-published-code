@@ -10,6 +10,7 @@ public class dwite200612p2 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int m = Integer.parseInt(st.nextToken());
@@ -20,8 +21,10 @@ public class dwite200612p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
@@ -47,10 +50,12 @@ public class dwite200612p2 {
 	}
 	
 	
+	
 	static class Point {
 		
 		int x;
 		int y;
+		
 		
 		
 		Point(int n) {
@@ -73,12 +78,14 @@ public class dwite200612p2 {
 			
 		}
 		
+		
 		double distance(Point other) {
 			int dx = Math.abs(x - other.x);
 			int dy = Math.abs(y - other.y);
 			int diag = Math.min(dx, dy);
 			return diag * 1.5 + (dx - diag) + (dy - diag);
 		}
+		
 		
 		// Returns the smallest number y such that y*y >= x.
 		static int ceilingSqrt(int x) {

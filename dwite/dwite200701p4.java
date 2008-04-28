@@ -10,12 +10,14 @@ public class dwite200701p4 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int n = Integer.parseInt(st.nextToken());
 		int r = Integer.parseInt(st.nextToken());
 		out.println(partition(n, r));
 	}
+	
 	
 	// Returns the number of ways n can be written as a sum of k positive integers.
 	static int partition(int n, int k) {
@@ -30,8 +32,10 @@ public class dwite200701p4 {
 	}
 	
 	
+	
 	static String infile = "DATA41.txt";  // Specify null to use System.in
 	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

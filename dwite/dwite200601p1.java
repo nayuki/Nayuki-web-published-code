@@ -9,6 +9,7 @@ public class dwite200601p1 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		double h = Double.parseDouble(in.readLine());
 		double r = Double.parseDouble(in.readLine());
@@ -18,8 +19,10 @@ public class dwite200601p1 {
 	}
 	
 	
+	
 	static String infile = "DATA11.txt";  // Specify null to use System.in
 	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

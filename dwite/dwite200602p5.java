@@ -8,10 +8,12 @@ public class dwite200602p5 {
 	static boolean[] isPrime = sievePrimes(1000000);
 	
 	
+	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
 	}
+	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
@@ -25,10 +27,12 @@ public class dwite200602p5 {
 		out.println(palin);
 	}
 	
+	
 	static boolean isPalindrome(int x) {
 		String s = Integer.toString(x);
 		return new StringBuilder(s).reverse().toString().equals(s);
 	}
+	
 	
 	
 	static boolean[] sievePrimes(int n) {
@@ -46,6 +50,7 @@ public class dwite200602p5 {
 		return isPrime;
 	}
 	
+	
 	static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
@@ -57,8 +62,10 @@ public class dwite200602p5 {
 	}
 	
 	
+	
 	static String infile = "DATA51.txt";  // Specify null to use System.in
 	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

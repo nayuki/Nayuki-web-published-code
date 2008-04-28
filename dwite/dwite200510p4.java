@@ -12,6 +12,7 @@ public class dwite200510p4 {
 			mainOnce(in, out, grid);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out, char[][] grid) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int y = Integer.parseInt(st.nextToken());
@@ -25,6 +26,7 @@ public class dwite200510p4 {
 		else
 			throw new AssertionError();
 	}
+	
 	
 	static int reveal(char[][] grid, int x, int y, boolean[][] visited) {
 		if (visited[y][x] || grid[y][x] == ' ')
@@ -44,6 +46,7 @@ public class dwite200510p4 {
 		return result;
 	}
 	
+	
 	static void calculateNeighbouringMines(char[][] grid) {
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[0].length - 1; x++) {
@@ -52,6 +55,7 @@ public class dwite200510p4 {
 			}
 		}
 	}
+	
 	
 	static int getMineNeighbourCount(char[][] grid, int x, int y) {
 		int count = 0;
@@ -65,6 +69,7 @@ public class dwite200510p4 {
 		if (grid[y + 1][x + 1] == 'X') count++;
 		return count;
 	}
+	
 	
 	
 	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
@@ -84,8 +89,10 @@ public class dwite200510p4 {
 	}
 	
 	
+	
 	static String infile = "DATA41.txt";  // Specify null to use System.in
 	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

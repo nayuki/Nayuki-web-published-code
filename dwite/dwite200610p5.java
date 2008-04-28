@@ -10,11 +10,13 @@ public class dwite200610p5 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		BigInteger x = new BigInteger(sanitizeUsingRegex(in.readLine()));
 		BigInteger y = new BigInteger(sanitizeUsingRegex(in.readLine()));
 		out.println(x.add(y));
 	}
+	
 	
 	static String sanitize(String s) {
 		StringBuilder sb = new StringBuilder();
@@ -26,13 +28,16 @@ public class dwite200610p5 {
 		return sb.toString();
 	}
 	
+	
 	static String sanitizeUsingRegex(String s) {
 		return s.replaceAll("[^0-9]", "");
 	}
 	
 	
+	
 	static String infile = "DATA51.txt";  // Specify null to use System.in
 	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

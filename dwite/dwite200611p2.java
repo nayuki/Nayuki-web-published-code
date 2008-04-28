@@ -11,6 +11,7 @@ public class dwite200611p2 {
 			mainOnce(in, out, winningnumbers);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out, List<Integer> winningNumbers) throws IOException {
 		List<Integer> numbers = parseNumbers(in.readLine());
 		
@@ -35,6 +36,7 @@ public class dwite200611p2 {
 		out.println(prize);
 	}
 	
+	
 	static List<Integer> parseNumbers(String s) {
 		StringTokenizer st = new StringTokenizer(s, " ");
 		List<Integer> result = new ArrayList<Integer>();
@@ -44,8 +46,10 @@ public class dwite200611p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

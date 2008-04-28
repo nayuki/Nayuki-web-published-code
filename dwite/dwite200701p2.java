@@ -32,6 +32,7 @@ public class dwite200701p2 {
 		}
 	}
 	
+	
 	static void incrementNeighbours(int[][] neighmines, int x, int y) {  // Uses the Moore neighbourhood
 		for (int yy = y - 1; yy <= y+1; yy++) {
 			for (int xx = x - 1; xx <= x+1; xx++) {
@@ -42,8 +43,10 @@ public class dwite200701p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
@@ -74,6 +77,7 @@ public class dwite200701p2 {
 		
 		int x;
 		int y;
+		
 		
 		
 		Point(int x, int y) {

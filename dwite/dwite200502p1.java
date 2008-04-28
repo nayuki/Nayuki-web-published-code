@@ -8,10 +8,12 @@ public class dwite200502p1 {
 	static int[] y = { 1,  2, -1, -2,  2,  3, -3, -3,  3,  4, -2, -5,  5,  5, -5, -5,  4,  1, -4, -1};
 	
 	
+	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
 	}
+	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String s = in.readLine();
@@ -23,18 +25,22 @@ public class dwite200502p1 {
 		out.printf("%d.%d%n", area / 10, area % 10);
 	}
 	
+	
 	static double getArea(int A, int B, int C, int D) {
 		int temp = distSqr(B, C) + distSqr(D, A) - distSqr(A, B) - distSqr(C, D);
 		return Math.sqrt(4*distSqr(B, D)*distSqr(A, C) - temp*temp) / 4;
 	}
+	
 	
 	static int distSqr(int a, int b) {
 		return (x[a]-x[b])*(x[a]-x[b]) + (y[a]-y[b])*(y[a]-y[b]);
 	}
 	
 	
+	
 	static String infile = "DATA11.txt";  // Specify null to use System.in
 	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

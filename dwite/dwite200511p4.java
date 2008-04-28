@@ -10,6 +10,7 @@ public class dwite200511p4 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int[] minBlocks = new int[32001];  // minBlocks[i] is the minimum number of blocks to build a tower of height i
 		minBlocks[0] = 0;
@@ -27,6 +28,7 @@ public class dwite200511p4 {
 		out.println(minBlocks[t]);
 	}
 	
+	
 	static void update(int[] minBlocks, int blockHeight, int blockCount) {
 		for (int i = minBlocks.length - 1; i >= 0; i--) {
 			if (minBlocks[i] == Integer.MAX_VALUE / 2)
@@ -38,8 +40,10 @@ public class dwite200511p4 {
 	}
 	
 	
+	
 	static String infile = "DATA41.txt";  // Specify null to use System.in
 	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

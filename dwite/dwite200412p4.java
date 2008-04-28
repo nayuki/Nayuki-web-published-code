@@ -5,8 +5,10 @@ import java.io.*;
 public class dwite200412p4 {
 	
 	static boolean[] isPrime;
+	
 	static int[] primes;
 	static int primesLength;
+	
 	
 	static {
 		isPrime = sievePrimes(99999);
@@ -21,10 +23,12 @@ public class dwite200412p4 {
 	}
 	
 	
+	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out);
 	}
+	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
@@ -35,6 +39,7 @@ public class dwite200412p4 {
 			// out.println(countSumsSemifast(n, 3, 0, 0));
 			out.println(countSumsFast(n));
 	}
+	
 	
 	// Returns the number of unordered sums that add up to 'sum' with exactly 'terms' prime terms, each of which is at least 'minimum'.
 	static int countSums(int sum, int terms, int minimum) {
@@ -53,6 +58,7 @@ public class dwite200412p4 {
 		}
 	}
 	
+	
 	// Assumes that primes[minimumIndex] >= minimum.
 	static int countSumsSemifast(int sum, int terms, int minimum, int minimumIndex) {
 		if (terms == 1) {
@@ -68,6 +74,7 @@ public class dwite200412p4 {
 		}
 	}
 	
+	
 	// Hard-coded for 3-term sums.
 	static int countSumsFast(int sum) {
 		int count = 0;
@@ -81,6 +88,7 @@ public class dwite200412p4 {
 		}
 		return count;
 	}
+	
 	
 	
 	static boolean[] sievePrimes(int n) {
@@ -98,6 +106,7 @@ public class dwite200412p4 {
 		return isPrime;
 	}
 	
+	
 	static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
@@ -109,8 +118,10 @@ public class dwite200412p4 {
 	}
 	
 	
+	
 	static String infile = "DATA41.txt";  // Specify null to use System.in
 	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

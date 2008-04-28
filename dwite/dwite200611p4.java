@@ -8,6 +8,8 @@ public class dwite200611p4 {
 	static final int HEIGHT = 8;
 	static final int WIDTH = 8;
 	
+	
+	
 	@SuppressWarnings("unchecked")
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
 		int[][] money = new int[HEIGHT][WIDTH];
@@ -34,15 +36,18 @@ public class dwite200611p4 {
 				}
 			}
 		}
-		// At the end of the loop, each list in maxmoney is in descending order. 
+		// At the end of the loop, each list in maxmoney is in descending order.
 		
 		List<Integer> end = maxmoney[0][WIDTH - 1];
 		for (int i = 0; i < Math.min(5, end.size()); i++)
 			out.println(end.get(i));
 	}
 	
+	
+	
 	static String infile = "DATA41.txt";  // Specify null to use System.in
 	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

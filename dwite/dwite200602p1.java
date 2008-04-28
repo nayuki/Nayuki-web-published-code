@@ -19,6 +19,7 @@ public class dwite200602p1 {
 			mainOnce(in, out, px, py);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out, int[] px, int[] py) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int x1 = Integer.parseInt(st.nextToken());
@@ -34,8 +35,10 @@ public class dwite200602p1 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

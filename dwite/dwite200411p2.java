@@ -18,6 +18,7 @@ public class dwite200411p2 {
 	}
 	
 	
+	
 	static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
@@ -29,8 +30,10 @@ public class dwite200411p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

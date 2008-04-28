@@ -12,6 +12,7 @@ public class dwite200412p5 {
 			mainOnce(in, out);
 	}
 	
+	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String line = process(in.readLine());
 		int minindex = -1;
@@ -31,13 +32,16 @@ public class dwite200412p5 {
 			out.println("NO PROVINCE FOUND");
 	}
 	
+	
 	static String process(String s) {  // Converts to lowercase and strips all non-letters
 		return s.toLowerCase().replaceAll("[^a-z]", "");
 	}
 	
 	
+	
 	static String infile = "DATA51.txt";  // Specify null to use System.in
 	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

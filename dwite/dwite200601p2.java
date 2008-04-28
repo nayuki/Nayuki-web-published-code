@@ -7,8 +7,10 @@ public class dwite200601p2 {
 	static int[] lettervalue = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
 	
 	
+	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
-		int[][] boardvalue = {  // 0 = normal, 1 = pink, 2 = red, 3 = light blue, 4 = dark blue, 5-9 = same meaning but to be scored and cleared
+		// 0 = normal, 1 = pink, 2 = red, 3 = light blue, 4 = dark blue, 5-9 = same meaning but to be scored and cleared
+		int[][] boardvalue = {
 			{2, 0, 0, 3, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 2},
 			{0, 1, 0, 0, 0, 4, 0, 0, 0, 4, 0, 0, 0, 1, 0},
 			{0, 0, 1, 0, 0, 0, 3, 0, 3, 0, 0, 0, 1, 0, 0},
@@ -30,6 +32,7 @@ public class dwite200601p2 {
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out, board, boardvalue);
 	}
+	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out, char[][] board, int[][] boardvalue) throws IOException {
 		int col = in.readLine().charAt(0) - 'A';
@@ -74,6 +77,7 @@ public class dwite200601p2 {
 		}
 	}
 	
+	
 	static int scoreHorizontal(int x, int y, char[][] board, int[][] boardvalue) {
 		int start, end;
 		for (start = x; start >= 1 && board[y][start - 1] != 0; start--) ;
@@ -108,6 +112,7 @@ public class dwite200601p2 {
 		score *= wordmult;
 		return score;
 	}
+	
 	
 	static int scoreVertical(int x, int y, char[][] board, int[][] boardvalue) {
 		int start, end;
@@ -145,8 +150,10 @@ public class dwite200601p2 {
 	}
 	
 	
+	
 	static String infile = "DATA21.txt";  // Specify null to use System.in
 	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;
