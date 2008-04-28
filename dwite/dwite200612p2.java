@@ -80,7 +80,7 @@ public class dwite200612p2 {
 			return diag * 1.5 + (dx - diag) + (dy - diag);
 		}
 		
-		
+		// Returns the smallest number y such that y*y >= x.
 		static int ceilingSqrt(int x) {
 			int y = 0xFFFF;
 			for (int i = 15; i >= 0; i--) {
