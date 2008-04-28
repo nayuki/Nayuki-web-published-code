@@ -39,6 +39,7 @@ public class dwite200411p1 {
 	}
 	
 	
+	
 	static int[] toDigits(String str) {
 		int[] digits = new int[str.length()];
 		for (int i = 0; i < digits.length; i++) {

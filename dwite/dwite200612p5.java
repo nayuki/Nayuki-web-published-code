@@ -13,7 +13,9 @@ public class dwite200612p5 {
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String ciphertext = in.readLine();
 		String someplaintext = in.readLine();
-		int shift = (ciphertext.charAt(0) - someplaintext.charAt(0) + 26) % 26;  // Derive shift from the leading character
+		
+		// Derive shift from the leading character
+		int shift = (ciphertext.charAt(0) - someplaintext.charAt(0) + 26) % 26;
 		out.println(decrypt(ciphertext, shift));
 	}
 	

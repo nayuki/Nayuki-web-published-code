@@ -70,7 +70,7 @@ public class dwite200610p3 {
 		
 		
 		double getPpm() {
-			return (double)score/time;
+			return (double)score / time;
 		}
 		
 		

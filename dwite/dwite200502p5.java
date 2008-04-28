@@ -13,8 +13,9 @@ public class dwite200502p5 {
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int h = Integer.parseInt(in.readLine());         // Water depth in metres
 		int d = Integer.parseInt(in.readLine()) * 1000;  // Distance in metres
-		double c = Math.sqrt(9.8 * h);                   // Wave speed in metres per second
-		long time = Math.round(d / c);                   // Travel time in seconds
+		
+		double c = Math.sqrt(9.8 * h);  // Wave speed in metres per second
+		long time = Math.round(d / c);  // Travel time in seconds
 		out.printf("%d hour(s) %d minute(s) %d second(s)%n", time / 3600, time / 60 % 60, time % 60);
 	}
 	

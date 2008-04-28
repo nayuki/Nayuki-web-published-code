@@ -15,7 +15,9 @@ public class dwite200510p3 {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int a = Integer.parseInt(st.nextToken());
 		int b = Integer.parseInt(st.nextToken());
-		if (a > b) {  // Let a be smaller than or equal to b
+		
+		// Let a be smaller than or equal to b
+		if (a > b) {
 			int tp = a;
 			a = b;
 			b = tp;

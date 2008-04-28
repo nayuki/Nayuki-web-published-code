@@ -16,8 +16,8 @@ public class dwite200610p2 {
 		double height = Double.parseDouble(st.nextToken());
 		double weight = Double.parseDouble(st.nextToken());
 		String system = in.readLine();
-		double bmi = weight / (height * height);
 		
+		double bmi = weight / (height * height);
 		if      (system.equals("METRIC"  )) bmi *= 1;
 		else if (system.equals("IMPERIAL")) bmi *= 703;
 		else throw new AssertionError();

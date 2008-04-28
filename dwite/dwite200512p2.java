@@ -19,7 +19,8 @@ public class dwite200512p2 {
 		
 		int startx = -1;
 		int starty = -1;
-		outer: for (int y = 1; y <= height; y++) {
+		outer:
+		for (int y = 1; y <= height; y++) {
 			for (int x = 1; x <= width; x++) {
 				if (grid[y][x] == 'E') {
 					startx = x;

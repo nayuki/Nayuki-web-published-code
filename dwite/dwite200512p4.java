@@ -21,13 +21,11 @@ public class dwite200512p4 {
 		
 		boolean initial = true;
 		for (int i = 0; i < freq.length; i++) {
-			if (freq[i] == 0)
-				continue;
-			if (initial)
-				initial = false;
-			else
-				out.print(":");
-			out.printf("%c-%d", (char)('A' + i), freq[i]);
+			if (freq[i] != 0) {
+				if (initial) initial = false;
+				else out.print(":");
+				out.printf("%c-%d", (char)('A' + i), freq[i]);
+			}
 		}
 		out.println();
 	}

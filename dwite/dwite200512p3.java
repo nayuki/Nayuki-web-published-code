@@ -15,24 +15,27 @@ public class dwite200512p3 {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int n = Integer.parseInt(st.nextToken());
 		int d = Integer.parseInt(st.nextToken());
-		if (d < 0) {  // Make only the numerator be possibly negative
+		
+		// Make only the numerator be possibly negative
+		if (d < 0) {
 			d = -d;
 			n = -n;
 		}
-		if (n < 0) {  // Write the sign and handle positive fractions from now on
+		
+		// Write the sign and handle positive fractions from now on
+		if (n < 0) {
 			out.print("-");
 			n = -n;
 		}
-		int gcd = gcd(n, d);  // Reduce to lowest terms
+		
+		// Reduce to lowest terms
+		int gcd = gcd(n, d);
 		n /= gcd;
 		d /= gcd;
 		
-		if (d == 1)  // Integer
-			out.printf("%d%n", n);
-		else if (n < d)  // Simple fraction
-			out.printf("%d/%d%n", n, d);
-		else  // Mixed fraction
-			out.printf("%d %d/%d%n", n / d, n % d, d);
+		if (d == 1)     out.printf("%d%n", n);                      // Integer
+		else if (n < d) out.printf("%d/%d%n", n, d);                // Simple fraction
+		else            out.printf("%d %d/%d%n", n / d, n % d, d);  // Mixed fraction
 	}
 	
 	

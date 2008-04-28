@@ -22,7 +22,7 @@ public class dwite200410p5 {
 	static String add(String x, String y) {  // x and y each must have at least 1 digit
 		StringBuilder sb = new StringBuilder();
 		int carry = 0;
-		for (int i = 0; i < Math.max(x.length(), y.length()); i++) {
+		for (int i = 0; i < Math.max(x.length(),y.length()); i++) {
 			int sum = carry;
 			if (i < x.length()) sum += x.charAt(x.length() - 1 - i) - '0';
 			if (i < y.length()) sum += y.charAt(y.length() - 1 - i) - '0';

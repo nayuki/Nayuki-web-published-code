@@ -26,6 +26,7 @@ public class dwite200511p3 {
 				worstline = i;
 			}
 		}
+		
 		String manyfew;
 		if      (worstdev < 0) manyfew = "FEW";
 		else if (worstdev > 0) manyfew = "MANY";

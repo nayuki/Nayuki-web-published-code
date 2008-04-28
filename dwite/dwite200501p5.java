@@ -13,15 +13,18 @@ public class dwite200501p5 {
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st;
+		
 		st = new StringTokenizer(in.readLine(), " ");
 		String xstr = st.nextToken();
 		String xbase = st.nextToken();
+		int x = Integer.parseInt(xstr, Integer.parseInt(xbase));
+		
 		st = new StringTokenizer(in.readLine(), " ");
 		String ystr = st.nextToken();
 		String ybase = st.nextToken();
-		String outbase = in.readLine();
-		int x = Integer.parseInt(xstr, Integer.parseInt(xbase));
 		int y = Integer.parseInt(ystr, Integer.parseInt(ybase));
+		
+		String outbase = in.readLine();
 		out.println(Integer.toString(x * y, Integer.parseInt(outbase)));
 	}
 	

@@ -14,7 +14,8 @@ public class dwite200412p3 {
 		double length     = Double.parseDouble(in.readLine());  // Variable L
 		double separation = Double.parseDouble(in.readLine());  // Variable D
 		double angle      = Double.parseDouble(in.readLine());  // Variable x
-		double refldist   = separation / Math.tan(Math.toRadians(angle));  // Horizontal distance between reflections
+		
+		double refldist = separation / Math.tan(Math.toRadians(angle));  // Horizontal distance between reflections
 		out.println((int)Math.floor(length / refldist + 0.5));
 	}
 	
