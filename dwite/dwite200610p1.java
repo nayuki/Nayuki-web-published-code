@@ -116,7 +116,8 @@ public class dwite200610p1 {
 		
 		
 		PrintingConfiguration(int quantity, String paperSize, String colour) {
-			if      (quantity <   100) quantityClass = 0;
+			if      (quantity <     1) throw new AssertionError("Invalid quantity");
+			else if (quantity <   100) quantityClass = 0;
 			else if (quantity <   500) quantityClass = 1;
 			else if (quantity <  1000) quantityClass = 2;
 			else if (quantity < 10000) quantityClass = 3;
@@ -134,22 +135,22 @@ public class dwite200610p1 {
 		
 		
 		
-		public boolean equals(Object o) {
-			if (this == o)
+		public boolean equals(Object other) {
+			if (this == other)
 				return true;
-			else if (!(o instanceof PrintingConfiguration))
+			else if (!(other instanceof PrintingConfiguration))
 				return false;
 			else {
-				PrintingConfiguration p = (PrintingConfiguration)o;
-				return quantityClass == p.quantityClass
-				    && paperClass == p.paperClass
-				    && colour == p.colour;
+				PrintingConfiguration pc = (PrintingConfiguration)other;
+				return quantityClass == pc.quantityClass
+				    && paperClass    == pc.paperClass
+				    && colour        == pc.colour;
 			}
 		}
 		
 		
 		public int hashCode() {
-			return quantityClass << 16 ^ paperClass << 8 ^ (colour ? 1 : 0);
+			return (quantityClass << 3) ^ (paperClass << 1) ^ (colour ? 1 : 0);
 		}
 		
 	}
