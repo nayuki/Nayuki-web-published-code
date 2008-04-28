@@ -65,7 +65,11 @@ public class dwite200510p2 {
 	
 	
 	static boolean isBreakpoint(int i) {
-		return i == 1 || i == 5 || i == 10 || i == 50 || i == 100;
+		return i ==   1
+		    || i ==   5
+		    || i ==  10
+		    || i ==  50
+		    || i == 100;
 	}
 	
 	
