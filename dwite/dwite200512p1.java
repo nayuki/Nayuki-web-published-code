@@ -11,14 +11,15 @@ public class dwite200512p1 {
 	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		int s = Integer.parseInt(in.readLine());
-		int e = Integer.parseInt(in.readLine());
-		int sp = 0;
-		for (; s <= e; s++) {
-			if (isSemiprime(s))
-				sp++;
+		int start = Integer.parseInt(in.readLine());
+		int end = Integer.parseInt(in.readLine());
+		
+		int count = 0;
+		for (int i = start; i <= end; i++) {
+			if (isSemiprime(i))
+				count++;
 		}
-		out.println(sp);
+		out.println(count);
 	}
 	
 	
@@ -40,6 +41,7 @@ public class dwite200512p1 {
 		}
 		return true;
 	}
+	
 	
 	static int sqrt(int x) {
 		int y = 0;

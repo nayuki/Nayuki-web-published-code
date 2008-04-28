@@ -18,19 +18,19 @@ public class dwite200510p3 {
 		
 		// Let a be smaller than or equal to b
 		if (a > b) {
-			int tp = a;
+			int temp = a;
 			a = b;
-			b = tp;
+			b = temp;
 		}
 		
 		// Compute the sum 'a + a+1 + a+2 + ... + b-2 + b-1 + b' in closed form
-		int sum = b*(b+1)/2 - a*(a-1)/2;  // Alternatively, (b-a+1)*a + (b-a)*(b-a+1)/2
+		int sum = (b-a+1) * (a+b) / 2;  // Alternatively, b*(b+1)/2 - a*(a-1)/2
 		
 		// Build the summation expression
 		StringBuffer sb = new StringBuffer();
-		for (; a <= b; a++) {
-			sb.append(a);
-			if (a != b)
+		for (int i = a; i <= b; i++) {
+			sb.append(i);
+			if (i != b)
 				sb.append("+");
 		}
 		

@@ -13,7 +13,7 @@ public class dwite200502p3 {
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
 		int d = Integer.parseInt(in.readLine());
-		do {
+		while (true) {
 			out.print(n / d);  // Output whole part
 			n %= d;  // Take fractional part
 			if (n == 0)
@@ -22,7 +22,7 @@ public class dwite200502p3 {
 			n = d;
 			d = temp;
 			out.print(",");
-		} while (true);
+		}
 		out.println();
 	}
 	
