@@ -44,7 +44,7 @@ public class dwite200501p4 {
 			if (s.equals(months[i]))
 				return i + 1;
 		}
-		throw new AssertionError();
+		throw new IllegalArgumentException("Invalid month");
 	}
 	
 	

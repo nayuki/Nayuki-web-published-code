@@ -32,7 +32,7 @@ public class dwite200611p2 {
 		else if (regularmatch == 5 && bonusmatch == 0) prize = "Third Prize";
 		else if (regularmatch == 5 && bonusmatch == 1) prize = "Second Prize";
 		else if (regularmatch == 6) prize = "First Prize";
-		else throw new AssertionError();
+		else throw new AssertionError("Invalid lottery result");
 		out.println(prize);
 	}
 	

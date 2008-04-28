@@ -13,7 +13,7 @@ public class dwite200602p3 {
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String line = in.readLine();
 		if (line.length() != 12)
-			throw new AssertionError();
+			throw new AssertionError("Invalid length for UPC digit sequence");
 		int sum = getUpcSumWithoutCheckDigit(toDigits(line));
 		out.printf("%s%d%n", line.substring(0, 11), (10 - sum) % 10);
 	}

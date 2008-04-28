@@ -65,7 +65,7 @@ public class dwite200410p3 {
 			else if (unit.equals("dm")) this.height = height *  100;
 			else if (unit.equals("cm")) this.height = height *   10;
 			else if (unit.equals("mm")) this.height = height *    1;
-			else throw new AssertionError();
+			else throw new AssertionError("Invalid unit");
 		}
 		
 		

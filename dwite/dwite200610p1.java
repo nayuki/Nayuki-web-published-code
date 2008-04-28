@@ -125,11 +125,11 @@ public class dwite200610p1 {
 			if      (paperSize.equals("8.5\"x11\"")) paperClass = 0;
 			else if (paperSize.equals("8.5\"x14\"")) paperClass = 1;
 			else if (paperSize.equals("11\"x17\"" )) paperClass = 2;
-			else throw new AssertionError();
+			else throw new AssertionError("Invalid paper size");
 			
 			if      (colour.equals("B&W"   )) this.colour = false;
 			else if (colour.equals("COLOUR")) this.colour = true;
-			else throw new AssertionError();
+			else throw new AssertionError("Invalid colour configuration");
 		}
 		
 		

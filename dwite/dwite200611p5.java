@@ -26,8 +26,10 @@ public class dwite200611p5 {
 	
 	
 	static String solve(int n) {
+		if (n % 2 == 0)
+			throw new IllegalArgumentException("Not applicable to even numbers");
 		if (n <= 7)
-			throw new AssertionError();
+			throw new IllegalArgumentException("Not applicable for numbers 7 or less");
 		return solve(n, 3, Integer.MAX_VALUE);
 	}
 	

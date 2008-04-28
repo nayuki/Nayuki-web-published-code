@@ -16,25 +16,25 @@ public class dwite200411p4 {
 		StringTokenizer st;
 		
 		st = new StringTokenizer(in.readLine(), " ");  // "sum = value"
-		if (!st.nextToken().equals("sum")) throw new AssertionError();
-		if (!st.nextToken().equals("=")) throw new AssertionError();
+		if (!st.nextToken().equals("sum")) throw new AssertionError("Expected \"sum\"");
+		if (!st.nextToken().equals("=")) throw new AssertionError("Expected \"=\"");
 		int sum = Integer.parseInt(st.nextToken());
 		
 		st = new StringTokenizer(in.readLine(), " ");  // "For i = start To finish"
-		if (!st.nextToken().equals("For")) throw new AssertionError();
-		if (!st.nextToken().equals("i")) throw new AssertionError();
-		if (!st.nextToken().equals("=")) throw new AssertionError();
+		if (!st.nextToken().equals("For")) throw new AssertionError("Expected \"For\"");
+		if (!st.nextToken().equals("i")) throw new AssertionError("Expected \"i\"");
+		if (!st.nextToken().equals("=")) throw new AssertionError("Expected \"=\"");
 		int start = Integer.parseInt(st.nextToken());
-		if (!st.nextToken().equals("To")) throw new AssertionError();
+		if (!st.nextToken().equals("To")) throw new AssertionError("Expected \"To\"");
 		int finish = Integer.parseInt(st.nextToken());
 		
 		st = new StringTokenizer(in.readLine(), " ");  // "sum = formula"
-		if (!st.nextToken().equals("sum")) throw new AssertionError();
-		if (!st.nextToken().equals("=")) throw new AssertionError();
+		if (!st.nextToken().equals("sum")) throw new AssertionError("Expected \"sum\"");
+		if (!st.nextToken().equals("=")) throw new AssertionError("Expected \"=\"");
 		while (st.hasMoreTokens())
 			formula.add(st.nextToken());
 		
-		if (!in.readLine().equals("Next i")) throw new AssertionError();  // "Next i"
+		if (!in.readLine().equals("Next i")) throw new AssertionError("Expected \"Next i\"");  // "Next i"
 		
 		for (int i = start; i <= finish; i++)
 			sum = executeOnce(sum, i, formula);
@@ -87,7 +87,7 @@ public class dwite200411p4 {
 		else if (opB == '*' || opB == '\\')
 			return opA == '*' || opA == '\\';
 		else
-			throw new AssertionError();
+			throw new AssertionError("Invalid operator");
 	}
 	
 	
@@ -102,7 +102,7 @@ public class dwite200411p4 {
 			case '\\':
 				return x / y;
 			default:
-				throw new AssertionError();
+				throw new AssertionError("Invalid operator");
 		}
 	}
 	

@@ -21,7 +21,7 @@ public class dwite200701p2 {
 				else if (c >= 'a' && c <= 'z')
 					queries.put(c, new Point(x, y));
 				else
-					throw new AssertionError();
+					throw new AssertionError("Invalid cell");
 			}
 		}
 		

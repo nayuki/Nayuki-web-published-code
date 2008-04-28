@@ -58,7 +58,7 @@ public class dwite200512p2 {
 		while (true) {
 			Point cell = queue.poll();
 			if (cell == null)
-				throw new AssertionError();
+				throw new AssertionError("No path exists");
 			int x = cell.x;
 			int y = cell.y;
 			int dist = cell.distance;

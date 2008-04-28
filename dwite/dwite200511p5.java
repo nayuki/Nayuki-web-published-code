@@ -21,7 +21,7 @@ public class dwite200511p5 {
 			if      (line.charAt(i + 3) != '=') str = toString(word, 3);
 			else if (line.charAt(i + 2) != '=') str = toString(word, 2);
 			else if (line.charAt(i + 1) != '=') str = toString(word, 1);
-			else throw new AssertionError();
+			else throw new AssertionError("Invalid Base64-encoded string");
 			out.print(str);
 		}
 		out.println();
@@ -35,7 +35,7 @@ public class dwite200511p5 {
 		if (c == '+') return 62;
 		if (c == '/') return 63;
 		if (c == '=') return  0;
-		throw new AssertionError();
+		throw new IllegalArgumentException("Invalid character");
 	}
 	
 	

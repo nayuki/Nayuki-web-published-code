@@ -33,7 +33,7 @@ public class dwite200602p4 {
 				return;
 			}
 		}
-		throw new AssertionError();
+		throw new AssertionError("No free cell in column");
 	}
 	
 	

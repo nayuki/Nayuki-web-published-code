@@ -20,7 +20,7 @@ public class dwite200610p2 {
 		double bmi = weight / (height * height);
 		if      (system.equals("METRIC"  )) bmi *= 1;
 		else if (system.equals("IMPERIAL")) bmi *= 703;
-		else throw new AssertionError();
+		else throw new AssertionError("Invalid measurement system");
 		
 		String category;
 		if      (bmi <  15.0) category = "STARVATION";

@@ -41,8 +41,8 @@ public class dwite200601p4 {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int x = Integer.parseInt(st.nextToken());
 		String fromunit = st.nextToken();
-		if (!st.nextToken().equals("=")) throw new AssertionError();
-		if (!st.nextToken().equals("?")) throw new AssertionError();
+		if (!st.nextToken().equals("=")) throw new AssertionError("Expected \"=\"");
+		if (!st.nextToken().equals("?")) throw new AssertionError("Expected \"?\"");
 		String tounit = st.nextToken();
 		out.printf("%.2f%n", (double)x * teaspoons.get(fromunit) / teaspoons.get(tounit));
 	}

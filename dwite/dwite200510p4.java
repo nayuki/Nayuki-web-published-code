@@ -24,7 +24,7 @@ public class dwite200510p4 {
 		else if (grid[y][x] == '0')
 			out.printf("NO MINE - %d SQUARES REVEALED%n", reveal(grid, x, y, new boolean[grid.length][grid[0].length]));
 		else
-			throw new AssertionError();
+			throw new AssertionError("Invalid cell");
 	}
 	
 	

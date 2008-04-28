@@ -30,7 +30,7 @@ public class dwite200511p3 {
 		String manyfew;
 		if      (worstdev < 0) manyfew = "FEW";
 		else if (worstdev > 0) manyfew = "MANY";
-		else throw new AssertionError();
+		else throw new AssertionError("No mistakes made");
 		out.printf("LINE %d - %d SYLLABLE(S) TOO %s%n", worstline + 1, Math.abs(worstdev), manyfew);
 	}
 	

@@ -36,7 +36,7 @@ public class dwite200601p5 {
 		while (true) {
 			Node node = queue.poll();
 			if (node == null)
-				throw new AssertionError();
+				throw new AssertionError("No path exists");
 			else if (node == dest)
 				break;
 			else {
