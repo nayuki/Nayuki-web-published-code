@@ -5,7 +5,7 @@ import java.util.*;
 // DWITE - October 2006 - Problem 1: Pete's Printing Press
 public class dwite200610p1 {
 	
-	static Map<PrintingConfiguration,Double> unitCost;
+	static final Map<PrintingConfiguration,Double> unitCost;
 	
 	static {
 		unitCost = new HashMap<PrintingConfiguration,Double>();

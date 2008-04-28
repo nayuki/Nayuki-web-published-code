@@ -15,7 +15,7 @@ public class dwite200601p4 {
 	 * 1 tablespoon =  3 teaspoons    =    3 teaspoons
 	 * 1 teaspoon   = ~5 millilitres  =    1 teaspoon
 	 */
-	static Map<String,Integer> teaspoons;
+	static final Map<String,Integer> teaspoons;
 	
 	static {
 		teaspoons = new HashMap<String,Integer>();

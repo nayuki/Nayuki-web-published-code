@@ -4,7 +4,7 @@ import java.io.*;
 // DWITE - December 2004 - Problem 5: Hidden Geography
 public class dwite200412p5 {
 	
-	static String[] provinces = {
+	static final String[] provinces = {
 		"British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario",
 		"Quebec", "Nova Scotia", "Newfoundland", "New Brunswick", "Prince Edward Island"
 	};

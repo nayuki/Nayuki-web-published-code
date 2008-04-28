@@ -4,7 +4,7 @@ import java.io.*;
 // DWITE - November 2005 - Problem 3: Cinquain Poetry
 public class dwite200511p3 {
 	
-	static int[] syllablePattern = {2, 4, 6, 8, 2};
+	static final int[] syllablePattern = {2, 4, 6, 8, 2};
 	
 	
 	

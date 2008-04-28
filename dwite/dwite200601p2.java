@@ -4,7 +4,7 @@ import java.io.*;
 // DWITE - January 2006 - Problem 2: Scrabble
 public class dwite200601p2 {
 	
-	static int[] lettervalue = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
+	static final int[] lettervalue = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
 	
 	
 	

@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 // DWITE - January 2007 - Problem 3: Elapsed Time in Seconds
 public class dwite200701p3 {
 	
-	static int[] cumulativeDays = {-1, -1, -1, 0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 337};
+	static final int[] cumulativeDays = {-1, -1, -1, 0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 337};
 	
 	
 	

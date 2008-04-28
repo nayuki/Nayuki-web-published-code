@@ -4,8 +4,8 @@ import java.io.*;
 // DWITE - February 2005 - Problem 1: Bretschneider's Formula
 public class dwite200502p1 {
 	
-	static int[] x = { 1, -1, -2,  2,  2, -2, -3,  1,  3, -1, -4,  3,  4, -4, -4,  4,  2, -4, -2,  1};
-	static int[] y = { 1,  2, -1, -2,  2,  3, -3, -3,  3,  4, -2, -5,  5,  5, -5, -5,  4,  1, -4, -1};
+	static final int[] x = { 1, -1, -2,  2,  2, -2, -3,  1,  3, -1, -4,  3,  4, -4, -4,  4,  2, -4, -2,  1};
+	static final int[] y = { 1,  2, -1, -2,  2,  3, -3, -3,  3,  4, -2, -5,  5,  5, -5, -5,  4,  1, -4, -1};
 	
 	
 	
