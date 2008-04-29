@@ -33,7 +33,7 @@ public class dwite200502p2 {
 		}
 		
 		// Write output
-		out.println(maxcoiled + " " + maxuncoiled);
+		out.printf("%d %d%n", maxcoiled, maxuncoiled);
 	}
 	
 	

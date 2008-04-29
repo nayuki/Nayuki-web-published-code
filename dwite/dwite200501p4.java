@@ -5,8 +5,14 @@ import java.util.StringTokenizer;
 // DWITE - January 2005 - Problem 4: Zeller's Congruence
 public class dwite200501p4 {
 	
-	private static final String[] months = {"JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"};
-	private static final String[] daysOfWeek = {"SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"};
+	private static final String[] months = {
+		"JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+		"JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+	};
+	
+	private static final String[] daysOfWeek = {
+		"SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"
+	};
 	
 	
 	

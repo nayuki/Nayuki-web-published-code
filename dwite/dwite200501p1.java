@@ -19,8 +19,10 @@ public class dwite200501p1 {
 		
 		// Sort ascending and write the output
 		Collections.sort(golfers);
-		for (int i = 0; i < 5; i++)
-			out.printf("%s %d%n", golfers.get(i).name, golfers.get(i).score);
+		for (int i = 0; i < 5; i++) {
+			Golfer golfer = golfers.get(i);
+			out.printf("%s %d%n", golfer.name, golfer.score);
+		}
 	}
 	
 	

@@ -30,7 +30,8 @@ public class dwite200501p2 {
 		SortedSet<Character> querykeys = new TreeSet<Character>(queries.keySet());
 		for (Character key : querykeys) {
 			Point p = queries.get(key);
-			out.printf("%c-%d%n", key, neighbouringmines[p.y + 1][p.x + 1]);
+			int mines = neighbouringmines[p.y + 1][p.x + 1];
+			out.printf("%c-%d%n", key, mines);
 		}
 	}
 	
