@@ -79,6 +79,11 @@ public class dwite200410p3 {
 				return name.compareTo(s.name);
 		}
 		
+		
+		public String toString() {
+			return String.format("%s (%.0f mm)", name, height);
+		}
+		
 	}
 	
 }

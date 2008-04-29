@@ -140,6 +140,12 @@ public class dwite200512p2 {
 			this.distance = dist;
 		}
 		
+		
+		
+		public String toString() {
+			return String.format("(%d, %d)", x, y);
+		}
+		
 	}
 	
 }

@@ -73,6 +73,11 @@ public class dwite200501p1 {
 				return name.compareTo(g.name);
 		}
 		
+		
+		public String toString() {
+			return String.format("%s (%d)", name, score);
+		}
+		
 	}
 	
 }

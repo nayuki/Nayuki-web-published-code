@@ -119,8 +119,7 @@ public class dwite200601p5 {
 	
 	private static class Node implements Comparable<Node> {
 		
-		@SuppressWarnings("unused")
-		private String name;
+		public final String name;
 		private Collection<Edge> edges;
 		
 		private int distance;
@@ -149,6 +148,11 @@ public class dwite200601p5 {
 				return  0;
 		}
 		
+		
+		public String toString() {
+			return String.format("Node %s", name);
+		}
+		
 	}
 	
 	
@@ -163,6 +167,12 @@ public class dwite200601p5 {
 		public Edge(Node dest, int dist) {
 			distance = dist;
 			destination = dest;
+		}
+		
+		
+		
+		public String toString() {
+			return String.format("Edge to %s (distance %d)", destination.name, distance);
 		}
 		
 	}

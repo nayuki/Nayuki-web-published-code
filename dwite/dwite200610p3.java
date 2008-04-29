@@ -78,6 +78,11 @@ public class dwite200610p3 {
 			return Double.compare(getPpm(), p.getPpm());
 		}
 		
+		
+		public String toString() {
+			return String.format("%s (score %d, time %d, PPM %.2f)", name, score, time, getPpm());
+		}
+		
 	}
 	
 }

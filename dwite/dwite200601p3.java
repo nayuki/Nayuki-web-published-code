@@ -59,7 +59,6 @@ public class dwite200601p3 {
 	
 	private static class Player {
 		
-		@SuppressWarnings("unused")
 		private final int playerNumber;
 		private final String firstName;
 		private final String lastName;
@@ -78,6 +77,11 @@ public class dwite200601p3 {
 		
 		public String getName() {
 			return String.format("%s %s", firstName, lastName);
+		}
+		
+		
+		public String toString() {
+			return String.format("%s %s (%d) %s", firstName, lastName, playerNumber, statistics);
 		}
 		
 	}
@@ -100,6 +104,11 @@ public class dwite200601p3 {
 			Integer stat0 = p0.statistics.get(statIndexToCompare);
 			Integer stat1 = p1.statistics.get(statIndexToCompare);
 			return stat0.compareTo(stat1);
+		}
+		
+		
+		public String toString() {
+			return String.format("Player comparator (%d)", statIndexToCompare);
 		}
 		
 	}

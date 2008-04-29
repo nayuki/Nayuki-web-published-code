@@ -85,6 +85,12 @@ public class dwite200701p2 {
 			this.y = y;
 		}
 		
+		
+		
+		public String toString() {
+			return String.format("(%d, %d)", x, y);
+		}
+		
 	}
 	
 }

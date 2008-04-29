@@ -157,6 +157,11 @@ public class dwite200610p1 {
 			return (quantityClass << 3) ^ (paperClass << 1) ^ (colour ? 1 : 0);
 		}
 		
+		
+		public String toString() {
+			return String.format("Printing configuration (%d, %d, %b)", quantityClass, paperClass, colour);
+		}
+		
 	}
 	
 }

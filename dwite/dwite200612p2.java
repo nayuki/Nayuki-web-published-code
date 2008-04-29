@@ -87,6 +87,11 @@ public class dwite200612p2 {
 		}
 		
 		
+		public String toString() {
+			return String.format("(%d, %d)", x, y);
+		}
+		
+		
 		// Returns the smallest number y such that y*y >= x.
 		private static int ceilingSqrt(int x) {
 			int y = 0xFFFF;
