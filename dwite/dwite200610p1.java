@@ -5,46 +5,46 @@ import java.util.*;
 // DWITE - October 2006 - Problem 1: Pete's Printing Press
 public class dwite200610p1 {
 	
-	private static final Map<PrintingConfiguration,Double> unitCost;
+	private static final Map<PrintingConfiguration,Double> unitCostByConfig;
 	
 	static {
-		unitCost = new HashMap<PrintingConfiguration,Double>();
+		unitCostByConfig = new HashMap<PrintingConfiguration,Double>();
 		
-		unitCost.put(new PrintingConfiguration(    1, "8.5\"x11\"", "B&W"), 0.08);
-		unitCost.put(new PrintingConfiguration(  100, "8.5\"x11\"", "B&W"), 0.06);
-		unitCost.put(new PrintingConfiguration(  500, "8.5\"x11\"", "B&W"), 0.05);
-		unitCost.put(new PrintingConfiguration( 1000, "8.5\"x11\"", "B&W"), 0.04);
-		unitCost.put(new PrintingConfiguration(10000, "8.5\"x11\"", "B&W"), 0.03);
+		unitCostByConfig.put(new PrintingConfiguration(    1, "8.5\"x11\"", "B&W"), 0.08);
+		unitCostByConfig.put(new PrintingConfiguration(  100, "8.5\"x11\"", "B&W"), 0.06);
+		unitCostByConfig.put(new PrintingConfiguration(  500, "8.5\"x11\"", "B&W"), 0.05);
+		unitCostByConfig.put(new PrintingConfiguration( 1000, "8.5\"x11\"", "B&W"), 0.04);
+		unitCostByConfig.put(new PrintingConfiguration(10000, "8.5\"x11\"", "B&W"), 0.03);
 		
-		unitCost.put(new PrintingConfiguration(    1, "8.5\"x14\"", "B&W"), 0.09);
-		unitCost.put(new PrintingConfiguration(  100, "8.5\"x14\"", "B&W"), 0.07);
-		unitCost.put(new PrintingConfiguration(  500, "8.5\"x14\"", "B&W"), 0.06);
-		unitCost.put(new PrintingConfiguration( 1000, "8.5\"x14\"", "B&W"), 0.05);
-		unitCost.put(new PrintingConfiguration(10000, "8.5\"x14\"", "B&W"), 0.03);
+		unitCostByConfig.put(new PrintingConfiguration(    1, "8.5\"x14\"", "B&W"), 0.09);
+		unitCostByConfig.put(new PrintingConfiguration(  100, "8.5\"x14\"", "B&W"), 0.07);
+		unitCostByConfig.put(new PrintingConfiguration(  500, "8.5\"x14\"", "B&W"), 0.06);
+		unitCostByConfig.put(new PrintingConfiguration( 1000, "8.5\"x14\"", "B&W"), 0.05);
+		unitCostByConfig.put(new PrintingConfiguration(10000, "8.5\"x14\"", "B&W"), 0.03);
 		
-		unitCost.put(new PrintingConfiguration(    1, "11\"x17\"", "B&W"), 0.15);
-		unitCost.put(new PrintingConfiguration(  100, "11\"x17\"", "B&W"), 0.12);
-		unitCost.put(new PrintingConfiguration(  500, "11\"x17\"", "B&W"), 0.10);
-		unitCost.put(new PrintingConfiguration( 1000, "11\"x17\"", "B&W"), 0.08);
-		unitCost.put(new PrintingConfiguration(10000, "11\"x17\"", "B&W"), 0.05);
+		unitCostByConfig.put(new PrintingConfiguration(    1, "11\"x17\"", "B&W"), 0.15);
+		unitCostByConfig.put(new PrintingConfiguration(  100, "11\"x17\"", "B&W"), 0.12);
+		unitCostByConfig.put(new PrintingConfiguration(  500, "11\"x17\"", "B&W"), 0.10);
+		unitCostByConfig.put(new PrintingConfiguration( 1000, "11\"x17\"", "B&W"), 0.08);
+		unitCostByConfig.put(new PrintingConfiguration(10000, "11\"x17\"", "B&W"), 0.05);
 		
-		unitCost.put(new PrintingConfiguration(    1, "8.5\"x11\"", "COLOUR"), 0.75);
-		unitCost.put(new PrintingConfiguration(  100, "8.5\"x11\"", "COLOUR"), 0.65);
-		unitCost.put(new PrintingConfiguration(  500, "8.5\"x11\"", "COLOUR"), 0.55);
-		unitCost.put(new PrintingConfiguration( 1000, "8.5\"x11\"", "COLOUR"), 0.45);
-		unitCost.put(new PrintingConfiguration(10000, "8.5\"x11\"", "COLOUR"), 0.30);
+		unitCostByConfig.put(new PrintingConfiguration(    1, "8.5\"x11\"", "COLOUR"), 0.75);
+		unitCostByConfig.put(new PrintingConfiguration(  100, "8.5\"x11\"", "COLOUR"), 0.65);
+		unitCostByConfig.put(new PrintingConfiguration(  500, "8.5\"x11\"", "COLOUR"), 0.55);
+		unitCostByConfig.put(new PrintingConfiguration( 1000, "8.5\"x11\"", "COLOUR"), 0.45);
+		unitCostByConfig.put(new PrintingConfiguration(10000, "8.5\"x11\"", "COLOUR"), 0.30);
 		
-		unitCost.put(new PrintingConfiguration(    1, "8.5\"x14\"", "COLOUR"), 0.90);
-		unitCost.put(new PrintingConfiguration(  100, "8.5\"x14\"", "COLOUR"), 0.85);
-		unitCost.put(new PrintingConfiguration(  500, "8.5\"x14\"", "COLOUR"), 0.65);
-		unitCost.put(new PrintingConfiguration( 1000, "8.5\"x14\"", "COLOUR"), 0.50);
-		unitCost.put(new PrintingConfiguration(10000, "8.5\"x14\"", "COLOUR"), 0.30);
+		unitCostByConfig.put(new PrintingConfiguration(    1, "8.5\"x14\"", "COLOUR"), 0.90);
+		unitCostByConfig.put(new PrintingConfiguration(  100, "8.5\"x14\"", "COLOUR"), 0.85);
+		unitCostByConfig.put(new PrintingConfiguration(  500, "8.5\"x14\"", "COLOUR"), 0.65);
+		unitCostByConfig.put(new PrintingConfiguration( 1000, "8.5\"x14\"", "COLOUR"), 0.50);
+		unitCostByConfig.put(new PrintingConfiguration(10000, "8.5\"x14\"", "COLOUR"), 0.30);
 		
-		unitCost.put(new PrintingConfiguration(    1, "11\"x17\"", "COLOUR"), 1.40);
-		unitCost.put(new PrintingConfiguration(  100, "11\"x17\"", "COLOUR"), 1.20);
-		unitCost.put(new PrintingConfiguration(  500, "11\"x17\"", "COLOUR"), 1.10);
-		unitCost.put(new PrintingConfiguration( 1000, "11\"x17\"", "COLOUR"), 0.90);
-		unitCost.put(new PrintingConfiguration(10000, "11\"x17\"", "COLOUR"), 0.60);
+		unitCostByConfig.put(new PrintingConfiguration(    1, "11\"x17\"", "COLOUR"), 1.40);
+		unitCostByConfig.put(new PrintingConfiguration(  100, "11\"x17\"", "COLOUR"), 1.20);
+		unitCostByConfig.put(new PrintingConfiguration(  500, "11\"x17\"", "COLOUR"), 1.10);
+		unitCostByConfig.put(new PrintingConfiguration( 1000, "11\"x17\"", "COLOUR"), 0.90);
+		unitCostByConfig.put(new PrintingConfiguration(10000, "11\"x17\"", "COLOUR"), 0.60);
 	}
 	
 	
@@ -56,10 +56,15 @@ public class dwite200610p1 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int n = Integer.parseInt(in.readLine());
 		String papersize = in.readLine();
 		String colour = in.readLine();
-		out.printf("$%.2f%n", n * unitCost.get(new PrintingConfiguration(n, papersize, colour)));
+		
+		// Compute and write output
+		PrintingConfiguration config = new PrintingConfiguration(n, papersize, colour);
+		double cost = n * unitCostByConfig.get(config);
+		out.printf("$%.2f%n", cost);
 	}
 	
 	
