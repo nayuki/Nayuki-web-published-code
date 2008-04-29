@@ -120,9 +120,9 @@ public class dwite200601p5 {
 	private static class Node implements Comparable<Node> {
 		
 		public final String name;
-		private Collection<Edge> edges;
 		
-		private int distance;
+		private Collection<Edge> edges;
+		public int distance;
 		
 		
 		
