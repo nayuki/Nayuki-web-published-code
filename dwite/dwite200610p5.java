@@ -21,9 +21,10 @@ public class dwite200610p5 {
 		b = sanitizeUsingRegex(b);
 		BigInteger x = new BigInteger(a);
 		BigInteger y = new BigInteger(b);
+		BigInteger z = x.add(y);
 		
 		// Write output
-		out.println(x.add(y));
+		out.println(z);
 	}
 	
 	
