@@ -1,10 +1,41 @@
 import java.io.*;
+import java.util.*;
 
 
 // DWITE - January 2006 - Problem 2: Scrabble
 public class dwite200601p2 {
 	
-	private static final int[] lettervalue = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
+	private static final Map<Character,Integer> valueByLetter;
+	
+	static {
+		valueByLetter = new HashMap<Character,Integer>();
+		valueByLetter.put('A',  1);
+		valueByLetter.put('B',  3);
+		valueByLetter.put('C',  3);
+		valueByLetter.put('D',  2);
+		valueByLetter.put('E',  1);
+		valueByLetter.put('F',  4);
+		valueByLetter.put('G',  2);
+		valueByLetter.put('H',  4);
+		valueByLetter.put('I',  1);
+		valueByLetter.put('J',  8);
+		valueByLetter.put('K',  5);
+		valueByLetter.put('L',  1);
+		valueByLetter.put('M',  3);
+		valueByLetter.put('N',  1);
+		valueByLetter.put('O',  1);
+		valueByLetter.put('P',  3);
+		valueByLetter.put('Q', 10);
+		valueByLetter.put('R',  1);
+		valueByLetter.put('S',  1);
+		valueByLetter.put('T',  1);
+		valueByLetter.put('U',  1);
+		valueByLetter.put('V',  4);
+		valueByLetter.put('W',  4);
+		valueByLetter.put('X',  8);
+		valueByLetter.put('Y',  4);
+		valueByLetter.put('Z', 10);
+	}
 	
 	
 	
@@ -88,7 +119,7 @@ public class dwite200601p2 {
 		int score = 0;
 		int wordmult = 1;
 		for (int i = start; i <= end; i++) {
-			int letterscore = lettervalue[board[y][i] - 'A'];
+			int letterscore = valueByLetter.get(board[y][i]);
 			switch (boardvalue[y][i]) {
 				case 5:
 					break;
@@ -124,7 +155,7 @@ public class dwite200601p2 {
 		int score = 0;
 		int wordmult = 1;
 		for (int i = start; i <= end; i++) {
-			int letterscore = lettervalue[board[i][x] - 'A'];
+			int letterscore = valueByLetter.get(board[i][x]);
 			switch (boardvalue[i][x]) {
 				case 5:
 					break;

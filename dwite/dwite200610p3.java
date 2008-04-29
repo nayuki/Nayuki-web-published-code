@@ -18,8 +18,10 @@ public class dwite200610p3 {
 		}
 		
 		Collections.sort(players, Collections.reverseOrder());
-		for (int i = 0; i < Math.min(5,players.size()); i++)
-			out.printf("%s-%.3f%n", players.get(i).name, players.get(i).getPpm());
+		for (int i = 0; i < Math.min(5,players.size()); i++) {
+			Player player = players.get(i);
+			out.printf("%s-%.3f%n", player.name, player.getPpm());
+		}
 	}
 	
 	
