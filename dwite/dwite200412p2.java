@@ -12,6 +12,7 @@ public class dwite200412p2 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int n = Integer.parseInt(in.readLine());
 		int s = Integer.parseInt(in.readLine());
 		int sqrtn = sqrt(n);
@@ -23,12 +24,15 @@ public class dwite200412p2 {
 				grid[y][x] = Integer.parseInt(st.nextToken());
 		}
 		
-		int max = 0;
+		// Find square with maximum sum
+		int maxsum = 0;
 		for (int y = 0; y+sqrts <= sqrtn; y++) {
 			for (int x = 0; x+sqrts <= sqrtn; x++)
-				max = Math.max(sum(grid, x, y, sqrts, sqrts), max);
+				maxsum = Math.max(sum(grid, x, y, sqrts, sqrts), maxsum);
 		}
-		out.println(max);
+		
+		// Write output
+		out.println(maxsum);
 	}
 	
 	

@@ -18,10 +18,12 @@ public class dwite200412p5 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		String line = normalize(in.readLine());
+		
+		// Find province at lowest index
 		int minindex = -1;
 		String minprovince = null;
-		
 		for (String prov : provinces) {
 			int index = line.indexOf(normalize(prov));
 			if (index != -1 && (minindex == -1 || index < minindex)) {
@@ -29,7 +31,8 @@ public class dwite200412p5 {
 				minprovince = prov;
 			}
 		}
-			
+		
+		// Write output
 		if (minindex != -1)
 			out.println(minprovince);
 		else

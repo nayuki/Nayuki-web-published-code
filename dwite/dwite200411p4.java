@@ -12,29 +12,32 @@ public class dwite200411p4 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		List<String> formula = new ArrayList<String>();
+		// Parse input
 		StringTokenizer st;
 		
 		st = new StringTokenizer(in.readLine(), " ");  // "sum = value"
-		if (!st.nextToken().equals("sum")) throw new AssertionError("Expected \"sum\"");
-		if (!st.nextToken().equals("=")) throw new AssertionError("Expected \"=\"");
+		expectNextToken(st, "sum");
+		expectNextToken(st, "=");
 		int sum = Integer.parseInt(st.nextToken());
 		
 		st = new StringTokenizer(in.readLine(), " ");  // "For i = start To finish"
-		if (!st.nextToken().equals("For")) throw new AssertionError("Expected \"For\"");
-		if (!st.nextToken().equals("i")) throw new AssertionError("Expected \"i\"");
-		if (!st.nextToken().equals("=")) throw new AssertionError("Expected \"=\"");
+		expectNextToken(st, "For");
+		expectNextToken(st, "i");
+		expectNextToken(st, "=");
 		int start = Integer.parseInt(st.nextToken());
-		if (!st.nextToken().equals("To")) throw new AssertionError("Expected \"To\"");
+		expectNextToken(st, "To");
 		int finish = Integer.parseInt(st.nextToken());
 		
 		st = new StringTokenizer(in.readLine(), " ");  // "sum = formula"
-		if (!st.nextToken().equals("sum")) throw new AssertionError("Expected \"sum\"");
-		if (!st.nextToken().equals("=")) throw new AssertionError("Expected \"=\"");
+		expectNextToken(st, "sum");
+		expectNextToken(st, "=");
+		List<String> formula = new ArrayList<String>();
 		while (st.hasMoreTokens())
 			formula.add(st.nextToken());
 		
-		if (!in.readLine().equals("Next i")) throw new AssertionError("Expected \"Next i\"");  // "Next i"
+		st = new StringTokenizer(in.readLine(), " ");  // "Next i"
+		expectNextToken(st, "Next");
+		expectNextToken(st, "i");
 		
 		for (int i = start; i <= finish; i++)
 			sum = executeOnce(sum, i, formula);
@@ -48,16 +51,16 @@ public class dwite200411p4 {
 		Stack<Integer> operands = new Stack<Integer>();
 		Stack<Character> operators = new Stack<Character>();
 		for (String token : formula) {
-			// Operators
 			if (isOperator(token)) {
+				// Operators
 				while (!operators.empty() && canEvaluate(operators.peek(), token.charAt(0))) {
 					int y = operands.pop();
 					int x = operands.pop();
 					operands.push(evaluate(x, y, operators.pop()));
 				}
 				operators.push(token.charAt(0));
-			// Values
 			} else {
+				// Values
 				int value;
 				if (token.equals("sum"))
 					value = sum;
@@ -93,16 +96,11 @@ public class dwite200411p4 {
 	
 	private static int evaluate(int x, int y, char op) {
 		switch (op) {
-			case '+':
-				return x + y;
-			case '-':
-				return x - y;
-			case '*':
-				return x * y;
-			case '\\':
-				return x / y;
-			default:
-				throw new AssertionError("Invalid operator");
+			case '+' : return x + y;
+			case '-' : return x - y;
+			case '*' : return x * y;
+			case '\\': return x / y;
+			default: throw new AssertionError("Invalid operator");
 		}
 	}
 	
@@ -112,6 +110,13 @@ public class dwite200411p4 {
 		    || s.equals("-")
 		    || s.equals("*")
 		    || s.equals("\\");
+	}
+	
+	
+	private static void expectNextToken(StringTokenizer st, String expectedToken) {
+		String actualToken = st.nextToken();
+		if (!expectedToken.equals(actualToken))
+			throw new AssertionError(String.format("Expected \"%s\", got \"%s\"", expectedToken, actualToken));
 	}
 	
 	

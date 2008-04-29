@@ -18,7 +18,7 @@ public class dwite200412p1 {
 	private static String factor(int x) {
 		for (int i = 2, end = sqrt(x); i <= end; i++) {
 			if (x % i == 0)
-				return i + "*" + factor(x / i);  // x is composite
+				return String.format("%d*%s", i, factor(x / i));  // x is composite
 		}
 		return Integer.toString(x);  // x is prime
 	}

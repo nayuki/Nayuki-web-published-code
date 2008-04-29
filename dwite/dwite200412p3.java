@@ -11,10 +11,12 @@ public class dwite200412p3 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		double length     = Double.parseDouble(in.readLine());  // Variable L
 		double separation = Double.parseDouble(in.readLine());  // Variable D
 		double angle      = Double.parseDouble(in.readLine());  // Variable x
 		
+		// Compute and write output
 		double refldist = separation / Math.tan(Math.toRadians(angle));  // Horizontal distance between reflections
 		out.println((int)Math.floor(length / refldist + 0.5));
 	}

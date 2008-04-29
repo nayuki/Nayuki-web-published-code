@@ -4,9 +4,9 @@ import java.io.*;
 // DWITE - December 2004 - Problem 4: Waring's Prime Number Conjecture
 public class dwite200412p4 {
 	
-	private static boolean[] isPrime;
+	private static boolean[] isPrime;  // [0] = false, [1] = false, [2] = true, [3] = true, [4] = false, [5] = true, ...
 	
-	private static int[] primes;
+	private static int[] primes;  // 2, 3, 5, 7, 11, 13, 17, 19, ...
 	private static int primesLength;
 	
 	
