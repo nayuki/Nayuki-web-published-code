@@ -12,7 +12,10 @@ public class dwite200411p3 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		Polynomial poly = parsePolynomial(in.readLine()).reduce();
+		
+		// Find factors
 		ArrayList<Integer> output = new ArrayList<Integer>();
 		int a0 = poly.getCoefficient(poly.getDegree());
 		while (true) {
@@ -23,6 +26,7 @@ public class dwite200411p3 {
 			poly = poly.divide(root.denom, -root.num);
 		}
 		
+		// Sort ascending and write output
 		Collections.sort(output);
 		boolean initial = true;
 		for (int i : output) {

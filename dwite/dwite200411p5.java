@@ -11,9 +11,11 @@ public class dwite200411p5 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int temp = Integer.parseInt(in.readLine());  // Variable Tair
 		int wind = Integer.parseInt(in.readLine());  // Variable V10metre
 		
+		// Compute and write output
 		int wct = (int)Math.round(13.12 + 0.6215*temp - 11.37*Math.pow(wind,0.16) + 0.3965*temp*Math.pow(wind,0.16));
 		out.printf("%d %s%n", wct, getRating(wct));
 	}

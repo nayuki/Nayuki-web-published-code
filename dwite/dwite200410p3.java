@@ -6,6 +6,7 @@ import java.util.*;
 public class dwite200410p3 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		List<Student> students = new ArrayList<Student>();
 		int n = Integer.parseInt(in.readLine());
 		for (int i = 0; i < n; i++) {
@@ -16,6 +17,7 @@ public class dwite200410p3 {
 			students.add(new Student(name, height, unit));
 		}
 		
+		// Sort by height and write names to output
 		Collections.sort(students);
 		for (int i = 0; i < 5; i++)
 			out.println(students.get(i).name);

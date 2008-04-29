@@ -24,8 +24,9 @@ public class dwite200602p2 {
 				possible[j + filesize] |= possible[j];
 		}
 		
+		// Write the largest possible total size
 		for (int i = CAPACITY; i >= 0; i--) {
-			if (possible[i]) {  // Guaranteed to execute before loop ends
+			if (possible[i]) {  // Guaranteed to execute before the loop ends
 				out.println(CAPACITY - i);
 				break;
 			}

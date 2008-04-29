@@ -16,9 +16,10 @@ public class dwite200411p1 {
 		if (sum % 10 == 0)
 			out.println("VALID");
 		else {
-			for (int i = 0; i < 10; i++) {  // Try all values for last digit
+			// Try all values for the last digit
+			for (int i = 0; i < 10; i++) {
 				digits[digits.length - 1] = i;
-				if (getLuhnSum(digits) % 10 == 0) {
+				if (getLuhnSum(digits) % 10 == 0) {  // Guaranteed to execute before the loop ends
 					out.printf("INVALID %d%n", digits[digits.length - 1]);
 					break;
 				}
