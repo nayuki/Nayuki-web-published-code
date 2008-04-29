@@ -19,6 +19,7 @@ public class dwite200410p5 {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private static String add(String x, String y) {  // x and y each must have at least 1 digit
 		StringBuilder sb = new StringBuilder();
 		int carry = 0;

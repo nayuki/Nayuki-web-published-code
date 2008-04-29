@@ -42,6 +42,7 @@ public class dwite200412p4 {
 	
 	
 	// Returns the number of unordered sums that add up to 'sum' with exactly 'terms' prime terms, each of which is at least 'minimum'.
+	@SuppressWarnings("unused")
 	private static int countSums(int sum, int terms, int minimum) {
 		if (terms == 1) {
 			if (isPrime[sum] && sum >= minimum)
@@ -60,6 +61,7 @@ public class dwite200412p4 {
 	
 	
 	// Assumes that primes[minimumIndex] >= minimum.
+	@SuppressWarnings("unused")
 	private static int countSumsSemifast(int sum, int terms, int minimum, int minimumIndex) {
 		if (terms == 1) {
 			if (isPrime[sum] && sum >= minimum)

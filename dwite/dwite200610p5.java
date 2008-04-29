@@ -18,6 +18,7 @@ public class dwite200610p5 {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private static String sanitize(String s) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {

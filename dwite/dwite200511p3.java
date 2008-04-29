@@ -45,6 +45,7 @@ public class dwite200511p3 {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private static int countSyllablesUsingRegex(String s) {
 		return s.replaceAll("[^ \\-]", "").length() + 1;  // One-liners rock
 	}

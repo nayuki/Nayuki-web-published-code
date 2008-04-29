@@ -35,6 +35,7 @@ public class dwite200512p2 {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private static int findShortestPathDfs(char[][] grid, int x, int y) {
 		if (grid[y][x] == 'X')
 			return 0;

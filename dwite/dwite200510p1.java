@@ -28,6 +28,7 @@ public class dwite200510p1 {
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private static int[] solveSlow(int n1, int d2, int[] r2) {
 		while (countOccurrences(r2, d2) != n1)
 			increment(r2, r2.length - 1);
