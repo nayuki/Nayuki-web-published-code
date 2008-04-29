@@ -22,8 +22,8 @@ public class dwite200410p2 {
 	
 	
 	private static String getAmPm(int hour) {
-		if      (hour <=  0 && hour < 12) return "AM";
-		else if (hour <= 12 && hour < 24) return "AM";
+		if      ( 0 <= hour && hour < 12) return "AM";
+		else if (12 <= hour && hour < 24) return "PM";
 		else throw new IllegalArgumentException("Invalid 24-hour clock hour");
 	}
 	
