@@ -12,11 +12,12 @@ public class dwite200510p3 {
 	
 	
 	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int a = Integer.parseInt(st.nextToken());
 		int b = Integer.parseInt(st.nextToken());
 		
-		// Let a be smaller than or equal to b
+		// Let a be smaller than or equal to b, swapping if necessary
 		if (a > b) {
 			int temp = a;
 			a = b;
@@ -30,10 +31,11 @@ public class dwite200510p3 {
 		StringBuffer sb = new StringBuffer();
 		for (int i = a; i <= b; i++) {
 			sb.append(i);
-			if (i != b)
+			if (i != b)  // Suppress the plus for the last number
 				sb.append("+");
 		}
 		
+		// Write output
 		out.printf("%s=%d%n", sb, sum);
 	}
 	
