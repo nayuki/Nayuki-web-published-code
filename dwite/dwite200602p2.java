@@ -4,7 +4,7 @@ import java.io.*;
 // DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
 public class dwite200602p2 {
 	
-	static final int CAPACITY = 1440;
+	private static final int CAPACITY = 1440;
 	
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
@@ -13,7 +13,7 @@ public class dwite200602p2 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		// Subset sum problem using dynamic programming
 		boolean[] possible = new boolean[CAPACITY + 1];
 		possible[0] = true;
@@ -34,8 +34,8 @@ public class dwite200602p2 {
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

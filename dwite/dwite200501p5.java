@@ -11,7 +11,7 @@ public class dwite200501p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st;
 		
 		st = new StringTokenizer(in.readLine(), " ");
@@ -30,8 +30,8 @@ public class dwite200501p5 {
 	
 	
 	
-	static String infile = "DATA51.txt";  // Specify null to use System.in
-	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	private static String infile = "DATA51.txt";  // Specify null to use System.in
+	private static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

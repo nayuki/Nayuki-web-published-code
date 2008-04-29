@@ -23,8 +23,8 @@ public class dwite200410p3 {
 	
 	
 	
-	static String infile = "DATA3";  // Specify null to use System.in
-	static String outfile = "OUT3";  // Specify null to use System.out
+	private static String infile = "DATA3";  // Specify null to use System.in
+	private static String outfile = "OUT3";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {
@@ -52,7 +52,7 @@ public class dwite200410p3 {
 	
 	
 	
-	static class Student implements Comparable<Student> {
+	private static class Student implements Comparable<Student> {
 		
 		public final String name;
 		public final double height;  // In millimetres

@@ -10,7 +10,7 @@ public class dwite200602p3 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String line = in.readLine();
 		if (line.length() != 12)
 			throw new AssertionError("Invalid length for UPC digit sequence");
@@ -19,7 +19,7 @@ public class dwite200602p3 {
 	}
 	
 	
-	static int getUpcSumWithoutCheckDigit(int[] digits) {
+	private static int getUpcSumWithoutCheckDigit(int[] digits) {
 		int sum = 0;
 		for (int i = 0; i < digits.length - 1; i++) {
 			if (i % 2 == 0) sum += digits[i] * 3;
@@ -30,7 +30,7 @@ public class dwite200602p3 {
 	
 	
 	
-	static int[] toDigits(String s) {
+	private static int[] toDigits(String s) {
 		int[] digits = new int[s.length()];
 		for (int i = 0; i < digits.length; i++)
 			digits[i] = s.charAt(i) - '0';
@@ -39,8 +39,8 @@ public class dwite200602p3 {
 	
 	
 	
-	static String infile = "DATA31.txt";  // Specify null to use System.in
-	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	private static String infile = "DATA31.txt";  // Specify null to use System.in
+	private static String outfile = "OUT31.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

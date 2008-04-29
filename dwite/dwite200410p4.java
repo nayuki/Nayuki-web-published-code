@@ -11,7 +11,7 @@ public class dwite200410p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int capacity = Integer.parseInt(st.nextToken());  // Variable A
 		int files = Integer.parseInt(st.nextToken());     // Variable n
@@ -35,8 +35,8 @@ public class dwite200410p4 {
 	
 	
 	
-	static String infile = "DATA4";  // Specify null to use System.in
-	static String outfile = "OUT4";  // Specify null to use System.out
+	private static String infile = "DATA4";  // Specify null to use System.in
+	private static String outfile = "OUT4";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

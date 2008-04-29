@@ -4,8 +4,8 @@ import java.io.*;
 // DWITE - February 2005 - Problem 1: Bretschneider's Formula
 public class dwite200502p1 {
 	
-	static final int[] x = { 1, -1, -2,  2,  2, -2, -3,  1,  3, -1, -4,  3,  4, -4, -4,  4,  2, -4, -2,  1};
-	static final int[] y = { 1,  2, -1, -2,  2,  3, -3, -3,  3,  4, -2, -5,  5,  5, -5, -5,  4,  1, -4, -1};
+	private static final int[] x = { 1, -1, -2,  2,  2, -2, -3,  1,  3, -1, -4,  3,  4, -4, -4,  4,  2, -4, -2,  1};
+	private static final int[] y = { 1,  2, -1, -2,  2,  3, -3, -3,  3,  4, -2, -5,  5,  5, -5, -5,  4,  1, -4, -1};
 	
 	
 	
@@ -15,7 +15,7 @@ public class dwite200502p1 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String s = in.readLine();
 		int a = s.charAt(0) - 'A';
 		int b = s.charAt(1) - 'A';
@@ -26,25 +26,25 @@ public class dwite200502p1 {
 	}
 	
 	
-	static double getArea(int A, int B, int C, int D) {
+	private static double getArea(int A, int B, int C, int D) {
 		int temp = distanceSquared(B,C) + distanceSquared(D,A) - distanceSquared(A,B) - distanceSquared(C,D);
 		return Math.sqrt(4*distanceSquared(B,D)*distanceSquared(A,C) - temp*temp) / 4;
 	}
 	
 	
-	static int distanceSquared(int A, int B) {
+	private static int distanceSquared(int A, int B) {
 		return magnitudeSquared(x[A] - x[B], y[A] - y[B]);
 	}
 	
 	
-	static int magnitudeSquared(int x, int y) {
+	private static int magnitudeSquared(int x, int y) {
 		return x * x + y * y;
 	}
 	
 	
 	
-	static String infile = "DATA11.txt";  // Specify null to use System.in
-	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	private static String infile = "DATA11.txt";  // Specify null to use System.in
+	private static String outfile = "OUT11.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

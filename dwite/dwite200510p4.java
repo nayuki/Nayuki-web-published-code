@@ -13,7 +13,7 @@ public class dwite200510p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out, char[][] grid) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out, char[][] grid) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int y = Integer.parseInt(st.nextToken());
 		int x = Integer.parseInt(st.nextToken());
@@ -28,7 +28,7 @@ public class dwite200510p4 {
 	}
 	
 	
-	static int reveal(char[][] grid, int x, int y, boolean[][] visited) {
+	private static int reveal(char[][] grid, int x, int y, boolean[][] visited) {
 		if (visited[y][x] || grid[y][x] == ' ')
 			return 0;
 		visited[y][x] = true;
@@ -47,7 +47,7 @@ public class dwite200510p4 {
 	}
 	
 	
-	static void calculateNeighbouringMines(char[][] grid) {
+	private static void calculateNeighbouringMines(char[][] grid) {
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[0].length - 1; x++) {
 				if (grid[y][x] == '.')
@@ -57,7 +57,7 @@ public class dwite200510p4 {
 	}
 	
 	
-	static int getMineNeighbourCount(char[][] grid, int x, int y) {
+	private static int getMineNeighbourCount(char[][] grid, int x, int y) {
 		int count = 0;
 		if (grid[y - 1][x - 1] == 'X') count++;
 		if (grid[y - 1][x + 0] == 'X') count++;
@@ -72,7 +72,7 @@ public class dwite200510p4 {
 	
 	
 	
-	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
+	private static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
 		char[][] grid = new char[height + 2][width + 2];
 		for (int y = 1; y <= height; y++) {
 			String line = in.readLine();
@@ -90,8 +90,8 @@ public class dwite200510p4 {
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

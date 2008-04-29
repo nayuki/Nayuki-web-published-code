@@ -18,7 +18,7 @@ public class dwite200510p2 {
 	}
 	
 	
-	static void nextGeneration(char[][] grid) {
+	private static void nextGeneration(char[][] grid) {
 		char[][] gridnew = new char[grid.length][grid[0].length];
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[0].length - 1; x++) {
@@ -38,7 +38,7 @@ public class dwite200510p2 {
 	}
 	
 	
-	static int countLiveNeighbours(char[][] grid, int x, int y) {
+	private static int countLiveNeighbours(char[][] grid, int x, int y) {
 		int count = 0;
 		if (grid[y - 1][x - 1] == 'X') count++;
 		if (grid[y - 1][x + 0] == 'X') count++;
@@ -52,7 +52,7 @@ public class dwite200510p2 {
 	}
 	
 	
-	static int countTotalAlive(char[][] grid) {
+	private static int countTotalAlive(char[][] grid) {
 		int count = 0;
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[0].length - 1; x++) {
@@ -64,7 +64,7 @@ public class dwite200510p2 {
 	}
 	
 	
-	static boolean isBreakpoint(int i) {
+	private static boolean isBreakpoint(int i) {
 		return i ==   1
 		    || i ==   5
 		    || i ==  10
@@ -74,7 +74,7 @@ public class dwite200510p2 {
 	
 	
 	
-	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
+	private static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
 		char[][] grid = new char[height + 2][width + 2];
 		for (int y = 1; y <= height; y++) {
 			String line = in.readLine();
@@ -92,8 +92,8 @@ public class dwite200510p2 {
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

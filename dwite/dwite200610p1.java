@@ -5,7 +5,7 @@ import java.util.*;
 // DWITE - October 2006 - Problem 1: Pete's Printing Press
 public class dwite200610p1 {
 	
-	static final Map<PrintingConfiguration,Double> unitCost;
+	private static final Map<PrintingConfiguration,Double> unitCost;
 	
 	static {
 		unitCost = new HashMap<PrintingConfiguration,Double>();
@@ -55,7 +55,7 @@ public class dwite200610p1 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
 		String papersize = in.readLine();
 		String colour = in.readLine();
@@ -64,8 +64,8 @@ public class dwite200610p1 {
 	
 	
 	
-	static String infile = "DATA11.txt";  // Specify null to use System.in
-	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	private static String infile = "DATA11.txt";  // Specify null to use System.in
+	private static String outfile = "OUT11.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {
@@ -93,7 +93,7 @@ public class dwite200610p1 {
 	
 	
 	
-	static class PrintingConfiguration {
+	private static class PrintingConfiguration {
 		
 		/*
 		 * 0 for [1, 99]

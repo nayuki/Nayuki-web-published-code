@@ -4,7 +4,7 @@ import java.io.*;
 // DWITE - January 2006 - Problem 2: Scrabble
 public class dwite200601p2 {
 	
-	static final int[] lettervalue = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
+	private static final int[] lettervalue = {1, 3, 3, 2, 1, 4, 2, 4, 1, 8, 5, 1, 3, 1, 1, 3, 10, 1, 1, 1, 1, 4, 4, 8, 4, 10};
 	
 	
 	
@@ -34,7 +34,7 @@ public class dwite200601p2 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out, char[][] board, int[][] boardvalue) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out, char[][] board, int[][] boardvalue) throws IOException {
 		int col = in.readLine().charAt(0) - 'A';
 		int row = Integer.parseInt(in.readLine()) - 1;
 		boolean horz = in.readLine().equals("ACROSS");
@@ -78,7 +78,7 @@ public class dwite200601p2 {
 	}
 	
 	
-	static int scoreHorizontal(int x, int y, char[][] board, int[][] boardvalue) {
+	private static int scoreHorizontal(int x, int y, char[][] board, int[][] boardvalue) {
 		int start, end;
 		for (start = x; start >= 1 && board[y][start - 1] != 0; start--) ;
 		for (end = x; end < board[y].length-1 && board[y][end + 1] != 0; end++) ;
@@ -114,7 +114,7 @@ public class dwite200601p2 {
 	}
 	
 	
-	static int scoreVertical(int x, int y, char[][] board, int[][] boardvalue) {
+	private static int scoreVertical(int x, int y, char[][] board, int[][] boardvalue) {
 		int start, end;
 		for (start = y; start >= 1 && board[start - 1][x] != 0; start--) ;
 		for (end = y; end < board.length-1 && board[end + 1][x] != 0; end++) ;
@@ -151,8 +151,8 @@ public class dwite200601p2 {
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

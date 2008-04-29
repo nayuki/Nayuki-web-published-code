@@ -11,7 +11,7 @@ public class dwite200610p2 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		double height = Double.parseDouble(st.nextToken());
 		double weight = Double.parseDouble(st.nextToken());
@@ -26,7 +26,7 @@ public class dwite200610p2 {
 	}
 	
 	
-	static String getCategory(double bmi) {
+	private static String getCategory(double bmi) {
 		if      (               bmi <  15.0) return "STARVATION";
 		else if (15.0 <= bmi && bmi <  18.5) return "UNDERWEIGHT";
 		else if (18.5 <= bmi && bmi <= 25.0) return "IDEAL";
@@ -38,8 +38,8 @@ public class dwite200610p2 {
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

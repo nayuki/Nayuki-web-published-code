@@ -11,7 +11,7 @@ public class dwite200410p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String x = in.readLine();
 		String y = in.readLine();
 		out.println(new BigInteger(x).add(new BigInteger(y)));  // Easy version
@@ -19,7 +19,7 @@ public class dwite200410p5 {
 	}
 	
 	
-	static String add(String x, String y) {  // x and y each must have at least 1 digit
+	private static String add(String x, String y) {  // x and y each must have at least 1 digit
 		StringBuilder sb = new StringBuilder();
 		int carry = 0;
 		for (int i = 0; i < Math.max(x.length(),y.length()); i++) {
@@ -36,8 +36,8 @@ public class dwite200410p5 {
 	
 	
 	
-	static String infile = "DATA5";  // Specify null to use System.in
-	static String outfile = "OUT5";  // Specify null to use System.out
+	private static String infile = "DATA5";  // Specify null to use System.in
+	private static String outfile = "OUT5";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

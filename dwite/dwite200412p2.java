@@ -11,7 +11,7 @@ public class dwite200412p2 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
 		int s = Integer.parseInt(in.readLine());
 		int sqrtn = sqrt(n);
@@ -32,7 +32,7 @@ public class dwite200412p2 {
 	}
 	
 	
-	static int sum(int[][] map, int x, int y, int w, int h) {
+	private static int sum(int[][] map, int x, int y, int w, int h) {
 		int sum = 0;
 		for (int i = 0; i < h; i++) {
 			for (int j = 0; j < w; j++)
@@ -43,7 +43,7 @@ public class dwite200412p2 {
 	
 	
 	
-	static int sqrt(int x) {
+	private static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
 			y |= 1 << i;
@@ -55,8 +55,8 @@ public class dwite200412p2 {
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

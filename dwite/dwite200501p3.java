@@ -10,7 +10,7 @@ public class dwite200501p3 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int start = Integer.parseInt(in.readLine());
 		int end = Integer.parseInt(in.readLine());
 		int longestrun = 0;
@@ -28,7 +28,7 @@ public class dwite200501p3 {
 	}
 	
 	
-	static int getDigitSum(int n) {  // Valid for 0 <= n < 10 000 000
+	private static int getDigitSum(int n) {  // Valid for 0 <= n < 10 000 000
 		return n /       1 % 10
 		     + n /      10 % 10
 		     + n /     100 % 10
@@ -40,8 +40,8 @@ public class dwite200501p3 {
 	
 	
 	
-	static String infile = "DATA31.txt";  // Specify null to use System.in
-	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	private static String infile = "DATA31.txt";  // Specify null to use System.in
+	private static String outfile = "OUT31.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

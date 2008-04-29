@@ -20,7 +20,7 @@ public class dwite200602p1 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out, int[] px, int[] py) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out, int[] px, int[] py) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int x1 = Integer.parseInt(st.nextToken());
 		int y1 = Integer.parseInt(st.nextToken());
@@ -36,14 +36,14 @@ public class dwite200602p1 {
 	}
 	
 	
-	static boolean areCollinear(int x0, int y0, int x1, int y1, int x2, int y2) {
+	private static boolean areCollinear(int x0, int y0, int x1, int y1, int x2, int y2) {
 		return (x1 - x0) * (y2 - y1) == (x2 - x1) * (y1 - y0);
 	}
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

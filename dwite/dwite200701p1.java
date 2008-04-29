@@ -10,7 +10,7 @@ public class dwite200701p1 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		double coneheight = Double.parseDouble(in.readLine());
 		double coneradius = Double.parseDouble(in.readLine());
 		double watervolume = Double.parseDouble(in.readLine());
@@ -20,8 +20,8 @@ public class dwite200701p1 {
 	
 	
 	
-	static String infile = "DATA11.txt";  // Specify null to use System.in
-	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	private static String infile = "DATA11.txt";  // Specify null to use System.in
+	private static String outfile = "OUT11.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

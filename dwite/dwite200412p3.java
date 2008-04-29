@@ -10,7 +10,7 @@ public class dwite200412p3 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		double length     = Double.parseDouble(in.readLine());  // Variable L
 		double separation = Double.parseDouble(in.readLine());  // Variable D
 		double angle      = Double.parseDouble(in.readLine());  // Variable x
@@ -21,8 +21,8 @@ public class dwite200412p3 {
 	
 	
 	
-	static String infile = "DATA31.txt";  // Specify null to use System.in
-	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	private static String infile = "DATA31.txt";  // Specify null to use System.in
+	private static String outfile = "OUT31.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

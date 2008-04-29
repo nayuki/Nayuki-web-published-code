@@ -11,7 +11,7 @@ public class dwite200510p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int d1 = Integer.parseInt(st.nextToken());
 		int d2 = Integer.parseInt(st.nextToken());
@@ -29,7 +29,7 @@ public class dwite200510p5 {
 	
 	
 	
-	static int toNumber(int[] digits) {
+	private static int toNumber(int[] digits) {
 		int num = 0;
 		for (int i = digits.length - 1; i >= 0; i--)
 			num = num * 10 + digits[i];
@@ -37,7 +37,7 @@ public class dwite200510p5 {
 	}
 	
 	
-	static void permute(int[] array, int perm) {
+	private static void permute(int[] array, int perm) {
 		// A modification of the Knuth shuffle
 		for (int i = array.length - 1; i >= 0; i--) {
 			int temp = array[i];
@@ -48,7 +48,7 @@ public class dwite200510p5 {
 	}
 	
 	
-	static int factorial(int x) {
+	private static int factorial(int x) {
 		int prod = 1;
 		for (int i = 1; i <= x; i++)
 			prod *= i;
@@ -57,8 +57,8 @@ public class dwite200510p5 {
 	
 	
 	
-	static String infile = "DATA51.txt";  // Specify null to use System.in
-	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	private static String infile = "DATA51.txt";  // Specify null to use System.in
+	private static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

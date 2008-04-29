@@ -11,7 +11,7 @@ public class dwite200411p3 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		Polynomial poly = parsePolynomial(in.readLine()).reduce();
 		ArrayList<Integer> output = new ArrayList<Integer>();
 		int a0 = poly.getCoefficient(poly.getDegree());
@@ -34,7 +34,7 @@ public class dwite200411p3 {
 	}
 	
 	
-	static Polynomial parsePolynomial(String line) {
+	private static Polynomial parsePolynomial(String line) {
 		StringTokenizer st = new StringTokenizer(line, " ");
 		int degree = Integer.parseInt(st.nextToken());
 		List<Integer> coef = new ArrayList<Integer>();
@@ -44,7 +44,7 @@ public class dwite200411p3 {
 	}
 	
 	
-	static Fraction findRoot(Polynomial poly) {
+	private static Fraction findRoot(Polynomial poly) {
 		int p = Math.abs(poly.getCoefficient(0));
 		int q = Math.abs(poly.getCoefficient(poly.getDegree()));
 		for (int i = 1; i <= p; i++) {
@@ -64,7 +64,7 @@ public class dwite200411p3 {
 	
 	
 	
-	static int gcd(int x, int y) {
+	private static int gcd(int x, int y) {
 		while (y != 0) {
 			int z = x % y;
 			x = y;
@@ -75,8 +75,8 @@ public class dwite200411p3 {
 	
 	
 	
-	static String infile = "DATA31.txt";  // Specify null to use System.in
-	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	private static String infile = "DATA31.txt";  // Specify null to use System.in
+	private static String outfile = "OUT31.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {
@@ -104,7 +104,7 @@ public class dwite200411p3 {
 	
 	
 	
-	static class Polynomial {
+	private static class Polynomial {
 		
 		private List<Integer> coefficients;  // From highest power downward
 		
@@ -195,7 +195,7 @@ public class dwite200411p3 {
 	
 	
 	
-	static class Fraction {
+	private static class Fraction {
 		
 		private int num;
 		private int denom;

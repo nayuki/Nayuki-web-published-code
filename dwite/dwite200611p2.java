@@ -12,7 +12,7 @@ public class dwite200611p2 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out, List<Integer> winningNumbers) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out, List<Integer> winningNumbers) throws IOException {
 		List<Integer> numbers = parseNumbers(in.readLine());
 		
 		int regularMatches = 0;
@@ -30,7 +30,7 @@ public class dwite200611p2 {
 	}
 	
 	
-	static String getPrize(int regularMatches, int bonusMatches) {
+	private static String getPrize(int regularMatches, int bonusMatches) {
 		if      (regularMatches <= 2) return "No Prize";
 		else if (regularMatches == 3) return "Fifth Prize";
 		else if (regularMatches == 4) return "Fourth Prize";
@@ -41,7 +41,7 @@ public class dwite200611p2 {
 	}
 	
 	
-	static List<Integer> parseNumbers(String s) {
+	private static List<Integer> parseNumbers(String s) {
 		StringTokenizer st = new StringTokenizer(s, " ");
 		List<Integer> result = new ArrayList<Integer>();
 		while (st.hasMoreTokens())
@@ -51,8 +51,8 @@ public class dwite200611p2 {
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

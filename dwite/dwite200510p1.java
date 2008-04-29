@@ -11,7 +11,7 @@ public class dwite200510p1 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int[] r1 = toDigits(in.readLine());
 		int d1 = Integer.parseInt(in.readLine());
 		int d2 = Integer.parseInt(in.readLine());
@@ -28,14 +28,14 @@ public class dwite200510p1 {
 	}
 	
 	
-	static int[] solveSlow(int n1, int d2, int[] r2) {
+	private static int[] solveSlow(int n1, int d2, int[] r2) {
 		while (countOccurrences(r2, d2) != n1)
 			increment(r2, r2.length - 1);
 		return r2;
 	}
 	
 	
-	static int[] solveFast(int n1, int d2, int[] r2) {
+	private static int[] solveFast(int n1, int d2, int[] r2) {
 		while (true) {
 			int n2 = countOccurrences(r2, d2);
 			if (n2 == n1)  // Done!
@@ -69,7 +69,7 @@ public class dwite200510p1 {
 	}
 	
 	
-	static int countOccurrences(int[] digits, int digit) {
+	private static int countOccurrences(int[] digits, int digit) {
 		int count = 0;
 		for (int i = 0; i < digits.length; i++) {
 			if (digits[i] == digit)
@@ -79,7 +79,7 @@ public class dwite200510p1 {
 	}
 	
 	
-	static void increment(int[] digits, int index) {
+	private static void increment(int[] digits, int index) {
 		if (index < 0)
 			return;
 		digits[index]++;
@@ -94,7 +94,7 @@ public class dwite200510p1 {
 	}
 	
 	
-	static BigInteger toNumber(int[] digits) {
+	private static BigInteger toNumber(int[] digits) {
 		final BigInteger TEN = BigInteger.valueOf(10);
 		BigInteger sum = BigInteger.ZERO;
 		for (int i = 0; i < digits.length; i++) {
@@ -105,7 +105,7 @@ public class dwite200510p1 {
 	}
 	
 	
-	static String toString(int[] digits) {
+	private static String toString(int[] digits) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < digits.length; i++)
 			sb.append((char)('0' + digits[i]));
@@ -114,7 +114,7 @@ public class dwite200510p1 {
 	
 	
 	
-	static int[] toDigits(String s) {
+	private static int[] toDigits(String s) {
 		int[] digits = new int[s.length()];
 		for (int i = 0; i < digits.length; i++)
 			digits[i] = s.charAt(i) - '0';
@@ -123,8 +123,8 @@ public class dwite200510p1 {
 	
 	
 	
-	static String infile = "DATA11.txt";  // Specify null to use System.in
-	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	private static String infile = "DATA11.txt";  // Specify null to use System.in
+	private static String outfile = "OUT11.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

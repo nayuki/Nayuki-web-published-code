@@ -4,7 +4,7 @@ import java.io.*;
 // DWITE - November 2006 - Problem 5: Goldbach's Weak Conjecture
 public class dwite200611p5 {
 	
-	static boolean[] isPrime;
+	private static boolean[] isPrime;
 	
 	static {
 		isPrime = sievePrimes(999999);
@@ -19,13 +19,13 @@ public class dwite200611p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
 		out.printf("%d=%s%n", n, solve(n));
 	}
 	
 	
-	static String solve(int n) {
+	private static String solve(int n) {
 		if (n % 2 == 0)
 			throw new IllegalArgumentException("Not applicable to even numbers");
 		if (n <= 7)
@@ -34,7 +34,7 @@ public class dwite200611p5 {
 	}
 	
 	
-	static String solve(int n, int terms, int max) {
+	private static String solve(int n, int terms, int max) {
 		if (n > max)
 			return null;
 		else if (terms == 1) {
@@ -56,7 +56,7 @@ public class dwite200611p5 {
 	
 	
 	
-	static boolean[] sievePrimes(int n) {
+	private static boolean[] sievePrimes(int n) {
 		boolean[] isPrime = new boolean[n + 1];
 		if (n >= 2)
 			isPrime[2] = true;
@@ -72,7 +72,7 @@ public class dwite200611p5 {
 	}
 	
 	
-	static int sqrt(int x) {
+	private static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
 			y |= 1 << i;
@@ -84,8 +84,8 @@ public class dwite200611p5 {
 	
 	
 	
-	static String infile = "DATA51.txt";  // Specify null to use System.in
-	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	private static String infile = "DATA51.txt";  // Specify null to use System.in
+	private static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

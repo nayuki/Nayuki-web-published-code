@@ -15,7 +15,7 @@ public class dwite200601p4 {
 	 * 1 tablespoon =  3 teaspoons    =    3 teaspoons
 	 * 1 teaspoon   = ~5 millilitres  =    1 teaspoon
 	 */
-	static final Map<String,Integer> teaspoonsByUnit;
+	private static final Map<String,Integer> teaspoonsByUnit;
 	
 	static {
 		teaspoonsByUnit = new HashMap<String,Integer>();
@@ -37,7 +37,7 @@ public class dwite200601p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int x = Integer.parseInt(st.nextToken());
 		String fromunit = st.nextToken();
@@ -49,8 +49,8 @@ public class dwite200601p4 {
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

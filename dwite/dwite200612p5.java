@@ -10,7 +10,7 @@ public class dwite200612p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String ciphertext = in.readLine();
 		String someplaintext = in.readLine();
 		
@@ -20,7 +20,7 @@ public class dwite200612p5 {
 	}
 	
 	
-	static String encrypt(String s, int shift) {
+	private static String encrypt(String s, int shift) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
@@ -33,19 +33,19 @@ public class dwite200612p5 {
 	}
 	
 	
-	static String decrypt(String s, int shift) {
+	private static String decrypt(String s, int shift) {
 		return encrypt(s, (26 - shift) % 26);
 	}
 	
 	
-	static boolean isUppercase(char c) {
+	private static boolean isUppercase(char c) {
 		return c >= 'A' && c <= 'Z';
 	}
 	
 	
 	
-	static String infile = "DATA51.txt";  // Specify null to use System.in
-	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	private static String infile = "DATA51.txt";  // Specify null to use System.in
+	private static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

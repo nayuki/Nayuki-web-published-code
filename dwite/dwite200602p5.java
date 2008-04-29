@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 // DWITE - February 2006 - Problem 5: Prime Palindromes
 public class dwite200602p5 {
 	
-	static boolean[] isPrime = sievePrimes(1000000);
+	private static boolean[] isPrime = sievePrimes(1000000);
 	
 	
 	
@@ -15,7 +15,7 @@ public class dwite200602p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int start = Integer.parseInt(st.nextToken());
 		int end  = Integer.parseInt(st.nextToken());
@@ -28,14 +28,14 @@ public class dwite200602p5 {
 	}
 	
 	
-	static boolean isPalindrome(int x) {
+	private static boolean isPalindrome(int x) {
 		String s = Integer.toString(x);
 		return new StringBuilder(s).reverse().toString().equals(s);
 	}
 	
 	
 	
-	static boolean[] sievePrimes(int n) {
+	private static boolean[] sievePrimes(int n) {
 		boolean[] isPrime = new boolean[n + 1];
 		if (n >= 2)
 			isPrime[2] = true;
@@ -51,7 +51,7 @@ public class dwite200602p5 {
 	}
 	
 	
-	static int sqrt(int x) {
+	private static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
 			y |= 1 << i;
@@ -63,8 +63,8 @@ public class dwite200602p5 {
 	
 	
 	
-	static String infile = "DATA51.txt";  // Specify null to use System.in
-	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	private static String infile = "DATA51.txt";  // Specify null to use System.in
+	private static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

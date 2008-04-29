@@ -11,14 +11,14 @@ public class dwite200610p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		BigInteger x = new BigInteger(sanitizeUsingRegex(in.readLine()));
 		BigInteger y = new BigInteger(sanitizeUsingRegex(in.readLine()));
 		out.println(x.add(y));
 	}
 	
 	
-	static String sanitize(String s) {
+	private static String sanitize(String s) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
@@ -29,19 +29,19 @@ public class dwite200610p5 {
 	}
 	
 	
-	static String sanitizeUsingRegex(String s) {
+	private static String sanitizeUsingRegex(String s) {
 		return s.replaceAll("[^0-9]", "");
 	}
 	
 	
-	static boolean isDigit(char c) {
+	private static boolean isDigit(char c) {
 		return c >= '0' && c <= '9';
 	}
 	
 	
 	
-	static String infile = "DATA51.txt";  // Specify null to use System.in
-	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	private static String infile = "DATA51.txt";  // Specify null to use System.in
+	private static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

@@ -11,7 +11,7 @@ public class dwite200502p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		// Read the matrix dimensions
 		List<Integer> dimensions = new ArrayList<Integer>();
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
@@ -64,8 +64,8 @@ public class dwite200502p4 {
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

@@ -4,7 +4,7 @@ import java.io.*;
 // DWITE - December 2006 - Problem 3: Circular Primes
 public class dwite200612p3 {
 	
-	static boolean[] isPrime = sievePrimes(999999);
+	private static boolean[] isPrime = sievePrimes(999999);
 	
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
@@ -13,7 +13,7 @@ public class dwite200612p3 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
 		int i = n;
 		while (!isCircularPrime(i))
@@ -22,7 +22,7 @@ public class dwite200612p3 {
 	}
 	
 	
-	static boolean isCircularPrime(int n) {
+	private static boolean isCircularPrime(int n) {
 		String s = Integer.toString(n);
 		for (int i = 0; i < s.length(); i++) {
 			if (!isPrime[Integer.parseInt(s)])
@@ -33,7 +33,7 @@ public class dwite200612p3 {
 	}
 	
 	
-	static String rotateLeft(String str, int shift) {
+	private static String rotateLeft(String str, int shift) {
 		if (str.equals(""))
 			return str;
 		else {
@@ -44,7 +44,7 @@ public class dwite200612p3 {
 	
 	
 	
-	static boolean[] sievePrimes(int n) {
+	private static boolean[] sievePrimes(int n) {
 		boolean[] isPrime = new boolean[n + 1];
 		if (n >= 2)
 			isPrime[2] = true;
@@ -60,7 +60,7 @@ public class dwite200612p3 {
 	}
 	
 	
-	static int sqrt(int x) {
+	private static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
 			y |= 1 << i;
@@ -72,8 +72,8 @@ public class dwite200612p3 {
 	
 	
 	
-	static String infile = "DATA31.txt";  // Specify null to use System.in
-	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	private static String infile = "DATA31.txt";  // Specify null to use System.in
+	private static String outfile = "OUT31.txt";  // Specify null to use System.out
 	
 	public static void main(String[] args) throws IOException {
 		InputStream in0;

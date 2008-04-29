@@ -10,7 +10,7 @@ public class dwite200512p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String line = in.readLine();
 		int[] freq = new int[26];
 		for (int i = 0; i < line.length(); i++) {
@@ -31,15 +31,15 @@ public class dwite200512p4 {
 	}
 	
 	
-	static boolean isLetter(char c) {
+	private static boolean isLetter(char c) {
 		return c >= 'A' && c <= 'Z'
 		    || c >= 'a' && c <= 'z';
 	}
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

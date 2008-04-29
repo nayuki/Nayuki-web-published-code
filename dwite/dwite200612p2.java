@@ -11,7 +11,7 @@ public class dwite200612p2 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int m = Integer.parseInt(st.nextToken());
 		int n = Integer.parseInt(st.nextToken());
@@ -22,8 +22,8 @@ public class dwite200612p2 {
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {
@@ -51,7 +51,7 @@ public class dwite200612p2 {
 	
 	
 	
-	static class Point {
+	private static class Point {
 		
 		private int x;
 		private int y;

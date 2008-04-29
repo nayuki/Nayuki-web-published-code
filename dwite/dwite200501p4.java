@@ -5,8 +5,8 @@ import java.util.StringTokenizer;
 // DWITE - January 2005 - Problem 4: Zeller's Congruence
 public class dwite200501p4 {
 	
-	static final String[] months = {"JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"};
-	static final String[] daysOfWeek = {"SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"};
+	private static final String[] months = {"JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"};
+	private static final String[] daysOfWeek = {"SATURDAY", "SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"};
 	
 	
 	
@@ -16,7 +16,7 @@ public class dwite200501p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int m = getMonth(st.nextToken());
 		String daystr = st.nextToken();
@@ -27,7 +27,7 @@ public class dwite200501p4 {
 	
 	
 	// Returns the month number corresponding to the string, starting with January = 1.
-	static int getMonth(String s) {
+	private static int getMonth(String s) {
 		for (int i = 0; i < months.length; i++) {
 			if (s.equals(months[i]))
 				return i + 1;
@@ -37,7 +37,7 @@ public class dwite200501p4 {
 	
 	
 	// Zeller's congruence computation
-	static int getDayOfWeek(int y, int m, int d) {
+	private static int getDayOfWeek(int y, int m, int d) {
 		if (m <= 2) {
 			m += 12;
 			y--;
@@ -52,8 +52,8 @@ public class dwite200501p4 {
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

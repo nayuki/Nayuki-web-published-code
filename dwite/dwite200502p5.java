@@ -10,7 +10,7 @@ public class dwite200502p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int h = Integer.parseInt(in.readLine());         // Water depth in metres
 		int d = Integer.parseInt(in.readLine()) * 1000;  // Distance in metres
 		
@@ -21,8 +21,8 @@ public class dwite200502p5 {
 	
 	
 	
-	static String infile = "DATA51.txt";  // Specify null to use System.in
-	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	private static String infile = "DATA51.txt";  // Specify null to use System.in
+	private static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

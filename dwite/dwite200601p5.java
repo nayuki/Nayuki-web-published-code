@@ -23,7 +23,7 @@ public class dwite200601p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out, Graph graph) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out, Graph graph) throws IOException {
 		String line = in.readLine();
 		Node src  = graph.getOrAddNode(line.substring(0, 1));
 		Node dest = graph.getOrAddNode(line.substring(1, 2));
@@ -55,8 +55,8 @@ public class dwite200601p5 {
 	
 	
 	
-	static String infile = "DATA31.txt";  // Specify null to use System.in
-	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	private static String infile = "DATA31.txt";  // Specify null to use System.in
+	private static String outfile = "OUT31.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {
@@ -84,7 +84,7 @@ public class dwite200601p5 {
 	
 	
 	
-	static class Graph {
+	private static class Graph {
 		
 		private Collection<Node> nodes;
 		private Map<String,Node> nodeByName;
@@ -117,7 +117,7 @@ public class dwite200601p5 {
 	
 	
 	
-	static class Node implements Comparable<Node> {
+	private static class Node implements Comparable<Node> {
 		
 		@SuppressWarnings("unused")
 		private String name;
@@ -153,7 +153,7 @@ public class dwite200601p5 {
 	
 	
 	
-	static class Edge {
+	private static class Edge {
 		
 		public final Node destination;
 		public final int distance;

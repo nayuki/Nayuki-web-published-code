@@ -5,8 +5,8 @@ import java.util.*;
 // DWITE - November 2006 - Problem 4: Money Prize
 public class dwite200611p4 {
 
-	static final int HEIGHT = 8;
-	static final int WIDTH = 8;
+	private static final int HEIGHT = 8;
+	private static final int WIDTH = 8;
 	
 	
 	
@@ -45,8 +45,8 @@ public class dwite200611p4 {
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

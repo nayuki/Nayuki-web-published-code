@@ -11,7 +11,7 @@ public class dwite200411p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		List<String> formula = new ArrayList<String>();
 		StringTokenizer st;
 		
@@ -43,7 +43,7 @@ public class dwite200411p4 {
 	}
 	
 	
-	static int executeOnce(int sum, int i, List<String> formula) {
+	private static int executeOnce(int sum, int i, List<String> formula) {
 		// Dijkstra's shunting yard algorithm
 		Stack<Integer> operands = new Stack<Integer>();
 		Stack<Character> operators = new Stack<Character>();
@@ -81,7 +81,7 @@ public class dwite200411p4 {
 	
 	
 	// Returns true if opA has higher precedence than opB.
-	static boolean canEvaluate(char opA, char opB) {
+	private static boolean canEvaluate(char opA, char opB) {
 		if (opB == '+' || opB == '-')
 			return opA == '+' || opA == '-' || opA == '*' || opA == '\\';
 		else if (opB == '*' || opB == '\\')
@@ -91,7 +91,7 @@ public class dwite200411p4 {
 	}
 	
 	
-	static int evaluate(int x, int y, char op) {
+	private static int evaluate(int x, int y, char op) {
 		switch (op) {
 			case '+':
 				return x + y;
@@ -107,7 +107,7 @@ public class dwite200411p4 {
 	}
 	
 	
-	static boolean isOperator(String s) {
+	private static boolean isOperator(String s) {
 		return s.equals("+")
 		    || s.equals("-")
 		    || s.equals("*")
@@ -116,8 +116,8 @@ public class dwite200411p4 {
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

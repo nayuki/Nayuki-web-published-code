@@ -4,7 +4,7 @@ import java.io.*;
 // DWITE - November 2005 - Problem 3: Cinquain Poetry
 public class dwite200511p3 {
 	
-	static final int[] syllablePattern = {2, 4, 6, 8, 2};
+	private static final int[] syllablePattern = {2, 4, 6, 8, 2};
 	
 	
 	
@@ -14,7 +14,7 @@ public class dwite200511p3 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int worstdev = 0;
 		int worstline = -1;
 		for (int i = 0; i < 5; i++) {
@@ -35,7 +35,7 @@ public class dwite200511p3 {
 	}
 	
 	
-	static int countSyllables(String s) {
+	private static int countSyllables(String s) {
 		int count = 1;
 		for (int i = 0; i < s.length(); i++) {
 			if (s.charAt(i) == ' ' || s.charAt(i) == '-')
@@ -45,14 +45,14 @@ public class dwite200511p3 {
 	}
 	
 	
-	static int countSyllablesUsingRegex(String s) {
+	private static int countSyllablesUsingRegex(String s) {
 		return s.replaceAll("[^ \\-]", "").length() + 1;  // One-liners rock
 	}
 	
 	
 	
-	static String infile = "DATA31.txt";  // Specify null to use System.in
-	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	private static String infile = "DATA31.txt";  // Specify null to use System.in
+	private static String outfile = "OUT31.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

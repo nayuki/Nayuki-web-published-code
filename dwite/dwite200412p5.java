@@ -4,7 +4,7 @@ import java.io.*;
 // DWITE - December 2004 - Problem 5: Hidden Geography
 public class dwite200412p5 {
 	
-	static final String[] provinces = {
+	private static final String[] provinces = {
 		"British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario",
 		"Quebec", "Nova Scotia", "Newfoundland", "New Brunswick", "Prince Edward Island"
 	};
@@ -17,7 +17,7 @@ public class dwite200412p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String line = normalize(in.readLine());
 		int minindex = -1;
 		String minprovince = null;
@@ -38,14 +38,14 @@ public class dwite200412p5 {
 	
 	
 	// Converts to lowercase and strips all non-letters
-	static String normalize(String s) {
+	private static String normalize(String s) {
 		return s.toLowerCase().replaceAll("[^a-z]", "");
 	}
 	
 	
 	
-	static String infile = "DATA51.txt";  // Specify null to use System.in
-	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	private static String infile = "DATA51.txt";  // Specify null to use System.in
+	private static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

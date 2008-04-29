@@ -24,8 +24,8 @@ public class dwite200610p3 {
 	
 	
 	
-	static String infile = "DATA31.txt";  // Specify null to use System.in
-	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	private static String infile = "DATA31.txt";  // Specify null to use System.in
+	private static String outfile = "OUT31.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {
@@ -53,7 +53,7 @@ public class dwite200610p3 {
 	
 	
 	
-	static class Player implements Comparable<Player> {
+	private static class Player implements Comparable<Player> {
 		
 		public final String name;
 		public final int score;

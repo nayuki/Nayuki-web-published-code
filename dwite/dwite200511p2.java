@@ -11,7 +11,7 @@ public class dwite200511p2 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int height = Integer.parseInt(st.nextToken());
 		int width = Integer.parseInt(st.nextToken());
@@ -29,7 +29,7 @@ public class dwite200511p2 {
 	
 	
 	
-	static void iterate(char[][] grid, boolean[] live, boolean[] birth) {
+	private static void iterate(char[][] grid, boolean[] live, boolean[] birth) {
 		char[][] gridnew = new char[grid.length][grid[0].length];
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[0].length - 1; x++) {
@@ -49,7 +49,7 @@ public class dwite200511p2 {
 	}
 	
 	
-	static int countLiveNeighbours(char[][] grid, int x, int y) {
+	private static int countLiveNeighbours(char[][] grid, int x, int y) {
 		int count = 0;
 		if (grid[y - 1][x - 1] == 'X') count++;
 		if (grid[y - 1][x + 0] == 'X') count++;
@@ -63,7 +63,7 @@ public class dwite200511p2 {
 	}
 	
 	
-	static int countTotalAlive(char[][] grid) {
+	private static int countTotalAlive(char[][] grid) {
 		int count = 0;
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[0].length - 1; x++) {
@@ -76,7 +76,7 @@ public class dwite200511p2 {
 	
 	
 	// For example, turns "235" into [false, false, true, true, false, true, false, false, false]
-	static boolean[] parseRule(String s) {
+	private static boolean[] parseRule(String s) {
 		boolean[] result = new boolean[9];
 		for (int i = 0; i < s.length(); i++)
 			result[s.charAt(i) - '0'] = true;
@@ -85,7 +85,7 @@ public class dwite200511p2 {
 	
 	
 	
-	static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
+	private static char[][] readGridAndPad(BufferedReader in, int width, int height, char border) throws IOException {
 		char[][] grid = new char[height + 2][width + 2];
 		for (int y = 1; y <= height; y++) {
 			String line = in.readLine();
@@ -103,8 +103,8 @@ public class dwite200511p2 {
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

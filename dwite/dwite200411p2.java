@@ -10,7 +10,7 @@ public class dwite200411p2 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());  // The total number of lots
 		int s = Integer.parseInt(in.readLine());  // The size of a lot to choose
 		int csqrt = sqrt(n) - sqrt(s) + 1;  // The number of choices along one dimension
@@ -19,7 +19,7 @@ public class dwite200411p2 {
 	
 	
 	
-	static int sqrt(int x) {
+	private static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
 			y |= 1 << i;
@@ -31,8 +31,8 @@ public class dwite200411p2 {
 	
 	
 	
-	static String infile = "DATA21.txt";  // Specify null to use System.in
-	static String outfile = "OUT21.txt";  // Specify null to use System.out
+	private static String infile = "DATA21.txt";  // Specify null to use System.in
+	private static String outfile = "OUT21.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 // DWITE - January 2007 - Problem 3: Elapsed Time in Seconds
 public class dwite200701p3 {
 	
-	static final int[] cumulativeDays = {-1, -1, -1, 0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 337};
+	private static final int[] cumulativeDays = {-1, -1, -1, 0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 337};
 	
 	
 	
@@ -15,7 +15,7 @@ public class dwite200701p3 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " /:");
 		int day = Integer.parseInt(st.nextToken());
 		int mth = Integer.parseInt(st.nextToken());
@@ -31,7 +31,7 @@ public class dwite200701p3 {
 	 * Returns the number of seconds after an arbitrary, fixed epoch.
 	 * At the very least, it requires that yr >= 0 and 01 <= mth <= 12.
 	 */
-	static long toSeconds(int yr, int mth, int day, int hr, int min, int sec) {
+	private static long toSeconds(int yr, int mth, int day, int hr, int min, int sec) {
 		if (mth < 3) {
 			mth += 12;
 			yr--;
@@ -42,8 +42,8 @@ public class dwite200701p3 {
 	
 	
 	
-	static String infile = "DATA31.txt";  // Specify null to use System.in
-	static String outfile = "OUT31.txt";  // Specify null to use System.out
+	private static String infile = "DATA31.txt";  // Specify null to use System.in
+	private static String outfile = "OUT31.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

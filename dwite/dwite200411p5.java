@@ -10,7 +10,7 @@ public class dwite200411p5 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int temp = Integer.parseInt(in.readLine());  // Variable Tair
 		int wind = Integer.parseInt(in.readLine());  // Variable V10metre
 		
@@ -19,7 +19,7 @@ public class dwite200411p5 {
 	}
 	
 	
-	static String getRating(int wct) {
+	private static String getRating(int wct) {
 		if      (  0 < wct             ) throw new IllegalArgumentException("Undefined for positive wind chill temperature");
 		else if (-10 < wct && wct <   0) return "LOW";
 		else if (-25 < wct && wct < -10) return "MODERATE";
@@ -31,8 +31,8 @@ public class dwite200411p5 {
 	
 	
 	
-	static String infile = "DATA51.txt";  // Specify null to use System.in
-	static String outfile = "OUT51.txt";  // Specify null to use System.out
+	private static String infile = "DATA51.txt";  // Specify null to use System.in
+	private static String outfile = "OUT51.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

@@ -4,10 +4,10 @@ import java.io.*;
 // DWITE - December 2004 - Problem 4: Waring's Prime Number Conjecture
 public class dwite200412p4 {
 	
-	static boolean[] isPrime;
+	private static boolean[] isPrime;
 	
-	static int[] primes;
-	static int primesLength;
+	private static int[] primes;
+	private static int primesLength;
 	
 	
 	static {
@@ -30,7 +30,7 @@ public class dwite200412p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int n = Integer.parseInt(in.readLine());
 		if (isPrime[n])
 			out.println("PRIME");
@@ -42,7 +42,7 @@ public class dwite200412p4 {
 	
 	
 	// Returns the number of unordered sums that add up to 'sum' with exactly 'terms' prime terms, each of which is at least 'minimum'.
-	static int countSums(int sum, int terms, int minimum) {
+	private static int countSums(int sum, int terms, int minimum) {
 		if (terms == 1) {
 			if (isPrime[sum] && sum >= minimum)
 				return 1;
@@ -60,7 +60,7 @@ public class dwite200412p4 {
 	
 	
 	// Assumes that primes[minimumIndex] >= minimum.
-	static int countSumsSemifast(int sum, int terms, int minimum, int minimumIndex) {
+	private static int countSumsSemifast(int sum, int terms, int minimum, int minimumIndex) {
 		if (terms == 1) {
 			if (isPrime[sum] && sum >= minimum)
 				return 1;
@@ -76,7 +76,7 @@ public class dwite200412p4 {
 	
 	
 	// Hard-coded for 3-term sums.
-	static int countSumsFast(int sum) {
+	private static int countSumsFast(int sum) {
 		int count = 0;
 		for (int i = 0, iend = sum / 3; i < primesLength && primes[i] <= iend; i++) {
 			int temp = sum - primes[i];
@@ -91,7 +91,7 @@ public class dwite200412p4 {
 	
 	
 	
-	static boolean[] sievePrimes(int n) {
+	private static boolean[] sievePrimes(int n) {
 		boolean[] isPrime = new boolean[n + 1];
 		if (n >= 2)
 			isPrime[2] = true;
@@ -107,7 +107,7 @@ public class dwite200412p4 {
 	}
 	
 	
-	static int sqrt(int x) {
+	private static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
 			y |= 1 << i;
@@ -119,8 +119,8 @@ public class dwite200412p4 {
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

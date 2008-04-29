@@ -10,12 +10,12 @@ public class dwite200412p1 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		out.println(factor(Integer.parseInt(in.readLine())));
 	}
 	
 	
-	static String factor(int x) {
+	private static String factor(int x) {
 		for (int i = 2, end = sqrt(x); i <= end; i++) {
 			if (x % i == 0)
 				return i + "*" + factor(x / i);  // x is composite
@@ -25,7 +25,7 @@ public class dwite200412p1 {
 	
 	
 	
-	static int sqrt(int x) {
+	private static int sqrt(int x) {
 		int y = 0;
 		for (int i = 15; i >= 0; i--) {
 			y |= 1 << i;
@@ -37,8 +37,8 @@ public class dwite200412p1 {
 	
 	
 	
-	static String infile = "DATA11.txt";  // Specify null to use System.in
-	static String outfile = "OUT11.txt";  // Specify null to use System.out
+	private static String infile = "DATA11.txt";  // Specify null to use System.in
+	private static String outfile = "OUT11.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

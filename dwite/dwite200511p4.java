@@ -5,7 +5,7 @@ import java.util.StringTokenizer;
 // DWITE - November 2005 - Problem 4: Stacking Blocks
 public class dwite200511p4 {
 	
-	static final int MAX_HEIGHT = 32000;
+	private static final int MAX_HEIGHT = 32000;
 	
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
@@ -14,7 +14,7 @@ public class dwite200511p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		int[] minBlocks = new int[MAX_HEIGHT + 1];  // minBlocks[i] is the minimum number of blocks to build a tower of height i
 		minBlocks[0] = 0;
 		for (int i = 1; i < minBlocks.length; i++)
@@ -33,7 +33,7 @@ public class dwite200511p4 {
 	}
 	
 	
-	static void update(int[] minBlocks, int blockHeight, int blockCount) {
+	private static void update(int[] minBlocks, int blockHeight, int blockCount) {
 		for (int i = minBlocks.length - 1; i >= 0; i--) {
 			if (minBlocks[i] == Integer.MAX_VALUE / 2)
 				continue;
@@ -45,8 +45,8 @@ public class dwite200511p4 {
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

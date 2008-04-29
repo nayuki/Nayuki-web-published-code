@@ -11,7 +11,7 @@ public class dwite200610p4 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int height = Integer.parseInt(st.nextToken());
 		int width = Integer.parseInt(st.nextToken());
@@ -29,7 +29,7 @@ public class dwite200610p4 {
 	}
 	
 	
-	static int countSquares(char[][] grid, int size) {
+	private static int countSquares(char[][] grid, int size) {
 		int count = 0;
 		for (int y = 0; y < grid.length-size+1; y++) {
 			for (int x = 0; x < grid[y].length-size+1; x++) {
@@ -40,7 +40,7 @@ public class dwite200610p4 {
 	}
 	
 	
-	static int isSquare(char[][] grid, int x, int y, int size) {
+	private static int isSquare(char[][] grid, int x, int y, int size) {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				if (grid[y + i][x + j] != '*')
@@ -52,8 +52,8 @@ public class dwite200610p4 {
 	
 	
 	
-	static String infile = "DATA41.txt";  // Specify null to use System.in
-	static String outfile = "OUT41.txt";  // Specify null to use System.out
+	private static String infile = "DATA41.txt";  // Specify null to use System.in
+	private static String outfile = "OUT41.txt";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {

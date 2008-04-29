@@ -11,7 +11,7 @@ public class dwite200410p1 {
 	}
 	
 	
-	static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		double x1 = Double.parseDouble(st.nextToken());
 		double y1 = Double.parseDouble(st.nextToken());
@@ -21,18 +21,18 @@ public class dwite200410p1 {
 	}
 	
 	
-	static double distanceSquared(double x0, double y0, double x1, double y1) {
+	private static double distanceSquared(double x0, double y0, double x1, double y1) {
 		return magnitudeSquared(x0 - x1, y0 - y1);
 	}
 	
-	static double magnitudeSquared(double x, double y) {
+	private static double magnitudeSquared(double x, double y) {
 		return x * x + y * y;
 	}
 	
 	
 	
-	static String infile = "DATA1";  // Specify null to use System.in
-	static String outfile = "OUT1";  // Specify null to use System.out
+	private static String infile = "DATA1";  // Specify null to use System.in
+	private static String outfile = "OUT1";  // Specify null to use System.out
 	
 	
 	public static void main(String[] args) throws IOException {
