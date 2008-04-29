@@ -26,11 +26,12 @@ public class dwite200701p2 {
 			}
 		}
 		
-		// Process queries and write output
+		// Process queries and write the output
 		SortedSet<Character> querykeys = new TreeSet<Character>(queries.keySet());
 		for (Character key : querykeys) {
 			Point p = queries.get(key);
-			out.printf("%c-%d%n", key, neighbouringmines[p.y + 1][p.x + 1]);
+			int mines = neighbouringmines[p.y + 1][p.x + 1];
+			out.printf("%c-%d%n", key, mines);
 		}
 	}
 	

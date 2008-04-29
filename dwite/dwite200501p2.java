@@ -26,7 +26,7 @@ public class dwite200501p2 {
 			}
 		}
 		
-		// Make queries and write the output
+		// Process queries and write the output
 		SortedSet<Character> querykeys = new TreeSet<Character>(queries.keySet());
 		for (Character key : querykeys) {
 			Point p = queries.get(key);
