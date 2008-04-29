@@ -12,6 +12,7 @@ public class dwite200610p4 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int height = Integer.parseInt(st.nextToken());
 		int width = Integer.parseInt(st.nextToken());
@@ -22,9 +23,12 @@ public class dwite200610p4 {
 				grid[y][x] = line.charAt(x);
 		}
 		
+		// Compute
 		int count = 0;
 		for (int i = 1; i <= Math.min(width, height); i++)
 			count += countSquares(grid, i);
+		
+		// Write output
 		out.println(count);
 	}
 	

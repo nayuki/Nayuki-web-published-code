@@ -11,9 +11,12 @@ public class dwite200601p1 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		double h = Double.parseDouble(in.readLine());
 		double r = Double.parseDouble(in.readLine());
 		double v = Double.parseDouble(in.readLine());
+		
+		// Compute and write output
 		double x = Math.pow(3 * v * h * h / (3.1415926 * r * r), 1 / 3D);  // Height of water
 		out.printf("%.2f%n", x);
 	}

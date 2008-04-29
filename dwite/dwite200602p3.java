@@ -15,7 +15,7 @@ public class dwite200602p3 {
 		if (line.length() != 12)
 			throw new AssertionError("Invalid length for UPC digit sequence");
 		int sum = getUpcSumWithoutCheckDigit(toDigits(line));
-		out.printf("%s%d%n", line.substring(0, 11), (10 - sum) % 10);
+		out.printf("%s%d%n", line.substring(0, 11), (10 - sum) % 10);  // Calculate the correct check digit using modular arithmetic magic
 	}
 	
 	

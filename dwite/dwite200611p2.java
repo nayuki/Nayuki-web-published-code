@@ -13,8 +13,10 @@ public class dwite200611p2 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out, List<Integer> winningNumbers) throws IOException {
+		// Read input
 		List<Integer> numbers = parseNumbers(in.readLine());
 		
+		// Compute
 		int regularMatches = 0;
 		for (int i = 0; i < 6; i++) {
 			if (numbers.contains(winningNumbers.get(i)))
@@ -26,6 +28,8 @@ public class dwite200611p2 {
 			bonusMatches++;
 		
 		String prize = getPrize(regularMatches, bonusMatches);
+		
+		// Write output
 		out.println(prize);
 	}
 	

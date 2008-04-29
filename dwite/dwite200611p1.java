@@ -11,8 +11,10 @@ public class dwite200611p1 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		String line = in.readLine();
 		
+		// Do replacements
 		line = line.replace("4"     , "A");
 		line = line.replace("8"     , "B");
 		line = line.replace("("     , "C");
@@ -32,9 +34,10 @@ public class dwite200611p1 {
 		line = line.replace("><"    , "X");
 		line = line.replace("'/"    , "Y");
 		
-		line = line.replace("|"     , "I");
+		line = line.replace("|"     , "I");  // These two are deliberately placed after the other replacements
 		line = line.replace("\\/"   , "V");
 		
+		// Write output
 		out.println(line);
 	}
 	

@@ -12,19 +12,19 @@ public class dwite200611p3 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input (the coefficients for (ax+b) and (cx+d))
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
-		
-		// Given the coefficients for (ax+b) and (cx+d)...
 		int a = Integer.parseInt(st.nextToken());
 		int b = Integer.parseInt(st.nextToken());
 		int c = Integer.parseInt(st.nextToken());
 		int d = Integer.parseInt(st.nextToken());
 		
-		// ... calculate the coefficients for (a2 x^2 + a1 x + a0). Using the FOIL rule, of course.
+		// Calculate the coefficients for (a2 x^2 + a1 x + a0). Using the distributive property, of course.
 		int a2 = a * c;
 		int a1 = a * d + b * c;
 		int a0 = b * d;
 		
+		// Write output
 		out.printf("(%s)(%s)=%s%n", formatPolynomial(a, b), formatPolynomial(c, d), formatPolynomial(a2, a1, a0));
 	}
 	
@@ -39,9 +39,9 @@ public class dwite200611p3 {
 			}
 		}
 		
-		if (leading)  // The polynomial had only coefficients of zero
+		if (leading)  // The polynomial has only coefficients of zero
 			return "0";
-		else
+		else  // Otherwise, the polynomial is not uniformly zero
 			return sb.toString();
 	}
 	

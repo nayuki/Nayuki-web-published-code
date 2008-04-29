@@ -14,10 +14,15 @@ public class dwite200612p3 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int n = Integer.parseInt(in.readLine());
+		
+		// Find next circular prime (possibly the current number)
 		int i = n;
 		while (!isCircularPrime(i))
 			i++;
+		
+		// Write output
 		out.println(i);
 	}
 	

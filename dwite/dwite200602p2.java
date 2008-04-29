@@ -14,7 +14,7 @@ public class dwite200602p2 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		// Subset sum problem using dynamic programming
+		// Solve subset sum problem using dynamic programming
 		boolean[] possible = new boolean[CAPACITY + 1];
 		possible[0] = true;
 		int n = Integer.parseInt(in.readLine());

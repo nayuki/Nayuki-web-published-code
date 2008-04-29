@@ -16,7 +16,7 @@ public class dwite200612p1 {
 		int bags = Integer.parseInt(in.readLine());
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		
-		// Subset sum problem using dynamic programming
+		// Solve subset sum problem using dynamic programming
 		boolean[] possible = new boolean[capacity + 1];
 		possible[0] = true;
 		for (int i = 0; i < bags; i++) {
@@ -25,6 +25,7 @@ public class dwite200612p1 {
 				possible[j + marbles] |= possible[j];
 		}
 		
+		// Write the largest possible total size
 		for (int i = capacity; i >= 0; i--) {
 			if (possible[i]) {  // Guaranteed to execute before the loop ends
 				out.println(i);

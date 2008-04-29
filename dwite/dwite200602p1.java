@@ -6,6 +6,7 @@ import java.util.StringTokenizer;
 public class dwite200602p1 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input (the points)
 		int n = Integer.parseInt(in.readLine());
 		int[] px = new int[n];
 		int[] py = new int[n];
@@ -15,23 +16,28 @@ public class dwite200602p1 {
 			py[i] = Integer.parseInt(st.nextToken());
 		}
 		
+		// Process each geometric line
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out, px, py);
 	}
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out, int[] px, int[] py) throws IOException {
+		// Read input (a pair of points defining the line)
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int x1 = Integer.parseInt(st.nextToken());
 		int y1 = Integer.parseInt(st.nextToken());
 		int x2 = Integer.parseInt(st.nextToken());
 		int y2 = Integer.parseInt(st.nextToken());
 		
+		// Compute
 		int count = 0;
 		for (int i = 0; i < px.length; i++) {
 			if (areCollinear(x1, y1, x2, y2, px[i], py[i]))
 				count++;
 		}
+		
+		// Write output
 		out.println(count);
 	}
 	

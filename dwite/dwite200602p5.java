@@ -16,14 +16,19 @@ public class dwite200602p5 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int start = Integer.parseInt(st.nextToken());
 		int end  = Integer.parseInt(st.nextToken());
+		
+		// Compute
 		int palin = 0;
 		for (int i = start; i <= end; i++) {
 			if (isPrime[i] && isPalindrome(i))
 				palin++;
 		}
+		
+		// Write output
 		out.println(palin);
 	}
 	

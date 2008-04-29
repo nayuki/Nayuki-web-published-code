@@ -11,9 +11,12 @@ public class dwite200701p1 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		double coneheight = Double.parseDouble(in.readLine());
 		double coneradius = Double.parseDouble(in.readLine());
 		double watervolume = Double.parseDouble(in.readLine());
+		
+		// Compute and write output
 		double waterheight = Math.cbrt(watervolume / (Math.PI * coneradius * coneradius * coneheight / 3)) * coneheight;
 		out.printf("%.2f%n", waterheight);
 	}

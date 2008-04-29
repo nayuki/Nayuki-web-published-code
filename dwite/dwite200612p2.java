@@ -12,9 +12,12 @@ public class dwite200612p2 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int m = Integer.parseInt(st.nextToken());
 		int n = Integer.parseInt(st.nextToken());
+		
+		// Compute and write output
 		Point p0 = new Point(m);
 		Point p1 = new Point(n);
 		out.println(p0.distance(p1));

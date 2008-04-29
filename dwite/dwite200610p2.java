@@ -12,16 +12,19 @@ public class dwite200610p2 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		double height = Double.parseDouble(st.nextToken());
 		double weight = Double.parseDouble(st.nextToken());
 		String system = in.readLine();
 		
+		// Compute
 		double bmi = weight / (height * height);
 		if      (system.equals("METRIC"  )) bmi *= 1;
 		else if (system.equals("IMPERIAL")) bmi *= 703;
 		else throw new AssertionError("Invalid measurement system");
 		
+		// Write output
 		out.printf("%.2f-%s%n", bmi, getCategory(bmi));
 	}
 	

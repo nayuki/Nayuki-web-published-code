@@ -6,6 +6,7 @@ import java.util.*;
 public class dwite200601p3 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int n = Integer.parseInt(in.readLine());
 		Collection<Player> players = new ArrayList<Player>();
 		for (int i = 0; i < n; i++) {
@@ -19,6 +20,7 @@ public class dwite200601p3 {
 			players.add(new Player(playernum, firstname, lastname, stats));
 		}
 		
+		// Query and write output
 		out.println(Collections.max(players, new PlayerComparator(1)).getName());
 		out.println(Collections.max(players, new PlayerComparator(2)).getName());
 		out.println(Collections.min(players, new PlayerComparator(4)).getName());

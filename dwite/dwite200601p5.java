@@ -6,6 +6,7 @@ import java.util.*;
 public class dwite200601p5 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input (the graph)
 		int n = Integer.parseInt(in.readLine());
 		Graph graph = new Graph();
 		for (int i = 0; i < n; i++) {
@@ -17,20 +18,22 @@ public class dwite200601p5 {
 			a.addEdge(new Edge(b, dist));
 			b.addEdge(new Edge(a, dist));
 		}
-			
+		
+		// Process each query
 		for (int i = 0; i < 5; i++)
 			mainOnce(in, out, graph);
 	}
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out, Graph graph) throws IOException {
+		// Read input
 		String line = in.readLine();
 		Node src  = graph.getOrAddNode(line.substring(0, 1));
 		Node dest = graph.getOrAddNode(line.substring(1, 2));
+		
+		// Compute shortest path distance using Dijkstra's algorithm
 		graph.clearDistances();
 		src.distance = 0;
-		
-		// Dijkstra's algorithm
 		Queue<Node> queue = new PriorityQueue<Node>();
 		queue.offer(src);
 		while (true) {
@@ -50,6 +53,7 @@ public class dwite200601p5 {
 			}
 		}
 		
+		// Write output
 		out.println(dest.distance);
 	}
 	

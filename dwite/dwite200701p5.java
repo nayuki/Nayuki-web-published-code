@@ -12,14 +12,16 @@ public class dwite200701p5 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		st.nextToken();  // Discard N, the number of candies
 		int piles = Integer.parseInt(st.nextToken());
 		List<Integer> state = new ArrayList<Integer>();
 		for (int i = 0; i < piles; i++)
 			state.add(Integer.parseInt(st.nextToken()));
-		Collections.sort(state, Collections.reverseOrder());
 		
+		// Compute and write output
+		Collections.sort(state, Collections.reverseOrder());
 		Set<List<Integer>> paststates = new HashSet<List<Integer>>();
 		paststates.add(state);
 		for (int i = 0; i < 100; i++) {
