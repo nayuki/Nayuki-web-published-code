@@ -12,11 +12,13 @@ public class dwite200512p2 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int height = Integer.parseInt(st.nextToken());
 		int width = Integer.parseInt(st.nextToken());
 		char[][] grid = readGridAndPad(in, width, height, '#');
 		
+		// Find entry cell position
 		int startx = -1;
 		int starty = -1;
 		outer:
@@ -30,8 +32,12 @@ public class dwite200512p2 {
 			}
 		}
 		
-		// out.println(findShortestPathDfs(grid, startx, starty) - 1);
-		out.println(findShortestPathBfs(grid, startx, starty) - 1);
+		// Compute shortest path length
+		// int length = findShortestPathDfs(grid, startx, starty);
+		int length = findShortestPathBfs(grid, startx, starty);
+		
+		// Write output
+		out.println(length - 1);  // The number of dots is length-1
 	}
 	
 	

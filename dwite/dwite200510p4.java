@@ -6,17 +6,20 @@ import java.util.StringTokenizer;
 public class dwite200510p4 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
-		char[][] grid = readGridAndPad(in, 30, 16, ' ');
-		calculateNeighbouringMines(grid);
-		for (int i = 0; i < 5; i++)
+		char[][] grid = readGridAndPad(in, 30, 16, ' ');  // Read grid
+		calculateNeighbouringMines(grid);  // Process grid
+		for (int i = 0; i < 5; i++)  // Process queries
 			mainOnce(in, out, grid);
 	}
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out, char[][] grid) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int y = Integer.parseInt(st.nextToken());
 		int x = Integer.parseInt(st.nextToken());
+		
+		// Make query and write output
 		if (grid[y][x] == 'X')
 			out.println("MINE - YOU LOSE");
 		else if (grid[y][x] >= '1' && grid[y][x] <= '8')

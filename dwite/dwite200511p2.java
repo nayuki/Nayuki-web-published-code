@@ -12,6 +12,7 @@ public class dwite200511p2 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int height = Integer.parseInt(st.nextToken());
 		int width = Integer.parseInt(st.nextToken());
@@ -21,9 +22,11 @@ public class dwite200511p2 {
 		boolean[] live = parseRule(rule.split("/")[0]);
 		boolean[] birth = parseRule(rule.split("/")[1]);
 		
+		// Compute
 		for (int i = 0; i < 25; i++)
 			iterate(grid, live, birth);
 		
+		// Write output
 		out.println(countTotalAlive(grid));
 	}
 	
@@ -34,11 +37,11 @@ public class dwite200511p2 {
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[0].length - 1; x++) {
 				int liveneigh = countLiveNeighbours(grid, x, y);
-				if (grid[y][x] == '.' && birth[liveneigh])
+				if (grid[y][x] == '.' && birth[liveneigh])  // Birth
 					gridnew[y][x] = 'X';
-				else if (grid[y][x] == 'X' && !live[liveneigh])
+				else if (grid[y][x] == 'X' && !live[liveneigh])  // Death
 					gridnew[y][x] = '.';
-				else
+				else  // Unchanged
 					gridnew[y][x] = grid[y][x];
 			}
 		}

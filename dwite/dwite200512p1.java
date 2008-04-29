@@ -11,14 +11,18 @@ public class dwite200512p1 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int start = Integer.parseInt(in.readLine());
 		int end = Integer.parseInt(in.readLine());
 		
+		// Compute
 		int count = 0;
 		for (int i = start; i <= end; i++) {
 			if (isSemiprime(i))
 				count++;
 		}
+		
+		// Write output
 		out.println(count);
 	}
 	

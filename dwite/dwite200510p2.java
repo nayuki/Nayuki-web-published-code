@@ -6,10 +6,13 @@ import java.util.StringTokenizer;
 public class dwite200510p2 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int height = Integer.parseInt(st.nextToken());
 		int width = Integer.parseInt(st.nextToken());
 		char[][] grid = readGridAndPad(in, width, height, '.');
+		
+		// Compute and write output
 		for (int i = 0; i <= 100; i++) {
 			if (isBreakpoint(i))
 				out.println(countTotalAlive(grid));
@@ -23,11 +26,11 @@ public class dwite200510p2 {
 		for (int y = 1; y < grid.length - 1; y++) {
 			for (int x = 1; x < grid[0].length - 1; x++) {
 				int liveneigh = countLiveNeighbours(grid, x, y);
-				if (grid[y][x] == '.' && liveneigh == 3)
+				if (grid[y][x] == '.' && liveneigh == 3)  // Birth
 					gridnew[y][x] = 'X';
-				else if (grid[y][x] == 'X' && (liveneigh < 2 || liveneigh > 3))
+				else if (grid[y][x] == 'X' && (liveneigh < 2 || liveneigh > 3))  // Death
 					gridnew[y][x] = '.';
-				else
+				else  // Unchanged
 					gridnew[y][x] = grid[y][x];
 			}
 		}

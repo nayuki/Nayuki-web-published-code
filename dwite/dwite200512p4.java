@@ -11,7 +11,10 @@ public class dwite200512p4 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		String line = in.readLine();
+		
+		// Count frequencies
 		int[] freq = new int[26];
 		for (int i = 0; i < line.length(); i++) {
 			char c = line.charAt(i);
@@ -19,6 +22,7 @@ public class dwite200512p4 {
 				freq[(c - 'A') % 32]++;
 		}
 		
+		// Write output
 		boolean initial = true;
 		for (int i = 0; i < freq.length; i++) {
 			if (freq[i] != 0) {

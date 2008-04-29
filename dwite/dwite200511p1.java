@@ -12,10 +12,9 @@ public class dwite200511p1 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input and take the arithmetic mean
 		double x = 0;
 		double y = 0;
-		
-		// Take the arithmetic mean
 		for (int i = 0; i < 4; i++) {
 			StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 			x += Double.parseDouble(st.nextToken());
@@ -24,6 +23,7 @@ public class dwite200511p1 {
 		x /= 4;
 		y /= 4;
 		
+		// Round and write output
 		x = Math.round(x * 100) / 100.0;
 		y = Math.round(y * 100) / 100.0;
 		out.printf("%.2f %.2f%n", x, y);

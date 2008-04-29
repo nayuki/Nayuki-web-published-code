@@ -12,9 +12,13 @@ public class dwite200512p3 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int n = Integer.parseInt(st.nextToken());
 		int d = Integer.parseInt(st.nextToken());
+		
+		if (d == 0)
+			throw new AssertionError("Zero denominator");
 		
 		// Make only the numerator be possibly negative
 		if (d < 0) {
@@ -22,7 +26,7 @@ public class dwite200512p3 {
 			n = -n;
 		}
 		
-		// Write the sign and handle positive fractions from now on
+		// Write the negative sign if applicable, and handle positive fractions from now on
 		if (n < 0) {
 			out.print("-");
 			n = -n;
@@ -33,7 +37,7 @@ public class dwite200512p3 {
 		n /= gcd;
 		d /= gcd;
 		
-		// Select the appropriate output format
+		// Write output in the appropriate format
 		if (d == 1)     out.printf("%d%n", n);                      // Integer
 		else if (n < d) out.printf("%d/%d%n", n, d);                // Simple fraction
 		else            out.printf("%d %d/%d%n", n / d, n % d, d);  // Mixed fraction

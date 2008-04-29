@@ -12,18 +12,23 @@ public class dwite200510p1 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int[] r1 = toDigits(in.readLine());
 		int d1 = Integer.parseInt(in.readLine());
 		int d2 = Integer.parseInt(in.readLine());
 		
+		// Find the nearest next suitable odometer reading
 		int n1 = countOccurrences(r1, d1);
 		int[] r2 = r1.clone();
 		// r2 = solveSlow(n1, d2, r2);
 		r2 = solveFast(n1, d2, r2);
 		
+		// Compute distance from initial reading to target reading
 		BigInteger diff = toNumber(r2).subtract(toNumber(r1));
 		if (diff.compareTo(BigInteger.ZERO) < 0)
 			diff = diff.add(BigInteger.valueOf(10).pow(r1.length));
+		
+		// Write output
 		out.printf("%s %d%n", toString(r2), diff);
 	}
 	

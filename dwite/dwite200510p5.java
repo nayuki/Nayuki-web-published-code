@@ -12,9 +12,12 @@ public class dwite200510p5 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int d1 = Integer.parseInt(st.nextToken());
 		int d2 = Integer.parseInt(st.nextToken());
+		
+		// Compute
 		int[] digits = new int[d1];
 		int divisible = 0;
 		for (int i = 0, end = factorial(d1); i < end; i++) {
@@ -24,6 +27,8 @@ public class dwite200510p5 {
 			if (toNumber(digits) % d2 == 0)
 				divisible++;
 		}
+		
+		// Write output
 		out.println(divisible);
 	}
 	
