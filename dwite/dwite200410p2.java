@@ -13,13 +13,24 @@ public class dwite200410p2 {
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
 		String line = in.readLine();
 		int hour = Integer.parseInt(line.substring(0, 2));
+		int minute = Integer.parseInt(line.substring(3, 5));
 		
-		String ap;
-		if (hour < 12) ap = "AM";
-		else           ap = "PM";
-		
-		hour = (hour + 11) % 12 + 1;  // Convert hour from [0, 24) to [1, 12] branchlessly using modular arithmetic magic
-		out.printf("%d:%s %s%n", hour, line.substring(3, 5), ap);
+		String ap = getAmPm(hour);
+		hour = to12Hour(hour);
+		out.printf("%d:%02d %s%n", hour, minute, ap);
+	}
+	
+	
+	private static String getAmPm(int hour) {
+		if      (hour <=  0 && hour < 12) return "AM";
+		else if (hour <= 12 && hour < 24) return "AM";
+		else throw new IllegalArgumentException("Invalid 24-hour clock hour");
+	}
+	
+	
+	// Convert hour from [0, 24) to [1, 12] branchlessly using modular arithmetic magic
+	private static int to12Hour(int hour) {
+		return (hour + 11) % 12 + 1;
 	}
 	
 	
