@@ -86,19 +86,19 @@ public class dwite200601p5 {
 	
 	static class Graph {
 		
-		Collection<Node> nodes;
-		Map<String,Node> nodeByName;
+		private Collection<Node> nodes;
+		private Map<String,Node> nodeByName;
 		
 		
 		
-		Graph() {
+		public Graph() {
 			nodes = new ArrayList<Node>();
 			nodeByName = new HashMap<String,Node>();
 		}
 		
 		
 		
-		Node getOrAddNode(String name) {
+		public Node getOrAddNode(String name) {
 			if (!nodeByName.containsKey(name)) {
 				Node node = new Node(name);
 				nodes.add(node);
@@ -108,7 +108,7 @@ public class dwite200601p5 {
 		}
 		
 		
-		void clearDistances() {
+		public void clearDistances() {
 			for (Node node : nodes)
 				node.distance = Integer.MAX_VALUE;
 		}
@@ -119,14 +119,15 @@ public class dwite200601p5 {
 	
 	static class Node implements Comparable<Node> {
 		
-		String name;
-		Collection<Edge> edges;
+		@SuppressWarnings("unused")
+		private String name;
+		private Collection<Edge> edges;
 		
-		int distance;
+		private int distance;
 		
 		
 		
-		Node(String name) {
+		public Node(String name) {
 			this.name = name;
 			edges = new ArrayList<Edge>();
 			distance = -1;
@@ -134,9 +135,10 @@ public class dwite200601p5 {
 		
 		
 		
-		void addEdge(Edge e) {
+		public void addEdge(Edge e) {
 			edges.add(e);
 		}
+		
 		
 		public int compareTo(Node other) {
 			if (distance < other.distance)
@@ -153,12 +155,12 @@ public class dwite200601p5 {
 	
 	static class Edge {
 		
-		Node destination;
-		int distance;
+		public final Node destination;
+		public final int distance;
 		
 		
 		
-		Edge(Node dest, int dist) {
+		public Edge(Node dest, int dist) {
 			distance = dist;
 			destination = dest;
 		}

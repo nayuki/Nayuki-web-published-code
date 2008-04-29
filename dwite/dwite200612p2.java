@@ -53,12 +53,12 @@ public class dwite200612p2 {
 	
 	static class Point {
 		
-		int x;
-		int y;
+		private int x;
+		private int y;
 		
 		
 		
-		Point(int n) {
+		public Point(int n) {
 			int s = ceilingSqrt(n);
 			if (s % 2 == 0) {
 				x = 0 - (s - 2) / 2;
@@ -79,7 +79,7 @@ public class dwite200612p2 {
 		}
 		
 		
-		double distance(Point other) {
+		public double distance(Point other) {
 			int dx = Math.abs(x - other.x);
 			int dy = Math.abs(y - other.y);
 			int diag = Math.min(dx, dy);
@@ -88,7 +88,7 @@ public class dwite200612p2 {
 		
 		
 		// Returns the smallest number y such that y*y >= x.
-		static int ceilingSqrt(int x) {
+		private static int ceilingSqrt(int x) {
 			int y = 0xFFFF;
 			for (int i = 15; i >= 0; i--) {
 				y ^= 1 << i;

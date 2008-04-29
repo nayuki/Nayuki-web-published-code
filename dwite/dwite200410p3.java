@@ -54,12 +54,12 @@ public class dwite200410p3 {
 	
 	static class Student implements Comparable<Student> {
 		
-		String name;
-		double height;  // In millimetres
+		public final String name;
+		public final double height;  // In millimetres
 		
 		
 		
-		Student(String name, double height, String unit) {
+		public Student(String name, double height, String unit) {
 			this.name = name;
 			if      (unit.equals( "m")) this.height = height * 1000;
 			else if (unit.equals("dm")) this.height = height *  100;

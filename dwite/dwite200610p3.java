@@ -55,13 +55,13 @@ public class dwite200610p3 {
 	
 	static class Player implements Comparable<Player> {
 		
-		String name;
-		int score;
-		int time;  // In minutes
+		public final String name;
+		public final int score;
+		public final int time;  // In minutes
 		
 		
 		
-		Player(String name, int foulShots, int fieldGoals, int threePointBaskets, int time) {
+		public Player(String name, int foulShots, int fieldGoals, int threePointBaskets, int time) {
 			this.name = name;
 			score = foulShots*1 + fieldGoals*2 + threePointBaskets*3;
 			this.time = time;
@@ -69,7 +69,7 @@ public class dwite200610p3 {
 		
 		
 		
-		double getPpm() {
+		public double getPpm() {
 			return (double)score / time;
 		}
 		

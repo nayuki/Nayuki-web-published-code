@@ -59,14 +59,15 @@ public class dwite200601p3 {
 	
 	static class Player {
 		
-		int playerNumber;
-		String firstName;
-		String lastName;
-		List<Integer> statistics;
+		@SuppressWarnings("unused")
+		private final int playerNumber;
+		private final String firstName;
+		private final String lastName;
+		private final List<Integer> statistics;
 		
 		
 		
-		Player(int playerNum, String firstName, String lastName, List<Integer> stats) {
+		public Player(int playerNum, String firstName, String lastName, List<Integer> stats) {
 			this.playerNumber = playerNum;
 			this.firstName = firstName;
 			this.lastName = lastName;
@@ -75,7 +76,7 @@ public class dwite200601p3 {
 		
 		
 		
-		String getName() {
+		public String getName() {
 			return String.format("%s %s", firstName, lastName);
 		}
 		
@@ -85,11 +86,11 @@ public class dwite200601p3 {
 	
 	static class PlayerComparator implements Comparator<Player> {
 		
-		int statIndexToCompare;
+		private int statIndexToCompare;
 		
 		
 		
-		PlayerComparator(int index) {
+		public PlayerComparator(int index) {
 			this.statIndexToCompare = index;
 		}
 		

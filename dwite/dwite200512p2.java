@@ -127,13 +127,13 @@ public class dwite200512p2 {
 	
 	static class Point {
 		
-		int x;
-		int y;
-		int distance;
+		public final int x;
+		public final int y;
+		public final int distance;
 		
 		
 		
-		Point(int x, int y, int dist) {
+		public Point(int x, int y, int dist) {
 			this.x = x;
 			this.y = y;
 			this.distance = dist;

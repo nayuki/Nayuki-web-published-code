@@ -54,12 +54,12 @@ public class dwite200501p1 {
 	
 	static class Golfer implements Comparable<Golfer> {
 		
-		String name;
-		int score;
+		public final String name;
+		public final int score;
 		
 		
 		
-		Golfer(String name, int score) {
+		public Golfer(String name, int score) {
 			this.name = name;
 			this.score = score;
 		}

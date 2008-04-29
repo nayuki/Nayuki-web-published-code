@@ -102,24 +102,24 @@ public class dwite200610p1 {
 		 * 3 for [1000, 9999]
 		 * 4 for [10000, infinity)
 		 */
-		int quantityClass;
+		private int quantityClass;
 		
 		/*
 		 * 0 for 8.5 in. x 11 in.
 		 * 1 for 8.5 in. x 14 in.
 		 * 2 for 11 in. x 17 in.
 		 */
-		int paperClass;
+		private int paperClass;
 		
 		/*
 		 * true for colour copies
 		 * false for black and white copies
 		 */
-		boolean colour;
+		private boolean colour;
 		
 		
 		
-		PrintingConfiguration(int quantity, String paperSize, String colour) {
+		public PrintingConfiguration(int quantity, String paperSize, String colour) {
 			if      (quantity <     1) throw new AssertionError("Invalid quantity");
 			else if (quantity <   100) quantityClass = 0;
 			else if (quantity <   500) quantityClass = 1;

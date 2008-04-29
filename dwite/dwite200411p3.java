@@ -106,29 +106,29 @@ public class dwite200411p3 {
 	
 	static class Polynomial {
 		
-		List<Integer> coefficients;  // From highest power downward
+		private List<Integer> coefficients;  // From highest power downward
 		
 		
 		
-		Polynomial(List<Integer> coef) {
+		public Polynomial(List<Integer> coef) {
 			coefficients = new ArrayList<Integer>(coef);
 		}
 		
 		
 		
-		int getDegree() {
+		public int getDegree() {
 			return coefficients.size() - 1;
 		}
 		
 		
 		// Returns the coefficient of the monomial with the specified power.
-		int getCoefficient(int i) {
+		private int getCoefficient(int i) {
 			return coefficients.get(coefficients.size() - 1 - i);
 		}
 		
 		
 		// Returns this polynomial divided by the GCD of all coefficients.
-		Polynomial reduce() {
+		public Polynomial reduce() {
 			int gcd = coefficients.get(0);
 			for (int a : coefficients) {
 				gcd = gcd(a, gcd);
@@ -142,7 +142,7 @@ public class dwite200411p3 {
 		}
 		
 		
-		Fraction evaluateAt(Fraction x) {
+		public Fraction evaluateAt(Fraction x) {
 			Fraction result = new Fraction(0);
 			for (int i = 0; i < coefficients.size(); i++) {
 				result = result.multiply(x);
@@ -152,13 +152,13 @@ public class dwite200411p3 {
 		}
 		
 		
-		boolean hasRootAt(Fraction x) {
+		public boolean hasRootAt(Fraction x) {
 			return evaluateAt(x).isZero();
 		}
 		
 		
 		// Returns a new polynomial representing this polynomial divided by (ax + b).
-		Polynomial divide(int a, int b) {
+		public Polynomial divide(int a, int b) {
 			if (!hasRootAt(new Fraction(-b, a)))
 				throw new IllegalArgumentException();
 			List<Integer> coef = new ArrayList<Integer>();
@@ -197,17 +197,17 @@ public class dwite200411p3 {
 	
 	static class Fraction {
 		
-		int num;
-		int denom;
+		private int num;
+		private int denom;
 		
 		
 		
-		Fraction(int num) {
+		public Fraction(int num) {
 			this(num, 1);
 		}
 		
 		
-		Fraction(int num, int denom) {
+		public Fraction(int num, int denom) {
 			if (denom == 0)
 				throw new IllegalArgumentException();
 			this.num = num;
@@ -217,17 +217,17 @@ public class dwite200411p3 {
 		
 		
 		
-		Fraction add(Fraction x) {
+		public Fraction add(Fraction x) {
 			return new Fraction(num * x.denom + x.num * denom, denom * x.denom);
 		}
 		
 		
-		Fraction multiply(Fraction x) {
+		public Fraction multiply(Fraction x) {
 			return new Fraction(num * x.num, denom * x.denom);
 		}
 		
 		
-		boolean isZero() {
+		public boolean isZero() {
 			return num == 0;
 		}
 		
