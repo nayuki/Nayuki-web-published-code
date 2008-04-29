@@ -18,7 +18,7 @@ public class dwite200501p1 {
 		
 		Collections.sort(golfers);
 		for (int i = 0; i < 5; i++)
-			out.println(golfers.get(i).name + " " + golfers.get(i).score);
+			out.printf("%s %d%n", golfers.get(i).name, golfers.get(i).score);
 	}
 	
 	

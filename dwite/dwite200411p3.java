@@ -209,10 +209,12 @@ public class dwite200411p3 {
 		
 		public Fraction(int num, int denom) {
 			if (denom == 0)
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("Zero denominator");
+			int gcd = gcd(num, denom);
+			num /= gcd;
+			denom /= gcd;
 			this.num = num;
 			this.denom = denom;
-			simplify();
 		}
 		
 		
@@ -234,13 +236,6 @@ public class dwite200411p3 {
 		
 		public String toString() {
 			return String.format("%d/%d", num, denom);
-		}
-		
-		
-		private void simplify() {
-			int gcd = gcd(num, denom);
-			num /= gcd;
-			denom /= gcd;
 		}
 		
 	}
