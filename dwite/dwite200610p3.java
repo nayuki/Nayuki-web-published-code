@@ -6,6 +6,7 @@ import java.util.*;
 public class dwite200610p3 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int n = Integer.parseInt(in.readLine());
 		List<Player> players = new ArrayList<Player>();
 		for (int i = 0; i < n; i++) {
@@ -17,6 +18,7 @@ public class dwite200610p3 {
 			players.add(new Player(name, foulshots, fieldgoals, threepointbaskets, time));
 		}
 		
+		// Sort descending by points per minute and write output
 		Collections.sort(players, Collections.reverseOrder());
 		for (int i = 0; i < Math.min(5,players.size()); i++) {
 			Player player = players.get(i);

@@ -12,12 +12,17 @@ public class dwite200610p5 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		String a = in.readLine();
 		String b = in.readLine();
+		
+		// Process and compute
 		a = sanitizeUsingRegex(a);
 		b = sanitizeUsingRegex(b);
 		BigInteger x = new BigInteger(a);
 		BigInteger y = new BigInteger(b);
+		
+		// Write output
 		out.println(x.add(y));
 	}
 	
