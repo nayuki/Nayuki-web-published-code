@@ -110,7 +110,7 @@ public class dwite200411p3 {
 	
 	private static class Polynomial {
 		
-		private List<Integer> coefficients;  // From highest power downward
+		private final List<Integer> coefficients;  // From highest power downward
 		
 		
 		
@@ -126,7 +126,7 @@ public class dwite200411p3 {
 		
 		
 		// Returns the coefficient of the monomial with the specified power.
-		private int getCoefficient(int i) {
+		public int getCoefficient(int i) {
 			return coefficients.get(coefficients.size() - 1 - i);
 		}
 		
@@ -138,10 +138,14 @@ public class dwite200411p3 {
 				gcd = gcd(a, gcd);
 			}
 			
-			List<Integer> coef = new ArrayList<Integer>();
-			for (int a : coefficients)
-				coef.add(a / gcd);
-			return new Polynomial(coef);
+			if (gcd == 1)
+				return this;
+			else {
+				List<Integer> coef = new ArrayList<Integer>();
+				for (int a : coefficients)
+					coef.add(a / gcd);
+				return new Polynomial(coef);
+			}
 			
 		}
 		
@@ -167,8 +171,8 @@ public class dwite200411p3 {
 				throw new IllegalArgumentException();
 			List<Integer> coef = new ArrayList<Integer>();
 			int remainder = 0;
-			for (int i = 0; i < coefficients.size()-1; i++) {
-				int quotient = (coefficients.get(i) - remainder) / a;
+			for (int i = getDegree(); i >= 1; i--) {
+				int quotient = (getCoefficient(i) - remainder) / a;
 				coef.add(quotient);
 				remainder = quotient * b;
 			}
