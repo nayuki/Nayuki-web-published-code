@@ -11,8 +11,11 @@ public class dwite200501p3 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int start = Integer.parseInt(in.readLine());
 		int end = Integer.parseInt(in.readLine());
+		
+		// Compute longest run
 		int longestrun = 0;
 		int currentrun = 0;
 		for (int i = start; i <= end; i++) {
@@ -24,6 +27,8 @@ public class dwite200501p3 {
 			}
 		}
 		longestrun = Math.max(currentrun, longestrun);
+		
+		// Write output
 		out.println(longestrun);
 	}
 	

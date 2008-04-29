@@ -6,6 +6,7 @@ import java.util.*;
 public class dwite200501p1 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		int n = Integer.parseInt(in.readLine());
 		ArrayList<Golfer> golfers = new ArrayList<Golfer>();
 		for (int i = 0; i < n; i++) {
@@ -16,6 +17,7 @@ public class dwite200501p1 {
 			golfers.add(new Golfer(name, score));
 		}
 		
+		// Sort ascending and write the output
 		Collections.sort(golfers);
 		for (int i = 0; i < 5; i++)
 			out.printf("%s %d%n", golfers.get(i).name, golfers.get(i).score);

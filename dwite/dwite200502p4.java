@@ -12,7 +12,7 @@ public class dwite200502p4 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
-		// Read the matrix dimensions
+		// Read the input of matrix dimensions
 		List<Integer> dimensions = new ArrayList<Integer>();
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		while (true) {
@@ -22,11 +22,11 @@ public class dwite200502p4 {
 			dimensions.add(temp);
 		}
 		
-		// mincost[i][j] is the minimum cost of multiplying the chain from i (inclusive) to j (inclusive)
+		// mincost[i][j] is the minimum cost of multiplying the chain of matrices from i (inclusive) to j (inclusive)
 		int[][] mincost = new int[dimensions.size() - 1][dimensions.size()];
 		int[][] maxcost = new int[dimensions.size() - 1][dimensions.size()];
 		
-		// Mark uninitialized positions with -1
+		// Mark everything as uninitialized with -1
 		for (int i = 0; i < mincost.length; i++) {
 			for (int j = 0; j < mincost[i].length; j++) {
 				mincost[i][j] = -1;
@@ -36,7 +36,7 @@ public class dwite200502p4 {
 		
 		// Dynamic programming lies ahead
 		
-		// The cost for multiplying a single matrix is zero
+		// The cost for multiplying a single matrix is zero (note that a matrix has 2 dimensions)
 		for (int i = 0; i + 1 < dimensions.size(); i++) {
 			mincost[i][i + 1] = 0;
 			maxcost[i][i + 1] = 0;
@@ -59,6 +59,7 @@ public class dwite200502p4 {
 			}
 		}
 		
+		// Write the output
 		out.printf("%d %d%n", mincost[0][dimensions.size() - 1], maxcost[0][dimensions.size() - 1]);
 	}
 	

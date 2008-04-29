@@ -6,6 +6,7 @@ import java.util.*;
 public class dwite200501p2 {
 	
 	public static void main(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int h = Integer.parseInt(st.nextToken());
 		int w = Integer.parseInt(st.nextToken());
@@ -25,6 +26,7 @@ public class dwite200501p2 {
 			}
 		}
 		
+		// Make queries and write the output
 		SortedSet<Character> querykeys = new TreeSet<Character>(queries.keySet());
 		for (Character key : querykeys) {
 			Point p = queries.get(key);

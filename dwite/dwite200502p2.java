@@ -12,11 +12,13 @@ public class dwite200502p2 {
 	
 	
 	private static void mainOnce(BufferedReader in, PrintWriter out) throws IOException {
+		// Read input
 		StringTokenizer st = new StringTokenizer(in.readLine(), " ");
 		int height = Integer.parseInt(st.nextToken());
 		int width = Integer.parseInt(st.nextToken());
 		char[][] grid = readGridAndPad(in, width, height, '.');
 		
+		// Find the largest snakes
 		int maxcoiled = 0;
 		int maxuncoiled = 0;
 		for (int y = 1; y <= height; y++) {
@@ -29,6 +31,8 @@ public class dwite200502p2 {
 				clearCurrentSnake(grid);
 			}
 		}
+		
+		// Write output
 		out.println(maxcoiled + " " + maxuncoiled);
 	}
 	
