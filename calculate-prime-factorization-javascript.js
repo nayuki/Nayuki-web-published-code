@@ -1,22 +1,42 @@
+var TIMES = "\u00D7";  // Times sign
+var NBSP = "\u00A0";  // No-break space
+
+
+var lastFactored = "";
+
 /*
  * Handles the HTML input/output for factoring an integer.
  */
 function factor() {
-	var n = parseFloat(document.getElementById("number").value);
-	output = document.getElementById("output");
-	while (output.childNodes.length > 0)
-		output.removeChild(output.firstChild);
+	// Don't factor if input text didn't change
+	var numberText = document.getElementById("number").value;
+	if (numberText == lastFactored)
+		return;
+	lastFactored = numberText;
 	
-	function appendText(str) {
-		output.appendChild(document.createTextNode(str));
+	// Reset output line 0
+	var outElem0 = document.getElementById("factorization0");
+	removeAllChildren(outElem0);
+	outElem0.appendChild(document.createTextNode(""));
+	
+	// Reset output line 1 with blank filler to prevent the page layout from bobbing up and down
+	var outElem1 = document.getElementById("factorization1");
+	removeAllChildren(outElem1);
+	outElem1.appendChild(document.createTextNode(NBSP));
+	var temp = document.createElement("sup");
+	temp.appendChild(document.createTextNode(NBSP));
+	outElem1.appendChild(temp);
+	
+	if (!/^\d+$/.test(numberText)) {
+		outElem0.firstChild.data = "Not an integer";
+		return;
 	}
 	
-	if (!isInteger(n)) {
-		appendText("Not an integer");
-	} else if (n < 2) {
-		appendText("Number out of range (< 2)");
+	var n = parseInt(numberText, 10);
+	if (n < 2) {
+		outElem0.firstChild.data = "Number out of range (< 2)";
 	} else if (n > 9007199254740992) {
-		appendText("Number too large (> 9007199254740992)");
+		outElem0.firstChild.data = "Number too large";
 	} else {  // Main case
 		
 		var factors = primeFactorList(n);
@@ -26,25 +46,30 @@ function factor() {
 		var out = "";
 		for (var i = 0; i < factors.length; i++) {
 			if (out != "")
-				out += " \u00D7 ";  // Times sign
+				out += " " + TIMES + " ";
 			out += factors[i];
 		}
-		appendText(n + " = " + out);
+		outElem0.firstChild.data = n + " = " + out;
 		
 		// Build prime factor list with powers in superscripts
 		if (factorPowers.length < factors.length) {
-			output.appendChild(document.createElement("br"));
+			removeAllChildren(outElem1);
+			
+			function appendText(str) {
+				outElem1.appendChild(document.createTextNode(str));
+			}
+			
 			appendText(n + " = ");
 			var head = true;
 			for (var i = 0; i < factorPowers.length; i++) {
 				if (head) head = false;
-				else appendText(" \u00D7 ");  // Times sign
+				else appendText(" " + TIMES + " ");
 				
 				appendText(factorPowers[i][0].toString());
 				if (factorPowers[i][1] > 1) {
 					var temp = document.createElement("sup");
 					temp.appendChild(document.createTextNode(factorPowers[i][1].toString()));
-					output.appendChild(temp);
+					outElem1.appendChild(temp);
 				}
 			}
 		}
@@ -118,10 +143,7 @@ function toFactorPowerList(factors) {
 }
 
 
-function isInteger(x) {
-	return !isNaN(x) && x == Math.floor(x);
-}
-
-function isNaN(x) {
-	return x != x;
+function removeAllChildren(node) {
+	while (node.childNodes.length > 0)
+		node.removeChild(node.firstChild);
 }
