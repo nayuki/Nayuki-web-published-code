@@ -6,6 +6,7 @@ var lastFactored = "";
 
 /*
  * Handles the HTML input/output for factoring an integer.
+ * This is the one and only entry point function called from the HTML code.
  */
 function factor() {
 	// Don't factor if input text didn't change
