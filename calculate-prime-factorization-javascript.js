@@ -2,7 +2,7 @@ var TIMES = "\u00D7";  // Times sign
 var NBSP = "\u00A0";  // No-break space
 
 
-var lastFactored = "";
+var lastInput = "";
 
 /*
  * Handles the HTML input/output for factoring an integer.
@@ -11,9 +11,9 @@ var lastFactored = "";
 function factor() {
 	// Don't factor if input text didn't change
 	var numberText = document.getElementById("number").value;
-	if (numberText == lastFactored)
+	if (numberText == lastInput)
 		return;
-	lastFactored = numberText;
+	lastInput = numberText;
 	
 	// Reset output line 0
 	var outElem0 = document.getElementById("factorization0");
@@ -28,7 +28,7 @@ function factor() {
 	temp.appendChild(document.createTextNode(NBSP));
 	outElem1.appendChild(temp);
 	
-	if (!/^\d+$/.test(numberText)) {
+	if (!/^-?\d+$/.test(numberText)) {
 		outElem0.firstChild.data = "Not an integer";
 		return;
 	}
@@ -38,8 +38,8 @@ function factor() {
 		outElem0.firstChild.data = "Number out of range (< 2)";
 	} else if (n > 9007199254740992) {
 		outElem0.firstChild.data = "Number too large";
-	} else {  // Main case
-		
+	} else {
+		// Main case
 		var factors = primeFactorList(n);
 		var factorPowers = toFactorPowerList(factors);
 		
