@@ -1,63 +1,38 @@
-function encrypt() {
-	var key = parseFloat(document.getElementById("shift").value);
-	if (!isInteger(key)) {
+/*
+ * Handles the HTML input/output for factoring an integer.
+ * This is the one and only entry point function called from the HTML code.
+ */
+function doCrypt(isDecrypt) {
+	var shiftText = document.getElementById("shift").value;
+	if (!/^-?\d+$/.test(shiftText)) {
 		alert("Shift is not an integer");
 		return;
 	}
+	var key = parseInt(shiftText, 10);
 	if (key < 0 || key >= 26) {
 		alert("Shift is out of range");
 		return;
 	}
-	crypt(key);
-}
-
-function decrypt() {
-	var key = parseFloat(document.getElementById("shift").value);
-	if (!isInteger(key)) {
-		alert("Shift is not an integer");
-		return;
-	}
-	if (key < 0 || key >= 26) {
-		alert("Shift is out of range");
-		return;
-	}
-	crypt((26 - key) % 26);
+	if (isDecrypt)
+		key = (26 - key) % 26;
+	var textElem = document.getElementById("text");
+	textElem.value = crypt(textElem.value, key);
 }
 
 
-// Main encryption/decription function
-function crypt(key) {
-	var preserve = document.getElementById("preservePunctCase").checked;
-	var input = document.getElementById("text").value;
-	
+/*
+ * Returns the result of having each letter of the given text shifted forward by the given key, with wraparound. Case is preserved, and non-letters are unchanged.
+ * Examples:
+ *   crypt("abz", 1) = "bca"
+ *   crypt("THe 123 !@#$", 13) = "GUr 123 !@#$"
+ */
+function crypt(input, key) {
 	var output = "";
-	if (!preserve) {
-		for (var i = 0, j = 0; i < input.length; i++) {
-			var c = input.charCodeAt(i);
-			if (!(c >= 65 && c <= 90 || c >= 97 && c <= 122))  // Skip if not a letter
-				continue;
-			if (j % 5 == 0 && j != 0)  // Add space after every 5 letters
-				output += " ";
-			output += String.fromCharCode(((c - 65) % 32 + key) % 26 + 65);
-			j++;
-		}
-	} else {
 		for (var i = 0; i < input.length; i++) {
-			var c = input.charCodeAt(i);
-			if      (c >= 65 && c <=  90) output += String.fromCharCode((c - 65 + key) % 26 + 65);  // Uppercase
-			else if (c >= 97 && c <= 122) output += String.fromCharCode((c - 97 + key) % 26 + 97);  // Lowercase
-			else                          output += input.charAt(i);  // Copy
-		}
+		var c = input.charCodeAt(i);
+		if      (c >= 65 && c <=  90) output += String.fromCharCode((c - 65 + key) % 26 + 65);  // Uppercase
+		else if (c >= 97 && c <= 122) output += String.fromCharCode((c - 97 + key) % 26 + 97);  // Lowercase
+		else                          output += input.charAt(i);  // Copy
 	}
-	
-	document.getElementById("text").value = output;
-}
-
-
-function isInteger(x) {
-	return !isNaN(x) && x == Math.floor(x);
-}
-
-function isNaN(x) {
-	return x != x;
+	return output;
 }
