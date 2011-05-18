@@ -1,3 +1,9 @@
+/*
+ * Chemical equation balancer
+ * Copyright (c) 2011 Nayuki Minase
+ */
+
+
 /* Main functions, which are entry points from the HTML code */
 
 function balance() {

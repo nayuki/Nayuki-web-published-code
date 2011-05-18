@@ -1,4 +1,10 @@
 /*
+ * GCD calculator
+ * Copyright (c) 2011 Nayuki Minase
+ */
+
+
+/*
  * Handles the HTML input/output for factoring an integer.
  * This is the one and only entry point function called from the HTML code.
  */
@@ -10,7 +16,7 @@ function calculate() {
 	var output;
 	if (!isInteger(xStr) || !isInteger(yStr))
 		output = "Not an integer";
-	else if (x < 0 || x > 9007199254740992 || y < 0 || y > 9007199254740992)
+	else if (x < 0 || x >= 9007199254740992 || y < 0 || y >= 9007199254740992)
 		output = "Number out of range"
 	else 
 		output = gcd(Math.abs(x), Math.abs(y)).toString(10);

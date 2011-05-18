@@ -1,5 +1,11 @@
+/*
+ * Prime factorization calculator
+ * Copyright (c) 2011 Nayuki Minase
+ */
+
+
 var TIMES = "\u00D7";  // Times sign
-var NBSP = "\u00A0";  // No-break space
+var NBSP  = "\u00A0";  // No-break space
 
 
 var lastInput = "";
@@ -36,7 +42,7 @@ function factor() {
 	var n = parseInt(numberText, 10);
 	if (n < 2) {
 		outElem0.firstChild.data = "Number out of range (< 2)";
-	} else if (n > 9007199254740992) {
+	} else if (n >= 9007199254740992) {
 		outElem0.firstChild.data = "Number too large";
 	} else {
 		// Main case
@@ -46,7 +52,7 @@ function factor() {
 		// Build prime factor list without powers
 		var out = "";
 		for (var i = 0; i < factors.length; i++) {
-			if (out != "")
+			if (i != 0)
 				out += " " + TIMES + " ";
 			out += factors[i];
 		}
@@ -61,10 +67,9 @@ function factor() {
 			}
 			
 			appendText(n + " = ");
-			var head = true;
 			for (var i = 0; i < factorPowers.length; i++) {
-				if (head) head = false;
-				else appendText(" " + TIMES + " ");
+				if (i != 0)
+					appendText(" " + TIMES + " ");
 				
 				appendText(factorPowers[i][0].toString());
 				if (factorPowers[i][1] > 1) {

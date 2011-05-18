@@ -1,3 +1,9 @@
+/*
+ * Divisors calculator
+ * Copyright (c) 2011 Nayuki Minase
+ */
+
+
 var lastInput = "";
 
 /*
@@ -20,7 +26,7 @@ function divisors() {
 	var n = parseInt(numberText, 10);
 	if (n < 1) {
 		output.value = "Number out of range (< 1)";
-	} else if (n > 9007199254740992) {
+	} else if (n >= 9007199254740992) {
 		output.value = "Number too large";
 	} else {
 		// Main case
