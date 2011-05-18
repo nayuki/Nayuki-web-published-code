@@ -1,28 +1,41 @@
 /* Main functions, which are entry points from the HTML code */
 
-function parse() {
-	var input = document.getElementById("input").value;
-	var tokenizer = new Tokenizer(input);
+function balance() {
+	// Clear output
+	var messageElem = document.getElementById("message");
+	removeAllChildren(messageElem);
+	var balancedElem = document.getElementById("balanced");
+	removeAllChildren(balancedElem);
+	
 	try {
-		var eqn = parseEquation(tokenizer);
-		var parsedElem = document.getElementById("parsed");
-		removeAllChildren(parsedElem);
-		parsedElem.appendChild(eqn.toHtml());
-		document.getElementById("errors").innerHTML="";
-		return eqn;
+		var eqn = parse();  // Parse equation
+		var matrix = buildMatrix(eqn);  // Set up matrix
+		matrix.gaussJordanEliminate();  // Solve linear system
+		var coefs = extractCoefficients(matrix);  // Get coefficients
+		checkAnswer(eqn, coefs);
+		balancedElem.appendChild(eqn.toHtml(coefs));  // Display balanced equation
 	} catch (e) {
-		var parsedElem = document.getElementById("parsed");
-		removeAllChildren(parsedElem);
-		document.getElementById("errors").innerHTML=e.toString() + " "+new Date().getTime();
+		messageElem.appendChild(document.createTextNode(e.toString()));
 	}
 }
 
 
-function balance() {
-	// Write parsed equation
-	var eqn = parse();
-	
-	// Set up equations
+function show(str) {
+	document.getElementById("input").value = str;
+	balance();
+}
+
+
+/* Main processing fuctions */
+
+function parse() {
+	var input = document.getElementById("input").value;
+	var tokenizer = new Tokenizer(input);
+	return parseEquation(tokenizer);
+}
+
+
+function buildMatrix(eqn) {
 	var elems = eqn.getElements();
 	var rows = elems.length + 1;
 	var cols = eqn.getLeftSide().length + eqn.getRightSide().length + 1;
@@ -34,32 +47,65 @@ function balance() {
 		for (var k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
 			matrix.set(i, j, -rhs[k].countElement(elems[i]));
 	}
+	
+	// Add an inhomogeneous equation
 	matrix.set(rows - 1, 0, 1);
 	matrix.set(rows - 1, cols - 1, 1);
 	
-	// Solve
-	matrix.gaussJordanEliminate();
+	return matrix;
+}
+
+
+function extractCoefficients(matrix) {
+	var rows = matrix.rowCount();
+	var cols = matrix.columnCount();
 	
-	// Extra results
 	if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
 		throw "No unique solution";
+	
 	var lcm = 1;
 	for (var i = 0; i < cols - 1; i++)
 		lcm = checkedMultiply(lcm / gcd(lcm, matrix.get(i, i)), matrix.get(i, i));
-	var coefs = [];
-	var nonzero = false;
-	for (var i = 0; i < cols - 1; i++) {
-		var coef = lcm / matrix.get(i, i) * matrix.get(i, cols - 1);
-		coefs.push(coef);
-		nonzero |= coef != 0;
-	}
-	if (!nonzero)
-		throw "No solution";
 	
-	// Write balanced equation
-	var balancedElem = document.getElementById("balanced");
-	removeAllChildren(balancedElem);
-	balancedElem.appendChild(eqn.toHtml(coefs));
+	var coefs = [];
+	var allzero = true;
+	for (var i = 0; i < cols - 1; i++) {
+		var coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
+		coefs.push(coef);
+		allzero &= coef == 0;
+	}
+	if (allzero)
+		throw "No solution";  // Unique solution with all coefficients zero
+	return coefs;
+}
+
+
+// Throws an exception if there's a problem, otherwise returns silently.
+function checkAnswer(eqn, coefs) {
+	if (coefs.length != eqn.getLeftSide().length + eqn.getRightSide().length)
+		throw "Assertion error: Mismatched length";
+	
+	var allzero = true;
+	for (var i = 0; i < coefs.length; i++) {
+		var coef = coefs[i];
+		if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
+			throw "Assertion error: Not an integer";
+		allzero &= coef == 0;
+	}
+	if (allzero)
+		throw "Assertion error: Solution of all zeros";
+	
+	var elems = eqn.getElements();
+	for (var i = 0; i < elems.length; i++) {
+		var sum = 0;
+		var j = 0;
+		for (var k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
+			sum = checkedAdd(sum, checkedMultiply(lhs[k].countElement(elems[i]),  coefs[j]));
+		for (var k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
+			sum = checkedAdd(sum, checkedMultiply(rhs[k].countElement(elems[i]), -coefs[j]));
+		if (sum != 0)
+			throw "Assertion error: Balance failed";
+	}
 }
 
 
@@ -123,10 +169,10 @@ function Equation(lhs, rhs) {
 
 
 // A term in a chemical equation. It has a list of groups or elements, and a charge.
-// For example: H3O^+, or e.
+// For example: H3O^+, or e^-.
 function Term(items, charge) {
 	if (items.length == 0 && charge != -1)
-		throw "Illegal term";
+		throw "Invalid term";
 	items = items.slice(0);  // Defensive copy
 	
 	this.getItems = function() { return items.slice(0); }  // Defensive copy
@@ -143,7 +189,7 @@ function Term(items, charge) {
 		} else {
 			var sum = 0;
 			for (var i = 0; i < items.length; i++)
-				sum += items[i].countElement(name);
+				sum = checkedAdd(sum, items[i].countElement(name));
 			return sum;
 		}
 	}
@@ -193,7 +239,7 @@ function Group(items, count) {
 	this.countElement = function(name) {
 		var sum = 0;
 		for (var i = 0; i < items.length; i++)
-			sum += items[i].countElement(name) * count;
+			sum = checkedAdd(sum, checkedMultiply(items[i].countElement(name), count));
 		return sum;
 	}
 	
@@ -252,9 +298,9 @@ function parseEquation(tok) {
 		if (next == "=")
 			break;
 		if (next == null)
-			throw tok.getPosition();
+			throw "Equal sign expected";
 		if (tok.take() != "+")
-			throw tok.getPosition();
+			throw "Plus expected";
 		lhs.push(parseTerm(tok));
 	}
 	
@@ -267,7 +313,7 @@ function parseEquation(tok) {
 		if (next == null)
 			break;
 		if (tok.take() != "+")
-			throw tok.getPosition();
+			throw "Plus expected";
 		rhs.push(parseTerm(tok));
 	}
 	
@@ -292,23 +338,23 @@ function parseTerm(tok) {
 	var charge = 0;
 	var next = tok.peek();
 	if (next != null && next == "^") {
-		tok.take();
+		tok.take();  // Consume "^"
 		next = tok.take();
 		if (next == null)
-			throw tok.getPosition();
+			throw "Number or sign expected";
 		else if (/^[0-9]+$/.test(next)) {
-			charge = parseInt(next, 10);
+			charge = checkedParseInt(next, 10);
 			next = tok.take();
 		} else
 			charge = 1;
 		
 		if (next == null)
-			throw tok.getPosition();
-		else if (next == "+");
+			throw "Sign expected";
+		else if (next == "+");  // Charge is positive, do nothing
 		else if (next == "-")
 			charge = -charge;
 		else
-			throw tok.getPosition();
+			throw "Sign expected";
 	}
 	
 	var elems = new Set();
@@ -339,7 +385,7 @@ function parseGroup(tok) {
 	while (true) {
 		var next = tok.peek();
 		if (next == null)
-			throw tok.getPosition();
+			throw "Element, group, or closing parenthesis expected";
 		else if (next == "(")
 			items.push(parseGroup(tok));
 		else if (/^[A-Za-z][a-z]*$/.test(next))
@@ -347,16 +393,16 @@ function parseGroup(tok) {
 		else if (next == ")")
 			break;
 		else
-			throw tok.getPosition();
+			throw "Element, group, or closing parenthesis expected";
 	}
 	
 	if (tok.take() != ")")
-		throw tok.getPosition();
+		throw "Assertion error";
 	
 	var count = 1;
 	var next = tok.peek();
 	if (next != null && /^[0-9]+$/.test(next))
-		count = parseInt(tok.take(), 10);
+		count = checkedParseInt(tok.take(), 10);
 	return new Group(items, count);
 }
 
@@ -368,46 +414,39 @@ function parseElement(tok) {
 	var next = tok.peek();
 	var count = 1;
 	if (next != null && /^[0-9]+$/.test(next))
-		count = parseInt(tok.take(), 10);
+		count = checkedParseInt(tok.take(), 10);
 	return new Element(name, count);
 }
 
 
-/* Tokenizer */
+/* Tokenizer object */
 
 function Tokenizer(str) {
 	var i = 0;
-	var nextToken = null;
 	
 	this.getPosition = function() {
-		if (nextToken == null)
-			return i;
-		else
-			return i - nextToken.length;
+		return i;
 	}
 	
 	this.peek = function() {
-		if (nextToken == null) {
-			if (i == str.length)
-				return null;  // End of stream
-			
-			var match = /^([A-Za-z][a-z]*|[0-9]+| +|[+\-^=()])/.exec(str.substring(i));
-			if (match == null)
-				throw i;
-				
-			nextToken = match[0];
-			i += nextToken.length;
-			if (/^ +$/.test(nextToken)) {  // Skip whitespace token
-				nextToken = null;
-				nextToken = this.peek();
-			}
+		if (i == str.length)
+			return null;  // End of stream
+		
+		var match = /^([A-Za-z][a-z]*|[0-9]+| +|[+\-^=()])/.exec(str.substring(i));
+		if (match == null)
+			throw "Syntax error";
+		
+		var token = match[0];
+		if (/^ +$/.test(token)) {  // Skip whitespace token
+			i += token.length;
+			token = this.peek();
 		}
-		return nextToken;
+		return token;
 	}
 	
 	this.take = function() {
 		var result = this.peek();
-		nextToken = null;
+		i += result.length;
 		return result;
 	}
 }
@@ -425,22 +464,25 @@ function Matrix(rows, cols) {
 		cells.push(row);
 	}
 	
+	this.rowCount = function() { return rows; }
+	this.columnCount = function() { return cols; }
+	
 	// Returns the value of the given cell in the matrix, where i is the row and j is the column.
-	this.get = function(i, j) {
-		if (i < 0 || i >= rows || j < 0 || j >= cols)
+	this.get = function(r, c) {
+		if (r < 0 || r >= rows || c < 0 || c >= cols)
 			throw "Index out of bounds";
-		return cells[i][j];
+		return cells[r][c];
 	}
 	
 	// Sets the given cell in the matrix to the given value, where i is the row and j is the column.
-	this.set = function(i, j, val) {
-		if (i < 0 || i >= rows || j < 0 || j >= cols)
+	this.set = function(r, c, val) {
+		if (r < 0 || r >= rows || c < 0 || c >= cols)
 			throw "Index out of bounds";
-		cells[i][j] = val;
+		cells[r][c] = val;
 	}
 	
 	// Swaps the two rows of the given indices in this matrix. Having i == j is allowed.
-	this.swapRows = function(i, j) {
+	function swapRows(i, j) {
 		if (i < 0 || i >= rows || j < 0 || j >= rows)
 			throw "Index out of bounds";
 		var temp = cells[i];
@@ -478,22 +520,20 @@ function Matrix(rows, cols) {
 	// Returns a new row where the leading non-zero number (if any) is positive, and the GCD of the row is 0 or 1.
 	// For example, simplifyRow([0, -2, 2, 4]) = [0, 1, -1, -2].
 	function simplifyRow(x) {
-		var negate = false;
+		var sign = 0;
 		for (var i = 0; i < x.length; i++) {
-			if (x[i] != 0) {
-				if (x[i] < 0)
-					negate = true;
+			if (x[i] > 0) {
+				sign = 1;
+				break;
+			} else if (x[i] < 0) {
+				sign = -1;
 				break;
 			}
 		}
-		
-		var g = gcdRow(x);
-		if (g == 0)
-			g = 1;
-		if (negate)
-			g = -g;
-		
 		var y = x.slice(0);
+		if (sign == 0)
+			return y;
+		var g = gcdRow(x) * sign;
 		for (var i = 0; i < y.length; i++)
 			y[i] /= g;
 		return y;
@@ -515,7 +555,7 @@ function Matrix(rows, cols) {
 			if (pivotRow == rows)
 				continue;
 			var pivot = cells[pivotRow][i];
-			this.swapRows(numPivots, pivotRow);
+			swapRows(numPivots, pivotRow);
 			numPivots++;
 			
 			// Eliminate below
@@ -527,6 +567,7 @@ function Matrix(rows, cols) {
 		
 		// Compute reduced row echelon form (RREF), but the leading coefficient need not be 1
 		for (var i = rows - 1; i >= 0; i--) {
+			// Find pivot
 			var pivotCol = 0;
 			while (pivotCol < cols && cells[i][pivotCol] == 0)
 				pivotCol++;
@@ -542,6 +583,7 @@ function Matrix(rows, cols) {
 		}
 	}
 	
+	// Returns a string representation of this matrix, for debugging purposes.
 	this.toString = function() {
 		var result = "[";
 		for (var i = 0; i < rows; i++) {
@@ -553,7 +595,7 @@ function Matrix(rows, cols) {
 			}
 			result += "]";
 		}
-		return result + "]\n\n";
+		return result + "]";
 	}
 }
 
@@ -562,19 +604,9 @@ function Matrix(rows, cols) {
 
 function Set() {
 	var items = [];
-	
-	this.add = function(obj) {
-		if (items.indexOf(obj) == -1)
-			items.push(obj);
-	}
-	
-	this.contains = function(obj) {
-		return items.indexOf(obj) != -1;
-	}
-	
-	this.toArray = function() {
-		return items.slice(0);  // Defensive copy
-	}
+	this.add = function(obj) { if (items.indexOf(obj) == -1) items.push(obj); }
+	this.contains = function(obj) { return items.indexOf(obj) != -1; }
+	this.toArray = function() { return items.slice(0); }  // Defensive copy
 }
 
 
@@ -583,6 +615,15 @@ function Set() {
 var MINUS = "\u2212";
 
 var INT_MAX = 9007199254740992;  // 2^53
+
+function checkedParseInt(str) {
+	var result = parseInt(str, 10);
+	if (isNaN(result))
+		throw "Not a number";
+	if (result <= -INT_MAX || result >= INT_MAX)
+		throw "Arithmetic overflow";
+	return result;
+}
 
 function checkedAdd(x, y) {
 	var z = x + y;
@@ -600,6 +641,8 @@ function checkedMultiply(x, y) {
 
 
 function gcd(x, y) {
+	if (typeof x != "number" || typeof y != "number" || isNaN(x) || isNaN(y))
+		throw "Invalid argument";
 	x = Math.abs(x);
 	y = Math.abs(y);
 	while (y != 0) {
