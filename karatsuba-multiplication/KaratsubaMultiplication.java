@@ -40,7 +40,7 @@ public final class KaratsubaMultiplication {
 			BigInteger b = multiply(xlow.add(xhigh), ylow.add(yhigh));
 			BigInteger c = multiply(xlow, ylow);
 			BigInteger d = b.subtract(a).subtract(c);
-			return c.add(d.shiftLeft(half)).add(a.shiftLeft(half * 2));
+			return a.shiftLeft(half).add(d).shiftLeft(half).add(c);
 		}
 	}
 	
