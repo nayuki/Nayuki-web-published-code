@@ -1,109 +1,82 @@
 function solve() {
+	var data;
 	try {
-		var sideA = getNumber("sideAin");
-		var sideB = getNumber("sideBin");
-		var sideC = getNumber("sideCin");
-		var angleA = getNumber("angleAin");
-		var angleB = getNumber("angleBin");
-		var angleC = getNumber("angleCin");
-		var sidesgiven = 0;
-		var anglesgiven = 0;
-		if (sideA != null) sidesgiven++;
-		if (sideB != null) sidesgiven++;
-		if (sideC != null) sidesgiven++;
-		if (angleA != null) anglesgiven++;
-		if (angleB != null) anglesgiven++;
-		if (angleC != null) anglesgiven++;
-		if (sidesgiven == 0)
-			throw "At least one side must be given";
-		if (sidesgiven + anglesgiven != 3)
-			throw "Exactly 3 givens are required";
-		var trianglecase;
-		
-		if (sidesgiven == 3) {
-			trianglecase = "Side side side (SSS)";
-			angleA=solveAngle(sideB, sideC, sideA);
-			angleB=solveAngle(sideC, sideA, sideB);
-			angleC=solveAngle(sideA, sideB, sideC);
-			
-		} else if (anglesgiven == 2) {
-			trianglecase = "Angle side angle (ASA)";
-			if (angleA == null) angleA = 180 - angleB - angleC;
-			if (angleB == null) angleB = 180 - angleC - angleA;
-			if (angleC == null) angleC = 180 - angleA - angleB;
-			var ratio;  // side / sin(angle)
-			if (sideA != null) ratio = sideA / Math.sin(degToRad(angleA));
-			if (sideB != null) ratio = sideB / Math.sin(degToRad(angleB));
-			if (sideC != null) ratio = sideC / Math.sin(degToRad(angleC));
-			if (sideA == null) sideA = ratio * Math.sin(degToRad(angleA));
-			if (sideB == null) sideB = ratio * Math.sin(degToRad(angleB));
-			if (sideC == null) sideC = ratio * Math.sin(degToRad(angleC));
-			
-		} else if (angleA != null && sideA == null || angleB != null && sideB == null || angleC != null && sideC == null) {
-			trianglecase="Side angle side (SAS)";
-			if (sideA == null) sideA = solveSide(sideB, sideC, angleA);
-			if (sideB == null) sideB = solveSide(sideC, sideA, angleB);
-			if (sideC == null) sideC = solveSide(sideA, sideB, angleC);
-			if (angleA == null) angleA = solveAngle(sideB, sideC, sideA);
-			if (angleB == null) angleB = solveAngle(sideC, sideA, sideB);
-			if (angleC == null) angleC = solveAngle(sideA, sideB, sideC);
-		
-		} else {
-			var knownside, knownangle;
-			var partialside;
-			if (sideA != null && angleA != null){ knownside = sideA; knownangle = angleA; }
-			if (sideB != null && angleB != null){ knownside = sideB; knownangle = angleB; }
-			if (sideC != null && angleC != null){ knownside = sideC; knownangle = angleC; }
-			if (sideA != null && angleA == null) partialside = sideA;
-			if (sideB != null && angleB == null) partialside = sideB;
-			if (sideC != null && angleC == null) partialside = sideC;
-			var ratio = knownside / Math.sin(degToRad(knownangle));
-			var partialangle;
-			var unknownside, unknownangle;
-			if (partialside / ratio > 1) {
-				trianglecase = "Side side angle (SSA) - No solution";
-				partialangle = "No solution";
-				unknownangle = "No solution";
-				unknownside = "No solution";
-			} else if (partialside / ratio == 1 || Math.asin(partialside / ratio) - degToRad(knownangle) < 0) {
-				trianglecase = "Side side angle (SSA) - Unique solution";
-				partialangle = radToDeg(Math.asin(partialside / ratio));
-				unknownangle = 180 - knownangle - partialangle;
-				unknownside = ratio * Math.sin(degToRad(unknownangle));
-			} else {
-				trianglecase = "Side side angle (SSA) - Two solutions";
-				var partialangle0 = radToDeg(Math.asin(partialside / ratio));
-				var unknownangle0 = 180 - knownangle - partialangle0;
-				var unknownside0 = ratio * Math.sin(degToRad(unknownangle0));
-				var partialangle1 = radToDeg(Math.PI - Math.asin(partialside / ratio));
-				var unknownangle1 = 180 - knownangle - partialangle1;
-				var unknownside1 = ratio * Math.sin(degToRad(unknownangle1));
-				partialangle = partialangle0 + " or " + partialangle1;
-				unknownangle = unknownangle0 + " or " + unknownangle1;
-				unknownside = unknownside0 + " or " + unknownside1;
-			}
-			if (sideA != null && angleA == null) angleA = partialangle;
-			if (sideB != null && angleB == null) angleB = partialangle;
-			if (sideC != null && angleC == null) angleC = partialangle;
-			if (sideA == null && angleA == null) { sideA = unknownside; angleA = unknownangle; }
-			if (sideB == null && angleB == null) { sideB = unknownside; angleB = unknownangle; }
-			if (sideC == null && angleC == null) { sideC = unknownside; angleC = unknownangle; }
-		}
-		
-		document.getElementById("case").value = trianglecase;
-		document.getElementById("sideAout").value = sideA;
-		document.getElementById("sideBout").value = sideB;
-		document.getElementById("sideCout").value = sideC;
-		document.getElementById("angleAout").value = angleA;
-		document.getElementById("angleBout").value = angleB;
-		document.getElementById("angleCout").value = angleC;
-		
-	} catch(e) {
-		alert(e);
+		data = [getData("A"), getData("B"), getData("C")];
+	} catch (e) {
+		setStatus(e);
 		return;
 	}
+	
+	// Insertion sort. Having a side takes priority. Having an angle comes next.
+	if (isBefore(data[1], data[0])) swap(data, 0, 1);
+	if (isBefore(data[2], data[1])) swap(data, 1, 2);
+	if (isBefore(data[1], data[0])) swap(data, 0, 1);
+	
+	var sidesGiven  = (data[0].side  != null) + (data[1].side  != null) + (data[2].side  != null);  // Boolean to integer conversion
+	var anglesGiven = (data[0].angle != null) + (data[1].angle != null) + (data[2].angle != null);  // Boolean to integer conversion
+	var status;
+	if (sidesGiven == 0)
+		status = "Give at least one side length";
+	else if (sidesGiven + anglesGiven != 3)
+		status = "Give exactly 3 pieces of information";
+	
+	else if (sidesGiven == 3) {
+		status = "Side side side (SSS) case";
+		for (var i = 0; i < 3; i++)
+			data[i].angle = solveAngle(data[(i + 1) % 3].side, data[(i + 2) % 3].side, data[i].side);
+		
+	} else if (anglesGiven == 2) {
+		status = "Angle side angle (ASA) case";
+		if (data[0].angle == null) data[0].angle = 180 - data[1].angle - data[2].angle;  // ASA case
+		if (data[2].angle == null) data[2].angle = 180 - data[0].angle - data[1].angle;  // AAS case
+		// Use law of sines
+		var ratio = data[0].side / Math.sin(degToRad(data[0].angle));
+		data[1].side = ratio * Math.sin(degToRad(data[1].angle));
+		data[2].side = ratio * Math.sin(degToRad(data[2].angle));
+		
+	} else if (data[2].angle != null) {
+		status = "Side angle side (SAS) case";
+		data[2].side = solveSide(data[0].side, data[1].side, data[2].angle);
+		data[0].angle = solveAngle(data[1].side, data[2].side, data[0].side);
+		data[1].angle = solveAngle(data[2].side, data[0].side, data[1].side);
+		
+	} else {
+		status = "Side side angle (SSA) case - ";
+		var ratio = data[0].side / Math.sin(degToRad(data[0].angle));
+		var temp = data[1].side / ratio;  // sin(data[1].angle)
+		if (temp > 1) {
+			status += "No solution";
+			data[0].side  = "";
+			data[0].angle = "";
+			data[1].side  = "";
+		} else if (temp == 1 || data[0].side > data[1].side) {
+			status += "Unique solution";
+			data[1].angle = radToDeg(Math.asin(temp));
+			data[2].angle = 180 - data[0].angle - data[1].angle;
+			data[2].side = ratio * Math.sin(degToRad(data[2].angle));
+		} else {
+			status += "Two solutions";
+			var partialAngle0 = radToDeg(Math.asin(temp));
+			var partialAngle1 = 180 - partialAngle0;
+			var unknownAngle0 = 180 - data[0].angle - partialAngle0;
+			var unknownAngle1 = 180 - data[0].angle - partialAngle1;
+			var unknownSide0 = ratio * Math.sin(degToRad(unknownAngle0));
+			var unknownSide1 = ratio * Math.sin(degToRad(unknownAngle1));
+			data[1].angle = partialAngle0 + " or " + partialAngle1;
+			data[2].angle = unknownAngle0 + " or " + unknownAngle1;
+			data[2].side = unknownSide0 + " or " + unknownSide1;
+		}
+	}
+	
+	for (var i = 0; i < 3; i++) {
+		data[i].outputSide.value  = data[i].side;
+		data[i].outputAngle.value = data[i].angle;
+	}
+	setStatus(status);
 }
 
+
+/* Solver functions */
 
 function solveSide(a, b, C) {  // Returns side c
 	return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(degToRad(C)));
@@ -117,6 +90,18 @@ function solveAngle(a, b, c) {  // Returns angle C
 		return "No solution";
 }
 
+
+/* Input/output handling functions */
+
+function getData(name) {
+	var result = new Object();
+	result.side  = getNumber("side"  + name + "in");
+	result.angle = getNumber("angle" + name + "in");
+	result.outputSide  = document.getElementById("side"  + name + "out");
+	result.outputAngle = document.getElementById("angle" + name + "out");
+	return result;
+}
+
 function getNumber(id) {
 	var str = document.getElementById(id).value;
 	if (str == "")
@@ -127,10 +112,43 @@ function getNumber(id) {
 	return result;
 }
 
+function isBefore(dataX, dataY) {
+	if (dataX.side != null && dataY.side == null)
+		return true;
+	else if (dataX.side == null && dataY.side != null)
+		return false;
+	else if (dataX.angle != null && dataY.angle == null)
+		return true;
+	else if (dataX.angle == null && dataY.angle != null)
+		return false;
+	else
+		return false;  // A tie
+}
+
+function setStatus(str) {
+	var elem = document.getElementById("status");
+	removeAllChildren(elem);
+	elem.appendChild(document.createTextNode(str));
+}
+
+
+/* Trivial functions */
+
 function degToRad(x) {
 	return x / 180 * Math.PI;
 }
 
 function radToDeg(x) {
 	return x / Math.PI * 180;
+}
+
+function swap(array, i, j) {
+	var temp = array[i];
+	array[i] = array[j];
+	array[j] = temp;
+}
+
+function removeAllChildren(node) {
+	while (node.childNodes.length > 0)
+		node.removeChild(node.firstChild);
 }
