@@ -5,7 +5,7 @@
 
 
 /*
- * Handles the HTML input/output for factoring an integer.
+ * Handles the HTML input/output for calculating the GCD of two integers.
  * This is the one and only entry point function called from the HTML code.
  */
 function calculate() {
