@@ -13,8 +13,8 @@ void compute_dft(double inreal[], double inimag[], double outreal[], double outi
 		double sumimag = 0;
 		int t;
 		for (t = 0; t < n; t++) {  /* For each input element */
-			sumreal += inreal[t]*cos(2*M_PI * t * k / n) - inimag[t]*sin(2*M_PI * t * k / n);
-			sumimag += inreal[t]*sin(2*M_PI * t * k / n) + inimag[t]*cos(2*M_PI * t * k / n);
+			sumreal +=  inreal[t]*cos(2*M_PI * t * k / n) + inimag[t]*sin(2*M_PI * t * k / n);
+			sumimag += -inreal[t]*sin(2*M_PI * t * k / n) + inimag[t]*cos(2*M_PI * t * k / n);
 		}
 		outreal[k] = sumreal;
 		outimag[k] = sumimag;
