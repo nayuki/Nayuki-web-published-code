@@ -8,20 +8,64 @@
 
 function balance() {
 	// Clear output
-	var messageElem = document.getElementById("message");
-	removeAllChildren(messageElem);
+	setMessage("");
 	var balancedElem = document.getElementById("balanced");
+	var codeOutElem = document.getElementById("codeOutput");
 	removeAllChildren(balancedElem);
+	removeAllChildren(codeOutElem);
+	codeOutElem.appendChild(document.createTextNode(NBSP));
+	
+	// Parse equation
+	var eqn;
+	try {
+		var eqn = parse();
+	} catch (e) {
+		if (typeof(e) == "string") {
+			setMessage("Syntax error: " + e);
+		} else if ("start" in e && "end" in e) {
+			setMessage("Syntax error: " + e.message);
+			
+			var input = document.getElementById("input").value;
+			var start = e.start;
+			var end = e.end;
+			while (start < input.length && start < end && input.charAt(start) == " ") start++;  // Adjust to eliminate white space
+			while (end >= 1 && start < end && input.charAt(end - 1) == " ") end--;              // Adjust to eliminate white space
+			
+			removeAllChildren(codeOutElem);
+			codeOutElem.appendChild(document.createTextNode(input.substring(0, start)));
+			var highlight = document.createElement("u");
+			highlight.appendChild(document.createTextNode(input.substring(start, end)));
+			codeOutElem.appendChild(highlight);
+			codeOutElem.appendChild(document.createTextNode(input.substring(end, input.length)));
+		} else if ("start" in e) {
+			setMessage("Syntax error: " + e.message);
+			var input = document.getElementById("input").value;
+			var start = e.start;
+			removeAllChildren(codeOutElem);
+			codeOutElem.appendChild(document.createTextNode(input.substring(0, start)));
+			var highlight = document.createElement("u");
+			if (start != input.length) {
+				highlight.appendChild(document.createTextNode(input.substring(start, start + 1)));
+				codeOutElem.appendChild(highlight);
+				codeOutElem.appendChild(document.createTextNode(input.substring(start + 1, input.length)));
+			} else {
+				highlight.appendChild(document.createTextNode(NBSP));
+				codeOutElem.appendChild(highlight);
+			}
+		} else {
+			setMessage("Assertion error");
+		}
+		return;
+	}
 	
 	try {
-		var eqn = parse();  // Parse equation
-		var matrix = buildMatrix(eqn);  // Set up matrix
-		matrix.gaussJordanEliminate();  // Solve linear system
-		var coefs = extractCoefficients(matrix);  // Get coefficients
-		checkAnswer(eqn, coefs);
+		var matrix = buildMatrix(eqn);                // Set up matrix
+		matrix.gaussJordanEliminate();                // Solve linear system
+		var coefs = extractCoefficients(matrix);      // Get coefficients
+		checkAnswer(eqn, coefs);                      // Self-test, should not fail
 		balancedElem.appendChild(eqn.toHtml(coefs));  // Display balanced equation
 	} catch (e) {
-		messageElem.appendChild(document.createTextNode(e.toString()));
+		setMessage(e.toString());
 	}
 }
 
@@ -304,9 +348,10 @@ function parseEquation(tok) {
 		if (next == "=")
 			break;
 		if (next == null)
-			throw "Equal sign expected";
-		if (tok.take() != "+")
-			throw "Plus expected";
+			throw {message: "Plus or equal sign expected", start: tok.position()};
+		if (next != "+")
+			throw {message: "Plus expected", start: tok.position()};
+		tok.take();  // Consume "+"
 		lhs.push(parseTerm(tok));
 	}
 	
@@ -318,8 +363,9 @@ function parseEquation(tok) {
 		var next = tok.peek();
 		if (next == null)
 			break;
-		if (tok.take() != "+")
-			throw "Plus expected";
+		if (next != "+")
+			throw {message: "Plus expected", start: tok.position()};
+		tok.take();  // Consume "+"
 		rhs.push(parseTerm(tok));
 	}
 	
@@ -328,6 +374,9 @@ function parseEquation(tok) {
 
 
 function parseTerm(tok) {
+	var startPosition = tok.position();
+	
+	// Parse groups and elements
 	var items = [];
 	while (true) {
 		var next = tok.peek();
@@ -341,41 +390,47 @@ function parseTerm(tok) {
 			break;
 	}
 	
+	// Parse optional charge
 	var charge = 0;
 	var next = tok.peek();
 	if (next != null && next == "^") {
 		tok.take();  // Consume "^"
-		next = tok.take();
+		next = tok.peek();
 		if (next == null)
-			throw "Number or sign expected";
+			throw {message: "Number or sign expected", start: tok.position()};
 		else if (/^[0-9]+$/.test(next)) {
 			charge = checkedParseInt(next, 10);
-			next = tok.take();
+			tok.take();  // Consume the number
+			next = tok.peek();
 		} else
 			charge = 1;
 		
 		if (next == null)
-			throw "Sign expected";
+			throw {message: "Sign expected", start: tok.position()};
 		else if (next == "+");  // Charge is positive, do nothing
 		else if (next == "-")
 			charge = -charge;
 		else
-			throw "Sign expected";
+			throw {message: "Sign expected", start: tok.position()};
+		tok.take();  // Consume the sign
 	}
 	
+	// Check if term is valid
 	var elems = new Set();
 	for (var i = 0; i < items.length; i++)
 		items[i].getElements(elems);
-	elems = elems.toArray();
-	if (elems.indexOf("e") != -1) {
-		if (elems.length > 1 || !(charge == 0 || charge == -1))
-			throw "Invalid term";
+	elems = elems.toArray();  // List of all elements used in this term, with no repeats
+	if (items.length == 0) {
+		throw {message: "Invalid term", start: startPosition, end: tok.position()};
+	} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
+		if (items.length > 1 || charge != 0 && charge != -1)
+			throw {message: "Invalid term", start: startPosition, end: tok.position()};
 		items = [];
 		charge = -1;
-	} else {
+	} else {  // Otherwise, a term must not contain an element that starts with lowercase
 		for (var i = 0; i < elems.length; i++) {
 			if (/^[a-z]+$/.test(elems[i]))
-				throw "Invalid element";
+				throw {message: 'Invalid element "' + elems[i] + '"', start: startPosition, end: tok.position()};
 		}
 	}
 	
@@ -391,7 +446,7 @@ function parseGroup(tok) {
 	while (true) {
 		var next = tok.peek();
 		if (next == null)
-			throw "Element, group, or closing parenthesis expected";
+			throw {message: "Element, group, or closing parenthesis expected", start: tok.position()};
 		else if (next == "(")
 			items.push(parseGroup(tok));
 		else if (/^[A-Za-z][a-z]*$/.test(next))
@@ -399,17 +454,13 @@ function parseGroup(tok) {
 		else if (next == ")")
 			break;
 		else
-			throw "Element, group, or closing parenthesis expected";
+			throw {message: "Element, group, or closing parenthesis expected", start: tok.position()};
 	}
 	
 	if (tok.take() != ")")
 		throw "Assertion error";
 	
-	var count = 1;
-	var next = tok.peek();
-	if (next != null && /^[0-9]+$/.test(next))
-		count = checkedParseInt(tok.take(), 10);
-	return new Group(items, count);
+	return new Group(items, parseCount(tok));
 }
 
 
@@ -417,11 +468,17 @@ function parseElement(tok) {
 	var name = tok.take();
 	if (!/^[A-Za-z][a-z]*$/.test(name))
 		throw "Assertion error";
+	return new Element(name, parseCount(tok));
+}
+
+
+// Parse optional count
+function parseCount(tok) {
 	var next = tok.peek();
-	var count = 1;
 	if (next != null && /^[0-9]+$/.test(next))
-		count = checkedParseInt(tok.take(), 10);
-	return new Element(name, count);
+		return checkedParseInt(tok.take(), 10);
+	else
+		return 1;
 }
 
 
@@ -430,7 +487,7 @@ function parseElement(tok) {
 function Tokenizer(str) {
 	var i = 0;
 	
-	this.getPosition = function() {
+	this.position = function() {
 		return i;
 	}
 	
@@ -440,12 +497,12 @@ function Tokenizer(str) {
 		
 		var match = /^([A-Za-z][a-z]*|[0-9]+| +|[+\-^=()])/.exec(str.substring(i));
 		if (match == null)
-			throw "Syntax error";
+			throw {message: "Invalid symbol", start: i};
 		
 		var token = match[0];
 		if (/^ +$/.test(token)) {  // Skip whitespace token
 			i += token.length;
-			token = this.peek();
+			token = this.peek();  // Get next token
 		}
 		return token;
 	}
@@ -618,7 +675,9 @@ function Set() {
 
 /* Math functions, miscellaneous */
 
-var MINUS = "\u2212";
+var NBSP  = "\u00A0";  // No-break space
+var MINUS = "\u2212";  // Minus sign
+
 
 var INT_MAX = 9007199254740992;  // 2^53
 
@@ -657,6 +716,13 @@ function gcd(x, y) {
 		y = z;
 	}
 	return x;
+}
+
+
+function setMessage(str) {
+	var messageElem = document.getElementById("message");
+	removeAllChildren(messageElem);
+	messageElem.appendChild(document.createTextNode(str));
 }
 
 

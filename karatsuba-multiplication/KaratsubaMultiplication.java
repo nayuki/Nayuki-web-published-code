@@ -3,7 +3,6 @@
  * Copyright (c) 2011 Nayuki Minase
  */
 
-
 import java.math.BigInteger;
 
 
