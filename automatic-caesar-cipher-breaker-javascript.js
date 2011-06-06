@@ -1,10 +1,10 @@
 /*
- * Automatic caesar cipher cracker
+ * Automatic caesar cipher breaker
  * Copyright (c) 2011 Nayuki Minase
  */
 
 
-function crack() {
+function doBreak() {
 	var text = document.getElementById("text").value;
 	var entropies = new Array(26);
 	for (var i = 0; i < 26; i++)
