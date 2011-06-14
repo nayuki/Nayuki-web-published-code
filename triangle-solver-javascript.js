@@ -68,7 +68,6 @@ function solve() {
 			if (sideC != null && angleC == null) partialSide = sideC;
 			var ratio = knownSide / Math.sin(degToRad(knownAngle));
 			var temp = partialSide / ratio;  // sin(partialAngle)
-			alert(ratio+" "+temp)
 			var partialAngle, unknownSide, unknownAngle;
 			if (temp > 1)
 				throw "Side side angle (SSA) - No solution";
