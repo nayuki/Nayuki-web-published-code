@@ -1,3 +1,7 @@
+-- Fast doubling Fibonacci algorithm
+-- Copyright (c) 2011 Nayuki Minase
+
+
 -- fibonacci n = F(n)
 fibonacci :: Integer -> Integer
 fibonacci n | n >= 0 = a where (a, _) = fib n
