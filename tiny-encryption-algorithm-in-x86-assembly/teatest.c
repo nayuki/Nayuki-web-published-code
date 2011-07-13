@@ -1,3 +1,9 @@
+/*
+ * Tiny Encryption Algorithm (TEA) in C and x86 assembly
+ * Copyright (c) 2011 Nayuki Minase
+ */
+
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -5,7 +11,7 @@
 
 
 /* x86 assembly version */
-void tea_encrypt(uint32_t *msg, uint32_t *key);
+void tea_encrypt_x86(uint32_t *msg, uint32_t *key);
 
 /* C version */
 void tea_encrypt_c(uint32_t *msg, uint32_t *key) {
@@ -27,14 +33,14 @@ int main(int argc, char **argv) {
 	uint32_t key[4] = {0, 0, 0, 0};
 	
 	// Sanity test
-	tea_encrypt(msg, key);
+	tea_encrypt_x86(msg, key);
 	printf("Ciphertext: %08x %08x\n", msg[0], msg[1]);  // Should be 41ea3a0a 94baa940
 	
 	// Benchmark speed
 	const int N = 10000000;
 	int i;
 	for (i = 0; i < N; i++)
-		tea_encrypt(msg, key);
+		tea_encrypt_x86(msg, key);
 	printf("Speed: %.1f MiB/s\n", (double)N * 8 / clock() * CLOCKS_PER_SEC / 1048576);
 	
 	return 0;

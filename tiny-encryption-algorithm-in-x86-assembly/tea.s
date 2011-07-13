@@ -1,6 +1,12 @@
-/* void tea_encrypt(uint32_t *msg, uint32_t *key); */
-.globl tea_encrypt
-tea_encrypt:
+/*
+ * Tiny Encryption Algorithm (TEA) in x86 assembly
+ * Copyright (c) 2011 Nayuki Minase
+ */
+
+
+/* void tea_encrypt_x86(uint32_t *msg, uint32_t *key); */
+.globl tea_encrypt_x86
+tea_encrypt_x86:
 	/* Enter */
 	pushl  %ebp
 	movl   %esp, %ebp
