@@ -18,15 +18,15 @@ rc4_encrypt_x86:
 	movl    %edi, 8(%esp)
 	
 	/* Load arguments */
-	movl     8(%ebp), %ecx  /* Address of state struct */
+	movl     8(%ebp), %esi  /* Address of state struct */
 	movl    12(%ebp), %edi  /* Address of message array */
 	movl    16(%ebp), %edx  /* Length of message array */
 	addl    %edi, %edx      /* Compute end of message array */
 	
 	/* Load state variables */
-	movl    0(%ecx), %eax  /* i */
-	movl    4(%ecx), %ebx  /* j */
-	leal    8(%ecx), %esi  /* s */
+	movl    0(%esi), %eax  /* i */
+	movl    4(%esi), %ebx  /* j */
+	addl    $8, %esi       /* s */
 	
 	/* Initialize */
 	movl    $0, %ecx
@@ -62,6 +62,11 @@ rc4_encrypt_x86:
 	jne     .rc4_encrypt_top
 	
 .rc4_encrypt_bottom:
+	/* Store state variables */
+	subl    $8, %esi       /* state */
+	movl    %eax, 0(%esi)  /* Save i */
+	movl    %ebx, 4(%esi)  /* Save j */
+	
 	/* Restore registers */
 	movl    0(%esp), %ebx
 	movl    4(%esp), %esi
