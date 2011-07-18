@@ -1,16 +1,15 @@
 // DWITE - November 2004 - Problem 3: Factoring
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 
-public final class dwite200411p3 extends Solution {
+public final class dwite200411p3 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA31.txt", "OUT31.txt", new dwite200411p3());
+		DwiteRunner.run("DATA31.txt", "OUT31.txt", new dwite200411p3());
 	}
 	
 	
@@ -41,7 +40,7 @@ public final class dwite200411p3 extends Solution {
 	}
 	
 	
-	private static Polynomial readPolynomial(Io io) {
+	private static Polynomial readPolynomial(DwiteIo io) {
 		io.tokenizeLine();
 		int degree = io.readIntToken();
 		List<Integer> coef = new ArrayList<Integer>();

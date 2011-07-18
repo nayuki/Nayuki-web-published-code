@@ -1,12 +1,11 @@
 // DWITE - February 2005 - Problem 3: Simple Continued Fractions
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200502p3 extends Solution {
+public final class dwite200502p3 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA31.txt", "OUT31.txt", new dwite200502p3());
+		DwiteRunner.run("DATA31.txt", "OUT31.txt", new dwite200502p3());
 	}
 	
 	

@@ -1,16 +1,15 @@
 // DWITE - February 2006 - Problem 5: Prime Palindromes
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200602p5 extends Solution {
+public final class dwite200602p5 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA51.txt", "OUT51.txt", new dwite200602p5());
+		DwiteRunner.run("DATA51.txt", "OUT51.txt", new dwite200602p5());
 	}
 	
 	
-	private static boolean[] isPrime = Algorithm.sievePrimes(1000000);
+	private static boolean[] isPrime = DwiteAlgorithm.sievePrimes(1000000);
 	
 	
 	protected void runOnce() {

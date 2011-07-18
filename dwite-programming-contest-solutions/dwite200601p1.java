@@ -1,12 +1,11 @@
 // DWITE - January 2006 - Problem 1: Filling The Cone
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200601p1 extends Solution {
+public final class dwite200601p1 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA11.txt", "OUT11.txt", new dwite200601p1());
+		DwiteRunner.run("DATA11.txt", "OUT11.txt", new dwite200601p1());
 	}
 	
 	

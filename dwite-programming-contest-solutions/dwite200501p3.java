@@ -1,12 +1,11 @@
 // DWITE - January 2005 - Problem 3: Harshad Numbers
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200501p3 extends Solution {
+public final class dwite200501p3 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA31.txt", "OUT31.txt", new dwite200501p3());
+		DwiteRunner.run("DATA31.txt", "OUT31.txt", new dwite200501p3());
 	}
 	
 	

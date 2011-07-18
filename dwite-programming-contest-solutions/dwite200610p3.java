@@ -1,16 +1,15 @@
 // DWITE - October 2006 - Problem 3: Basketball Statistics II
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 
-public final class dwite200610p3 extends Solution {
+public final class dwite200610p3 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA31.txt", "OUT31.txt", new dwite200610p3());
+		DwiteRunner.run("DATA31.txt", "OUT31.txt", new dwite200610p3());
 	}
 	
 	

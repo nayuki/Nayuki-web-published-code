@@ -1,15 +1,14 @@
 // DWITE - November 2006 - Problem 2: Lottery Ticket Checker
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public final class dwite200611p2 extends Solution {
+public final class dwite200611p2 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA21.txt", "OUT21.txt", new dwite200611p2());
+		DwiteRunner.run("DATA21.txt", "OUT21.txt", new dwite200611p2());
 	}
 	
 	
@@ -55,7 +54,7 @@ public final class dwite200611p2 extends Solution {
 	}
 	
 	
-	private static List<Integer> readNumbers(Io io) {
+	private static List<Integer> readNumbers(DwiteIo io) {
 		List<Integer> result = new ArrayList<Integer>();
 		io.tokenizeLine();
 		while (io.canReadToken())

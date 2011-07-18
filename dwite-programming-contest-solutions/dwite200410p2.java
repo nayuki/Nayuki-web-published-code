@@ -1,12 +1,11 @@
 // DWITE - October 2004 - Problem 2: 24 Hour Clock
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200410p2 extends Solution {
+public final class dwite200410p2 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA2", "OUT2", new dwite200410p2());
+		DwiteRunner.run("DATA2", "OUT2", new dwite200410p2());
 	}
 	
 	

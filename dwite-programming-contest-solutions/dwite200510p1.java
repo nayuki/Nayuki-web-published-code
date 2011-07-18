@@ -1,20 +1,19 @@
 // DWITE - October 2005 - Problem 1: Odometers
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.math.BigInteger;
 
 
-public final class dwite200510p1 extends Solution {
+public final class dwite200510p1 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA11.txt", "OUT11.txt", new dwite200510p1());
+		DwiteRunner.run("DATA11.txt", "OUT11.txt", new dwite200510p1());
 	}
 	
 	
 	protected void runOnce() {
 		// Read input
-		int[] r1 = Algorithm.toDigits(io.readLine());
+		int[] r1 = DwiteAlgorithm.toDigits(io.readLine());
 		int d1 = io.readIntLine();
 		int d2 = io.readIntLine();
 		

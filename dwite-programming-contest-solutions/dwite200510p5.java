@@ -1,12 +1,11 @@
 // DWITE - October 2005 - Problem 5: Five Digit Divisibility
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200510p5 extends Solution {
+public final class dwite200510p5 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA51.txt", "OUT51.txt", new dwite200510p5());
+		DwiteRunner.run("DATA51.txt", "OUT51.txt", new dwite200510p5());
 	}
 	
 	

@@ -1,12 +1,11 @@
 // DWITE - February 2006 - Problem 4: Connect-4
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200602p4 extends Solution {
+public final class dwite200602p4 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA41.txt", "OUT41.txt", new dwite200602p4());
+		DwiteRunner.run("DATA41.txt", "OUT41.txt", new dwite200602p4());
 	}
 	
 	

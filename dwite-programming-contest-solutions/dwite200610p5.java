@@ -1,14 +1,13 @@
 // DWITE - October 2006 - Problem 5: Bad Input II
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.math.BigInteger;
 
 
-public final class dwite200610p5 extends Solution {
+public final class dwite200610p5 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA51.txt", "OUT51.txt", new dwite200610p5());
+		DwiteRunner.run("DATA51.txt", "OUT51.txt", new dwite200610p5());
 	}
 	
 	

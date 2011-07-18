@@ -1,6 +1,5 @@
 // DWITE - January 2006 - Problem 3: London Knights
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,10 +8,10 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public final class dwite200601p3 extends Solution {
+public final class dwite200601p3 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA31.txt", "OUT31.txt", new dwite200601p3());
+		DwiteRunner.run("DATA31.txt", "OUT31.txt", new dwite200601p3());
 	}
 	
 	

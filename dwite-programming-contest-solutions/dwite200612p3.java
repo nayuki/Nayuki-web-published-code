@@ -1,16 +1,15 @@
 // DWITE - December 2006 - Problem 3: Circular Primes
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200612p3 extends Solution {
+public final class dwite200612p3 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA31.txt", "OUT31.txt", new dwite200612p3());
+		DwiteRunner.run("DATA31.txt", "OUT31.txt", new dwite200612p3());
 	}
 	
 	
-	private static boolean[] isPrime = Algorithm.sievePrimes(999999);
+	private static boolean[] isPrime = DwiteAlgorithm.sievePrimes(999999);
 	
 	
 	protected void runOnce() {

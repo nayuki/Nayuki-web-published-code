@@ -1,12 +1,11 @@
 // DWITE - November 2006 - Problem 1: 13375P34|<
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200611p1 extends Solution {
+public final class dwite200611p1 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA11.txt", "OUT11.txt", new dwite200611p1());
+		DwiteRunner.run("DATA11.txt", "OUT11.txt", new dwite200611p1());
 	}
 	
 	

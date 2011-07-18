@@ -1,15 +1,14 @@
 // DWITE - January 2005 - Problem 1: DWITE Golf Tournament
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.util.ArrayList;
 import java.util.Collections;
 
 
-public final class dwite200501p1 extends Solution {
+public final class dwite200501p1 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA11.txt", "OUT11.txt", new dwite200501p1());
+		DwiteRunner.run("DATA11.txt", "OUT11.txt", new dwite200501p1());
 	}
 	
 	

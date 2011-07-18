@@ -1,12 +1,11 @@
 // DWITE - January 2007 - Problem 4: Number Theory
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200701p4 extends Solution {
+public final class dwite200701p4 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA41.txt", "OUT41.txt", new dwite200701p4());
+		DwiteRunner.run("DATA41.txt", "OUT41.txt", new dwite200701p4());
 	}
 	
 	

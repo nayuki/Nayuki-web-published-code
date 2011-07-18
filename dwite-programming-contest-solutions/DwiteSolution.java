@@ -1,13 +1,10 @@
-package dwite;
-
-
-public class Solution {
+public class DwiteSolution {
 	
-	protected Io io;
+	protected DwiteIo io;
 	
 	
 	
-	public Solution() {}
+	public DwiteSolution() {}
 	
 	
 	

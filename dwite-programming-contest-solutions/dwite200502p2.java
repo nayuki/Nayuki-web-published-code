@@ -1,12 +1,11 @@
 // DWITE - February 2005 - Problem 2: Snakes
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200502p2 extends Solution {
+public final class dwite200502p2 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA21.txt", "OUT21.txt", new dwite200502p2());
+		DwiteRunner.run("DATA21.txt", "OUT21.txt", new dwite200502p2());
 	}
 	
 	

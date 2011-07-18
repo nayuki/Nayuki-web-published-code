@@ -1,15 +1,14 @@
 // DWITE - October 2006 - Problem 1: Pete's Printing Press
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.util.HashMap;
 import java.util.Map;
 
 
-public final class dwite200610p1 extends Solution {
+public final class dwite200610p1 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA11.txt", "OUT11.txt", new dwite200610p1());
+		DwiteRunner.run("DATA11.txt", "OUT11.txt", new dwite200610p1());
 	}
 	
 	

@@ -1,12 +1,11 @@
 // DWITE - February 2005 - Problem 1: Bretschneider's Formula
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200502p1 extends Solution {
+public final class dwite200502p1 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA11.txt", "OUT11.txt", new dwite200502p1());
+		DwiteRunner.run("DATA11.txt", "OUT11.txt", new dwite200502p1());
 	}
 	
 	

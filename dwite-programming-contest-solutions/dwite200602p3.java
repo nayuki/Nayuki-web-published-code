@@ -1,12 +1,11 @@
 // DWITE - February 2006 - Problem 3: UPC Check Digit
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200602p3 extends Solution {
+public final class dwite200602p3 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA31.txt", "OUT31.txt", new dwite200602p3());
+		DwiteRunner.run("DATA31.txt", "OUT31.txt", new dwite200602p3());
 	}
 	
 	
@@ -14,7 +13,7 @@ public final class dwite200602p3 extends Solution {
 		String line = io.readLine();
 		if (line.length() != 12)
 			throw new AssertionError("Invalid length for UPC digit sequence");
-		int sum = getUpcSumWithoutCheckDigit(Algorithm.toDigits(line));
+		int sum = getUpcSumWithoutCheckDigit(DwiteAlgorithm.toDigits(line));
 		io.printf("%s%d%n", line.substring(0, 11), (10 - sum) % 10);  // Calculate the correct check digit using modular arithmetic magic
 	}
 	

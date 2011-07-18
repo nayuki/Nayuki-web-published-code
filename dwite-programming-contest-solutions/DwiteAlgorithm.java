@@ -1,7 +1,4 @@
-package dwite;
-
-
-public final class Algorithm {
+public final class DwiteAlgorithm {
 	
 	public static int sqrt(int x) {
 		if (x < 0)
@@ -44,7 +41,7 @@ public final class Algorithm {
 			isPrime[2] = true;
 		for (int i = 3; i <= n; i += 2)
 			isPrime[i] = true;
-		for (int i = 3, end = Algorithm.sqrt(n); i <= end; i += 2) {
+		for (int i = 3, end = DwiteAlgorithm.sqrt(n); i <= end; i += 2) {
 			if (isPrime[i]) {
 				for (int j = i * 3; j <= n; j += i << 1)
 					isPrime[j] = false;
@@ -55,6 +52,6 @@ public final class Algorithm {
 	
 	
 	
-	private Algorithm() {}
+	private DwiteAlgorithm() {}
 	
 }

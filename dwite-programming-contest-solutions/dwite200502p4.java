@@ -1,16 +1,15 @@
 // DWITE - February 2005 - Problem 4: Matrix Chain Product
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 
-public final class dwite200502p4 extends Solution {
+public final class dwite200502p4 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA41.txt", "OUT41.txt", new dwite200502p4());
+		DwiteRunner.run("DATA41.txt", "OUT41.txt", new dwite200502p4());
 	}
 	
 	

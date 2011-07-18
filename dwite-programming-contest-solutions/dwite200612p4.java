@@ -1,14 +1,13 @@
 // DWITE - December 2006 - Problem 4: The Ubiquitous 196
-
-import dwite.*;
+// Solution by Nayuki Minase
 
 import java.math.BigInteger;
 
 
-public final class dwite200612p4 extends Solution {
+public final class dwite200612p4 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA41.txt", "OUT41.txt", new dwite200612p4());
+		DwiteRunner.run("DATA41.txt", "OUT41.txt", new dwite200612p4());
 	}
 	
 	

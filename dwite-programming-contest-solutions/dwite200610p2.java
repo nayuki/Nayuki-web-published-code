@@ -1,12 +1,11 @@
 // DWITE - October 2006 - Problem 2: Body Mass Index
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200610p2 extends Solution {
+public final class dwite200610p2 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA21.txt", "OUT21.txt", new dwite200610p2());
+		DwiteRunner.run("DATA21.txt", "OUT21.txt", new dwite200610p2());
 	}
 	
 	

@@ -1,12 +1,11 @@
 // DWITE - December 2004 - Problem 3: Reflections
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200412p3 extends Solution {
+public final class dwite200412p3 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA31.txt", "OUT31.txt", new dwite200412p3());
+		DwiteRunner.run("DATA31.txt", "OUT31.txt", new dwite200412p3());
 	}
 	
 	

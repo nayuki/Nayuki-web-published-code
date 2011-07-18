@@ -1,12 +1,11 @@
 // DWITE - December 2005 - Problem 1: Semiprimes
+// Solution by Nayuki Minase
 
-import dwite.*;
 
-
-public final class dwite200512p1 extends Solution {
+public final class dwite200512p1 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		Runner.run("DATA11.txt", "OUT11.txt", new dwite200512p1());
+		DwiteRunner.run("DATA11.txt", "OUT11.txt", new dwite200512p1());
 	}
 	
 	
@@ -28,7 +27,7 @@ public final class dwite200512p1 extends Solution {
 	
 	
 	private static boolean isSemiprime(int n) {
-		for (int i = 2, end = Algorithm.sqrt(n); i <= end; i++) {
+		for (int i = 2, end = DwiteAlgorithm.sqrt(n); i <= end; i++) {
 			if (n % i == 0) {  // One factor found (always prime)
 				return isPrime(n / i);
 			}
@@ -39,7 +38,7 @@ public final class dwite200512p1 extends Solution {
 	
 	
 	private static boolean isPrime(int n) {
-		for (int i = 2, end = Algorithm.sqrt(n); i <= end; i++) {
+		for (int i = 2, end = DwiteAlgorithm.sqrt(n); i <= end; i++) {
 			if (n % i == 0)
 				return false;
 		}
