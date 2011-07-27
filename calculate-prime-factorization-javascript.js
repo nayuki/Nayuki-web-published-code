@@ -50,13 +50,7 @@ function factor() {
 		var factorPowers = toFactorPowerList(factors);
 		
 		// Build prime factor list without powers
-		var out = "";
-		for (var i = 0; i < factors.length; i++) {
-			if (i != 0)
-				out += " " + TIMES + " ";
-			out += factors[i];
-		}
-		outElem0.firstChild.data = n + " = " + out;
+		outElem0.firstChild.data = n + " = " + factors.join(" " + TIMES + " ");
 		
 		// Build prime factor list with powers in superscripts
 		if (factorPowers.length < factors.length) {

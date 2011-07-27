@@ -17,28 +17,26 @@ function divisors() {
 		return;
 	lastInput = numberText;
 	
-	var output = document.getElementById("output");
+	var out;
 	if (!/^-?\d+$/.test(numberText)) {
-		output.value = "Not an integer";
-		return;
+		out = "Not an integer";
+	
+	} else {
+		var n = parseInt(numberText, 10);
+		if (n < 1) {
+			out = "Number out of range (< 1)";
+		} else if (n >= 9007199254740992) {
+			out = "Number too large";
+		} else {
+			// Main case
+			var divisors = listDivisors(n);
+			out = divisors.join(", ");
+		}
 	}
 	
-	var n = parseInt(numberText, 10);
-	if (n < 1) {
-		output.value = "Number out of range (< 1)";
-	} else if (n >= 9007199254740992) {
-		output.value = "Number too large";
-	} else {
-		// Main case
-		var divisors = listDivisors(n);
-		var out = "";
-		for (var i = 0; i < divisors.length; i++) {
-			if (out != "")
-				out += ", ";
-			out += divisors[i];
-		}
-		output.value = out;
-	}
+	var output = document.getElementById("output");
+	removeAllChildren(output);
+	output.appendChild(document.createTextNode(out));
 }
 
 
@@ -65,4 +63,10 @@ function listDivisors(n) {
 	}
 	large.reverse();
 	return small.concat(large);
+}
+
+
+function removeAllChildren(node) {
+	while (node.childNodes.length > 0)
+		node.removeChild(node.firstChild);
 }
