@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Clock</title>
+		<style type="text/css">
+			/* Don't change these */
+			html {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+			#clock {
+				text-align: center;
+				vertical-align: middle;
+			}
+			
+			/* You can customize these */
+			html {
+				background: #000000;
+				color: #ffffff;  /* Text color */
+			}
+			#clock {
+				font-family: sans-serif;
+				font-size: 150pt;
+				font-weight: bold;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<div style="width:100%; height:100%; display:table">
+			<div id="clock" style="width:100%; height:100%; display:table-cell"></div>
+		</div>
+		
+		<script type="application/javascript">
+			var lastText = "";
+			
+			function updateClock() {
+				var d = new Date();
+				var s = "";
+				s += (10 > d.getHours()   ? "0" : "") + d.getHours()   + ":"
+				s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + ":"
+				s += (10 > d.getSeconds() ? "0" : "") + d.getSeconds();
+				
+				if (lastText != s) {
+					setText("clock", s);
+					lastText = s;
+				}
+			}
+			
+			function setText(elemName, text) {
+				var elem = document.getElementById(elemName);
+				while (elem.childNodes.length > 0)
+					elem.removeChild(elem.firstChild);
+				elem.appendChild(document.createTextNode(text));
+			}
+			
+			updateClock();
+			setInterval(updateClock, 100);
+		</script>
+	</body>
+</html>
