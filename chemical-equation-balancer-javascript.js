@@ -60,7 +60,7 @@ function balance() {
 	
 	try {
 		var matrix = buildMatrix(eqn);                // Set up matrix
-		matrix.gaussJordanEliminate();                // Solve linear system
+		solve(matrix);                                // Solve linear system
 		var coefs = extractCoefficients(matrix);      // Get coefficients
 		checkAnswer(eqn, coefs);                      // Self-test, should not fail
 		balancedElem.appendChild(eqn.toHtml(coefs));  // Display balanced equation
@@ -98,11 +98,35 @@ function buildMatrix(eqn) {
 			matrix.set(i, j, -rhs[k].countElement(elems[i]));
 	}
 	
-	// Add an inhomogeneous equation
-	matrix.set(rows - 1, 0, 1);
-	matrix.set(rows - 1, cols - 1, 1);
-	
 	return matrix;
+}
+
+
+function solve(matrix) {
+	matrix.gaussJordanEliminate();
+	
+	// Find row with more than one non-zero coefficient
+	var i;
+	for (i = 0; i < matrix.rowCount() - 1; i++) {
+		if (countNonzeroCoeffs(matrix, i) > 1)
+			break;
+	}
+	
+	// Add an inhomogeneous equation
+	matrix.set(matrix.rowCount() - 1, i, 1);
+	matrix.set(matrix.rowCount() - 1, matrix.columnCount() - 1, 1);
+	
+	matrix.gaussJordanEliminate();
+}
+
+
+function countNonzeroCoeffs(matrix, row) {
+	var count = 0;
+	for (var i = 0; i < matrix.columnCount(); i++) {
+		if (matrix.get(row, i) != 0)
+			count++;
+	}
+	return count;
 }
 
 
