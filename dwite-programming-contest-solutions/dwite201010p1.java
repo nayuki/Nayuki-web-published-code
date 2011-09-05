@@ -21,4 +21,5 @@ public final class dwite201010p1 extends DwiteSolution {
 		                    || y == 1997 && m == 10 && d <= 27;
 		io.println(oldEnough ? "old enough" : "too young");
 	}
+	
 }

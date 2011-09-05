@@ -11,7 +11,7 @@ public final class dwite201101p3 extends DwiteSolution {
 	
 	protected void runOnce() {
 		int n = io.readIntLine();
-		if (n < 0)
+		if (n <= 0)
 			throw new IllegalArgumentException();
 		
 		// Take the rightmost "01" and swap the digits

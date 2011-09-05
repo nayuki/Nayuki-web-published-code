@@ -18,16 +18,10 @@ public final class dwite201010p5 extends DwiteSolution {
 	
 	protected void runOnce() {
 		// Read grid and pad
-		grid = DwiteAlgorithm.newCharGrid(HEIGHT + 2, WIDTH + 2, '#');
+		grid = io.readGridAndPad(WIDTH, HEIGHT, '#');
 		distance = DwiteAlgorithm.newIntGrid(HEIGHT + 2, WIDTH + 2, 999);
-		for (int i = 0; i < HEIGHT; i++) {
-			String line = io.readLine();
-			for (int j = 0; j < WIDTH; j++) {
-				grid[i + 1][j + 1] = line.charAt(j);
-				if (line.charAt(j) == 'A')  // Starting position
-					distance[i + 1][j + 1] = 0;
-			}
-		}
+		int[] startPoint = find(grid, 'A');
+		distance[startPoint[1]][startPoint[0]] = 0;
 		io.readLine();  // Discard line of hyphens
 		
 		// Propagate distances
@@ -65,6 +59,22 @@ public final class dwite201010p5 extends DwiteSolution {
 			y += dy;
 		}
 		distance[y][x] = Math.min(newdist, distance[y][x]);
+	}
+	
+	
+	private static int[] find(char[][] grid, char val) {
+		int x = -1;
+		int y = -1;
+		for (int i = 0; i < grid.length; i++) {
+			for (int j = 0; j < grid[i].length; j++) {
+				if (grid[i][j] == val) {
+					x = j;
+					y = i;
+					break;
+				}
+			}
+		}
+		return new int[]{x, y};
 	}
 	
 }
