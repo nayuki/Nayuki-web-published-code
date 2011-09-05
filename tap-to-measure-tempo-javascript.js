@@ -22,6 +22,7 @@ function init() {
 	yysum = 0;
 	xysum = 0;
 	isDone = false;
+	document.onkeydown = doBeat;
 }
 
 
@@ -42,8 +43,8 @@ function countBeat(currTime) {
 	// Add beat
 	beatTimes.push(y);
 	var beatCount = beatTimes.length;
-	document.getElementById("simpleBeats").value = beatCount;
-	document.getElementById("simpleTime").value = floatToString(y / 1000, 3);
+	setValue("simpleBeats", beatCount);
+	setValue("simpleTime", floatToString(y / 1000, 3));
 	
 	// Regression cumulative variables
 	xsum  += x;
@@ -54,15 +55,15 @@ function countBeat(currTime) {
 	
 	var tempo = 60000 * x / y;
 	if (beatCount < 8 || tempo < 190)
-		document.getElementById("simplePosition").value = Math.floor(x / 4) + " : " + x % 4;
+		setValue("simplePosition", Math.floor(x / 4) + " : " + x % 4);
 	else  // Two taps per beat
-		document.getElementById("simplePosition").value = Math.floor(x / 8) + " : " + Math.floor(x / 2) % 4 + "." + x % 2 * 5;
+		setValue("simplePosition", Math.floor(x / 8) + " : " + Math.floor(x / 2) % 4 + "." + x % 2 * 5);
 	
 	if (beatCount >= 2) {
 		// Period and tempo, simple
 		var period = y / x;
-		document.getElementById("simpleTempo").value = floatToString(tempo, 2);
-		document.getElementById("simplePeriod").value = floatToString(period, 2);
+		setValue("simpleTempo", floatToString(tempo, 2));
+		setValue("simplePeriod", floatToString(period, 2));
 		
 		// Advanced
 		var xx = beatCount * xxsum - xsum * xsum;
@@ -70,16 +71,16 @@ function countBeat(currTime) {
 		var xy = beatCount * xysum - xsum * ysum;
 		var a = (beatCount * xysum - xsum * ysum) / xx;  // Slope
 		var b = (ysum * xxsum - xsum * xysum) / xx;  // Intercept
-		document.getElementById("advancedPeriod").value = floatToString(a, 3);
-		document.getElementById("advancedOffset").value = floatToString(b, 3);
-		document.getElementById("advancedCorrelation").value = floatToString(xy * xy / (xx * yy), 9);
-		document.getElementById("advancedTempo").value = floatToString(60000 / a, 3);
+		setValue("advancedPeriod", floatToString(a, 3));
+		setValue("advancedOffset", floatToString(b, 3));
+		setValue("advancedCorrelation", floatToString(xy * xy / (xx * yy), 9));
+		setValue("advancedTempo", floatToString(60000 / a, 3));
 		
 		// Deviations from prediction
 		if (beatCount >= 3) {
-			document.getElementById("simpleLastDev").value = floatToString(periodprev * x - y, 1);
-			document.getElementById("advancedStdDev").value = floatToString(Math.sqrt(((yy - xy * xy / xx) / beatCount) / (beatCount - 2)), 3);
-			document.getElementById("advancedLastDev").value = floatToString(aprev * x + bprev - y, 1);
+			setValue("simpleLastDev"  , floatToString(periodprev * x - y, 1));
+			setValue("advancedStdDev" , floatToString(Math.sqrt(((yy - xy * xy / xx) / beatCount) / (beatCount - 2)), 3));
+			setValue("advancedLastDev", floatToString(aprev * x + bprev - y, 1));
 		}
 		
 		periodprev = period;
@@ -91,9 +92,9 @@ function countBeat(currTime) {
 
 function done() {
 	isDone = true;
-	document.getElementById("simplePosition") .value = "";
-	document.getElementById("simpleLastDev")  .value = "";
-	document.getElementById("advancedLastDev").value = "";
+	setValue("simplePosition" , "");
+	setValue("simpleLastDev"  , "");
+	setValue("advancedLastDev", "");
 }
 
 
@@ -109,4 +110,9 @@ function floatToString(x, d) {
 		tp = Math.floor(tp / 10);
 	}
 	return Math.floor(Math.round(x * m) / m) + "." + s;
+}
+
+
+function setValue(elemId, val) {
+	document.getElementById(elemId).value = val;
 }
