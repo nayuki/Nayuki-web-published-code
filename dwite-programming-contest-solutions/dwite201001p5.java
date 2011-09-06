@@ -1,11 +1,11 @@
-// DWITE - October 2010 - Problem 5: Ricochet Robot
+// DWITE - January 2010 - Problem 5: Ice Maze
 // Solution by Nayuki Minase
 
 
-public final class dwite201010p5 extends DwiteSolution {
+public final class dwite201001p5 extends DwiteSolution {
 	
 	public static void main(String[] args) {
-		DwiteRunner.run("DATA5.txt", "OUT5.txt", new dwite201010p5());
+		DwiteRunner.run("DATA5.txt", "OUT5.txt", new dwite201001p5());
 	}
 	
 	
@@ -16,21 +16,19 @@ public final class dwite201010p5 extends DwiteSolution {
 	private int[][] distance;
 	
 	
-	protected void runOnce() {
-		// Read grid and pad
+	public void run() {
 		grid = io.readGridAndPad(WIDTH, HEIGHT, '#');
-		distance = DwiteAlgorithm.newIntGrid(HEIGHT + 2, WIDTH + 2, 999);
-		int[] startPoint = find(grid, 'A');
-		distance[startPoint[1]][startPoint[0]] = 0;
-		io.readLine();  // Discard line of hyphens
 		
-		// Propagate distances
-		for (int i = 0; i < WIDTH * HEIGHT; i++)
-			propagateDistances();
-		
-		// Find ending position and print
-		int[] endPoint = find(grid, 'B');
-		io.println(distance[endPoint[1]][endPoint[0]]);
+		for (int i = 0; i < 5; i++) {
+			int[] startPoint = find(grid, (char)('A' + i));
+			distance = DwiteAlgorithm.newIntGrid(HEIGHT + 2, WIDTH + 2, 999);
+			distance[startPoint[1]][startPoint[0]] = 0;
+			for (int j = 0; j < WIDTH * HEIGHT; j++)
+				propagateDistances();
+			
+			int[] endPoint = find(grid, (char)('B' + i));
+			io.println(distance[endPoint[1]][endPoint[0]]);
+		}
 	}
 	
 	
@@ -49,10 +47,11 @@ public final class dwite201010p5 extends DwiteSolution {
 	
 	
 	private void shoot(int x, int y, int dx, int dy) {
-		int newdist = distance[y][x] + 1;
+		int newdist = distance[y][x];
 		while (grid[y + dy][x + dx] != '#') {
 			x += dx;
 			y += dy;
+			newdist++;
 		}
 		distance[y][x] = Math.min(newdist, distance[y][x]);
 	}
