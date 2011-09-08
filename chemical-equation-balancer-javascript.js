@@ -446,7 +446,7 @@ function parseTerm(tok) {
 	elems = elems.toArray();  // List of all elements used in this term, with no repeats
 	if (items.length == 0) {
 		throw {message: "Invalid term", start: startPosition, end: tok.position()};
-	} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
+	} else if (indexOf(elems, "e") != -1) {  // If it's the special electron element
 		if (items.length > 1 || charge != 0 && charge != -1)
 			throw {message: "Invalid term", start: startPosition, end: tok.position()};
 		items = [];
@@ -691,7 +691,7 @@ function Matrix(rows, cols) {
 
 function Set() {
 	var items = [];
-	this.add = function(obj) { if (items.indexOf(obj) == -1) items.push(obj); }
+	this.add = function(obj) { if (indexOf(items, obj) == -1) items.push(obj); }
 	this.contains = function(obj) { return items.indexOf(obj) != -1; }
 	this.toArray = function() { return items.slice(0); }  // Defensive copy
 }
@@ -740,6 +740,16 @@ function gcd(x, y) {
 		y = z;
 	}
 	return x;
+}
+
+
+// A JavaScript 1.6 function, which every browser has except Internet Explorer
+function indexOf(array, item) {
+	for (var i = 0; i < array.length; i++) {
+		if (array[i] == item)
+			return i;
+	}
+	return -1;
 }
 
 
