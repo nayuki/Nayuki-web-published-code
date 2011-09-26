@@ -111,6 +111,8 @@ function solve(matrix) {
 		if (countNonzeroCoeffs(matrix, i) > 1)
 			break;
 	}
+	if (i == matrix.rowCount() - 1)
+		throw "No solution";  // Unique solution with all coefficients zero
 	
 	// Add an inhomogeneous equation
 	matrix.set(matrix.rowCount() - 1, i, 1);
@@ -149,7 +151,7 @@ function extractCoefficients(matrix) {
 		allzero &= coef == 0;
 	}
 	if (allzero)
-		throw "No solution";  // Unique solution with all coefficients zero
+		throw "Assertion error: All zero solution";
 	return coefs;
 }
 
