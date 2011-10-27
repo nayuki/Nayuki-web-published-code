@@ -19,42 +19,42 @@ rc4_encrypt_x86:
 	
 	/* Load arguments */
 	movl     8(%ebp), %esi  /* Address of state struct */
-	movl    12(%ebp), %edi  /* Address of message array */
+	movl    12(%ebp), %edi  /* EDI: Address of message array */
 	movl    16(%ebp), %edx  /* Length of message array */
-	addl    %edi, %edx      /* Compute end of message array */
+	addl    %edi, %edx      /* EDX: Compute end of message array */
 	
 	/* Load state variables */
-	movl    0(%esi), %eax  /* i */
-	movl    4(%esi), %ebx  /* j */
-	addl    $8, %esi       /* s */
+	movl    0(%esi), %eax  /* EAX: i */
+	movl    4(%esi), %ebx  /* EBX: j */
+	addl    $8, %esi       /* ESI: s */
 	
 	/* Initialize */
-	movl    $0, %ecx
+	movl    $0, %ecx  /* Need to ensure upper 16 bits are clear */
 	cmpl    %edi, %edx
 	je      .rc4_encrypt_bottom
 	
 .rc4_encrypt_top:
-	/* Increment i */
+	/* Increment i mod 256 */
 	addb    $1, %al
 	
-	/* Add to j */
-	movb    (%esi,%eax), %cl
+	/* Add s[i] to j mod 256 */
+	movb    (%esi,%eax), %cl  /* CL: Temporary s[i] */
 	addb    %cl, %bl
 	
-	/* Swap s[i] and s[j] */
-	movb    (%esi,%ebx), %ch
+	/* Swap bytes s[i] and s[j] */
+	movb    (%esi,%ebx), %ch  /* CH: Temporary s[j] */
 	movb    %ch, (%esi,%eax)
 	movb    %cl, (%esi,%ebx)
 	
 	/* Compute key stream byte */
-	addb    %ch, %cl
-	xorb    %ch, %ch
+	addb    %ch, %cl  /* CL = s[i] + s[j] mod 256*/
+	xorb    %ch, %ch  /* Clear some upper bits so that ECX = CL */
 	movb    (%esi,%ecx), %cl
 	
 	/* XOR with message */
 	xorb    %cl, (%edi)
 	
-	/* Increment */
+	/* Increment and loop */
 	addl    $1, %edi
 	cmpl    %edi, %edx
 	jne     .rc4_encrypt_top

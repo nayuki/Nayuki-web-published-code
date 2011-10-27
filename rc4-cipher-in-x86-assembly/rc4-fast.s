@@ -10,7 +10,7 @@ rc4_encrypt_x86:
 	/* Enter */
 	pushl   %ebp
 	movl    %esp, %ebp
-	subl    $12, %esp
+	subl    $16, %esp
 	
 	/* Preserve callee-save registers */
 	movl    %ebx, 0(%esp)
@@ -19,46 +19,46 @@ rc4_encrypt_x86:
 	
 	/* Load arguments */
 	movl     8(%ebp), %esi  /* Address of state struct */
-	movl    12(%ebp), %edi  /* Address of message array */
+	movl    12(%ebp), %edi  /* EDI: Address of message array */
 	movl    16(%ebp), %edx  /* Length of message array */
 	addl    %edi, %edx      /* Compute end of message array */
+	movl    %edx, 12(%esp)  /* Store end of message array to free up a register */
 	
 	/* Load state variables */
-	movl    0(%esi), %eax  /* i */
-	movl    4(%esi), %ebx  /* j */
-	addl    $8, %esi       /* s */
+	movl    0(%esi), %eax  /* EAX: i */
+	movl    4(%esi), %ebx  /* EBX: j */
+	addl    $8, %esi       /* ESI: s */
 	
 	/* Initialize */
-	movl    $0, %ecx
-	cmpl    %edi, %edx
+	cmpl    %edi, %edx  /* Note: EDX will be repurposed below */
 	je      .rc4_encrypt_bottom
 	
 .rc4_encrypt_top:
-	/* Increment i */
+	/* Increment i mod 256 */
 	addl    $1, %eax
 	andl    $0xFF, %eax
 	
-	/* Add to j */
-	movzbl  (%esi,%eax), %ecx
+	/* Add s[i] to j mod 256 */
+	movzbl  (%esi,%eax), %ecx  /* ECX: Temporary s[i] */
 	addl    %ecx, %ebx
 	andl    $0xFF, %ebx
 	
-	/* Swap s[i] and s[j] */
-	movb    (%esi,%ebx), %ch
-	movb    %ch, (%esi,%eax)
+	/* Swap bytes s[i] and s[j] */
+	movzbl  (%esi,%ebx), %edx  /* EDX: Temporary s[j] */
+	movb    %dl, (%esi,%eax)
 	movb    %cl, (%esi,%ebx)
 	
 	/* Compute key stream byte */
-	addb    %ch, %cl
-	xorb    %ch, %ch
-	movb    (%esi,%ecx), %cl
+	addl    %edx, %ecx
+	andl    $0xFF, %ecx
+	movzbl  (%esi,%ecx), %ecx
 	
 	/* XOR with message */
 	xorb    %cl, (%edi)
 	
-	/* Increment */
+	/* Increment and loop */
 	addl    $1, %edi
-	cmpl    %edi, %edx
+	cmpl    %edi, 12(%esp)
 	jne     .rc4_encrypt_top
 	
 .rc4_encrypt_bottom:
@@ -73,6 +73,6 @@ rc4_encrypt_x86:
 	movl    8(%esp), %edi
 	
 	/* Exit */
-	addl    $12, %esp
+	addl    $16, %esp
 	popl    %ebp
 	ret
