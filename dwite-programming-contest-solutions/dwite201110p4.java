@@ -38,6 +38,7 @@ public final class dwite201110p4 extends DwiteSolution {
 	
 	
 	// Coolness for [0, n].
+	@SuppressWarnings("unused")
 	private static int getCoolnessSlow(int n) {
 		int sum = 0;
 		for (int i = 0; i <= n; i++)
