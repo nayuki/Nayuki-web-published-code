@@ -22,9 +22,6 @@ function load() {
 		return;
 	}
 	
-	document.getElementById("output").value = "";
-	document.getElementById("memory").value = "";
-	document.getElementById("steps").value = "";
 	setButtonEnabled("step", true);
 	setButtonEnabled("run", true);
 	setButtonEnabled("pause", false);
@@ -74,37 +71,33 @@ function Brainfuck(code) {
 	var output = "";
 	
 	var steps = 0;
-	var lastStepsUpdate = new Date().getTime()
+	var lastStepsUpdate = null;
 	var timeout = null;
-	var minMemoryWrite =  Infinity;
-	var maxMemoryWrite = -Infinity;
+	var minMemoryWrite = memoryIndex;  // Inclusive
+	var maxMemoryWrite = memoryIndex;  // Inclusive
+	
+	showState();
 	
 	
 	// Public controls
 	
 	this.run = function() {
-		if (timeout == null)
+		if (!isHalted() && timeout == null)
 			execute(1);
 	}
 	
-	
 	this.step = function() {
-		if (timeout == null) {
+		if (!isHalted() && timeout == null) {
 			step();
-			showOutput();
-			showMemory();
-			showSteps();
+			showState();
 		}
 	}
-	
 	
 	this.pause = function() {
 		if (timeout != null) {
 			clearTimeout(timeout);
 			timeout = null;
-			showOutput();
-			showMemory();
-			showSteps();
+			showState();
 		}
 	}
 	
@@ -118,22 +111,23 @@ function Brainfuck(code) {
 		for (var i = 0; i < iters && !isHalted(); i++)
 			outputChanged |= step();
 		
-		if (outputChanged)
-			showOutput();
-		if (new Date().getTime() - lastStepsUpdate >= 100) {
-			showSteps();
-			lastStepsUpdate = new Date().getTime();
-		}
 		if (isHalted()) {
-			showMemory();
-			showSteps();
+			showState();
 			setButtonEnabled("pause", false);
-			return;
-		}
 		
-		// Regulate the number of iterations to execute before relinquishing control of the main JavaScript thread
-		var nextIters = calcNextIters(new Date().getTime() - startTime, iters);
-		timeout = setTimeout(function() { execute(nextIters); }, 1);
+		} else {
+			if (outputChanged)
+				showOutput();
+			if (lastStepsUpdate == null || new Date().getTime() - lastStepsUpdate >= 100) {
+				showSteps();
+				lastStepsUpdate = new Date().getTime();
+			}
+			
+			// Regulate the number of iterations to execute before relinquishing control of the main JavaScript thread
+			var execTime = new Date().getTime() - startTime;  // How long this execution took
+			var nextIters = calcNextIters(execTime, iters);
+			timeout = setTimeout(function() { timeout = null; execute(nextIters); }, 1);
+		}
 	}
 	
 	
@@ -187,6 +181,26 @@ function Brainfuck(code) {
 	}
 	
 	
+	function calcNextIters(time, iters) {
+		var TARGET_TIME = 20;
+		
+		var multiplier = time > 0 ? TARGET_TIME / time : 2.0;
+		if (multiplier > 10.0) multiplier = 10.0;
+		else if (multiplier < 0.1) multiplier = 0.1;
+		
+		var nextIters = Math.round(multiplier * iters);
+		if (nextIters < 1) nextIters = 1;
+		return nextIters;
+	}
+	
+	
+	function showState() {
+		showOutput();
+		showMemory();
+		showSteps();
+	}
+	
+	
 	function showOutput() {
 		document.getElementById("output").value = output;
 	}
@@ -215,19 +229,6 @@ function Brainfuck(code) {
 		while (s.length < width)
 			s = " " + s;
 		return s;
-	}
-	
-	
-	function calcNextIters(time, iters) {
-		var TARGET_TIME = 20;
-		
-		var multiplier = time > 0 ? TARGET_TIME / time : 2.0;
-		if (multiplier > 10.0) multiplier = 10.0;
-		else if (multiplier < 0.1) multiplier = 0.1;
-		
-		var nextIters = Math.round(multiplier * iters);
-		if (nextIters < 1) nextIters = 1;
-		return nextIters;
 	}
 	
 }
