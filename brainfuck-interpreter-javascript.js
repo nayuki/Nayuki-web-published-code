@@ -6,22 +6,54 @@
 
 var instance = null;
 
+
 /* Entry points from the HTML code */
 
-function run() {
+function load() {
+	if (instance != null) {
+		instance.pause();
+		instance = null;
+	}
+	
 	try {
-		stop();
 		instance = new Brainfuck(document.getElementById("code").value);
-		instance.run();
 	} catch (e) {
 		alert(e);
+		return;
+	}
+	
+	document.getElementById("output").value = "";
+	document.getElementById("memory").value = "";
+	document.getElementById("steps").value = "";
+	setButtonEnabled("step", true);
+	setButtonEnabled("run", true);
+	setButtonEnabled("pause", false);
+}
+
+
+function step() {
+	if (instance != null)
+		instance.step();
+}
+
+
+function run() {
+	if (instance != null) {
+		setButtonEnabled("step", false);
+		setButtonEnabled("run", false);
+		setButtonEnabled("pause", true);
+		instance.run();
 	}
 }
 
-function stop() {
-	if (instance != null)
-		instance.stop();
-	instance = null;
+
+function pause() {
+	if (instance != null) {
+		instance.pause();
+		setButtonEnabled("step", true);
+		setButtonEnabled("run", true);
+		setButtonEnabled("pause", false);
+	}
 }
 
 
@@ -31,113 +63,106 @@ function stop() {
 var LEFT = 0, RIGHT = 1, PLUS = 2, MINUS = 3, IN = 4, OUT = 5, LOOP = 6, BACK = 7;
 
 function Brainfuck(code) {
+	// State variables
+	
 	var program = compile(code);
-	var programCounter;
-	var memory;
-	var memoryIndex;
-	var input;
-	var inputIndex;
-	var output;
-	var steps;
-	var lastStepsUpdate;
+	var programCounter = 0;
+	var memory = [];
+	var memoryIndex = 0;
+	var input = document.getElementById("input").value;
+	var inputIndex = 0;
+	var output = "";
+	
+	var steps = 0;
+	var lastStepsUpdate = new Date().getTime()
 	var timeout = null;
+	var minMemoryWrite =  Infinity;
+	var maxMemoryWrite = -Infinity;
 	
 	
-	this.reset = function() {
-		this.stop();
-		programCounter = 0;
-		memory = [];
-		memoryIndex = 0;
-		input = document.getElementById("input").value;
-		inputIndex = 0;
-		output = "";
-		setOutput();
-		steps = 0;
-		lastStepsUpdate = new Date().getTime();
-	}
+	// Public controls
 	
 	this.run = function() {
-		this.stop();
-		execute(1);
+		if (timeout == null)
+			execute(1);
 	}
 	
-	this.stop = function() {
-		if (timeout != null)
+	
+	this.step = function() {
+		if (timeout == null) {
+			step();
+			showOutput();
+			showMemory();
+			showSteps();
+		}
+	}
+	
+	
+	this.pause = function() {
+		if (timeout != null) {
 			clearTimeout(timeout);
-		timeout = null;
+			timeout = null;
+			showOutput();
+			showMemory();
+			showSteps();
+		}
 	}
 	
 	
-	this.reset();
-	
+	// Execution
 	
 	function execute(iters) {
 		var startTime = new Date().getTime();
 		var outputChanged = false;
-		for (var i = 0; i < iters && programCounter < program.length; i++, steps++) {
-			switch (program[programCounter]) {
-				case LEFT:
-					memoryIndex--;
-					programCounter++;
-					break;
-				case RIGHT:
-					memoryIndex++;
-					programCounter++;
-					break;
-				case PLUS:
-					setCell((getCell() + 1) & 0xFF);
-					programCounter++;
-					break;
-				case MINUS:
-					setCell((getCell() - 1) & 0xFF);
-					programCounter++;
-					break;
-				case IN:
-					setCell(getInput());
-					programCounter++;
-					break;
-				case OUT:
-					output += String.fromCharCode(getCell());
-					outputChanged = true;
-					programCounter++;
-					break;
-				case LOOP:
-					if (getCell() == 0)
-						programCounter = program[programCounter + 1];
-					programCounter += 2;
-					break;
-				case BACK:
-					if (getCell() != 0)
-						programCounter = program[programCounter + 1];
-					programCounter += 2;
-					break;
-				default:
-					throw "Assertion error";
-			}
-		}
 		
-		var halted = programCounter == program.length;
+		for (var i = 0; i < iters && !isHalted(); i++)
+			outputChanged |= step();
 		
 		if (outputChanged)
-			setOutput();
-		if (halted || new Date().getTime() - lastStepsUpdate >= 100) {
-			document.getElementById("steps").value = steps.toString();
+			showOutput();
+		if (new Date().getTime() - lastStepsUpdate >= 100) {
+			showSteps();
 			lastStepsUpdate = new Date().getTime();
 		}
-		
-		if (halted)
+		if (isHalted()) {
+			showMemory();
+			showSteps();
+			setButtonEnabled("pause", false);
 			return;
+		}
 		
 		// Regulate the number of iterations to execute before relinquishing control of the main JavaScript thread
-		var time = new Date().getTime() - startTime;
-		var multiplier = time > 0 ? 20 / time : 2.0;
-		if (multiplier > 10.0) multiplier = 10.0;
-		else if (multiplier < 0.1) multiplier = 0.1;
-		var nextIters = Math.max(Math.round(multiplier * iters), 1);
-		
+		var nextIters = calcNextIters(new Date().getTime() - startTime, iters);
 		timeout = setTimeout(function() { execute(nextIters); }, 1);
 	}
 	
+	
+	function step() {
+		if (isHalted())
+			return;
+		
+		var outputChanged = false;
+		switch (program[programCounter]) {
+			case LEFT :  memoryIndex--;  programCounter++;  break;
+			case RIGHT:  memoryIndex++;  programCounter++;  break;
+			case PLUS :  setCell((getCell() + 1) & 0xFF);  programCounter++;  break;
+			case MINUS:  setCell((getCell() - 1) & 0xFF);  programCounter++;  break;
+			case IN   :  setCell(getInput());  programCounter++;  break;
+			case OUT  :  output += String.fromCharCode(getCell());  outputChanged = true;  programCounter++;  break;
+			case LOOP :  if (getCell() == 0) { programCounter = program[programCounter + 1]; }  programCounter += 2;  break;
+			case BACK :  if (getCell() != 0) { programCounter = program[programCounter + 1]; }  programCounter += 2;  break;
+			default   :  throw "Assertion error";
+		}
+		steps++;
+		return outputChanged;
+	}
+	
+	
+	// Helper functions
+	
+	function isHalted() {
+		return programCounter == program.length;
+	}
 	
 	function getCell() {
 		if (memory[memoryIndex] === undefined)
@@ -147,6 +172,8 @@ function Brainfuck(code) {
 	
 	function setCell(value) {
 		memory[memoryIndex] = value;
+		minMemoryWrite = Math.min(memoryIndex, minMemoryWrite);
+		maxMemoryWrite = Math.max(memoryIndex, maxMemoryWrite);
 	}
 	
 	
@@ -159,8 +186,48 @@ function Brainfuck(code) {
 			return input.charCodeAt(inputIndex++);
 	}
 	
-	function setOutput() {
+	
+	function showOutput() {
 		document.getElementById("output").value = output;
+	}
+	
+	
+	function showMemory() {
+		var s = "Address  Value  Pointer\n";
+		var start = Math.min(minMemoryWrite, memoryIndex);
+		var end = Math.max(maxMemoryWrite, memoryIndex);
+		var limit = Math.min(end, start + 3000);  // Don't show more than ~3000 entries, don't want to overload the UI
+		for (var i = start; i <= limit; i++)
+			s += padNumber(i, 7) + "  " + padNumber(memory[i] !== undefined ? memory[i] : 0, 5) + (i == memoryIndex? "  <--" : "") + "\n";
+		if (limit != end)
+			s += "(... more values, but truncated ...)\n";
+		document.getElementById("memory").value = s;
+	}
+	
+	
+	function showSteps() {
+		document.getElementById("steps").value = steps.toString();
+	}
+	
+	
+	function padNumber(n, width) {
+		var s = n.toString();
+		while (s.length < width)
+			s = " " + s;
+		return s;
+	}
+	
+	
+	function calcNextIters(time, iters) {
+		var TARGET_TIME = 20;
+		
+		var multiplier = time > 0 ? TARGET_TIME / time : 2.0;
+		if (multiplier > 10.0) multiplier = 10.0;
+		else if (multiplier < 0.1) multiplier = 0.1;
+		
+		var nextIters = Math.round(multiplier * iters);
+		if (nextIters < 1) nextIters = 1;
+		return nextIters;
 	}
 	
 }
@@ -202,3 +269,20 @@ function compile(str) {
 		throw "Mismatched brackets (extra left bracket)";
 	return result;
 }
+
+
+function setButtonEnabled(name, enabled) {
+	document.getElementById(name).disabled = !enabled;
+}
+
+
+/* Initialization */
+
+document.getElementById("load" ).onclick = load;
+document.getElementById("step" ).onclick = step;
+document.getElementById("run"  ).onclick = run;
+document.getElementById("pause").onclick = pause;
+
+setButtonEnabled("step", false);
+setButtonEnabled("run", false);
+setButtonEnabled("pause", false);
