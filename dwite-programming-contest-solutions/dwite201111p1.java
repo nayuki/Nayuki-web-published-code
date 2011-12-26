@@ -14,9 +14,9 @@ public final class dwite201111p1 extends DwiteSolution {
 		
 		int x = 0;
 		int y = 0;
-		for (int i = 1; n > 0; i++) {  // For each step size
-			int temp = Math.min(i, n);
-			if (i % 2 == 1)
+		for (int stepSize = 1; n > 0; stepSize++) {
+			int temp = Math.min(stepSize, n);
+			if (stepSize % 2 == 1)
 				x += temp;
 			else
 				y -= temp;

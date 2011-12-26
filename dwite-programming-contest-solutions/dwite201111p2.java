@@ -1,6 +1,8 @@
 // DWITE - November 2011 - Problem 2: Scratch Card
 // Solution by Nayuki Minase
 
+import java.util.Arrays;
+
 
 public final class dwite201111p2 extends DwiteSolution {
 	
@@ -13,21 +15,20 @@ public final class dwite201111p2 extends DwiteSolution {
 		// Read input
 		io.tokenizeLine();
 		int height = io.readIntToken();
-		int width = io.readIntToken();
-		
+		int width  = io.readIntToken();
 		char[][] grid = new char[height][];
 		for (int y = 0; y < height; y++) {
 			grid[y] = io.readLine().toCharArray();
 			if (grid[y].length != width)
 				throw new IllegalArgumentException();
 		}
-		String phrase = io.readLine();
+		char[] phrase = io.readLine().toCharArray();
 		
 		// Try to find subsequence in grid
 		int i = 0;  // Index in phrase
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				if (i < phrase.length() && phrase.charAt(i) == grid[y][x]) {
+				if (i < phrase.length && phrase[i] == grid[y][x]) {
 					grid[y][x] = '.';
 					i++;
 				} else
@@ -35,18 +36,13 @@ public final class dwite201111p2 extends DwiteSolution {
 			}
 		}
 		
-		if (i == phrase.length()) {  // Phrase found
+		if (i != phrase.length) {  // Phrase not found
 			for (int y = 0; y < height; y++)
-				io.println(new String(grid[y]));
-			
-		} else {  // Phrase not found
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++)
-					io.print("x");
-				io.println();
-			}
-			
+				Arrays.fill(grid[y], 'x');
 		}
+		
+		for (int y = 0; y < height; y++)
+			io.println(new String(grid[y]));
 	}
 	
 }
