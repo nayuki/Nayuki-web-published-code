@@ -1,6 +1,6 @@
 /*
  * RC4 stream cipher in x86 assembly
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2012 Nayuki Minase
  */
 
 
@@ -13,16 +13,16 @@ rc4_encrypt_x86:
 	subl    $16, %esp
 	
 	/* Preserve callee-save registers */
-	movl    %ebx, 0(%esp)
-	movl    %esi, 4(%esp)
-	movl    %edi, 8(%esp)
+	movl    %ebx, - 4(%ebp)
+	movl    %esi, - 8(%ebp)
+	movl    %edi, -12(%ebp)
 	
 	/* Load arguments */
-	movl     8(%ebp), %esi  /* Address of state struct */
-	movl    12(%ebp), %edi  /* EDI: Address of message array */
-	movl    16(%ebp), %edx  /* Length of message array */
-	addl    %edi, %edx      /* Compute end of message array */
-	movl    %edx, 12(%esp)  /* Store end of message array to free up a register */
+	movl     8(%ebp), %esi   /* Address of state struct */
+	movl    12(%ebp), %edi   /* EDI: Address of message array */
+	movl    16(%ebp), %edx   /* Length of message array */
+	addl    %edi, %edx       /* Compute end of message array */
+	movl    %edx, -16(%ebp)  /* Store end of message array to free up a register */
 	
 	/* Load state variables */
 	movl    0(%esi), %eax  /* EAX: i */
@@ -35,7 +35,7 @@ rc4_encrypt_x86:
 	
 .rc4_encrypt_top:
 	/* Increment i mod 256 */
-	addl    $1, %eax
+	incl    %eax
 	andl    $0xFF, %eax
 	
 	/* Add s[i] to j mod 256 */
@@ -57,8 +57,8 @@ rc4_encrypt_x86:
 	xorb    %cl, (%edi)
 	
 	/* Increment and loop */
-	addl    $1, %edi
-	cmpl    %edi, 12(%esp)
+	incl    %edi
+	cmpl    %edi, -16(%ebp)
 	jne     .rc4_encrypt_top
 	
 .rc4_encrypt_bottom:
@@ -68,9 +68,9 @@ rc4_encrypt_x86:
 	movl    %ebx, 4(%esi)  /* Save j */
 	
 	/* Restore registers */
-	movl    0(%esp), %ebx
-	movl    4(%esp), %esi
-	movl    8(%esp), %edi
+	movl    - 4(%ebp), %ebx
+	movl    - 8(%ebp), %esi
+	movl    -12(%ebp), %edi
 	
 	/* Exit */
 	addl    $16, %esp

@@ -1,6 +1,6 @@
 /*
  * RC4 stream cipher in x86 assembly
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2012 Nayuki Minase
  */
 
 
@@ -10,12 +10,11 @@ rc4_encrypt_x86:
 	/* Enter */
 	pushl   %ebp
 	movl    %esp, %ebp
-	subl    $12, %esp
 	
 	/* Preserve callee-save registers */
-	movl    %ebx, 0(%esp)
-	movl    %esi, 4(%esp)
-	movl    %edi, 8(%esp)
+	pushl   %ebx
+	pushl   %esi
+	pushl   %edi
 	
 	/* Load arguments */
 	movl     8(%ebp), %esi  /* Address of state struct */
@@ -35,7 +34,7 @@ rc4_encrypt_x86:
 	
 .rc4_encrypt_top:
 	/* Increment i mod 256 */
-	addb    $1, %al
+	incb    %al
 	
 	/* Add s[i] to j mod 256 */
 	movb    (%esi,%eax), %cl  /* CL: Temporary s[i] */
@@ -55,7 +54,7 @@ rc4_encrypt_x86:
 	xorb    %cl, (%edi)
 	
 	/* Increment and loop */
-	addl    $1, %edi
+	incl    %edi
 	cmpl    %edi, %edx
 	jne     .rc4_encrypt_top
 	
@@ -66,11 +65,10 @@ rc4_encrypt_x86:
 	movl    %ebx, 4(%esi)  /* Save j */
 	
 	/* Restore registers */
-	movl    0(%esp), %ebx
-	movl    4(%esp), %esi
-	movl    8(%esp), %edi
+	popl    %edi
+	popl    %esi
+	popl    %ebx
 	
 	/* Exit */
-	addl    $12, %esp
 	popl    %ebp
 	ret
