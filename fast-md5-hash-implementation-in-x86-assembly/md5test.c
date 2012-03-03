@@ -77,13 +77,16 @@ void md5_hash(uint8_t *message, uint32_t len, uint32_t *hash) {
 		md5_compress_x86(hash, (uint32_t*)(message + i));
 	
 	uint32_t block[16];
+	uint8_t *byteBlock = (uint8_t*)block;
+	
 	int rem = len - i;
-	memcpy(block, message + i, rem);
-	((uint8_t*)block)[rem] = 0x80;
+	memcpy(byteBlock, message + i, rem);
+	
+	byteBlock[rem] = 0x80;
 	if (64 - (rem + 1) >= 8)
-		memset(((uint8_t*)block + rem + 1), 0, 64 - rem - 9);
+		memset(&byteBlock[rem + 1], 0, 64 - rem - 9);
 	else {
-		memset(((uint8_t*)block + rem + 1), 0, 64 - rem - 1);
+		memset(&byteBlock[rem + 1], 0, 64 - rem - 1);
 		md5_compress_x86(hash, block);
 		memset(block, 0, 56);
 	}
@@ -93,10 +96,10 @@ void md5_hash(uint8_t *message, uint32_t len, uint32_t *hash) {
 }
 
 
-#define ROUND0(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, d ^ (b & (c ^ d)), k, s, t)
-#define ROUND1(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, c ^ (d & (b ^ c)), k, s, t)
-#define ROUND2(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, b ^ c ^ d        , k, s, t)
-#define ROUND3(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, c ^ (b | ~d)     , k, s, t)
+#define ROUND0(a,b,c,d,k,s,t)  ROUND_TAIL(a, b, d ^ (b & (c ^ d)), k, s, t)
+#define ROUND1(a,b,c,d,k,s,t)  ROUND_TAIL(a, b, c ^ (d & (b ^ c)), k, s, t)
+#define ROUND2(a,b,c,d,k,s,t)  ROUND_TAIL(a, b, b ^ c ^ d        , k, s, t)
+#define ROUND3(a,b,c,d,k,s,t)  ROUND_TAIL(a, b, c ^ (b | ~d)     , k, s, t)
 
 #define ROUND_TAIL(a, b, expr, k, s, t)  \
 	a += (expr) + t + block[k];  \
