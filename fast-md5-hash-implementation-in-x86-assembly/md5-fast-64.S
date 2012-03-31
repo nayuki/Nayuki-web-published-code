@@ -1,29 +1,12 @@
 /*
- * MD5 hash in x86 assembly
+ * MD5 hash in x86-64 assembly
  * Copyright (c) 2012 Nayuki Minase
  */
 
 
-/*
- * Storage usage:
- *   Bytes  Location    Description
- *       4  eax         MD5 state variable A
- *       4  ebx         MD5 state variable B
- *       4  ecx         MD5 state variable C
- *       4  edx         MD5 state variable D
- *       4  esi         Temporary for calculation per round
- *       4  edi         Temporary for calculation per round
- *       4  ebp         Base address of block array argument (read-only)
- *       4  esp         x86 stack pointer
- *       4  [esp+ 0]    Caller's value of ebx
- *       4  [esp+ 4]    Caller's value of esi
- *       4  [esp+ 8]    Caller's value of edi
- *       4  [esp+12]    Caller's value of ebp
- */
-
 #define ROUND0(a,b,c,d,k,s,t)  \
 	movl  %c, %esi;         \
-	addl  (k*4)(%ebp), %a;  \
+	addl  (k*4)(%rbp), %a;  \
 	xorl  %d, %esi;         \
 	andl  %b, %esi;         \
 	xorl  %d, %esi;         \
@@ -34,7 +17,7 @@
 #define ROUND1(a,b,c,d,k,s,t)  \
 	movl  %d, %esi;         \
 	movl  %d, %edi;         \
-	addl  (k*4)(%ebp), %a;  \
+	addl  (k*4)(%rbp), %a;  \
 	notl  %esi;             \
 	andl  %b, %edi;         \
 	andl  %c, %esi;         \
@@ -45,7 +28,7 @@
 
 #define ROUND2(a,b,c,d,k,s,t)  \
 	movl  %c, %esi;         \
-	addl  (k*4)(%ebp), %a;  \
+	addl  (k*4)(%rbp), %a;  \
 	xorl  %d, %esi;         \
 	xorl  %b, %esi;         \
 	leal  t(%esi,%a), %a;   \
@@ -55,7 +38,7 @@
 #define ROUND3(a,b,c,d,k,s,t)  \
 	movl  %d, %esi;         \
 	not   %esi;             \
-	addl  (k*4)(%ebp), %a;  \
+	addl  (k*4)(%rbp), %a;  \
 	orl   %b, %esi;         \
 	xorl  %c, %esi;         \
 	leal  t(%esi,%a), %a;   \
@@ -67,19 +50,16 @@
 .globl md5_compress
 md5_compress:
 	/* Save registers */
-	subl  $16, %esp
-	movl  %ebx,  0(%esp)
-	movl  %esi,  4(%esp)
-	movl  %edi,  8(%esp)
-	movl  %ebp, 12(%esp)
+	movq  %rbx, %xmm0
+	movq  %rbp, %xmm1
 	
 	/* Load arguments */
-	movl  20(%esp), %esi  /* state */
-	movl  24(%esp), %ebp  /* block */
-	movl   0(%esi), %eax  /* a */
-	movl   4(%esi), %ebx  /* b */
-	movl   8(%esi), %ecx  /* c */
-	movl  12(%esi), %edx  /* d */
+	movq  %rsi, %rbp
+	movl   0(%rdi), %eax  /* a */
+	movl   4(%rdi), %ebx  /* b */
+	movl   8(%rdi), %ecx  /* c */
+	movl  12(%rdi), %edx  /* d */
+	movq  %rdi, %r8
 	
 	/* 64 rounds of hashing */
 	ROUND0(eax, ebx, ecx, edx,  0,  7, 0xD76AA478)
@@ -148,16 +128,12 @@ md5_compress:
 	ROUND3(ebx, ecx, edx, eax,  9, 21, 0xEB86D391)
 	
 	/* Save updated state */
-	movl  20(%esp), %esi
-	addl  %eax,  0(%esi)
-	addl  %ebx,  4(%esi)
-	addl  %ecx,  8(%esi)
-	addl  %edx, 12(%esi)
+	addl  %eax,  0(%r8)
+	addl  %ebx,  4(%r8)
+	addl  %ecx,  8(%r8)
+	addl  %edx, 12(%r8)
 	
 	/* Restore registers */
-	movl   0(%esp), %ebx
-	movl   4(%esp), %esi
-	movl   8(%esp), %edi
-	movl  12(%esp), %ebp
-	addl  $16, %esp
+	movq  %xmm0, %rbx
+	movq  %xmm1, %rbp
 	ret

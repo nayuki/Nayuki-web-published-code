@@ -1,40 +1,22 @@
 /*
- * SHA-1 hash in x86 assembly
+ * SHA-1 hash in x86-64 assembly
  * Copyright (c) 2012 Nayuki Minase
  */
 
 
-/*
- * Storage usage:
- *   Bytes  Location    Description
- *       4  eax         SHA-1 state variable A
- *       4  ebx         SHA-1 state variable B
- *       4  ecx         SHA-1 state variable C
- *       4  edx         SHA-1 state variable D
- *       4  ebp         SHA-1 state variable E
- *       4  esi         Temporary for calculation per round
- *       4  edi         (First 16 rounds) base address of block array argument (read-only); (last 64 rounds) temporary for calculation per round
- *       4  esp         x86 stack pointer
- *      64  [esp+ 0]    Circular buffer of most recent 16 key schedule items, 4 bytes each
- *       4  [esp+64]    Caller's value of ebx
- *       4  [esp+68]    Caller's value of esi
- *       4  [esp+72]    Caller's value of edi
- *       4  [esp+76]    Caller's value of ebp
- */
-
 #define SCHEDULE(i,e)  \
-	movl  (((i- 3)&0xF)*4)(%esp), %esi;  \
-	xorl  (((i- 8)&0xF)*4)(%esp), %esi;  \
-	xorl  (((i-14)&0xF)*4)(%esp), %esi;  \
-	xorl  (((i-16)&0xF)*4)(%esp), %esi;  \
+	movl  (((i- 3)&0xF)*4)(%rsp), %esi;  \
+	xorl  (((i- 8)&0xF)*4)(%rsp), %esi;  \
+	xorl  (((i-14)&0xF)*4)(%rsp), %esi;  \
+	xorl  (((i-16)&0xF)*4)(%rsp), %esi;  \
 	roll  $1, %esi;                      \
 	addl  %esi, %e;                      \
-	movl  %esi, ((i&0xF)*4)(%esp);
+	movl  %esi, ((i&0xF)*4)(%rsp);
 
 #define ROUND0a(a,b,c,d,e,i)  \
-	movl    (i*4)(%edi), %esi;  \
+	movl    (i*4)(%rdi), %esi;  \
 	bswapl  %esi;               \
-	movl    %esi, (i*4)(%esp);  \
+	movl    %esi, (i*4)(%rsp);  \
 	addl    %esi, %e;           \
 	movl    %c, %esi;           \
 	xorl    %d, %esi;           \
@@ -84,21 +66,19 @@
 /* void sha1_compress(uint32_t *state, uint32_t *block) */
 .globl sha1_compress
 sha1_compress:
-	/* Save registers */
-	subl    $80, %esp
-	movl    %ebx, 64(%esp)
-	movl    %esi, 68(%esp)
-	movl    %edi, 72(%esp)
-	movl    %ebp, 76(%esp)
+	/* Save registers, allocate scratch space */
+	movq    %rbx, %xmm0
+	movq    %rbp, %xmm1
+	subq    $64, %rsp
 	
 	/* Load arguments */
-	movl    84(%esp), %esi  /* state */
-	movl    88(%esp), %edi  /* block */
-	movl     0(%esi), %eax  /* a */
-	movl     4(%esi), %ebx  /* b */
-	movl     8(%esi), %ecx  /* c */
-	movl    12(%esi), %edx  /* d */
-	movl    16(%esi), %ebp  /* e */
+	movq    %rdi, %r8
+	movl     0(%rdi), %eax  /* a */
+	movl     4(%rdi), %ebx  /* b */
+	movl     8(%rdi), %ecx  /* c */
+	movl    12(%rdi), %edx  /* d */
+	movl    16(%rdi), %ebp  /* e */
+	movq    %rsi, %rdi
 	
 	/* 80 rounds of hashing */
 	ROUND0a(eax, ebx, ecx, edx, ebp,  0)
@@ -183,17 +163,14 @@ sha1_compress:
 	ROUND3(ebx, ecx, edx, ebp, eax, 79)
 	
 	/* Save updated state */
-	movl    84(%esp), %esi
-	addl    %eax,  0(%esi)
-	addl    %ebx,  4(%esi)
-	addl    %ecx,  8(%esi)
-	addl    %edx, 12(%esi)
-	addl    %ebp, 16(%esi)
+	addl    %eax,  0(%r8)
+	addl    %ebx,  4(%r8)
+	addl    %ecx,  8(%r8)
+	addl    %edx, 12(%r8)
+	addl    %ebp, 16(%r8)
 	
 	/* Restore registers */
-	movl    64(%esp), %ebx
-	movl    68(%esp), %esi
-	movl    72(%esp), %edi
-	movl    76(%esp), %ebp
-	addl    $80, %esp
+	movq    %xmm0, %rbx
+	movq    %xmm1, %rbp
+	addq    $64, %rsp
 	ret

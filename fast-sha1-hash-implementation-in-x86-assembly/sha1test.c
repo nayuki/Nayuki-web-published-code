@@ -13,7 +13,7 @@
 
 /* Function prototypes */
 
-int self_check();
+static int self_check();
 void sha1_hash(uint8_t *message, uint32_t len, uint32_t *hash);
 
 // Link this program with an external C or x86 compression function
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
 /* Self-check */
 
-int self_check() {
+static int self_check() {
 	uint32_t hash[5];
 	
 	sha1_hash((uint8_t*)"", 0, hash);
@@ -90,10 +90,11 @@ void sha1_hash(uint8_t *message, uint32_t len, uint32_t *hash) {
 	memcpy(byteBlock, message + i, rem);
 	
 	byteBlock[rem] = 0x80;
-	if (64 - (rem + 1) >= 8)
-		memset(&byteBlock[rem + 1], 0, 64 - rem - 9);
+	rem++;
+	if (64 - rem >= 8)
+		memset(byteBlock + rem, 0, 56 - rem);
 	else {
-		memset(&byteBlock[rem + 1], 0, 64 - rem - 1);
+		memset(byteBlock + rem, 0, 64 - rem);
 		sha1_compress(hash, block);
 		memset(block, 0, 56);
 	}
