@@ -6,20 +6,20 @@
 
 /*
  * Storage usage:
- *   Bytes  Location    Description
- *       4  eax         SHA-1 state variable A
- *       4  ebx         SHA-1 state variable B
- *       4  ecx         SHA-1 state variable C
- *       4  edx         SHA-1 state variable D
- *       4  ebp         SHA-1 state variable E
- *       4  esi         Temporary for calculation per round
- *       4  edi         (First 16 rounds) base address of block array argument (read-only); (last 64 rounds) temporary for calculation per round
- *       4  esp         x86 stack pointer
- *      64  [esp+ 0]    Circular buffer of most recent 16 key schedule items, 4 bytes each
- *       4  [esp+64]    Caller's value of ebx
- *       4  [esp+68]    Caller's value of esi
- *       4  [esp+72]    Caller's value of edi
- *       4  [esp+76]    Caller's value of ebp
+ *   Bytes  Location  Description
+ *       4  eax       SHA-1 state variable A
+ *       4  ebx       SHA-1 state variable B
+ *       4  ecx       SHA-1 state variable C
+ *       4  edx       SHA-1 state variable D
+ *       4  ebp       SHA-1 state variable E
+ *       4  esi       Temporary for calculation per round
+ *       4  edi       (First 16 rounds) base address of block array argument (read-only); (last 64 rounds) temporary for calculation per round
+ *       4  esp       x86 stack pointer
+ *      64  [esp+ 0]  Circular buffer of most recent 16 key schedule items, 4 bytes each
+ *       4  [esp+64]  Caller's value of ebx
+ *       4  [esp+68]  Caller's value of esi
+ *       4  [esp+72]  Caller's value of edi
+ *       4  [esp+76]  Caller's value of ebp
  */
 
 #define SCHEDULE(i,e)  \

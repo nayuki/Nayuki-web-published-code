@@ -6,19 +6,19 @@
 
 /*
  * Storage usage:
- *   Bytes  Location    Description
- *       4  eax         MD5 state variable A
- *       4  ebx         MD5 state variable B
- *       4  ecx         MD5 state variable C
- *       4  edx         MD5 state variable D
- *       4  esi         Temporary for calculation per round
- *       4  edi         Temporary for calculation per round
- *       4  ebp         Base address of block array argument (read-only)
- *       4  esp         x86 stack pointer
- *       4  [esp+ 0]    Caller's value of ebx
- *       4  [esp+ 4]    Caller's value of esi
- *       4  [esp+ 8]    Caller's value of edi
- *       4  [esp+12]    Caller's value of ebp
+ *   Bytes  Location  Description
+ *       4  eax       MD5 state variable A
+ *       4  ebx       MD5 state variable B
+ *       4  ecx       MD5 state variable C
+ *       4  edx       MD5 state variable D
+ *       4  esi       Temporary for calculation per round
+ *       4  edi       Temporary for calculation per round
+ *       4  ebp       Base address of block array argument (read-only)
+ *       4  esp       x86 stack pointer
+ *       4  [esp+ 0]  Caller's value of ebx
+ *       4  [esp+ 4]  Caller's value of esi
+ *       4  [esp+ 8]  Caller's value of edi
+ *       4  [esp+12]  Caller's value of ebp
  */
 
 #define ROUND0(a,b,c,d,k,s,t)  \
