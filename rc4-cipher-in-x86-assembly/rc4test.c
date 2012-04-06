@@ -1,6 +1,6 @@
 /*
  * RC4 stream cipher in C and x86 assembly
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2012 Nayuki Minase
  */
 
 
@@ -15,10 +15,79 @@ typedef struct {
 	int i;
 	int j;
 	uint8_t s[256];
-} rc4state;
+} Rc4State;
 
 
-void rc4_init(rc4state *state, uint8_t *key, int len) {
+/* Function prototypes */
+
+static int self_check();
+void rc4_init(Rc4State *state, uint8_t *key, int len);
+void rc4_encrypt_c(Rc4State *state, uint8_t *msg, int len);
+extern void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, int len);
+
+
+/* Main program */
+
+int main(int argc, char **argv) {
+	if (!self_check()) {
+		printf("Self-check failed\n");
+		return 1;
+	}
+	printf("Self-check passed\n");
+	
+	// Benchmark speed
+	const int TRIALS = 300000;
+	const int MSG_LEN = 1024;
+	
+	uint8_t key[3] = {'a', 'b', 'c'};
+	uint8_t msg[MSG_LEN];
+	Rc4State state;
+	rc4_init(&state, key, sizeof(key));
+	
+	int i;
+	time_t start;
+	
+	start = clock();
+	for (i = 0; i < TRIALS; i++)
+		rc4_encrypt_c(&state, msg, MSG_LEN);
+	printf("Speed (C)  : %.1f MiB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1048576);
+	
+	start = clock();
+	for (i = 0; i < TRIALS; i++)
+		rc4_encrypt_x86(&state, msg, MSG_LEN);
+	printf("Speed (x86): %.1f MiB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1048576);
+	
+	return 0;
+}
+
+
+static int self_check() {
+	const int TRIALS = 1000;
+	const int MSG_LEN = 127;
+	
+	uint8_t key[3] = {'K', 'e', 'y'};
+	uint8_t msg0[MSG_LEN], msg1[MSG_LEN];
+	Rc4State state0, state1;
+	
+	rc4_init(&state0, key, sizeof(key));
+	rc4_init(&state1, key, sizeof(key));
+	memset(msg0, 0, MSG_LEN);
+	memset(msg1, 0, MSG_LEN);
+	
+	int i;
+	for(i = 0; i < TRIALS; i++){
+		rc4_encrypt_c  (&state0, msg0, MSG_LEN);
+		rc4_encrypt_x86(&state1, msg1, MSG_LEN);
+		if (memcmp(msg0, msg1, MSG_LEN) !=0 || memcmp(&state0, &state1, sizeof(Rc4State)) != 0)
+			return 0;
+	}
+	return 1;
+}
+
+
+/* RC4 functions in C */
+
+void rc4_init(Rc4State *state, uint8_t *key, int len) {
 	int i;
 	for (i = 0; i < 256; i++)
 		state->s[i] = (uint8_t)i;
@@ -37,8 +106,7 @@ void rc4_init(rc4state *state, uint8_t *key, int len) {
 }
 
 
-/* C version */
-void rc4_encrypt_c(rc4state *state, uint8_t *msg, int len) {
+void rc4_encrypt_c(Rc4State *state, uint8_t *msg, int len) {
 	int index;
 	int i = state->i;
 	int j = state->j;
@@ -56,66 +124,5 @@ void rc4_encrypt_c(rc4state *state, uint8_t *msg, int len) {
 	}
 	state->i = i;
 	state->j = j;
-}
-
-
-/* x86 assembly version */
-void rc4_encrypt_x86(rc4state *state, uint8_t *msg, int len);
-
-
-/* Main */
-
-void test_sanity() {
-	const int N = 20;
-	uint8_t key[3] = {'K', 'e', 'y'};
-	uint8_t msg[N];
-	int i;
-	rc4state state;
-	
-	rc4_init(&state, key, sizeof(key));
-	memset(msg, 0, N);
-	rc4_encrypt_c(&state, msg, N);
-	printf("Ciphertext (C)  :");
-	for (i = 0; i < N; i++)
-		printf(" %02x", msg[i]);
-	printf("\n");
-	
-	rc4_init(&state, key, sizeof(key));
-	memset(msg, 0, N);
-	rc4_encrypt_x86(&state, msg, N);
-	printf("Ciphertext (x86):");
-	for (i = 0; i < N; i++)
-		printf(" %02x", msg[i]);
-	printf("\n");
-}
-
-
-void benchmark_speed() {
-	const int N = 1024;
-	uint8_t key[3] = {'a', 'b', 'c'};
-	uint8_t msg[N];
-	rc4state state;
-	rc4_init(&state, key, sizeof(key));
-	
-	const int M = 1000000;
-	int i;
-	time_t start;
-	
-	start = clock();
-	for (i = 0; i < M; i++)
-		rc4_encrypt_c(&state, msg, N);
-	printf("Speed (C)  : %.1f MiB/s\n", (double)M * N / (clock() - start) * CLOCKS_PER_SEC / 1048576);
-	
-	start = clock();
-	for (i = 0; i < M; i++)
-		rc4_encrypt_x86(&state, msg, N);
-	printf("Speed (x86): %.1f MiB/s\n", (double)M * N / (clock() - start) * CLOCKS_PER_SEC / 1048576);
-}
-
-
-int main(int argc, char **argv) {
-	test_sanity();
-	benchmark_speed();
-	return 0;
 }
 
