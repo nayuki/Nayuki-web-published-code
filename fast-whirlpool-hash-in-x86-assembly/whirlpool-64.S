@@ -1,5 +1,5 @@
 /*
- * Whirlpool hash in x86 assembly
+ * Whirlpool hash in x86-64 assembly
  * Copyright (c) 2012 Nayuki Minase
  */
 
@@ -7,9 +7,6 @@
 #define NUMBER_OF_ROUNDS 10  /* Any number from 0 to 32 is legal */
 
 .balign 8
-.shufflepattern:
-.quad 0x0007060504030201  /* Right rotation by 1 byte */
-
 .roundconstants:  /* We use the first NUMBER_OF_ROUNDS sets of 8 bytes */
 .byte  0x18, 0x23, 0xC6, 0xE8, 0x87, 0xB8, 0x01, 0x4F, 0x36, 0xA6, 0xD2, 0xF5, 0x79, 0x6F, 0x91, 0x52
 .byte  0x60, 0xBC, 0x9B, 0x8E, 0xA3, 0x0C, 0x7B, 0x35, 0x1D, 0xE0, 0xD7, 0xC2, 0x2E, 0x4B, 0xFE, 0x57
@@ -66,33 +63,37 @@
 /*
  * Storage usage:
  *   Bytes  Location    Description
- *       4  eax         Temporary byte value for each byte processed during a round
- *       4  ebx         Upward loop counter for 10 rounds
- *       4  ecx         Base address of state array argument (read-only)
- *       4  edx         Base address of block array argument (read-only)
- *       4  esi         Unused (retains caller's value)
- *       4  edi         Unused (retains caller's value)
- *       4  ebp         Unused (retains caller's value)
- *       4  esp         x86 stack pointer
- *      56  mm0..mm6    Output values for current round being computed, in little endian (8 bytes per register)
- *       8  mm7         Byte rotation pattern for MMX register
+ *       8  rax         Temporary byte value for each byte processed during a round (at most the lower 16 bits are used)
+ *       8  rbx         Unused (retains caller's value)
+ *       8  rcx         Upward loop counter for 10 rounds (at most the lower 4 bits are used)
+ *       8  rdx         Unused (caller-saved)
+ *       8  rsi         Base address of block array argument (read-only)
+ *       8  rdi         Base address of state array argument (read-only)
+ *       8  rbp         Unused (retains caller's value)
+ *       8  rsp         x86 stack pointer
+ *      64  r8..r15     Output values for current round being computed, in little endian (8 bytes per register)
  *      64  xmm0..xmm3  All contents of current state array, in little endian (16 bytes per register)
  *      64  xmm4..xmm7  All contents of current block array, in little endian (16 bytes per register)
- *       8  [esp+0]     Spill slot for row 1 (associated with mm1)
- *       4  [esp+8]     Caller's value of ebx
+ *       8  [rsp+ 0]    Temporary row 7 for loading into XMM high
+ *       8  [rsp+ 8]    Caller's value of r15
+ *       8  [rsp+16]    Caller's value of r14
+ *       8  [rsp+24]    Caller's value of r13
+ *       8  [rsp+32]    Caller's value of r12
+ *       8  [rsp+40]    Caller's value of r11
+ *       8  [rsp+48]    Caller's value of r10
  */
 
 #define DOBYTEEVEN(inreg,offset,outreg)     \
 	pextrw  $(offset), %inreg, %eax;        \
 	andl    $0xFF, %eax;                    \
-	pxor    .magictable(,%eax,8), %outreg;  \
-	pshufb  %mm7, %outreg;
+	xorq    .magictable(,%rax,8), %outreg;  \
+	rorq    $8, %outreg;
 
 #define DOBYTEODD(inreg,offset,outreg)      \
 	pextrw  $(offset), %inreg, %eax;        \
 	shrl    $8, %eax;                       \
-	pxor    .magictable(,%eax,8), %outreg;  \
-	pshufb  %mm7, %outreg;
+	xorq    .magictable(,%rax,8), %outreg;  \
+	rorq    $8, %outreg;
 
 /* Used for sigma (AddRoundKey) */
 #define XOR_XMM0_3_TO_XMM4_7()  \
@@ -106,227 +107,229 @@
 /* state and block can be optionally aligned to 8 bytes for slightly better performance. */
 .globl whirlpool_compress
 whirlpool_compress:
-	/* Set up, load arguments */
-	pushl   %ebx
-	movl     8(%esp), %ecx  /* state */
-	movl    12(%esp), %edx  /* block */
-	subl    $8, %esp
+	/* Save registers */
+	pushq   %r10
+	pushq   %r11
+	pushq   %r12
+	pushq   %r13
+	pushq   %r14
+	pushq   %r15
+	subq    $8, %rsp
 	
 	/* Load state into XMM */
-	movdqu   0(%ecx), %xmm0
-	movdqu  16(%ecx), %xmm1
-	movdqu  32(%ecx), %xmm2
-	movdqu  48(%ecx), %xmm3
+	movdqu   0(%rdi), %xmm0
+	movdqu  16(%rdi), %xmm1
+	movdqu  32(%rdi), %xmm2
+	movdqu  48(%rdi), %xmm3
 	
 	/* Load block into XMM */
-	movdqu   0(%edx), %xmm4
-	movdqu  16(%edx), %xmm5
-	movdqu  32(%edx), %xmm6
-	movdqu  48(%edx), %xmm7
+	movdqu   0(%rsi), %xmm4
+	movdqu  16(%rsi), %xmm5
+	movdqu  32(%rsi), %xmm6
+	movdqu  48(%rsi), %xmm7
 	
 	/* XOR block with state */
 	XOR_XMM0_3_TO_XMM4_7()
 	
-	/* Load shuffle pattern */
-	movq    .shufflepattern, %mm7
-	
 	/* Do 10 rounds */
-	movl    $0, %ebx
+	movl    $0, %ecx
 .looptop:
 	
 	/* Process all 64 state bytes, one column at a time */
-	/* (Except for spilling mm1, the ordering of all the DOBYTE() instances can be freely rearranged) */
-	pxor    %mm0, %mm0;
-	pxor    %mm1, %mm1;
-	pxor    %mm2, %mm2;
-	pxor    %mm3, %mm3;
-	pxor    %mm4, %mm4;
-	pxor    %mm5, %mm5;
-	pxor    %mm6, %mm6;
-	DOBYTEEVEN(xmm0, 0, mm0)
-	DOBYTEEVEN(xmm0, 4, mm1)
-	DOBYTEEVEN(xmm1, 0, mm2)
-	DOBYTEEVEN(xmm1, 4, mm3)
-	DOBYTEEVEN(xmm2, 0, mm4)
-	DOBYTEEVEN(xmm2, 4, mm5)
-	DOBYTEEVEN(xmm3, 0, mm6)
-	DOBYTEODD (xmm3, 4, mm0)
-	DOBYTEODD (xmm0, 0, mm1)
-	DOBYTEODD (xmm0, 4, mm2)
-	DOBYTEODD (xmm1, 0, mm3)
-	DOBYTEODD (xmm1, 4, mm4)
-	DOBYTEODD (xmm2, 0, mm5)
-	DOBYTEODD (xmm2, 4, mm6)
-	DOBYTEEVEN(xmm3, 1, mm0)
-	DOBYTEEVEN(xmm3, 5, mm1)
-	DOBYTEEVEN(xmm0, 1, mm2)
-	DOBYTEEVEN(xmm0, 5, mm3)
-	DOBYTEEVEN(xmm1, 1, mm4)
-	DOBYTEEVEN(xmm1, 5, mm5)
-	DOBYTEEVEN(xmm2, 1, mm6)
-	DOBYTEODD (xmm2, 5, mm0)
-	DOBYTEODD (xmm3, 1, mm1)
-	DOBYTEODD (xmm3, 5, mm2)
-	DOBYTEODD (xmm0, 1, mm3)
-	DOBYTEODD (xmm0, 5, mm4)
-	DOBYTEODD (xmm1, 1, mm5)
-	DOBYTEODD (xmm1, 5, mm6)
-	DOBYTEEVEN(xmm2, 2, mm0)
-	DOBYTEEVEN(xmm2, 6, mm1)
-	DOBYTEEVEN(xmm3, 2, mm2)
-	DOBYTEEVEN(xmm3, 6, mm3)
-	DOBYTEEVEN(xmm0, 2, mm4)
-	DOBYTEEVEN(xmm0, 6, mm5)
-	DOBYTEEVEN(xmm1, 2, mm6)
-	DOBYTEODD (xmm1, 6, mm0)
-	DOBYTEODD (xmm2, 2, mm1)
-	DOBYTEODD (xmm2, 6, mm2)
-	DOBYTEODD (xmm3, 2, mm3)
-	DOBYTEODD (xmm3, 6, mm4)
-	DOBYTEODD (xmm0, 2, mm5)
-	DOBYTEODD (xmm0, 6, mm6)
-	DOBYTEEVEN(xmm1, 3, mm0)
-	DOBYTEEVEN(xmm1, 7, mm1)
-	DOBYTEEVEN(xmm2, 3, mm2)
-	DOBYTEEVEN(xmm2, 7, mm3)
-	DOBYTEEVEN(xmm3, 3, mm4)
-	DOBYTEEVEN(xmm3, 7, mm5)
-	DOBYTEEVEN(xmm0, 3, mm6)
-	DOBYTEODD (xmm0, 7, mm0)
-	DOBYTEODD (xmm1, 3, mm1)
-	DOBYTEODD (xmm1, 7, mm2)
-	DOBYTEODD (xmm2, 3, mm3)
-	DOBYTEODD (xmm2, 7, mm4)
-	DOBYTEODD (xmm3, 3, mm5)
-	DOBYTEODD (xmm3, 7, mm6)
-	pxor    .roundconstants(,%ebx,8), %mm0  /* Add round constant */
-	movq    %mm1, (%esp)                    /* Spill to memory only for mm1 */
-	/* Reuse mm1 for row 7 because mm7 holds the shuffle pattern */
-	pxor    %mm1, %mm1;
-	DOBYTEEVEN(xmm3, 4, mm1)
-	DOBYTEODD (xmm3, 0, mm1)
-	DOBYTEEVEN(xmm2, 5, mm1)
-	DOBYTEODD (xmm2, 1, mm1)
-	DOBYTEEVEN(xmm1, 6, mm1)
-	DOBYTEODD (xmm1, 2, mm1)
-	DOBYTEEVEN(xmm0, 7, mm1)
-	DOBYTEODD (xmm0, 3, mm1)
+	/* (The ordering of all the DOBYTE() instances can be freely rearranged) */
+	xorq    %r8 , %r8 ;
+	xorq    %r9 , %r9 ;
+	xorq    %r10, %r10;
+	xorq    %r11, %r11;
+	xorq    %r12, %r12;
+	xorq    %r13, %r13;
+	xorq    %r14, %r14;
+	xorq    %r15, %r15;
+	DOBYTEEVEN(xmm0, 0, r8 )
+	DOBYTEEVEN(xmm0, 4, r9 )
+	DOBYTEEVEN(xmm1, 0, r10)
+	DOBYTEEVEN(xmm1, 4, r11)
+	DOBYTEEVEN(xmm2, 0, r12)
+	DOBYTEEVEN(xmm2, 4, r13)
+	DOBYTEEVEN(xmm3, 0, r14)
+	DOBYTEEVEN(xmm3, 4, r15)
+	DOBYTEODD (xmm3, 4, r8 )
+	DOBYTEODD (xmm0, 0, r9 )
+	DOBYTEODD (xmm0, 4, r10)
+	DOBYTEODD (xmm1, 0, r11)
+	DOBYTEODD (xmm1, 4, r12)
+	DOBYTEODD (xmm2, 0, r13)
+	DOBYTEODD (xmm2, 4, r14)
+	DOBYTEODD (xmm3, 0, r15)
+	DOBYTEEVEN(xmm3, 1, r8 )
+	DOBYTEEVEN(xmm3, 5, r9 )
+	DOBYTEEVEN(xmm0, 1, r10)
+	DOBYTEEVEN(xmm0, 5, r11)
+	DOBYTEEVEN(xmm1, 1, r12)
+	DOBYTEEVEN(xmm1, 5, r13)
+	DOBYTEEVEN(xmm2, 1, r14)
+	DOBYTEEVEN(xmm2, 5, r15)
+	DOBYTEODD (xmm2, 5, r8 )
+	DOBYTEODD (xmm3, 1, r9 )
+	DOBYTEODD (xmm3, 5, r10)
+	DOBYTEODD (xmm0, 1, r11)
+	DOBYTEODD (xmm0, 5, r12)
+	DOBYTEODD (xmm1, 1, r13)
+	DOBYTEODD (xmm1, 5, r14)
+	DOBYTEODD (xmm2, 1, r15)
+	DOBYTEEVEN(xmm2, 2, r8 )
+	DOBYTEEVEN(xmm2, 6, r9 )
+	DOBYTEEVEN(xmm3, 2, r10)
+	DOBYTEEVEN(xmm3, 6, r11)
+	DOBYTEEVEN(xmm0, 2, r12)
+	DOBYTEEVEN(xmm0, 6, r13)
+	DOBYTEEVEN(xmm1, 2, r14)
+	DOBYTEEVEN(xmm1, 6, r15)
+	DOBYTEODD (xmm1, 6, r8 )
+	DOBYTEODD (xmm2, 2, r9 )
+	DOBYTEODD (xmm2, 6, r10)
+	DOBYTEODD (xmm3, 2, r11)
+	DOBYTEODD (xmm3, 6, r12)
+	DOBYTEODD (xmm0, 2, r13)
+	DOBYTEODD (xmm0, 6, r14)
+	DOBYTEODD (xmm1, 2, r15)
+	DOBYTEEVEN(xmm1, 3, r8 )
+	DOBYTEEVEN(xmm1, 7, r9 )
+	DOBYTEEVEN(xmm2, 3, r10)
+	DOBYTEEVEN(xmm2, 7, r11)
+	DOBYTEEVEN(xmm3, 3, r12)
+	DOBYTEEVEN(xmm3, 7, r13)
+	DOBYTEEVEN(xmm0, 3, r14)
+	DOBYTEEVEN(xmm0, 7, r15)
+	DOBYTEODD (xmm0, 7, r8 )
+	DOBYTEODD (xmm1, 3, r9 )
+	DOBYTEODD (xmm1, 7, r10)
+	DOBYTEODD (xmm2, 3, r11)
+	DOBYTEODD (xmm2, 7, r12)
+	DOBYTEODD (xmm3, 3, r13)
+	DOBYTEODD (xmm3, 7, r14)
+	DOBYTEODD (xmm0, 3, r15)
+	xorq    .roundconstants(,%rcx,8), %r8  /* Add round constant */
 	
 	/* Copy state back to XMM */
-	movq2dq  %mm2, %xmm1;  movq2dq  %mm3, %xmm2;  shufpd  $0, %xmm2, %xmm1
-	movq2dq  %mm4, %xmm2;  movq2dq  %mm5, %xmm3;  shufpd  $0, %xmm3, %xmm2
-	movq2dq  %mm6, %xmm3;  movq2dq  %mm1, %xmm0;  shufpd  $0, %xmm0, %xmm3
-	movq2dq  %mm0, %xmm0;  movhps  (%esp), %xmm0
+	movq  %r15, (%rsp)
+	movq  %r8 , %xmm0;  movq  %r9 , %xmm1;  shufpd  $0, %xmm1, %xmm0
+	movq  %r10, %xmm1;  movq  %r11, %xmm2;  shufpd  $0, %xmm2, %xmm1
+	movq  %r12, %xmm2;  movq  %r13, %xmm3;  shufpd  $0, %xmm3, %xmm2
+	movq  %r14, %xmm3;  movhps  (%rsp), %xmm3
 	
 	/* Process all 64 block bytes (columnwise) */
-	/* (Except for spilling mm1, the ordering of all the DOBYTE() instances can be freely rearranged) */
-	pxor    %mm0, %mm0;
-	pxor    %mm1, %mm1;
-	pxor    %mm2, %mm2;
-	pxor    %mm3, %mm3;
-	pxor    %mm4, %mm4;
-	pxor    %mm5, %mm5;
-	pxor    %mm6, %mm6;
-	DOBYTEEVEN(xmm4, 0, mm0)
-	DOBYTEEVEN(xmm4, 4, mm1)
-	DOBYTEEVEN(xmm5, 0, mm2)
-	DOBYTEEVEN(xmm5, 4, mm3)
-	DOBYTEEVEN(xmm6, 0, mm4)
-	DOBYTEEVEN(xmm6, 4, mm5)
-	DOBYTEEVEN(xmm7, 0, mm6)
-	DOBYTEODD (xmm7, 4, mm0)
-	DOBYTEODD (xmm4, 0, mm1)
-	DOBYTEODD (xmm4, 4, mm2)
-	DOBYTEODD (xmm5, 0, mm3)
-	DOBYTEODD (xmm5, 4, mm4)
-	DOBYTEODD (xmm6, 0, mm5)
-	DOBYTEODD (xmm6, 4, mm6)
-	DOBYTEEVEN(xmm7, 1, mm0)
-	DOBYTEEVEN(xmm7, 5, mm1)
-	DOBYTEEVEN(xmm4, 1, mm2)
-	DOBYTEEVEN(xmm4, 5, mm3)
-	DOBYTEEVEN(xmm5, 1, mm4)
-	DOBYTEEVEN(xmm5, 5, mm5)
-	DOBYTEEVEN(xmm6, 1, mm6)
-	DOBYTEODD (xmm6, 5, mm0)
-	DOBYTEODD (xmm7, 1, mm1)
-	DOBYTEODD (xmm7, 5, mm2)
-	DOBYTEODD (xmm4, 1, mm3)
-	DOBYTEODD (xmm4, 5, mm4)
-	DOBYTEODD (xmm5, 1, mm5)
-	DOBYTEODD (xmm5, 5, mm6)
-	DOBYTEEVEN(xmm6, 2, mm0)
-	DOBYTEEVEN(xmm6, 6, mm1)
-	DOBYTEEVEN(xmm7, 2, mm2)
-	DOBYTEEVEN(xmm7, 6, mm3)
-	DOBYTEEVEN(xmm4, 2, mm4)
-	DOBYTEEVEN(xmm4, 6, mm5)
-	DOBYTEEVEN(xmm5, 2, mm6)
-	DOBYTEODD (xmm5, 6, mm0)
-	DOBYTEODD (xmm6, 2, mm1)
-	DOBYTEODD (xmm6, 6, mm2)
-	DOBYTEODD (xmm7, 2, mm3)
-	DOBYTEODD (xmm7, 6, mm4)
-	DOBYTEODD (xmm4, 2, mm5)
-	DOBYTEODD (xmm4, 6, mm6)
-	DOBYTEEVEN(xmm5, 3, mm0)
-	DOBYTEEVEN(xmm5, 7, mm1)
-	DOBYTEEVEN(xmm6, 3, mm2)
-	DOBYTEEVEN(xmm6, 7, mm3)
-	DOBYTEEVEN(xmm7, 3, mm4)
-	DOBYTEEVEN(xmm7, 7, mm5)
-	DOBYTEEVEN(xmm4, 3, mm6)
-	DOBYTEODD (xmm4, 7, mm0)
-	DOBYTEODD (xmm5, 3, mm1)
-	DOBYTEODD (xmm5, 7, mm2)
-	DOBYTEODD (xmm6, 3, mm3)
-	DOBYTEODD (xmm6, 7, mm4)
-	DOBYTEODD (xmm7, 3, mm5)
-	DOBYTEODD (xmm7, 7, mm6)
-	movq    %mm1, (%esp)  /* Spill to memory only for mm1 */
-	/* Reuse mm1 for row 7 */
-	pxor    %mm1, %mm1;
-	DOBYTEEVEN(xmm7, 4, mm1)
-	DOBYTEODD (xmm7, 0, mm1)
-	DOBYTEEVEN(xmm6, 5, mm1)
-	DOBYTEODD (xmm6, 1, mm1)
-	DOBYTEEVEN(xmm5, 6, mm1)
-	DOBYTEODD (xmm5, 2, mm1)
-	DOBYTEEVEN(xmm4, 7, mm1)
-	DOBYTEODD (xmm4, 3, mm1)
+	/* (The ordering of all the DOBYTE() instances can be freely rearranged) */
+	xorq    %r8 , %r8 ;
+	xorq    %r9 , %r9 ;
+	xorq    %r10, %r10;
+	xorq    %r11, %r11;
+	xorq    %r12, %r12;
+	xorq    %r13, %r13;
+	xorq    %r14, %r14;
+	xorq    %r15, %r15;
+	DOBYTEEVEN(xmm4, 0, r8 )
+	DOBYTEEVEN(xmm4, 4, r9 )
+	DOBYTEEVEN(xmm5, 0, r10)
+	DOBYTEEVEN(xmm5, 4, r11)
+	DOBYTEEVEN(xmm6, 0, r12)
+	DOBYTEEVEN(xmm6, 4, r13)
+	DOBYTEEVEN(xmm7, 0, r14)
+	DOBYTEEVEN(xmm7, 4, r15)
+	DOBYTEODD (xmm7, 4, r8 )
+	DOBYTEODD (xmm4, 0, r9 )
+	DOBYTEODD (xmm4, 4, r10)
+	DOBYTEODD (xmm5, 0, r11)
+	DOBYTEODD (xmm5, 4, r12)
+	DOBYTEODD (xmm6, 0, r13)
+	DOBYTEODD (xmm6, 4, r14)
+	DOBYTEODD (xmm7, 0, r15)
+	DOBYTEEVEN(xmm7, 1, r8 )
+	DOBYTEEVEN(xmm7, 5, r9 )
+	DOBYTEEVEN(xmm4, 1, r10)
+	DOBYTEEVEN(xmm4, 5, r11)
+	DOBYTEEVEN(xmm5, 1, r12)
+	DOBYTEEVEN(xmm5, 5, r13)
+	DOBYTEEVEN(xmm6, 1, r14)
+	DOBYTEEVEN(xmm6, 5, r15)
+	DOBYTEODD (xmm6, 5, r8 )
+	DOBYTEODD (xmm7, 1, r9 )
+	DOBYTEODD (xmm7, 5, r10)
+	DOBYTEODD (xmm4, 1, r11)
+	DOBYTEODD (xmm4, 5, r12)
+	DOBYTEODD (xmm5, 1, r13)
+	DOBYTEODD (xmm5, 5, r14)
+	DOBYTEODD (xmm6, 1, r15)
+	DOBYTEEVEN(xmm6, 2, r8 )
+	DOBYTEEVEN(xmm6, 6, r9 )
+	DOBYTEEVEN(xmm7, 2, r10)
+	DOBYTEEVEN(xmm7, 6, r11)
+	DOBYTEEVEN(xmm4, 2, r12)
+	DOBYTEEVEN(xmm4, 6, r13)
+	DOBYTEEVEN(xmm5, 2, r14)
+	DOBYTEEVEN(xmm5, 6, r15)
+	DOBYTEODD (xmm5, 6, r8 )
+	DOBYTEODD (xmm6, 2, r9 )
+	DOBYTEODD (xmm6, 6, r10)
+	DOBYTEODD (xmm7, 2, r11)
+	DOBYTEODD (xmm7, 6, r12)
+	DOBYTEODD (xmm4, 2, r13)
+	DOBYTEODD (xmm4, 6, r14)
+	DOBYTEODD (xmm5, 2, r15)
+	DOBYTEEVEN(xmm5, 3, r8 )
+	DOBYTEEVEN(xmm5, 7, r9 )
+	DOBYTEEVEN(xmm6, 3, r10)
+	DOBYTEEVEN(xmm6, 7, r11)
+	DOBYTEEVEN(xmm7, 3, r12)
+	DOBYTEEVEN(xmm7, 7, r13)
+	DOBYTEEVEN(xmm4, 3, r14)
+	DOBYTEEVEN(xmm4, 7, r15)
+	DOBYTEODD (xmm4, 7, r8 )
+	DOBYTEODD (xmm5, 3, r9 )
+	DOBYTEODD (xmm5, 7, r10)
+	DOBYTEODD (xmm6, 3, r11)
+	DOBYTEODD (xmm6, 7, r12)
+	DOBYTEODD (xmm7, 3, r13)
+	DOBYTEODD (xmm7, 7, r14)
+	DOBYTEODD (xmm4, 3, r15)
 	
 	/* Copy block back to XMM */
-	movq2dq  %mm2, %xmm5;  movq2dq  %mm3, %xmm6;  shufpd  $0, %xmm6, %xmm5
-	movq2dq  %mm4, %xmm6;  movq2dq  %mm5, %xmm7;  shufpd  $0, %xmm7, %xmm6
-	movq2dq  %mm6, %xmm7;  movq2dq  %mm1, %xmm4;  shufpd  $0, %xmm4, %xmm7
-	movq2dq  %mm0, %xmm4;  movhps  (%esp), %xmm4
+	movq  %r15, (%rsp)
+	movq  %r8 , %xmm4;  movq  %r9 , %xmm5;  shufpd  $0, %xmm5, %xmm4
+	movq  %r10, %xmm5;  movq  %r11, %xmm6;  shufpd  $0, %xmm6, %xmm5
+	movq  %r12, %xmm6;  movq  %r13, %xmm7;  shufpd  $0, %xmm7, %xmm6
+	movq  %r14, %xmm7;  movhps  (%rsp), %xmm7
 	
 	/* Add state to block */
 	XOR_XMM0_3_TO_XMM4_7()
 	
 	/* Loop back */
-	incl    %ebx
-	cmpl    $10, %ebx
+	incl    %ecx
+	cmpl    $10, %ecx
 	jne     .looptop
 	
 	/* XOR old state (in memory) with old block (in memory) and new block (in XMM) */
-	movdqu   0(%ecx), %xmm0  /* Load old state */
-	movdqu  16(%ecx), %xmm1
-	movdqu  32(%ecx), %xmm2
-	movdqu  48(%ecx), %xmm3
+	movdqu   0(%rdi), %xmm0  /* Load old state */
+	movdqu  16(%rdi), %xmm1
+	movdqu  32(%rdi), %xmm2
+	movdqu  48(%rdi), %xmm3
 	XOR_XMM0_3_TO_XMM4_7()   /* XOR into new block */
-	movdqu   0(%edx), %xmm0  /* Load old block */
-	movdqu  16(%edx), %xmm1
-	movdqu  32(%edx), %xmm2
-	movdqu  48(%edx), %xmm3
+	movdqu   0(%rsi), %xmm0  /* Load old block */
+	movdqu  16(%rsi), %xmm1
+	movdqu  32(%rsi), %xmm2
+	movdqu  48(%rsi), %xmm3
 	XOR_XMM0_3_TO_XMM4_7()   /* XOR into new block */
-	movdqu  %xmm4,  0(%ecx)  /* Store new state */
-	movdqu  %xmm5, 16(%ecx)
-	movdqu  %xmm6, 32(%ecx)
-	movdqu  %xmm7, 48(%ecx)
+	movdqu  %xmm4,  0(%rdi)  /* Store new state */
+	movdqu  %xmm5, 16(%rdi)
+	movdqu  %xmm6, 32(%rdi)
+	movdqu  %xmm7, 48(%rdi)
 	
 	/* Clean up and return */
-	emms
-	addl    $8, %esp
-	popl    %ebx
+	addq    $8, %rsp
+	popq    %r15
+	popq    %r14
+	popq    %r13
+	popq    %r12
+	popq    %r11
+	popq    %r10
 	ret
