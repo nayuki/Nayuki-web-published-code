@@ -7,79 +7,81 @@
 /*
  * Storage usage:
  *    Bytes  Location  Description
- *        1  al        Temporary s[i] per round (sometimes zero-extended to eax)
- *        1  ah        Temporary s[j] per round
- *        1  bl        RC4 state variable i (zero-extended to ebx)
- *        1  cl        RC4 state variable j (zero-extended to ecx)
- *        4  edx       Address of current message byte to encrypt
+ *        1  al        Temporary s[i] per round (zero-extended to eax)
+ *        1  bl        Temporary s[j] per round (zero-extended to ebx)
+ *        1  cl        RC4 state variable i (zero-extended to ecx)
+ *        1  dl        RC4 state variable j (zero-extended to edx)
  *        4  esi       Base address of RC4 state array of 256 bytes
- *        4  edi       End of message array (msg + len)
- *        4  ebp       Unused (retains caller's value)
+ *        4  edi       Address of current message byte to encrypt
+ *        4  ebp       End of message array (msg + len)
  *        4  esp       x86 stack pointer
  *        4  [esp+ 0]  Caller's value of ebx
  *        4  [esp+ 4]  Caller's value of esi
  *        4  [esp+ 8]  Caller's value of edi
+ *        4  [esp+12]  Caller's value of ebp
  */
 
 /* void rc4_encrypt_x86(rc4state *state, uint8_t *msg, int len); */
 .globl rc4_encrypt_x86
 rc4_encrypt_x86:
 	/* Preserve callee-save registers */
-	subl    $12, %esp
+	subl    $16, %esp
 	movl    %ebx,  0(%esp)
 	movl    %esi,  4(%esp)
 	movl    %edi,  8(%esp)
+	movl    %ebp, 12(%esp)
 	
 	/* Load arguments */
-	movl    16(%esp), %esi   /* Address of state struct */
-	movl    20(%esp), %edx   /* Address of message array */
-	movl    24(%esp), %edi   /* Length of message array */
-	addl    %edx, %edi       /* End of message array */
+	movl    20(%esp), %esi   /* Address of state struct */
+	movl    24(%esp), %edi   /* Address of message array */
+	movl    28(%esp), %ebp   /* Length of message array */
+	addl    %edi, %ebp       /* End of message array */
 	
 	/* Load state variables */
-	movl    0(%esi), %ebx  /* state->i */
-	movl    4(%esi), %ecx  /* state->j */
+	movl    0(%esi), %ecx  /* state->i */
+	movl    4(%esi), %edx  /* state->j */
 	addl    $8, %esi       /* state->s */
 	
 	/* Initialize */
-	cmpl    %edx, %edi
+	cmpl    %edi, %ebp
 	je      .rc4_encrypt_bottom
 	
 .rc4_encrypt_top:
 	/* Increment i mod 256 */
-	incl    %ebx
-	movzbl  %bl, %ebx  /* Clear upper 24 bits and prevent partial register access */
+	incl    %ecx
+	movzbl  %cl, %ecx  /* Clear upper 24 bits */
 	
 	/* Add s[i] to j mod 256 */
-	movb    (%esi,%ebx), %al  /* Temporary s[i] */
-	addb    %al, %cl
+	movzbl  (%esi,%ecx), %eax  /* Temporary s[i] */
+	addb    %al, %dl
 	
 	/* Swap bytes s[i] and s[j] */
-	movb    (%esi,%ecx), %ah  /* Temporary s[j] */
-	movb    %ah, (%esi,%ebx)
-	movb    %al, (%esi,%ecx)
+	movzbl  (%esi,%edx), %ebx  /* Temporary s[j] */
+	movb    %bl, (%esi,%ecx)
+	movb    %al, (%esi,%edx)
 	
 	/* Compute key stream byte */
-	addb    %ah, %al   /* AL = s[i] + s[j] mod 256*/
-	movzbl  %al, %eax  /* Clear upper 24 bits and prevent partial register access */
+	addb    %bl, %al   /* AL = s[i] + s[j] mod 256*/
+	movzbl  %al, %eax  /* Prevent partial register access */
 	movb    (%esi,%eax), %al
 	
 	/* XOR with message */
-	xorb    %al, (%edx)
+	xorb    %al, (%edi)
 	
 	/* Increment and loop */
-	incl    %edx
-	cmpl    %edx, %edi
+	incl    %edi
+	cmpl    %edi, %ebp
 	jne     .rc4_encrypt_top
 	
 .rc4_encrypt_bottom:
 	/* Store state variables */
-	movl    %ebx, -8(%esi)  /* Save i */
-	movl    %ecx, -4(%esi)  /* Save j */
+	movl    %ecx, -8(%esi)  /* Save i */
+	movl    %edx, -4(%esi)  /* Save j */
 	
 	/* Restore registers */
 	movl     0(%esp), %ebx
 	movl     4(%esp), %esi
 	movl     8(%esp), %edi
-	addl    $12, %esp
+	movl    12(%esp), %ebp
+	addl    $16, %esp
 	ret
