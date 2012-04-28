@@ -7,9 +7,6 @@
 #define NUMBER_OF_ROUNDS 10  /* Any number from 0 to 32 is legal */
 
 .balign 8
-.shufflepattern:
-.quad 0x0007060504030201  /* Right rotation by 1 byte */
-
 .roundconstants:  /* We use the first NUMBER_OF_ROUNDS sets of 8 bytes */
 .byte  0x18, 0x23, 0xC6, 0xE8, 0x87, 0xB8, 0x01, 0x4F, 0x36, 0xA6, 0xD2, 0xF5, 0x79, 0x6F, 0x91, 0x52
 .byte  0x60, 0xBC, 0x9B, 0x8E, 0xA3, 0x0C, 0x7B, 0x35, 0x1D, 0xE0, 0xD7, 0xC2, 0x2E, 0x4B, 0xFE, 0x57
@@ -28,7 +25,8 @@
 .byte  0x2A, 0xBB, 0xC1, 0x53, 0xDC, 0x0B, 0x9D, 0x6C, 0x31, 0x74, 0xF6, 0x46, 0xAC, 0x89, 0x14, 0xE1
 .byte  0x16, 0x3A, 0x69, 0x09, 0x70, 0xB6, 0xD0, 0xED, 0xCC, 0x42, 0x98, 0xA4, 0x28, 0x5C, 0xF8, 0x86
 
-.magictable:  /* The combined effect of gamma (SubBytes) and theta (MixRows) */
+/* The combined effect of gamma (SubBytes) and theta (MixRows) */
+.magictable0:
 .quad  0xD83078C018601818, 0x2646AF05238C2323, 0xB891F97EC63FC6C6, 0xFBCD6F13E887E8E8, 0xCB13A14C87268787, 0x116D62A9B8DAB8B8, 0x0902050801040101, 0x0D9E6E424F214F4F
 .quad  0x9B6CEEAD36D83636, 0xFF510459A6A2A6A6, 0x0CB9BDDED26FD2D2, 0x0EF706FBF5F3F5F5, 0x96F280EF79F97979, 0x30DECE5F6FA16F6F, 0x6D3FEFFC917E9191, 0xF8A407AA52555252
 .quad  0x47C0FD27609D6060, 0x35657689BCCABCBC, 0x372BCDAC9B569B9B, 0x8A018C048E028E8E, 0xD25B1571A3B6A3A3, 0x6C183C600C300C0C, 0x84F68AFF7BF17B7B, 0x806AE1B535D43535
@@ -61,38 +59,84 @@
 .quad  0xA462F59531C43131, 0xF3E8B98774CD7474, 0x15F109E3F6FFF6F6, 0x4C8C430A46054646, 0xA5452609AC8AACAC, 0xB50F973C891E8989, 0xB42844A014501414, 0xBADF425BE1A3E1E1
 .quad  0xA62C4EB016581616, 0xF774D2CD3AE83A3A, 0x06D2D06F69B96969, 0x41122D4809240909, 0xD7E0ADA770DD7070, 0x6F7154D9B6E2B6B6, 0x1EBDB7CED067D0D0, 0xD6C77E3BED93EDED
 .quad  0xE285DB2ECC17CCCC, 0x6884572A42154242, 0x2C2DC2B4985A9898, 0xED550E49A4AAA4A4, 0x7550885D28A02828, 0x86B831DA5C6D5C5C, 0x6BED3F93F8C7F8F8, 0xC211A44486228686
+/* Same table but shifted right by 1 byte */
+.magictable1:
+.quad  0x3078C018601818D8, 0x46AF05238C232326, 0x91F97EC63FC6C6B8, 0xCD6F13E887E8E8FB, 0x13A14C87268787CB, 0x6D62A9B8DAB8B811, 0x0205080104010109, 0x9E6E424F214F4F0D
+.quad  0x6CEEAD36D836369B, 0x510459A6A2A6A6FF, 0xB9BDDED26FD2D20C, 0xF706FBF5F3F5F50E, 0xF280EF79F9797996, 0xDECE5F6FA16F6F30, 0x3FEFFC917E91916D, 0xA407AA52555252F8
+.quad  0xC0FD27609D606047, 0x657689BCCABCBC35, 0x2BCDAC9B569B9B37, 0x018C048E028E8E8A, 0x5B1571A3B6A3A3D2, 0x183C600C300C0C6C, 0xF68AFF7BF17B7B84, 0x6AE1B535D4353580
+.quad  0x3A69E81D741D1DF5, 0xDD4753E0A7E0E0B3, 0xB3ACF6D77BD7D721, 0x99ED5EC22FC2C29C, 0x5C966D2EB82E2E43, 0x967A624B314B4B29, 0xE121A3FEDFFEFE5D, 0xAE168257415757D5
+.quad  0x2A41A815541515BD, 0xEEB69F77C17777E8, 0x6EEBA537DC373792, 0xD7567BE5B3E5E59E, 0x23D98C9F469F9F13, 0xFD17D3F0E7F0F023, 0x947F6A4A354A4A20, 0xA9959EDA4FDADA44
+.quad  0xB025FA587D5858A2, 0x8FCA06C903C9C9CF, 0x528D5529A429297C, 0x1422500A280A0A5A, 0x7F4FE1B1FEB1B150, 0x5D1A69A0BAA0A0C9, 0xD6DA7F6BB16B6B14, 0x17AB5C852E8585D9
+.quad  0x677381BDCEBDBD3C, 0xBA34D25D695D5D8F, 0x2050801040101090, 0xF503F3F4F7F4F407, 0x8BC016CB0BCBCBDD, 0x7CC6ED3EF83E3ED3, 0x0A1128051405052D, 0xCEE61F6781676778
+.quad  0xD55373E4B7E4E497, 0x4EBB25279C272702, 0x8258324119414173, 0x0B9D2C8B168B8BA7, 0x530151A7A6A7A7F6, 0xFA94CF7DE97D7DB2, 0x37FBDC956E959549, 0xAD9F8ED847D8D856
+.quad  0xEB308BFBCBFBFB70, 0xC17123EE9FEEEECD, 0xF891C77CED7C7CBB, 0xCCE3176685666671, 0xA78EA6DD53DDDD7B, 0x2E4BB8175C1717AF, 0x8E46024701474745, 0x21DC849E429E9E1A
+.quad  0x89C51ECA0FCACAD4, 0x5A99752DB42D2D58, 0x637991BFC6BFBF2E, 0x0E1B38071C07073F, 0x472301AD8EADADAC, 0xB42FEA5A755A5AB0, 0x1BB56C83368383EF, 0x66FF8533CC3333B6
+.quad  0xC6F23F639163635C, 0x040A100208020212, 0x493839AA92AAAA93, 0xE2A8AF71D97171DE, 0x8DCF0EC807C8C8C6, 0x327DC819641919D1, 0x927072493949493B, 0xAF9A86D943D9D95F
+.quad  0xF91DC3F2EFF2F231, 0xDB484BE3ABE3E3A8, 0xB62AE25B715B5BB9, 0x0D9234881A8888BC, 0x29C8A49A529A9A3E, 0x4CBE2D269826260B, 0x64FA8D32C83232BF, 0x7D4AE9B0FAB0B059
+.quad  0xCF6A1BE983E9E9F2, 0x1E33780F3C0F0F77, 0xB7A6E6D573D5D533, 0x1DBA74803A8080F4, 0x617C99BEC2BEBE27, 0x87DE26CD13CDCDEB, 0x68E4BD34D0343489, 0x90757A483D484832
+.quad  0xE324ABFFDBFFFF54, 0xF48FF77AF57A7A8D, 0x3DEAF4907A909064, 0xBE3EC25F615F5F9D, 0x40A01D208020203D, 0xD0D56768BD68680F, 0x3472D01A681A1ACA, 0x412C19AE82AEAEB7
+.quad  0x755EC9B4EAB4B47D, 0xA8199A544D5454CE, 0x3BE5EC937693937F, 0x44AA0D228822222F, 0xC8E907648D646463, 0xFF12DBF1E3F1F12A, 0xE6A2BF73D17373CC, 0x245A901248121282
+.quad  0x805D3A401D40407A, 0x1028400820080848, 0x9BE856C32BC3C395, 0xC57B33EC97ECECDF, 0xAB9096DB4BDBDB4D, 0x5F1F61A1BEA1A1C0, 0x07831C8D0E8D8D91, 0x7AC9F53DF43D3DC8
+.quad  0x33F1CC976697975B, 0x0000000000000000, 0x83D436CF1BCFCFF9, 0x5687452BAC2B2B6E, 0xECB39776C57676E1, 0x19B06482328282E6, 0xB1A9FED67FD6D628, 0x3677D81B6C1B1BC3
+.quad  0x775BC1B5EEB5B574, 0x432911AF86AFAFBE, 0xD4DF776AB56A6A1D, 0xA00DBA505D5050EA, 0x8A4C124509454557, 0xFB18CBF3EBF3F338, 0x60F09D30C03030AD, 0xC3742BEF9BEFEFC4
+.quad  0x7EC3E53FFC3F3FDA, 0xAA1C9255495555C7, 0x591079A2B2A2A2DB, 0xC96503EA8FEAEAE9, 0xCAEC0F658965656A, 0x6968B9BAD2BABA03, 0x5E93652FBC2F2F4A, 0x9DE74EC027C0C08E
+.quad  0xA181BEDE5FDEDE60, 0x386CE01C701C1CFC, 0xE72EBBFDD3FDFD46, 0x9A64524D294D4D1F, 0x39E0E49272929276, 0xEABC8F75C97575FA, 0x0C1E300618060636, 0x0998248A128A8AAE
+.quad  0x7940F9B2F2B2B24B, 0xD15963E6BFE6E685, 0x1C36700E380E0E7E, 0x3E63F81F7C1F1FE7, 0xC4F7376295626255, 0xB5A3EED477D4D43A, 0x4D3229A89AA8A881, 0x31F4C49662969652
+.quad  0xEF3A9BF9C3F9F962, 0x97F666C533C5C5A3, 0x4AB1352594252510, 0xB220F259795959AB, 0x15AE54842A8484D0, 0xE4A7B772D57272C5, 0x72DDD539E43939EC, 0x98615A4C2D4C4C16
+.quad  0xBC3BCA5E655E5E94, 0xF085E778FD78789F, 0x70D8DD38E03838E5, 0x0586148C0A8C8C98, 0xBFB2C6D163D1D117, 0x570B41A5AEA5A5E4, 0xD94D43E2AFE2E2A1, 0xC2F82F619961614E
+.quad  0x7B45F1B3F6B3B342, 0x42A5152184212134, 0x25D6949C4A9C9C08, 0x3C66F01E781E1EEE, 0x8652224311434361, 0x93FC76C73BC7C7B1, 0xE52BB3FCD7FCFC4F, 0x0814200410040424
+.quad  0xA208B251595151E3, 0x2FC7BC995E999925, 0xDAC44F6DA96D6D22, 0x1A39680D340D0D65, 0xE93583FACFFAFA79, 0xA384B6DF5BDFDF69, 0xFC9BD77EE57E7EA9, 0x48B43D2490242419
+.quad  0x76D7C53BEC3B3BFE, 0x4B3D31AB96ABAB9A, 0x81D13ECE1FCECEF0, 0x2255881144111199, 0x03890C8F068F8F83, 0x9C6B4A4E254E4E04, 0x7351D1B7E6B7B766, 0xCB600BEB8BEBEBE0
+.quad  0x78CCFD3CF03C3CC1, 0x1FBF7C813E8181FD, 0x35FED4946A949440, 0xF30CEBF7FBF7F71C, 0x6F67A1B9DEB9B918, 0x265F98134C13138B, 0x589C7D2CB02C2C51, 0xBBB8D6D36BD3D305
+.quad  0xD35C6BE7BBE7E78C, 0xDCCB576EA56E6E39, 0x95F36EC437C4C4AA, 0x060F18030C03031B, 0xAC138A56455656DC, 0x88491A440D44445E, 0xFE9EDF7FE17F7FA0, 0x4F3721A99EA9A988
+.quad  0x54824D2AA82A2A67, 0x6B6DB1BBD6BBBB0A, 0x9FE246C123C1C187, 0xA602A253515353F1, 0xA58BAEDC57DCDC72, 0x1627580B2C0B0B53, 0x27D39C9D4E9D9D01, 0xD8C1476CAD6C6C2B
+.quad  0x62F59531C43131A4, 0xE8B98774CD7474F3, 0xF109E3F6FFF6F615, 0x8C430A460546464C, 0x452609AC8AACACA5, 0x0F973C891E8989B5, 0x2844A014501414B4, 0xDF425BE1A3E1E1BA
+.quad  0x2C4EB016581616A6, 0x74D2CD3AE83A3AF7, 0xD2D06F69B9696906, 0x122D480924090941, 0xE0ADA770DD7070D7, 0x7154D9B6E2B6B66F, 0xBDB7CED067D0D01E, 0xC77E3BED93EDEDD6
+.quad  0x85DB2ECC17CCCCE2, 0x84572A4215424268, 0x2DC2B4985A98982C, 0x550E49A4AAA4A4ED, 0x50885D28A0282875, 0xB831DA5C6D5C5C86, 0xED3F93F8C7F8F86B, 0x11A44486228686C2
 
 
 /*
  * Storage usage:
  *   Bytes  Location    Description
- *       4  eax         Temporary byte value for each byte processed during a round
- *       4  ebx         Upward loop counter for 10 rounds
- *       4  ecx         Base address of state array argument (read-only)
- *       4  edx         Base address of block array argument (read-only)
- *       4  esi         Unused (retains caller's value)
+ *       4  eax         Temporary 16-bit value for each pair of bytes processed during a round
+ *       4  ebx         Temporary byte value
+ *       4  ecx         Upward loop counter for 10 rounds
+ *       4  edx         Base address of state array argument (read-only)
+ *       4  esi         Base address of block array argument (read-only)
  *       4  edi         Unused (retains caller's value)
  *       4  ebp         Unused (retains caller's value)
  *       4  esp         x86 stack pointer
- *      56  mm0..mm6    Output values for current round being computed, in little endian (8 bytes per register)
- *       8  mm7         Byte rotation pattern for MMX register
+ *      64  mm0..mm7    Output values for current round being computed, in little endian (8 bytes per register)
  *      64  xmm0..xmm3  All contents of current state array, in little endian (16 bytes per register)
  *      64  xmm4..xmm7  All contents of current block array, in little endian (16 bytes per register)
- *       8  [esp+0]     Spill slot for row 1 (associated with mm1)
- *       4  [esp+8]     Caller's value of ebx
+ *       8  [esp+ 0]    Temporary storage for transferring MM7 to XMM
+ *       4  [esp+ 8]    Caller's value of esi
+ *       4  [esp+12]    Caller's value of ebx
  */
 
-#define DOBYTEEVEN(inreg,offset,outreg)     \
-	pextrw  $(offset), %inreg, %eax;        \
-	andl    $0xFF, %eax;                    \
-	pxor    .magictable(,%eax,8), %outreg;  \
-	pshufb  %mm7, %outreg;
+#define DOBYTEPAIRFIRST(inreg,offset,outreg0,outreg1)  \
+	pextrw  $(offset), %inreg, %eax;          \
+	movzbl  %ah, %ebx;                        \
+	andl    $0xFF, %eax;                      \
+	movq    .magictable1(,%ebx,8), %outreg1;  \
+	movq    .magictable0(,%eax,8), %outreg0;  \
 
-#define DOBYTEODD(inreg,offset,outreg)      \
-	pextrw  $(offset), %inreg, %eax;        \
-	shrl    $8, %eax;                       \
-	pxor    .magictable(,%eax,8), %outreg;  \
-	pshufb  %mm7, %outreg;
+#define DOBYTEPAIR(inreg,offset,outreg0,outreg1)  \
+	pextrw  $(offset), %inreg, %eax;          \
+	movzbl  %ah, %ebx;                        \
+	andl    $0xFF, %eax;                      \
+	pxor    .magictable1(,%ebx,8), %outreg1;  \
+	pxor    .magictable0(,%eax,8), %outreg0;  \
+
+#define ROTATERIGHT()  \
+	pshufw  $0x39, %mm0, %mm0;  \
+	pshufw  $0x39, %mm1, %mm1;  \
+	pshufw  $0x39, %mm2, %mm2;  \
+	pshufw  $0x39, %mm3, %mm3;  \
+	pshufw  $0x39, %mm4, %mm4;  \
+	pshufw  $0x39, %mm5, %mm5;  \
+	pshufw  $0x39, %mm6, %mm6;  \
+	pshufw  $0x39, %mm7, %mm7;  \
 
 /* Used for sigma (AddRoundKey) */
 #define XOR_XMM0_3_TO_XMM4_7()  \
@@ -108,225 +152,148 @@
 whirlpool_compress:
 	/* Set up, load arguments */
 	pushl   %ebx
-	movl     8(%esp), %ecx  /* state */
-	movl    12(%esp), %edx  /* block */
+	pushl   %esi
+	movl    12(%esp), %edx  /* state */
+	movl    16(%esp), %esi  /* block */
 	subl    $8, %esp
 	
 	/* Load state into XMM */
-	movdqu   0(%ecx), %xmm0
-	movdqu  16(%ecx), %xmm1
-	movdqu  32(%ecx), %xmm2
-	movdqu  48(%ecx), %xmm3
+	movdqu   0(%edx), %xmm0
+	movdqu  16(%edx), %xmm1
+	movdqu  32(%edx), %xmm2
+	movdqu  48(%edx), %xmm3
 	
 	/* Load block into XMM */
-	movdqu   0(%edx), %xmm4
-	movdqu  16(%edx), %xmm5
-	movdqu  32(%edx), %xmm6
-	movdqu  48(%edx), %xmm7
+	movdqu   0(%esi), %xmm4
+	movdqu  16(%esi), %xmm5
+	movdqu  32(%esi), %xmm6
+	movdqu  48(%esi), %xmm7
 	
 	/* XOR block with state */
 	XOR_XMM0_3_TO_XMM4_7()
 	
-	/* Load shuffle pattern */
-	movq    .shufflepattern, %mm7
-	
 	/* Do 10 rounds */
-	movl    $0, %ebx
+	movl    $0, %ecx
 .looptop:
 	
-	/* Process all 64 state bytes, one column at a time */
-	/* (Except for spilling mm1, the ordering of all the DOBYTE() instances can be freely rearranged) */
-	pxor    %mm0, %mm0;
-	pxor    %mm1, %mm1;
-	pxor    %mm2, %mm2;
-	pxor    %mm3, %mm3;
-	pxor    %mm4, %mm4;
-	pxor    %mm5, %mm5;
-	pxor    %mm6, %mm6;
-	DOBYTEEVEN(xmm0, 0, mm0)
-	DOBYTEEVEN(xmm0, 4, mm1)
-	DOBYTEEVEN(xmm1, 0, mm2)
-	DOBYTEEVEN(xmm1, 4, mm3)
-	DOBYTEEVEN(xmm2, 0, mm4)
-	DOBYTEEVEN(xmm2, 4, mm5)
-	DOBYTEEVEN(xmm3, 0, mm6)
-	DOBYTEODD (xmm3, 4, mm0)
-	DOBYTEODD (xmm0, 0, mm1)
-	DOBYTEODD (xmm0, 4, mm2)
-	DOBYTEODD (xmm1, 0, mm3)
-	DOBYTEODD (xmm1, 4, mm4)
-	DOBYTEODD (xmm2, 0, mm5)
-	DOBYTEODD (xmm2, 4, mm6)
-	DOBYTEEVEN(xmm3, 1, mm0)
-	DOBYTEEVEN(xmm3, 5, mm1)
-	DOBYTEEVEN(xmm0, 1, mm2)
-	DOBYTEEVEN(xmm0, 5, mm3)
-	DOBYTEEVEN(xmm1, 1, mm4)
-	DOBYTEEVEN(xmm1, 5, mm5)
-	DOBYTEEVEN(xmm2, 1, mm6)
-	DOBYTEODD (xmm2, 5, mm0)
-	DOBYTEODD (xmm3, 1, mm1)
-	DOBYTEODD (xmm3, 5, mm2)
-	DOBYTEODD (xmm0, 1, mm3)
-	DOBYTEODD (xmm0, 5, mm4)
-	DOBYTEODD (xmm1, 1, mm5)
-	DOBYTEODD (xmm1, 5, mm6)
-	DOBYTEEVEN(xmm2, 2, mm0)
-	DOBYTEEVEN(xmm2, 6, mm1)
-	DOBYTEEVEN(xmm3, 2, mm2)
-	DOBYTEEVEN(xmm3, 6, mm3)
-	DOBYTEEVEN(xmm0, 2, mm4)
-	DOBYTEEVEN(xmm0, 6, mm5)
-	DOBYTEEVEN(xmm1, 2, mm6)
-	DOBYTEODD (xmm1, 6, mm0)
-	DOBYTEODD (xmm2, 2, mm1)
-	DOBYTEODD (xmm2, 6, mm2)
-	DOBYTEODD (xmm3, 2, mm3)
-	DOBYTEODD (xmm3, 6, mm4)
-	DOBYTEODD (xmm0, 2, mm5)
-	DOBYTEODD (xmm0, 6, mm6)
-	DOBYTEEVEN(xmm1, 3, mm0)
-	DOBYTEEVEN(xmm1, 7, mm1)
-	DOBYTEEVEN(xmm2, 3, mm2)
-	DOBYTEEVEN(xmm2, 7, mm3)
-	DOBYTEEVEN(xmm3, 3, mm4)
-	DOBYTEEVEN(xmm3, 7, mm5)
-	DOBYTEEVEN(xmm0, 3, mm6)
-	DOBYTEODD (xmm0, 7, mm0)
-	DOBYTEODD (xmm1, 3, mm1)
-	DOBYTEODD (xmm1, 7, mm2)
-	DOBYTEODD (xmm2, 3, mm3)
-	DOBYTEODD (xmm2, 7, mm4)
-	DOBYTEODD (xmm3, 3, mm5)
-	DOBYTEODD (xmm3, 7, mm6)
-	pxor    .roundconstants(,%ebx,8), %mm0  /* Add round constant */
-	movq    %mm1, (%esp)                    /* Spill to memory only for mm1 */
-	/* Reuse mm1 for row 7 because mm7 holds the shuffle pattern */
-	pxor    %mm1, %mm1;
-	DOBYTEEVEN(xmm3, 4, mm1)
-	DOBYTEODD (xmm3, 0, mm1)
-	DOBYTEEVEN(xmm2, 5, mm1)
-	DOBYTEODD (xmm2, 1, mm1)
-	DOBYTEEVEN(xmm1, 6, mm1)
-	DOBYTEODD (xmm1, 2, mm1)
-	DOBYTEEVEN(xmm0, 7, mm1)
-	DOBYTEODD (xmm0, 3, mm1)
+	/* Process all 64 state bytes */
+	DOBYTEPAIRFIRST(xmm0, 0, mm0, mm1)
+	DOBYTEPAIRFIRST(xmm1, 0, mm2, mm3)
+	DOBYTEPAIRFIRST(xmm2, 0, mm4, mm5)
+	DOBYTEPAIRFIRST(xmm3, 0, mm6, mm7)
+	DOBYTEPAIR(xmm0, 4, mm1, mm2)
+	DOBYTEPAIR(xmm1, 4, mm3, mm4)
+	DOBYTEPAIR(xmm2, 4, mm5, mm6)
+	DOBYTEPAIR(xmm3, 4, mm7, mm0)
+	ROTATERIGHT()
+	DOBYTEPAIR(xmm3, 1, mm0, mm1)
+	DOBYTEPAIR(xmm0, 1, mm2, mm3)
+	DOBYTEPAIR(xmm1, 1, mm4, mm5)
+	DOBYTEPAIR(xmm2, 1, mm6, mm7)
+	DOBYTEPAIR(xmm3, 5, mm1, mm2)
+	DOBYTEPAIR(xmm0, 5, mm3, mm4)
+	DOBYTEPAIR(xmm1, 5, mm5, mm6)
+	DOBYTEPAIR(xmm2, 5, mm7, mm0)
+	ROTATERIGHT()
+	DOBYTEPAIR(xmm2, 2, mm0, mm1)
+	DOBYTEPAIR(xmm3, 2, mm2, mm3)
+	DOBYTEPAIR(xmm0, 2, mm4, mm5)
+	DOBYTEPAIR(xmm1, 2, mm6, mm7)
+	DOBYTEPAIR(xmm2, 6, mm1, mm2)
+	DOBYTEPAIR(xmm3, 6, mm3, mm4)
+	DOBYTEPAIR(xmm0, 6, mm5, mm6)
+	DOBYTEPAIR(xmm1, 6, mm7, mm0)
+	ROTATERIGHT()
+	DOBYTEPAIR(xmm1, 3, mm0, mm1)
+	DOBYTEPAIR(xmm2, 3, mm2, mm3)
+	DOBYTEPAIR(xmm3, 3, mm4, mm5)
+	DOBYTEPAIR(xmm0, 3, mm6, mm7)
+	DOBYTEPAIR(xmm1, 7, mm1, mm2)
+	DOBYTEPAIR(xmm2, 7, mm3, mm4)
+	DOBYTEPAIR(xmm3, 7, mm5, mm6)
+	DOBYTEPAIR(xmm0, 7, mm7, mm0)
+	ROTATERIGHT()
+	pxor     .roundconstants(,%ecx,8), %mm0  /* Add round constant */
 	
 	/* Copy state back to XMM */
+	movq     %mm7, (%esp)
+	movq2dq  %mm0, %xmm0;  movq2dq  %mm1, %xmm1;  shufpd  $0, %xmm1, %xmm0
 	movq2dq  %mm2, %xmm1;  movq2dq  %mm3, %xmm2;  shufpd  $0, %xmm2, %xmm1
 	movq2dq  %mm4, %xmm2;  movq2dq  %mm5, %xmm3;  shufpd  $0, %xmm3, %xmm2
-	movq2dq  %mm6, %xmm3;  movq2dq  %mm1, %xmm0;  shufpd  $0, %xmm0, %xmm3
-	movq2dq  %mm0, %xmm0;  movhps  (%esp), %xmm0
+	movq2dq  %mm6, %xmm3;  movhps  (%esp), %xmm3
 	
-	/* Process all 64 block bytes (columnwise) */
-	/* (Except for spilling mm1, the ordering of all the DOBYTE() instances can be freely rearranged) */
-	pxor    %mm0, %mm0;
-	pxor    %mm1, %mm1;
-	pxor    %mm2, %mm2;
-	pxor    %mm3, %mm3;
-	pxor    %mm4, %mm4;
-	pxor    %mm5, %mm5;
-	pxor    %mm6, %mm6;
-	DOBYTEEVEN(xmm4, 0, mm0)
-	DOBYTEEVEN(xmm4, 4, mm1)
-	DOBYTEEVEN(xmm5, 0, mm2)
-	DOBYTEEVEN(xmm5, 4, mm3)
-	DOBYTEEVEN(xmm6, 0, mm4)
-	DOBYTEEVEN(xmm6, 4, mm5)
-	DOBYTEEVEN(xmm7, 0, mm6)
-	DOBYTEODD (xmm7, 4, mm0)
-	DOBYTEODD (xmm4, 0, mm1)
-	DOBYTEODD (xmm4, 4, mm2)
-	DOBYTEODD (xmm5, 0, mm3)
-	DOBYTEODD (xmm5, 4, mm4)
-	DOBYTEODD (xmm6, 0, mm5)
-	DOBYTEODD (xmm6, 4, mm6)
-	DOBYTEEVEN(xmm7, 1, mm0)
-	DOBYTEEVEN(xmm7, 5, mm1)
-	DOBYTEEVEN(xmm4, 1, mm2)
-	DOBYTEEVEN(xmm4, 5, mm3)
-	DOBYTEEVEN(xmm5, 1, mm4)
-	DOBYTEEVEN(xmm5, 5, mm5)
-	DOBYTEEVEN(xmm6, 1, mm6)
-	DOBYTEODD (xmm6, 5, mm0)
-	DOBYTEODD (xmm7, 1, mm1)
-	DOBYTEODD (xmm7, 5, mm2)
-	DOBYTEODD (xmm4, 1, mm3)
-	DOBYTEODD (xmm4, 5, mm4)
-	DOBYTEODD (xmm5, 1, mm5)
-	DOBYTEODD (xmm5, 5, mm6)
-	DOBYTEEVEN(xmm6, 2, mm0)
-	DOBYTEEVEN(xmm6, 6, mm1)
-	DOBYTEEVEN(xmm7, 2, mm2)
-	DOBYTEEVEN(xmm7, 6, mm3)
-	DOBYTEEVEN(xmm4, 2, mm4)
-	DOBYTEEVEN(xmm4, 6, mm5)
-	DOBYTEEVEN(xmm5, 2, mm6)
-	DOBYTEODD (xmm5, 6, mm0)
-	DOBYTEODD (xmm6, 2, mm1)
-	DOBYTEODD (xmm6, 6, mm2)
-	DOBYTEODD (xmm7, 2, mm3)
-	DOBYTEODD (xmm7, 6, mm4)
-	DOBYTEODD (xmm4, 2, mm5)
-	DOBYTEODD (xmm4, 6, mm6)
-	DOBYTEEVEN(xmm5, 3, mm0)
-	DOBYTEEVEN(xmm5, 7, mm1)
-	DOBYTEEVEN(xmm6, 3, mm2)
-	DOBYTEEVEN(xmm6, 7, mm3)
-	DOBYTEEVEN(xmm7, 3, mm4)
-	DOBYTEEVEN(xmm7, 7, mm5)
-	DOBYTEEVEN(xmm4, 3, mm6)
-	DOBYTEODD (xmm4, 7, mm0)
-	DOBYTEODD (xmm5, 3, mm1)
-	DOBYTEODD (xmm5, 7, mm2)
-	DOBYTEODD (xmm6, 3, mm3)
-	DOBYTEODD (xmm6, 7, mm4)
-	DOBYTEODD (xmm7, 3, mm5)
-	DOBYTEODD (xmm7, 7, mm6)
-	movq    %mm1, (%esp)  /* Spill to memory only for mm1 */
-	/* Reuse mm1 for row 7 */
-	pxor    %mm1, %mm1;
-	DOBYTEEVEN(xmm7, 4, mm1)
-	DOBYTEODD (xmm7, 0, mm1)
-	DOBYTEEVEN(xmm6, 5, mm1)
-	DOBYTEODD (xmm6, 1, mm1)
-	DOBYTEEVEN(xmm5, 6, mm1)
-	DOBYTEODD (xmm5, 2, mm1)
-	DOBYTEEVEN(xmm4, 7, mm1)
-	DOBYTEODD (xmm4, 3, mm1)
+	/* Process all 64 block bytes */
+	DOBYTEPAIRFIRST(xmm4, 0, mm0, mm1)
+	DOBYTEPAIRFIRST(xmm5, 0, mm2, mm3)
+	DOBYTEPAIRFIRST(xmm6, 0, mm4, mm5)
+	DOBYTEPAIRFIRST(xmm7, 0, mm6, mm7)
+	DOBYTEPAIR(xmm4, 4, mm1, mm2)
+	DOBYTEPAIR(xmm5, 4, mm3, mm4)
+	DOBYTEPAIR(xmm6, 4, mm5, mm6)
+	DOBYTEPAIR(xmm7, 4, mm7, mm0)
+	ROTATERIGHT()
+	DOBYTEPAIR(xmm7, 1, mm0, mm1)
+	DOBYTEPAIR(xmm4, 1, mm2, mm3)
+	DOBYTEPAIR(xmm5, 1, mm4, mm5)
+	DOBYTEPAIR(xmm6, 1, mm6, mm7)
+	DOBYTEPAIR(xmm7, 5, mm1, mm2)
+	DOBYTEPAIR(xmm4, 5, mm3, mm4)
+	DOBYTEPAIR(xmm5, 5, mm5, mm6)
+	DOBYTEPAIR(xmm6, 5, mm7, mm0)
+	ROTATERIGHT()
+	DOBYTEPAIR(xmm6, 2, mm0, mm1)
+	DOBYTEPAIR(xmm7, 2, mm2, mm3)
+	DOBYTEPAIR(xmm4, 2, mm4, mm5)
+	DOBYTEPAIR(xmm5, 2, mm6, mm7)
+	DOBYTEPAIR(xmm6, 6, mm1, mm2)
+	DOBYTEPAIR(xmm7, 6, mm3, mm4)
+	DOBYTEPAIR(xmm4, 6, mm5, mm6)
+	DOBYTEPAIR(xmm5, 6, mm7, mm0)
+	ROTATERIGHT()
+	DOBYTEPAIR(xmm5, 3, mm0, mm1)
+	DOBYTEPAIR(xmm6, 3, mm2, mm3)
+	DOBYTEPAIR(xmm7, 3, mm4, mm5)
+	DOBYTEPAIR(xmm4, 3, mm6, mm7)
+	DOBYTEPAIR(xmm5, 7, mm1, mm2)
+	DOBYTEPAIR(xmm6, 7, mm3, mm4)
+	DOBYTEPAIR(xmm7, 7, mm5, mm6)
+	DOBYTEPAIR(xmm4, 7, mm7, mm0)
+	ROTATERIGHT()
 	
 	/* Copy block back to XMM */
+	movq    %mm7, (%esp)
+	movq2dq  %mm0, %xmm4;  movq2dq  %mm1, %xmm5;  shufpd  $0, %xmm5, %xmm4
 	movq2dq  %mm2, %xmm5;  movq2dq  %mm3, %xmm6;  shufpd  $0, %xmm6, %xmm5
 	movq2dq  %mm4, %xmm6;  movq2dq  %mm5, %xmm7;  shufpd  $0, %xmm7, %xmm6
-	movq2dq  %mm6, %xmm7;  movq2dq  %mm1, %xmm4;  shufpd  $0, %xmm4, %xmm7
-	movq2dq  %mm0, %xmm4;  movhps  (%esp), %xmm4
+	movq2dq  %mm6, %xmm7;  movhps  (%esp), %xmm7
 	
 	/* Add state to block */
 	XOR_XMM0_3_TO_XMM4_7()
 	
 	/* Loop back */
-	incl    %ebx
-	cmpl    $10, %ebx
+	incl    %ecx
+	cmpl    $10, %ecx
 	jne     .looptop
 	
 	/* XOR old state (in memory) with old block (in memory) and new block (in XMM) */
-	movdqu   0(%ecx), %xmm0  /* Load old state */
-	movdqu  16(%ecx), %xmm1
-	movdqu  32(%ecx), %xmm2
-	movdqu  48(%ecx), %xmm3
-	XOR_XMM0_3_TO_XMM4_7()   /* XOR into new block */
-	movdqu   0(%edx), %xmm0  /* Load old block */
+	movdqu   0(%edx), %xmm0  /* Load old state */
 	movdqu  16(%edx), %xmm1
 	movdqu  32(%edx), %xmm2
 	movdqu  48(%edx), %xmm3
 	XOR_XMM0_3_TO_XMM4_7()   /* XOR into new block */
-	movdqu  %xmm4,  0(%ecx)  /* Store new state */
-	movdqu  %xmm5, 16(%ecx)
-	movdqu  %xmm6, 32(%ecx)
-	movdqu  %xmm7, 48(%ecx)
+	movdqu   0(%esi), %xmm0  /* Load old block */
+	movdqu  16(%esi), %xmm1
+	movdqu  32(%esi), %xmm2
+	movdqu  48(%esi), %xmm3
+	XOR_XMM0_3_TO_XMM4_7()   /* XOR into new block */
+	movdqu  %xmm4,  0(%edx)  /* Store new state */
+	movdqu  %xmm5, 16(%edx)
+	movdqu  %xmm6, 32(%edx)
+	movdqu  %xmm7, 48(%edx)
 	
 	/* Clean up and return */
 	emms
 	addl    $8, %esp
+	popl    %esi
 	popl    %ebx
 	ret
