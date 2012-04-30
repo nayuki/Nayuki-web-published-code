@@ -118,15 +118,15 @@
 	pextrw  $(offset), %inreg, %eax;          \
 	movzbl  %ah, %ebx;                        \
 	andl    $0xFF, %eax;                      \
-	movq    .magictable1(,%ebx,8), %outreg1;  \
 	movq    .magictable0(,%eax,8), %outreg0;  \
+	movq    .magictable1(,%ebx,8), %outreg1;
 
 #define DOBYTEPAIR(inreg,offset,outreg0,outreg1)  \
 	pextrw  $(offset), %inreg, %eax;          \
 	movzbl  %ah, %ebx;                        \
 	andl    $0xFF, %eax;                      \
-	pxor    .magictable1(,%ebx,8), %outreg1;  \
 	pxor    .magictable0(,%eax,8), %outreg0;  \
+	pxor    .magictable1(,%ebx,8), %outreg1;
 
 #define ROTATERIGHT()  \
 	pshufw  $0x39, %mm0, %mm0;  \
@@ -136,21 +136,21 @@
 	pshufw  $0x39, %mm4, %mm4;  \
 	pshufw  $0x39, %mm5, %mm5;  \
 	pshufw  $0x39, %mm6, %mm6;  \
-	pshufw  $0x39, %mm7, %mm7;  \
+	pshufw  $0x39, %mm7, %mm7;
 
 /* Used for sigma (AddRoundKey) */
 #define XOR_XMM0_3_TO_XMM4_7()  \
 	pxor    %xmm0, %xmm4;  \
 	pxor    %xmm1, %xmm5;  \
 	pxor    %xmm2, %xmm6;  \
-	pxor    %xmm3, %xmm7;  \
+	pxor    %xmm3, %xmm7;
 
 
 /* void whirlpool_compress(uint8_t *state, uint8_t *block) */
 /* state and block can be optionally aligned to 8 bytes for slightly better performance. */
 .globl whirlpool_compress
 whirlpool_compress:
-	/* Set up, load arguments */
+	/* Save registers, load arguments */
 	pushl   %ebx
 	pushl   %esi
 	movl    12(%esp), %edx  /* state */
@@ -291,7 +291,7 @@ whirlpool_compress:
 	movdqu  %xmm6, 32(%edx)
 	movdqu  %xmm7, 48(%edx)
 	
-	/* Clean up and return */
+	/* Restore registers, clean up, return */
 	emms
 	addl    $8, %esp
 	popl    %esi
