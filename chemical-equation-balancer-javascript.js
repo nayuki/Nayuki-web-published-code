@@ -18,9 +18,9 @@ function balance() {
 	// Parse equation
 	var eqn;
 	try {
-		var eqn = parse();
+		eqn = parse();
 	} catch (e) {
-		if (typeof(e) == "string") {
+		if (typeof e == "string") {
 			setMessage("Syntax error: " + e);
 		} else if ("start" in e && "end" in e) {
 			setMessage("Syntax error: " + e.message);
@@ -97,7 +97,6 @@ function buildMatrix(eqn) {
 		for (var k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
 			matrix.set(i, j, -rhs[k].countElement(elems[i]));
 	}
-	
 	return matrix;
 }
 
@@ -190,11 +189,12 @@ function checkAnswer(eqn, coefs) {
 // A complete chemical equation. It has a left-hand side list of terms, and a right-hand side list of terms.
 // For example: H2 + O2 -> H2O.
 function Equation(lhs, rhs) {
-	lhs = lhs.slice(0);  // Defensive copy
-	rhs = rhs.slice(0);  // Defensive copy
+	// Make defensive copies
+	lhs = cloneArray(lhs);
+	rhs = cloneArray(rhs);
 	
-	this.getLeftSide  = function() { return lhs.slice(0); }  // Defensive copy
-	this.getRightSide = function() { return rhs.slice(0); }  // Defensive copy
+	this.getLeftSide  = function() { return cloneArray(lhs); }
+	this.getRightSide = function() { return cloneArray(rhs); }
 	
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
@@ -249,9 +249,9 @@ function Equation(lhs, rhs) {
 function Term(items, charge) {
 	if (items.length == 0 && charge != -1)
 		throw "Invalid term";
-	items = items.slice(0);  // Defensive copy
+	items = cloneArray(items);
 	
-	this.getItems = function() { return items.slice(0); }  // Defensive copy
+	this.getItems = function() { return cloneArray(items); }
 	
 	this.getElements = function(result) {
 		result.add("e");
@@ -301,9 +301,9 @@ function Term(items, charge) {
 function Group(items, count) {
 	if (count < 1)
 		throw "Count must be a positive integer";
-	items = items.slice(0);  // Defensive copy
+	items = cloneArray(items);
 	
-	this.getItems = function() { return items.slice(0); }  // Defensive copy
+	this.getItems = function() { return cloneArray(items); }
 	
 	this.getCount = function() { return count; }
 	
@@ -582,7 +582,7 @@ function Matrix(rows, cols) {
 	// Returns a new row that is the product of the two given rows.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
 	function addRows(x, y) {
-		var z = x.slice(0);
+		var z = cloneArray(x);
 		for (var i = 0; i < z.length; i++)
 			z[i] = checkedAdd(x[i], y[i]);
 		return z;
@@ -591,7 +591,7 @@ function Matrix(rows, cols) {
 	// Returns a new row that is the product of the given row with the given scalar.
 	// For example, multiplyRow([0, 1, 3], 4) = [0, 4, 12].
 	function multiplyRow(x, c) {
-		var y = x.slice(0);
+		var y = cloneArray(x);
 		for (var i = 0; i < y.length; i++)
 			y[i] = checkedMultiply(x[i], c);
 		return y;
@@ -619,7 +619,7 @@ function Matrix(rows, cols) {
 				break;
 			}
 		}
-		var y = x.slice(0);
+		var y = cloneArray(x);
 		if (sign == 0)
 			return y;
 		var g = gcdRow(x) * sign;
@@ -695,7 +695,7 @@ function Set() {
 	var items = [];
 	this.add = function(obj) { if (indexOf(items, obj) == -1) items.push(obj); }
 	this.contains = function(obj) { return items.indexOf(obj) != -1; }
-	this.toArray = function() { return items.slice(0); }  // Defensive copy
+	this.toArray = function() { return cloneArray(items); }
 }
 
 
@@ -752,6 +752,12 @@ function indexOf(array, item) {
 			return i;
 	}
 	return -1;
+}
+
+
+// Sometimes used for making a defensive copy
+function cloneArray(array) {
+	return array.slice(0);
 }
 
 
