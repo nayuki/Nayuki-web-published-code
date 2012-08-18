@@ -71,10 +71,10 @@
  *       8  rdi         Base address of state array argument (read-only)
  *       8  rbp         Unused (retains caller's value)
  *       8  rsp         x86 stack pointer
- *      64  r8..r15     Output values for current round being computed, in little endian (8 bytes per register)
+ *      64  r8..r15     Output rows for current round being computed, in little endian (8 bytes per register)
  *      64  xmm0..xmm3  All contents of current state array, in little endian (16 bytes per register)
  *      64  xmm4..xmm7  All contents of current block array, in little endian (16 bytes per register)
- *       8  [rsp+ 0]    Temporary row 7 for loading into XMM high
+ *       8  [rsp+ 0]    Temporary storage for transferring R15 to XMM
  *       8  [rsp+ 8]    Caller's value of r15
  *       8  [rsp+16]    Caller's value of r14
  *       8  [rsp+24]    Caller's value of r13
@@ -137,14 +137,14 @@ whirlpool_compress:
 	
 	/* Process all 64 state bytes, one column at a time */
 	/* (The ordering of all the DOBYTE() instances can be freely rearranged) */
-	xorq    %r8 , %r8 ;
-	xorq    %r9 , %r9 ;
-	xorq    %r10, %r10;
-	xorq    %r11, %r11;
-	xorq    %r12, %r12;
-	xorq    %r13, %r13;
-	xorq    %r14, %r14;
-	xorq    %r15, %r15;
+	xorq    %r8 , %r8
+	xorq    %r9 , %r9
+	xorq    %r10, %r10
+	xorq    %r11, %r11
+	xorq    %r12, %r12
+	xorq    %r13, %r13
+	xorq    %r14, %r14
+	xorq    %r15, %r15
 	DOBYTEEVEN(xmm0, 0, r8 )
 	DOBYTEEVEN(xmm0, 4, r9 )
 	DOBYTEEVEN(xmm1, 0, r10)
@@ -220,14 +220,14 @@ whirlpool_compress:
 	
 	/* Process all 64 block bytes (columnwise) */
 	/* (The ordering of all the DOBYTE() instances can be freely rearranged) */
-	xorq    %r8 , %r8 ;
-	xorq    %r9 , %r9 ;
-	xorq    %r10, %r10;
-	xorq    %r11, %r11;
-	xorq    %r12, %r12;
-	xorq    %r13, %r13;
-	xorq    %r14, %r14;
-	xorq    %r15, %r15;
+	xorq    %r8 , %r8
+	xorq    %r9 , %r9
+	xorq    %r10, %r10
+	xorq    %r11, %r11
+	xorq    %r12, %r12
+	xorq    %r13, %r13
+	xorq    %r14, %r14
+	xorq    %r15, %r15
 	DOBYTEEVEN(xmm4, 0, r8 )
 	DOBYTEEVEN(xmm4, 4, r9 )
 	DOBYTEEVEN(xmm5, 0, r10)
