@@ -22,45 +22,45 @@
  */
 
 #define ROUND0(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;         \
-	addl  (k*4)(%ebp), %a;  \
-	xorl  %d, %esi;         \
-	andl  %b, %esi;         \
-	xorl  %d, %esi;         \
-	leal  t(%esi,%a), %a;   \
-	roll  $s, %a;           \
-	addl  %b, %a
+	movl  %c, %esi;            \
+	addl  (k*4)(%ebp), %a;     \
+	xorl  %d, %esi;            \
+	andl  %b, %esi;            \
+	xorl  %d, %esi;            \
+	leal  t(%esi,%a), %a;      \
+	roll  $s, %a;              \
+	addl  %b, %a;
 
 #define ROUND1(a,b,c,d,k,s,t)  \
-	movl  %d, %esi;         \
-	movl  %d, %edi;         \
-	addl  (k*4)(%ebp), %a;  \
-	notl  %esi;             \
-	andl  %b, %edi;         \
-	andl  %c, %esi;         \
-	orl   %edi, %esi;       \
-	leal  t(%esi,%a), %a;   \
-	roll  $s, %a;           \
-	addl  %b, %a
+	movl  %d, %esi;            \
+	movl  %d, %edi;            \
+	addl  (k*4)(%ebp), %a;     \
+	notl  %esi;                \
+	andl  %b, %edi;            \
+	andl  %c, %esi;            \
+	orl   %edi, %esi;          \
+	leal  t(%esi,%a), %a;      \
+	roll  $s, %a;              \
+	addl  %b, %a;
 
 #define ROUND2(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;         \
-	addl  (k*4)(%ebp), %a;  \
-	xorl  %d, %esi;         \
-	xorl  %b, %esi;         \
-	leal  t(%esi,%a), %a;   \
-	roll  $s, %a;           \
-	addl  %b, %a
+	movl  %c, %esi;            \
+	addl  (k*4)(%ebp), %a;     \
+	xorl  %d, %esi;            \
+	xorl  %b, %esi;            \
+	leal  t(%esi,%a), %a;      \
+	roll  $s, %a;              \
+	addl  %b, %a;
 
 #define ROUND3(a,b,c,d,k,s,t)  \
-	movl  %d, %esi;         \
-	not   %esi;             \
-	addl  (k*4)(%ebp), %a;  \
-	orl   %b, %esi;         \
-	xorl  %c, %esi;         \
-	leal  t(%esi,%a), %a;   \
-	roll  $s, %a;           \
-	addl  %b, %a
+	movl  %d, %esi;            \
+	not   %esi;                \
+	addl  (k*4)(%ebp), %a;     \
+	orl   %b, %esi;            \
+	xorl  %c, %esi;            \
+	leal  t(%esi,%a), %a;      \
+	roll  $s, %a;              \
+	addl  %b, %a;
 
 
 /* void md5_compress(uint32_t *state, uint32_t *block) */

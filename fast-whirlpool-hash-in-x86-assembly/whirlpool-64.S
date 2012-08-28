@@ -70,7 +70,7 @@
  *       8  rsi         Base address of block array argument (read-only)
  *       8  rdi         Base address of state array argument (read-only)
  *       8  rbp         Unused (retains caller's value)
- *       8  rsp         x86 stack pointer
+ *       8  rsp         x86-64 stack pointer
  *      64  r8..r15     Output rows for current round being computed, in little endian (8 bytes per register)
  *      64  xmm0..xmm3  All contents of current state array, in little endian (16 bytes per register)
  *      64  xmm4..xmm7  All contents of current block array, in little endian (16 bytes per register)
@@ -97,10 +97,10 @@
 
 /* Used for sigma (AddRoundKey) */
 #define XOR_XMM0_3_TO_XMM4_7()  \
-	pxor    %xmm0, %xmm4;  \
-	pxor    %xmm1, %xmm5;  \
-	pxor    %xmm2, %xmm6;  \
-	pxor    %xmm3, %xmm7;  \
+	pxor    %xmm0, %xmm4;       \
+	pxor    %xmm1, %xmm5;       \
+	pxor    %xmm2, %xmm6;       \
+	pxor    %xmm3, %xmm7;       \
 
 
 /* void whirlpool_compress(uint8_t *state, uint8_t *block) */

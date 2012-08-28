@@ -22,30 +22,30 @@
  */
 
 #define ROUND0(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;  \
-	xorl  %d, %esi;  \
-	andl  %b, %esi;  \
-	xorl  %d, %esi;  \
+	movl  %c, %esi;            \
+	xorl  %d, %esi;            \
+	andl  %b, %esi;            \
+	xorl  %d, %esi;            \
 	ROUNDTAIL(a,b,k,s,t)
 
 #define ROUND1(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;  \
-	xorl  %b, %esi;  \
-	andl  %d, %esi;  \
-	xorl  %c, %esi;  \
+	movl  %c, %esi;            \
+	xorl  %b, %esi;            \
+	andl  %d, %esi;            \
+	xorl  %c, %esi;            \
 	ROUNDTAIL(a,b,k,s,t)
 
 #define ROUND2(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;  \
-	xorl  %d, %esi;  \
-	xorl  %b, %esi;  \
+	movl  %c, %esi;            \
+	xorl  %d, %esi;            \
+	xorl  %b, %esi;            \
 	ROUNDTAIL(a,b,k,s,t)
 
 #define ROUND3(a,b,c,d,k,s,t)  \
-	movl  %d, %esi;  \
-	notl  %esi;      \
-	orl   %b, %esi;  \
-	xorl  %c, %esi;  \
+	movl  %d, %esi;            \
+	notl  %esi;                \
+	orl   %b, %esi;            \
+	xorl  %c, %esi;            \
 	ROUNDTAIL(a,b,k,s,t)
 
 #define ROUNDTAIL(a,b,k,s,t)  \
@@ -55,7 +55,8 @@
 	addl  %a, %edi;           \
 	roll  $s, %edi;           \
 	addl  %b, %edi;           \
-	movl  %edi, %a
+	movl  %edi, %a;
+
 
 /* void md5_compress(uint32_t *state, uint32_t *block) */
 .globl md5_compress
