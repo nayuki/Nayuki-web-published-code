@@ -7,7 +7,7 @@
 #define NUMBER_OF_ROUNDS 10  /* Any number from 0 to 32 is legal */
 
 .balign 8
-.roundconstants:  /* We use the first NUMBER_OF_ROUNDS sets of 8 bytes */
+.roundconstants:  /* We use the first NUMBER_OF_ROUNDS groups of 8 bytes */
 .byte  0x18, 0x23, 0xC6, 0xE8, 0x87, 0xB8, 0x01, 0x4F, 0x36, 0xA6, 0xD2, 0xF5, 0x79, 0x6F, 0x91, 0x52
 .byte  0x60, 0xBC, 0x9B, 0x8E, 0xA3, 0x0C, 0x7B, 0x35, 0x1D, 0xE0, 0xD7, 0xC2, 0x2E, 0x4B, 0xFE, 0x57
 .byte  0x15, 0x77, 0x37, 0xE5, 0x9F, 0xF0, 0x4A, 0xDA, 0x58, 0xC9, 0x29, 0x0A, 0xB1, 0xA0, 0x6B, 0x85
@@ -65,7 +65,7 @@
  *   Bytes  Location    Description
  *       8  rax         Temporary byte value for each byte processed during a round (at most the lower 16 bits are used)
  *       8  rbx         Unused (retains caller's value)
- *       8  rcx         Upward loop counter for 10 rounds (at most the lower 4 bits are used)
+ *       8  rcx         Upward loop counter for 10 rounds
  *       8  rdx         Unused (caller-saved)
  *       8  rsi         Base address of block array argument (read-only)
  *       8  rdi         Base address of state array argument (read-only)
@@ -305,7 +305,7 @@ whirlpool_compress:
 	
 	/* Loop back */
 	incl    %ecx
-	cmpl    $10, %ecx
+	cmpl    $NUMBER_OF_ROUNDS, %ecx
 	jne     .looptop
 	
 	/* XOR old state (in memory) with old block (in memory) and new block (in XMM) */
