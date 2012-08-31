@@ -3,9 +3,14 @@
  - Copyright (c) 2012 Nayuki Minase
  -}
 
-module PrimRecFunc where
+module PrimRecFunc
+	(Prf(Z,S,I,C,R), eval,
+	not, and, or, xor,
+	z, nz, eq, neq, lt, le, gt, ge,
+	const, pred, add, sub, diff, mul, exp, fact)
+	where
 
-import Prelude hiding (const, not)
+import Prelude hiding (and, const, exp, or, not, pred)
 
 
 {---- Data type for primitive recursive functions ----}
@@ -18,7 +23,7 @@ instance Show Prf where  -- For displaying a Prf as a string
 	show (I n i) = "I " ++ (show n) ++ " " ++ (show i)
 	show (C f gs) = "C " ++ (parenShow f) ++ " " ++ (show gs)
 	show (R f g) = "R " ++ (parenShow f) ++ " " ++ (parenShow g)
-	showList [] = showString "[]"  -- Won't be used, anyway
+	showList [] = showString "[]"
 	showList xs = (showString "[") . (sl xs) where
 		sl [x] = (shows x) . (showString "]")
 		sl (x:xs) = (shows x) . (showString ", ") . (sl xs)
@@ -71,25 +76,58 @@ checkNonNegative (x:xs)
 	| otherwise = error "Number must be non-negative"
 
 
-{---- Boolean primitive recursive functions ----}
+
+{---- Library of primitive recursive functions ----}
+
+
+{---- Boolean functions ----}
 -- 0 means false, 1 means true, and all other values cause unspecified behavior
 
--- prnot(x) = not x
-not = C (R (const 1) (C Z [I 3 0])) [I 1 0, Z]
+-- Negation (NOT): not(x)
+not = z
 
--- prand(x, y) = x and y
+-- Conjunction (AND): and(x, y)
 and = R Z (I 3 2)
 
--- pror(x, y) = x or y
+-- Disjunction (OR): or(x, y)
 or = R (I 1 0) (C S [I 3 1])
 
--- prxor(x, y) = x xor y
+-- Exclusive OR (XOR): xor(x, y)
 xor = R (I 1 0) (C not [I 3 2])
 
 
-{---- Arithmetic primitive recursive functions ----}
+{---- Comparison functions ----}
+-- Every function returns only Boolean values, i.e. 0 or 1
+
+-- Is zero: z(x, y) = if x == 0 then 1 else 0
+z = C (R (const 1) (C Z [I 3 0])) [I 1 0, Z]
+
+-- Is nonzero: nz(x, y) = if x == 0 then 0 else 1
+nz = C (R Z (C (const 1) [I 3 0])) [I 1 0, Z]
+
+-- Equal: eq(x, y) = if x == y then 1 else 0
+eq = C z [diff]
+
+-- Not equal: neq(x, y) = if x != y then 1 else 0
+neq = C nz [diff]
+
+-- Less than: lt(x, y) = if x < y then 1 else 0
+lt = C and [neq, le]
+
+-- Less than or equal: le(x, y) = if x <= y then 1 else 0
+le = C z [sub]
+
+-- Greater than: gt(x, y) = if x > y then 1 else 0
+gt = C nz [sub]
+
+-- Greater than or equal: ge(x, y) = if x >= y then 1 else 0
+ge = C or [eq, gt]
+
+
+{---- Arithmetic functions ----}
 
 -- Constant: const_{n}(x) = n
+-- This is actually a PRF generator
 const n
 	| n <  0 = error ("const " ++ (show n))
 	| n == 0 = Z
@@ -101,8 +139,17 @@ pred = C (R Z (I 3 1)) [I 1 0, I 1 0]
 -- Addition/sum: add(x, y) = x + y
 add = R (I 1 0) (C S [I 3 0])
 
+-- Subtraction/difference: sub(x, y) = max(x - y, 0)
+sub = C (R (I 1 0) (C pred [I 3 0])) [I 2 1, I 2 0]
+
+-- Absolute difference: diff(x, y) = abs(x - y)
+diff = C add [sub, C sub [I 2 1, I 2 0]]
+
 -- Multiplication/product: mul(x, y) = x * y
 mul = R Z (C add [I 3 0, I 3 2])
+
+-- Power/exponentiation: exp(x, y) = x ^ y
+exp = C (R (const 1) (C mul [I 3 2, I 3 0])) [I 2 1, I 2 0]
 
 -- Factorial: fact(x) = x!
 fact = C (R (const 1) (C mul [C S [I 3 1], I 3 0])) [I 1 0, Z]
