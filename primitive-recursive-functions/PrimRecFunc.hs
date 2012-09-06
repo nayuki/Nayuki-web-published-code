@@ -5,12 +5,12 @@
 
 module PrimRecFunc
 	(Prf(Z,S,I,C,R), eval,
-	not, and, or, xor,
-	z, nz, eq, neq, lt, le, gt, ge,
-	const, pred, add, sub, diff, mul, exp, fact)
+	not, and, or, xor, mux,
+	z, nz, eq, neq, lt, le, gt, ge, even, divisible, prime,
+	const, pred, add, sub, subrev, diff, mul, exp, mod, factorial)
 	where
 
-import Prelude hiding (and, const, exp, or, not, pred)
+import Prelude hiding (and, const, even, exp, mod, not, or, pred)
 
 
 {---- Data type for primitive recursive functions ----}
@@ -95,6 +95,9 @@ or = R (I 1 0) (C S [I 3 1])
 -- Exclusive OR (XOR): xor(x, y)
 xor = R (I 1 0) (C not [I 3 2])
 
+-- Multiplex/select: mux(x, y, z) = if x == True then y else z. (x is Boolean; y and z are numbers)
+mux = R (I 2 1) (I 4 2)
+
 
 {---- Comparison functions ----}
 -- Every function returns only Boolean values, i.e. 0 or 1
@@ -112,7 +115,7 @@ eq = C z [diff]
 neq = C nz [diff]
 
 -- Less than: lt(x, y) = if x < y then 1 else 0
-lt = C and [neq, le]
+lt = C nz [subrev]
 
 -- Less than or equal: le(x, y) = if x <= y then 1 else 0
 le = C z [sub]
@@ -121,7 +124,16 @@ le = C z [sub]
 gt = C nz [sub]
 
 -- Greater than or equal: ge(x, y) = if x >= y then 1 else 0
-ge = C or [eq, gt]
+ge = C z [subrev]
+
+-- Is even: even(x) = if x mod 2 == 0 then 1 else 0
+even = C (R (const 1) (C not [I 3 0])) [I 1 0, Z]
+
+-- Is divisible: divisible(x, y) = if (y > 0 and x mod y == 0) or x == 0 then 1 else 0
+divisible = C z [mod]
+
+-- Is prime: prime(x) = if x is prime then 1 else 0
+prime = C eq [C (R Z (C add [C divisible [I 3 2, I 3 1], I 3 0])) [I 1 0, I 1 0], const 1]
 
 
 {---- Arithmetic functions ----}
@@ -140,10 +152,13 @@ pred = C (R Z (I 3 1)) [I 1 0, I 1 0]
 add = R (I 1 0) (C S [I 3 0])
 
 -- Subtraction/difference: sub(x, y) = max(x - y, 0)
-sub = C (R (I 1 0) (C pred [I 3 0])) [I 2 1, I 2 0]
+sub = C subrev [I 2 1, I 2 0]
+
+-- Reverse subtraction: subrev(x, y) = max(y - x, 0)
+subrev = R (I 1 0) (C pred [I 3 0])
 
 -- Absolute difference: diff(x, y) = abs(x - y)
-diff = C add [sub, C sub [I 2 1, I 2 0]]
+diff = C add [sub, subrev]
 
 -- Multiplication/product: mul(x, y) = x * y
 mul = R Z (C add [I 3 0, I 3 2])
@@ -151,5 +166,8 @@ mul = R Z (C add [I 3 0, I 3 2])
 -- Power/exponentiation: exp(x, y) = x ^ y
 exp = C (R (const 1) (C mul [I 3 2, I 3 0])) [I 2 1, I 2 0]
 
--- Factorial: fact(x) = x!
-fact = C (R (const 1) (C mul [C S [I 3 1], I 3 0])) [I 1 0, Z]
+-- Modulo: mod(x, y) = if y != 0 then (x mod y) else x
+mod = C (R (I 2 0) (C mux [C ge [I 4 0, I 4 3], C sub [I 4 0, I 4 3], I 4 0])) [I 2 0, I 2 0, I 2 1]
+
+-- Factorial: factorial(x) = x!
+factorial = C (R (const 1) (C mul [C S [I 3 1], I 3 0])) [I 1 0, Z]
