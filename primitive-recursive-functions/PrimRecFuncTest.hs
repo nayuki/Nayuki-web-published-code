@@ -1,6 +1,6 @@
 {- 
  - Test suite for PrimRecFunc.
- - Runnable as a main program, which should print "All N tests passed".
+ - Runnable as a main program, which should print "All tests passed".
  - 
  - Copyright (c) 2012 Nayuki Minase
  -}
