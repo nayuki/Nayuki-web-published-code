@@ -5,7 +5,7 @@
  - Copyright (c) 2012 Nayuki Minase
  -}
 
-module PrimRecFuncTest where
+module Main where
 
 import PrimRecFunc
 
@@ -344,6 +344,40 @@ tests = [
 	TestCase PrimRecFunc.exp [5, 3] 125,
 	TestCase PrimRecFunc.exp [6, 2] 36,
 	
+	TestCase PrimRecFunc.div [ 0, 0] 0,
+	TestCase PrimRecFunc.div [ 1, 0] 1,
+	TestCase PrimRecFunc.div [ 2, 0] 2,
+	TestCase PrimRecFunc.div [ 3, 0] 3,
+	TestCase PrimRecFunc.div [ 0, 1] 0,
+	TestCase PrimRecFunc.div [ 1, 1] 1,
+	TestCase PrimRecFunc.div [ 2, 1] 2,
+	TestCase PrimRecFunc.div [ 3, 1] 3,
+	TestCase PrimRecFunc.div [ 0, 2] 0,
+	TestCase PrimRecFunc.div [ 1, 2] 0,
+	TestCase PrimRecFunc.div [ 2, 2] 1,
+	TestCase PrimRecFunc.div [ 3, 2] 1,
+	TestCase PrimRecFunc.div [ 4, 2] 2,
+	TestCase PrimRecFunc.div [11, 2] 5,
+	TestCase PrimRecFunc.div [14, 2] 7,
+	TestCase PrimRecFunc.div [ 0, 3] 0,
+	TestCase PrimRecFunc.div [ 1, 3] 0,
+	TestCase PrimRecFunc.div [ 2, 3] 0,
+	TestCase PrimRecFunc.div [ 3, 3] 1,
+	TestCase PrimRecFunc.div [ 4, 3] 1,
+	TestCase PrimRecFunc.div [ 5, 3] 1,
+	TestCase PrimRecFunc.div [ 6, 3] 2,
+	TestCase PrimRecFunc.div [11, 3] 3,
+	TestCase PrimRecFunc.div [18, 3] 6,
+	TestCase PrimRecFunc.div [ 8, 4] 2,
+	TestCase PrimRecFunc.div [ 0, 4] 0,
+	TestCase PrimRecFunc.div [23, 4] 5,
+	TestCase PrimRecFunc.div [20, 5] 4,
+	TestCase PrimRecFunc.div [21, 5] 4,
+	TestCase PrimRecFunc.div [ 5, 6] 0,
+	TestCase PrimRecFunc.div [30, 6] 5,
+	TestCase PrimRecFunc.div [ 2, 7] 0,
+	TestCase PrimRecFunc.div [19, 7] 2,
+	
 	TestCase PrimRecFunc.mod [0, 0] 0,
 	TestCase PrimRecFunc.mod [1, 0] 1,
 	TestCase PrimRecFunc.mod [2, 0] 2,
@@ -379,20 +413,21 @@ tests = [
 {---- Main program ----}
 
 main = do
-	let passed = Prelude.and (map (\(TestCase f arg ans) -> (eval f arg) == ans) tests)
-	if passed then
-		putStrLn $ "All " ++ (show (length tests)) ++ " tests passed"
-	else do
-		putStrLn "One or more tests failed:"
-		printFails tests
+	putStrLn $ "Testing " ++ (show (length tests)) ++ " cases..."
+	doTests tests False
 
 
-printFails :: [TestCase] -> IO ()
-printFails [] = return ()
-printFails ((TestCase f arg ans):tcs) = do
+doTests :: [TestCase] -> Bool -> IO ()
+doTests [] False = putStrLn "All tests passed"
+doTests [] True  = return ()
+doTests ((TestCase f arg ans):tcs) failed = do
 	let actual = eval f arg
-	if actual /= ans then
+	if actual /= ans then do
+		if Prelude.not failed then
+			putStrLn "One or more tests failed:"
+		else
+			return ()
 		putStrLn $ "    " ++ (show f) ++ " " ++ (show arg) ++ " = " ++ (show actual) ++ " != " ++ (show ans)
+		doTests tcs True
 	else
-		return ()
-	printFails tcs
+		doTests tcs failed

@@ -7,10 +7,10 @@ module PrimRecFunc
 	(Prf(Z,S,I,C,R,Native), eval, evalCount, getAndCheckArgs,
 	not, and, or, xor, mux,
 	z, nz, eq, neq, lt, le, gt, ge, even, divisible, prime,
-	const, pred, add, sub, subrev, diff, min, max, mul, exp, mod, factorial)
+	const, pred, add, sub, subrev, diff, min, max, mul, exp, div, mod, factorial)
 	where
 
-import Prelude hiding (and, const, even, exp, max, min, mod, not, or, pred)
+import Prelude hiding (and, const, div, even, exp, max, min, mod, not, or, pred)
 import qualified Prelude
 
 
@@ -222,6 +222,9 @@ mul = R Z (C add [I 3 0, I 3 2])
 
 -- Power/exponentiation: exp(x, y) = x ^ y
 exp = C (R (const 1) (C mul [I 3 2, I 3 0])) [I 2 1, I 2 0]
+
+-- Truncating division: div(x, y) = if y != 0 then floor(x / y) else x
+div = C (R (C Z [I 2 0]) (C mux [C le [C mul [C S [I 4 0], I 4 3], I 4 2], C S [I 4 0], I 4 0])) [I 2 0, I 2 0, I 2 1]
 
 -- Modulo: mod(x, y) = if y != 0 then (x mod y) else x
 mod = C (R (I 2 0) (C mux [C ge [I 4 0, I 4 3], C sub [I 4 0, I 4 3], I 4 0])) [I 2 0, I 2 0, I 2 1]
