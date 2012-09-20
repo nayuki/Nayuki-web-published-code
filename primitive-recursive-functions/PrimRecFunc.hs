@@ -14,6 +14,7 @@ import Prelude hiding (and, const, div, even, exp, max, min, mod, not, or, pred)
 import qualified Prelude
 
 
+
 {---- Data type for primitive recursive functions ----}
 
 data Prf = Z | S | I Int Int | C Prf [Prf] | R Prf Prf | Native ([Int] -> Int)
@@ -130,8 +131,7 @@ evalCount (Native f) xs = (f xs, 1, 1)
 
 {---- Library of primitive recursive functions ----}
 
-
-{---- Boolean functions ----}
+{-- Boolean functions --}
 -- 0 means false, 1 means true, and all other values cause unspecified behavior
 
 -- Negation (NOT): not(x)
@@ -150,7 +150,7 @@ xor = R (I 1 0) (C not [I 3 2])
 mux = R (I 2 1) (I 4 2)
 
 
-{---- Comparison functions ----}
+{-- Comparison functions --}
 -- Every function returns only Boolean values, i.e. 0 or 1
 
 -- Is zero: z(x, y) = if x == 0 then 1 else 0
@@ -187,7 +187,7 @@ divisible = C z [mod]
 prime = C eq [C (R Z (C add [C divisible [I 3 2, I 3 1], I 3 0])) [I 1 0, I 1 0], const 1]
 
 
-{---- Arithmetic functions ----}
+{-- Arithmetic functions --}
 
 -- Constant: const_{n}(x) = n
 -- This is actually a PRF generator
