@@ -1,3 +1,10 @@
+# 
+# Test suite for primrecfunc.
+# Runnable as a main program, which should print "All tests passed".
+# 
+# Copyright (c) 2012 Nayuki Minase
+# 
+
 from primrecfunc import *
 
 

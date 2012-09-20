@@ -1,3 +1,9 @@
+# 
+# Primitive recursive functions
+# Copyright (c) 2012 Nayuki Minase
+# 
+
+
 # ---- Classes for primitive recursive functions ----
 
 # Abstract base class of all primitive recursive functions.
