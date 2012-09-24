@@ -1,12 +1,13 @@
 /*
  * Chemical equation balancer
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2012 Nayuki Minase
  */
 
 
 /* Main functions, which are entry points from the HTML code */
 
-function balance() {
+// Balances the given formula string and sets the HTML output on the page. Returns nothing.
+function balance(formulaStr) {
 	// Clear output
 	setMessage("");
 	var balancedElem = document.getElementById("balanced");
@@ -18,40 +19,32 @@ function balance() {
 	// Parse equation
 	var eqn;
 	try {
-		eqn = parse();
+		eqn = parse(formulaStr);
 	} catch (e) {
-		if (typeof e == "string") {
+		if (typeof e == "string") {  // Simple error message string
 			setMessage("Syntax error: " + e);
-		} else if ("start" in e && "end" in e) {
+			
+		} else if ("start" in e) {  // Error message object with start and possibly end character indices
 			setMessage("Syntax error: " + e.message);
 			
-			var input = document.getElementById("input").value;
 			var start = e.start;
-			var end = e.end;
-			while (start < input.length && start < end && input.charAt(start) == " ") start++;  // Adjust to eliminate white space
-			while (end >= 1 && start < end && input.charAt(end - 1) == " ") end--;              // Adjust to eliminate white space
+			var end = "end" in e ? e.end : e.start;
+			while (end > start && (formulaStr.charAt(end - 1) == " " || formulaStr.charAt(end - 1) == "\t"))
+				end--;  // Adjust position to eliminate whitespace
+			if (start == end)
+				end++;
 			
-			removeAllChildren(codeOutElem);
-			codeOutElem.appendChild(document.createTextNode(input.substring(0, start)));
+			codeOutElem.appendChild(document.createTextNode(formulaStr.substring(0, start)));
 			var highlight = document.createElement("u");
-			highlight.appendChild(document.createTextNode(input.substring(start, end)));
-			codeOutElem.appendChild(highlight);
-			codeOutElem.appendChild(document.createTextNode(input.substring(end, input.length)));
-		} else if ("start" in e) {
-			setMessage("Syntax error: " + e.message);
-			var input = document.getElementById("input").value;
-			var start = e.start;
-			removeAllChildren(codeOutElem);
-			codeOutElem.appendChild(document.createTextNode(input.substring(0, start)));
-			var highlight = document.createElement("u");
-			if (start != input.length) {
-				highlight.appendChild(document.createTextNode(input.substring(start, start + 1)));
+			if (end <= formulaStr.length) {
+				highlight.appendChild(document.createTextNode(formulaStr.substring(start, end)));
 				codeOutElem.appendChild(highlight);
-				codeOutElem.appendChild(document.createTextNode(input.substring(start + 1, input.length)));
+				codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
 			} else {
 				highlight.appendChild(document.createTextNode(NBSP));
 				codeOutElem.appendChild(highlight);
 			}
+			
 		} else {
 			setMessage("Assertion error");
 		}
@@ -70,21 +63,23 @@ function balance() {
 }
 
 
-function show(str) {
-	document.getElementById("input").value = str;
-	balance();
+// Sets the input box to the given formula string and balances it. Returns nothing.
+function demo(formulaStr) {
+	document.getElementById("input-formula").value = formulaStr;
+	balance(formulaStr);
 }
 
 
 /* Main processing fuctions */
 
-function parse() {
-	var input = document.getElementById("input").value;
-	var tokenizer = new Tokenizer(input);
+// Parses the given formula string and returns an equation object, or throws an exception.
+function parse(formulaStr) {
+	var tokenizer = new Tokenizer(formulaStr);
 	return parseEquation(tokenizer);
 }
 
 
+// Returns a matrix based on the given equation object.
 function buildMatrix(eqn) {
 	var elems = eqn.getElements();
 	var rows = elems.length + 1;
@@ -184,9 +179,9 @@ function checkAnswer(eqn, coefs) {
 }
 
 
-/* Chemical equation representation */
+/* Chemical equation data types */
 
-// A complete chemical equation. It has a left-hand side list of terms, and a right-hand side list of terms.
+// A complete chemical equation. It has a left-hand side list of terms and a right-hand side list of terms.
 // For example: H2 + O2 -> H2O.
 function Equation(lhs, rhs) {
 	// Make defensive copies
@@ -208,37 +203,31 @@ function Equation(lhs, rhs) {
 	}
 	
 	// Returns an HTML element representing this equation.
-	// 'coefs' is an optional argument, which is a list of coefficients to match with the terms.
+	// 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
 	this.toHtml = function(coefs) {
 		if (coefs !== undefined && coefs.length != lhs.length + rhs.length)
 			throw "Mismatched number of coefficients";
+		
 		var node = document.createElement("span");
 		
-		var initial = true;
-		for (var i = 0; i < lhs.length; i++) {
-			var coef = coefs !== undefined ? coefs[i] : 1;
-			if (coef != 0) {
-			if (initial) initial = false;
-			else node.appendChild(document.createTextNode(" + "));
-				if (coef != 1)
-					node.appendChild(document.createTextNode(coef.toString().replace(/-/, MINUS)));
-				node.appendChild(lhs[i].toHtml());
+		function termsToHtml(terms) {
+			var head = true;
+			for (var i = 0; i < terms.length; i++) {
+				var coef = coefs !== undefined ? coefs[i] : 1;
+				if (coef != 0) {
+					if (head) head = false;
+					else node.appendChild(document.createTextNode(" + "));
+					if (coef != 1)
+						node.appendChild(document.createTextNode(coef.toString().replace(/-/, MINUS)));
+					node.appendChild(terms[i].toHtml());
+				}
 			}
 		}
 		
-		node.appendChild(document.createTextNode(" \u2192 "));
+		termsToHtml(lhs);
+		node.appendChild(document.createTextNode(" " + RIGHT_ARROW + " "));
+		termsToHtml(rhs);
 		
-		initial = true;
-		for (var i = 0; i < rhs.length; i++) {
-			var coef = coefs !== undefined ? coefs[lhs.length + i] : 1;
-			if (coef != 0) {
-			if (initial) initial = false;
-			else node.appendChild(document.createTextNode(" + "));
-				if (coef != 1)
-					node.appendChild(document.createTextNode(coef.toString().replace(/-/, MINUS)));
-				node.appendChild(rhs[i].toHtml());
-			}
-		}
 		return node;
 	}
 }
@@ -248,17 +237,19 @@ function Equation(lhs, rhs) {
 // For example: H3O^+, or e^-.
 function Term(items, charge) {
 	if (items.length == 0 && charge != -1)
-		throw "Invalid term";
+		throw "Invalid term";  // Electron case
+	
 	items = cloneArray(items);
 	
 	this.getItems = function() { return cloneArray(items); }
 	
-	this.getElements = function(result) {
-		result.add("e");
+	this.getElements = function(resultSet) {
+		resultSet.add("e");
 		for (var i = 0; i < items.length; i++)
-			items[i].getElements(result);
+			items[i].getElements(resultSet);
 	}
 	
+	// Counts the number of times the given element (specified as a string) occurs in this term, taking groups and counts into account, returning an integer.
 	this.countElement = function(name) {
 		if (name == "e") {
 			return -charge;
@@ -270,6 +261,7 @@ function Term(items, charge) {
 		}
 	}
 	
+	// Returns an HTML element representing this term.
 	this.toHtml = function() {
 		var node = document.createElement("span");
 		if (items.length == 0 && charge == -1) {
@@ -307,9 +299,9 @@ function Group(items, count) {
 	
 	this.getCount = function() { return count; }
 	
-	this.getElements = function(result) {
+	this.getElements = function(resultSet) {
 		for (var i = 0; i < items.length; i++)
-			items[i].getElements(result);
+			items[i].getElements(resultSet);
 	}
 	
 	this.countElement = function(name) {
@@ -319,6 +311,7 @@ function Group(items, count) {
 		return sum;
 	}
 	
+	// Returns an HTML element representing this group.
 	this.toHtml = function() {
 		var node = document.createElement("span");
 		node.appendChild(document.createTextNode("("));
@@ -336,7 +329,7 @@ function Group(items, count) {
 
 
 // A chemical element.
-// For example: N2, Uuq6, Ace
+// For example: Na, F2, Ace, Uuq6
 function Element(name, count) {
 	if (count < 1)
 		throw "Count must be a positive integer";
@@ -345,10 +338,11 @@ function Element(name, count) {
 	
 	this.getCount = function() { return count; }
 	
-	this.getElements = function(result) { result.add(name); }
+	this.getElements = function(resultSet) { resultSet.add(name); }
 	
 	this.countElement = function(n) { return n == name ? count : 0; }
 	
+	// Returns an HTML element representing this element.
 	this.toHtml = function() {
 		var node = document.createElement("span");
 		node.appendChild(document.createTextNode(name));
@@ -364,6 +358,7 @@ function Element(name, count) {
 
 /* Parser functions */
 
+// Parses and returns an equation.
 function parseEquation(tok) {
 	var lhs = [];
 	var rhs = [];
@@ -371,34 +366,35 @@ function parseEquation(tok) {
 	lhs.push(parseTerm(tok));
 	while (true) {
 		var next = tok.peek();
-		if (next == "=")
+		if (next == "=") {
+			tok.consume("=");
 			break;
-		if (next == null)
+		} else if (next == null) {
 			throw {message: "Plus or equal sign expected", start: tok.position()};
-		if (next != "+")
+		} else if (next == "+") {
+			tok.consume("+");
+			lhs.push(parseTerm(tok));
+		} else
 			throw {message: "Plus expected", start: tok.position()};
-		tok.take();  // Consume "+"
-		lhs.push(parseTerm(tok));
 	}
-	
-	if (tok.take() != "=")
-		throw "Assertion error";
 	
 	rhs.push(parseTerm(tok));
 	while (true) {
 		var next = tok.peek();
 		if (next == null)
 			break;
-		if (next != "+")
-			throw {message: "Plus expected", start: tok.position()};
-		tok.take();  // Consume "+"
-		rhs.push(parseTerm(tok));
+		else if (next == "+") {
+			tok.consume("+");
+			rhs.push(parseTerm(tok));
+		} else
+			throw {message: "Plus or end expected", start: tok.position()};
 	}
 	
 	return new Equation(lhs, rhs);
 }
 
 
+// Parses and returns a term.
 function parseTerm(tok) {
 	var startPosition = tok.position();
 	
@@ -420,20 +416,16 @@ function parseTerm(tok) {
 	var charge = 0;
 	var next = tok.peek();
 	if (next != null && next == "^") {
-		tok.take();  // Consume "^"
+		tok.consume("^");
 		next = tok.peek();
 		if (next == null)
 			throw {message: "Number or sign expected", start: tok.position()};
-		else if (/^[0-9]+$/.test(next)) {
-			charge = checkedParseInt(next, 10);
-			tok.take();  // Consume the number
-			next = tok.peek();
-		} else
-			charge = 1;
+		else
+			charge = parseOptionalNumber(tok);
 		
-		if (next == null)
-			throw {message: "Sign expected", start: tok.position()};
-		else if (next == "+");  // Charge is positive, do nothing
+		next = tok.peek();
+		if (next == "+")
+			charge = +charge;  // No-op
 		else if (next == "-")
 			charge = -charge;
 		else
@@ -447,16 +439,19 @@ function parseTerm(tok) {
 		items[i].getElements(elems);
 	elems = elems.toArray();  // List of all elements used in this term, with no repeats
 	if (items.length == 0) {
-		throw {message: "Invalid term", start: startPosition, end: tok.position()};
+		throw {message: "Invalid term - empty", start: startPosition, end: tok.position()};
 	} else if (indexOf(elems, "e") != -1) {  // If it's the special electron element
-		if (items.length > 1 || charge != 0 && charge != -1)
-			throw {message: "Invalid term", start: startPosition, end: tok.position()};
+		if (items.length > 1)
+			throw {message: "Invalid term - electron needs to stand alone", start: startPosition, end: tok.position()};
+		else if (charge != 0 && charge != -1)
+			throw {message: "Invalid term - invalid charge for electron", start: startPosition, end: tok.position()};
+		// Tweak data
 		items = [];
 		charge = -1;
 	} else {  // Otherwise, a term must not contain an element that starts with lowercase
 		for (var i = 0; i < elems.length; i++) {
 			if (/^[a-z]+$/.test(elems[i]))
-				throw {message: 'Invalid element "' + elems[i] + '"', start: startPosition, end: tok.position()};
+				throw {message: 'Invalid element name "' + elems[i] + '"', start: startPosition, end: tok.position()};
 		}
 	}
 	
@@ -464,10 +459,10 @@ function parseTerm(tok) {
 }
 
 
+// Parses and returns a group.
 function parseGroup(tok) {
-	if (tok.take() != "(")
-		throw "Assertion error";
-	
+	var startPosition = tok.position();
+	tok.consume("(");
 	var items = [];
 	while (true) {
 		var next = tok.peek();
@@ -477,32 +472,33 @@ function parseGroup(tok) {
 			items.push(parseGroup(tok));
 		else if (/^[A-Za-z][a-z]*$/.test(next))
 			items.push(parseElement(tok));
-		else if (next == ")")
+		else if (next == ")") {
+			tok.consume(")");
+			if (items.length == 0)
+				throw {message: "Empty group", start: startPosition, end: tok.position()};
 			break;
-		else
+		} else
 			throw {message: "Element, group, or closing parenthesis expected", start: tok.position()};
 	}
 	
-	if (tok.take() != ")")
-		throw "Assertion error";
-	
-	return new Group(items, parseCount(tok));
+	return new Group(items, parseOptionalNumber(tok));
 }
 
 
+// Parses and returns an element.
 function parseElement(tok) {
 	var name = tok.take();
 	if (!/^[A-Za-z][a-z]*$/.test(name))
 		throw "Assertion error";
-	return new Element(name, parseCount(tok));
+	return new Element(name, parseOptionalNumber(tok));
 }
 
 
-// Parse optional count
-function parseCount(tok) {
+// Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
+function parseOptionalNumber(tok) {
 	var next = tok.peek();
 	if (next != null && /^[0-9]+$/.test(next))
-		return checkedParseInt(tok.take(), 10);
+		return checkedParseInt(tok.take());
 	else
 		return 1;
 }
@@ -510,67 +506,87 @@ function parseCount(tok) {
 
 /* Tokenizer object */
 
+// Tokenizes a formula into a stream of token strings.
 function Tokenizer(str) {
 	var i = 0;
 	
+	// Returns the index of the next character to tokenize.
 	this.position = function() {
 		return i;
 	}
 	
+	// Returns the next token as a string, or null if the end of the token stream is reached.
 	this.peek = function() {
-		if (i == str.length)
-			return null;  // End of stream
+		if (i == str.length)  // End of stream
+			return null;
 		
-		var match = /^([A-Za-z][a-z]*|[0-9]+| +|[+\-^=()])/.exec(str.substring(i));
+		var match = /^[A-Za-z][a-z]*|[0-9]+|[+\-^=()]/.exec(str.substring(i));
 		if (match == null)
 			throw {message: "Invalid symbol", start: i};
-		
-		var token = match[0];
-		if (/^ +$/.test(token)) {  // Skip whitespace token
-			i += token.length;
-			token = this.peek();  // Get next token
-		}
-		return token;
+		return match[0];
 	}
 	
+	// Returns the next token as a string and advances this tokenizer past the token.
 	this.take = function() {
 		var result = this.peek();
+		if (result == null)
+			throw "Advancing beyond last token"
 		i += result.length;
+		skipSpaces();
 		return result;
 	}
+	
+	// Takes the next token and checks that it matches the given string, or throws an exception.
+	this.consume = function(s) {
+		if (this.take() != s)
+			throw "Token mismatch";
+	}
+	
+	function skipSpaces() {
+		var match = /^[ \t]*/.exec(str.substring(i));
+		i += match[0].length;
+	}
+	
+	skipSpaces();
 }
 
 
 /* Matrix object */
 
+// A matrix of integers.
 function Matrix(rows, cols) {
+	if (rows < 0 || cols < 0)
+		throw "Illegal argument";
+	
 	// Initialize with zeros
-	var cells = [];
-	for (var i = 0; i < rows; i++) {
-		var row = [];
-		for (var j = 0; j < cols; j++)
-			row.push(0);
-		cells.push(row);
-	}
+	var row = [];
+	for (var j = 0; j < cols; j++)
+		row.push(0);
+	var cells = [];  // Main data (the matrix)
+	for (var i = 0; i < rows; i++)
+		cells.push(cloneArray(row));
+	row = null;
 	
 	this.rowCount = function() { return rows; }
 	this.columnCount = function() { return cols; }
 	
-	// Returns the value of the given cell in the matrix, where i is the row and j is the column.
+	// Returns the value of the given cell in the matrix, where r is the row and c is the column.
 	this.get = function(r, c) {
 		if (r < 0 || r >= rows || c < 0 || c >= cols)
 			throw "Index out of bounds";
 		return cells[r][c];
 	}
 	
-	// Sets the given cell in the matrix to the given value, where i is the row and j is the column.
+	// Sets the given cell in the matrix to the given value, where r is the row and c is the column.
 	this.set = function(r, c, val) {
 		if (r < 0 || r >= rows || c < 0 || c >= cols)
 			throw "Index out of bounds";
 		cells[r][c] = val;
 	}
 	
-	// Swaps the two rows of the given indices in this matrix. Having i == j is allowed.
+	/* Private helper functions for gaussJordanEliminate() */
+	
+	// Swaps the two rows of the given indices in this matrix. The degenerate case of i == j is allowed.
 	function swapRows(i, j) {
 		if (i < 0 || i >= rows || j < 0 || j >= rows)
 			throw "Index out of bounds";
@@ -579,7 +595,7 @@ function Matrix(rows, cols) {
 		cells[j] = temp;
 	}
 	
-	// Returns a new row that is the product of the two given rows.
+	// Returns a new row that is the sum of the two given rows. The rows are not indices. This object's data is unused.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
 	function addRows(x, y) {
 		var z = cloneArray(x);
@@ -588,7 +604,7 @@ function Matrix(rows, cols) {
 		return z;
 	}
 	
-	// Returns a new row that is the product of the given row with the given scalar.
+	// Returns a new row that is the product of the given row with the given scalar. The row is is not an index. This object's data is unused.
 	// For example, multiplyRow([0, 1, 3], 4) = [0, 4, 12].
 	function multiplyRow(x, c) {
 		var y = cloneArray(x);
@@ -597,7 +613,7 @@ function Matrix(rows, cols) {
 		return y;
 	}
 	
-	// Returns the GCD of all the numbers in the given row.
+	// Returns the GCD of all the numbers in the given row. The row is is not an index. This object's data is unused.
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
 	function gcdRow(x) {
 		var result = 0;
@@ -606,7 +622,7 @@ function Matrix(rows, cols) {
 		return result;
 	}
 	
-	// Returns a new row where the leading non-zero number (if any) is positive, and the GCD of the row is 0 or 1.
+	// Returns a new row where the leading non-zero number (if any) is positive, and the GCD of the row is 0 or 1. This object's data is unused.
 	// For example, simplifyRow([0, -2, 2, 4]) = [0, 1, -1, -2].
 	function simplifyRow(x) {
 		var sign = 0;
@@ -628,7 +644,7 @@ function Matrix(rows, cols) {
 		return y;
 	}
 	
-	// Changes this matrix to reduced row echelon form, except that each leading coefficient is not necessarily 1. Each row is simplified.
+	// Changes this matrix to reduced row echelon form (RREF), except that each leading coefficient is not necessarily 1. Each row is simplified.
 	this.gaussJordanEliminate = function() {
 		// Simplify all rows
 		for (var i = 0; i < rows; i++)
@@ -692,21 +708,32 @@ function Matrix(rows, cols) {
 /* Set object */
 
 function Set() {
+	// Storage for the set
 	var items = [];
-	this.add = function(obj) { if (indexOf(items, obj) == -1) items.push(obj); }
-	this.contains = function(obj) { return items.indexOf(obj) != -1; }
-	this.toArray = function() { return cloneArray(items); }
+	
+	// Adds the given object to the set. Returns nothing.
+	this.add = function(obj) {
+		if (indexOf(items, obj) == -1)
+			items.push(obj);
+	}
+	
+	// Tests if the given object is in the set, returning a Boolean.
+	this.contains = function(obj) {
+		return items.indexOf(obj) != -1;
+	}
+	
+	// Returns an array containing the elements of this set in an arbitrary order, with no duplicates.
+	this.toArray = function() {
+		return cloneArray(items);
+	}
 }
 
 
-/* Math functions, miscellaneous */
-
-var NBSP  = "\u00A0";  // No-break space
-var MINUS = "\u2212";  // Minus sign
-
+/* Math functions (especially checked integer operations) */
 
 var INT_MAX = 9007199254740992;  // 2^53
 
+// Returns the given string parsed into a number, or throws an exception if the result is too large.
 function checkedParseInt(str) {
 	var result = parseInt(str, 10);
 	if (isNaN(result))
@@ -716,6 +743,7 @@ function checkedParseInt(str) {
 	return result;
 }
 
+// Returns the sum of the given numbers, or throws an exception if the result is too large.
 function checkedAdd(x, y) {
 	var z = x + y;
 	if (z <= -INT_MAX || z >= INT_MAX)
@@ -723,6 +751,7 @@ function checkedAdd(x, y) {
 	return z;
 }
 
+// Returns the product of the given numbers, or throws an exception if the result is too large.
 function checkedMultiply(x, y) {
 	var z = x * y;
 	if (z <= -INT_MAX || z >= INT_MAX)
@@ -731,6 +760,7 @@ function checkedMultiply(x, y) {
 }
 
 
+// Returns the greatest common divisor of the given numbers.
 function gcd(x, y) {
 	if (typeof x != "number" || typeof y != "number" || isNaN(x) || isNaN(y))
 		throw "Invalid argument";
@@ -745,7 +775,15 @@ function gcd(x, y) {
 }
 
 
-// A JavaScript 1.6 function, which every browser has except Internet Explorer
+/* Miscellaneous */
+
+// Unicode character constants (because this script file's character encoding is unspecified)
+var NBSP  = "\u00A0";        // No-break space
+var MINUS = "\u2212";        // Minus sign
+var RIGHT_ARROW = "\u2192";  // Right arrow
+
+
+// A JavaScript 1.6 function for Array, which every browser has except for Internet Explorer.
 function indexOf(array, item) {
 	for (var i = 0; i < array.length; i++) {
 		if (array[i] == item)
@@ -761,6 +799,7 @@ function cloneArray(array) {
 }
 
 
+// Sets the page's message element to the given string.
 function setMessage(str) {
 	var messageElem = document.getElementById("message");
 	removeAllChildren(messageElem);
@@ -768,6 +807,7 @@ function setMessage(str) {
 }
 
 
+// Removes all the children of the given DOM node.
 function removeAllChildren(node) {
 	while (node.childNodes.length > 0)
 		node.removeChild(node.firstChild);
