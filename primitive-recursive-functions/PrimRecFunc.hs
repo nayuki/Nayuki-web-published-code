@@ -65,8 +65,15 @@ eval' (C f gs) xs = eval f (map (\g -> eval g xs) gs)
 
 -- Primitive recursion: R_{f,g}(y, xs) = if (y == 0) then (f xs) else g(R_{f,g}(y-1, xs), y-1, xs)
 eval' (R _ _) [_] = error "Wrong number of arguments"
-eval' (R f _) (0:xs) = eval f xs
-eval' (R f g) (y:xs) = eval g ((eval (R f g) ((y-1):xs)) : (y-1) : xs)
+-- Efficient implementation using tail recursion
+eval' (R f g) (y:xs) = evalR 0 (eval f xs) where
+	evalR i val | i == y    = val
+	            | otherwise = evalR (i+1) (eval g (val : i : xs))
+{- 
+ - Naive evaluation implementation, directly based on mathematical definition. Uses lots of stack space.
+ - eval' (R f _) (0:xs) = eval f xs
+ - eval' (R f g) (y:xs) = eval g ((eval (R f g) (y-1 : xs)) : y-1 : xs)
+ -}
 
 -- Native function implementation
 eval' (Native f) xs = f xs
@@ -122,8 +129,8 @@ evalCount (R f _) (0:xs) =
 	let (r, e, d) = evalCount f xs
 	in (r, e + 1, d + 1)
 evalCount (R f g) (y:xs) =
-	let (r0, e0, d0) = evalCount (R f g) ((y-1) : xs)
-	    (r1, e1, d1) = evalCount g (r0 : (y-1) : xs)
+	let (r0, e0, d0) = evalCount (R f g) (y-1 : xs)
+	    (r1, e1, d1) = evalCount g (r0 : y-1 : xs)
 	in (r1, e0 + e1 + 1, Prelude.max d0 d1 + 1)
 evalCount (Native f) xs = (f xs, 1, 1)
 
