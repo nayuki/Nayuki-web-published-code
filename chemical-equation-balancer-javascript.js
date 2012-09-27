@@ -1,4 +1,4 @@
-/*
+/* 
  * Chemical equation balancer
  * Copyright (c) 2012 Nayuki Minase
  */
@@ -14,7 +14,7 @@ function balance(formulaStr) {
 	var codeOutElem = document.getElementById("codeOutput");
 	removeAllChildren(balancedElem);
 	removeAllChildren(codeOutElem);
-	codeOutElem.appendChild(document.createTextNode(NBSP));
+	codeOutElem.appendChild(document.createTextNode(" "));
 	
 	// Parse equation
 	var eqn;
@@ -41,7 +41,7 @@ function balance(formulaStr) {
 				codeOutElem.appendChild(highlight);
 				codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
 			} else {
-				highlight.appendChild(document.createTextNode(NBSP));
+				highlight.appendChild(document.createTextNode(" "));
 				codeOutElem.appendChild(highlight);
 			}
 			
@@ -65,7 +65,7 @@ function balance(formulaStr) {
 
 // Sets the input box to the given formula string and balances it. Returns nothing.
 function demo(formulaStr) {
-	document.getElementById("input-formula").value = formulaStr;
+	document.getElementById("inputFormula").value = formulaStr;
 	balance(formulaStr);
 }
 
@@ -520,7 +520,7 @@ function Tokenizer(str) {
 		if (i == str.length)  // End of stream
 			return null;
 		
-		var match = /^[A-Za-z][a-z]*|[0-9]+|[+\-^=()]/.exec(str.substring(i));
+		var match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(str.substring(i));
 		if (match == null)
 			throw {message: "Invalid symbol", start: i};
 		return match[0];
@@ -778,7 +778,6 @@ function gcd(x, y) {
 /* Miscellaneous */
 
 // Unicode character constants (because this script file's character encoding is unspecified)
-var NBSP  = "\u00A0";        // No-break space
 var MINUS = "\u2212";        // Minus sign
 var RIGHT_ARROW = "\u2192";  // Right arrow
 
