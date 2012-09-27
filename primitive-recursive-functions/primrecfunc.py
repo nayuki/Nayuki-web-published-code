@@ -89,13 +89,22 @@ class R(PrimRecFunc):
 		self.f = f
 		self.g = g
 	
+	# Efficient evaluation - less iteration overhead (faster) and does not recurse on self (constant stack space)
 	def eval(self, xs):
+		assert len(xs) >= 2
+		val = self.f.eval(xs[1:])
+		for i in xrange(xs[0]):
+			val = self.g.eval([val, i] + xs[1:])
+		return val
+	
+	# Naive evaluation - directly from the mathematical definition
+	def eval_naive(self, xs):
 		assert len(xs) >= 2
 		y = xs[0]
 		if y == 0:
 			return self.f.eval(xs[1:])
 		else:
-			return self.g.eval([self.eval([y-1] + xs[1:])] + [y-1] + xs[1:])
+			return self.g.eval([self.eval([y-1] + xs[1:]), y-1] + xs[1:])
 	
 	def __str__(self):
 		return "R({}, {})".format(str(self.f), str(self.g))
