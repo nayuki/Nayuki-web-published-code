@@ -344,6 +344,22 @@ tests = [
 	TestCase PrimRecFunc.exp [5, 3] 125,
 	TestCase PrimRecFunc.exp [6, 2] 36,
 	
+	TestCase PrimRecFunc.sqrt [ 0] 0,
+	TestCase PrimRecFunc.sqrt [ 1] 1,
+	TestCase PrimRecFunc.sqrt [ 2] 1,
+	TestCase PrimRecFunc.sqrt [ 3] 1,
+	TestCase PrimRecFunc.sqrt [ 4] 2,
+	TestCase PrimRecFunc.sqrt [ 5] 2,
+	TestCase PrimRecFunc.sqrt [ 6] 2,
+	TestCase PrimRecFunc.sqrt [ 7] 2,
+	TestCase PrimRecFunc.sqrt [ 8] 2,
+	TestCase PrimRecFunc.sqrt [ 9] 3,
+	TestCase PrimRecFunc.sqrt [10] 3,
+	TestCase PrimRecFunc.sqrt [15] 3,
+	TestCase PrimRecFunc.sqrt [16] 4,
+	TestCase PrimRecFunc.sqrt [17] 4,
+	TestCase PrimRecFunc.sqrt [23] 4,
+	
 	TestCase PrimRecFunc.div [ 0, 0] 0,
 	TestCase PrimRecFunc.div [ 1, 0] 1,
 	TestCase PrimRecFunc.div [ 2, 0] 2,
@@ -407,7 +423,12 @@ tests = [
 	TestCase PrimRecFunc.factorial [3] 6,
 	TestCase PrimRecFunc.factorial [4] 24,
 	TestCase PrimRecFunc.factorial [5] 120,
-	TestCase PrimRecFunc.factorial [6] 720]
+	TestCase PrimRecFunc.factorial [6] 720,
+	
+	TestCase PrimRecFunc.nthprime [0] 2,
+	TestCase PrimRecFunc.nthprime [1] 3,
+	TestCase PrimRecFunc.nthprime [2] 5,
+	TestCase PrimRecFunc.nthprime [3] 7]
 
 
 {---- Main program ----}

@@ -70,6 +70,7 @@ class C(PrimRecFunc):
 	
 	# f is a PrimRecFunc, and gs is an array of PrimRecFunc.
 	def __init__(self, f, gs):
+		assert len(gs) > 0
 		self.f  = f
 		self.gs = gs
 	
@@ -216,6 +217,9 @@ ge = C(z, [subrev])
 # Is even: even(x) = if x mod 2 == 0 then 1 else 0
 even = C(R(const(1), C(prnot, [I(3,0)])), [I(1,0), Z])
 
+# Square root: sqrt(x) = floor(sqrt(x))
+sqrt = C(R(Z, C(mux, [C(le, [C(mul, [C(S, [I(3,0)]), C(S, [I(3,0)])]), I(3,2)]), C(S, [I(3,0)]), I(3,0)])), [I(1,0), I(1,0)])
+
 # Modulo: mod(x, y) = if y != 0 then (x mod y) else x
 mod = C(R(I(2,0), C(mux, [C(ge, [I(4,0), I(4,3)]), C(sub, [I(4,0), I(4,3)]), I(4,0)])), [I(2,0), I(2,0), I(2,1)])
 
@@ -227,3 +231,6 @@ divisible = C(z, [mod])
 
 # Is prime: prime(x) = if x is prime then 1 else 0
 prime = C(eq, [C(R(Z, C(add, [C(divisible, [I(3,2), I(3,1)]), I(3,0)])), [I(1,0), I(1,0)]), const(1)])
+
+# Nth prime: nthprime(0) = 2, nthprime(1) = 3, nthprime(2) = 5, nthprime(3) = 7, nthprime(4) = 11, ...
+nthprime = C(mux, [I(1,0), C(R(Z, C(mux, [C(even, [I(3,0)]), C(mux, [C(prime, [I(3,1)]), C(mux, [C(eq, [I(3,0), C(add, [I(3,2), I(3,2)])]), I(3,1), C(S, [C(S, [I(3,0)])])]), I(3,0)]), I(3,0)])), [C(exp, [const(2), C(S, [I(1,0)])]), I(1,0)]), const(2)])

@@ -337,6 +337,22 @@ tests = [
 	(exp, [5, 3], 125),
 	(exp, [6, 2], 36),
 	
+	(sqrt, [ 0], 0),
+	(sqrt, [ 1], 1),
+	(sqrt, [ 2], 1),
+	(sqrt, [ 3], 1),
+	(sqrt, [ 4], 2),
+	(sqrt, [ 5], 2),
+	(sqrt, [ 6], 2),
+	(sqrt, [ 7], 2),
+	(sqrt, [ 8], 2),
+	(sqrt, [ 9], 3),
+	(sqrt, [10], 3),
+	(sqrt, [15], 3),
+	(sqrt, [16], 4),
+	(sqrt, [17], 4),
+	(sqrt, [23], 4),
+	
 	(div, [ 0, 0], 0),
 	(div, [ 1, 0], 1),
 	(div, [ 2, 0], 2),
@@ -401,6 +417,11 @@ tests = [
 	(factorial, [4], 24),
 	(factorial, [5], 120),
 	(factorial, [6], 720),
+	
+	(nthprime, [0], 2),
+	(nthprime, [1], 3),
+	(nthprime, [2], 5),
+	(nthprime, [3], 7),
 ]
 
 
