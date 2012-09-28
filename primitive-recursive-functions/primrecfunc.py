@@ -226,14 +226,20 @@ ge = C(z, [subrev])
 # Is even: even(x) = if x mod 2 == 0 then 1 else 0
 even = C(R(const(1), C(prnot, [I(3,0)])), [I(1,0), Z])
 
+# Is odd: odd(x) = if x mod 2 == 1 then 1 else 0
+odd = C(R(Z, C(prnot, [I(3,0)])), [I(1,0), Z])
+
 # Square root: sqrt(x) = floor(sqrt(x))
 sqrt = C(R(Z, C(mux, [C(le, [C(mul, [C(S, [I(3,0)]), C(S, [I(3,0)])]), I(3,2)]), C(S, [I(3,0)]), I(3,0)])), [I(1,0), I(1,0)])
 
-# Modulo: mod(x, y) = if y != 0 then (x mod y) else x
-mod = C(R(I(2,0), C(mux, [C(ge, [I(4,0), I(4,3)]), C(sub, [I(4,0), I(4,3)]), I(4,0)])), [I(2,0), I(2,0), I(2,1)])
+# Logarithm: log(x, y) = if x >= 2 then (if y >= 1 then floor(ln(y) / ln(x)) else 0) else y
+log = C(R(C(Z, [I(2,0)]), C(mux, [C(le, [C(exp, [I(4,2), C(S, [I(4,0)])]), I(4,3)]), C(S, [I(4,0)]), I(4,0)])), [I(2,1), I(2,0), I(2,1)])
 
 # Truncating division: div(x, y) = if y != 0 then floor(x / y) else x
 div = C(R(C(Z, [I(2,0)]), C(mux, [C(le, [C(mul, [C(S, [I(4,0)]), I(4,3)]), I(4,2)]), C(S, [I(4,0)]), I(4,0)])), [I(2,0), I(2,0), I(2,1)])
+
+# Modulo: mod(x, y) = if y != 0 then (x mod y) else x
+mod = C(R(I(2,0), C(mux, [C(ge, [I(4,0), I(4,3)]), C(sub, [I(4,0), I(4,3)]), I(4,0)])), [I(2,0), I(2,0), I(2,1)])
 
 # Is divisible: divisible(x, y) = if (y > 0 and x mod y == 0) or x == 0 then 1 else 0
 divisible = C(z, [mod])
@@ -241,5 +247,20 @@ divisible = C(z, [mod])
 # Is prime: prime(x) = if x is prime then 1 else 0
 prime = C(eq, [C(R(Z, C(add, [C(divisible, [I(3,2), I(3,1)]), I(3,0)])), [I(1,0), I(1,0)]), const(1)])
 
+# Divisibility count: divisiblecount(x, y) =
+#     if x == 0 or y == 0 then 0
+#     elseif y >= 2 then (the highest power of y that divides x)
+#     else y == 1 then x
+divisiblecount = C(R(C(Z, [I(2,0)]), C(mux, [C(divisible, [I(4,2), C(exp, [I(4,3), C(S, [I(4,0)])])]), C(S, [I(4,0)]), I(4,0)])), [I(2,0), I(2,0), I(2,1)])
+
 # Nth prime: nthprime(0) = 2, nthprime(1) = 3, nthprime(2) = 5, nthprime(3) = 7, nthprime(4) = 11, ...
 nthprime = C(mux, [I(1,0), C(R(Z, C(mux, [C(even, [I(3,0)]), C(mux, [C(prime, [I(3,1)]), C(mux, [C(eq, [I(3,0), C(add, [I(3,2), I(3,2)])]), I(3,1), C(S, [C(S, [I(3,0)])])]), I(3,0)]), I(3,0)])), [C(exp, [const(2), C(S, [I(1,0)])]), I(1,0)]), const(2)])
+
+# Fibonacci number: fibonacci(0) = 0, fibonacci(1) = 1, fibonacci(2) = 1, fibonacci(3) = 2, fibonacci(4) = 3, fibonacci(5) = 5, ...
+# Private: _fibtriangle(i) = i * (i-1) / 2
+_fibtriangle = C(R(Z, C(add, [I(3,0), I(3,1)])), [I(1,0), Z])
+# Private: _fibextract(x,i) = floor(x / _fibtriangle(i-1)) mod 2^i
+_fibextract = C(mod, [C(div, [I(2,0), C(exp, [C(const(2), [I(2,0)]), C(_fibtriangle, [I(2,1)])])]), C(exp, [C(const(2), [I(2,0)]), I(2,1)])])
+# Private: _fiball(x) = fibonacci(0)<<0 | fibonacci(1)<<0 | fibonacci(2)<<1 | fibonacci(3)<<3 | fibonacci(4)<<6 | ... | fibonacci(x)<<_fibtriangle(x)
+_fiball = C(R(Z, C(mux, [I(3,1), C(add, [I(3,0), C(mul, [C(add, [C(_fibextract, [I(3,0), I(3,1)]), C(_fibextract, [I(3,0), C(pred, [I(3,1)])])]), C(exp, [C(const(2), [I(3,0)]), C(_fibtriangle, [C(S, [I(3,1)])])])])]), C(const(1), [I(3,0)])])), [I(1,0), Z])
+fibonacci = C(_fibextract, [_fiball, I(1,0)])
