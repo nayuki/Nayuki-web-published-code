@@ -210,10 +210,11 @@ function Equation(lhs, rhs) {
 		
 		var node = document.createElement("span");
 		
+		var j = 0;
 		function termsToHtml(terms) {
 			var head = true;
-			for (var i = 0; i < terms.length; i++) {
-				var coef = coefs !== undefined ? coefs[i] : 1;
+			for (var i = 0; i < terms.length; i++, j++) {
+				var coef = coefs !== undefined ? coefs[j] : 1;
 				if (coef != 0) {
 					if (head) head = false;
 					else node.appendChild(document.createTextNode(" + "));
