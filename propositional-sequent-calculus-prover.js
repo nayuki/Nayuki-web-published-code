@@ -132,6 +132,7 @@ function Sequent(left, right) {
 	// Returns an array of DOM nodes representing this sequent.
 	// The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
 	this.toHtml = function() {
+		// Creates this kind of DOM node: <span class="className">text</span>
 		function createSpan(text, className) {
 			var span = document.createElement("span");
 			span.appendChild(document.createTextNode(text));

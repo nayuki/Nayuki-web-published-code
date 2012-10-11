@@ -106,7 +106,7 @@ function solve(matrix) {
 			break;
 	}
 	if (i == matrix.rowCount() - 1)
-		throw "No solution";  // Unique solution with all coefficients zero
+		throw "All-zero solution";  // Unique solution with all coefficients zero
 	
 	// Add an inhomogeneous equation
 	matrix.set(matrix.rowCount() - 1, i, 1);
@@ -131,7 +131,7 @@ function extractCoefficients(matrix) {
 	var cols = matrix.columnCount();
 	
 	if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
-		throw "No unique solution";
+		throw "Multiple independent solutions";
 	
 	var lcm = 1;
 	for (var i = 0; i < cols - 1; i++)
@@ -208,6 +208,14 @@ function Equation(lhs, rhs) {
 		if (coefs !== undefined && coefs.length != lhs.length + rhs.length)
 			throw "Mismatched number of coefficients";
 		
+		// Creates this kind of DOM node: <span class="className">text</span>
+		function createSpan(text, className) {
+			var span = document.createElement("span");
+			span.appendChild(document.createTextNode(text));
+			span.className = className;
+			return span;
+		}
+		
 		var node = document.createElement("span");
 		
 		var j = 0;
@@ -217,16 +225,16 @@ function Equation(lhs, rhs) {
 				var coef = coefs !== undefined ? coefs[j] : 1;
 				if (coef != 0) {
 					if (head) head = false;
-					else node.appendChild(document.createTextNode(" + "));
+					else node.appendChild(createSpan(" + ", "plus"));
 					if (coef != 1)
-						node.appendChild(document.createTextNode(coef.toString().replace(/-/, MINUS)));
+						node.appendChild(createSpan(coef.toString().replace(/-/, MINUS), "coefficient"));
 					node.appendChild(terms[i].toHtml());
 				}
 			}
 		}
 		
 		termsToHtml(lhs);
-		node.appendChild(document.createTextNode(" " + RIGHT_ARROW + " "));
+		node.appendChild(createSpan(" " + RIGHT_ARROW + " ", "rightarrow"));
 		termsToHtml(rhs);
 		
 		return node;
