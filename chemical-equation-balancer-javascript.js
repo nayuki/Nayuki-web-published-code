@@ -4,17 +4,17 @@
  */
 
 
-/* Main functions, which are entry points from the HTML code */
+/* Main functions, which are the entry points from the HTML code */
 
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function balance(formulaStr) {
 	// Clear output
 	setMessage("");
 	var balancedElem = document.getElementById("balanced");
-	var codeOutElem = document.getElementById("codeOutput");
+	var codeOutElem  = document.getElementById("codeOutput");
 	removeAllChildren(balancedElem);
 	removeAllChildren(codeOutElem);
-	codeOutElem.appendChild(document.createTextNode(" "));
+	appendText(" ", codeOutElem);
 	
 	// Parse equation
 	var eqn;
@@ -34,14 +34,14 @@ function balance(formulaStr) {
 			if (start == end)
 				end++;
 			
-			codeOutElem.appendChild(document.createTextNode(formulaStr.substring(0, start)));
+			appendText(formulaStr.substring(0, start), codeOutElem);
 			var highlight = document.createElement("u");
 			if (end <= formulaStr.length) {
-				highlight.appendChild(document.createTextNode(formulaStr.substring(start, end)));
+				appendText(formulaStr.substring(start, end), highlight);
 				codeOutElem.appendChild(highlight);
-				codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
+				appendText(formulaStr.substring(end, formulaStr.length), codeOutElem);
 			} else {
-				highlight.appendChild(document.createTextNode(" "));
+				appendText(" ", highlight);
 				codeOutElem.appendChild(highlight);
 			}
 			
@@ -70,7 +70,7 @@ function demo(formulaStr) {
 }
 
 
-/* Main processing fuctions */
+/* Core number-processing fuctions */
 
 // Parses the given formula string and returns an equation object, or throws an exception.
 function parse(formulaStr) {
@@ -145,7 +145,7 @@ function extractCoefficients(matrix) {
 		allzero &= coef == 0;
 	}
 	if (allzero)
-		throw "Assertion error: All zero solution";
+		throw "Assertion error: All-zero solution";
 	return coefs;
 }
 
@@ -163,7 +163,7 @@ function checkAnswer(eqn, coefs) {
 		allzero &= coef == 0;
 	}
 	if (allzero)
-		throw "Assertion error: Solution of all zeros";
+		throw "Assertion error: All-zero solution";
 	
 	var elems = eqn.getElements();
 	for (var i = 0; i < elems.length; i++) {
@@ -174,7 +174,7 @@ function checkAnswer(eqn, coefs) {
 		for (var k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
 			sum = checkedAdd(sum, checkedMultiply(rhs[k].countElement(elems[i]), -coefs[j]));
 		if (sum != 0)
-			throw "Assertion error: Balance failed";
+			throw "Assertion error: Incorrect balance";
 	}
 }
 
@@ -211,7 +211,7 @@ function Equation(lhs, rhs) {
 		// Creates this kind of DOM node: <span class="className">text</span>
 		function createSpan(text, className) {
 			var span = document.createElement("span");
-			span.appendChild(document.createTextNode(text));
+			appendText(text, span);
 			span.className = className;
 			return span;
 		}
@@ -274,9 +274,9 @@ function Term(items, charge) {
 	this.toHtml = function() {
 		var node = document.createElement("span");
 		if (items.length == 0 && charge == -1) {
-			node.appendChild(document.createTextNode("e"));
+			appendText("e", node);
 			var sup = document.createElement("sup");
-			sup.appendChild(document.createTextNode(MINUS));
+			appendText(MINUS, sup);
 			node.appendChild(sup);
 		} else {
 			for (var i = 0; i < items.length; i++)
@@ -288,7 +288,7 @@ function Term(items, charge) {
 				else s = Math.abs(charge).toString();
 				if (charge > 0) s += "+";
 				else s += MINUS;
-				sup.appendChild(document.createTextNode(s));
+				appendText(s, sup);
 				node.appendChild(sup);
 			}
 		}
@@ -301,7 +301,7 @@ function Term(items, charge) {
 // For example: (OH)3
 function Group(items, count) {
 	if (count < 1)
-		throw "Count must be a positive integer";
+		throw "Assertion error: Count must be a positive integer";
 	items = cloneArray(items);
 	
 	this.getItems = function() { return cloneArray(items); }
@@ -323,13 +323,13 @@ function Group(items, count) {
 	// Returns an HTML element representing this group.
 	this.toHtml = function() {
 		var node = document.createElement("span");
-		node.appendChild(document.createTextNode("("));
+		appendText("(", node);
 		for (var i = 0; i < items.length; i++)
 			node.appendChild(items[i].toHtml());
-		node.appendChild(document.createTextNode(")"));
+		appendText(")", node);
 		if (count != 1) {
 			var sub = document.createElement("sub");
-			sub.appendChild(document.createTextNode(count.toString()));
+			appendText(count.toString(), sub);
 			node.appendChild(sub);
 		}
 		return node;
@@ -341,7 +341,7 @@ function Group(items, count) {
 // For example: Na, F2, Ace, Uuq6
 function Element(name, count) {
 	if (count < 1)
-		throw "Count must be a positive integer";
+		throw "Assertion error: Count must be a positive integer";
 	
 	this.getName = function() { return name; }
 	
@@ -354,10 +354,10 @@ function Element(name, count) {
 	// Returns an HTML element representing this element.
 	this.toHtml = function() {
 		var node = document.createElement("span");
-		node.appendChild(document.createTextNode(name));
+		appendText(name, node);
 		if (count != 1) {
 			var sub = document.createElement("sub");
-			sub.appendChild(document.createTextNode(count.toString()));
+			appendText(count.toString(), sub);
 			node.appendChild(sub);
 		}
 		return node;
@@ -576,6 +576,8 @@ function Matrix(rows, cols) {
 		cells.push(cloneArray(row));
 	row = null;
 	
+	/* Accessor functions */
+	
 	this.rowCount = function() { return rows; }
 	this.columnCount = function() { return cols; }
 	
@@ -752,7 +754,7 @@ function checkedParseInt(str) {
 	return result;
 }
 
-// Returns the sum of the given numbers, or throws an exception if the result is too large.
+// Returns the sum of the given integers, or throws an exception if the result is too large.
 function checkedAdd(x, y) {
 	var z = x + y;
 	if (z <= -INT_MAX || z >= INT_MAX)
@@ -760,7 +762,7 @@ function checkedAdd(x, y) {
 	return z;
 }
 
-// Returns the product of the given numbers, or throws an exception if the result is too large.
+// Returns the product of the given integers, or throws an exception if the result is too large.
 function checkedMultiply(x, y) {
 	var z = x * y;
 	if (z <= -INT_MAX || z >= INT_MAX)
@@ -769,7 +771,7 @@ function checkedMultiply(x, y) {
 }
 
 
-// Returns the greatest common divisor of the given numbers.
+// Returns the greatest common divisor of the given integers.
 function gcd(x, y) {
 	if (typeof x != "number" || typeof y != "number" || isNaN(x) || isNaN(y))
 		throw "Invalid argument";
@@ -801,22 +803,28 @@ function indexOf(array, item) {
 }
 
 
-// Sometimes used for making a defensive copy
+// Returns a shallow copy of the given array. Usually used for making defensive copies.
 function cloneArray(array) {
 	return array.slice(0);
 }
 
 
-// Sets the page's message element to the given string.
+// Sets the page's message element to the given string. Returns nothing.
 function setMessage(str) {
 	var messageElem = document.getElementById("message");
 	removeAllChildren(messageElem);
-	messageElem.appendChild(document.createTextNode(str));
+	appendText(str, messageElem);
 }
 
 
-// Removes all the children of the given DOM node.
+// Removes all the children of the given DOM node. Returns nothing.
 function removeAllChildren(node) {
 	while (node.childNodes.length > 0)
 		node.removeChild(node.firstChild);
+}
+
+
+// Creates a new text node with the given text and appends it to the given DOM node. Returns nothing.
+function appendText(text, node) {
+	node.appendChild(document.createTextNode(text));
 }
