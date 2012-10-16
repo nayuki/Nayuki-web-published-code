@@ -1,10 +1,15 @@
-/*
+/* 
  * Discrete Fourier transform
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2012 Nayuki Minase
  */
+
 
 public final class Dft {
 	
+	/* 
+	 * Computes the discrete Fourier transform (DFT) of the given vector.
+	 * All the array arguments must have the same length.
+	 */
 	public static void computeDft(double[] inreal, double[] inimag, double[] outreal, double[] outimag) {
 		int n = inreal.length;
 		for (int k = 0; k < n; k++) {  // For each output element
