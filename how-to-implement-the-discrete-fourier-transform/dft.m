@@ -14,7 +14,7 @@
 % 'input' can be a row vector or a column vector.
 % The returned output is the same type of vector with the same dimensions.
 % 
-function output = computedft(input)
+function output = dft(input)
   n = length(input);
   output = zeros(size(input));
   for k = 0 : n - 1  % For each output element
@@ -33,7 +33,7 @@ end
 % 'input' can be a row vector or a column vector.
 % The returned output is the same type of vector with the same dimensions.
 % 
-function output = computedft(input)
+function output = dft(input)
   n = length(input);
   matrix = exp(-2i * pi / n * [0:n-1]' * [0:n-1]);
   if     all(size(input) == [1 n])  % Row vector
