@@ -1,5 +1,10 @@
-// DWITE - December 2009 - Problem 2: Rounding to Fibonacci
-// Solution by Nayuki Minase
+/* 
+ * DWITE - December 2009 - Problem 2: Rounding to Fibonacci
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite200912p2 extends DwiteSolution {

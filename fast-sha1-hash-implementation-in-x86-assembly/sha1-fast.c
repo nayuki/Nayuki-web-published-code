@@ -1,6 +1,8 @@
 /*
  * SHA-1 hash in C
  * Copyright (c) 2012 Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/fast-sha1-hash-implementation-in-x86-assembly
  */
 
 

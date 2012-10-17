@@ -1,5 +1,10 @@
-// DWITE - February 2005 - Problem 2: Snakes
-// Solution by Nayuki Minase
+/* 
+ * DWITE - February 2005 - Problem 2: Snakes
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite200502p2 extends DwiteSolution {

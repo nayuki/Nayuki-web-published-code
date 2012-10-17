@@ -1,5 +1,10 @@
-// DWITE - December 2011 - Problem 1: Weighted Presents
-// Solution by Nayuki Minase
+/* 
+ * DWITE - December 2011 - Problem 1: Weighted Presents
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite201112p1 extends DwiteSolution {

@@ -1,5 +1,10 @@
-// DWITE - January 2010 - Problem 2: Verifying Distributed Work
-// Solution by Nayuki Minase
+/* 
+ * DWITE - January 2010 - Problem 2: Verifying Distributed Work
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite201001p2 extends DwiteSolution {

@@ -1,5 +1,10 @@
-// DWITE - October 2010 - Problem 3: Power tiles
-// Solution by Nayuki Minase
+/* 
+ * DWITE - October 2010 - Problem 3: Power tiles
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite201010p3 extends DwiteSolution {

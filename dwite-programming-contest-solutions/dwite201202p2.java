@@ -1,5 +1,10 @@
-// DWITE - February 2012 - Problem 2: Unit rectangles
-// Solution by Nayuki Minase
+/* 
+ * DWITE - February 2012 - Problem 2: Unit rectangles
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite201202p2 extends DwiteSolution {

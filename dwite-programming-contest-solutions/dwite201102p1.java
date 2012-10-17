@@ -1,5 +1,10 @@
-// DWITE - February 2011 - Problem 1: Colourful Words
-// Solution by Nayuki Minase
+/* 
+ * DWITE - February 2011 - Problem 1: Colourful Words
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite201102p1 extends DwiteSolution {

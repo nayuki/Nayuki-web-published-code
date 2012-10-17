@@ -1,5 +1,10 @@
-// DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
-// Solution by Nayuki Minase
+/* 
+ * DWITE - February 2006 - Problem 2: Floppy Disk 3 1/2-inch High Density
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite200602p2 extends DwiteSolution {

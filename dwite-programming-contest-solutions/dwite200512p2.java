@@ -1,5 +1,10 @@
-// DWITE - December 2005 - Problem 2: The Maze
-// Solution by Nayuki Minase
+/* 
+ * DWITE - December 2005 - Problem 2: The Maze
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 import java.util.LinkedList;
 import java.util.Queue;

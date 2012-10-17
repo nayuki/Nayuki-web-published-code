@@ -1,5 +1,10 @@
-// DWITE - March 2010 - Problem 3: Summary Diff
-// Solution by Nayuki Minase
+/* 
+ * DWITE - March 2010 - Problem 3: Summary Diff
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 import java.util.HashMap;
 import java.util.HashSet;

@@ -1,5 +1,10 @@
-// DWITE - March 2010 - Problem 5: Weak Passwords
-// Solution by Nayuki Minase
+/* 
+ * DWITE - March 2010 - Problem 5: Weak Passwords
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite201003p5 extends DwiteSolution {
@@ -25,7 +30,7 @@ public final class dwite201003p5 extends DwiteSolution {
 			
 			// Increment
 			int i = a.length - 1;
-			while (i >= 0 && a[i] == 26) {
+			while (i >= 0 && a[i] == 25) {
 				a[i] = 0;
 				i--;
 			}

@@ -1,5 +1,10 @@
-// DWITE - November 2010 - Problem 5: Cogwheels
-// Solution by Nayuki Minase
+/* 
+ * DWITE - November 2010 - Problem 5: Cogwheels
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite201011p5 extends DwiteSolution {

@@ -1,5 +1,10 @@
-// DWITE - October 2006 - Problem 2: Body Mass Index
-// Solution by Nayuki Minase
+/* 
+ * DWITE - October 2006 - Problem 2: Body Mass Index
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite200610p2 extends DwiteSolution {

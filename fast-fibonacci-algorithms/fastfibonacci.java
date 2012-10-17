@@ -1,6 +1,8 @@
 /*
  * Demonstration of fast Fibonacci algorithms
  * Copyright (c) 2011 Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/fast-fibonacci-algorithms
  */
 
 

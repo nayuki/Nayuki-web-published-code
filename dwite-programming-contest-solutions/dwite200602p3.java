@@ -1,5 +1,10 @@
-// DWITE - February 2006 - Problem 3: UPC Check Digit
-// Solution by Nayuki Minase
+/* 
+ * DWITE - February 2006 - Problem 3: UPC Check Digit
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite200602p3 extends DwiteSolution {

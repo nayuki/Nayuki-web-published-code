@@ -1,5 +1,10 @@
-// DWITE - November 2006 - Problem 1: 13375P34|<
-// Solution by Nayuki Minase
+/* 
+ * DWITE - November 2006 - Problem 1: 13375P34|<
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite200611p1 extends DwiteSolution {

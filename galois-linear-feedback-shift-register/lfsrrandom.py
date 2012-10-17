@@ -1,5 +1,9 @@
+# 
 # Galois linear feedback shift register (LFSR) in Python
 # Copyright (c) 2012 Nayuki Minase
+# 
+# http://nayuki.eigenstate.org/page/galois-linear-feedback-shift-register
+# 
 
 import random
 

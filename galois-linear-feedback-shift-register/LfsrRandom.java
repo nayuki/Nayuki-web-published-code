@@ -1,6 +1,8 @@
 /*
  * Galois linear feedback shift register (LFSR) in Java
  * Copyright (c) 2012 Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/galois-linear-feedback-shift-register
  */
 
 import java.math.BigInteger;

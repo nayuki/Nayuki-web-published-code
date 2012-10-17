@@ -1,5 +1,10 @@
-// DWITE - December 2011 - Problem 2: Magical Ponds
-// Solution by Nayuki Minase
+/* 
+ * DWITE - December 2011 - Problem 2: Magical Ponds
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -28,7 +33,7 @@ public final class dwite201112p2 extends DwiteSolution {
 	}
 	
 	
-	protected static BigInteger product(List<BigInteger> list) {
+	private static BigInteger product(List<BigInteger> list) {
 		BigInteger product = BigInteger.ONE;
 		for (BigInteger x : list)
 			product = product.multiply(x);

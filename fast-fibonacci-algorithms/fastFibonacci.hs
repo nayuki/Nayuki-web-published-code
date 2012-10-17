@@ -1,5 +1,9 @@
--- Fast doubling Fibonacci algorithm
--- Copyright (c) 2011 Nayuki Minase
+{- 
+ - Fast doubling Fibonacci algorithm
+ - Copyright (c) 2011 Nayuki Minase
+ - 
+ - http://nayuki.eigenstate.org/page/fast-fibonacci-algorithms
+ -}
 
 
 -- fibonacci n = F(n)

@@ -1,5 +1,10 @@
-// DWITE - December 2004 - Problem 3: Reflections
-// Solution by Nayuki Minase
+/* 
+ * DWITE - December 2004 - Problem 3: Reflections
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite200412p3 extends DwiteSolution {

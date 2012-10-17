@@ -1,5 +1,10 @@
-// DWITE - January 2007 - Problem 4: Number Theory
-// Solution by Nayuki Minase
+/* 
+ * DWITE - January 2007 - Problem 4: Number Theory
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite200701p4 extends DwiteSolution {

@@ -2,6 +2,8 @@
 # Discrete Fourier transform
 # Copyright (c) 2012 Nayuki Minase
 # 
+# http://nayuki.eigenstate.org/page/how-to-implement-the-discrete-fourier-transform
+# 
 
 # 
 # This file contains multiple implementations.

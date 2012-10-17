@@ -1,6 +1,8 @@
 /*
  * Dumb PNG Output
  * Copyright (c) 2012 Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dumb-png-output-java
  */
 
 import java.io.*;

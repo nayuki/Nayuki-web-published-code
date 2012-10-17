@@ -1,5 +1,10 @@
-// DWITE - December 2011 - Problem 5: Tautology
-// Solution by Nayuki Minase
+/* 
+ * DWITE - December 2011 - Problem 5: Tautology
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

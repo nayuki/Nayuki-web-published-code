@@ -1,5 +1,10 @@
-// DWITE - October 2009 - Problem 5: Running In Circles
-// Solution by Nayuki Minase
+/* 
+ * DWITE - October 2009 - Problem 5: Running In Circles
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 import java.util.ArrayList;
 import java.util.List;

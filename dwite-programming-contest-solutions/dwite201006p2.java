@@ -1,5 +1,10 @@
-// DWITE - June 2010 - Problem 2: Sum of Primes
-// Solution by Nayuki Minase
+/* 
+ * DWITE - June 2010 - Problem 2: Sum of Primes
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 
 public final class dwite201006p2 extends DwiteSolution {

@@ -1,5 +1,10 @@
-// DWITE - April 2010 - Problem 4: Time for Change
-// Solution by Nayuki Minase
+/* 
+ * DWITE - April 2010 - Problem 4: Time for Change
+ * Solution by Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/dwite-programming-contest-solutions
+ * https://github.com/nayuki/DWITE-programming-contest-solutions
+ */
 
 import java.util.Arrays;
 

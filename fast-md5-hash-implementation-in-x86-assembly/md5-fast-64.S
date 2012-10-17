@@ -1,6 +1,8 @@
 /*
  * MD5 hash in x86-64 assembly
  * Copyright (c) 2012 Nayuki Minase
+ * 
+ * http://nayuki.eigenstate.org/page/fast-md5-hash-implementation-in-x86-assembly
  */
 
 
