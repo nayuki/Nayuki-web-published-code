@@ -5,7 +5,6 @@
  * http://nayuki.eigenstate.org/page/fast-fibonacci-algorithms
  */
 
-
 import java.math.BigInteger;
 
 

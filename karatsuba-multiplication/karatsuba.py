@@ -7,6 +7,7 @@
 
 # Requires Python version >= 2.7 because of long.bit_length().
 
+
 # Requirement: _CUTOFF >= 64, or else there will be infinite recursion.
 _CUTOFF = 1536;
 
