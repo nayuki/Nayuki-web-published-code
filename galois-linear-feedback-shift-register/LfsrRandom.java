@@ -1,4 +1,4 @@
-/*
+/* 
  * Galois linear feedback shift register (LFSR) in Java
  * Copyright (c) 2012 Nayuki Minase
  * 

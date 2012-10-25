@@ -9,119 +9,119 @@
 # Abstract base class of all primitive recursive functions.
 # All subclasses should be designed to be immutable.
 class PrimRecFunc(object):
-	
-	# xs is an array of integers.
-	def eval(self, xs):
-		raise NotImplementedError()
-	
-	def __str__(self):
-		raise NotImplementedError()
+    
+    # xs is an array of integers.
+    def eval(self, xs):
+        raise NotImplementedError()
+    
+    def __str__(self):
+        raise NotImplementedError()
 
 
 # Zero function: Z(x) = 0
 class _Z(PrimRecFunc):  # Private class
-	
-	def eval(self, xs):
-		assert len(xs) == 1
-		assert xs[0] >= 0
-		return 0
-	
-	def __str__(self):
-		return "Z"
+    
+    def eval(self, xs):
+        assert len(xs) == 1
+        assert xs[0] >= 0
+        return 0
+    
+    def __str__(self):
+        return "Z"
 
 Z = _Z()  # Public singleton instance
 
 
 # Successor function: S(x) = x + 1
 class _S(PrimRecFunc):  # Private class
-	
-	def eval(self, xs):
-		assert len(xs) == 1
-		assert xs[0] >= 0
-		return xs[0] + 1
-	
-	def __str__(self):
-		return "S"
+    
+    def eval(self, xs):
+        assert len(xs) == 1
+        assert xs[0] >= 0
+        return xs[0] + 1
+    
+    def __str__(self):
+        return "S"
 
 S = _S()  # Public singleton instance
 
 
 # Projection function: I_{n,i}(x_0, ..., x_{n-1}) = x_i
 class I(PrimRecFunc):
-	
-	# Integer n is the arity of the function, with n > 0. Integer i is the index to take.
-	def __init__(self, n, i):
-		assert n > 0 and 0 <= i < n
-		self.n = n
-		self.i = i
-	
-	def eval(self, xs):
-		assert len(xs) == self.n
-		for x in xs:
-			assert x >= 0
-		return xs[self.i]
-	
-	def __str__(self):
-		return "I({},{})".format(self.n, self.i)
+    
+    # Integer n is the arity of the function, with n > 0. Integer i is the index to take.
+    def __init__(self, n, i):
+        assert n > 0 and 0 <= i < n
+        self.n = n
+        self.i = i
+    
+    def eval(self, xs):
+        assert len(xs) == self.n
+        for x in xs:
+            assert x >= 0
+        return xs[self.i]
+    
+    def __str__(self):
+        return "I({},{})".format(self.n, self.i)
 
 
 # Composition function: C_{f, g_0, ..., g_{k-1}}(xs) = f(g_0(xs), ..., g_{k-1}(xs))
 class C(PrimRecFunc):
-	
-	# f is a PrimRecFunc, and gs is an array of PrimRecFunc.
-	def __init__(self, f, gs):
-		assert len(gs) > 0
-		self.f  = f
-		self.gs = gs
-	
-	def eval(self, xs):
-		return self.f.eval([g.eval(xs) for g in self.gs])
-	
-	def __str__(self):
-		return "C({}, [{}])".format(str(self.f), ", ".join([str(g) for g in self.gs]))
+    
+    # f is a PrimRecFunc, and gs is an array of PrimRecFunc.
+    def __init__(self, f, gs):
+        assert len(gs) > 0
+        self.f  = f
+        self.gs = gs
+    
+    def eval(self, xs):
+        return self.f.eval([g.eval(xs) for g in self.gs])
+    
+    def __str__(self):
+        return "C({}, [{}])".format(str(self.f), ", ".join([str(g) for g in self.gs]))
 
 
 # Primitive recursion: R_{f,g}(y, xs) = if (y == 0) then (f xs) else g(R_{f,g}(y-1, xs), y-1, xs)
 class R(PrimRecFunc):
-	
-	# f and g each is a PrimRecFunc.
-	def __init__(self, f, g):
-		self.f = f
-		self.g = g
-	
-	# Efficient evaluation - less iteration overhead (faster) and does not recurse on self (constant stack space)
-	def eval(self, xs):
-		assert len(xs) >= 2
-		val = self.f.eval(xs[1:])
-		for i in xrange(xs[0]):
-			val = self.g.eval([val, i] + xs[1:])
-		return val
-	
-	# Naive evaluation - directly from the mathematical definition
-	def eval_naive(self, xs):
-		assert len(xs) >= 2
-		y = xs[0]
-		if y == 0:
-			return self.f.eval(xs[1:])
-		else:
-			return self.g.eval([self.eval([y-1] + xs[1:]), y-1] + xs[1:])
-	
-	def __str__(self):
-		return "R({}, {})".format(str(self.f), str(self.g))
+    
+    # f and g each is a PrimRecFunc.
+    def __init__(self, f, g):
+        self.f = f
+        self.g = g
+    
+    # Efficient evaluation - less iteration overhead (faster) and does not recurse on self (constant stack space)
+    def eval(self, xs):
+        assert len(xs) >= 2
+        val = self.f.eval(xs[1:])
+        for i in xrange(xs[0]):
+            val = self.g.eval([val, i] + xs[1:])
+        return val
+    
+    # Naive evaluation - directly from the mathematical definition
+    def eval_naive(self, xs):
+        assert len(xs) >= 2
+        y = xs[0]
+        if y == 0:
+            return self.f.eval(xs[1:])
+        else:
+            return self.g.eval([self.eval([y-1] + xs[1:]), y-1] + xs[1:])
+    
+    def __str__(self):
+        return "R({}, {})".format(str(self.f), str(self.g))
 
 
 # Native function implementation
 class Native(PrimRecFunc):
-	
-	# f is a function that takes an array of integers and returns an integer.
-	def __init__(self, f):
-		self.f = f
-	
-	def eval(self, xs):
-		return self.f(xs)
-	
-	def __str__(self):
-		return "Native"
+    
+    # f is a function that takes an array of integers and returns an integer.
+    def __init__(self, f):
+        self.f = f
+    
+    def eval(self, xs):
+        return self.f(xs)
+    
+    def __str__(self):
+        return "Native"
 
 
 
@@ -134,11 +134,11 @@ class Native(PrimRecFunc):
 # Constant: const_{n}(x) = n
 # This is actually a PRF generator
 def const(n):
-	assert n >= 0
-	if n == 0:
-		return Z
-	else:
-		return C(S, [const(n - 1)])
+    assert n >= 0
+    if n == 0:
+        return Z
+    else:
+        return C(S, [const(n - 1)])
 
 # Is zero: z(x, y) = if x == 0 then 1 else 0
 z = C(R(const(1), C(Z, [I(3,0)])), [I(1,0), Z])

@@ -1,10 +1,10 @@
-/*
+/* 
  * Vigenère cipher
  * Copyright (c) 2011 Nayuki Minase
  */
 
 
-/*
+/* 
  * Handles the HTML input/output for Vigenère cipher encryption/decription.
  * This is the one and only entry point function called from the HTML code.
  */
@@ -27,7 +27,7 @@ function doCrypt(isDecrypt) {
 }
 
 
-/*
+/* 
  * Returns the result the Vigenère encryption on the given text with the given key.
  */
 function crypt(input, key) {
@@ -48,7 +48,7 @@ function crypt(input, key) {
 }
 
 
-/*
+/* 
  * Returns an array of numbers, each in the range [0, 26), representing the given key. The key is case-insensitive, and non-letters are ignored.
  * Examples:
  *   filterKey("AAA") = [0, 0, 0]

@@ -1,4 +1,4 @@
-/*
+/* 
  * Brainfuck interpreter
  * Copyright (c) 2011 Nayuki Minase
  */

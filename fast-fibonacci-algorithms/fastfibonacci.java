@@ -1,4 +1,4 @@
-/*
+/* 
  * Demonstration of fast Fibonacci algorithms
  * Copyright (c) 2011 Nayuki Minase
  * 
@@ -47,7 +47,7 @@ public final class fastfibonacci {
 	}
 	
 	
-	/*
+	/* 
 	 * Fast doubling method. Faster than the matrix method.
 	 * F(2n) = F(n) * (2*F(n+1) - F(n))
 	 * F(2n+1) = F(n+1)^2 + F(n)^2
@@ -84,7 +84,7 @@ public final class fastfibonacci {
 	}
 	
 	
-	/*
+	/* 
 	 * Fast matrix method. Easy to describe, but has a constant factor slowdown compared to doubling method.
 	 * [1 1]^n   [F(n+1) F(n)  ]
 	 * [1 0]   = [F(n)   F(n-1)]
@@ -119,7 +119,7 @@ public final class fastfibonacci {
 	}
 	
 	
-	/*
+	/* 
 	 * Simple slow method, using dynamic programming
 	 * F(n+2) = F(n+1) + F(n)
 	 */

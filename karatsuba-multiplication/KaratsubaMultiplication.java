@@ -1,4 +1,4 @@
-/*
+/* 
  * Karatsuba fast multiplication algorithm
  * Copyright (c) 2011 Nayuki Minase
  * 

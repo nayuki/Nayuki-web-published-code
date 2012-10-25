@@ -1,4 +1,4 @@
-/*
+/* 
  * Prime factorization calculator
  * Copyright (c) 2011 Nayuki Minase
  */
@@ -10,7 +10,7 @@ var NBSP  = "\u00A0";  // No-break space
 
 var lastInput = "";
 
-/*
+/* 
  * Handles the HTML input/output for factoring an integer.
  * This is the one and only entry point function called from the HTML code.
  */
@@ -77,7 +77,7 @@ function factor() {
 }
 
 
-/*
+/* 
  * Returns the list of prime factors (in ascending order) of the given integer.
  * Examples:
  *   primeFactorList(1) = []
@@ -98,7 +98,7 @@ function primeFactorList(n) {
 }
 
 
-/*
+/* 
  * Returns the smallest prime factor of the given integer.
  * Examples:
  *   smallestFactor(2) = 2
@@ -119,7 +119,7 @@ function smallestFactor(n) {
 }
 
 
-/*
+/* 
  * Returns the prime factorization as a list of factor-power pairs, from the given factor list. The given list must be in ascending order.
  * Examples:
  *   toFactorPowerList([2, 2, 2]) = [[2, 3]]

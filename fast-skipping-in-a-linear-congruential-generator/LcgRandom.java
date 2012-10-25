@@ -1,4 +1,4 @@
-/*
+/* 
  * Linear congruential generator (LCG) with fast skipping and backward iteration
  * Copyright (c) 2011 Nayuki Minase
  */

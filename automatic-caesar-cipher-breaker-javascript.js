@@ -1,4 +1,4 @@
-/*
+/* 
  * Automatic caesar cipher breaker
  * Copyright (c) 2011 Nayuki Minase
  */

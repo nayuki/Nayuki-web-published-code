@@ -45,7 +45,7 @@ function doProve(inputSequent) {
 
 /* Data types */
 
-/*
+/* 
  * Constructs a proof tree. Has zero, one, or two children.
  *   sequent: The value at this node - either a sequent or the string "Fail".
  *   left: Zeroth child tree or null.
@@ -91,7 +91,7 @@ function Tree(sequent, left, right) {
 }
 
 
-/*
+/* 
  * Constructs a sequent.
  *   left : Array of zero or more terms.
  *   right: Array of zero or more terms.
@@ -169,7 +169,7 @@ function Sequent(left, right) {
 }
 
 
-/*
+/* 
  * Constructs a term. Valid options:
  * - type = "var", left = string name       , right = null
  * - type = "NOT", left = sole argument term, right = null

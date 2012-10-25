@@ -38,16 +38,16 @@ def compute_dft(input):
 import math
 
 def compute_dft(inreal, inimag):
-	assert len(inreal) == len(inimag)
-	n = len(inreal)
-	outreal = [0] * n
-	outimag = [0] * n
-	for k in xrange(n):  # For each output element
-		sumreal = 0
-		sumimag = 0
-		for t in xrange(n):  # For each input element
-			sumreal +=  inreal[t]*math.cos(2*math.pi * t * k / n) + inimag[t]*math.sin(2*math.pi * t * k / n)
-			sumimag += -inreal[t]*math.sin(2*math.pi * t * k / n) + inimag[t]*math.cos(2*math.pi * t * k / n)
-		outreal[k] = sumreal
-		outimag[k] = sumimag
-	return (outreal, outimag)
+    assert len(inreal) == len(inimag)
+    n = len(inreal)
+    outreal = [0] * n
+    outimag = [0] * n
+    for k in xrange(n):  # For each output element
+        sumreal = 0
+        sumimag = 0
+        for t in xrange(n):  # For each input element
+            sumreal +=  inreal[t]*math.cos(2*math.pi * t * k / n) + inimag[t]*math.sin(2*math.pi * t * k / n)
+            sumimag += -inreal[t]*math.sin(2*math.pi * t * k / n) + inimag[t]*math.cos(2*math.pi * t * k / n)
+        outreal[k] = sumreal
+        outimag[k] = sumimag
+    return (outreal, outimag)

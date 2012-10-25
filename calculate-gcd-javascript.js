@@ -1,10 +1,10 @@
-/*
+/* 
  * GCD calculator
  * Copyright (c) 2011 Nayuki Minase
  */
 
 
-/*
+/* 
  * Handles the HTML input/output for calculating the GCD of two integers.
  * This is the one and only entry point function called from the HTML code.
  */
@@ -24,7 +24,7 @@ function calculate() {
 }
 
 
-/*
+/* 
  * Returns the GCD of the given integers. Each input must be non-negative.
  */
 function gcd(x, y) {
@@ -37,7 +37,7 @@ function gcd(x, y) {
 }
 
 
-/*
+/* 
  * Tests whether the given string represents an integer.
  */
 function isInteger(str) {

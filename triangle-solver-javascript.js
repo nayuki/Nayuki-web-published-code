@@ -1,10 +1,10 @@
-/*
+/* 
  * Triangle solver
  * Copyright (c) 2011 Nayuki Minase
  */
 
 
-/*
+/* 
  * Handles the HTML input/output for solving a triangle.
  * This is the one and only entry point function called from the HTML code.
  */

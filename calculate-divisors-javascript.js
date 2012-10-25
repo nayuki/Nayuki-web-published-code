@@ -1,4 +1,4 @@
-/*
+/* 
  * Divisors calculator
  * Copyright (c) 2011 Nayuki Minase
  */

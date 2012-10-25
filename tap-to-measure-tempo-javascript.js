@@ -1,4 +1,4 @@
-/*
+/* 
  * Tap to measure tempo
  * Copyright (c) 2011 Nayuki Minase
  */
