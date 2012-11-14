@@ -376,7 +376,7 @@ testsuites = [
 		([5, 8], 40)
 	],
 	
-	TestSuite PrimRecFunc.exp [
+	TestSuite PrimRecFunc.pow [
 		([0, 0],   1),
 		([0, 1],   0),
 		([0, 2],   0),
@@ -586,7 +586,9 @@ testsuites = [
 		([0], 0),
 		([1], 1),
 		([2], 1),
-		([3], 2)
+		([3], 2),
+		([4], 3),
+		([5], 5)
 	]]
 
 

@@ -7,10 +7,10 @@ module PrimRecFunc
 	(Prf(Z,S,I,C,R,Native), eval, evalCount, getAndCheckArgs,
 	not, and, or, xor, mux,
 	z, nz, eq, neq, lt, le, gt, ge, even, odd, divisible, prime,
-	const, pred, add, sub, subrev, diff, min, max, mul, exp, sqrt, log, div, mod, factorial, divisiblecount, nthprime, fibonacci)
+	const, pred, add, sub, subrev, diff, min, max, mul, pow, sqrt, log, div, mod, factorial, divisiblecount, nthprime, fibonacci)
 	where
 
-import Prelude hiding (and, const, div, even, exp, log, max, min, mod, not, odd, or, pred, sqrt)
+import Prelude hiding (and, const, div, even, log, max, min, mod, not, odd, or, pred, sqrt)
 import qualified Prelude
 
 
@@ -230,14 +230,14 @@ max = C add [subrev, I 2 0]
 -- Multiplication/product: mul(x, y) = x * y
 mul = R Z (C add [I 3 0, I 3 2])
 
--- Power/exponentiation: exp(x, y) = x ^ y
-exp = C (R (const 1) (C mul [I 3 2, I 3 0])) [I 2 1, I 2 0]
+-- Power/exponentiation: pow(x, y) = x ^ y
+pow = C (R (const 1) (C mul [I 3 2, I 3 0])) [I 2 1, I 2 0]
 
 -- Square root: sqrt(x) = floor(sqrt(x))
 sqrt = C (R Z (C mux [C le [C mul [C S [I 3 0], C S [I 3 0]], I 3 2], C S [I 3 0], I 3 0])) [I 1 0, I 1 0]
 
 -- Logarithm: log(x, y) = if x >= 2 then (if y >= 1 then floor(ln(y) / ln(x)) else 0) else y
-log = C (R (C Z [I 2 0]) (C mux [C le [C exp [I 4 2, C S [I 4 0]], I 4 3], C S [I 4 0], I 4 0])) [I 2 1, I 2 0, I 2 1]
+log = C (R (C Z [I 2 0]) (C mux [C le [C pow [I 4 2, C S [I 4 0]], I 4 3], C S [I 4 0], I 4 0])) [I 2 1, I 2 0, I 2 1]
 
 -- Truncating division: div(x, y) = if y != 0 then floor(x / y) else x
 div = C (R (C Z [I 2 0]) (C mux [C le [C mul [C S [I 4 0], I 4 3], I 4 2], C S [I 4 0], I 4 0])) [I 2 0, I 2 0, I 2 1]
@@ -252,16 +252,12 @@ factorial = C (R (const 1) (C mul [C S [I 3 1], I 3 0])) [I 1 0, Z]
 --     if x == 0 or y == 0 then 0
 --     elseif y >= 2 then (the highest power of y that divides x)
 --     else y == 1 then x
-divisiblecount = C (R (C Z [I 2 0]) (C mux [C divisible [I 4 2, C exp [I 4 3, C S [I 4 0]]], C S [I 4 0], I 4 0])) [I 2 0, I 2 0, I 2 1]
+divisiblecount = C (R (C Z [I 2 0]) (C mux [C divisible [I 4 2, C pow [I 4 3, C S [I 4 0]]], C S [I 4 0], I 4 0])) [I 2 0, I 2 0, I 2 1]
 
 -- Nth prime: nthprime(0) = 2, nthprime(1) = 3, nthprime(2) = 5, nthprime(3) = 7, nthprime(4) = 11, ...
-nthprime = C mux [I 1 0, C (R Z (C mux [C even [I 3 0], C mux [C prime [I 3 1], C mux [C eq [I 3 0, C add [I 3 2, I 3 2]], I 3 1, C S [C S [I 3 0]]], I 3 0], I 3 0])) [C exp [const 2, C S [I 1 0]], I 1 0], const 2]
+nthprime = C mux [I 1 0, C (R Z (C mux [C even [I 3 0], C mux [C prime [I 3 1], C mux [C eq [I 3 0, C add [I 3 2, I 3 2]], I 3 1, C S [C S [I 3 0]]], I 3 0], I 3 0])) [C pow [const 2, C S [I 1 0]], I 1 0], const 2]
 
 -- Fibonacci number: fibonacci(0) = 0, fibonacci(1) = 1, fibonacci(2) = 1, fibonacci(3) = 2, fibonacci(4) = 3, fibonacci(5) = 5, ...
--- Private: fibtriangle(i) = i * (i-1) / 2
-fibtriangle = C (R Z (C add [I 3 0, I 3 1])) [I 1 0, Z]
--- Private: fibextract(x,i) = floor(x / fibtriangle(i-1)) mod 2^i
-fibextract = C mod [C div [I 2 0, C exp [C (const 2) [I 2 0], C fibtriangle [I 2 1]]], C exp [C (const 2) [I 2 0], I 2 1]]
--- Private: fiball(x) = fibonacci(0)<<0 | fibonacci(1)<<0 | fibonacci(2)<<1 | fibonacci(3)<<3 | fibonacci(4)<<6 | ... | fibonacci(x)<<fibtriangle(x)
-fiball = C (R Z (C mux [I 3 1, C add [I 3 0, C mul [C add [C fibextract [I 3 0, I 3 1], C fibextract [I 3 0, C pred [I 3 1]]], C exp [C (const 2) [I 3 0], C fibtriangle [C S [I 3 1]]]]], C (const 1) [I 3 0]])) [I 1 0, Z]
-fibonacci = C fibextract [fiball, I 1 0]
+fibonacci = C mod [C fib2 [I 1 0, Z], C pow [const 2, I 1 0]]
+-- Private: fib2(n) = fibonacci(n) | fibonacci(n+1)<<n
+fib2 = R (const 1) (C (C (C add [I 3 0, C mul [C add [I 3 0, I 3 1], I 3 2]]) [C div [I 3 0, I 3 2], C mod [I 3 0, I 3 2], C add [I 3 2, I 3 2]]) [I 3 0, I 3 1, C pow [C (const 2) [I 3 0], I 3 1]])
