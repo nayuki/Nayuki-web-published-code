@@ -257,6 +257,37 @@ divisiblecount = C(R(C(Z, [I(2,0)]), C(mux, [C(divisible, [I(4,2), C(pow, [I(4,3
 nthprime = C(mux, [I(1,0), C(R(Z, C(mux, [C(even, [I(3,0)]), C(mux, [C(prime, [I(3,1)]), C(mux, [C(eq, [I(3,0), C(add, [I(3,2), I(3,2)])]), I(3,1), C(S, [C(S, [I(3,0)])])]), I(3,0)]), I(3,0)])), [C(pow, [const(2), C(S, [I(1,0)])]), I(1,0)]), const(2)])
 
 # Fibonacci number: fibonacci(0) = 0, fibonacci(1) = 1, fibonacci(2) = 1, fibonacci(3) = 2, fibonacci(4) = 3, fibonacci(5) = 5, ...
-# Private: fib2(n) = fibonacci(n) | fibonacci(n+1)<<n
+# Private: _fib2(n) = fibonacci(n) | fibonacci(n+1)<<n
 _fib2 = R(const(1), C(C(C(add, [I(3,0), C(mul, [C(add, [I(3,0), I(3,1)]), I(3,2)])]), [C(div, [I(3,0), I(3,2)]), C(mod, [I(3,0), I(3,2)]), C(add, [I(3,2), I(3,2)])]), [I(3,0), I(3,1), C(pow, [C(const(2), [I(3,0)]), I(3,1)])]))
 fibonacci = C(mod, [C(_fib2, [I(1,0), Z]), C(pow, [const(2), I(1,0)])])
+
+
+# -- Bitwise functions --
+
+# Left shift: shl(x, y) = x << y
+shl = C(mul, [I(2,0), C(pow, [C(const(2), [I(2,0)]), I(2,1)])])
+
+# Right shift: shr(x, y) = x >> y
+shr = C(div, [I(2,0), C(pow, [C(const(2), [I(2,0)]), I(2,1)])])
+
+# Private: _log2p1(x) = if x != 0 then (floor(lg(x)) + 1) else 1
+_log2p1 = C(S, [C(log, [const(2), I(1,0)])])
+# Private: _bitcombine f (x, y, s) = f(floor(x/s), floor(y/s)) * s. (This combines x and y at bit position log2(s) with the Boolean function f. The scaler s must be a power of 2.)
+def _bitcombine(f): return C(mul, [C(f, [C(odd, [C(div, [I(3,0), I(3,2)])]), C(odd, [C(div, [I(3,1), I(3,2)])])]), I(3,2)])
+# Private: Takes a binary Boolean PRF (i.e. {0,1}*{0,1} -> {0,1}) and produces an integer PRF that applies it to each pair of corresponding bits in x and y
+def _makebitwiseop(f): return C(R(C(Z, [I(2,0)]), C(add, [I(4,0), C(_bitcombine(f), [I(4,2), I(4,3), C(pow, [C(const(2), [I(4,0)]), I(4,1)])])])), [C(_log2p1, [C(max, [I(2,0), I(2,1)])]), I(2,0), I(2,1)])
+
+# Bitwise AND: band(x, y) = x & y
+band = _makebitwiseop(prand)
+
+# Bitwise AND-NOT: bandnot(x, y) = x & ~y
+bandnot = _makebitwiseop(C(R(I(1,0), C(Z, [I(3,0)])), [I(2,1), I(2,0)]))
+
+# Bitwise OR: bor(x, y) = x | y
+bor = _makebitwiseop(pror)
+
+# Bitwise XOR: bxor(x, y) = x ^ y
+bxor = _makebitwiseop(prxor)
+
+# Get bit: getbit(x, y) = (x >> y) & 1
+getbit = C(odd, [shr])

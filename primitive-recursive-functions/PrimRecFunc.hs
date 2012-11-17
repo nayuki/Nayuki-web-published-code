@@ -7,7 +7,7 @@ module PrimRecFunc
 	(Prf(Z,S,I,C,R,Native), eval, evalCount, getAndCheckArgs,
 	not, and, or, xor, mux,
 	z, nz, eq, neq, lt, le, gt, ge, even, odd, divisible, prime,
-	const, pred, add, sub, subrev, diff, min, max, mul, pow, sqrt, log, div, mod, factorial, divisiblecount, nthprime, fibonacci)
+	const, pred, add, sub, subrev, diff, min, max, mul, pow, sqrt, log, div, mod, factorial, divisiblecount, nthprime, fibonacci, shl, shr, band, bandnot, bor, bxor, getbit)
 	where
 
 import Prelude hiding (and, const, div, even, log, max, min, mod, not, odd, or, pred, sqrt)
@@ -261,3 +261,34 @@ nthprime = C mux [I 1 0, C (R Z (C mux [C even [I 3 0], C mux [C prime [I 3 1], 
 fibonacci = C mod [C fib2 [I 1 0, Z], C pow [const 2, I 1 0]]
 -- Private: fib2(n) = fibonacci(n) | fibonacci(n+1)<<n
 fib2 = R (const 1) (C (C (C add [I 3 0, C mul [C add [I 3 0, I 3 1], I 3 2]]) [C div [I 3 0, I 3 2], C mod [I 3 0, I 3 2], C add [I 3 2, I 3 2]]) [I 3 0, I 3 1, C pow [C (const 2) [I 3 0], I 3 1]])
+
+
+{-- Bitwise functions --}
+
+-- Left shift: shl(x, y) = x << y
+shl = C mul [I 2 0, C pow [C (const 2) [I 2 0], I 2 1]]
+
+-- Right shift: shr(x, y) = x >> y
+shr = C div [I 2 0, C pow [C (const 2) [I 2 0], I 2 1]]
+
+-- Private: Takes a binary Boolean PRF (i.e. {0,1}*{0,1} -> {0,1}) and produces an integer PRF that applies it to each pair of corresponding bits in x and y
+makebitwiseop f = C (R (C Z [I 2 0]) (C add [I 4 0, C (bitcombine f) [I 4 2, I 4 3, C pow [C (const 2) [I 4 0], I 4 1]]])) [C log2p1 [C max [I 2 0, I 2 1]], I 2 0, I 2 1]
+-- Private: log2p1(x) = if x != 0 then (floor(lg(x)) + 1) else 1
+log2p1 = C S [C log [const 2, I 1 0]]
+-- Private: bitcombine f (x, y, s) = f(floor(x/s), floor(y/s)) * s. (This combines x and y at bit position log2(s) with the Boolean function f. The scaler s must be a power of 2.)
+bitcombine f = C mul [C f [C odd [C div [I 3 0, I 3 2]], C odd [C div [I 3 1, I 3 2]]], I 3 2]
+
+-- Bitwise AND: band(x, y) = x & y
+band = makebitwiseop and
+
+-- Bitwise AND-NOT: bandnot(x, y) = x & ~y
+bandnot = makebitwiseop (C (R (I 1 0) (C Z [I 3 0])) [I 2 1, I 2 0])
+
+-- Bitwise OR: bor(x, y) = x | y
+bor = makebitwiseop or
+
+-- Bitwise XOR: bxor(x, y) = x ^ y
+bxor = makebitwiseop xor
+
+-- Get bit: getbit(x, y) = (x >> y) & 1
+getbit = C odd [shr]
