@@ -247,6 +247,12 @@ divisible = C(z, [mod])
 # Is prime: prime(x) = if x is prime then 1 else 0
 prime = C(eq, [C(R(Z, C(add, [C(divisible, [I(3,2), I(3,1)]), I(3,0)])), [I(1,0), I(1,0)]), const(1)])
 
+# Greatest common divisor: gcd(x, y) = if (x != 0 or y != 0) then (largest z such that z divides x and z divides y) else 0
+gcd = C(R(C(Z, [I(2,0)]), C(mux, [C(prand, [C(divisible, [I(4,2), I(4,1)]), C(divisible, [I(4,3), I(4,1)])]), I(4,1), I(4,0)])), [C(S, [max]), I(2,0), I(2,1)])
+
+# Least common multiple: lcm(x, y) = if (x != 0 and y != 0) then (smallest z such that x divides z and y divides z) else 0
+lcm = C(R(C(Z, [I(2,0)]), C(mux, [C(prand, [C(nz, [I(4,0)]), C(prand, [C(divisible, [I(4,0), I(4,2)]), C(divisible, [I(4,0), I(4,3)])])]), I(4,0), I(4,1)])), [C(S, [mul]), I(2,0), I(2,1)])
+
 # Divisibility count: divisiblecount(x, y) =
 #     if x == 0 or y == 0 then 0
 #     elseif y >= 2 then (the highest power of y that divides x)

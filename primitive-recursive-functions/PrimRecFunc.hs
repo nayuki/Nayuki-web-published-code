@@ -7,10 +7,10 @@ module PrimRecFunc
 	(Prf(Z,S,I,C,R,Native), eval, evalCount, getAndCheckArgs,
 	not, and, or, xor, mux,
 	z, nz, eq, neq, lt, le, gt, ge, even, odd, divisible, prime,
-	const, pred, add, sub, subrev, diff, min, max, mul, pow, sqrt, log, div, mod, factorial, divisiblecount, nthprime, fibonacci, shl, shr, band, bandnot, bor, bxor, getbit)
+	const, pred, add, sub, subrev, diff, min, max, mul, pow, sqrt, log, div, mod, factorial, gcd, lcm, divisiblecount, nthprime, fibonacci, shl, shr, band, bandnot, bor, bxor, getbit)
 	where
 
-import Prelude hiding (and, const, div, even, log, max, min, mod, not, odd, or, pred, sqrt)
+import Prelude hiding (and, const, div, even, gcd, lcm, log, max, min, mod, not, odd, or, pred, sqrt)
 import qualified Prelude
 
 
@@ -247,6 +247,12 @@ mod = C (R (I 2 0) (C mux [C ge [I 4 0, I 4 3], C sub [I 4 0, I 4 3], I 4 0])) [
 
 -- Factorial: factorial(x) = x!
 factorial = C (R (const 1) (C mul [C S [I 3 1], I 3 0])) [I 1 0, Z]
+
+-- Greatest common divisor: gcd(x, y) = if (x != 0 or y != 0) then (largest z such that z divides x and z divides y) else 0
+gcd = C (R (C Z [I 2 0]) (C mux [C and [C divisible [I 4 2, I 4 1], C divisible [I 4 3, I 4 1]], I 4 1, I 4 0])) [C S [max], I 2 0, I 2 1]
+
+-- Least common multiple: lcm(x, y) = if (x != 0 and y != 0) then (smallest z such that x divides z and y divides z) else 0
+lcm = C (R (C Z [I 2 0]) (C mux [C and [C nz [I 4 0], C and [C divisible [I 4 0, I 4 2], C divisible [I 4 0, I 4 3]]], I 4 0, I 4 1])) [C S [mul], I 2 0, I 2 1]
 
 -- Divisibility count: divisiblecount(x, y) =
 --     if x == 0 or y == 0 then 0
