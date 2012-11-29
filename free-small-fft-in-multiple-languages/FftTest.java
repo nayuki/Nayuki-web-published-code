@@ -167,7 +167,7 @@ public class FftTest {
 	private static double[] randomReals(int size) {
 		double[] result = new double[size];
 		for (int i = 0; i < result.length; i++)
-			result[i] = random.nextDouble();
+			result[i] = random.nextDouble() * 2 - 1;
 		return result;
 	}
 	
