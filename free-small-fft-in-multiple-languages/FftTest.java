@@ -105,7 +105,7 @@ public class FftTest {
 	
 	private static void naiveDft(double[] inreal, double[] inimag, double[] outreal, double[] outimag, boolean inverse) {
 		if (inreal.length != inimag.length || inreal.length != outreal.length || outreal.length != outimag.length)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Mismatched lengths");
 		
 		int n = inreal.length;
 		double coef = (inverse ? 2 : -2) * Math.PI;
@@ -125,7 +125,7 @@ public class FftTest {
 	
 	private static void naiveConvolve(double[] xreal, double[] ximag, double[] yreal, double[] yimag, double[] outreal, double[] outimag) {
 		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length || xreal.length != outreal.length || outreal.length != outimag.length)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Mismatched lengths");
 		
 		int n = xreal.length;
 		for (int i = 0; i < n; i++) {
@@ -148,7 +148,7 @@ public class FftTest {
 	
 	private static double log10RmsErr(double[] xreal, double[] ximag, double[] yreal, double[] yimag) {
 		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Mismatched lengths");
 		
 		double err = 0;
 		for (int i = 0; i < xreal.length; i++)

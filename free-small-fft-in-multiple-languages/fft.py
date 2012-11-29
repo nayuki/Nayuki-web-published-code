@@ -42,11 +42,27 @@ def transform(vector, inverse=False):
 # The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
 # 
 def transform_radix2(vector, inverse):
+    # Returns the integer whose value is the reverse of the lowest 'bits' bits of the integer 'x'.
+    def reverse(x, bits):
+        y = 0
+        for i in xrange(bits):
+            y = (y << 1) | (x & 1)
+            x >>= 1
+        return y
+    
     # Initialization
     n = len(vector)
-    levels = _log2(n)
+    levels = 0
+    while True:
+        if 1 << levels == n:
+            break
+        elif 1 << levels > n:
+            raise ValueError("Length is not a power of 2")
+        else:
+            levels += 1
+    # Now, levels = log2(n)
     exptable = [cmath.exp((2j if inverse else -2j) * cmath.pi * i / n) for i in xrange(n / 2)]
-    vector = [vector[_reverse(i, levels)] for i in xrange(n)]  # Copy with bit-reversed permutation
+    vector = [vector[reverse(i, levels)] for i in xrange(n)]  # Copy with bit-reversed permutation
     
     # Radix-2 decimation-in-time FFT
     size = 2
@@ -107,24 +123,3 @@ def convolve(x, y, realoutput=True):
         for i in xrange(n):
             x[i] /= n
     return x
-
-
-# Returns the integer whose value is the reverse of the lowest 'bits' bits of the integer 'x'.
-def _reverse(x, bits):
-    y = 0
-    for i in xrange(bits):
-        y = (y << 1) | (x & 1)
-        x >>= 1
-    return y
-
-
-# Returns the integer y such that 2^y == x, or raises an exception if x is not a power of 2.
-def _log2(x):
-    i = 0
-    while True:
-        if 1 << i == x:
-            return i
-        elif 1 << i > x:
-            raise ValueError("Not a power of 2")
-        else:
-            i += 1

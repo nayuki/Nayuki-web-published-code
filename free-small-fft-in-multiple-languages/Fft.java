@@ -55,7 +55,7 @@ public class Fft {
 	 * Computes the discrete Fourier transform (DFT) of the given complex vector, storing the result back into the vector.
 	 * The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
 	 */
-	public static void transformRadix2(double[] real, double[] imag) {	
+	public static void transformRadix2(double[] real, double[] imag) {
 		// Initialization
 		if (real.length != imag.length)
 			throw new IllegalArgumentException("Mismatched lengths");
@@ -171,7 +171,7 @@ public class Fft {
 	 */
 	public static void convolve(double[] xreal, double[] ximag, double[] yreal, double[] yimag, double[] outreal, double[] outimag) {
 		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length || xreal.length != outreal.length || outreal.length != outimag.length)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Mismatched lengths");
 		
 		int n = xreal.length;
 		xreal = xreal.clone();
