@@ -127,7 +127,7 @@ class Native(PrimRecFunc):
 
 # ---- Library of primitive recursive functions ----
 
-# The ordering is unnatural (especially compared to the Haskell function) because some functions depend on others, and the dependency must be at the top.
+# The ordering is unnatural (especially compared to the Haskell version) because some functions depend on others, and the dependency must be at the top.
 
 # -- Early functions --
 
