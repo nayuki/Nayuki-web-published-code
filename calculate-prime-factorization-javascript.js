@@ -17,6 +17,7 @@ var lastInput = "";
 function factor() {
 	// Don't factor if input text didn't change
 	var numberText = document.getElementById("number").value;
+	numberText = numberText.replace(/^\s+|\s+$/g, "");  // Trim whitespace
 	if (numberText == lastInput)
 		return;
 	lastInput = numberText;
