@@ -90,6 +90,10 @@ function Brainfuck(code) {
 		if (!isHalted() && timeout == null) {
 			step();
 			showState();
+			if (isHalted()) {
+				setButtonEnabled("step", false);
+				setButtonEnabled("run" , false);
+			}
 		}
 	}
 	
@@ -208,12 +212,15 @@ function Brainfuck(code) {
 	
 	function showMemory() {
 		var s = "Address  Value  Pointer\n";
-		var start = Math.min(minMemoryWrite, memoryIndex);
-		var end = Math.max(maxMemoryWrite, memoryIndex);
-		var limit = Math.min(end, start + 3000);  // Don't show more than ~3000 entries, don't want to overload the UI
-		for (var i = start; i <= limit; i++)
+		var lower = Math.min(minMemoryWrite, memoryIndex);
+		var upper = Math.max(maxMemoryWrite, memoryIndex);
+		var start = Math.max(memoryIndex - 1000, lower);
+		var end   = Math.min(memoryIndex + 1000, upper);
+		if (start != lower)
+			s += "(... more values, but truncated ...)\n";
+		for (var i = start; i <= end; i++)
 			s += padNumber(i, 7) + "  " + padNumber(memory[i] !== undefined ? memory[i] : 0, 5) + (i == memoryIndex? "  <--" : "") + "\n";
-		if (limit != end)
+		if (end != upper)
 			s += "(... more values, but truncated ...)\n";
 		document.getElementById("memory").value = s;
 	}
@@ -284,6 +291,6 @@ document.getElementById("step" ).onclick = step;
 document.getElementById("run"  ).onclick = run;
 document.getElementById("pause").onclick = pause;
 
-setButtonEnabled("step", false);
-setButtonEnabled("run", false);
+setButtonEnabled("step" , false);
+setButtonEnabled("run"  , false);
 setButtonEnabled("pause", false);
