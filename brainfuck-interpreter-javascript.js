@@ -1,6 +1,6 @@
 /* 
  * Brainfuck interpreter
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2012 Nayuki Minase
  */
 
 
@@ -9,32 +9,30 @@ var instance = null;
 
 /* Entry points from the HTML code */
 
-function load() {
+function doLoad() {
 	if (instance != null) {
 		instance.pause();
 		instance = null;
 	}
-	
 	try {
 		instance = new Brainfuck(document.getElementById("code").value);
 	} catch (e) {
 		alert(e);
 		return;
 	}
-	
-	setButtonEnabled("step", true);
-	setButtonEnabled("run", true);
-	setButtonEnabled("pause", false);
 }
 
+function demo(s) {
+	document.getElementById("code").value = s;
+	doLoad();
+}
 
-function step() {
+function doStep() {
 	if (instance != null)
 		instance.step();
 }
 
-
-function run() {
+function doRun() {
 	if (instance != null) {
 		setButtonEnabled("step", false);
 		setButtonEnabled("run", false);
@@ -43,8 +41,7 @@ function run() {
 	}
 }
 
-
-function pause() {
+function doPause() {
 	if (instance != null) {
 		instance.pause();
 		setButtonEnabled("step", true);
@@ -69,6 +66,7 @@ function Brainfuck(code) {
 	var input = document.getElementById("input").value;
 	var inputIndex = 0;
 	var output = "";
+	var outputChanged = false;
 	
 	var steps = 0;
 	var lastStepsUpdate = null;
@@ -77,13 +75,15 @@ function Brainfuck(code) {
 	var maxMemoryWrite = memoryIndex;  // Inclusive
 	
 	showState();
-	
+	setButtonEnabled("step", !isHalted());
+	setButtonEnabled("run", !isHalted());
+	setButtonEnabled("pause", false);
 	
 	// Public controls
 	
 	this.run = function() {
 		if (!isHalted() && timeout == null)
-			execute(1);
+			run(1);
 	}
 	
 	this.step = function() {
@@ -108,12 +108,11 @@ function Brainfuck(code) {
 	
 	// Execution
 	
-	function execute(iters) {
+	function run(iters) {
 		var startTime = new Date().getTime();
-		var outputChanged = false;
+		outputChanged = false;
 		
-		for (var i = 0; i < iters && !isHalted(); i++)
-			outputChanged |= step();
+		for (var i = 0; i < iters && step(); i++);
 		
 		if (isHalted()) {
 			showState();
@@ -130,29 +129,27 @@ function Brainfuck(code) {
 			// Regulate the number of iterations to execute before relinquishing control of the main JavaScript thread
 			var execTime = new Date().getTime() - startTime;  // How long this execution took
 			var nextIters = calcNextIters(execTime, iters);
-			timeout = setTimeout(function() { timeout = null; execute(nextIters); }, 1);
+			timeout = setTimeout(function() { timeout = null; run(nextIters); }, 1);
 		}
 	}
 	
 	
 	function step() {
 		if (isHalted())
-			return;
-		
-		var outputChanged = false;
+			return false;
 		switch (program[programCounter]) {
 			case LEFT :  memoryIndex--;  programCounter++;  break;
 			case RIGHT:  memoryIndex++;  programCounter++;  break;
 			case PLUS :  setCell((getCell() + 1) & 0xFF);  programCounter++;  break;
 			case MINUS:  setCell((getCell() - 1) & 0xFF);  programCounter++;  break;
-			case IN   :  setCell(getInput());  programCounter++;  break;
+			case IN   :  setCell(getNextInputByte());  programCounter++;  break;
 			case OUT  :  output += String.fromCharCode(getCell());  outputChanged = true;  programCounter++;  break;
 			case LOOP :  if (getCell() == 0) { programCounter = program[programCounter + 1]; }  programCounter += 2;  break;
 			case BACK :  if (getCell() != 0) { programCounter = program[programCounter + 1]; }  programCounter += 2;  break;
 			default   :  throw "Assertion error";
 		}
 		steps++;
-		return outputChanged;
+		return !isHalted();
 	}
 	
 	
@@ -174,8 +171,7 @@ function Brainfuck(code) {
 		maxMemoryWrite = Math.max(memoryIndex, maxMemoryWrite);
 	}
 	
-	
-	function getInput() {
+	function getNextInputByte() {
 		if (inputIndex == input.length)
 			return 0;
 		else if (input.charCodeAt(inputIndex) >= 256)
@@ -204,11 +200,9 @@ function Brainfuck(code) {
 		showSteps();
 	}
 	
-	
 	function showOutput() {
 		document.getElementById("output").value = output;
 	}
-	
 	
 	function showMemory() {
 		var s = "Address  Value  Pointer\n";
@@ -224,7 +218,6 @@ function Brainfuck(code) {
 			s += "(... more values, but truncated ...)\n";
 		document.getElementById("memory").value = s;
 	}
-	
 	
 	function showSteps() {
 		document.getElementById("steps").value = steps.toString();
@@ -282,15 +275,3 @@ function compile(str) {
 function setButtonEnabled(name, enabled) {
 	document.getElementById(name).disabled = !enabled;
 }
-
-
-/* Initialization */
-
-document.getElementById("load" ).onclick = load;
-document.getElementById("step" ).onclick = step;
-document.getElementById("run"  ).onclick = run;
-document.getElementById("pause").onclick = pause;
-
-setButtonEnabled("step" , false);
-setButtonEnabled("run"  , false);
-setButtonEnabled("pause", false);
