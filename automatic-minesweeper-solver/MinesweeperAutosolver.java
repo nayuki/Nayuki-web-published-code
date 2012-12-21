@@ -15,8 +15,11 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 import javax.imageio.ImageIO;
 
@@ -54,7 +57,7 @@ public final class MinesweeperAutosolver {
 			do {
 				x = random.nextInt(game.numColumns);
 				y = random.nextInt(game.numRows);
-			} while (game.cellStates[y][x] != 9);
+			} while (game.getCell(x, y) != 9);
 			
 			game.clickCell(x, y, InputEvent.BUTTON1_MASK);  // Left click
 			game.rereadSmiley();
@@ -65,21 +68,28 @@ public final class MinesweeperAutosolver {
 			game.rereadCells();
 			
 			// Try to make deterministic safe moves
-			while (trySafeSolve()) {
+			while (true) {
+				boolean changed = false;
+				while (solveSingles() || solvePairs())  // Try to solve as much as possible without the expensive screen reread
+					changed = true;
+				if (!changed)
+					break;
 				game.rereadSmiley();
 				if (game.smileyState == 2)  // Sunglasses
 					return true;
+				if (game.smileyState == 1)
+					throw new RuntimeException("Cannot lose with safe strategy");
 				game.rereadCells();
 			}
 		}
 	}
 	
 	
-	private static boolean trySafeSolve() {
+	private static boolean solveSingles() {
 		boolean changed = false;
 		for (int y = 0; y < game.numRows; y++) {
 			for (int x = 0; x < game.numColumns; x++) {
-				int state = game.cellStates[y][x];
+				int state = game.getCell(x, y);
 				if (state < 1 || state > 8)
 					continue;  // Skip non-numerical cell
 				
@@ -90,16 +100,20 @@ public final class MinesweeperAutosolver {
 				
 				if (flag == state && unopened >= 1) {
 					game.clickCell(x, y, InputEvent.BUTTON2_MASK);  // Middle click to open neighbors
+					for (int yy = y - 1; yy <= y + 1; yy++) {
+						for (int xx = x - 1; xx <= x + 1; xx++) {
+							if (game.getCell(xx, yy) == 9)
+								game.setCell(xx, yy, 12);
+						}
+					}
 					changed = true;
 					
 				} else if (unopened >= 1 && flag + unopened == state) {
-					for (int dy = -1; dy <= 1; dy++) {
-						for (int dx = -1; dx <= 1; dx++) {
-							int xx = x + dx;
-							int yy = y + dy;
-							if (isInBounds(xx, yy) && game.cellStates[yy][xx] == 9) {
+					for (int yy = y - 1; yy <= y + 1; yy++) {
+						for (int xx = x - 1; xx <= x + 1; xx++) {
+							if (game.getCell(xx, yy) == 9) {
 								game.clickCell(xx, yy, InputEvent.BUTTON3_MASK);  // Right click to flag the cell
-								game.cellStates[yy][xx] = 10;
+								game.setCell(xx, yy, 10);
 							}
 						}
 					}
@@ -107,18 +121,74 @@ public final class MinesweeperAutosolver {
 				}
 			}
 		}
-		
+		return changed;
+	}
+	
+	
+	private static boolean solvePairs() {
+		boolean changed = false;
+		// For each cell (x, y) with a number on it
+		for (int y = 0; y < game.numRows; y++) {
+			for (int x = 0; x < game.numColumns; x++) {
+				int state = game.getCell(x, y);
+				if (state < 1 || state > 8)
+					continue;
+				state -= countNeighboring(x, y, 10);
+				
+				// For each neighbor (nx, ny) with a number on it
+				for (int ny = y - 1; ny <= y + 1; ny++) {
+					fail:
+					for (int nx = x - 1; nx <= x + 1; nx++) {
+						if (nx == x && ny == y || !game.isInBounds(nx, ny))
+							continue;
+						int neighstate = game.getCell(nx, ny);
+						if (neighstate < 1 || neighstate > 8)
+							continue;
+						neighstate -= countNeighboring(nx, ny, 10);
+						
+						// Check if each unopened neighbor of (x, y) is a neighbor of (nx, ny)
+						for (int yy = y - 1; yy <= y + 1; yy++) {
+							for (int xx = x - 1; xx <= x + 1; xx++) {
+								if (game.getCell(xx, yy) == 9 && !isNeighbor(xx, yy, nx, ny))
+									continue fail;
+							}
+						}
+						
+						if (neighstate == state) {  // Open all cells unique to the neighbor
+							for (int yy = ny - 1; yy <= ny + 1; yy++) {
+								for (int xx = nx - 1; xx <= nx + 1; xx++) {
+									if (game.getCell(xx, yy) == 9 && !isNeighbor(xx, yy, x, y)) {
+										game.clickCell(xx, yy, InputEvent.BUTTON1_MASK);
+										game.setCell(xx, yy, 12);
+										changed = true;
+									}
+								}
+							}
+							
+						} else if (neighstate - state == countNeighboring(nx, ny, 9) - countNeighboring(x, y, 9)) {  // Flag all cells unique to the neighbor
+							for (int yy = ny - 1; yy <= ny + 1; yy++) {
+								for (int xx = nx - 1; xx <= nx + 1; xx++) {
+									if (game.getCell(xx, yy) == 9 && !isNeighbor(xx, yy, x, y)) {
+										game.clickCell(xx, yy, InputEvent.BUTTON3_MASK);
+										game.setCell(xx, yy, 10);
+										changed = true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 		return changed;
 	}
 	
 	
 	private static int countNeighboring(int x, int y, int value) {
 		int count = 0;
-		for (int dy = -1; dy <= 1; dy++) {
-			for (int dx = -1; dx <= 1; dx++) {
-				int xx = x + dx;
-				int yy = y + dy;
-				if (isInBounds(xx, yy) && game.cellStates[yy][xx] == value)
+		for (int yy = y - 1; yy <= y + 1; yy++) {
+			for (int xx = x - 1; xx <= x + 1; xx++) {
+				if (game.getCell(xx, yy) == value)
 					count++;
 			}
 		}
@@ -126,8 +196,8 @@ public final class MinesweeperAutosolver {
 	}
 	
 	
-	private static boolean isInBounds(int x, int y) {
-		return x >= 0 && x < game.numColumns && y >= 0 && y < game.numRows;
+	private static boolean isNeighbor(int x0, int y0, int x1, int y1) {
+		return Math.max(Math.abs(x0 - x1), Math.abs(y0 - y1)) <= 1;
 	}
 	
 }
@@ -152,9 +222,9 @@ final class MinesweeperGame {
 	public int smileyState;
 	
 	// 0 = blank, 1 = 1 neighboring mine, ..., 8 = 8 neighboring mines,
-	// 9 = unopened, 10 = flagged, 11 = question mark
+	// 9 = unopened, 10 = flagged, 11 = question mark,
+	// 12 = opened but unknown (written by the solver but never produced by this class), 13 = out of bounds
 	public int[][] cellStates;
-	
 	
 	
 	public MinesweeperGame(int actionDelay) throws AWTException {
@@ -210,12 +280,33 @@ final class MinesweeperGame {
 	}
 	
 	
+	public boolean isInBounds(int x, int y) {
+		return x >= 0 && x < numColumns && y >= 0 && y < numRows;
+	}
+	
+	
+	public int getCell(int x, int y) {
+		if (isInBounds(x, y))
+			return cellStates[y][x];
+		else
+			return 13;
+	}
+	
+	
+	public void setCell(int x, int y, int val) {
+		if (isInBounds(x, y))
+			cellStates[y][x] = val;
+	}
+	
+	
 	public void clickSmiley() {
 		robot.click(smileyButton.x + smileyButton.width / 2, smileyButton.y + smileyButton.height / 2, InputEvent.BUTTON1_MASK);
 	}
 	
 	
 	public void clickCell(int x, int y, int button) {
+		if (!isInBounds(x, y))
+			throw new IllegalArgumentException();
 		robot.click(gameBoard.x + x * cellSize.x + cellSize.x / 2, gameBoard.y + y * cellSize.y + cellSize.y / 2, button);
 	}
 	
@@ -319,9 +410,24 @@ final class MyImage {
 		width = image.getWidth();
 		height = image.getHeight();
 		pixels = new int[width * height];
-		image.getRGB(0, 0, width, height, pixels, 0, width);
-		for (int i = 0; i < pixels.length; i++)
-			pixels[i] &= 0xFFFFFF;  // Get rid of alpha channel
+		
+		SampleModel sm = image.getRaster().getSampleModel();
+		if (image.getType() == BufferedImage.TYPE_INT_RGB &&
+		    sm.getDataType() == DataBuffer.TYPE_INT &&
+		    Arrays.equals(sm.getSampleSize(), new int[]{8, 8, 8})) {  // Fast path
+			
+			int[] temp = image.getRaster().getPixels(0, 0, width, height, (int[])null);
+			for (int i = 0; i < pixels.length; i++) {
+				pixels[i] = temp[i * 3 + 0] << 16
+				          | temp[i * 3 + 1] <<  8
+				          | temp[i * 3 + 2] <<  0;
+			}
+			
+		} else {  // General path
+			image.getRGB(0, 0, width, height, pixels, 0, width);
+			for (int i = 0; i < pixels.length; i++)
+				pixels[i] &= 0xFFFFFF;  // Get rid of alpha channel
+		}
 	}
 	
 	
