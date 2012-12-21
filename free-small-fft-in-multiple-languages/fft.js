@@ -159,7 +159,7 @@ function transformBluestein(real, imag) {
     // Convolution
     var creal = new Array(m);
     var cimag = new Array(m);
-    convolve(areal, aimag, breal, bimag, creal, cimag);
+    convolveComplex(areal, aimag, breal, bimag, creal, cimag);
     
     // Postprocessing
     for (var i = 0; i < n; i++) {
@@ -172,20 +172,20 @@ function transformBluestein(real, imag) {
 /* 
  * Computes the circular convolution of the given real vectors. Each vector's length must be the same.
  */
-function convolve(x, y, out) {
+function convolveReal(x, y, out) {
     if (x.length != y.length || x.length != out.length)
         throw "Mismatched lengths";
     var zeros = new Array(x.length);
     for (var i = 0; i < zeros.length; i++)
         zeros[i] = 0;
-    convolve(x, zeros, y, zeros.slice(0), out, zeros.slice(0));
+    convolveComplex(x, zeros, y, zeros.slice(0), out, zeros.slice(0));
 }
 
 
 /* 
  * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
  */
-function convolve(xreal, ximag, yreal, yimag, outreal, outimag) {
+function convolveComplex(xreal, ximag, yreal, yimag, outreal, outimag) {
     if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length || xreal.length != outreal.length || outreal.length != outimag.length)
         throw "Mismatched lengths";
     

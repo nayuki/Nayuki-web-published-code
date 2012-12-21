@@ -97,7 +97,7 @@ function testConvolution(size) {
     
     var actualoutreal = new Array(size);
     var actualoutimag = new Array(size);
-    convolve(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
+    convolveComplex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
     
     document.write("convsize=" + size + " logerr=" + log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "<br>");
 }
