@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <!--
-Full screen clock
-Copyright (c) 2011 Nayuki Minase
+- Full screen clock
+- Copyright (c) 2012 Nayuki Minase
+- 
+- http://nayuki.eigenstate.org/page/full-screen-clock-javascript
 -->
 <html>
 	<head>
@@ -9,12 +11,7 @@ Copyright (c) 2011 Nayuki Minase
 		<title>Clock</title>
 		<style type="text/css">
 			/* Don't change these */
-			html {
-				height: 100%;
-				margin: 0;
-				padding: 0;
-			}
-			body {
+			html, body {
 				height: 100%;
 				margin: 0;
 				padding: 0;
@@ -24,10 +21,10 @@ Copyright (c) 2011 Nayuki Minase
 				vertical-align: middle;
 			}
 			
-			/* You can customize these */
+			/* You can customize these (font and colors) */
 			html {
 				background: #000000;
-				color: #ffffff;  /* Text color */
+				color: #FFFFFF;  /* Text color */
 			}
 			#clock {
 				font-family: sans-serif;
@@ -51,7 +48,6 @@ Copyright (c) 2011 Nayuki Minase
 				s += (10 > d.getHours()   ? "0" : "") + d.getHours()   + ":"
 				s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + ":"
 				s += (10 > d.getSeconds() ? "0" : "") + d.getSeconds();
-				
 				if (lastText != s) {
 					setText("clock", s);
 					lastText = s;
