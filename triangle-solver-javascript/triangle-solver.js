@@ -63,13 +63,11 @@ function solveTriangle(a, b, c, A, B, C) {
 	
 	else if (sides == 3) {
 		status = "Side side side (SSS) case";
-		try {
-			A = solveAngle(b, c, a);
-			B = solveAngle(c, a, b);
-			C = solveAngle(a, b, c);
-		} catch (e) {
-			throw (e === "No solution" ? status + " - " : "") + e;
-		}
+		if (a + b <= c || b + c <= a || c + a <= b)
+			throw status + " - No solution";
+		A = solveAngle(b, c, a);
+		B = solveAngle(c, a, b);
+		C = solveAngle(a, b, c);
 		// Heron's formula
 		var s = (a + b + c) / 2;
 		area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
@@ -81,7 +79,7 @@ function solveTriangle(a, b, c, A, B, C) {
 		if (B == null) B = 180 - C - A;
 		if (C == null) C = 180 - A - B;
 		if (A <= 0 || B <= 0 || C <= 0)
-			throw "Angle side angle (ASA) case - No solution";
+			throw status + " - No solution";
 		var sinA = Math.sin(degToRad(A));
 		var sinB = Math.sin(degToRad(B));
 		var sinC = Math.sin(degToRad(C));
@@ -96,6 +94,8 @@ function solveTriangle(a, b, c, A, B, C) {
 		
 	} else if (A != null && a == null || B != null && b == null || C != null && c == null) {
 		status = "Side angle side (SAS) case";
+		if (A != null && A >= 180 || B != null && B >= 180 || C != null && C >= 180)
+			throw status + " - No solution";
 		if (a == null) a = solveSide(b, c, A);
 		if (b == null) b = solveSide(c, a, B);
 		if (c == null) c = solveSide(a, b, C);
@@ -115,12 +115,14 @@ function solveTriangle(a, b, c, A, B, C) {
 		if (a != null && A == null) partialSide = a;
 		if (b != null && B == null) partialSide = b;
 		if (c != null && C == null) partialSide = c;
+		if (knownAngle >= 180)
+			throw status + "No solution";
 		var ratio = knownSide / Math.sin(degToRad(knownAngle));
 		var temp = partialSide / ratio;  // sin(partialAngle)
 		var partialAngle, unknownSide, unknownAngle;
-		if (temp > 1)
-			throw "Side side angle (SSA) - No solution";
-		else if (temp == 1 || knownSide > partialSide) {
+		if (temp > 1 || knownAngle >= 90 && knownSide <= partialSide)
+			throw status + "No solution";
+		else if (temp == 1 || knownSide >= partialSide) {
 			status += "Unique solution";
 			partialAngle = radToDeg(Math.asin(temp));
 			unknownAngle = 180 - knownAngle - partialAngle;
