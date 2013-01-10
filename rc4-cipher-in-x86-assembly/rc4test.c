@@ -1,6 +1,6 @@
-/*
+/* 
  * RC4 stream cipher in C and x86 assembly
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2013 Nayuki Minase
  * 
  * http://nayuki.eigenstate.org/page/rc4-cipher-in-x86-assembly
  */
@@ -109,20 +109,21 @@ void rc4_init(Rc4State *state, uint8_t *key, int len) {
 
 
 void rc4_encrypt_c(Rc4State *state, uint8_t *msg, int len) {
-	int index;
 	int i = state->i;
 	int j = state->j;
 	uint8_t *s = state->s;
+	int index;
 	for (index = 0; index < len; index++) {
 		i = (i + 1) & 0xFF;
 		j = (j + s[i]) & 0xFF;
 		
 		// Swap
-		uint8_t temp = s[i];
-		s[i] = s[j];
-		s[j] = temp;
+		uint8_t si = s[i];
+		uint8_t sj = s[j];
+		s[i] = sj;
+		s[j] = si;
 		
-		msg[index] ^= s[(s[i] + temp) & 0xFF];
+		msg[index] ^= s[(si + sj) & 0xFF];
 	}
 	state->i = i;
 	state->j = j;

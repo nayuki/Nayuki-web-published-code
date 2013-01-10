@@ -1,12 +1,12 @@
-/*
+/* 
  * RC4 stream cipher in x86 assembly
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2013 Nayuki Minase
  * 
  * http://nayuki.eigenstate.org/page/rc4-cipher-in-x86-assembly
  */
 
 
-/*
+/* 
  * Storage usage:
  *    Bytes  Location  Description
  *        1  al        Temporary s[i] per round (zero-extended to eax)
@@ -44,7 +44,7 @@ rc4_encrypt_x86:
 	movl    4(%esi), %edx  /* state->j */
 	addl    $8, %esi       /* state->s */
 	
-	/* Initialize */
+	/* Skip loop if len=0 */
 	cmpl    %edi, %ebp
 	je      .rc4_encrypt_bottom
 	
