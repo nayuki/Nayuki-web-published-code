@@ -1,4 +1,4 @@
-/*
+/* 
  * Whirlpool hash in x86 assembly
  * Copyright (c) 2012 Nayuki Minase
  * 
@@ -6,11 +6,11 @@
  */
 
 
-/*
+/* 
  * Storage usage:
  *   Bytes  Location    Description
- *       4  eax         Temporary 16-bit value for each pair of bytes processed during a round
- *       4  ebx         Temporary byte value
+ *       4  eax         Temporary 16-bit value for each pair of bytes processed during a round (zero-extended to eax)
+ *       4  ebx         Temporary byte value (zero-extended to ebx)
  *       4  ecx         Upward loop counter for 10 rounds
  *       4  edx         Base address of state array argument (read-only)
  *       4  esi         Base address of block array argument (read-only)

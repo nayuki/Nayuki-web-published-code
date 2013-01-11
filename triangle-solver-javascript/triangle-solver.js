@@ -219,18 +219,20 @@ var rectangles = [
 function initImageMap() {
 	var container = document.getElementById("diagramcontainer");
 	for (var i = 0; i < rectangles.length; i++) {
-		var rect = rectangles[i];
-		var left   = rect[0] - rectanglePadding;
-		var top    = rect[1] - rectanglePadding;
-		var width  = rect[2] + rectanglePadding * 2;
-		var height = rect[3] + rectanglePadding * 2;
 		var elem = document.createElement("a");
-		elem.className = "letterhover";
-		elem.style.left   = left   + "px";
-		elem.style.top    = top    + "px";
-		elem.style.width  = width  + "px";
-		elem.style.height = height + "px";
 		elem.href = "#";
+		elem.className = "letterhover";
+		var rect = rectangles[i];
+		elem.style.left   = (rect[0] - rectanglePadding) + "px";
+		elem.style.top    = (rect[1] - rectanglePadding) + "px";
+		elem.style.width  = (rect[2] + rectanglePadding * 2) + "px";
+		elem.style.height = (rect[3] + rectanglePadding * 2) + "px";
+		
+		function unhover() {
+			setElementText("hoveroutput", "");
+			document.getElementById("hoveroutput").style.display = "none";
+		}
+		
 		function setEvents(index) {
 			function hover() {
 				if (solution == null)
@@ -263,13 +265,8 @@ function initImageMap() {
 				}
 			}
 			
-			function unhover(index) {
-				setElementText("hoveroutput", "");
-				document.getElementById("hoveroutput").style.display = "none";
-			}
-			
-			elem.onmouseover = function() { hover(index); }
-			elem.onmouseout = function() { unhover(index); }
+			elem.onmouseover = hover;
+			elem.onmouseout = unhover;
 			elem.onclick = function() {
 				document.getElementById(ioNames[index] + "in").select();
 				return false;

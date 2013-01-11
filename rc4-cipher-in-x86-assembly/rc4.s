@@ -15,7 +15,7 @@
  *        1  dl        RC4 state variable j (zero-extended to edx)
  *        4  esi       Base address of RC4 state array of 256 bytes
  *        4  edi       Address of current message byte to encrypt
- *        4  ebp       End of message array (msg + len)
+ *        4  ebp       End address of message array (msg + len)
  *        4  esp       x86 stack pointer
  *        4  [esp+ 0]  Caller's value of ebx
  *        4  [esp+ 4]  Caller's value of esi
