@@ -1,4 +1,4 @@
-/*
+/* 
  * MD5 hash in x86 assembly
  * Copyright (c) 2012 Nayuki Minase
  * 
@@ -6,7 +6,7 @@
  */
 
 
-/*
+/* 
  * Storage usage:
  *   Bytes  Location  Description
  *       4  eax       MD5 state variable A

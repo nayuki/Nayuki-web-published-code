@@ -1,4 +1,4 @@
-/*
+/* 
  * Tiny Encryption Algorithm (TEA) in C and x86 assembly
  * Copyright (c) 2011 Nayuki Minase
  * 

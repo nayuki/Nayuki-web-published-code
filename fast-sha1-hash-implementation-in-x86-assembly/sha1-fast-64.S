@@ -1,4 +1,4 @@
-/*
+/* 
  * SHA-1 hash in x86-64 assembly
  * Copyright (c) 2012 Nayuki Minase
  * 
@@ -6,7 +6,7 @@
  */
 
 
-/*
+/* 
  * Storage usage:
  *   Bytes  Location  Description
  *       4  eax       SHA-1 state variable A

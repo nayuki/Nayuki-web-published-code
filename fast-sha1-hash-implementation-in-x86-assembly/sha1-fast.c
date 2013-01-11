@@ -1,4 +1,4 @@
-/*
+/* 
  * SHA-1 hash in C
  * Copyright (c) 2012 Nayuki Minase
  * 
