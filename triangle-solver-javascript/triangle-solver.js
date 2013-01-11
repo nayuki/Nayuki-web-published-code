@@ -1,6 +1,6 @@
 /* 
  * Triangle solver
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2013 Nayuki Minase
  * 
  * http://nayuki.eigenstate.org/page/triangle-solver-javascript
  */
@@ -204,14 +204,14 @@ function clearOutputs() {
 }
 
 
-var rectanglePadding = 8;
+var RECT_PADDED_SIZE = 36;
 
-// Left, top, width, height
+// List of tuples (left, top, width, height). Values will be modified by initImageMap() to include padding.
 var rectangles = [
 	[246,221,12,12],
 	[ 89, 89,12,18],
 	[321, 87,11,13],
-	[176, 48,15,17],  // Tweaked for better aesthetics. True dimensions are [175,48,15,17]
+	[177, 48,15,17],  // Tweaked for better aesthetics. True dimensions are [175,48,15,17]
 	[391,176,16,17],
 	[ 69,175,17,18]
 ];
@@ -223,15 +223,12 @@ function initImageMap() {
 		elem.href = "#";
 		elem.className = "letterhover";
 		var rect = rectangles[i];
-		elem.style.left   = (rect[0] - rectanglePadding) + "px";
-		elem.style.top    = (rect[1] - rectanglePadding) + "px";
-		elem.style.width  = (rect[2] + rectanglePadding * 2) + "px";
-		elem.style.height = (rect[3] + rectanglePadding * 2) + "px";
-		
-		function unhover() {
-			setElementText("hoveroutput", "");
-			document.getElementById("hoveroutput").style.display = "none";
-		}
+		rect[0] -= Math.round((RECT_PADDED_SIZE - rect[2]) / 2);
+		rect[1] -= Math.round((RECT_PADDED_SIZE - rect[3]) / 2);
+		elem.style.left   = rect[0] + "px";
+		elem.style.top    = rect[1]  + "px";
+		elem.style.width  = RECT_PADDED_SIZE + "px";
+		elem.style.height = RECT_PADDED_SIZE + "px";
 		
 		function setEvents(index) {
 			function hover() {
@@ -246,27 +243,30 @@ function initImageMap() {
 				setElementText("hoveroutput", text);
 				
 				// Set hover element style
-				var elem = document.getElementById("hoveroutput");
-				elem.style.display = "block";
+				var hovelem = document.getElementById("hoveroutput");
+				hovelem.style.display = "block";
 				try {
-					var compStyle = window.getComputedStyle(elem, null);
+					var compStyle = window.getComputedStyle(hovelem, null);
 					var height = parsePixels(compStyle.getPropertyValue("height"))
 					height    += parsePixels(compStyle.getPropertyValue("padding-top"));
 					height    += parsePixels(compStyle.getPropertyValue("padding-bottom"));
-					elem.style.top = rectangles[index][1] - height - rectanglePadding - 8 + "px";
+					hovelem.style.top = rectangles[index][1] - height - 8 + "px";
 					
 					var temp = document.getElementById("diagramcontainer");
 					var containerWidth = parsePixels(window.getComputedStyle(temp, null).getPropertyValue("width"));
 					var bodyWidth = parsePixels(window.getComputedStyle(temp.parentNode, null).getPropertyValue("width"));
-					elem.style.left = Math.round((bodyWidth - containerWidth) / 2) + rectangles[index][0] - rectanglePadding + "px";
+					hovelem.style.left = Math.round((bodyWidth - containerWidth) / 2) + rectangles[index][0] + "px";
 				} catch (e) {
-					elem.style.left = "0px";
-					elem.style.top = "0px";
+					hovelem.style.left = "0px";
+					hovelem.style.top = "0px";
 				}
 			}
 			
 			elem.onmouseover = hover;
-			elem.onmouseout = unhover;
+			elem.onmouseout = function() {
+				setElementText("hoveroutput", "");
+				document.getElementById("hoveroutput").style.display = "none";
+			};
 			elem.onclick = function() {
 				document.getElementById(ioNames[index] + "in").select();
 				return false;
