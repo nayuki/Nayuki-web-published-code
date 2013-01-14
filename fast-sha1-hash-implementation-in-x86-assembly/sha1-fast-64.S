@@ -67,14 +67,14 @@
 	andl  %b, %esi;          \
 	andl  %d, %edi;          \
 	orl   %edi, %esi;        \
-	ROUNDTAIL(a,b,e,i,0x8F1BBCDC)
+	ROUNDTAIL(a,b,e,i,-0x70E44324)
 
 #define ROUND3(a,b,c,d,e,i)  \
 	SCHEDULE(i,e)            \
 	movl  %b, %esi;          \
 	xorl  %c, %esi;          \
 	xorl  %d, %esi;          \
-	ROUNDTAIL(a,b,e,i,0xCA62C1D6)
+	ROUNDTAIL(a,b,e,i,-0x359D3E2A)
 
 #define ROUNDTAIL(a,b,e,i,k)  \
 	roll  $30, %b;            \
