@@ -35,6 +35,8 @@ function factor() {
 		appendGaussianInteger(num);
 		appendTextNode(outElem, " = ");
 		for (var i = 0; i < factorization.length; i++) {
+			if (i > 0)
+				appendTextNode(outElem, " ");
 			appendTextNode(outElem, "(");
 			appendGaussianInteger(factorization[i]);
 			appendTextNode(outElem, ")");
