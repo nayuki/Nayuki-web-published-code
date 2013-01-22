@@ -16,24 +16,19 @@ import os, re, sys
 def main(args):
 	# Handle command-line arguments
 	if len(args) != 2:
-		print >>sys.stderr, "Usage: python bfc.py BrainfuckFile OutputFile.c/java/py"
-		sys.exit(1)
+		return "Usage: python bfc.py BrainfuckFile OutputFile.c/java/py"
 	
 	inname = args[0]
 	if not os.path.exists(inname):
-		print >>sys.stderr, inname + ": File does not exist"
-		sys.exit(1)
+		return inname + ": File does not exist"
 	if not os.path.isfile(inname):
-		print >>sys.stderr, inname + ": Not a file"
-		sys.exit(1)
+		return inname + ": Not a file"
 	
 	outname = args[1]
 	if   outname.endswith(".c"   ): outfunc = commands_to_c
 	elif outname.endswith(".java"): outfunc = commands_to_java
 	elif outname.endswith(".py"  ): outfunc = commands_to_python
-	else:
-		print >>sys.stderr, outname + ": Unknown output type"
-		sys.exit(1)
+	else: return outname + ": Unknown output type"
 	
 	# Read input
 	with open(inname, "r") as fin:
@@ -119,7 +114,7 @@ def optimize(commands):
 		elif isinstance(cmd, Output):
 			result.append(Output(cmd.offset + offset))
 		else:
-			# Commit the pointer movement before starting a loop
+			# Commit the pointer movement before starting a loop/if
 			if offset != 0:
 				result.append(Right(offset))
 				offset = 0
@@ -268,8 +263,8 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 		result += indent("")
 	
 	for cmd in commands:
-		if   isinstance(cmd, Assign    ): result += indent("mem[i + {}] = (byte){};"                .format(cmd.offset, cmd.value))
-		elif isinstance(cmd, Add       ): result += indent("mem[i + {}] += {};"                     .format(cmd.offset, cmd.value))
+		if   isinstance(cmd, Assign    ): result += indent("mem[i + {}] = (byte){};".format(cmd.offset, cmd.value))
+		elif isinstance(cmd, Add       ): result += indent("mem[i + {}] += {};"     .format(cmd.offset, cmd.value))
 		elif isinstance(cmd, MultAssign):
 			if cmd.value == 1:
 				result += indent("mem[i + {}] = mem[i + {}];".format(cmd.destOff, cmd.srcOff))
@@ -280,9 +275,9 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 				result += indent("mem[i + {}] += mem[i + {}];".format(cmd.destOff, cmd.srcOff))
 			else:
 				result += indent("mem[i + {}] += mem[i + {}] * {};".format(cmd.destOff, cmd.srcOff, cmd.value))
-		elif isinstance(cmd, Right     ): result += indent("i += {};"                               .format(cmd.offset))
-		elif isinstance(cmd, Input     ): result += indent("mem[{}] = (byte)System.in.read();"      .format(cmd.offset))
-		elif isinstance(cmd, Output    ): result += indent("System.out.write(mem[i + {}]);"         .format(cmd.offset)) + indent("System.out.flush();")
+		elif isinstance(cmd, Right     ): result += indent("i += {};"                         .format(cmd.offset))
+		elif isinstance(cmd, Input     ): result += indent("mem[{}] = (byte)System.in.read();".format(cmd.offset))
+		elif isinstance(cmd, Output    ): result += indent("System.out.write(mem[i + {}]);"   .format(cmd.offset)) + indent("System.out.flush();")
 		elif isinstance(cmd, If        ):
 			result += indent("if (mem[i] != 0) {")
 			result += commands_to_java(cmd.commands, name, False, indentlevel + 1)
@@ -380,4 +375,7 @@ class Loop(Command):
 # ---- Miscellaneous ----
 
 if __name__ == "__main__":
-	main(sys.argv[1:])
+	errmsg = main(sys.argv[1:])
+	if errmsg is not None:
+		print >>sys.stderr, errmsg
+		sys.exit(1)
