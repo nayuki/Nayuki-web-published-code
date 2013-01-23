@@ -12,8 +12,13 @@ var MINUS = "\u2212";
 function factor() {
 	var outElem = document.getElementById("factorization");
 	removeAllChildren(outElem);
+	var input = document.getElementById("number").value;
+	if (/^\s*$/.test(input)) {
+		outElem.appendChild(document.createTextNode("\u00A0"));  // No-break space
+		return;
+	}
 	try {
-		var num = parseGaussianInteger(document.getElementById("number").value);
+		var num = parseGaussianInteger(input);
 		var factorization = num.factorize();
 		
 		function appendTextNode(elem, str) {
@@ -122,8 +127,11 @@ function GaussianInteger(real, imag) {
 	
 	this.findPrimeFactor = function() {
 		var norm = this.norm();
+		if (norm % 2 == 0)
+			return new GaussianInteger(1, 1);
+		
 		var end = Math.floor(Math.sqrt(norm));
-		for (var i = 2; i <= end; i++) {  // Find factors of norm
+		for (var i = 3; i <= end; i += 2) {  // Find factors of norm
 			if (norm % i == 0) {
 				if (i % 4 == 3)
 					return new GaussianInteger(i, 0);
@@ -136,7 +144,8 @@ function GaussianInteger(real, imag) {
 				}
 			}
 		}
-		// Rotate so that the argument is in [0, pi/2)
+		
+		// This number itself is prime. Rotate so that the argument is in [0, pi/2)
 		var temp = this;
 		while (temp.real < 0 || temp.imag < 0)
 			temp = temp.multiply(new GaussianInteger(0, 1));
