@@ -72,13 +72,6 @@ function demo(formulaStr) {
 
 /* Core number-processing fuctions */
 
-// Parses the given formula string and returns an equation object, or throws an exception.
-function parse(formulaStr) {
-	var tokenizer = new Tokenizer(formulaStr);
-	return parseEquation(tokenizer);
-}
-
-
 // Returns a matrix based on the given equation object.
 function buildMatrix(eqn) {
 	var elems = eqn.getElements();
@@ -366,6 +359,13 @@ function Element(name, count) {
 
 
 /* Parser functions */
+
+// Parses the given formula string and returns an equation object, or throws an exception.
+function parse(formulaStr) {
+	var tokenizer = new Tokenizer(formulaStr);
+	return parseEquation(tokenizer);
+}
+
 
 // Parses and returns an equation.
 function parseEquation(tok) {
