@@ -1,6 +1,6 @@
 # 
 # CRC-32 forcer
-# Copyright (c) 2012 Nayuki Minase
+# Copyright (c) 2013 Nayuki Minase
 # 
 # http://nayuki.eigenstate.org/page/forcing-a-files-crc-to-any-value
 # 
@@ -175,6 +175,6 @@ def get_degree(x):
 
 if __name__ == "__main__":
     errmsg = main(sys.argv[1:])
-    if errmsg != None:
+    if errmsg is not None:
         print >> sys.stderr, errmsg
         sys.exit(1)
