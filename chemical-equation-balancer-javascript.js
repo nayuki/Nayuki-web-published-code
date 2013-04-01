@@ -1,6 +1,6 @@
 /* 
  * Chemical equation balancer
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2013 Nayuki Minase
  */
 
 
@@ -67,6 +67,46 @@ function balance(formulaStr) {
 function demo(formulaStr) {
 	document.getElementById("inputFormula").value = formulaStr;
 	balance(formulaStr);
+}
+
+
+var RANDOM_DEMOS = [
+	"H2 + O2 = H2O",
+	"Fe + O2 = Fe2O3",
+	"NH3 + O2 = N2 + H2O",
+	"C3H8O + O2 = CO2 + H2O",
+	"Mg + HCl = MgCl2 + H2",
+	"Pb + PbO2 + H^+ + SO4^2- = PbSO4 + H2O",
+	"HNO3 + Cu = Cu(NO3)2 + H2O + NO",
+	"KNO2 + KNO3 + Cr2O3 = K2CrO4 + NO",
+	"AgNO3 + BaCl2 = Ba(NO3)2 + AgCl",
+	"Cu(NO3)2 = CuO + NO2 + O2",
+	"Al + CuSO4 = Al2(SO4)3 + Cu",
+	"Na3PO4 + Zn(NO3)2 = NaNO3 + Zn3(PO4)2",
+	"Cl2 + Ca(OH)2 = Ca(ClO)2 + CaCl2 + H2O",
+	"CHCl3 + O2 = CO2 + H2O + Cl2",
+	"H2C2O4 + MnO4^- = H2O + CO2 + MnO + OH^-",
+	"H2O2 + Cr2O7^2- = Cr^3+ + O2 + OH^-",
+	"KBr + KMnO4 + H2SO4 = Br2 + MnSO4 + K2SO4 + H2O",
+	"K2Cr2O7 + KI + H2SO4 = Cr2(SO4)3 + I2 + H2O + K2SO4",
+	"KClO3 + KBr + HCl = KCl + Br2 + H2O",
+	"Ag + HNO3 = AgNO3 + NO + H2O",
+	"P4 + OH^- + H2O = H2PO2^- + P2H4",
+	"Zn + NO3^- + H^+ = Zn^2+ + NH4^+ + H2O",
+	"ICl + H2O = Cl^- + IO3^- + I2 + H^+",
+	"AB2 + AC3 + AD5 + AE7 + AF11 + AG13 + AH17 + AI19 + AJ23 = A + ABCDEFGHIJ",
+];
+
+var lastRandomIndex = -1;
+
+function random() {
+	var index;
+	do {
+		index = Math.floor(Math.random() * RANDOM_DEMOS.length);
+		index = Math.max(Math.min(index, RANDOM_DEMOS.length - 1), 0);
+	} while (RANDOM_DEMOS.length >= 2 && index == lastRandomIndex);
+	lastRandomIndex = index;
+	demo(RANDOM_DEMOS[index]);
 }
 
 
