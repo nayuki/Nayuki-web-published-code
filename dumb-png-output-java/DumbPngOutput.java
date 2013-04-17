@@ -103,7 +103,7 @@ public final class DumbPngOutput {
 			b.write(blockType);
 			b.write(curBlockSize >>> 0);  // Little-endian
 			b.write(curBlockSize >>> 8);
-			b.write((~curBlockSize) >>> 0);  // One's complement, little-endian
+			b.write((~curBlockSize) >>> 0);  // Ones' complement, little-endian
 			b.write((~curBlockSize) >>> 8);
 			b.write(data, offset, curBlockSize);
 			offset += curBlockSize;
