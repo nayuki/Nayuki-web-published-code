@@ -1,6 +1,6 @@
 # 
 # Fast doubling Fibonacci algorithm
-# Copyright (c) 2011 Nayuki Minase
+# Copyright (c) 2013 Nayuki Minase
 # 
 # http://nayuki.eigenstate.org/page/fast-fibonacci-algorithms
 # 
@@ -18,7 +18,7 @@ def _fib(n):
     if n == 0:
         return (0, 1)
     else:
-        a, b = _fib(n / 2)
+        a, b = _fib(n // 2)
         c = a * (2 * b - a)
         d = b * b + a * a
         if n % 2 == 0:
