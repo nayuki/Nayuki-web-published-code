@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
-- Full screen clock
-- Copyright (c) 2012 Nayuki Minase
+- Full screen clock (24-hour)
+- Copyright (c) 2013 Nayuki Minase
 - 
 - http://nayuki.eigenstate.org/page/full-screen-clock-javascript
 -->
@@ -28,7 +28,7 @@
 			}
 			#clock {
 				font-family: sans-serif;
-				font-size: 150pt;
+				font-size: 250pt;
 				font-weight: bold;
 			}
 		</style>
@@ -46,8 +46,7 @@
 				var d = new Date();
 				var s = "";
 				s += (10 > d.getHours()   ? "0" : "") + d.getHours()   + ":"
-				s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + ":"
-				s += (10 > d.getSeconds() ? "0" : "") + d.getSeconds();
+				s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes();
 				if (lastText != s) {
 					setText("clock", s);
 					lastText = s;
@@ -62,7 +61,7 @@
 			}
 			
 			updateClock();
-			setInterval(updateClock, 100);
+			setInterval(updateClock, 1000);
 		</script>
 	</body>
 </html>
