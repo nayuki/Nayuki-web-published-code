@@ -48,7 +48,7 @@
 				s += ((d.getHours() + 11) % 12 + 1) + ":"
 				s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + ":"
 				s += (10 > d.getSeconds() ? "0" : "") + d.getSeconds() + " ";
-				s += d.getHours() < 12 ? "am" : "pm";
+				s += d.getHours() >= 12 ? "pm" : "am";
 				if (lastText != s) {
 					setText("clock", s);
 					lastText = s;
