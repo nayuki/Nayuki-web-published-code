@@ -1,7 +1,7 @@
 /* 
  * RC4 stream cipher in x86 assembly
- * Copyright (c) 2013 Nayuki Minase
  * 
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/rc4-cipher-in-x86-assembly
  */
 

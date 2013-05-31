@@ -1,7 +1,7 @@
 /* 
  * Whirlpool hash in C and x86 assembly
- * Copyright (c) 2012 Nayuki Minase
  * 
+ * Copyright (c) 2012 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/fast-whirlpool-hash-in-x86-assembly
  */
 

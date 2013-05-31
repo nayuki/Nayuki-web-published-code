@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in x86 assembly
- * Copyright (c) 2012 Nayuki Minase
  * 
+ * Copyright (c) 2012 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/fast-sha1-hash-implementation-in-x86-assembly
  */
 

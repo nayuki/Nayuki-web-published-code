@@ -1,7 +1,7 @@
 /* 
  * Tiny Encryption Algorithm (TEA) in C and x86 assembly
- * Copyright (c) 2011 Nayuki Minase
  * 
+ * Copyright (c) 2011 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/tiny-encryption-algorithm-in-x86-assembly
  */
 
