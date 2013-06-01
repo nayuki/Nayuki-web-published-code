@@ -127,8 +127,7 @@ public class forcecrc32 {
 		// Russian peasant multiplication algorithm
 		long z = 0;
 		while (y != 0) {
-			if ((y & 1) != 0)
-				z ^= x;
+			z ^= x * (y & 1);
 			y >>>= 1;
 			x <<= 1;
 			if ((x & (1L << 32)) != 0)

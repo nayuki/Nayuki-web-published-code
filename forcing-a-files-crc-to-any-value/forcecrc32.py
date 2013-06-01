@@ -104,8 +104,7 @@ def multiply_mod(x, y):
     # Russian peasant multiplication algorithm
     z = 0
     while y != 0:
-        if y & 1 != 0:
-            z ^= x
+        z ^= x * (y & 1)
         y >>= 1
         x <<= 1
         if x & (1 << 32) != 0:
