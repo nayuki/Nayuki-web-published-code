@@ -1,6 +1,6 @@
 /* 
  * Demonstration of fast Fibonacci algorithms
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2013 Nayuki Minase
  * 
  * http://nayuki.eigenstate.org/page/fast-fibonacci-algorithms
  */
@@ -71,7 +71,7 @@ public final class fastfibonacci {
 			assert b.equals(slowFibonacci(m+1));
 			
 			// Advance by one conditionally
-			if (((1 << i) & n) != 0) {
+			if (((n >>> i) & 1) != 0) {
 				BigInteger c = a.add(b);
 				a = b;
 				b = c;
