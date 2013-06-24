@@ -1,6 +1,8 @@
 /* 
  * Chemical equation balancer
- * Copyright (c) 2013 Nayuki Minase
+ * 
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
+ * http://nayuki.eigenstate.org/page/chemical-equation-balancer-javascript
  */
 
 

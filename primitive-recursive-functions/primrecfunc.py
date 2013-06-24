@@ -1,6 +1,8 @@
 # 
 # Primitive recursive functions
-# Copyright (c) 2012 Nayuki Minase
+# 
+# Copyright (c) 2012 Nayuki Minase. All rights reserved.
+# http://nayuki.eigenstate.org/page/primitive-recursive-functions
 # 
 
 

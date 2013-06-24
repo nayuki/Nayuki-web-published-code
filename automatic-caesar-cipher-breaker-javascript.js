@@ -1,6 +1,8 @@
 /* 
  * Automatic caesar cipher breaker
- * Copyright (c) 2011 Nayuki Minase
+ * 
+ * Copyright (c) 2011 Nayuki Minase. All rights reserved.
+ * http://nayuki.eigenstate.org/page/automatic-caesar-cipher-breaker-javascript
  */
 
 

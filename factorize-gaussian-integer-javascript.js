@@ -1,6 +1,8 @@
 /* 
  * Factorize Gaussian integer
- * Copyright (c) 2013 Nayuki Minase
+ * 
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
+ * http://nayuki.eigenstate.org/page/factorize-gaussian-integer-javascript
  */
 
 

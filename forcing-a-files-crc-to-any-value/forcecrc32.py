@@ -1,7 +1,7 @@
 # 
 # CRC-32 forcer
-# Copyright (c) 2013 Nayuki Minase
 # 
+# Copyright (c) 2013 Nayuki Minase. All rights reserved.
 # http://nayuki.eigenstate.org/page/forcing-a-files-crc-to-any-value
 # 
 
