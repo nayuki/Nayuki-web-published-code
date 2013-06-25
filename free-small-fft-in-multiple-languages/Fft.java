@@ -1,6 +1,7 @@
 /* 
  * Free FFT and convolution (Java)
- * Copyright (c) 2012 Nayuki Minase
+ * 
+ * Copyright (c) 2013 Nayuki Minase
  * http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -46,7 +47,7 @@ public class Fft {
 	 * Computes the inverse discrete Fourier transform (IDFT) of the given complex vector, storing the result back into the vector.
 	 * The vector can have any length. This is a wrapper function. This transform does not perform scaling, so the inverse is not a true inverse.
 	 */
-	public static void computeInverseFft(double[] real, double[] imag) {
+	public static void inverseTransform(double[] real, double[] imag) {
 		transform(imag, real);
 	}
 	
@@ -186,7 +187,7 @@ public class Fft {
 			ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
 			xreal[i] = temp;
 		}
-		computeInverseFft(xreal, ximag);
+		inverseTransform(xreal, ximag);
 		for (int i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
 			outreal[i] = xreal[i] / n;
 			outimag[i] = ximag[i] / n;

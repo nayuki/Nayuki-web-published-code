@@ -1,5 +1,6 @@
 /* 
  * FFT and convolution test (Java)
+ * 
  * Copyright (c) 2012 Nayuki Minase
  * http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
  * 

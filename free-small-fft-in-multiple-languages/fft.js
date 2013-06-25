@@ -1,6 +1,7 @@
 /* 
  * Free FFT and convolution (JavaScript)
- * Copyright (c) 2012 Nayuki Minase
+ * 
+ * Copyright (c) 2013 Nayuki Minase
  * http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -44,7 +45,7 @@ function transform(real, imag) {
  * Computes the inverse discrete Fourier transform (IDFT) of the given complex vector, storing the result back into the vector.
  * The vector can have any length. This is a wrapper function. This transform does not perform scaling, so the inverse is not a true inverse.
  */
-function computeInverseFft(real, imag) {
+function inverseTransform(real, imag) {
     transform(imag, real);
 }
 
@@ -202,7 +203,7 @@ function convolveComplex(xreal, ximag, yreal, yimag, outreal, outimag) {
         ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
         xreal[i] = temp;
     }
-    computeInverseFft(xreal, ximag);
+    inverseTransform(xreal, ximag);
     for (var i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
         outreal[i] = xreal[i] / n;
         outimag[i] = ximag[i] / n;
