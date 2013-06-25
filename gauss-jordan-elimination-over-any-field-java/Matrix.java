@@ -19,15 +19,18 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Constructs a blank matrix with the specified number of rows and columns, with operations from the specified field.
+	 * Constructs a blank matrix with the specified number of rows and columns, with operations from the specified field. All the elements are initially {@code null}.
 	 * @param rows the number of rows in this matrix
 	 * @param cols the number of columns in this matrix
 	 * @param f the field used to operate on the values in this matrix
 	 * @throws IllegalArgumentException if {@code rows} &le; 0 or {@code cols} &le; 0
+	 * @throws NullPointerException if {@code f} is {@code null}
 	 */
 	public Matrix(int rows, int cols, Field<T> f) {
 		if (rows <= 0 || cols <= 0)
 			throw new IllegalArgumentException("Invalid number of rows or columns");
+		if (f == null)
+			throw new NullPointerException();
 		
 		values = new Object[rows][cols];
 		this.f = f;
@@ -36,7 +39,7 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Returns the number of rows in this matrix.
+	 * Returns the number of rows in this matrix, which is positive.
 	 * @return the number of rows in this matrix
 	 */
 	public int rowCount() {
@@ -45,7 +48,7 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Returns the number of columns in this matrix.
+	 * Returns the number of columns in this matrix, which is positive.
 	 * @return the number of columns in this matrix
 	 */
 	public int columnCount() {
@@ -90,10 +93,8 @@ public final class Matrix<T> implements Cloneable {
 		int rows = rowCount();
 		int cols = columnCount();
 		Matrix<T> result = new Matrix<T>(rows, cols, f);
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++)
-				result.set(i, j, get(i, j));
-		}
+		for (int i = 0; i < values.length; i++)
+			System.arraycopy(values[i], 0, result.values[i], 0, cols);
 		return result;
 	}
 	
@@ -109,14 +110,9 @@ public final class Matrix<T> implements Cloneable {
 	public void swapRows(int row0, int row1) {
 		if (row0 < 0 || row0 >= values.length || row1 < 0 || row1 >= values.length)
 			throw new IndexOutOfBoundsException("Row index out of bounds");
-		if (row0 == row1)
-			return;
-		for (int j = 0, cols = columnCount(); j < cols; j++) {
-			@SuppressWarnings("unchecked")
-			T temp = (T)values[row0][j];
-			values[row0][j] = values[row1][j];
-			values[row1][j] = temp;
-		}
+		Object[] temp = values[row0];
+		values[row0] = values[row1];
+		values[row1] = temp;
 	}
 	
 	
@@ -215,7 +211,7 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Replaces the values of this matrix with the inverse of this matrix.
+	 * Replaces the values of this matrix with the inverse of this matrix. Requires the matrix to be square.
 	 */
 	public void invert() {
 		int rows = rowCount();
@@ -223,6 +219,7 @@ public final class Matrix<T> implements Cloneable {
 		if (rows != cols)
 			throw new IllegalStateException("Matrix dimensions are not square");
 		
+		// Build augmented matrix: [this | identity]
 		Matrix<T> temp = new Matrix<T>(rows, cols * 2, f);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
@@ -233,6 +230,7 @@ public final class Matrix<T> implements Cloneable {
 		
 		temp.reducedRowEchelonForm();
 		
+		// Check that the RREF is in this form: [identity | inverse]
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				if (!f.equals(temp.get(i, j), i == j ? f.one() : f.zero()))
@@ -240,6 +238,7 @@ public final class Matrix<T> implements Cloneable {
 			}
 		}
 		
+		// Extract inverse matrix
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++)
 				set(i, j, temp.get(i, j + cols));
@@ -248,10 +247,10 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Returns the determinant of this matrix, and as a side effect converts the matrix to reduced row echelon form (RREF).
+	 * Returns the determinant of this matrix, and as a side effect converts the matrix to row echelon form (REF). Requires the matrix to be square.
 	 * @return the determinant of this matrix
 	 */
-	public T determinantAndRref() {
+	public T determinantAndRef() {
 		int rows = rowCount();
 		int cols = columnCount();
 		if (rows != cols)
@@ -266,40 +265,30 @@ public final class Matrix<T> implements Cloneable {
 			int pivotRow = numPivots;
 			while (pivotRow < rows && f.equals(get(pivotRow, j), f.zero()))
 				pivotRow++;
-			if (pivotRow == rows)
-				continue;  // Cannot eliminate on this column
-			swapRows(numPivots, pivotRow);
-			if (numPivots != pivotRow)
-				det = f.negate(det);
-			pivotRow = numPivots;
-			numPivots++;
 			
-			// Simplify the pivot row
-			T temp = get(pivotRow, j);
-			multiplyRow(pivotRow, f.reciprocal(temp));
-			det = f.multiply(temp, det);
+			if (pivotRow < rows) {
+				// This column has a nonzero pivot
+				if (numPivots != pivotRow) {
+					swapRows(numPivots, pivotRow);
+					det = f.negate(det);
+				}
+				pivotRow = numPivots;
+				numPivots++;
+				
+				// Simplify the pivot row
+				T temp = get(pivotRow, j);
+				multiplyRow(pivotRow, f.reciprocal(temp));
+				det = f.multiply(temp, det);
+				
+				// Eliminate rows below
+				for (int i = pivotRow + 1; i < rows; i++)
+					addRows(pivotRow, i, f.negate(get(i, j)));
+			}
 			
-			// Eliminate rows below
-			for (int i = pivotRow + 1; i < rows; i++)
-				addRows(pivotRow, i, f.negate(get(i, j)));
+			// Update determinant
+			det = f.multiply(get(j, j), det);
 		}
 		
-		// Compute reduced row echelon form (RREF)
-		for (int i = rows - 1; i >= 0; i--) {
-			// Find pivot
-			int pivotCol = 0;
-			while (pivotCol < cols && f.equals(get(i, pivotCol), f.zero()))
-				pivotCol++;
-			if (pivotCol == cols)
-				continue;  // Skip this all-zero row
-			
-			// Eliminate rows above
-			for (int j = i - 1; j >= 0; j--)
-				addRows(i, j, f.negate(get(j, pivotCol)));
-		}
-		
-		for (int i = 0; i < rows; i++)
-			det = f.multiply(get(i, i), det);
 		return det;
 	}
 	

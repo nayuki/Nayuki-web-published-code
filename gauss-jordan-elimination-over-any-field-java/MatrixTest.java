@@ -137,7 +137,7 @@ public final class MatrixTest {
 		for (int i = 0; i < field.size; i++) {
 			Matrix<Integer> mat = new Matrix<Integer>(1, 1, field);
 			mat.set(0, 0, i);
-			assertEquals(i, (int)mat.determinantAndRref());
+			assertEquals(i, (int)mat.determinantAndRef());
 		}
 	}
 	
@@ -150,7 +150,7 @@ public final class MatrixTest {
 			mat.set(0, 1, random.nextInt(field.size));
 			mat.set(1, 0, random.nextInt(field.size));
 			mat.set(1, 1, random.nextInt(field.size));
-			assertEquals(field.subtract(field.multiply(mat.get(0, 0), mat.get(1, 1)), field.multiply(mat.get(0, 1), mat.get(1, 0))), mat.determinantAndRref());
+			assertEquals(field.subtract(field.multiply(mat.get(0, 0), mat.get(1, 1)), field.multiply(mat.get(0, 1), mat.get(1, 0))), mat.determinantAndRef());
 		}
 	}
 	
@@ -167,7 +167,7 @@ public final class MatrixTest {
 					mat.set(j, k, random.nextInt(field.size));
 			}
 			
-			assertEquals(determinant(mat, 0, new boolean[size], field), mat.determinantAndRref());
+			assertEquals(determinant(mat, 0, new boolean[size], field), mat.determinantAndRef());
 		}
 	}
 	
@@ -205,7 +205,7 @@ public final class MatrixTest {
 					mat.set(j, k, random.nextInt(field.size));
 			}
 			
-			if (field.equals(mat.clone().determinantAndRref(), field.zero()))
+			if (field.equals(mat.clone().determinantAndRef(), field.zero()))
 				continue;
 			
 			Matrix<Integer> inverse = mat.clone();
