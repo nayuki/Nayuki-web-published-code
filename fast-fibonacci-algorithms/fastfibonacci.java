@@ -56,7 +56,7 @@ public final class fastfibonacci {
 		BigInteger a = BigInteger.ZERO;
 		BigInteger b = BigInteger.ONE;
 		int m = 0;
-		for (int i = 31; i >= 0; i--) {
+		for (int i = 31 - Integer.numberOfLeadingZeros(n); i >= 0; i--) {
 			// Loop invariant: a = F(m), b = F(m+1)
 			assert a.equals(slowFibonacci(m));
 			assert b.equals(slowFibonacci(m+1));
