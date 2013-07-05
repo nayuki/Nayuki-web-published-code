@@ -80,7 +80,7 @@ public class decryptnotepadcrypt {
 	}
 	
 	
-	private static byte[] decryptFileData(byte[] fileData, byte[] passphrase, boolean useMasterKey) {
+	static byte[] decryptFileData(byte[] fileData, byte[] passphrase, boolean useMasterKey) {
 		if (fileData.length == 0)
 			return fileData;  // NotepadCrypt produces an empty file when trying to encrypt an empty text file
 		
@@ -124,7 +124,7 @@ public class decryptnotepadcrypt {
 		byte[] plaintext = ciphertext.clone();
 		Aes.decryptCbcMode(plaintext, key, initVec);
 		
-		// Check padding
+		// Check padding (rejections are always correct, but false acceptance has 1/255 chance)
 		int padding = plaintext[plaintext.length - 1];
 		if (padding < 1 || padding > 16)
 			throw new IllegalArgumentException("Incorrect key or corrupt data");
@@ -138,8 +138,11 @@ public class decryptnotepadcrypt {
 	}
 	
 	
-	private static int toInt32(byte[] b, int off) {
-		return b[off + 0] << 24 | (b[off + 1] & 0xFF) << 16 | (b[off + 2] & 0xFF) << 8 | (b[off + 3] & 0xFF);
+	static int toInt32(byte[] b, int off) {  // Big endian
+		return (b[off + 0] & 0xFF) << 24
+		     | (b[off + 1] & 0xFF) << 16
+		     | (b[off + 2] & 0xFF) <<  8
+		     | (b[off + 3] & 0xFF) <<  0;
 	}
 	
 	
@@ -172,12 +175,14 @@ public class decryptnotepadcrypt {
 		int[] state = {0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19};
 		for (int off = 0; off < padded.length; off += 64) {
 			int[] schedule = new int[64];
-			for (int i = 0; i < 64; i++)
-				schedule[i / 4] |= (padded[off + i] & 0xFF) << ((3 - (i & 3)) * 8);
+			for (int i = 0; i < 16; i++)
+				schedule[i] = toInt32(padded, off + i * 4);
 			for (int i = 16; i < 64; i++) {
 				int x = schedule[i - 15];
 				int y = schedule[i -  2];
-				schedule[i] = schedule[i-16] + schedule[i-7] + (rotateRight(x,7) ^ rotateRight(x,18) ^ (x>>>3)) + (rotateRight(y,17) ^ rotateRight(y,19) ^ (y>>>10));
+				schedule[i] = schedule[i - 16] + schedule[i - 7]
+				            + (rotateRight(x,  7) ^ rotateRight(x, 18) ^ (x >>>  3))
+				            + (rotateRight(y, 17) ^ rotateRight(y, 19) ^ (y >>> 10));
 			}
 			
 			int a = state[0], b = state[1], c = state[2], d = state[3];
@@ -211,7 +216,7 @@ public class decryptnotepadcrypt {
 
 class Aes {
 	
-	private static final int BLOCK_LEN = 16;
+	private static final int BLOCK_LEN = 16;  // Do not modify
 	
 	
 	public static void decryptCbcMode(byte[] msg, byte[] key, byte[] initVec) {
@@ -242,7 +247,7 @@ class Aes {
 		int rounds = Math.max(nk, 4) + 6;
 		int[] w = new int[(rounds + 1) * 4];  // Key schedule
 		for (int i = 0; i < nk; i++)
-			w[i] = key[i * 4] << 24 | ((key[i * 4 + 1] & 0xFF) << 16) | ((key[i * 4 + 2] & 0xFF) << 8) | (key[i * 4 + 3] & 0xFF);
+			w[i] = decryptnotepadcrypt.toInt32(key, i * 4);
 		for (int i = nk, rcon = 1; i < w.length; i++) {  // rcon = 2^(i/nk) mod 0x11B
 			int tp = w[i - 1];
 			if (i % nk == 0) {
@@ -316,7 +321,7 @@ class Aes {
 		SBOX_INVERSE = new byte[256];
 		for (int i = 0; i < 256; i++) {
 			int tp = reciprocal(i);
-			int s = ((tp ^ (tp << 4 | tp >>> 4) ^ (tp << 3 | tp >>> 5) ^ (tp << 2 | tp >>> 6) ^ (tp << 1 | tp >>> 7) ^ 0x63)) & 0xFF;
+			int s = tp ^ rotateByteLeft(tp, 1) ^ rotateByteLeft(tp, 2) ^ rotateByteLeft(tp, 3) ^ rotateByteLeft(tp, 4) ^ 0x63;
 			SBOX[i] = (byte)s;
 			SBOX_INVERSE[s] = (byte)i;
 		}
@@ -349,6 +354,13 @@ class Aes {
 			}
 			throw new AssertionError();
 		}
+	}
+	
+	
+	private static int rotateByteLeft(int x, int y) {
+		if ((x & 0xFF) != x || y < 0 || y >= 8)
+			throw new IllegalArgumentException("Input out of range");
+		return ((x << y) | (x >>> (8 - y))) & 0xFF;
 	}
 	
 	
