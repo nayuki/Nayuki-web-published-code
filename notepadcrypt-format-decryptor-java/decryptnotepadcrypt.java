@@ -267,17 +267,14 @@ class Aes {
 	
 	
 	public void decryptBlock(byte[] msg, int off) {
-		byte[] block = Arrays.copyOfRange(msg, off, off + BLOCK_LEN);
-		byte[] temp = new byte[BLOCK_LEN];
-		
 		// Initial round
-		addRoundKey(block, keySchedule[keySchedule.length - 1]);
-		for (int i = 0; i < 4; i++) {  // Shift rows inverse
+		byte[] temp = Arrays.copyOfRange(msg, off, off + BLOCK_LEN);
+		addRoundKey(temp, keySchedule[keySchedule.length - 1]);
+		byte[] block = new byte[BLOCK_LEN];
+		for (int i = 0; i < 4; i++) {  // Shift rows inverse and sub bytes inverse
 			for (int j = 0; j < 4; j++)
-				temp[i + j * 4] = block[i + (j - i + 4) % 4 * 4];
+				block[i + j * 4] = SBOX_INVERSE[temp[i + (j - i + 4) % 4 * 4] & 0xFF];
 		}
-		for (int i = 0; i < BLOCK_LEN; i++)  // Sub bytes inverse
-			block[i] = SBOX_INVERSE[temp[i] & 0xFF];
 		
 		// Middle rounds
 		for (int k = keySchedule.length - 2; k >= 1; k--) {
@@ -299,7 +296,6 @@ class Aes {
 		
 		// Final round
 		addRoundKey(block, keySchedule[0]);
-		
 		System.arraycopy(block, 0, msg, off, block.length);
 	}
 	
@@ -312,13 +308,11 @@ class Aes {
 	
 	/* Utilities */
 	
-	private static byte[] SBOX;
-	private static byte[] SBOX_INVERSE;
+	private static byte[] SBOX = new byte[256];
+	private static byte[] SBOX_INVERSE = new byte[256];
 	
+	// Initialize the S-box and inverse
 	static {
-		// Initialize the S-box and inverse
-		SBOX = new byte[256];
-		SBOX_INVERSE = new byte[256];
 		for (int i = 0; i < 256; i++) {
 			int tp = reciprocal(i);
 			int s = tp ^ rotateByteLeft(tp, 1) ^ rotateByteLeft(tp, 2) ^ rotateByteLeft(tp, 3) ^ rotateByteLeft(tp, 4) ^ 0x63;
