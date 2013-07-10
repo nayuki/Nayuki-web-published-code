@@ -70,6 +70,7 @@ def main(args):
             raf.close()
     except IOError:
         return "Error: Cannot open file " + args[0]
+    return None
 
 
 # ---- Utilities ----
