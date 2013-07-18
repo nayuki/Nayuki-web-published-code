@@ -86,6 +86,11 @@ canvas.oncontextmenu = function() {
 }
 
 
+canvas.onselectstart = function() {  // For Google Chrome
+	return false;
+}
+
+
 function doClear() {
 	points = [];
 	circle = null;
