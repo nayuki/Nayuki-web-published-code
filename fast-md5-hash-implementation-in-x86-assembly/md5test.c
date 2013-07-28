@@ -15,7 +15,7 @@
 
 /* Function prototypes */
 
-static int self_check();
+static int self_check(void);
 void md5_hash(uint8_t *message, uint32_t len, uint32_t *hash);
 
 // Link this program with an external C or x86 compression function
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 
 /* Self-check */
 
-static int self_check() {
+static int self_check(void) {
 	uint32_t hash[4];
 	
 	md5_hash((uint8_t*)"", 0, hash);

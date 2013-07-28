@@ -22,7 +22,7 @@ typedef struct {
 
 /* Function prototypes */
 
-static int self_check();
+static int self_check(void);
 void rc4_init(Rc4State *state, uint8_t *key, int len);
 void rc4_encrypt_c(Rc4State *state, uint8_t *msg, int len);
 extern void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, int len);
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 }
 
 
-static int self_check() {
+static int self_check(void) {
 	const int TRIALS = 1000;
 	const int MSG_LEN = 127;
 	
