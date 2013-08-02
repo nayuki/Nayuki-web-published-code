@@ -273,9 +273,9 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 				result += indent("mem[i + {}] += mem[i + {}];".format(cmd.destOff, cmd.srcOff))
 			else:
 				result += indent("mem[i + {}] += mem[i + {}] * {};".format(cmd.destOff, cmd.srcOff, cmd.value))
-		elif isinstance(cmd, Right     ): result += indent("i += {};"                         .format(cmd.offset))
-		elif isinstance(cmd, Input     ): result += indent("mem[{}] = (byte)System.in.read();".format(cmd.offset))
-		elif isinstance(cmd, Output    ): result += indent("System.out.write(mem[i + {}]);"   .format(cmd.offset)) + indent("System.out.flush();")
+		elif isinstance(cmd, Right     ): result += indent("i += {};"                             .format(cmd.offset))
+		elif isinstance(cmd, Input     ): result += indent("mem[i + {}] = (byte)System.in.read();".format(cmd.offset))
+		elif isinstance(cmd, Output    ): result += indent("System.out.write(mem[i + {}]);"       .format(cmd.offset)) + indent("System.out.flush();")
 		elif isinstance(cmd, If        ):
 			result += indent("if (mem[i] != 0) {")
 			result += commands_to_java(cmd.commands, name, False, indentlevel + 1)
@@ -310,7 +310,7 @@ def commands_to_python(commands, name, maincall=True, indentlevel=0):
 		elif isinstance(cmd, MultAssign): result += indent("mem[i + {}] = (mem[i + {}] * {}) & 0xFF".format(cmd.destOff, cmd.srcOff, cmd.value))
 		elif isinstance(cmd, MultAdd   ): result += indent("mem[i + {}] = (mem[i + {}] + mem[i + {}] * {}) & 0xFF".format(cmd.destOff, cmd.destOff, cmd.srcOff, cmd.value))
 		elif isinstance(cmd, Right     ): result += indent("i += {}".format(cmd.offset))
-		elif isinstance(cmd, Input     ): result += indent("mem[{}] = ord(sys.stdin.read())".format(cmd.offset))
+		elif isinstance(cmd, Input     ): result += indent("mem[i + {}] = ord(sys.stdin.read())".format(cmd.offset))
 		elif isinstance(cmd, Output    ): result += indent("sys.stdout.write(chr(mem[i + {}]))".format(cmd.offset))
 		elif isinstance(cmd, If        ):
 			result += indent("if mem[i] != 0:")
