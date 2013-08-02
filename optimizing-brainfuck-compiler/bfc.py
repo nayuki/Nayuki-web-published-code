@@ -160,8 +160,7 @@ def optimize_simple_loop(commands):
 	# Convert the loop into a list of multiply-add commands that source from the cell being tested
 	result = []
 	del deltas[0]
-	offsets = deltas.keys()
-	offsets.sort()
+	offsets = sorted(deltas.keys())
 	for off in offsets:
 		result.append(MultAdd(0, off, deltas[off]))
 	result.append(Assign(0, 0))
@@ -198,8 +197,7 @@ def optimize_complex_loop(commands):
 	
 	deltaresult = []
 	del deltas[0]
-	offsets = deltas.keys()
-	offsets.sort()
+	offsets = sorted(deltas.keys())
 	for off in offsets:
 		deltaresult.append(MultAdd(0, off, deltas[off]))
 	deltaresult.append(Assign(0, 0))

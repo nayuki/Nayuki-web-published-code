@@ -1,7 +1,7 @@
 # 
 # Free FFT and convolution (Python)
 # 
-# Copyright (c) 2012 Nayuki Minase
+# Copyright (c) 2013 Nayuki Minase
 # http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
 # 
 # (MIT License)
@@ -23,6 +23,10 @@
 # 
 
 import cmath
+
+import sys
+if sys.version_info.major == 2:
+    range = xrange
 
 
 # 
@@ -46,7 +50,7 @@ def transform_radix2(vector, inverse):
     # Returns the integer whose value is the reverse of the lowest 'bits' bits of the integer 'x'.
     def reverse(x, bits):
         y = 0
-        for i in xrange(bits):
+        for i in range(bits):
             y = (y << 1) | (x & 1)
             x >>= 1
         return y
@@ -62,17 +66,17 @@ def transform_radix2(vector, inverse):
         else:
             levels += 1
     # Now, levels = log2(n)
-    exptable = [cmath.exp((2j if inverse else -2j) * cmath.pi * i / n) for i in xrange(n / 2)]
-    vector = [vector[reverse(i, levels)] for i in xrange(n)]  # Copy with bit-reversed permutation
+    exptable = [cmath.exp((2j if inverse else -2j) * cmath.pi * i / n) for i in range(n // 2)]
+    vector = [vector[reverse(i, levels)] for i in range(n)]  # Copy with bit-reversed permutation
     
     # Radix-2 decimation-in-time FFT
     size = 2
     while size <= n:
-        halfsize = size / 2
-        tablestep = n / size
-        for i in xrange(0, n, size):
+        halfsize = size // 2
+        tablestep = n // size
+        for i in range(0, n, size):
             k = 0
-            for j in xrange(i, i + halfsize):
+            for j in range(i, i + halfsize):
                 temp = vector[j + halfsize] * exptable[k]
                 vector[j + halfsize] = vector[j] - temp
                 vector[j] += temp
@@ -93,11 +97,11 @@ def transform_bluestein(vector, inverse):
     while m < n * 2 + 1:
         m *= 2
     
-    exptable = [cmath.exp((1j if inverse else -1j) * cmath.pi * (i * i % (n * 2)) / n) for i in xrange(n)]  # Trigonometric table
+    exptable = [cmath.exp((1j if inverse else -1j) * cmath.pi * (i * i % (n * 2)) / n) for i in range(n)]  # Trigonometric table
     a = [x * y for (x, y) in zip(vector, exptable)] + [0] * (m - n)  # Temporary vectors and preprocessing
-    b = [(exptable[min(i, m - i)].conjugate() if (i < n or m - i < n) else 0) for i in xrange(m)]
+    b = [(exptable[min(i, m - i)].conjugate() if (i < n or m - i < n) else 0) for i in range(m)]
     c = convolve(a, b, False)[:n]  # Convolution
-    for i in xrange(n):  # Postprocessing
+    for i in range(n):  # Postprocessing
         c[i] *= exptable[i]
     return c
 
@@ -112,15 +116,15 @@ def convolve(x, y, realoutput=True):
     n = len(x)
     x = transform(x)
     y = transform(y)
-    for i in xrange(n):
+    for i in range(n):
         x[i] *= y[i]
     x = transform(x, inverse=True)
     
     # Scaling (because this FFT implementation omits it) and postprocessing
     if realoutput:
-        for i in xrange(n):
+        for i in range(n):
             x[i] = x[i].real / n
     else:
-        for i in xrange(n):
+        for i in range(n):
             x[i] /= n
     return x

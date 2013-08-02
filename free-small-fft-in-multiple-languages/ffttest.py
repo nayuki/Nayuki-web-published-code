@@ -1,7 +1,7 @@
 # 
 # FFT and convolution test (Python)
 # 
-# Copyright (c) 2012 Nayuki Minase
+# Copyright (c) 2013 Nayuki Minase
 # http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
 # 
 # (MIT License)
@@ -25,6 +25,10 @@
 import cmath, math, random
 import fft
 
+import sys
+if sys.version_info.major == 2:
+    range = xrange
+
 
 # ---- Main and test functions ----
 
@@ -41,7 +45,7 @@ def main():
     
     # Test diverse size FFTs
     prev = 0
-    for i in xrange(100 + 1):
+    for i in range(100 + 1):
         n = int(round(1500 ** (i / 100.0)))
         if n != prev:
             _test_fft(n)
@@ -53,7 +57,7 @@ def main():
     
     # Test diverse size convolutions
     prev = 0
-    for i in xrange(100 + 1):
+    for i in range(100 + 1):
         n = int(round(1500 ** (i / 100.0)))
         if n != prev:
             _test_convolution(n)
@@ -83,9 +87,9 @@ def _test_convolution(size):
 def _naive_dft(input, inverse=False):
     n = len(input)
     output = [0] * n
-    for k in xrange(n):  # For each output element
+    for k in range(n):  # For each output element
         s = 0
-        for t in xrange(n):  # For each input element
+        for t in range(n):  # For each input element
             s += input[t] * cmath.exp((2j if inverse else -2j) * math.pi * (t * k % n) / n)
         output[k] = s
     return output
@@ -95,9 +99,9 @@ def _naive_convolution(x, y):
     assert len(x) == len(y)
     n = len(x)
     z = [0] * n
-    for i in xrange(n):
+    for i in range(n):
         s = 0
-        for j in xrange(n):
+        for j in range(n):
             s += x[(i - j) % n] * y[j]
         z[i] = s
     return z
@@ -122,7 +126,7 @@ def _log10_rms_err(x, y):
 
 
 def _random_vector(n):
-    return [complex(random.random() * 2 - 1, random.random() * 2 - 1) for i in xrange(n)]
+    return [complex(random.random() * 2 - 1, random.random() * 2 - 1) for i in range(n)]
 
 
 if __name__ == "__main__":

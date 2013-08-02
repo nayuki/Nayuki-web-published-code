@@ -32,7 +32,7 @@ def main(args):
     
     # Process the file
     try:
-        raf = file(args[0], "r+b")
+        raf = open(args[0], "r+b")
         try:
             raf.seek(0, os.SEEK_END)
             length = raf.tell()
@@ -75,7 +75,7 @@ def main(args):
 
 # ---- Utilities ----
 
-POLYNOMIAL = 0x104C11DB7L  # Generator polynomial. Do not modify, because there are many dependencies
+POLYNOMIAL = 0x104C11DB7  # Generator polynomial. Do not modify, because there are many dependencies
 MASK = (1 << 32) - 1
 
 
@@ -176,5 +176,5 @@ def get_degree(x):
 if __name__ == "__main__":
     errmsg = main(sys.argv[1:])
     if errmsg is not None:
-        print >> sys.stderr, errmsg
+        sys.stderr.write(errmsg + "\n")
         sys.exit(1)

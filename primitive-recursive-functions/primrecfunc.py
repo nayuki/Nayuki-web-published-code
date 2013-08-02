@@ -1,9 +1,13 @@
 # 
 # Primitive recursive functions
 # 
-# Copyright (c) 2012 Nayuki Minase. All rights reserved.
+# Copyright (c) 2013 Nayuki Minase. All rights reserved.
 # http://nayuki.eigenstate.org/page/primitive-recursive-functions
 # 
+
+import sys
+if sys.version_info.major == 2:
+    range = xrange
 
 
 # ---- Classes for primitive recursive functions ----
@@ -95,7 +99,7 @@ class R(PrimRecFunc):
     def eval(self, xs):
         assert len(xs) >= 2
         val = self.f.eval(xs[1:])
-        for i in xrange(xs[0]):
+        for i in range(xs[0]):
             val = self.g.eval([val, i] + xs[1:])
         return val
     

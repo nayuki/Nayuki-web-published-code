@@ -1,11 +1,15 @@
 # 
 # Galois linear feedback shift register (LFSR) in Python
-# Copyright (c) 2012 Nayuki Minase
+# Copyright (c) 2013 Nayuki Minase
 # 
 # http://nayuki.eigenstate.org/page/galois-linear-feedback-shift-register
 # 
 
 import random
+
+import sys
+if sys.version_info.major == 2:
+    range = xrange
 
 
 # Random number generator class (implements most functionality of random.Random)
@@ -44,7 +48,7 @@ class LfsrRandom(random.Random):
     
     def getrandbits(self, k):
         result = 0
-        for i in xrange(k):
+        for i in range(k):
             result = (result << 1) | self.randbit()
         return result
     
@@ -59,7 +63,7 @@ class LfsrRandom(random.Random):
 if __name__ == "__main__":
     # Polynomial: x^16 + x^14 + x^13 + x^11 + x^0
     rand = LfsrRandom(0b10110100000000001, 1)
-    for i in xrange(10):
-        print rand.random()
-    for i in xrange(20):
-        print rand.randbit()
+    for i in range(10):
+        print(rand.random())
+    for i in range(20):
+        print(rand.randbit())
