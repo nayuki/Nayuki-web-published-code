@@ -165,12 +165,12 @@ public abstract class Prf {
 	// Is zero: z(x, y) = if x == 0 then 1 else 0
 	public final static Prf z = C(R(konst(1), C(Z, I(3,0))), I(1,0), Z);
 	
-	// Multiplex/select: mux(x, y, z) = if x == True then y else z. (x is Boolean; y and z are numbers)
+	// Multiplex/select: mux(x, y, z) = if x == true then y else z. (x is Boolean; y and z are numbers)
 	public final static Prf mux = R(I(2,1), I(4,2));
 	
 	
 	// -- Boolean functions --
-	// 0 means false, 1 means true, and all other values cause unspecified behavior
+	// 0 means false, 1 means true, and all other input values yield arbitrary output values
 	
 	// Negation (NOT): not(x)
 	public final static Prf not = z;
@@ -215,8 +215,7 @@ public abstract class Prf {
 	public final static Prf pow = C(R(konst(1), C(mul, I(3,2), I(3,0))), I(2,1), I(2,0));
 	
 	// Factorial: factorial(x) = x!
-	public final static Prf factorial = C(R(konst(1), C(mul, C(S, I(3,1)), I(3,0))), I(1,0), Z);// -- Comparison functions --
-	// Every function returns only Boolean values, i.e. 0 or 1
+	public final static Prf factorial = C(R(konst(1), C(mul, C(S, I(3,1)), I(3,0))), I(1,0), Z);
 	
 	
 	// -- Comparison functions --
@@ -277,9 +276,9 @@ public abstract class Prf {
 	public final static Prf lcm = C(R(C(Z, I(2,0)), C(mux, C(and, C(nz, I(4,0)), C(and, C(divisible, I(4,0), I(4,2)), C(divisible, I(4,0), I(4,3)))), I(4,0), I(4,1))), C(S, mul), I(2,0), I(2,1));
 	
 	// Divisibility count: divisiblecount(x, y) =
-	//	     if x == 0 or y == 0 then 0
-	//	     elseif y >= 2 then (the highest power of y that divides x)
-	//	     else y == 1 then x
+	//     if x == 0 or y == 0 then 0
+	//     elseif y >= 2 then (the highest power of y that divides x)
+	//     else y == 1 then x
 	public final static Prf divisiblecount = C(R(C(Z, I(2,0)), C(mux, C(divisible, I(4,2), C(pow, I(4,3), C(S, I(4,0)))), C(S, I(4,0)), I(4,0))), I(2,0), I(2,0), I(2,1));
 	
 	// Nth prime: nthprime(0) = 2, nthprime(1) = 3, nthprime(2) = 5, nthprime(3) = 7, nthprime(4) = 11, ...

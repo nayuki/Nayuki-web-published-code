@@ -141,7 +141,7 @@ evalCount (Native f) xs = (f xs, 1, 1)
 {---- Library of primitive recursive functions ----}
 
 {-- Boolean functions --}
--- 0 means false, 1 means true, and all other values cause unspecified behavior
+-- 0 means false, 1 means true, and all other input values yield arbitrary output values
 
 -- Negation (NOT): not(x)
 not = z
@@ -155,7 +155,7 @@ or = R (I 1 0) (C S [I 3 1])
 -- Exclusive OR (XOR): xor(x, y)
 xor = R (I 1 0) (C not [I 3 2])
 
--- Multiplex/select: mux(x, y, z) = if x == True then y else z. (x is Boolean; y and z are numbers)
+-- Multiplex/select: mux(x, y, z) = if x == true then y else z. (x is Boolean; y and z are numbers)
 mux = R (I 2 1) (I 4 2)
 
 

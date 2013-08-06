@@ -149,12 +149,12 @@ def const(n):
 # Is zero: z(x, y) = if x == 0 then 1 else 0
 z = C(R(const(1), C(Z, [I(3,0)])), [I(1,0), Z])
 
-# Multiplex/select: mux(x, y, z) = if x == True then y else z. (x is Boolean; y and z are numbers)
+# Multiplex/select: mux(x, y, z) = if x == true then y else z. (x is Boolean; y and z are numbers)
 mux = R(I(2,1), I(4,2))
 
 
 # -- Boolean functions --
-# 0 means false, 1 means true, and all other values cause unspecified behavior
+# 0 means false, 1 means true, and all other input values yield arbitrary output values
 
 # Negation (NOT): prnot(x)
 prnot = z
