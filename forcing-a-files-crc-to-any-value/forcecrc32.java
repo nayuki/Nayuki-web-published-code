@@ -38,7 +38,7 @@ public class forcecrc32 {
 		if (offset < 0)
 			return "Error: Negative byte offset";
 		try {
-			if (args[2].length() != 8)
+			if (args[2].length() != 8 || args[2].startsWith("-"))
 				return "Error: Invalid new CRC-32 value";
 			long temp = Long.parseLong(args[2], 16);
 			if ((temp & 0xFFFFFFFFL) != temp)
