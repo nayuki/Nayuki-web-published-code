@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/propositional-sequent-calculus-prover
  */
 
+"use strict";
+
 
 function doProve(inputSequent) {
 	document.getElementById("inputSequent").value = inputSequent;
@@ -315,7 +317,7 @@ function parseSequent(tok) {
 	// Parse left side
 	var expectComma = false;
 	while (true) {
-		next = tok.peek();
+		var next = tok.peek();
 		if (next == TURNSTILE) {
 			tok.consume(TURNSTILE);
 			break;
@@ -344,7 +346,7 @@ function parseSequent(tok) {
 	// Parse right side
 	expectComma = false;
 	while (true) {
-		next = tok.peek();
+		var next = tok.peek();
 		if (next == null)
 			break;
 		else if (next == TURNSTILE)

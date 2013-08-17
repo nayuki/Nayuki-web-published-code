@@ -1,9 +1,11 @@
 /* 
  * Prime factorization calculator
  * 
- * Copyright (c) 2011 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/calculate-prime-factorization-javascript
  */
+
+"use strict";
 
 
 var TIMES = "\u00D7";  // Times sign
@@ -42,6 +44,10 @@ function factor() {
 		return;
 	}
 	
+	function appendText(str) {
+		outElem1.appendChild(document.createTextNode(str));
+	}
+	
 	var n = parseInt(numberText, 10);
 	if (n < 2) {
 		outElem0.firstChild.data = "Number out of range (< 2)";
@@ -58,10 +64,6 @@ function factor() {
 		// Build prime factor list with powers in superscripts
 		if (factorPowers.length < factors.length) {
 			removeAllChildren(outElem1);
-			
-			function appendText(str) {
-				outElem1.appendChild(document.createTextNode(str));
-			}
 			
 			appendText(n + " = ");
 			for (var i = 0; i < factorPowers.length; i++) {

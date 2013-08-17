@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/automatic-caesar-cipher-breaker-javascript
  */
 
+"use strict";
+
 
 var entropies = new Array(26);
 

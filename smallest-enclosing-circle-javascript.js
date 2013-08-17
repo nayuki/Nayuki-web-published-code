@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/smallest-enclosing-circle-javascript
  */
 
+"use strict";
+
 
 /* Configuration */
 

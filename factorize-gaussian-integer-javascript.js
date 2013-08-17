@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/factorize-gaussian-integer-javascript
  */
 
+"use strict";
+
 
 var MINUS = "\u2212";
 
@@ -19,25 +21,26 @@ function factor() {
 		outElem.appendChild(document.createTextNode("\u00A0"));  // No-break space
 		return;
 	}
+	
+	function appendTextNode(elem, str) {
+		elem.appendChild(document.createTextNode(str));
+	}
+	
+	function appendGaussianInteger(n) {
+		var s = n.toString();
+		if (s.charAt(s.length - 1) != "i")
+			appendTextNode(outElem, s);
+		else {
+			var varElem = document.createElement("var");
+			appendTextNode(varElem, "i");
+			appendTextNode(outElem, s.substr(0, s.length - 1));
+			outElem.appendChild(varElem);
+		}
+	}
+	
 	try {
 		var num = parseGaussianInteger(input);
 		var factorization = num.factorize();
-		
-		function appendTextNode(elem, str) {
-			elem.appendChild(document.createTextNode(str));
-		}
-		
-		function appendGaussianInteger(n) {
-			var s = n.toString();
-			if (s.charAt(s.length - 1) != "i")
-				appendTextNode(outElem, s);
-			else {
-				var varElem = document.createElement("var");
-				appendTextNode(varElem, "i");
-				appendTextNode(outElem, s.substr(0, s.length - 1));
-				outElem.appendChild(varElem);
-			}
-		}
 		
 		appendGaussianInteger(num);
 		appendTextNode(outElem, " = ");

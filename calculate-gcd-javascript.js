@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/calculate-gcd-javascript
  */
 
+"use strict";
+
 
 /* 
  * Handles the HTML input/output for calculating the GCD of two integers.

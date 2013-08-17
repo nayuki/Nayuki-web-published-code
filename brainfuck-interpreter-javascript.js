@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/brainfuck-interpreter-javascript
  */
 
+"use strict";
+
 
 var instance = null;
 

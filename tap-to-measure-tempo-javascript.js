@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/tap-to-measure-tempo-javascript
  */
 
+"use strict";
+
 
 var startTime;
 var beatTimes;

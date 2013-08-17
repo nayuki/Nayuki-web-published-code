@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/resizing-images-by-area
  */
 
+"use strict";
+
 
 var TIMES = "\u00D7";  // Times sign
 
@@ -12,6 +14,18 @@ function calc() {
 	function removeAllChildren(node) {
 		while (node.childNodes.length > 0)
 			node.removeChild(node.firstChild);
+	}
+	
+	function parseNumber(nodeId) {
+		var text = document.getElementById(nodeId).value;
+		text = text.replace(/^\s+|\s+$/g, "");  // Trim whitespace
+		var result = parseFloat(text);
+		if (result <= 0)
+			throw "Positive number expected";
+		else if (result == Infinity || isNaN(result))
+			throw "Finite number expected";
+		else
+			return result;
 	}
 	
 	// Clear outputs
@@ -23,18 +37,6 @@ function calc() {
 	removeAllChildren(aspectRatio);
 	
 	try {
-		function parseNumber(nodeId) {
-			var text = document.getElementById(nodeId).value;
-			text = text.replace(/^\s+|\s+$/g, "");  // Trim whitespace
-			var result = parseFloat(text);
-			if (result <= 0)
-				throw "Positive number expected";
-			else if (result == Infinity || isNaN(result))
-				throw "Finite number expected";
-			else
-				return result;
-		}
-		
 		// Get inputs
 		var originalWidth  = parseNumber("original-width");
 		var originalHeight = parseNumber("original-height");

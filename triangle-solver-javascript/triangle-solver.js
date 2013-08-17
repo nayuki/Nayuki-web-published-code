@@ -5,9 +5,23 @@
  * http://nayuki.eigenstate.org/page/triangle-solver-javascript
  */
 
+"use strict";
+
 
 // The main function, which handles the HTML input/output for solving a triangle.
 function solve() {
+	function doOutput(nodeId, val) {
+		if (typeof val == "object" && val.length == 2) {  // Array
+			setElementText(nodeId, formatNumber(val[0]));
+			setElementText(nodeId + "2", formatNumber(val[1]));
+			solution2 = true;
+		} else if (typeof val == "number") {
+			setElementText(nodeId, formatNumber(val));
+			setElementText(nodeId + "2", formatNumber(val));
+		} else
+			throw "Assertion error";
+	}
+	
 	try {
 		// Get input and solve
 		var a = getInputNumber("sideAin");
@@ -22,17 +36,6 @@ function solve() {
 		// Set outputs
 		setElementText("status", answer[7]);
 		var solution2 = false;
-		function doOutput(nodeId, val) {
-			if (typeof val == "object" && val.length == 2) {  // Array
-				setElementText(nodeId, formatNumber(val[0]));
-				setElementText(nodeId + "2", formatNumber(val[1]));
-				solution2 = true;
-			} else if (typeof val == "number") {
-				setElementText(nodeId, formatNumber(val));
-				setElementText(nodeId + "2", formatNumber(val));
-			} else
-				throw "Assertion error";
-		}
 		doOutput("sideAout" , answer[0]);
 		doOutput("sideBout" , answer[1]);
 		doOutput("sideCout" , answer[2]);
@@ -230,7 +233,7 @@ function initImageMap() {
 		elem.style.width  = RECT_PADDED_SIZE + "px";
 		elem.style.height = RECT_PADDED_SIZE + "px";
 		
-		function setEvents(index) {
+		var setEvents = function(index) {
 			function hover() {
 				if (solution == null)
 					return;

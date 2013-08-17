@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/caesar-cipher-javascript
  */
 
+"use strict";
+
 
 /*
  * Handles the HTML input/output for Caesar cipher encryption/decryption.

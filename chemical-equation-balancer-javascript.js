@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/chemical-equation-balancer-javascript
  */
 
+"use strict";
+
 
 /* Main functions, which are the entry points from the HTML code */
 

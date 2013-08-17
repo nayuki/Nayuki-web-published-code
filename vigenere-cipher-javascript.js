@@ -5,6 +5,8 @@
  * http://nayuki.eigenstate.org/page/vigenere-cipher-javascript
  */
 
+"use strict";
+
 
 /* 
  * Handles the HTML input/output for Vigenère cipher encryption/decription.
