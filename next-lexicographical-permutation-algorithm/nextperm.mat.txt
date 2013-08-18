@@ -1,0 +1,23 @@
+(* 
+ * Next lexicographical permutation algorithm (Mathematica)
+ * By Nayuki Minase, 2013. Public domain.
+ * http://nayuki.eigenstate.org/page/next-lexicographical-permutation-algorithm
+ *)
+
+
+(* 
+ * Computes the next lexicographical permutation of the specified vector of numbers.
+ * Returns the pair {Boolean, permuted vector}, where the Boolean value indicates
+ * whether a next permutation existed or not.
+ *)
+NextPermutation[arr_] := Module[{i, j},
+  (* Find non-increasing suffix *)
+  For[i = Length[arr], i > 1 && arr[[i - 1]] >= arr[[i]], i--];
+  If[i <= 1,
+    Return[{False, arr}]];
+  (* Find successor to pivot *)
+  For[j = Length[arr], arr[[j]] <= arr[[i - 1]], j--];
+  (* Return new list with indexes i and j swapped, followed by the suffix reversed *)
+  {True, Join[Take[arr, i - 2], {arr[[j]]}, Reverse[Drop[ReplacePart[arr, arr[[i - 1]], j], i - 1]]]}]
+
+(* Example: NextPermutation[{0, 1, 0}] -> {True, {1, 0, 0}} *)
