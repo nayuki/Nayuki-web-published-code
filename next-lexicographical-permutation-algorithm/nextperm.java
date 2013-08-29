@@ -53,7 +53,7 @@ public final class nextperm {
 		int i = array.length - 1;
 		while (i > 0 && array[i - 1].compareTo(array[i]) >= 0)
 			i--;
-		if (i == 0)
+		if (i <= 0)
 			return false;
 		
 		// Find successor to pivot
@@ -83,7 +83,7 @@ public final class nextperm {
 		int i = array.size() - 1;
 		while (i > 0 && array.get(i - 1).compareTo(array.get(i)) >= 0)
 			i--;
-		if (i == 0)
+		if (i <= 0)
 			return false;
 		
 		// Find successor to pivot
@@ -113,7 +113,7 @@ public final class nextperm {
 		int i = array.size() - 1;
 		while (i > 0 && comp.compare(array.get(i - 1), array.get(i)) >= 0)
 			i--;
-		if (i == 0)
+		if (i <= 0)
 			return false;
 		
 		// Find successor to pivot
