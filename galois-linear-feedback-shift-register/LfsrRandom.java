@@ -57,7 +57,7 @@ public class LfsrRandom extends Random {
 	
 	protected int next(int bits) {
 		int result = 0;
-		for (int i = 0; i < 32; i++)
+		for (int i = 0; i < bits; i++)
 			result = (result << 1) | (nextBoolean() ? 1 : 0);
 		return result;
 	}

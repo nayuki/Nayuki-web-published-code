@@ -139,10 +139,10 @@ public class decryptnotepadcrypt {
 	
 	
 	static int toInt32(byte[] b, int off) {  // Big endian
-		return (b[off + 0] & 0xFF) << 24
-		     | (b[off + 1] & 0xFF) << 16
-		     | (b[off + 2] & 0xFF) <<  8
-		     | (b[off + 3] & 0xFF) <<  0;
+		return (b[off + 0] & 0xFF) << 24 |
+		       (b[off + 1] & 0xFF) << 16 |
+		       (b[off + 2] & 0xFF) <<  8 |
+		       (b[off + 3] & 0xFF) <<  0;
 	}
 	
 	
@@ -153,8 +153,7 @@ public class decryptnotepadcrypt {
 			throw new IllegalArgumentException("Message too large for this implementation");
 		
 		// Add 1 byte for termination, 8 bytes for length, then round up to multiple of block size (64)
-		byte[] padded = new byte[(msg.length + 1 + 8 + 63) & ~0x3F];
-		System.arraycopy(msg, 0, padded, 0, msg.length);
+		byte[] padded = Arrays.copyOf(msg, (msg.length + 1 + 8 + 63) / 64 * 64);
 		padded[msg.length] = (byte)0x80;
 		for (int i = 0; i < 4; i++)
 			padded[padded.length - 1 - i] = (byte)((msg.length * 8) >>> (i * 8));
@@ -180,9 +179,9 @@ public class decryptnotepadcrypt {
 			for (int i = 16; i < 64; i++) {
 				int x = schedule[i - 15];
 				int y = schedule[i -  2];
-				schedule[i] = schedule[i - 16] + schedule[i - 7]
-				            + (rotateRight(x,  7) ^ rotateRight(x, 18) ^ (x >>>  3))
-				            + (rotateRight(y, 17) ^ rotateRight(y, 19) ^ (y >>> 10));
+				schedule[i] = schedule[i - 16] + schedule[i - 7] +
+				              (rotateRight(x,  7) ^ rotateRight(x, 18) ^ (x >>>  3)) +
+				              (rotateRight(y, 17) ^ rotateRight(y, 19) ^ (y >>> 10));
 			}
 			
 			int a = state[0], b = state[1], c = state[2], d = state[3];
@@ -206,7 +205,7 @@ public class decryptnotepadcrypt {
 		// Serialize state as result
 		byte[] hash = new byte[state.length * 4];
 		for (int i = 0; i < hash.length; i++)
-			hash[i] = (byte)(state[i / 4] >>> ((3 - (i & 3)) * 8));
+			hash[i] = (byte)(state[i / 4] >>> ((3 - i % 4) * 8));
 		return hash;
 	}
 	
@@ -248,11 +247,12 @@ class Aes {
 		int[] w = new int[(rounds + 1) * 4];  // Key schedule
 		for (int i = 0; i < nk; i++)
 			w[i] = decryptnotepadcrypt.toInt32(key, i * 4);
-		for (int i = nk, rcon = 1; i < w.length; i++) {  // rcon = 2^(i/nk) mod 0x11B
+		byte rcon = 1;
+		for (int i = nk; i < w.length; i++) {  // rcon = 2^(i/nk) mod 0x11B
 			int tp = w[i - 1];
 			if (i % nk == 0) {
-				tp = subInt32Bytes(tp << 8 | tp >>> 24) ^ (rcon << 24);
-				rcon = multiply(rcon, 0x02);
+				tp = subInt32Bytes(rotateRight(tp, 24)) ^ (rcon << 24);
+				rcon = multiply(rcon, (byte)0x02);
 			} else if (nk > 6 && i % nk == 4)
 				tp = subInt32Bytes(tp);
 			w[i] = w[i - nk] ^ tp;
@@ -261,42 +261,42 @@ class Aes {
 		keySchedule = new byte[w.length / 4][BLOCK_LEN];
 		for (int i = 0; i < keySchedule.length; i++) {
 			for (int j = 0; j < keySchedule[i].length; j++)
-				keySchedule[i][j] = (byte)(w[i * 4 + j / 4] >>> ((3 - (j & 3)) * 8));
+				keySchedule[i][j] = (byte)(w[i * 4 + j / 4] >>> ((3 - j % 4) * 8));
 		}
 	}
 	
 	
 	public void decryptBlock(byte[] msg, int off) {
 		// Initial round
-		byte[] temp = Arrays.copyOfRange(msg, off, off + BLOCK_LEN);
-		addRoundKey(temp, keySchedule[keySchedule.length - 1]);
-		byte[] block = new byte[BLOCK_LEN];
+		byte[] temp0 = Arrays.copyOfRange(msg, off, off + BLOCK_LEN);
+		addRoundKey(temp0, keySchedule[keySchedule.length - 1]);
+		byte[] temp1 = new byte[BLOCK_LEN];
 		for (int i = 0; i < 4; i++) {  // Shift rows inverse and sub bytes inverse
 			for (int j = 0; j < 4; j++)
-				block[i + j * 4] = SBOX_INVERSE[temp[i + (j - i + 4) % 4 * 4] & 0xFF];
+				temp1[i + j * 4] = SBOX_INVERSE[temp0[i + (j - i + 4) % 4 * 4] & 0xFF];
 		}
 		
 		// Middle rounds
 		for (int k = keySchedule.length - 2; k >= 1; k--) {
-			addRoundKey(block, keySchedule[k]);
+			addRoundKey(temp1, keySchedule[k]);
 			for (int i = 0; i < BLOCK_LEN; i += 4) {  // Mix columns inverse
 				for (int j = 0; j < 4; j++) {
-					temp[i + j] = (byte)(
-					        multiply(block[i + (j + 0) % 4] & 0xFF, 0x0E) ^
-					        multiply(block[i + (j + 1) % 4] & 0xFF, 0x0B) ^
-					        multiply(block[i + (j + 2) % 4] & 0xFF, 0x0D) ^
-					        multiply(block[i + (j + 3) % 4] & 0xFF, 0x09));
+					temp0[i + j] = (byte)(
+					        multiply(temp1[i + (j + 0) % 4], (byte)0x0E) ^
+					        multiply(temp1[i + (j + 1) % 4], (byte)0x0B) ^
+					        multiply(temp1[i + (j + 2) % 4], (byte)0x0D) ^
+					        multiply(temp1[i + (j + 3) % 4], (byte)0x09));
 				}
 			}
 			for (int i = 0; i < 4; i++) {  // Shift rows inverse and sub bytes inverse
 				for (int j = 0; j < 4; j++)
-					block[i + j * 4] = SBOX_INVERSE[temp[i + (j - i + 4) % 4 * 4] & 0xFF];
+					temp1[i + j * 4] = SBOX_INVERSE[temp0[i + (j - i + 4) % 4 * 4] & 0xFF];
 			}
 		}
 		
 		// Final round
-		addRoundKey(block, keySchedule[0]);
-		System.arraycopy(block, 0, msg, off, block.length);
+		addRoundKey(temp1, keySchedule[0]);
+		System.arraycopy(temp1, 0, msg, off, temp1.length);
 	}
 	
 	
@@ -314,35 +314,30 @@ class Aes {
 	// Initialize the S-box and inverse
 	static {
 		for (int i = 0; i < 256; i++) {
-			int tp = reciprocal(i);
-			int s = tp ^ rotateByteLeft(tp, 1) ^ rotateByteLeft(tp, 2) ^ rotateByteLeft(tp, 3) ^ rotateByteLeft(tp, 4) ^ 0x63;
-			SBOX[i] = (byte)s;
-			SBOX_INVERSE[s] = (byte)i;
+			byte tp = reciprocal((byte)i);
+			byte s = (byte)(tp ^ rotateByteLeft(tp, 1) ^ rotateByteLeft(tp, 2) ^ rotateByteLeft(tp, 3) ^ rotateByteLeft(tp, 4) ^ 0x63);
+			SBOX[i] = s;
+			SBOX_INVERSE[s & 0xFF] = (byte)i;
 		}
 	}
 	
 	
-	private static int multiply(int x, int y) {
-		if ((x & 0xFF) != x || (y & 0xFF) != y)
-			throw new IllegalArgumentException("Input out of range");
-		
+	private static byte multiply(byte x, byte y) {
 		// Russian peasant multiplication
-		int z = 0;
-		for (; y != 0; y >>>= 1) {
-			z ^= x * (y & 1);
-			x = (x << 1) ^ (0x11B * (x >>> 7));
+		byte z = 0;
+		for (int i = 0; i < 8; i++) {
+			z ^= x * ((y >>> i) & 1);
+			x = (byte)((x << 1) ^ (((x >>> 7) & 1) * 0x11B));
 		}
 		return z;
 	}
 	
 	
-	private static int reciprocal(int x) {
-		if ((x & 0xFF) != x)
-			throw new IllegalArgumentException("Input out of range");
-		else if (x == 0)
+	private static byte reciprocal(byte x) {
+		if (x == 0)
 			return 0;
 		else {
-			for (int y = 1; y < 256; y++) {
+			for (byte y = 1; y != 0; y++) {
 				if (multiply(x, y) == 1)
 					return y;
 			}
@@ -351,19 +346,18 @@ class Aes {
 	}
 	
 	
-	private static int rotateByteLeft(int x, int y) {
-		if ((x & 0xFF) != x || y < 0 || y >= 8)
+	private static byte rotateByteLeft(byte x, int y) {
+		if (y < 0 || y >= 8)
 			throw new IllegalArgumentException("Input out of range");
-		return ((x << y) | (x >>> (8 - y))) & 0xFF;
+		return (byte)((x << y) | ((x & 0xFF) >>> (8 - y)));
 	}
 	
 	
 	private static int subInt32Bytes(int x) {
-		return
-		      (SBOX[x >>> 24 & 0xFF] & 0xFF) << 24
-		    | (SBOX[x >>> 16 & 0xFF] & 0xFF) << 16
-		    | (SBOX[x >>>  8 & 0xFF] & 0xFF) <<  8
-		    | (SBOX[x >>>  0 & 0xFF] & 0xFF) <<  0;
+		return (SBOX[x >>> 24 & 0xFF] & 0xFF) << 24 |
+		       (SBOX[x >>> 16 & 0xFF] & 0xFF) << 16 |
+		       (SBOX[x >>>  8 & 0xFF] & 0xFF) <<  8 |
+		       (SBOX[x >>>  0 & 0xFF] & 0xFF) <<  0;
 	}
 	
 }
