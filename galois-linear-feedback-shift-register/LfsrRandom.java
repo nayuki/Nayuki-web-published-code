@@ -1,6 +1,6 @@
 /* 
  * Galois linear feedback shift register (LFSR) in Java
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2013 Nayuki Minase
  * 
  * http://nayuki.eigenstate.org/page/galois-linear-feedback-shift-register
  */
@@ -15,6 +15,16 @@ import java.util.Random;
  * the <var>x</var><sup><var>k</var></sup> term is represented by bit <var>k</var>.
  */
 public class LfsrRandom extends Random {
+	
+	// Demo program
+	public static void main(String[] args) {
+		LfsrRandom r = new LfsrRandom(BigInteger.valueOf(0x16801), BigInteger.valueOf(1));
+		r.printDebug();
+		for (int i = 0; i < 30; i++)
+			System.out.printf("%08x%n", r.nextInt());
+		r.printDebug();
+	}
+	
 	
 	private BigInteger characteristic;
 	private int degree;
@@ -64,26 +74,22 @@ public class LfsrRandom extends Random {
 	
 	
 	public void printDebug() {
+		System.out.printf("characteristic: degree=%d  poly = %s%nstate: degree=%d  poly = %s%n",
+				degree, polynomialToString(characteristic), state.bitLength() - 1, polynomialToString(state));
+	}
+	
+	
+	private static String polynomialToString(BigInteger poly) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("characteristic: degree=").append(degree).append("  poly = ");
 		boolean head = true;
-		for (int i = 0; i <= degree; i++) {
-			if (characteristic.testBit(i)) {
+		for (int i = poly.bitLength() - 1; i >= 0; i--) {
+			if (poly.testBit(i)) {
 				if (head) head = false;
 				else sb.append(" + ");
 				sb.append("x^" + i);
 			}
 		}
-		sb.append(System.getProperty("line.separator")).append("state: degree=").append(state.bitLength() - 1).append("  poly = ");
-		head = true;
-		for (int i = 0; i <= degree; i++) {
-			if (state.testBit(i)) {
-				if (head) head = false;
-				else sb.append(" + ");
-				sb.append("x^" + i);
-			}
-		}
-		System.out.println(sb);
+		return sb.toString();
 	}
 	
 }
