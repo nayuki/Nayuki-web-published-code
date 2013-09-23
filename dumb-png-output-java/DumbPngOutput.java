@@ -18,11 +18,11 @@ public final class DumbPngOutput {
 	 * [ Black, Gray , White ]
 	 */
 	public static void main(String[] args) throws IOException {
-		OutputStream out = new FileOutputStream("DumbPngOutDemo.png");
 		int[][] image = {
 			{0xFF0000, 0x00FF00, 0x0000FF},
 			{0x000000, 0x808080, 0xFFFFFF},
 		};
+		OutputStream out = new FileOutputStream("DumbPngOutDemo.png");
 		write(image, out);
 		out.close();
 	}
