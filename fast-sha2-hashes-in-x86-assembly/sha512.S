@@ -93,6 +93,7 @@
 	movl   STATEHI(e), %ebx;  \
 	movl   %eax, %ecx;        \
 	movl   %ebx, %edx;        \
+	movl   %eax, %ebp;        \
 	shrdl  $14, %ebx, %ecx;   \
 	shrdl  $14, %eax, %edx;   \
 	movl   %eax, %esi;        \
@@ -113,17 +114,17 @@
 	movl   %ebx, %edi;        \
 	xorl   STATELO(f), %esi;  \
 	xorl   STATEHI(f), %edi;  \
-	andl   STATELO(e), %esi;  \
+	andl   %ebp, %esi;        \
 	andl   STATEHI(e), %edi;  \
 	xorl   %esi, %eax;        \
 	xorl   %edi, %ebx;        \
-	/* Add 'em up */          \
-	addl   %ecx, %eax;        \
-	adcl   %edx, %ebx;        \
+	/* Sum */                 \
+	addl   $k0, %ecx;         \
+	adcl   $k1, %edx;         \
 	addl   STATELO(h), %eax;  \
 	adcl   STATEHI(h), %ebx;  \
-	addl   $k0, %eax;         \
-	adcl   $k1, %ebx;         \
+	addl   %ecx, %eax;        \
+	adcl   %edx, %ebx;        \
 	addl   SCHEDLO(i), %eax;  \
 	adcl   SCHEDHI(i), %ebx;  \
 	movl   %eax, 0(%esp);     \
@@ -136,6 +137,7 @@
 	movl   STATEHI(a), %ebx;  \
 	movl   %eax, %ecx;        \
 	movl   %ebx, %edx;        \
+	movl   %eax, %ebp;        \
 	shrdl  $28, %ebx, %ecx;   \
 	shrdl  $28, %eax, %edx;   \
 	movl   %eax, %esi;        \
@@ -155,7 +157,7 @@
 	movl   %eax, %esi;        \
 	orl    %ebx, %eax;        \
 	andl   %esi, %ebx;        \
-	andl   STATELO(a), %eax;  \
+	andl   %ebp, %eax;        \
 	orl    %ebx, %eax;        \
 	addl   %eax, %ecx;        \
 	adcl   $0, %edx;          \
