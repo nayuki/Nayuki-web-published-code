@@ -14,7 +14,7 @@ _CUTOFF = 1536
 
 def multiply(x, y):
     if x.bit_length() <= _CUTOFF or y.bit_length() <= _CUTOFF:  # Base case
-        return x * y;
+        return x * y
     
     else:
         n = max(x.bit_length(), y.bit_length())
