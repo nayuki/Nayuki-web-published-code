@@ -82,7 +82,7 @@
 	andq  %e, %rcx;            \
 	xorq  %g, %rcx;            \
 	addq  %rax, %h;            \
-    movq  $k, %rax;            \
+	movq  $k, %rax;            \
 	addq  %rcx, %h;            \
 	addq  %rax, %h;            \
 	/* Part 1 */               \
