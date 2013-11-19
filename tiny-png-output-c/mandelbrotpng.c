@@ -50,7 +50,7 @@ static uint32_t mandelbrot(double x, double y);
 
 int main(int argc, char **argv) {
 	// Initialize
-	FILE *fout = fopen("demo-mandelbrot.png", "w");
+	FILE *fout = fopen("demo-mandelbrot.png", "wb");
 	struct TinyPngOut pngout;
 	if (TinyPngOut_init(&pngout, fout, width, height) != TINYPNGOUT_OK) {
 		fprintf(stderr, "Error\n");

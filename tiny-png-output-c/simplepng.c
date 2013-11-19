@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 	};
 	
 	// Initialize file and Tiny Png Output
-	FILE *fout = fopen("demo-rgb.png", "w");
+	FILE *fout = fopen("demo-rgb.png", "wb");
 	struct TinyPngOut pngout;
 	if (TinyPngOut_init(&pngout, fout, width, height) != TINYPNGOUT_OK) {
 		fprintf(stderr, "Error\n");
