@@ -84,7 +84,7 @@ public final class DumbPngOutput {
 	}
 	
 	
-	// Returns the result of compressing the given byte string using DEFLATE and wrapping it in a zlib container. 
+	// Returns the result of compressing the given byte string using DEFLATE and wrapping it in a zlib container.
 	// In this implementation, no compression is performed; only DEFLATE verbatim blocks are used.
 	private static byte[] deflate(byte[] data) throws IOException {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
