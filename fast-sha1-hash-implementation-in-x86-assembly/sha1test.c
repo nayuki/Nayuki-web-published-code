@@ -5,7 +5,6 @@
  * http://nayuki.eigenstate.org/page/fast-sha1-hash-implementation-in-x86-assembly
  */
 
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +18,7 @@ static int self_check(void);
 void sha1_hash(uint8_t *message, uint32_t len, uint32_t *hash);
 
 // Link this program with an external C or x86 compression function
-extern void sha1_compress(uint32_t *state, uint32_t *block);
+extern void sha1_compress(uint32_t *state, uint8_t *block);
 
 
 /* Main program */
@@ -38,7 +37,7 @@ int main(int argc, char **argv) {
 	clock_t start_time = clock();
 	int i;
 	for (i = 0; i < N; i++)
-		sha1_compress(state, block);
+		sha1_compress(state, (uint8_t*)block);
 	printf("Speed: %.1f MiB/s\n", (double)N * 64 / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
 	
 	return 0;
@@ -83,26 +82,24 @@ void sha1_hash(uint8_t *message, uint32_t len, uint32_t *hash) {
 	
 	int i;
 	for (i = 0; i + 64 <= len; i += 64)
-		sha1_compress(hash, (uint32_t*)(message + i));
+		sha1_compress(hash, message + i);
 	
-	uint32_t block[16];
-	uint8_t *byteBlock = (uint8_t*)block;
-	
+	uint8_t block[64];
 	int rem = len - i;
-	memcpy(byteBlock, message + i, rem);
+	memcpy(block, message + i, rem);
 	
-	byteBlock[rem] = 0x80;
+	block[rem] = 0x80;
 	rem++;
 	if (64 - rem >= 8)
-		memset(byteBlock + rem, 0, 56 - rem);
+		memset(block + rem, 0, 56 - rem);
 	else {
-		memset(byteBlock + rem, 0, 64 - rem);
+		memset(block + rem, 0, 64 - rem);
 		sha1_compress(hash, block);
 		memset(block, 0, 56);
 	}
 	
 	uint64_t longLen = ((uint64_t)len) << 3;
 	for (i = 0; i < 8; i++)
-		byteBlock[64 - 1 - i] = (uint8_t)(longLen >> (i * 8));
+		block[64 - 1 - i] = (uint8_t)(longLen >> (i * 8));
 	sha1_compress(hash, block);
 }

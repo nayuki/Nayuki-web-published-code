@@ -175,7 +175,7 @@
 	movl   %ecx, STATELO(h);  \
 	movl   %edx, STATEHI(h);
 
-/* void sha512_compress(uint64_t *state, uint32_t *block) */
+/* void sha512_compress(uint64_t *state, uint8_t *block) */
 .globl sha512_compress
 sha512_compress:
 	/* Save registers, allocate scratch space */

@@ -13,8 +13,14 @@
 	(((x) << (64 - (i))) | ((x) >> (i)))
 
 #define LOADSCHEDULE(i)  \
-	schedule[i] = (block[i] << 56) | ((block[i] & 0xFF00) << 40) | ((block[i] & 0xFF0000) << 24) | ((block[i] & 0xFF000000) << 8)  \
-	            | (block[i] >> 56) | ((block[i] >> 40) & 0xFF00) | ((block[i] >> 24) & 0xFF0000) | ((block[i] >> 8) & 0xFF000000);
+	schedule[i] = (uint64_t)block[i * 8 + 0] << 56  \
+	            | (uint64_t)block[i * 8 + 1] << 48  \
+	            | (uint64_t)block[i * 8 + 2] << 40  \
+	            | (uint64_t)block[i * 8 + 3] << 32  \
+	            | (uint64_t)block[i * 8 + 4] << 24  \
+	            | (uint64_t)block[i * 8 + 5] << 16  \
+	            | (uint64_t)block[i * 8 + 6] <<  8  \
+	            | (uint64_t)block[i * 8 + 7];
 
 #define SCHEDULE(i)  \
 	schedule[i] = schedule[i-16] + schedule[i-7]  \
@@ -27,7 +33,7 @@
 	h += (ROR(a, 28) ^ ROR(a, 34) ^ ROR(a, 39)) + ((a & (b | c)) | (b & c));
 
 
-void sha512_compress(uint64_t *state, uint64_t *block) {
+void sha512_compress(uint64_t *state, uint8_t *block) {
 	uint64_t schedule[80];
 	LOADSCHEDULE( 0)
 	LOADSCHEDULE( 1)

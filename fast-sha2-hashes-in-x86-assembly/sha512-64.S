@@ -105,7 +105,7 @@
 	orq   %rcx, %rax;          \
 	addq  %rax, %h;
 
-/* void sha512_compress(uint32_t *state, uint32_t *block) */
+/* void sha512_compress(uint32_t *state, uint8_t *block) */
 .globl sha512_compress
 sha512_compress:
 	/* Save registers, allocate scratch space */

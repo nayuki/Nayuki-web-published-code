@@ -5,27 +5,30 @@
  * http://nayuki.eigenstate.org/page/fast-sha1-hash-implementation-in-x86-assembly
  */
 
-
 #include <stdint.h>
 
 
 #define LOADSCHEDULE(i)  \
-	schedule[i] = (block[i] << 24) | ((block[i] & 0xFF00) << 8) | ((block[i] >> 8) & 0xFF00) | (block[i] >> 24);
+	schedule[i] =                           \
+		  (uint32_t)block[i * 4 + 0] << 24  \
+		| (uint32_t)block[i * 4 + 1] << 16  \
+		| (uint32_t)block[i * 4 + 2] <<  8  \
+		| (uint32_t)block[i * 4 + 3];
 
 #define SCHEDULE(i)  \
-	temp = schedule[i-3] ^ schedule[i-8] ^ schedule[i-14] ^ schedule[i-16];  \
+	temp = schedule[i - 3] ^ schedule[i - 8] ^ schedule[i - 14] ^ schedule[i - 16];  \
 	schedule[i] = temp << 1 | temp >> 31;
 
-#define ROUND0(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, ((b & c) | (~b & d)),          i, UINT32_C(0x5A827999))
-#define ROUND1(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, (b ^ c ^ d),                   i, UINT32_C(0x6ED9EBA1))
-#define ROUND2(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, ((b & c) ^ (b & d) ^ (c & d)), i, UINT32_C(0x8F1BBCDC))
-#define ROUND3(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, (b ^ c ^ d),                   i, UINT32_C(0xCA62C1D6))
+#define ROUND0(a, b, c, d, e, i)  ROUNDTAIL(a, b, e, ((b & c) | (~b & d)),          i, UINT32_C(0x5A827999))
+#define ROUND1(a, b, c, d, e, i)  ROUNDTAIL(a, b, e, (b ^ c ^ d),                   i, UINT32_C(0x6ED9EBA1))
+#define ROUND2(a, b, c, d, e, i)  ROUNDTAIL(a, b, e, ((b & c) ^ (b & d) ^ (c & d)), i, UINT32_C(0x8F1BBCDC))
+#define ROUND3(a, b, c, d, e, i)  ROUNDTAIL(a, b, e, (b ^ c ^ d),                   i, UINT32_C(0xCA62C1D6))
 
-#define ROUNDTAIL(a,b,e,f,i,k)  \
+#define ROUNDTAIL(a, b, e, f, i, k)  \
 	e += (a << 5 | a >> 27) + f + k + schedule[i];  \
 	b = b << 30 | b >> 2;
 
-void sha1_compress(uint32_t *state, uint32_t *block) {
+void sha1_compress(uint32_t *state, uint8_t *block) {
 	uint32_t a = state[0];
 	uint32_t b = state[1];
 	uint32_t c = state[2];

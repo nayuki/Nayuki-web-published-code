@@ -18,7 +18,7 @@ static int self_check(void);
 void sha512_hash(uint8_t *message, uint32_t len, uint64_t *hash);
 
 // Link this program with an external C or x86 compression function
-extern void sha512_compress(uint64_t *state, uint64_t *block);
+extern void sha512_compress(uint64_t *state, uint8_t *block);
 
 
 /* Main program */
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 	clock_t start_time = clock();
 	int i;
 	for (i = 0; i < N; i++)
-		sha512_compress(state, block);
+		sha512_compress(state, (uint8_t*)block);
 	printf("Speed: %.1f MiB/s\n", (double)N * 128 / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
 	
 	return 0;
@@ -88,26 +88,24 @@ void sha512_hash(uint8_t *message, uint32_t len, uint64_t *hash) {
 	
 	int i;
 	for (i = 0; i + 128 <= len; i += 128)
-		sha512_compress(hash, (uint64_t*)(message + i));
+		sha512_compress(hash, message + i);
 	
-	uint64_t block[16];
-	uint8_t *byteBlock = (uint8_t*)block;
-	
+	uint8_t block[128];
 	int rem = len - i;
-	memcpy(byteBlock, message + i, rem);
+	memcpy(block, message + i, rem);
 	
-	byteBlock[rem] = 0x80;
+	block[rem] = 0x80;
 	rem++;
 	if (128 - rem >= 16)
-		memset(byteBlock + rem, 0, 120 - rem);
+		memset(block + rem, 0, 120 - rem);
 	else {
-		memset(byteBlock + rem, 0, 128 - rem);
+		memset(block + rem, 0, 128 - rem);
 		sha512_compress(hash, block);
 		memset(block, 0, 120);
 	}
 	
 	uint64_t longLen = ((uint64_t)len) << 3;
 	for (i = 0; i < 8; i++)
-		byteBlock[128 - 1 - i] = (uint8_t)(longLen >> (i * 8));
+		block[128 - 1 - i] = (uint8_t)(longLen >> (i * 8));
 	sha512_compress(hash, block);
 }

@@ -5,7 +5,6 @@
  * http://nayuki.eigenstate.org/page/tiny-encryption-algorithm-in-x86-assembly
  */
 
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -47,4 +46,3 @@ int main(int argc, char **argv) {
 	
 	return 0;
 }
-

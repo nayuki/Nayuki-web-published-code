@@ -103,7 +103,7 @@
 	addl  %ecx, %esi;          \
 	movl  %esi, STATE(h);
 
-/* void sha256_compress(uint32_t *state, uint32_t *block) */
+/* void sha256_compress(uint32_t *state, uint8_t *block) */
 .globl sha256_compress
 sha256_compress:
 	/* Allocate scratch space, save registers */
