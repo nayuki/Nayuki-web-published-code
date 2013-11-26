@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in C
  * 
- * Copyright (c) 2012 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/fast-sha1-hash-implementation-in-x86-assembly
  */
 
@@ -16,10 +16,10 @@
 	temp = schedule[i-3] ^ schedule[i-8] ^ schedule[i-14] ^ schedule[i-16];  \
 	schedule[i] = temp << 1 | temp >> 31;
 
-#define ROUND0(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, ((b & c) | (~b & d)),          i, 0x5A827999)
-#define ROUND1(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, (b ^ c ^ d),                   i, 0x6ED9EBA1)
-#define ROUND2(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, ((b & c) ^ (b & d) ^ (c & d)), i, 0x8F1BBCDC)
-#define ROUND3(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, (b ^ c ^ d),                   i, 0xCA62C1D6)
+#define ROUND0(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, ((b & c) | (~b & d)),          i, UINT32_C(0x5A827999))
+#define ROUND1(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, (b ^ c ^ d),                   i, UINT32_C(0x6ED9EBA1))
+#define ROUND2(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, ((b & c) ^ (b & d) ^ (c & d)), i, UINT32_C(0x8F1BBCDC))
+#define ROUND3(a,b,c,d,e,i)  ROUNDTAIL(a, b, e, (b ^ c ^ d),                   i, UINT32_C(0xCA62C1D6))
 
 #define ROUNDTAIL(a,b,e,f,i,k)  \
 	e += (a << 5 | a >> 27) + f + k + schedule[i];  \

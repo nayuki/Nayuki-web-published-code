@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in C and x86 assembly
  * 
- * Copyright (c) 2012 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/fast-md5-hash-implementation-in-x86-assembly
  */
 
@@ -51,25 +51,25 @@ static int self_check(void) {
 	uint32_t hash[4];
 	
 	md5_hash((uint8_t*)"", 0, hash);
-	if (hash[0]!=0xD98C1DD4||hash[1]!=0x04B2008F||hash[2]!=0x980980E9||hash[3]!=0x7E42F8EC) return 0;
+	if (hash[0]!=UINT32_C(0xD98C1DD4)||hash[1]!=UINT32_C(0x04B2008F)||hash[2]!=UINT32_C(0x980980E9)||hash[3]!=UINT32_C(0x7E42F8EC)) return 0;
 	
 	md5_hash((uint8_t*)"a", 1, hash);
-	if (hash[0]!=0xB975C10C||hash[1]!=0xA8B6F1C0||hash[2]!=0xE299C331||hash[3]!=0x61267769) return 0;
+	if (hash[0]!=UINT32_C(0xB975C10C)||hash[1]!=UINT32_C(0xA8B6F1C0)||hash[2]!=UINT32_C(0xE299C331)||hash[3]!=UINT32_C(0x61267769)) return 0;
 	
 	md5_hash((uint8_t*)"abc", 3, hash);
-	if (hash[0]!=0x98500190||hash[1]!=0xB04FD23C||hash[2]!=0x7D3F96D6||hash[3]!=0x727FE128) return 0;
+	if (hash[0]!=UINT32_C(0x98500190)||hash[1]!=UINT32_C(0xB04FD23C)||hash[2]!=UINT32_C(0x7D3F96D6)||hash[3]!=UINT32_C(0x727FE128)) return 0;
 	
 	md5_hash((uint8_t*)"message digest", 14, hash);
-	if (hash[0]!=0x7D696BF9||hash[1]!=0x8D93B77C||hash[2]!=0x312F5A52||hash[3]!=0xD061F1AA) return 0;
+	if (hash[0]!=UINT32_C(0x7D696BF9)||hash[1]!=UINT32_C(0x8D93B77C)||hash[2]!=UINT32_C(0x312F5A52)||hash[3]!=UINT32_C(0xD061F1AA)) return 0;
 	
 	md5_hash((uint8_t*)"abcdefghijklmnopqrstuvwxyz", 26, hash);
-	if (hash[0]!=0xD7D3FCC3||hash[1]!=0x00E49261||hash[2]!=0x6C49FB7D||hash[3]!=0x3BE167CA) return 0;
+	if (hash[0]!=UINT32_C(0xD7D3FCC3)||hash[1]!=UINT32_C(0x00E49261)||hash[2]!=UINT32_C(0x6C49FB7D)||hash[3]!=UINT32_C(0x3BE167CA)) return 0;
 	
 	md5_hash((uint8_t*)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789", 62, hash);
-	if (hash[0]!=0x98AB74D1||hash[1]!=0xF5D977D2||hash[2]!=0x2C1C61A5||hash[3]!=0x9F9D419F) return 0;
+	if (hash[0]!=UINT32_C(0x98AB74D1)||hash[1]!=UINT32_C(0xF5D977D2)||hash[2]!=UINT32_C(0x2C1C61A5)||hash[3]!=UINT32_C(0x9F9D419F)) return 0;
 	
 	md5_hash((uint8_t*)"12345678901234567890123456789012345678901234567890123456789012345678901234567890", 80, hash);
-	if (hash[0]!=0xA2F4ED57||hash[1]!=0x55C9E32B||hash[2]!=0x2EDA49AC||hash[3]!=0x7AB60721) return 0;
+	if (hash[0]!=UINT32_C(0xA2F4ED57)||hash[1]!=UINT32_C(0x55C9E32B)||hash[2]!=UINT32_C(0x2EDA49AC)||hash[3]!=UINT32_C(0x7AB60721)) return 0;
 	
 	return 1;
 }
@@ -78,10 +78,10 @@ static int self_check(void) {
 /* Full message hasher */
 
 void md5_hash(uint8_t *message, uint32_t len, uint32_t *hash) {
-	hash[0] = 0x67452301;
-	hash[1] = 0xEFCDAB89;
-	hash[2] = 0x98BADCFE;
-	hash[3] = 0x10325476;
+	hash[0] = UINT32_C(0x67452301);
+	hash[1] = UINT32_C(0xEFCDAB89);
+	hash[2] = UINT32_C(0x98BADCFE);
+	hash[3] = UINT32_C(0x10325476);
 	
 	int i;
 	for (i = 0; i + 64 <= len; i += 64)

@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in C and x86 assembly
  * 
- * Copyright (c) 2012 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/fast-sha1-hash-implementation-in-x86-assembly
  */
 
@@ -51,22 +51,22 @@ static int self_check(void) {
 	uint32_t hash[5];
 	
 	sha1_hash((uint8_t*)"", 0, hash);
-	if (hash[0]!=0xDA39A3EE||hash[1]!=0x5E6B4B0D||hash[2]!=0x3255BFEF||hash[3]!=0x95601890||hash[4]!=0xAFD80709) return 0;
+	if (hash[0]!=UINT32_C(0xDA39A3EE)||hash[1]!=UINT32_C(0x5E6B4B0D)||hash[2]!=UINT32_C(0x3255BFEF)||hash[3]!=UINT32_C(0x95601890)||hash[4]!=UINT32_C(0xAFD80709)) return 0;
 	
 	sha1_hash((uint8_t*)"a", 1, hash);
-	if (hash[0]!=0x86F7E437||hash[1]!=0xFAA5A7FC||hash[2]!=0xE15D1DDC||hash[3]!=0xB9EAEAEA||hash[4]!=0x377667B8) return 0;
+	if (hash[0]!=UINT32_C(0x86F7E437)||hash[1]!=UINT32_C(0xFAA5A7FC)||hash[2]!=UINT32_C(0xE15D1DDC)||hash[3]!=UINT32_C(0xB9EAEAEA)||hash[4]!=UINT32_C(0x377667B8)) return 0;
 	
 	sha1_hash((uint8_t*)"abc", 3, hash);
-	if (hash[0]!=0xA9993E36||hash[1]!=0x4706816A||hash[2]!=0xBA3E2571||hash[3]!=0x7850C26C||hash[4]!=0x9CD0D89D) return 0;
+	if (hash[0]!=UINT32_C(0xA9993E36)||hash[1]!=UINT32_C(0x4706816A)||hash[2]!=UINT32_C(0xBA3E2571)||hash[3]!=UINT32_C(0x7850C26C)||hash[4]!=UINT32_C(0x9CD0D89D)) return 0;
 	
 	sha1_hash((uint8_t*)"message digest", 14, hash);
-	if (hash[0]!=0xC12252CE||hash[1]!=0xDA8BE899||hash[2]!=0x4D5FA029||hash[3]!=0x0A47231C||hash[4]!=0x1D16AAE3) return 0;
+	if (hash[0]!=UINT32_C(0xC12252CE)||hash[1]!=UINT32_C(0xDA8BE899)||hash[2]!=UINT32_C(0x4D5FA029)||hash[3]!=UINT32_C(0x0A47231C)||hash[4]!=UINT32_C(0x1D16AAE3)) return 0;
 	
 	sha1_hash((uint8_t*)"abcdefghijklmnopqrstuvwxyz", 26, hash);
-	if (hash[0]!=0x32D10C7B||hash[1]!=0x8CF96570||hash[2]!=0xCA04CE37||hash[3]!=0xF2A19D84||hash[4]!=0x240D3A89) return 0;
+	if (hash[0]!=UINT32_C(0x32D10C7B)||hash[1]!=UINT32_C(0x8CF96570)||hash[2]!=UINT32_C(0xCA04CE37)||hash[3]!=UINT32_C(0xF2A19D84)||hash[4]!=UINT32_C(0x240D3A89)) return 0;
 	
 	sha1_hash((uint8_t*)"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq", 56, hash);
-	if (hash[0]!=0x84983E44||hash[1]!=0x1C3BD26E||hash[2]!=0xBAAE4AA1||hash[3]!=0xF95129E5||hash[4]!=0xE54670F1) return 0;
+	if (hash[0]!=UINT32_C(0x84983E44)||hash[1]!=UINT32_C(0x1C3BD26E)||hash[2]!=UINT32_C(0xBAAE4AA1)||hash[3]!=UINT32_C(0xF95129E5)||hash[4]!=UINT32_C(0xE54670F1)) return 0;
 	
 	return 1;
 }
@@ -75,11 +75,11 @@ static int self_check(void) {
 /* Full message hasher */
 
 void sha1_hash(uint8_t *message, uint32_t len, uint32_t *hash) {
-	hash[0] = 0x67452301;
-	hash[1] = 0xEFCDAB89;
-	hash[2] = 0x98BADCFE;
-	hash[3] = 0x10325476;
-	hash[4] = 0xC3D2E1F0;
+	hash[0] = UINT32_C(0x67452301);
+	hash[1] = UINT32_C(0xEFCDAB89);
+	hash[2] = UINT32_C(0x98BADCFE);
+	hash[3] = UINT32_C(0x10325476);
+	hash[4] = UINT32_C(0xC3D2E1F0);
 	
 	int i;
 	for (i = 0; i + 64 <= len; i += 64)

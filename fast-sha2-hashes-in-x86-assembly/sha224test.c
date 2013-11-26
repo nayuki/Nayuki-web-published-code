@@ -50,13 +50,13 @@ static int self_check(void) {
 	uint32_t hash[7];
 	
 	sha224_hash((uint8_t*)"", 0, hash);
-	if (hash[0]!=0xD14A028C||hash[1]!=0x2A3A2BC9||hash[2]!=0x476102BB||hash[3]!=0x288234C4||hash[4]!=0x15A2B01F||hash[5]!=0x828EA62A||hash[6]!=0xC5B3E42F) return 0;
+	if (hash[0]!=UINT32_C(0xD14A028C)||hash[1]!=UINT32_C(0x2A3A2BC9)||hash[2]!=UINT32_C(0x476102BB)||hash[3]!=UINT32_C(0x288234C4)||hash[4]!=UINT32_C(0x15A2B01F)||hash[5]!=UINT32_C(0x828EA62A)||hash[6]!=UINT32_C(0xC5B3E42F)) return 0;
 	
 	sha224_hash((uint8_t*)"abc", 3, hash);
-	if (hash[0]!=0x23097D22||hash[1]!=0x3405D822||hash[2]!=0x8642A477||hash[3]!=0xBDA255B3||hash[4]!=0x2AADBCE4||hash[5]!=0xBDA0B3F7||hash[6]!=0xE36C9DA7) return 0;
+	if (hash[0]!=UINT32_C(0x23097D22)||hash[1]!=UINT32_C(0x3405D822)||hash[2]!=UINT32_C(0x8642A477)||hash[3]!=UINT32_C(0xBDA255B3)||hash[4]!=UINT32_C(0x2AADBCE4)||hash[5]!=UINT32_C(0xBDA0B3F7)||hash[6]!=UINT32_C(0xE36C9DA7)) return 0;
 	
 	sha224_hash((uint8_t*)"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq", 56, hash);
-	if (hash[0]!=0x75388B16||hash[1]!=0x512776CC||hash[2]!=0x5DBA5DA1||hash[3]!=0xFD890150||hash[4]!=0xB0C6455C||hash[5]!=0xB4F58B19||hash[6]!=0x52522525) return 0;
+	if (hash[0]!=UINT32_C(0x75388B16)||hash[1]!=UINT32_C(0x512776CC)||hash[2]!=UINT32_C(0x5DBA5DA1)||hash[3]!=UINT32_C(0xFD890150)||hash[4]!=UINT32_C(0xB0C6455C)||hash[5]!=UINT32_C(0xB4F58B19)||hash[6]!=UINT32_C(0x52522525)) return 0;
 	
 	return 1;
 }
@@ -66,14 +66,14 @@ static int self_check(void) {
 
 void sha224_hash(uint8_t *message, uint32_t len, uint32_t *hash) {
 	uint32_t state[8];
-	state[0] = 0xC1059ED8;
-	state[1] = 0x367CD507;
-	state[2] = 0x3070DD17;
-	state[3] = 0xF70E5939;
-	state[4] = 0xFFC00B31;
-	state[5] = 0x68581511;
-	state[6] = 0x64F98FA7;
-	state[7] = 0xBEFA4FA4;
+	state[0] = UINT32_C(0xC1059ED8);
+	state[1] = UINT32_C(0x367CD507);
+	state[2] = UINT32_C(0x3070DD17);
+	state[3] = UINT32_C(0xF70E5939);
+	state[4] = UINT32_C(0xFFC00B31);
+	state[5] = UINT32_C(0x68581511);
+	state[6] = UINT32_C(0x64F98FA7);
+	state[7] = UINT32_C(0xBEFA4FA4);
 	
 	int i;
 	for (i = 0; i + 64 <= len; i += 64)
