@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in x86 assembly
  * 
- * Copyright (c) 2012 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/fast-md5-hash-implementation-in-x86-assembly
  */
 
@@ -23,34 +23,34 @@
  *       4  [esp+12]  Caller's value of ebx
  */
 
-#define ROUND0(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;            \
-	xorl  %d, %esi;            \
-	andl  %b, %esi;            \
-	xorl  %d, %esi;            \
-	ROUNDTAIL(a,b,k,s,t)
+#define ROUND0(a, b, c, d, k, s, t)  \
+	movl  %c, %esi;  \
+	xorl  %d, %esi;  \
+	andl  %b, %esi;  \
+	xorl  %d, %esi;  \
+	ROUNDTAIL(a, b, k, s, t)
 
-#define ROUND1(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;            \
-	xorl  %b, %esi;            \
-	andl  %d, %esi;            \
-	xorl  %c, %esi;            \
-	ROUNDTAIL(a,b,k,s,t)
+#define ROUND1(a, b, c, d, k, s, t)  \
+	movl  %c, %esi;  \
+	xorl  %b, %esi;  \
+	andl  %d, %esi;  \
+	xorl  %c, %esi;  \
+	ROUNDTAIL(a, b, k, s, t)
 
-#define ROUND2(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;            \
-	xorl  %d, %esi;            \
-	xorl  %b, %esi;            \
-	ROUNDTAIL(a,b,k,s,t)
+#define ROUND2(a, b, c, d, k, s, t)  \
+	movl  %c, %esi;  \
+	xorl  %d, %esi;  \
+	xorl  %b, %esi;  \
+	ROUNDTAIL(a, b, k, s, t)
 
-#define ROUND3(a,b,c,d,k,s,t)  \
-	movl  %d, %esi;            \
-	notl  %esi;                \
-	orl   %b, %esi;            \
-	xorl  %c, %esi;            \
-	ROUNDTAIL(a,b,k,s,t)
+#define ROUND3(a, b, c, d, k, s, t)  \
+	movl  %d, %esi;  \
+	notl  %esi;      \
+	orl   %b, %esi;  \
+	xorl  %c, %esi;  \
+	ROUNDTAIL(a, b, k, s, t)
 
-#define ROUNDTAIL(a,b,k,s,t)  \
+#define ROUNDTAIL(a, b, k, s, t)  \
 	movl  (k*4)(%ebp), %edi;  \
 	addl  %esi, %edi;         \
 	addl  $t, %edi;           \

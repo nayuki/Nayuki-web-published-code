@@ -12,32 +12,21 @@
 	temp = schedule[(i - 3) & 0xF] ^ schedule[(i - 8) & 0xF] ^ schedule[(i - 14) & 0xF] ^ schedule[(i - 16) & 0xF];  \
 	schedule[i & 0xF] = temp << 1 | temp >> 31;
 
-#define ROUND0a(a, b, c, d, e, i)  \
+#define LOADSCHEDULE(i)  \
 	schedule[i] =                           \
 		  (uint32_t)block[i * 4 + 0] << 24  \
 		| (uint32_t)block[i * 4 + 1] << 16  \
 		| (uint32_t)block[i * 4 + 2] <<  8  \
-		| (uint32_t)block[i * 4 + 3];       \
-	ROUNDTAIL(a, b, e, ((b & c) | (~b & d)), i, UINT32_C(0x5A827999))
+		| (uint32_t)block[i * 4 + 3];
 
-#define ROUND0b(a, b, c, d, e, i)  \
-	SCHEDULE(i)  \
-	ROUNDTAIL(a, b, e, ((b & c) | (~b & d)), i, UINT32_C(0x5A827999))
-
-#define ROUND1(a, b, c, d, e, i)  \
-	SCHEDULE(i)  \
-	ROUNDTAIL(a, b, e, (b ^ c ^ d), i, UINT32_C(0x6ED9EBA1))
-
-#define ROUND2(a, b, c, d, e, i)  \
-	SCHEDULE(i)  \
-	ROUNDTAIL(a, b, e, ((b & c) ^ (b & d) ^ (c & d)), i, UINT32_C(0x8F1BBCDC))
-
-#define ROUND3(a, b, c, d, e, i)  \
-	SCHEDULE(i)  \
-	ROUNDTAIL(a, b, e, (b ^ c ^ d), i, UINT32_C(0xCA62C1D6))
+#define ROUND0a(a, b, c, d, e, i)  LOADSCHEDULE(i)  ROUNDTAIL(a, b, e, ((b & c) | (~b & d))         , i, 0x5A827999)
+#define ROUND0b(a, b, c, d, e, i)  SCHEDULE(i)      ROUNDTAIL(a, b, e, ((b & c) | (~b & d))         , i, 0x5A827999)
+#define ROUND1(a, b, c, d, e, i)   SCHEDULE(i)      ROUNDTAIL(a, b, e, (b ^ c ^ d)                  , i, 0x6ED9EBA1)
+#define ROUND2(a, b, c, d, e, i)   SCHEDULE(i)      ROUNDTAIL(a, b, e, ((b & c) ^ (b & d) ^ (c & d)), i, 0x8F1BBCDC)
+#define ROUND3(a, b, c, d, e, i)   SCHEDULE(i)      ROUNDTAIL(a, b, e, (b ^ c ^ d)                  , i, 0xCA62C1D6)
 
 #define ROUNDTAIL(a, b, e, f, i, k)  \
-	e += (a << 5 | a >> 27) + f + k + schedule[i & 0xF];  \
+	e += (a << 5 | a >> 27) + f + UINT32_C(k) + schedule[i & 0xF];  \
 	b = b << 30 | b >> 2;
 
 void sha1_compress(uint32_t *state, uint8_t *block) {

@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in x86-64 assembly
  * 
- * Copyright (c) 2012 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/fast-md5-hash-implementation-in-x86-assembly
  */
 
@@ -22,45 +22,45 @@
  *      16  xmm1      Caller's value of rbp (only lower 64 bits are used)
  */
 
-#define ROUND0(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;            \
-	addl  (k*4)(%rbp), %a;     \
-	xorl  %d, %esi;            \
-	andl  %b, %esi;            \
-	xorl  %d, %esi;            \
-	leal  t(%esi,%a), %a;      \
-	roll  $s, %a;              \
+#define ROUND0(a, b, c, d, k, s, t)  \
+	movl  %c, %esi;         \
+	addl  (k*4)(%rbp), %a;  \
+	xorl  %d, %esi;         \
+	andl  %b, %esi;         \
+	xorl  %d, %esi;         \
+	leal  t(%esi,%a), %a;   \
+	roll  $s, %a;           \
 	addl  %b, %a;
 
-#define ROUND1(a,b,c,d,k,s,t)  \
-	movl  %d, %esi;            \
-	movl  %d, %edi;            \
-	addl  (k*4)(%rbp), %a;     \
-	notl  %esi;                \
-	andl  %b, %edi;            \
-	andl  %c, %esi;            \
-	orl   %edi, %esi;          \
-	leal  t(%esi,%a), %a;      \
-	roll  $s, %a;              \
+#define ROUND1(a, b, c, d, k, s, t)  \
+	movl  %d, %esi;         \
+	movl  %d, %edi;         \
+	addl  (k*4)(%rbp), %a;  \
+	notl  %esi;             \
+	andl  %b, %edi;         \
+	andl  %c, %esi;         \
+	orl   %edi, %esi;       \
+	leal  t(%esi,%a), %a;   \
+	roll  $s, %a;           \
 	addl  %b, %a;
 
-#define ROUND2(a,b,c,d,k,s,t)  \
-	movl  %c, %esi;            \
-	addl  (k*4)(%rbp), %a;     \
-	xorl  %d, %esi;            \
-	xorl  %b, %esi;            \
-	leal  t(%esi,%a), %a;      \
-	roll  $s, %a;              \
+#define ROUND2(a, b, c, d, k, s, t)  \
+	movl  %c, %esi;         \
+	addl  (k*4)(%rbp), %a;  \
+	xorl  %d, %esi;         \
+	xorl  %b, %esi;         \
+	leal  t(%esi,%a), %a;   \
+	roll  $s, %a;           \
 	addl  %b, %a;
 
-#define ROUND3(a,b,c,d,k,s,t)  \
-	movl  %d, %esi;            \
-	not   %esi;                \
-	addl  (k*4)(%rbp), %a;     \
-	orl   %b, %esi;            \
-	xorl  %c, %esi;            \
-	leal  t(%esi,%a), %a;      \
-	roll  $s, %a;              \
+#define ROUND3(a, b, c, d, k, s, t)  \
+	movl  %d, %esi;         \
+	not   %esi;             \
+	addl  (k*4)(%rbp), %a;  \
+	orl   %b, %esi;         \
+	xorl  %c, %esi;         \
+	leal  t(%esi,%a), %a;   \
+	roll  $s, %a;           \
 	addl  %b, %a;
 
 
