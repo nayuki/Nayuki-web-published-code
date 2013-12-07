@@ -8,16 +8,19 @@
 "use strict";
 
 
+var DEGREE = "\u00B0";
+
+
 // The main function, which handles the HTML input/output for solving a triangle.
 function solve() {
-	function doOutput(nodeId, val) {
+	function doOutput(nodeId, val, suffix) {
 		if (typeof val == "object" && val.length == 2) {  // Array
-			setElementText(nodeId, formatNumber(val[0]));
-			setElementText(nodeId + "2", formatNumber(val[1]));
+			setElementText(nodeId, formatNumber(val[0]) + suffix);
+			setElementText(nodeId + "2", formatNumber(val[1]) + suffix);
 			solution2 = true;
 		} else if (typeof val == "number") {
-			setElementText(nodeId, formatNumber(val));
-			setElementText(nodeId + "2", formatNumber(val));
+			setElementText(nodeId, formatNumber(val) + suffix);
+			setElementText(nodeId + "2", formatNumber(val) + suffix);
 		} else
 			throw "Assertion error";
 	}
@@ -36,13 +39,13 @@ function solve() {
 		// Set outputs
 		setElementText("status", answer[7]);
 		var solution2 = false;
-		doOutput("sideAout" , answer[0]);
-		doOutput("sideBout" , answer[1]);
-		doOutput("sideCout" , answer[2]);
-		doOutput("angleAout", answer[3]);
-		doOutput("angleBout", answer[4]);
-		doOutput("angleCout", answer[5]);
-		doOutput("areaout"  , answer[6]);
+		doOutput("sideAout" , answer[0], "");
+		doOutput("sideBout" , answer[1], "");
+		doOutput("sideCout" , answer[2], "");
+		doOutput("angleAout", answer[3], DEGREE);
+		doOutput("angleBout", answer[4], DEGREE);
+		doOutput("angleCout", answer[5], DEGREE);
+		doOutput("areaout"  , answer[6], "");
 		document.getElementById("formtable").className = solution2 ? "noborder" : "noborder nosolution2";
 		
 	} catch (e) {
@@ -238,11 +241,12 @@ function initImageMap() {
 				if (solution == null)
 					return;
 				
+				var suffix = index >= 3 && index < 6 ? DEGREE : "";
 				var text;
 				if (typeof solution[index] == "object")
-					text = formatNumber(solution[index][0]) + " or " + formatNumber(solution[index][1]);
+					text = formatNumber(solution[index][0]) + suffix + " or " + formatNumber(solution[index][1]) + suffix;
 				else
-					text = formatNumber(solution[index]);
+					text = formatNumber(solution[index]) + suffix;
 				setElementText("hoveroutput", text);
 				
 				// Set hover element style
