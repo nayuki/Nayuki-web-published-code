@@ -47,12 +47,12 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 	
 	// Calculate data size
 	uint64_t lineSize = (uint64_t)width * 3 + 1;
-	if (lineSize >= 2147483648)
+	if (lineSize >= UINT64_C(2147483648))
 		return TINYPNGOUT_IMAGE_TOO_LARGE;
 	uint64_t size = lineSize * height;  // Size of DEFLATE input
 	pngout->deflateRemain = (uint32_t)size;
 	size += (size + DEFLATE_MAX_BLOCK_SIZE - 1) / DEFLATE_MAX_BLOCK_SIZE * 5 + 6;  // Size of zlib+DEFLATE output
-	if (size >= 2147483648)
+	if (size >= UINT64_C(2147483648))
 		return TINYPNGOUT_IMAGE_TOO_LARGE;
 	
 	// Set most of the fields
