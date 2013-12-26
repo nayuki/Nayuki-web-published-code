@@ -33,7 +33,7 @@ void whirlpool_compress(uint8_t *state, uint8_t *block) {
 	// Initialization
 	for (i = 0; i < 8; i++) {
 		tempState[i] = 
-			  (uint64_t)state[(i << 3) + 0] <<  0
+			  (uint64_t)state[i << 3]
 			| (uint64_t)state[(i << 3) + 1] <<  8
 			| (uint64_t)state[(i << 3) + 2] << 16
 			| (uint64_t)state[(i << 3) + 3] << 24
@@ -42,7 +42,7 @@ void whirlpool_compress(uint8_t *state, uint8_t *block) {
 			| (uint64_t)state[(i << 3) + 6] << 48
 			| (uint64_t)state[(i << 3) + 7] << 56;
 		tempBlock[i] = (
-			  (uint64_t)block[(i << 3) + 0] <<  0
+			  (uint64_t)block[i << 3]
 			| (uint64_t)block[(i << 3) + 1] <<  8
 			| (uint64_t)block[(i << 3) + 2] << 16
 			| (uint64_t)block[(i << 3) + 3] << 24
@@ -105,15 +105,33 @@ static uint64_t MAGIC_TABLE[256] = {
 
 
 static void whirlpool_round(uint64_t *block, uint64_t *key) {
-	uint64_t temp[8];
-	memcpy(temp, key, sizeof(temp));
+	uint64_t a = block[0];
+	uint64_t b = block[1];
+	uint64_t c = block[2];
+	uint64_t d = block[3];
+	uint64_t e = block[4];
+	uint64_t f = block[5];
+	uint64_t g = block[6];
+	uint64_t h = block[7];
 	
-	int i;
-	for (i = 0; i < 64; i++) {
-		uint64_t x = MAGIC_TABLE[(uint8_t)(block[i >> 3] >> ((i & 7) << 3))];
-		int rot = (i & 7) << 3;
-		temp[((i >> 3) + i) & 7] ^= (x << rot) | (x >> (64 - rot));
-	}
+	uint64_t r;
+	#define DOROW(i, s, t, u, v, w, x, y, z)  \
+		r = MAGIC_TABLE[(uint8_t)s];  r = (r << 56) | (r >> 8);  \
+		r ^= MAGIC_TABLE[(uint8_t)(t >>  8)];  r = (r << 56) | (r >> 8);  \
+		r ^= MAGIC_TABLE[(uint8_t)(u >> 16)];  r = (r << 56) | (r >> 8);  \
+		r ^= MAGIC_TABLE[(uint8_t)(v >> 24)];  r = (r << 56) | (r >> 8);  \
+		r ^= MAGIC_TABLE[(uint8_t)(w >> 32)];  r = (r << 56) | (r >> 8);  \
+		r ^= MAGIC_TABLE[(uint8_t)(x >> 40)];  r = (r << 56) | (r >> 8);  \
+		r ^= MAGIC_TABLE[(uint8_t)(y >> 48)];  r = (r << 56) | (r >> 8);  \
+		r ^= MAGIC_TABLE[(uint8_t)(z >> 56)];  r = (r << 56) | (r >> 8);  \
+		block[i] = r ^ key[i];
 	
-	memcpy(block, temp, sizeof(temp));
+	DOROW(0, a, h, g, f, e, d, c, b)
+	DOROW(1, b, a, h, g, f, e, d, c)
+	DOROW(2, c, b, a, h, g, f, e, d)
+	DOROW(3, d, c, b, a, h, g, f, e)
+	DOROW(4, e, d, c, b, a, h, g, f)
+	DOROW(5, f, e, d, c, b, a, h, g)
+	DOROW(6, g, f, e, d, c, b, a, h)
+	DOROW(7, h, g, f, e, d, c, b, a)
 }
