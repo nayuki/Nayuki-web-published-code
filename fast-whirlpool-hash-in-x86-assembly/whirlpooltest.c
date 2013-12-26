@@ -5,7 +5,6 @@
  * http://nayuki.eigenstate.org/page/fast-whirlpool-hash-in-x86-assembly
  */
 
-
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

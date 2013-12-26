@@ -1,7 +1,7 @@
 /*
  * Whirlpool hash in x86-64 assembly
  * 
- * Copyright (c) 2012 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase. All rights reserved.
  * http://nayuki.eigenstate.org/page/fast-whirlpool-hash-in-x86-assembly
  */
 
@@ -29,7 +29,7 @@
  *       8  [rsp+48]    Caller's value of r10
  */
 
-#define NUMBER_OF_ROUNDS 10  /* Any number from 1 to 32 is legal */
+#define NUM_ROUNDS 10  /* Any number from 1 to 32 is allowed */
 
 #define DOBYTEPAIRFIRST(inreg,offset,outreg0,outreg1)  \
 	pextrw  $(offset), %inreg, %eax;                   \
@@ -191,7 +191,7 @@ whirlpool_compress:
 	
 	/* Loop back */
 	incl    %ecx
-	cmpl    $NUMBER_OF_ROUNDS, %ecx
+	cmpl    $NUM_ROUNDS, %ecx
 	jne     .looptop
 	
 	/* XOR old state (in memory) with old block (in memory) and new block (in XMM) */
@@ -222,7 +222,7 @@ whirlpool_compress:
 
 
 .balign 8
-.roundconstants:  /* We use the first NUMBER_OF_ROUNDS groups of 8 bytes */
+.roundconstants:  /* Starting from the beginning, each round uses 8 bytes */
 .byte  0x18, 0x23, 0xC6, 0xE8, 0x87, 0xB8, 0x01, 0x4F, 0x36, 0xA6, 0xD2, 0xF5, 0x79, 0x6F, 0x91, 0x52
 .byte  0x60, 0xBC, 0x9B, 0x8E, 0xA3, 0x0C, 0x7B, 0x35, 0x1D, 0xE0, 0xD7, 0xC2, 0x2E, 0x4B, 0xFE, 0x57
 .byte  0x15, 0x77, 0x37, 0xE5, 0x9F, 0xF0, 0x4A, 0xDA, 0x58, 0xC9, 0x29, 0x0A, 0xB1, 0xA0, 0x6B, 0x85
