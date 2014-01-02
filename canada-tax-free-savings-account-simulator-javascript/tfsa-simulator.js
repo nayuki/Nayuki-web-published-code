@@ -12,6 +12,7 @@
 
 /* State variables */
 
+var showAllTransactions = false;
 var date = 2009 * 12 + 0;
 var contributionRoom = 500000;  // Current contribution room, carries over indefinitely; negative means over-contribution
 var chequingTransactions = [[date, "New account", 0, 0]];  // New transactions are appended
@@ -36,9 +37,9 @@ function transaction(func) {
 		
 		display();
 		amountElem.value = "";
-		setText("error-message", NBSP);
+		setText("amount-error", "");
 	} catch (e) {
-		setText("error-message", "Error: " + e);
+		setText("amount-error", "Error: " + e);
 	}
 }
 
@@ -96,16 +97,16 @@ function nextMonth() {
 	var interestElem = document.getElementById("interest-rate");
 	var s = interestElem.value;
 	s = s.replace(/^\s+|\s+$/g, "");  // Trim whitespace
-	if (!/^(\d{1,10}(\.\d*)?|\.\d+)$/.test(s)) {
-		setText("error-message", "Error: Invalid interest rate");
+	if (!/^-?(\d{1,10}(\.\d*)?|\.\d+)$/.test(s)) {
+		setText("interest-error", "Error: Invalid interest rate");
 		interestElem.focus();
 		return;
 	}
-	setText("error-message", NBSP);
+	setText("interest-error", "");
 	var tt = tfsaTransactions;
 	var balance = tt[tt.length - 1][3];
 	var amount = Math.round(balance * parseFloat(s) / 1200);
-	if (amount > 0)
+	if (amount != 0)
 		tt.push([date, "Interest", amount, balance + amount, contributionRoom, withdrawn, contributionRoom, withdrawn]);
 	
 	// Handle excess amount
@@ -122,9 +123,11 @@ function nextMonth() {
 		// Raise contribution room
 		var year = Math.floor(date / 12);
 		if (year < 2013)
-			amount = 500000;
+			amount = 500000;  // Known amount
+		else if (year < 2015)
+			amount = 550000;  // Known amount
 		else
-			amount = 550000;
+			amount = Math.round(5000 * Math.pow(1.02, year - 2009) / 500) * 50000;  // Estimate based on 2% annual inflation
 		amount += withdrawn;
 		contributionRoom += amount;
 		withdrawn = 0;
@@ -134,6 +137,18 @@ function nextMonth() {
 	maxExcess = Math.max(-contributionRoom, 0);
 	
 	display();
+}
+
+
+function changeShowTransactions() {
+	var showRecent = document.getElementById("show-recent").checked;
+	var showAll    = document.getElementById("show-all"   ).checked;
+	if (showRecent == showAll)
+		throw "Invalid states of radio buttons";
+	if (showAllTransactions != showAll) {
+		showAllTransactions = showAll;
+		display();
+	}
 }
 
 
@@ -185,7 +200,7 @@ function display() {
 	
 	var cheqElem = document.getElementById("chequing-transactions");
 	removeAllChildren(cheqElem);
-	for (var i = chequingTransactions.length - TRANSACTION_ROWS; i < chequingTransactions.length; i++) {
+	for (var i = showAllTransactions ? 0 : chequingTransactions.length - TRANSACTION_ROWS; i < chequingTransactions.length; i++) {
 		tr = document.createElement("tr");
 		if (i < 0) {
 			for (var j = 0; j < 4; j++)
@@ -202,7 +217,7 @@ function display() {
 	
 	var tfsaElem = document.getElementById("tfsa-transactions");
 	removeAllChildren(tfsaElem);
-	for (var i = tfsaTransactions.length - TRANSACTION_ROWS; i < tfsaTransactions.length; i++) {
+	for (var i = showAllTransactions ? 0 : tfsaTransactions.length - TRANSACTION_ROWS; i < tfsaTransactions.length; i++) {
 		tr = document.createElement("tr");
 		if (i < 0) {
 			for (var j = 0; j < 6; j++)
