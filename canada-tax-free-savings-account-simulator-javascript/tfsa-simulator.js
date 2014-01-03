@@ -27,7 +27,6 @@ function transaction(func) {
 	try {
 		// Parse amount
 		var amountElem = document.getElementById("amount");
-		amountElem.focus();
 		var s = amountElem.value;
 		s = s.replace(/^\s+|\s+$/g, "");  // Trim whitespace
 		if (!/^(\d{1,13}(\.\d{0,2})?|\.\d{1,2})$/.test(s))
@@ -36,7 +35,6 @@ function transaction(func) {
 		func(Math.round(parseFloat(s) * 100));
 		
 		display();
-		amountElem.value = "";
 		setText("amount-error", "");
 	} catch (e) {
 		setText("amount-error", "Error: " + e);
