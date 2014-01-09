@@ -1,7 +1,8 @@
 /* 
  * Facebook Anniversary - Debug version
- * Copyright (c) 2012 Nayuki Minase
  * 
+ * Copyright (c) 2012 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/facebook-anniversary-ray-trace
  */
 

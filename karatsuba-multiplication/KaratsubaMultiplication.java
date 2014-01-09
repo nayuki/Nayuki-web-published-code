@@ -1,7 +1,8 @@
 /* 
  * Karatsuba fast multiplication algorithm
- * Copyright (c) 2011 Nayuki Minase
  * 
+ * Copyright (c) 2011 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/karatsuba-multiplication
  */
 

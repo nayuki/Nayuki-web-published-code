@@ -1,7 +1,8 @@
 # 
 # Fast doubling Fibonacci algorithm
-# Copyright (c) 2013 Nayuki Minase
 # 
+# Copyright (c) 2013 Nayuki Minase
+# All rights reserved. Contact Nayuki for licensing.
 # http://nayuki.eigenstate.org/page/fast-fibonacci-algorithms
 # 
 

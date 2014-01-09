@@ -1,7 +1,8 @@
 /* 
  * Propositional sequent calculus prover
  * 
- * Copyright (c) 2012 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2012 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/propositional-sequent-calculus-prover
  */
 

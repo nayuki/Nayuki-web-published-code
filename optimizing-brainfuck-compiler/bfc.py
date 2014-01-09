@@ -1,7 +1,8 @@
 # 
 # Optimizing brainfuck compiler
 # 
-# Copyright (c) 2013 Nayuki Minase. All rights reserved.
+# Copyright (c) 2013 Nayuki Minase
+# All rights reserved. Contact Nayuki for licensing.
 # http://nayuki.eigenstate.org/page/optimizing-brainfuck-compiler
 # 
 # This script translates brainfuck source code into C/Java/Python source code.

@@ -1,7 +1,8 @@
 /* 
  * Automatic Minesweeper solver
- * Copyright (c) 2012 Nayuki Minase
  * 
+ * Copyright (c) 2012 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/automatic-minesweeper-solver
  */
 

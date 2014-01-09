@@ -1,7 +1,8 @@
 /* 
  * Vigenère cipher
  * 
- * Copyright (c) 2011 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2011 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/vigenere-cipher-javascript
  */
 

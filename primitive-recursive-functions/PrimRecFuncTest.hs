@@ -2,7 +2,8 @@
  - Test suite for PrimRecFunc.
  - Runnable as a main program, which should print "All N tests passed".
  - 
- - Copyright (c) 2012 Nayuki Minase. All rights reserved.
+ - Copyright (c) 2012 Nayuki Minase
+ - All rights reserved. Contact Nayuki for licensing.
  - http://nayuki.eigenstate.org/page/primitive-recursive-functions
  -}
 

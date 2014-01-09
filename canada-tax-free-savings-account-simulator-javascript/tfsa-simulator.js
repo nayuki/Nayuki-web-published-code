@@ -1,7 +1,8 @@
 /* 
  * Tax-free savings account simulator
  * 
- * Copyright (c) 2014 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2014 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/canada-tax-free-savings-account-simulator-javascript
  */
 

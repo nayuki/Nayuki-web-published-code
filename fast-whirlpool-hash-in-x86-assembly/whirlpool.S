@@ -1,7 +1,8 @@
 /* 
  * Whirlpool hash in x86 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-whirlpool-hash-in-x86-assembly
  */
 

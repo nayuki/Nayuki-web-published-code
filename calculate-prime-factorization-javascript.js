@@ -1,7 +1,8 @@
 /* 
  * Prime factorization calculator
  * 
- * Copyright (c) 2013 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/calculate-prime-factorization-javascript
  */
 

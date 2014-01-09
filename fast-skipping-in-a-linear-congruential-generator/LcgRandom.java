@@ -1,7 +1,8 @@
 /* 
  * Linear congruential generator (LCG) with fast skipping and backward iteration
- * Copyright (c) 2011 Nayuki Minase
  * 
+ * Copyright (c) 2011 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-skipping-in-a-linear-congruential-generator
  */
 

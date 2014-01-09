@@ -1,7 +1,8 @@
 # 
 # Galois linear feedback shift register (LFSR) in Python
-# Copyright (c) 2013 Nayuki Minase
 # 
+# Copyright (c) 2013 Nayuki Minase
+# All rights reserved. Contact Nayuki for licensing.
 # http://nayuki.eigenstate.org/page/galois-linear-feedback-shift-register
 # 
 

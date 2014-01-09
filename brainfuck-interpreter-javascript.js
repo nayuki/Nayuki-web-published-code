@@ -1,7 +1,8 @@
 /* 
  * Brainfuck interpreter
  * 
- * Copyright (c) 2012 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2012 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/brainfuck-interpreter-javascript
  */
 

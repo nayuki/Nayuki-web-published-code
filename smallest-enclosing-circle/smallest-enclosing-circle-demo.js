@@ -1,7 +1,8 @@
 /* 
  * Smallest enclosing circle
  * 
- * Copyright (c) 2014 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2014 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/smallest-enclosing-circle
  */
 

@@ -1,7 +1,8 @@
 /* 
  * SHA-384 hash in C and x86 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase. All rights reserved.
+ * Copyright (c) 2013 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-sha2-hashes-in-x86-assembly
  */
 
