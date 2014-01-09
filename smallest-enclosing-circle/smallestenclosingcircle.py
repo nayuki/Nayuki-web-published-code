@@ -18,9 +18,7 @@ import math, random
 # 
 def make_circle(points):
     # Convert to float and shuffle
-    shuffled = []
-    for p in points:
-        shuffled.append((float(p[0]), float(p[1])))
+    shuffled = [(float(p[0]), float(p[1])) for p in points]
     random.shuffle(shuffled)
     
     # Incrementally add points to circle
