@@ -1,8 +1,6 @@
 % 
 % Discrete Fourier transform
-% 
-% Copyright (c) 2012 Nayuki Minase
-% All rights reserved. Contact Nayuki for licensing.
+% By Nayuki Minase, 2014. Public domain.
 % http://nayuki.eigenstate.org/page/how-to-implement-the-discrete-fourier-transform
 % 
 
@@ -11,6 +9,7 @@
 % Before running the code, choose one and delete the rest.
 % 
 
+% --------------------------------------------------------------------------------
 
 % 
 % Computes the discrete Fourier transform (DFT) of the given vector.
@@ -29,9 +28,10 @@ function output = dft(input)
   end
 end
 
+% --------------------------------------------------------------------------------
 
 % 
-% Alternate implementation using matrix arithmetic.
+% (Alternate implementation using matrix arithmetic.)
 % Computes the discrete Fourier transform (DFT) of the given vector.
 % 'input' can be a row vector or a column vector.
 % The returned output is the same type of vector with the same dimensions.

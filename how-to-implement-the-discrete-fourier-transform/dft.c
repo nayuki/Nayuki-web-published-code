@@ -1,8 +1,6 @@
 /* 
  * Discrete Fourier transform
- * 
- * Copyright (c) 2012 Nayuki Minase
- * All rights reserved. Contact Nayuki for licensing.
+ * By Nayuki Minase, 2014. Public domain.
  * http://nayuki.eigenstate.org/page/how-to-implement-the-discrete-fourier-transform
  */
 
@@ -20,8 +18,9 @@ void compute_dft(double inreal[], double inimag[], double outreal[], double outi
 		double sumimag = 0;
 		int t;
 		for (t = 0; t < n; t++) {  /* For each input element */
-			sumreal +=  inreal[t]*cos(2*M_PI * t * k / n) + inimag[t]*sin(2*M_PI * t * k / n);
-			sumimag += -inreal[t]*sin(2*M_PI * t * k / n) + inimag[t]*cos(2*M_PI * t * k / n);
+			double angle = 2 * M_PI * t * k / n;
+			sumreal +=  inreal[t] * cos(angle) + inimag[t] * sin(angle);
+			sumimag += -inreal[t] * sin(angle) + inimag[t] * cos(angle);
 		}
 		outreal[k] = sumreal;
 		outimag[k] = sumimag;

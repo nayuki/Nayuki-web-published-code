@@ -1,8 +1,6 @@
 # 
 # Discrete Fourier transform
-# 
-# Copyright (c) 2013 Nayuki Minase
-# All rights reserved. Contact Nayuki for licensing.
+# By Nayuki Minase, 2014. Public domain.
 # http://nayuki.eigenstate.org/page/how-to-implement-the-discrete-fourier-transform
 # 
 
@@ -15,16 +13,16 @@
 
 # 
 # Computes the discrete Fourier transform (DFT) of the given input vector.
-# 'input' is a list or tuple of numbers (integer, float, or complex).
+# 'input' is a sequence of numbers (integer, float, or complex).
 # Returns a list of complex numbers as output, having the same length.
 # 
 import cmath
 
 def compute_dft(input):
     n = len(input)
-    output = [0] * n
+    output = [complex(0)] * n
     for k in range(n):  # For each output element
-        s = 0
+        s = complex(0)
         for t in range(n):  # For each input element
             s += input[t] * cmath.exp(-2j * cmath.pi * t * k / n)
         output[k] = s
@@ -33,24 +31,25 @@ def compute_dft(input):
 # --------------------------------------------------------------------------------
 
 # 
-# Alternate implementation using only real numbers.
+# (Alternate implementation using only real numbers.)
 # Computes the discrete Fourier transform (DFT) of the given input vector.
-# 'inreal' and 'inimag' are each a list or tuple of n floating-point numbers.
-# Returns a tuple of two lists - outreal and outimag, each of length n.
+# 'inreal' and 'inimag' are each a sequence of n floating-point numbers.
+# Returns a tuple of two lists of floats - outreal and outimag, each of length n.
 # 
 import math
 
 def compute_dft(inreal, inimag):
     assert len(inreal) == len(inimag)
     n = len(inreal)
-    outreal = [0] * n
-    outimag = [0] * n
+    outreal = [0.0] * n
+    outimag = [0.0] * n
     for k in range(n):  # For each output element
-        sumreal = 0
-        sumimag = 0
+        sumreal = 0.0
+        sumimag = 0.0
         for t in range(n):  # For each input element
-            sumreal +=  inreal[t]*math.cos(2*math.pi * t * k / n) + inimag[t]*math.sin(2*math.pi * t * k / n)
-            sumimag += -inreal[t]*math.sin(2*math.pi * t * k / n) + inimag[t]*math.cos(2*math.pi * t * k / n)
+            angle = 2 * math.pi * t * k / n
+            sumreal +=  inreal[t] * math.cos(angle) + inimag[t] * math.sin(angle)
+            sumimag += -inreal[t] * math.sin(angle) + inimag[t] * math.cos(angle)
         outreal[k] = sumreal
         outimag[k] = sumimag
     return (outreal, outimag)

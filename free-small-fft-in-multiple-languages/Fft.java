@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (Java)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -61,12 +61,8 @@ public class Fft {
 		if (real.length != imag.length)
 			throw new IllegalArgumentException("Mismatched lengths");
 		int n = real.length;
-		int levels = -1;
-		for (int i = 0; i < 32; i++) {
-			if (1 << i == n)
-				levels = i;  // Equal to log2(n)
-		}
-		if (levels == -1)
+		int levels = 31 - Integer.numberOfLeadingZeros(n);  // Equal to floor(log2(n))
+		if (1 << levels != n)
 			throw new IllegalArgumentException("Length is not a power of 2");
 		double[] cosTable = new double[n / 2];
 		double[] sinTable = new double[n / 2];
@@ -114,9 +110,9 @@ public class Fft {
 	public static void transformBluestein(double[] real, double[] imag) {
 		// Find a power-of-2 convolution length m such that m >= n * 2 + 1
 		int n = real.length;
-		int m = 1;
-		while (m < n * 2 + 1)
-			m *= 2;
+		if (n >= 0x20000000)
+			throw new IllegalArgumentException("Array too large");
+		int m = Integer.highestOneBit(n * 2 + 1) << 1;
 		
 		// Trignometric tables
 		double[] cosTable = new double[n];
