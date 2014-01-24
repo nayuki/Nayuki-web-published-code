@@ -1,7 +1,7 @@
 /* 
  * GCD calculator
  * 
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/calculate-gcd-javascript
  */
@@ -16,22 +16,24 @@
 function calculate() {
 	var xStr = document.getElementById("numberX").value;
 	var yStr = document.getElementById("numberY").value;
-	var x = parseInt(xStr, 10);
-	var y = parseInt(yStr, 10);
 	var output;
-	if (!isInteger(xStr) || !isInteger(yStr))
+	if (xStr == "" || yStr == "")
+		output = "";
+	else if (!isInteger(xStr) || !isInteger(yStr))
 		output = "Not an integer";
-	else if (x < 0 || x >= 9007199254740992 || y < 0 || y >= 9007199254740992)
-		output = "Number out of range"
-	else 
-		output = gcd(Math.abs(x), Math.abs(y)).toString(10);
+	else {
+		var x = parseInt(xStr, 10);
+		var y = parseInt(yStr, 10);
+		if (x < 0 || x >= 9007199254740992 || y < 0 || y >= 9007199254740992)
+			output = "Number out of range"
+		else 
+			output = gcd(Math.abs(x), Math.abs(y)).toString(10);
+	}
 	document.getElementById("output").value = output;
 }
 
 
-/* 
- * Returns the GCD of the given integers. Each input must be non-negative.
- */
+// Returns the GCD of the given integers. Each input must be non-negative.
 function gcd(x, y) {
 	while (y != 0) {
 		var z = x % y;
@@ -42,9 +44,7 @@ function gcd(x, y) {
 }
 
 
-/* 
- * Tests whether the given string represents an integer.
- */
+// Tests whether the given string represents an integer.
 function isInteger(str) {
 	return /^-?\d+$/.test(str);
 }
