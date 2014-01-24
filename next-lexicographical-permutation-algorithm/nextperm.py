@@ -1,6 +1,6 @@
 # 
 # Next lexicographical permutation algorithm (Python)
-# By Nayuki Minase, 2013. Public domain.
+# By Nayuki Minase, 2014. Public domain.
 # http://nayuki.eigenstate.org/page/next-lexicographical-permutation-algorithm
 # 
 
@@ -26,11 +26,7 @@ def next_permutation(arr):
     arr[i - 1], arr[j] = arr[j], arr[i - 1]
     
     # Reverse suffix
-    j = len(arr) - 1
-    while i < j:
-        arr[i], arr[j] = arr[j], arr[i]
-        i += 1
-        j -= 1
+    arr[i : ] = arr[len(arr) - 1 : i - 1 : -1]
     return True
 
 # Example:
@@ -63,9 +59,5 @@ def next_permutation(arr, comp):
     arr[i - 1], arr[j] = arr[j], arr[i - 1]
     
     # Reverse suffix
-    j = len(arr) - 1
-    while i < j:
-        arr[i], arr[j] = arr[j], arr[i]
-        i += 1
-        j -= 1
+    arr[i : ] = arr[len(arr) - 1 : i - 1 : -1]
     return True
