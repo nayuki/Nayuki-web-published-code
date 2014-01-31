@@ -1,7 +1,7 @@
 /* 
  * Brainfuck interpreter
  * 
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/brainfuck-interpreter-javascript
  */
@@ -114,7 +114,7 @@ function Brainfuck(code) {
 	// Execution
 	
 	function run(iters) {
-		var startTime = new Date().getTime();
+		var startTime = Date.now();
 		outputChanged = false;
 		
 		for (var i = 0; i < iters && step(); i++);
@@ -126,13 +126,13 @@ function Brainfuck(code) {
 		} else {
 			if (outputChanged)
 				showOutput();
-			if (lastStepsUpdate == null || new Date().getTime() - lastStepsUpdate >= 100) {
+			if (lastStepsUpdate == null || Date.now() - lastStepsUpdate >= 100) {
 				showSteps();
-				lastStepsUpdate = new Date().getTime();
+				lastStepsUpdate = Date.now();
 			}
 			
 			// Regulate the number of iterations to execute before relinquishing control of the main JavaScript thread
-			var execTime = new Date().getTime() - startTime;  // How long this execution took
+			var execTime = Date.now() - startTime;  // How long this execution took
 			var nextIters = calcNextIters(execTime, iters);
 			timeout = setTimeout(function() { timeout = null; run(nextIters); }, 1);
 		}

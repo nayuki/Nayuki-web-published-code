@@ -1,7 +1,7 @@
 /* 
  * Tap to measure tempo
  * 
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/tap-to-measure-tempo-javascript
  */
@@ -33,7 +33,7 @@ function init() {
 
 function doBeat() {
 	if (!isDone)
-		countBeat(new Date().getTime());
+		countBeat(Date.now());
 	return true;
 }
 
