@@ -1,3 +1,11 @@
+/* 
+ * Computing Wikipedia's internal PageRanks
+ * 
+ * Copyright (c) 2014 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
+ * http://nayuki.eigenstate.org/page/computing-wikipedias-internal-pageranks
+ */
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -98,14 +106,6 @@ final class PageIdTitleMap {
 		} finally {
 			out.close();
 		}
-	}
-	
-	
-	public static int getMaxId(Map<String,Integer> idByTitle) {
-		int max = -1;
-		for (int id : idByTitle.values())
-			max = Math.max(id, max);
-		return max;
 	}
 	
 	

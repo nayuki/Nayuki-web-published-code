@@ -1,3 +1,11 @@
+/* 
+ * Computing Wikipedia's internal PageRanks
+ * 
+ * Copyright (c) 2014 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
+ * http://nayuki.eigenstate.org/page/computing-wikipedias-internal-pageranks
+ */
+
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -46,38 +54,18 @@ public final class wikipediapagerank {
 		Pagerank pr = new Pagerank(links);
 		double[] prevPageranks = null;
 		for (int i = 0; i < 1000; i++) {
+			// Do iteration
 			System.out.print("Iteration " + i);
 			long startTime = System.currentTimeMillis();
 			pr.iterate(DAMPING);
 			System.out.printf(" (%.3f s)%n", (System.currentTimeMillis() - startTime) / 1000.0);
 			
-			// Calculate amount of change
+			// Calculate and print statistics
 			double[] pageranks = pr.pageranks;
-			if (prevPageranks != null) {
-				double min = Double.POSITIVE_INFINITY;
-				double max = 0;
-				for (int j = 0; j < pageranks.length; j++) {
-					if (pageranks[j] != 0 && prevPageranks[j] != 0) {
-						double ratio = pageranks[j] / prevPageranks[j];
-						min = Math.min(ratio, min);
-						max = Math.max(ratio, max);
-					}
-				}
-				System.out.println("Range of ratio of changes: " + min + " to " + max);
-			}
+			if (prevPageranks != null)
+				printPagerankChangeRatios(prevPageranks, pageranks);
+			printTopPageranks(pageranks, titleById);
 			prevPageranks = pageranks.clone();
-			
-			// Print top-ranked pages
-			double[] sorted = pageranks.clone();
-			Arrays.sort(sorted);
-			for (int j = 0; j < 30; j++) {
-				for (int k = 0; k < pr.pageranks.length; k++) {
-					if (pr.pageranks[k] == sorted[sorted.length - 1 - j]) {
-						System.out.printf("  %.2f  %s%n", Math.log10(pr.pageranks[k]), titleById.get(k));
-						break;
-					}
-				}
-			}
 		}
 		
 		// Write PageRanks to file
@@ -87,6 +75,34 @@ public final class wikipediapagerank {
 				out.writeDouble(x);
 		} finally {
 			out.close();
+		}
+	}
+	
+	
+	private static void printPagerankChangeRatios(double[] prevPr, double[] pr) {
+		double min = Double.POSITIVE_INFINITY;
+		double max = 0;
+		for (int i = 0; i < pr.length; i++) {
+			if (pr[i] != 0 && prevPr[i] != 0) {
+				double ratio = pr[i] / prevPr[i];
+				min = Math.min(ratio, min);
+				max = Math.max(ratio, max);
+			}
+		}
+		System.out.println("Range of ratio of changes: " + min + " to " + max);
+	}
+	
+	
+	private static void printTopPageranks(double[] pageranks, Map<Integer,String> titleById) {
+		double[] sorted = pageranks.clone();
+		Arrays.sort(sorted);
+		for (int i = 0; i < 30; i++) {
+			for (int j = 0; j < sorted.length; j++) {
+				if (pageranks[j] == sorted[sorted.length - 1 - i]) {
+					System.out.printf("  %.2f  %s%n", Math.log10(pageranks[j]), titleById.get(j));
+					break;
+				}
+			}
 		}
 	}
 	

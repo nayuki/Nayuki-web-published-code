@@ -1,3 +1,11 @@
+/* 
+ * Computing Wikipedia's internal PageRanks
+ * 
+ * Copyright (c) 2014 Nayuki Minase
+ * All rights reserved. Contact Nayuki for licensing.
+ * http://nayuki.eigenstate.org/page/computing-wikipedias-internal-pageranks
+ */
+
 import java.util.Arrays;
 
 
@@ -52,7 +60,7 @@ final class Pagerank {
 				activePages++;
 		}
 		
-		// Initialize PageRank uniformly for active pages
+		// Initialize PageRanks uniformly for active pages
 		pageranks = new double[idLimit];
 		double initWeight = 1.0 / activePages;
 		for (int i = 0; i < idLimit; i++) {
@@ -72,7 +80,7 @@ final class Pagerank {
 				pageranks[i] /= numOutgoingLinks[i];
 		}
 		
-		// Distribute PageRank over links
+		// Distribute PageRanks over links
 		Arrays.fill(newPageranks, 0);
 		for (int i = 0; i < links.length; ) {
 			int n = links[i + 1];
