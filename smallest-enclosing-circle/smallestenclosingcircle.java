@@ -22,16 +22,16 @@ public class smallestenclosingcircle {
 	 */
 	// Initially: No boundary points known
 	public static double[] makeCircle(List<Point> points) {
-		// Make copy to preserve the caller's data, shuffle order
-		points = new ArrayList<Point>(points);
-		Collections.shuffle(points, new Random());
+		// Clone list to preserve the caller's data, randomize order
+		List<Point> shuffled = new ArrayList<Point>(points);
+		Collections.shuffle(shuffled, new Random());
 		
 		// Progressively add points to circle or recompute circle
 		Circle c = null;
-		for (int i = 0; i < points.size(); i++) {
-			Point p = points.get(i);
+		for (int i = 0; i < shuffled.size(); i++) {
+			Point p = shuffled.get(i);
 			if (c == null || !c.contains(p))
-				c = makeCircleOnePoint(points.subList(0, i + 1), p);
+				c = makeCircleOnePoint(shuffled.subList(0, i + 1), p);
 		}
 		return new double[]{c.c.x, c.c.y, c.r};
 	}

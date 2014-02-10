@@ -16,7 +16,7 @@
  * Note: If 0 points are given, null is returned. If 1 point is given, a circle of radius 0 is returned.
  */
 function makeCircle(points) {
-	// Knuth shuffle
+	// Clone list to preserve the caller's data, do Knuth shuffle
 	var shuffled = points.slice(0);
 	for (var i = points.length - 1; i >= 0; i--) {
 		var j = Math.floor(Math.random() * (i + 1));
@@ -84,7 +84,7 @@ function makeCircumcircle(p0, p1, p2) {
 	var cx = p2.x, cy = p2.y;
 	var d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 	if (d == 0)
-        return null;
+		return null;
 	var x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
 	var y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
 	return {x: x, y: y, r: distance(x, y, ax, ay)};

@@ -18,7 +18,7 @@ import math, random
 # Note: If 0 points are given, None is returned. If 1 point is given, a circle of radius 0 is returned.
 # 
 def make_circle(points):
-    # Convert to float and shuffle
+    # Convert to float and randomize order
     shuffled = [(float(p[0]), float(p[1])) for p in points]
     random.shuffle(shuffled)
     
@@ -69,23 +69,19 @@ def _make_circumcircle(p0, p1, p2):
         return None
     x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
     y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
-    return (x, y, _distance(x, y, ax, ay))
+    return (x, y, math.hypot(x - ax, y - ay))
 
 
 def _make_diameter(p0, p1):
-    return ((p0[0] + p1[0]) / 2.0, (p0[1] + p1[1]) / 2.0, _distance(p0[0], p0[1], p1[0], p1[1]) / 2.0)
+    return ((p0[0] + p1[0]) / 2.0, (p0[1] + p1[1]) / 2.0, math.hypot(p0[0] - p1[0], p0[1] - p1[1]) / 2.0)
 
 
 _EPSILON = 1e-12
 
 def _is_in_circle(c, p):
-    return c is not None and _distance(p[0], p[1], c[0], c[1]) < c[2] + _EPSILON
+    return c is not None and math.hypot(p[0] - c[0], p[1] - c[1]) < c[2] + _EPSILON
 
 
 # Returns twice the signed area of the triangle defined by (x0, y0), (x1, y1), (x2, y2)
 def _cross_product(x0, y0, x1, y1, x2, y2):
     return (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0)
-
-
-def _distance(x0, y0, x1, y1):
-    return math.sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1))
