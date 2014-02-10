@@ -52,7 +52,7 @@ public final class wikipediapagerank {
 		final double DAMPING = 0.85;  // Standard value is 0.85
 		System.out.println("Computing PageRank...");
 		Pagerank pr = new Pagerank(links);
-		double[] prevPageranks = null;
+		double[] prevPageranks = pr.pageranks.clone();
 		for (int i = 0; i < 1000; i++) {
 			// Do iteration
 			System.out.print("Iteration " + i);
@@ -62,8 +62,7 @@ public final class wikipediapagerank {
 			
 			// Calculate and print statistics
 			double[] pageranks = pr.pageranks;
-			if (prevPageranks != null)
-				printPagerankChangeRatios(prevPageranks, pageranks);
+			printPagerankChangeRatios(prevPageranks, pageranks);
 			printTopPageranks(pageranks, titleById);
 			prevPageranks = pageranks.clone();
 		}

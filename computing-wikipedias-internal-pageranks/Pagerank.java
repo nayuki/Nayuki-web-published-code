@@ -15,9 +15,9 @@ final class Pagerank {
 	private int[] links;
 	
 	private int idLimit;  // Maximum page ID plus 1. This sets the length of various arrays.
-	private boolean[] hasIncomingLinks;
-	private int[] numOutgoingLinks;
 	private int activePages;  // Number of pages with incoming links or outgoing links (ignore disconnected nodes)
+	private boolean[] isActive;
+	private int[] numOutgoingLinks;
 	
 	public double[] pageranks;
 	private double[] newPageranks;  // Temporary, filled and discarded per iteration
@@ -42,7 +42,7 @@ final class Pagerank {
 		idLimit = max + 1;
 		
 		// Initialize metadata
-		hasIncomingLinks = new boolean[idLimit];
+		boolean[] hasIncomingLinks = new boolean[idLimit];
 		numOutgoingLinks = new int[idLimit];
 		for (int i = 0; i < links.length; ) {
 			int dest = links[i];
@@ -54,17 +54,20 @@ final class Pagerank {
 			}
 			i += n + 2;
 		}
+		isActive = new boolean[idLimit];
 		activePages = 0;
 		for (int i = 0; i < idLimit; i++) {
-			if (numOutgoingLinks[i] > 0 || hasIncomingLinks[i])
+			if (numOutgoingLinks[i] > 0 || hasIncomingLinks[i]) {
+				isActive[i] = true;
 				activePages++;
+			}
 		}
 		
 		// Initialize PageRanks uniformly for active pages
 		pageranks = new double[idLimit];
 		double initWeight = 1.0 / activePages;
 		for (int i = 0; i < idLimit; i++) {
-			if (numOutgoingLinks[i] > 0 || hasIncomingLinks[i]) {
+			if (isActive[i]) {
 				pageranks[i] = initWeight;
 			}
 		}
@@ -97,7 +100,7 @@ final class Pagerank {
 		// Calculate global bias due to pages without outgoing links
 		double bias = 0;
 		for (int i = 0; i < idLimit; i++) {
-			if (hasIncomingLinks[i] && numOutgoingLinks[i] == 0)
+			if (isActive[i] && numOutgoingLinks[i] == 0)
 				bias += pageranks[i];
 		}
 		bias /= activePages;
@@ -105,7 +108,7 @@ final class Pagerank {
 		// Apply bias and damping to all active pages
 		double temp = bias * damping + (1 - damping) / activePages;  // Factor out some arithmetic
 		for (int i = 0; i < idLimit; i++) {
-			if (numOutgoingLinks[i] > 0 || hasIncomingLinks[i])
+			if (isActive[i])
 				pageranks[i] = newPageranks[i] * damping + temp;
 		}
 	}
