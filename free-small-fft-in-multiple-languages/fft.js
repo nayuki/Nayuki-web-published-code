@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (JavaScript)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -21,6 +21,8 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
+
+"use strict";
 
 
 /* 
