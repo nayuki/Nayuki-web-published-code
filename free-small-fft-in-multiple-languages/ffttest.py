@@ -1,7 +1,7 @@
 # 
 # FFT and convolution test (Python)
 # 
-# Copyright (c) 2013 Nayuki Minase
+# Copyright (c) 2014 Nayuki Minase
 # http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
 # 
 # (MIT License)
@@ -47,7 +47,7 @@ def main():
     prev = 0
     for i in range(100 + 1):
         n = int(round(1500 ** (i / 100.0)))
-        if n != prev:
+        if n > prev:
             _test_fft(n)
             prev = n
     
@@ -59,7 +59,7 @@ def main():
     prev = 0
     for i in range(100 + 1):
         n = int(round(1500 ** (i / 100.0)))
-        if n != prev:
+        if n > prev:
             _test_convolution(n)
             prev = n
     
@@ -114,13 +114,11 @@ _maxlogerr = float("-inf")
 def _log10_rms_err(x, y):
     global _maxlogerr
     assert len(x) == len(y)
-    err = 0
+    err = 0.0
     for (u, v) in zip(x, y):
         err += abs(u - v) ** 2
-    if len(x) > 0:
-        err /= len(x)
-    err = math.sqrt(err)  # Now this is a root mean square (RMS) error
-    err = math.log10(err) if err > 0 else -99
+    err = math.sqrt(err / max(len(x), 1))  # Now this is a root mean square (RMS) error
+    err = math.log10(err) if err > 0 else -99.0
     _maxlogerr = max(err, _maxlogerr)
     return err
 

@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (Java)
  * 
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -42,7 +42,7 @@ public class FftTest {
 		int prev = 0;
 		for (int i = 0; i <= 100; i++) {
 			int n = (int)Math.round(Math.pow(1500, i / 100.0));
-			if (n != prev) {
+			if (n > prev) {
 				testFft(n);
 				prev = n;
 			}
@@ -56,7 +56,7 @@ public class FftTest {
 		prev = 0;
 		for (int i = 0; i <= 100; i++) {
 			int n = (int)Math.round(Math.pow(1500, i / 100.0));
-			if (n != prev) {
+			if (n > prev) {
 				testConvolution(n);
 				prev = n;
 			}
@@ -154,9 +154,7 @@ public class FftTest {
 		double err = 0;
 		for (int i = 0; i < xreal.length; i++)
 			err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
-		
-		err /= xreal.length > 0 ? xreal.length : 1;
-		err = Math.sqrt(err);  // Now this is a root mean square (RMS) error
+		err = Math.sqrt(err / Math.max(xreal.length, 1));  // Now this is a root mean square (RMS) error
 		err = err > 0 ? Math.log10(err) : -99;
 		maxLogError = Math.max(err, maxLogError);
 		return err;

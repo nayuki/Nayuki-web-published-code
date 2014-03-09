@@ -98,6 +98,8 @@ public class Fft {
 					imag[j] += tpim;
 				}
 			}
+			if (size == n)  // Prevent overflow in 'size *= 2'
+				break;
 		}
 	}
 	
