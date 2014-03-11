@@ -89,15 +89,19 @@ int main(int argc, char **argv) {
 
 
 static void test_fft(int n) {
-	double *inputreal = random_reals(n);
-	double *inputimag = random_reals(n);
+	double *inputreal, *inputimag;
+	double *refoutreal, *refoutimag;
+	double *actualoutreal, *actualoutimag;
 	
-	double *refoutreal = malloc(n * sizeof(double));
-	double *refoutimag = malloc(n * sizeof(double));
+	inputreal = random_reals(n);
+	inputimag = random_reals(n);
+	
+	refoutreal = malloc(n * sizeof(double));
+	refoutimag = malloc(n * sizeof(double));
 	naive_dft(inputreal, inputimag, refoutreal, refoutimag, 0, n);
 	
-	double *actualoutreal = memdup(inputreal, n * sizeof(double));
-	double *actualoutimag = memdup(inputimag, n * sizeof(double));
+	actualoutreal = memdup(inputreal, n * sizeof(double));
+	actualoutimag = memdup(inputimag, n * sizeof(double));
 	transform(actualoutreal, actualoutimag, n);
 	
 	printf("fftsize=%4d  logerr=%5.1f\n", n, log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
@@ -112,18 +116,22 @@ static void test_fft(int n) {
 
 
 static void test_convolution(int n) {
-	double *input0real = random_reals(n);
-	double *input0imag = random_reals(n);
+	double *input0real, *input0imag;
+	double *input1real, *input1imag;
+	double *refoutreal, *refoutimag;
+	double *actualoutreal, *actualoutimag;
 	
-	double *input1real = random_reals(n);
-	double *input1imag = random_reals(n);
+	input0real = random_reals(n);
+	input0imag = random_reals(n);
+	input1real = random_reals(n);
+	input1imag = random_reals(n);
 	
-	double *refoutreal = malloc(n * sizeof(double));
-	double *refoutimag = malloc(n * sizeof(double));
+	refoutreal = malloc(n * sizeof(double));
+	refoutimag = malloc(n * sizeof(double));
 	naive_convolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag, n);
 	
-	double *actualoutreal = malloc(n * sizeof(double));
-	double *actualoutimag = malloc(n * sizeof(double));
+	actualoutreal = malloc(n * sizeof(double));
+	actualoutimag = malloc(n * sizeof(double));
 	convolve_complex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag, n);
 	
 	printf("convsize=%4d  logerr=%5.1f\n", n, log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
