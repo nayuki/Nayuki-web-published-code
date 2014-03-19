@@ -1,7 +1,7 @@
 # 
 # Free FFT and convolution (Python)
 # 
-# Copyright (c) 2013 Nayuki Minase
+# Copyright (c) 2014 Nayuki Minase
 # http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
 # 
 # (MIT License)
@@ -38,7 +38,7 @@ def transform(vector, inverse=False):
     n = len(vector)
     if n > 0 and n & (n - 1) == 0:  # Is power of 2
         return transform_radix2(vector, inverse)
-    else:  # More complicated algorithm for aribtrary sizes
+    else:  # More complicated algorithm for arbitrary sizes
         return transform_bluestein(vector, inverse)
 
 

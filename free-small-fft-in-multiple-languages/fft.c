@@ -40,7 +40,7 @@ int transform(double real[], double imag[], size_t n) {
 		return 1;
 	else if ((n & (n - 1)) == 0)  // Is power of 2
 		return transform_radix2(real, imag, n);
-	else  // More complicated algorithm for aribtrary sizes
+	else  // More complicated algorithm for arbitrary sizes
 		return transform_bluestein(real, imag, n);
 }
 
@@ -65,7 +65,7 @@ int transform_radix2(double real[], double imag[], size_t n) {
 			levels++;
 			temp >>= 1;
 		}
-		if (1 << levels != n)
+		if (1u << levels != n)
 			return 0;  // n is not a power of 2
 	}
 	

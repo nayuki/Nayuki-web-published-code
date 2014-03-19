@@ -38,7 +38,7 @@ function transform(real, imag) {
         return;
     else if ((n & (n - 1)) == 0)  // Is power of 2
         transformRadix2(real, imag);
-    else  // More complicated algorithm for aribtrary sizes
+    else  // More complicated algorithm for arbitrary sizes
         transformBluestein(real, imag);
 }
 
@@ -125,6 +125,8 @@ function transformRadix2(real, imag) {
  */
 function transformBluestein(real, imag) {
     // Find a power-of-2 convolution length m such that m >= n * 2 + 1
+    if (real.length != imag.length)
+        throw "Mismatched lengths";
     var n = real.length;
     var m = 1;
     while (m < n * 2 + 1)

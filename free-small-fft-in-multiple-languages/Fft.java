@@ -38,7 +38,7 @@ public class Fft {
 			return;
 		else if ((n & (n - 1)) == 0)  // Is power of 2
 			transformRadix2(real, imag);
-		else  // More complicated algorithm for aribtrary sizes
+		else  // More complicated algorithm for arbitrary sizes
 			transformBluestein(real, imag);
 	}
 	
@@ -111,6 +111,8 @@ public class Fft {
 	 */
 	public static void transformBluestein(double[] real, double[] imag) {
 		// Find a power-of-2 convolution length m such that m >= n * 2 + 1
+		if (real.length != imag.length)
+			throw new IllegalArgumentException("Mismatched lengths");
 		int n = real.length;
 		if (n >= 0x20000000)
 			throw new IllegalArgumentException("Array too large");

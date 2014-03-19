@@ -53,7 +53,6 @@ int main(int argc, char **argv) {
 	for (i = 0; i <= 12; i++)
 		test_fft(1 << i);
 	
-	
 	// Test small size FFTs
 	for (i = 0; i < 30; i++)
 		test_fft(i);
