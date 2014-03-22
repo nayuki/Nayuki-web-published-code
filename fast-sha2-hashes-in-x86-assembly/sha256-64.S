@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in x86-64 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-sha2-hashes-in-x86-assembly
  */
@@ -104,7 +104,7 @@
 	orl   %ecx, %eax;          \
 	addl  %eax, %h;
 
-/* void sha256_compress(uint32_t *state, uint8_t *block) */
+/* void sha256_compress(uint32_t state[8], uint8_t block[64]) */
 .globl sha256_compress
 sha256_compress:
 	/* Save registers, allocate scratch space */

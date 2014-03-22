@@ -1,7 +1,7 @@
 /* 
  * Whirlpool hash in C
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-whirlpool-hash-in-x86-assembly
  */
@@ -22,10 +22,10 @@ static uint64_t ROUND_CONSTANTS[32] = {
 };
 
 
-static void whirlpool_round(uint64_t *block, uint64_t *key);
+static void whirlpool_round(uint64_t block[8], uint64_t key[8]);
 
 
-void whirlpool_compress(uint8_t *state, uint8_t *block) {
+void whirlpool_compress(uint8_t state[64], uint8_t block[64]) {
 	const int NUM_ROUNDS = 10;  // Any number from 0 to 32 is allowed
 	uint64_t tempState[8];
 	uint64_t tempBlock[8];
@@ -105,7 +105,7 @@ static uint64_t MAGIC_TABLE[256] = {
 };
 
 
-static void whirlpool_round(uint64_t *block, uint64_t *key) {
+static void whirlpool_round(uint64_t block[8], uint64_t key[8]) {
 	uint64_t a = block[0];
 	uint64_t b = block[1];
 	uint64_t c = block[2];

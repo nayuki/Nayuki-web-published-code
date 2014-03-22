@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in C
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-sha2-hashes-in-x86-assembly
  */
@@ -31,7 +31,7 @@
 	h += (ROR(a, 2) ^ ROR(a, 13) ^ ROR(a, 22)) + ((a & (b | c)) | (b & c));
 
 
-void sha256_compress(uint32_t *state, uint8_t *block) {
+void sha256_compress(uint32_t state[8], uint8_t block[64]) {
 	uint32_t schedule[64];
 	LOADSCHEDULE( 0)
 	LOADSCHEDULE( 1)

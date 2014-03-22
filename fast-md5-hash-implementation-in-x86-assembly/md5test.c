@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in C and x86 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-md5-hash-implementation-in-x86-assembly
  */
@@ -16,10 +16,10 @@
 /* Function prototypes */
 
 static int self_check(void);
-void md5_hash(uint8_t *message, uint32_t len, uint32_t *hash);
+void md5_hash(uint8_t *message, uint32_t len, uint32_t hash[4]);
 
 // Link this program with an external C or x86 compression function
-extern void md5_compress(uint32_t *state, uint32_t *block);
+extern void md5_compress(uint32_t state[4], uint32_t block[16]);
 
 
 /* Main program */
@@ -32,8 +32,8 @@ int main(int argc, char **argv) {
 	printf("Self-check passed\n");
 	
 	// Benchmark speed
-	uint32_t state[4];
-	uint32_t block[16];
+	uint32_t state[4] = {};
+	uint32_t block[16] = {};
 	const int N = 10000000;
 	clock_t start_time = clock();
 	int i;
@@ -77,7 +77,7 @@ static int self_check(void) {
 
 /* Full message hasher */
 
-void md5_hash(uint8_t *message, uint32_t len, uint32_t *hash) {
+void md5_hash(uint8_t *message, uint32_t len, uint32_t hash[4]) {
 	hash[0] = UINT32_C(0x67452301);
 	hash[1] = UINT32_C(0xEFCDAB89);
 	hash[2] = UINT32_C(0x98BADCFE);

@@ -1,7 +1,7 @@
 /* 
  * Tiny Encryption Algorithm (TEA) in x86 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/tiny-encryption-algorithm-in-x86-assembly
  */
@@ -23,7 +23,7 @@
  *        4  [esp+8]   Caller's value of edi
  */
 
-/* void tea_encrypt_x86(uint32_t *msg, uint32_t *key); */
+/* void tea_encrypt_x86(uint32_t msg[2], uint32_t key[4]); */
 .globl tea_encrypt_x86
 tea_encrypt_x86:
 	/* Enter */

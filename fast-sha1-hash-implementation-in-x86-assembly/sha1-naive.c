@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in C
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-sha1-hash-implementation-in-x86-assembly
  */
@@ -29,7 +29,7 @@
 	e += (a << 5 | a >> 27) + f + UINT32_C(k) + schedule[i];  \
 	b = b << 30 | b >> 2;
 
-void sha1_compress(uint32_t *state, uint8_t *block) {
+void sha1_compress(uint32_t state[5], uint8_t block[64]) {
 	uint32_t a = state[0];
 	uint32_t b = state[1];
 	uint32_t c = state[2];

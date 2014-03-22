@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in x86-64 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-md5-hash-implementation-in-x86-assembly
  */
@@ -65,7 +65,7 @@
 	addl  %b, %a;
 
 
-/* void md5_compress(uint32_t *state, uint32_t *block) */
+/* void md5_compress(uint32_t state[4], uint32_t block[16]) */
 .globl md5_compress
 md5_compress:
 	/* Save registers */

@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in x86 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-sha1-hash-implementation-in-x86-assembly
  */
@@ -85,7 +85,7 @@
 	addl  %esi, %e;
 
 
-/* void sha1_compress(uint32_t *state, uint8_t *block) */
+/* void sha1_compress(uint32_t state[5], uint8_t block[64]) */
 .globl sha1_compress
 sha1_compress:
 	/* Save registers */

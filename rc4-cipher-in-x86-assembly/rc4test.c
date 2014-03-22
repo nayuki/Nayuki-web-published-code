@@ -1,18 +1,16 @@
 /* 
  * RC4 stream cipher in C and x86 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/rc4-cipher-in-x86-assembly
  */
-
 
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
 
 typedef struct {
 	int i;
@@ -40,10 +38,10 @@ int main(int argc, char **argv) {
 	
 	// Benchmark speed
 	const int TRIALS = 300000;
-	const int MSG_LEN = 1024;
+	#define MSG_LEN 1024
 	
 	uint8_t key[3] = {'a', 'b', 'c'};
-	uint8_t msg[MSG_LEN];
+	uint8_t msg[MSG_LEN] = {};
 	Rc4State state;
 	rc4_init(&state, key, sizeof(key));
 	
@@ -61,21 +59,19 @@ int main(int argc, char **argv) {
 	printf("Speed (x86): %.1f MiB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1048576);
 	
 	return 0;
+	#undef MSG_LEN
 }
 
 
 static int self_check(void) {
 	const int TRIALS = 1000;
-	const int MSG_LEN = 127;
+	#define MSG_LEN 127
 	
 	uint8_t key[3] = {'K', 'e', 'y'};
-	uint8_t msg0[MSG_LEN], msg1[MSG_LEN];
+	uint8_t msg0[MSG_LEN] = {}, msg1[MSG_LEN] = {};
 	Rc4State state0, state1;
-	
 	rc4_init(&state0, key, sizeof(key));
 	rc4_init(&state1, key, sizeof(key));
-	memset(msg0, 0, MSG_LEN);
-	memset(msg1, 0, MSG_LEN);
 	
 	int i;
 	for(i = 0; i < TRIALS; i++){
@@ -85,6 +81,7 @@ static int self_check(void) {
 			return 0;
 	}
 	return 1;
+	#undef MSG_LEN
 }
 
 
@@ -129,4 +126,3 @@ void rc4_encrypt_c(Rc4State *state, uint8_t *msg, int len) {
 	state->i = i;
 	state->j = j;
 }
-

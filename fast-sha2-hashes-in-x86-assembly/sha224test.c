@@ -1,7 +1,7 @@
 /* 
  * SHA-224 hash in C and x86 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-sha2-hashes-in-x86-assembly
  */
@@ -16,10 +16,10 @@
 /* Function prototypes */
 
 static int self_check(void);
-void sha224_hash(uint8_t *message, uint32_t len, uint32_t *hash);
+void sha224_hash(uint8_t *message, uint32_t len, uint32_t hash[7]);
 
 // Link this program with an external C or x86 compression function
-extern void sha256_compress(uint32_t *state, uint8_t *block);
+extern void sha256_compress(uint32_t state[8], uint8_t block[64]);
 
 
 /* Main program */
@@ -32,8 +32,8 @@ int main(int argc, char **argv) {
 	printf("Self-check passed\n");
 	
 	// Benchmark speed
-	uint32_t state[8];
-	uint32_t block[16];
+	uint32_t state[8] = {};
+	uint32_t block[16] = {};
 	const int N = 3000000;
 	clock_t start_time = clock();
 	int i;
@@ -65,7 +65,7 @@ static int self_check(void) {
 
 /* Full message hasher */
 
-void sha224_hash(uint8_t *message, uint32_t len, uint32_t *hash) {
+void sha224_hash(uint8_t *message, uint32_t len, uint32_t hash[7]) {
 	uint32_t state[8];
 	state[0] = UINT32_C(0xC1059ED8);
 	state[1] = UINT32_C(0x367CD507);

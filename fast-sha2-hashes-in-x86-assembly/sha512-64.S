@@ -1,7 +1,7 @@
 /* 
  * SHA-512 hash in x86-64 assembly
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-sha2-hashes-in-x86-assembly
  */
@@ -106,7 +106,7 @@
 	orq   %rcx, %rax;          \
 	addq  %rax, %h;
 
-/* void sha512_compress(uint32_t *state, uint8_t *block) */
+/* void sha512_compress(uint64_t state[8], uint8_t block[128]) */
 .globl sha512_compress
 sha512_compress:
 	/* Save registers, allocate scratch space */

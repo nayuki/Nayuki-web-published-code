@@ -1,7 +1,7 @@
 /* 
  * Whirlpool hash in C and x86 assembly
  * 
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-whirlpool-hash-in-x86-assembly
  */
@@ -16,10 +16,10 @@
 /* Function prototypes */
 
 static int self_check(void);
-void whirlpool_hash(uint8_t *message, uint32_t len, uint8_t *hash);
+void whirlpool_hash(uint8_t *message, uint32_t len, uint8_t hash[64]);
 
 // Link this program with an external C or x86 compression function
-extern void whirlpool_compress(uint8_t *state, uint8_t *block);
+extern void whirlpool_compress(uint8_t state[64], uint8_t block[64]);
 
 
 /* Main program */
@@ -32,8 +32,8 @@ int main(int argc, char **argv) {
 	printf("Self-check passed\n");
 	
 	// Benchmark speed
-	uint8_t state[64];
-	uint8_t block[64];
+	uint8_t state[64] = {};
+	uint8_t block[64] = {};
 	const int N = 2000000;
 	clock_t start_time = clock();
 	int i;
@@ -69,7 +69,7 @@ static int self_check(void) {
 
 /* Full message hasher */
 
-void whirlpool_hash(uint8_t *message, uint32_t len, uint8_t *hash) {
+void whirlpool_hash(uint8_t *message, uint32_t len, uint8_t hash[64]) {
 	memset(hash, 0, 64);
 	
 	int i;
