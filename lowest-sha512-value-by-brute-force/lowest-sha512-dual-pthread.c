@@ -18,16 +18,16 @@
 
 /* Function prototypes */
 
-static int self_check();
-static void benchmark();
+static int self_check(void);
+static void benchmark(void);
 static void *worker(void *data);
-static int compare_hashes(uint64_t *dualhash, int channel, uint64_t *hash);
-static uint8_t get_byte(uint8_t *block, int index, int channel);
-static void    set_byte(uint8_t *block, int index, int channel, uint8_t val);
-static void get_message(uint8_t *block, int channel, char *message);
+static int compare_hashes(uint64_t dualhash[16], int channel, uint64_t hash[8]);
+static uint8_t get_byte(uint8_t blocks[256], int index, int channel);
+static void    set_byte(uint8_t blocks[256], int index, int channel, uint8_t val);
+static void get_message(uint8_t blocks[256], int channel, char *message);
 
 // Link this program with an external C or x86 compression function
-extern void sha512_compress_dual(uint64_t *states, uint8_t *blocks);
+extern void sha512_compress_dual(uint64_t states[16], uint8_t blocks[256]);
 
 // Please customize this to your system
 static const int num_threads = 4;
@@ -207,7 +207,7 @@ static void *worker(void *blks) {
 }
 
 
-static int self_check() {  // Assumes NUM_CH = 2
+static int self_check(void) {  // Assumes NUM_CH = 2
 	uint8_t blocks[128 * NUM_CH] = {
 		'm','e','s','s','a','g','e',' ',  'a','b','c','d','e','f','g','h',
 		'd','i','g','e','s','t',0x80,0,   'b','c','d','e','f','g','h','i',
@@ -244,7 +244,7 @@ static int self_check() {  // Assumes NUM_CH = 2
 }
 
 
-static void benchmark() {
+static void benchmark(void) {
 	const int N = 3000000;
 	uint8_t blocks[128 * NUM_CH] = {};
 	uint64_t states[8 * NUM_CH] = {};
@@ -256,7 +256,7 @@ static void benchmark() {
 }
 
 
-static int compare_hashes(uint64_t *dualhash, int channel, uint64_t *hash) {
+static int compare_hashes(uint64_t dualhash[16], int channel, uint64_t hash[8]) {
 	int i;
 	for (i = 0; i < 8; i++) {
 		uint64_t x = dualhash[i * NUM_CH + channel];
@@ -271,20 +271,20 @@ static int compare_hashes(uint64_t *dualhash, int channel, uint64_t *hash) {
 
 
 // Assumes NUM_CH = 2
-static uint8_t get_byte(uint8_t *block, int index, int channel) {
-	return block[((index & ~7) << 1) | (channel << 3) | (index & 7)];
+static uint8_t get_byte(uint8_t blocks[256], int index, int channel) {
+	return blocks[((index & ~7) << 1) | (channel << 3) | (index & 7)];
 }
 
 
 // Assumes NUM_CH = 2
-static void set_byte(uint8_t *block, int index, int channel, uint8_t val) {
-	block[((index & ~7) << 1) | (channel << 3) | (index & 7)] = val;
+static void set_byte(uint8_t blocks[256], int index, int channel, uint8_t val) {
+	blocks[((index & ~7) << 1) | (channel << 3) | (index & 7)] = val;
 }
 
 
-static void get_message(uint8_t *block, int channel, char *message) {
+static void get_message(uint8_t blocks[256], int channel, char *message) {
 	int i;
 	for (i = 0; i < MSG_LEN; i++)
-		message[i] = get_byte(block, i, channel);
+		message[i] = get_byte(blocks, i, channel);
 	message[MSG_LEN] = '\0';
 }
