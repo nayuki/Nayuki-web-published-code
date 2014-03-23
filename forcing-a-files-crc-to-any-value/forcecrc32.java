@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer
  * 
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/forcing-a-files-crc-to-any-value
  */
@@ -194,13 +194,7 @@ public class forcecrc32 {
 	
 	
 	private static int getDegree(long x) {
-		if (x == 0)
-			return -1;
-		for (int i = 0; i < 64; i++) {
-			if (x >>> i == 1)
-				return i;
-		}
-		throw new AssertionError();
+		return 63 - Long.numberOfLeadingZeros(x);
 	}
 	
 }
