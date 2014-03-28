@@ -13,18 +13,18 @@
 #include <time.h>
 
 typedef struct {
-	int i;
-	int j;
+	uint8_t i;
+	uint8_t j;
 	uint8_t s[256];
 } Rc4State;
 
 
 /* Function prototypes */
 
-static int self_check(void);
+extern void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, int len);
 void rc4_init(Rc4State *state, uint8_t *key, int len);
 void rc4_encrypt_c(Rc4State *state, uint8_t *msg, int len);
-extern void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, int len);
+static int self_check(void);
 
 
 /* Main program */
