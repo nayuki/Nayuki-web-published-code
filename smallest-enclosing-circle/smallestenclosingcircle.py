@@ -35,7 +35,7 @@ def make_circle(points):
     shuffled = [(float(p[0]), float(p[1])) for p in points]
     random.shuffle(shuffled)
     
-    # Incrementally add points to circle
+    # Progressively add points to circle or recompute circle
     c = None
     for (i, p) in enumerate(shuffled):
         if c is None or not _is_in_circle(c, p):
@@ -43,6 +43,7 @@ def make_circle(points):
     return c
 
 
+# One boundary point known
 def _make_circle_one_point(points, p):
     c = (p[0], p[1], 0.0)
     for (i, q) in enumerate(points):
@@ -54,9 +55,10 @@ def _make_circle_one_point(points, p):
     return c
 
 
+# Two boundary points known
 def _make_circle_two_points(points, p, q):
     diameter = _make_diameter(p, q)
-    if all((_is_in_circle(diameter, r) for r in points)):
+    if all(_is_in_circle(diameter, r) for r in points):
         return diameter
     
     left = None
@@ -64,11 +66,12 @@ def _make_circle_two_points(points, p, q):
     for r in points:
         cross = _cross_product(p[0], p[1], q[0], q[1], r[0], r[1])
         c = _make_circumcircle(p, q, r)
-        if c is not None:
-            if cross > 0 and (left is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) > _cross_product(p[0], p[1], q[0], q[1], left[0], left[1])):
-                left = c
-            elif cross < 0 and (right is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) < _cross_product(p[0], p[1], q[0], q[1], right[0], right[1])):
-                right = c
+        if c is None:
+            continue
+        elif cross > 0.0 and (left is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) > _cross_product(p[0], p[1], q[0], q[1], left[0], left[1])):
+            left = c
+        elif cross < 0.0 and (right is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) < _cross_product(p[0], p[1], q[0], q[1], right[0], right[1])):
+            right = c
     return left if (right is None or (left is not None and left[2] <= right[2])) else right
 
 
@@ -78,7 +81,7 @@ def _make_circumcircle(p0, p1, p2):
     bx = p1[0]; by = p1[1]
     cx = p2[0]; cy = p2[1]
     d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2.0
-    if d == 0:
+    if d == 0.0:
         return None
     x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
     y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d

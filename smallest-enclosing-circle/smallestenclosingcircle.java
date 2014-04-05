@@ -78,12 +78,12 @@ public class smallestenclosingcircle {
 			Point pq = q.subtract(p);
 			double cross = pq.cross(r.subtract(p));
 			Circle c = makeCircumcircle(p, q, r);
-			if (c != null) {
-				if (cross > 0 && (left == null || pq.cross(c.c.subtract(p)) > pq.cross(left.c.subtract(p))))
-					left = c;
-				else if (cross < 0 && (right == null || pq.cross(c.c.subtract(p)) < pq.cross(right.c.subtract(p))))
-					right = c;
-			}
+			if (c == null)
+				continue;
+			else if (cross > 0 && (left == null || pq.cross(c.c.subtract(p)) > pq.cross(left.c.subtract(p))))
+				left = c;
+			else if (cross < 0 && (right == null || pq.cross(c.c.subtract(p)) < pq.cross(right.c.subtract(p))))
+				right = c;
 		}
 		return right == null || left != null && left.r <= right.r ? left : right;
 	}

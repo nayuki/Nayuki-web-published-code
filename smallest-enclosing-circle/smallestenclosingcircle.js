@@ -39,7 +39,7 @@ function makeCircle(points) {
 		shuffled[j] = temp;
 	}
 	
-	// Incrementally add points to circle
+	// Progressively add points to circle or recompute circle
 	var c = null;
 	for (var i = 0; i < shuffled.length; i++) {
 		var p = shuffled[i];
@@ -50,6 +50,7 @@ function makeCircle(points) {
 }
 
 
+// One boundary point known
 function makeCircleOnePoint(points, p) {
 	var c = {x: p.x, y: p.y, r: 0};
 	for (var i = 0; i < points.length; i++) {
@@ -65,6 +66,7 @@ function makeCircleOnePoint(points, p) {
 }
 
 
+// Two boundary points known
 function makeCircleTwoPoints(points, p, q) {
 	var temp = makeDiameter(p, q);
 	var containsAll = true;
@@ -79,12 +81,12 @@ function makeCircleTwoPoints(points, p, q) {
 		var r = points[i];
 		var cross = crossProduct(p.x, p.y, q.x, q.y, r.x, r.y);
 		var c = makeCircumcircle(p, q, r);
-		if (c != null) {
-			if (cross > 0 && (left == null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) > crossProduct(p.x, p.y, q.x, q.y, left.x, left.y)))
-				left = c;
-			else if (cross < 0 && (right == null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) < crossProduct(p.x, p.y, q.x, q.y, right.x, right.y)))
-				right = c;
-		}
+		if (c == null)
+			continue;
+		else if (cross > 0 && (left == null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) > crossProduct(p.x, p.y, q.x, q.y, left.x, left.y)))
+			left = c;
+		else if (cross < 0 && (right == null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) < crossProduct(p.x, p.y, q.x, q.y, right.x, right.y)))
+			right = c;
 	}
 	return right == null || left != null && left.r <= right.r ? left : right;
 }
