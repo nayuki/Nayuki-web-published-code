@@ -1,7 +1,7 @@
 # 
 # Optimizing brainfuck compiler
 # 
-# Copyright (c) 2013 Nayuki Minase
+# Copyright (c) 2014 Nayuki Minase
 # All rights reserved. Contact Nayuki for licensing.
 # http://nayuki.eigenstate.org/page/optimizing-brainfuck-compiler
 # 
@@ -42,8 +42,8 @@ def main(args):
 	commands = optimize(commands)
 	
 	# Write output
-	tempname = os.path.basename(outname)
-	outcode = outfunc(commands, tempname[ : tempname.index(".")])
+	tempname = os.path.splitext(os.path.basename(outname))[0]
+	outcode = outfunc(commands, tempname)
 	with open(outname, "w") as fout:
 		fout.write(outcode)
 
@@ -89,25 +89,33 @@ def optimize(commands):
 	offset = 0  # How much the memory pointer has moved without being updated
 	for cmd in commands:
 		if isinstance(cmd, Assign):
-			result.append(Assign(cmd.offset + offset, cmd.value))
+			# Try to fuse into previous command
+			off = cmd.offset + offset
+			prev = result[-1] if len(result) >= 1 else None
+			if isinstance(prev, (Add,Assign)) and prev.offset == off \
+					or isinstance(prev, (MultAdd,MultAssign)) and prev.destOff == off:
+				del result[-1]
+			result.append(Assign(off, cmd.value))
 		elif isinstance(cmd, MultAssign):
 			result.append(MultAssign(cmd.srcOff + offset, cmd.destOff + offset, cmd.value))
 		elif isinstance(cmd, Add):
 			# Try to fuse into previous command
+			off = cmd.offset + offset
 			prev = result[-1] if len(result) >= 1 else None
-			if isinstance(prev, Add) and prev.offset == cmd.offset + offset:
+			if isinstance(prev, Add) and prev.offset == off:
 				prev.value = (prev.value + cmd.value) & 0xFF
-			elif isinstance(prev, Assign) and prev.offset == cmd.offset + offset:
+			elif isinstance(prev, Assign) and prev.offset == off:
 				prev.value = (prev.value + cmd.value) & 0xFF
 			else:
-				result.append(Add(cmd.offset + offset, cmd.value))
+				result.append(Add(off, cmd.value))
 		elif isinstance(cmd, MultAdd):
 			# Try to fuse into previous command
+			off = cmd.destOff + offset
 			prev = result[-1] if len(result) >= 1 else None
-			if isinstance(prev, Assign) and prev.offset == cmd.destOff + offset and prev.value == 0:
-				result[-1] = MultAssign(cmd.srcOff + offset, cmd.destOff + offset, cmd.value)
+			if isinstance(prev, Assign) and prev.offset == off and prev.value == 0:
+				result[-1] = MultAssign(cmd.srcOff + offset, off, cmd.value)
 			else:
-				result.append(MultAdd(cmd.srcOff + offset, cmd.destOff + offset, cmd.value))
+				result.append(MultAdd(cmd.srcOff + offset, off, cmd.value))
 		elif isinstance(cmd, Right):
 			offset += cmd.offset
 		elif isinstance(cmd, Input):
@@ -159,50 +167,54 @@ def optimize_simple_loop(commands):
 		return None
 	
 	# Convert the loop into a list of multiply-add commands that source from the cell being tested
-	result = []
 	del deltas[0]
-	offsets = sorted(deltas.keys())
-	for off in offsets:
+	result = []
+	for off in sorted(deltas.keys()):
 		result.append(MultAdd(0, off, deltas[off]))
 	result.append(Assign(0, 0))
 	return result
 
 
+# Attempts to convert the body of a while-loop into an if-statement. This is possible if roughly all these conditions are met:
+# - There are no commands other than Add/Assign/MultAdd/MultAssign (in particular, no net movement, I/O, or embedded loops)
+# - The value at offset 0 is decremented by 1
+# - All MultAdd and MultAssign commands read from {an offset other than 0 whose value is cleared before the end in the loop}
 def optimize_complex_loop(commands):
-	otherresult = []
-	deltas = {}
-	clears = set()
-	nonclears = set()
+	result = []
+	origindelta = 0
+	clears = set([0])
 	for cmd in commands:
 		if isinstance(cmd, Add):
-			deltas[cmd.offset] = deltas.get(cmd.offset, 0) + cmd.value
-			nonclears.add(cmd.offset)
-		elif isinstance(cmd, MultAdd):
-			nonclears.add(cmd.destOff)
-			otherresult.append(MultAdd(cmd.srcOff, cmd.destOff, cmd.value))
-		elif isinstance(cmd, MultAssign):
-			nonclears.add(cmd.destOff)
-			otherresult.append(MultAssign(cmd.srcOff, cmd.destOff, cmd.value))
+			if cmd.offset == 0:
+				origindelta += cmd.value
+			else:
+				clears.discard(cmd.offset)
+				result.append(MultAdd(0, cmd.offset, cmd.value))
+		elif isinstance(cmd, (MultAdd,MultAssign)):
+			if cmd.destOff == 0:
+				return None
+			clears.discard(cmd.destOff)
+			result.append(cmd)
 		elif isinstance(cmd, Assign):
-			(clears if cmd.value == 0 else nonclears).add(cmd.offset)
-			otherresult.append(Assign(cmd.offset, cmd.value))
+			if cmd.offset == 0:
+				return None
+			else:
+				if cmd.value == 0:
+					clears.add(cmd.offset)
+				else:
+					clears.discard(cmd.offset)
+				result.append(cmd)
 		else:
 			return None
 	
-	if deltas.get(0, 0) != -1:
+	if origindelta != -1:
 		return None
-	for cmd in otherresult:
-		if      isinstance(cmd, (MultAdd,MultAssign)) and (cmd.srcOff in nonclears or cmd.srcOff not in clears or cmd.destOff == 0) or \
-		        isinstance(cmd, (Assign,MultAssign)) and cmd.offset in deltas:
+	for cmd in result:
+		if isinstance(cmd, (MultAdd,MultAssign)) and cmd.srcOff not in clears:
 			return None
 	
-	deltaresult = []
-	del deltas[0]
-	offsets = sorted(deltas.keys())
-	for off in offsets:
-		deltaresult.append(MultAdd(0, off, deltas[off]))
-	deltaresult.append(Assign(0, 0))
-	return If(deltaresult + otherresult)
+	result.append(Assign(0, 0))
+	return If(result)
 
 
 # ---- Output formatters ----
@@ -213,33 +225,57 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 	
 	result = ""
 	if maincall:
+		result += indent("#include <stdint.h>", 0)
 		result += indent("#include <stdio.h>", 0)
-		result += indent("#include <string.h>", 0)
 		result += indent("", 0)
-		result += indent("char read() {", 0)
+		result += indent("static uint8_t read() {", 0)
 		result += indent("int temp = getchar();", 1)
-		result += indent("return (char)(temp != EOF ? temp : 0);", 1)
+		result += indent("return (uint8_t)(temp != EOF ? temp : 0);", 1)
 		result += indent("}", 0)
 		result += indent("", 0)
 		result += indent("int main(int argc, char **argv) {", 0)
-		result += indent("unsigned char mem[1000000];")
-		result += indent("unsigned char *p = &mem[1000];")
-		result += indent("memset(mem, 0, sizeof(mem));")
+		result += indent("uint8_t mem[1000000] = {};")
+		result += indent("uint8_t *p = &mem[1000];")
 		result += indent("")
 	
 	for cmd in commands:
-		if   isinstance(cmd, Assign    ): result += indent("p[{}] = {};"         .format(cmd.offset, cmd.value))
-		elif isinstance(cmd, Add       ): result += indent("p[{}] += {};"        .format(cmd.offset, cmd.value))
-		elif isinstance(cmd, MultAssign): result += indent("p[{}] = p[{}] * {};" .format(cmd.destOff, cmd.srcOff, cmd.value))
-		elif isinstance(cmd, MultAdd   ): result += indent("p[{}] += p[{}] * {};".format(cmd.destOff, cmd.srcOff, cmd.value))
-		elif isinstance(cmd, Right     ): result += indent("p += {};"            .format(cmd.offset))
-		elif isinstance(cmd, Input     ): result += indent("p[{}] = read();"     .format(cmd.offset))
-		elif isinstance(cmd, Output    ): result += indent("putchar(p[{}]);"     .format(cmd.offset))
-		elif isinstance(cmd, If        ):
+		if isinstance(cmd, Assign):
+			result += indent("p[{}] = {};".format(cmd.offset, cmd.value))
+		elif isinstance(cmd, Add):
+			s = "p[{}]".format(cmd.offset)
+			if cmd.value == 1:
+				s += "++;"
+			elif cmd.value == -1:
+				s += "--;"
+			else:
+				s += " {}= {};".format("+" if cmd.value >= 0 else "-", abs(cmd.value))
+			result += indent(s)
+		elif isinstance(cmd, MultAssign):
+			if cmd.value == 1:
+				result += indent("p[{}] = p[{}];".format(cmd.destOff, cmd.srcOff))
+			else:
+				result += indent("p[{}] = p[{}] * {};".format(cmd.destOff, cmd.srcOff, cmd.value))
+		elif isinstance(cmd, MultAdd):
+			if abs(cmd.value) == 1:
+				result += indent("p[{}] {}= p[{}];".format(cmd.destOff, "+" if cmd.value >= 0 else "-", cmd.srcOff))
+			else:
+				result += indent("p[{}] {}= p[{}] * {};".format(cmd.destOff, "+" if cmd.value >= 0 else "-", cmd.srcOff, abs(cmd.value)))
+		elif isinstance(cmd, Right):
+			if cmd.offset == 1:
+				result += indent("p++;")
+			elif cmd.offset == -1:
+				result += indent("p--;")
+			else:
+				result += indent("p {}= {};".format("+" if cmd.offset >= 0 else "-", abs(cmd.offset)))
+		elif isinstance(cmd, Input):
+			result += indent("p[{}] = read();".format(cmd.offset))
+		elif isinstance(cmd, Output):
+			result += indent("putchar(p[{}]);".format(cmd.offset))
+		elif isinstance(cmd, If):
 			result += indent("if (*p != 0) {")
 			result += commands_to_c(cmd.commands, name, False, indentlevel + 1)
 			result += indent("}")
-		elif isinstance(cmd, Loop      ):
+		elif isinstance(cmd, Loop):
 			result += indent("while (*p != 0) {")
 			result += commands_to_c(cmd.commands, name, False, indentlevel + 1)
 			result += indent("}")
@@ -266,27 +302,48 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 		result += indent("int i = 1000;")
 		result += indent("")
 	
+	def format_memory(off):
+		if off == 0:
+			return "mem[i]"
+		else:
+			return "mem[i {} {}]".format("+" if off >= 0 else "-", abs(off))
+	
 	for cmd in commands:
-		if   isinstance(cmd, Assign    ): result += indent("mem[i + {}] = (byte){};".format(cmd.offset, cmd.value))
-		elif isinstance(cmd, Add       ): result += indent("mem[i + {}] += {};"     .format(cmd.offset, cmd.value))
+		if isinstance(cmd, Assign):
+			result += indent("{} = {};".format(format_memory(cmd.offset), (cmd.value & 0xFF) - ((cmd.value & 0x80) << 1)))
+		elif isinstance(cmd, Add):
+			if cmd.value == 1:
+				result += indent("{}++;".format(format_memory(cmd.offset)))
+			elif cmd.value == -1:
+				result += indent("{}--;".format(format_memory(cmd.offset)))
+			else:
+				result += indent("{} {}= {};".format(format_memory(cmd.offset), "+" if cmd.value >= 0 else "-", abs(cmd.value)))
 		elif isinstance(cmd, MultAssign):
 			if cmd.value == 1:
-				result += indent("mem[i + {}] = mem[i + {}];".format(cmd.destOff, cmd.srcOff))
+				result += indent("{} = {};".format(format_memory(cmd.destOff), format_memory(cmd.srcOff)))
 			else:
-				result += indent("mem[i + {}] = (byte)(mem[i + {}] * {});".format(cmd.destOff, cmd.srcOff, cmd.value))
-		elif isinstance(cmd, MultAdd   ):
-			if cmd.value == 1:
-				result += indent("mem[i + {}] += mem[i + {}];".format(cmd.destOff, cmd.srcOff))
+				result += indent("{} = (byte)({} * {});".format(format_memory(cmd.destOff), format_memory(cmd.srcOff), cmd.value))
+		elif isinstance(cmd, MultAdd):
+			if abs(cmd.value) == 1:
+				result += indent("{} {}= {};".format(format_memory(cmd.destOff), "+" if cmd.value >= 0 else "-", format_memory(cmd.srcOff)))
 			else:
-				result += indent("mem[i + {}] += mem[i + {}] * {};".format(cmd.destOff, cmd.srcOff, cmd.value))
-		elif isinstance(cmd, Right     ): result += indent("i += {};".format(cmd.offset))
-		elif isinstance(cmd, Input     ): result += indent("mem[i + {}] = (byte)Math.max(System.in.read(), 0);".format(cmd.offset))
-		elif isinstance(cmd, Output    ): result += indent("System.out.write(mem[i + {}]);".format(cmd.offset)) + indent("System.out.flush();")
-		elif isinstance(cmd, If        ):
+				result += indent("{} {}= {} * {};".format(format_memory(cmd.destOff), "+" if cmd.value >= 0 else "-", format_memory(cmd.srcOff), abs(cmd.value)))
+		elif isinstance(cmd, Right):
+			if cmd.offset == 1:
+				result += indent("i++;")
+			elif cmd.offset == -1:
+				result += indent("i--;")
+			else:
+				result += indent("i {}= {};".format("+" if cmd.offset >= 0 else "-", abs(cmd.offset)))
+		elif isinstance(cmd, Input):
+			result += indent("{} = (byte)Math.max(System.in.read(), 0);".format(format_memory(cmd.offset)))
+		elif isinstance(cmd, Output):
+			result += indent("System.out.write({});".format(format_memory(cmd.offset))) + indent("System.out.flush();")
+		elif isinstance(cmd, If):
 			result += indent("if (mem[i] != 0) {")
 			result += commands_to_java(cmd.commands, name, False, indentlevel + 1)
 			result += indent("}")
-		elif isinstance(cmd, Loop      ):
+		elif isinstance(cmd, Loop):
 			result += indent("while (mem[i] != 0) {")
 			result += commands_to_java(cmd.commands, name, False, indentlevel + 1)
 			result += indent("}")
@@ -310,18 +367,34 @@ def commands_to_python(commands, name, maincall=True, indentlevel=0):
 		result += indent("i = 1000")
 		result += indent("")
 	
+	def format_memory(off):
+		if off == 0:
+			return "mem[i]"
+		else:
+			return "mem[i {} {}]".format("+" if off >= 0 else "-", abs(off))
+	
 	for cmd in commands:
-		if   isinstance(cmd, Assign    ): result += indent("mem[i + {}] = {}".format(cmd.offset, cmd.value))
-		elif isinstance(cmd, Add       ): result += indent("mem[i + {}] = (mem[i + {}] + {}) & 0xFF".format(cmd.offset, cmd.offset, cmd.value))
-		elif isinstance(cmd, MultAssign): result += indent("mem[i + {}] = (mem[i + {}] * {}) & 0xFF".format(cmd.destOff, cmd.srcOff, cmd.value))
-		elif isinstance(cmd, MultAdd   ): result += indent("mem[i + {}] = (mem[i + {}] + mem[i + {}] * {}) & 0xFF".format(cmd.destOff, cmd.destOff, cmd.srcOff, cmd.value))
-		elif isinstance(cmd, Right     ): result += indent("i += {}".format(cmd.offset))
-		elif isinstance(cmd, Input     ): result += indent("mem[i + {}] = ord((sys.stdin.read(1) + chr(0))[0])".format(cmd.offset))
-		elif isinstance(cmd, Output    ): result += indent("sys.stdout.write(chr(mem[i + {}]))".format(cmd.offset))
-		elif isinstance(cmd, If        ):
+		if isinstance(cmd, Assign):
+			result += indent("{} = {}".format(format_memory(cmd.offset), cmd.value))
+		elif isinstance(cmd, Add):
+			result += indent("{} = ({} {} {}) & 0xFF".format(format_memory(cmd.offset), format_memory(cmd.offset), "+" if cmd.value >= 0 else "-", abs(cmd.value)))
+		elif isinstance(cmd, MultAssign):
+			if cmd.value == 1:
+				result += indent("{} = {}".format(format_memory(cmd.destOff), format_memory(cmd.srcOff)))
+			else:
+				result += indent("{} = ({} * {}) & 0xFF".format(format_memory(cmd.destOff), format_memory(cmd.srcOff), cmd.value))
+		elif isinstance(cmd, MultAdd):
+			result += indent("{} = ({} + {} * {}) & 0xFF".format(format_memory(cmd.destOff), format_memory(cmd.destOff), format_memory(cmd.srcOff), cmd.value))
+		elif isinstance(cmd, Right):
+			result += indent("i {}= {}".format("+" if cmd.offset >= 0 else "-", abs(cmd.offset)))
+		elif isinstance(cmd, Input):
+			result += indent("{} = ord((sys.stdin.read(1) + chr(0))[0])".format(format_memory(cmd.offset)))
+		elif isinstance(cmd, Output):
+			result += indent("sys.stdout.write(chr({}))".format(format_memory(cmd.offset)))
+		elif isinstance(cmd, If):
 			result += indent("if mem[i] != 0:")
 			result += commands_to_python(cmd.commands, name, False, indentlevel + 1)
-		elif isinstance(cmd, Loop      ):
+		elif isinstance(cmd, Loop):
 			result += indent("while mem[i] != 0:")
 			result += commands_to_python(cmd.commands, name, False, indentlevel + 1)
 		else: raise AssertionError("Unknown command")
