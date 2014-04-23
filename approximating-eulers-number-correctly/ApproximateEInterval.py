@@ -44,20 +44,22 @@ def compute_eulers_number(accuracy):
 
 
 def compute_eulers_number_internal(accuracy, extra_precision):
+    full_scaler = 10 ** (accuracy + extra_precision)
+    extra_scaler = 10 ** extra_precision
+    
     sum_low  = 0
     sum_high = 0
-    term_low  = 10 ** (accuracy + extra_precision)
-    term_high = term_low
-    error_target = 10 ** extra_precision
+    term_low  = full_scaler
+    term_high = full_scaler
     i = 0
     while term_low > 0:
         sum_low  += term_low
         sum_high += term_high
         
-        if i >= 2 and term_high <= error_target:
+        if i >= 1 and term_high < extra_scaler:
             sum_upper_bound = sum_high + term_high
-            temp = divide_and_round(sum_low, error_target)
-            if divide_and_round(sum_upper_bound, error_target) == temp:
+            temp = divide_and_round(sum_low, extra_scaler)
+            if divide_and_round(sum_upper_bound, extra_scaler) == temp:
                 # Note: The number of terms used is i+1
                 s = str(temp)
                 return s[ : len(s) - accuracy] + "." + s[len(s) - accuracy : ]

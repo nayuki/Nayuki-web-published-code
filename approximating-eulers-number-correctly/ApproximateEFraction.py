@@ -17,7 +17,7 @@ def main():
         print(compute_eulers_number(i))
     print("")
     
-    # Compute 1 to 30000 decimal places (exponentially increasing) and print timing
+    # Compute 1 to 3000 decimal places (exponentially increasing) and print timing
     prev = 0
     for i in range(71):
         digits = int(round(10 ** (i / 20.0)))
@@ -44,7 +44,7 @@ def compute_eulers_number(accuracy):
     while True:
         term = Fraction(1, factorial)
         sum += term
-        if i >= 2 and factorial >= error_target:  # i.e. term <= 1/error_target
+        if i >= 1 and factorial > error_target:  # i.e. term < 1/error_target
             lower = round_fraction(sum * scaler)
             upper = round_fraction((sum + term) * scaler)
             if lower == upper:

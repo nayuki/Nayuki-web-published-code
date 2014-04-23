@@ -48,20 +48,21 @@ public class ApproximateEInterval {
 	
 	
 	private static String computeEulersNumber(int accuracy, int extraPrecision) {
+		final BigInteger fullScaler  = BigInteger.TEN.pow(accuracy + extraPrecision);
+		final BigInteger extraScaler = BigInteger.TEN.pow(extraPrecision);
 		BigInteger sumLow  = BigInteger.ZERO;
 		BigInteger sumHigh = BigInteger.ZERO;
-		BigInteger termLow  = BigInteger.TEN.pow(accuracy + extraPrecision);
-		BigInteger termHigh = termLow;
-		final BigInteger errorTarget = BigInteger.TEN.pow(extraPrecision);
+		BigInteger termLow  = fullScaler;
+		BigInteger termHigh = fullScaler;
 		
 		for (int i = 0; termLow.signum() != 0; i++) {
 			sumLow  = sumLow .add(termLow );
 			sumHigh = sumHigh.add(termHigh);
 			
-			if (i >= 2 && termHigh.compareTo(errorTarget) <= 0) {
+			if (i >= 1 && termHigh.compareTo(extraScaler) < 0) {
 				BigInteger sumUpperBound = sumHigh.add(termHigh);
-				BigInteger temp = divideAndRound(sumLow, errorTarget);
-				if (divideAndRound(sumUpperBound, errorTarget).equals(temp)) {
+				BigInteger temp = divideAndRound(sumLow, extraScaler);
+				if (divideAndRound(sumUpperBound, extraScaler).equals(temp)) {
 					// Note: The number of terms used is i+1
 					String s = temp.toString();
 					return s.substring(0, s.length() - accuracy) + "." + s.substring(s.length() - accuracy);

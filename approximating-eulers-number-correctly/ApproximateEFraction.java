@@ -46,7 +46,7 @@ public class ApproximateEFraction {
 		for (int i = 0; ; i++) {
 			Fraction term = new Fraction(BigInteger.ONE, factorial);
 			sum = sum.add(term);
-			if (i >= 2 && factorial.compareTo(errorTarget) >= 0) {  // i.e. term <= 1/errorTarget
+			if (i >= 1 && factorial.compareTo(errorTarget) > 0) {  // i.e. term < 1/errorTarget
 				BigInteger lower = sum.multiply(scaler).roundHalfEven();
 				BigInteger upper = sum.add(term).multiply(scaler).roundHalfEven();
 				if (lower.equals(upper)) {
