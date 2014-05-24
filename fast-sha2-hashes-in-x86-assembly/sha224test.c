@@ -76,12 +76,12 @@ void sha224_hash(uint8_t *message, uint32_t len, uint32_t hash[7]) {
 	state[6] = UINT32_C(0x64F98FA7);
 	state[7] = UINT32_C(0xBEFA4FA4);
 	
-	int i;
-	for (i = 0; i + 64 <= len; i += 64)
+	uint32_t i;
+	for (i = 0; len - i >= 64; i += 64)
 		sha256_compress(state, message + i);
 	
 	uint8_t block[64];
-	int rem = len - i;
+	uint32_t rem = len - i;
 	memcpy(block, message + i, rem);
 	
 	block[rem] = 0x80;

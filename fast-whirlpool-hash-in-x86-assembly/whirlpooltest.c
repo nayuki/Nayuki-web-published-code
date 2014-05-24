@@ -72,12 +72,12 @@ static int self_check(void) {
 void whirlpool_hash(uint8_t *message, uint32_t len, uint8_t hash[64]) {
 	memset(hash, 0, 64);
 	
-	int i;
-	for (i = 0; i + 64 <= len; i += 64)
+	uint32_t i;
+	for (i = 0; len - i >= 64; i += 64)
 		whirlpool_compress(hash, message + i);
 	
 	uint8_t block[64];
-	int rem = len - i;
+	uint32_t rem = len - i;
 	memcpy(block, message + i, rem);
 	
 	block[rem] = 0x80;

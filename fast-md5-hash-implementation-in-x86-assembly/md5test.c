@@ -83,14 +83,14 @@ void md5_hash(uint8_t *message, uint32_t len, uint32_t hash[4]) {
 	hash[2] = UINT32_C(0x98BADCFE);
 	hash[3] = UINT32_C(0x10325476);
 	
-	int i;
-	for (i = 0; i + 64 <= len; i += 64)
+	uint32_t i;
+	for (i = 0; len - i >= 64; i += 64)
 		md5_compress(hash, (uint32_t*)(message + i));
 	
 	uint32_t block[16];
 	uint8_t *byteBlock = (uint8_t*)block;
 	
-	int rem = len - i;
+	uint32_t rem = len - i;
 	memcpy(byteBlock, message + i, rem);
 	
 	byteBlock[rem] = 0x80;

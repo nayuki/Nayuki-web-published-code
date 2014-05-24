@@ -88,12 +88,12 @@ void sha384_hash(uint8_t *message, uint32_t len, uint64_t hash[6]) {
 	state[6] = UINT64_C(0xDB0C2E0D64F98FA7);
 	state[7] = UINT64_C(0x47B5481DBEFA4FA4);
 	
-	int i;
-	for (i = 0; i + 128 <= len; i += 128)
+	uint32_t i;
+	for (i = 0; len - i >= 128; i += 128)
 		sha512_compress(state, message + i);
 	
 	uint8_t block[128];
-	int rem = len - i;
+	uint32_t rem = len - i;
 	memcpy(block, message + i, rem);
 	
 	block[rem] = 0x80;

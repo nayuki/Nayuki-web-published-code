@@ -81,12 +81,12 @@ void sha1_hash(uint8_t *message, uint32_t len, uint32_t hash[5]) {
 	hash[3] = UINT32_C(0x10325476);
 	hash[4] = UINT32_C(0xC3D2E1F0);
 	
-	int i;
-	for (i = 0; i + 64 <= len; i += 64)
+	uint32_t i;
+	for (i = 0; len - i >= 64; i += 64)
 		sha1_compress(hash, message + i);
 	
 	uint8_t block[64];
-	int rem = len - i;
+	uint32_t rem = len - i;
 	memcpy(block, message + i, rem);
 	
 	block[rem] = 0x80;
