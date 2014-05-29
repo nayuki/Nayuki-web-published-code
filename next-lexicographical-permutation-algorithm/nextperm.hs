@@ -1,6 +1,6 @@
 {- 
  - Next lexicographical permutation algorithm
- - By Nayuki Minase, 2013. Public domain.
+ - By Nayuki Minase, 2014. Public domain.
  - http://nayuki.eigenstate.org/page/next-lexicographical-permutation-algorithm
  -}
 
@@ -9,26 +9,22 @@ module NextPerm (nextPermutation) where
 
 {- 
  - Computes the next lexicographical permutation of the specified finite list of numbers.
- - Returns the pair {status, permuted list}, where the Boolean value indicates
- - whether a next permutation existed or not.
+ - Returns Nothing if the argument is already the highest permutation.
  -}
-nextPermutation :: [Integer] -> (Bool, [Integer])
-nextPermutation [] = (False, [])
+nextPermutation :: [Integer] -> Maybe [Integer]
 nextPermutation xs =
-	let suffix = fst (findSuffix xs)  -- Longest non-decreasing suffix
-	    suflen = length suffix
-	    len = length xs
-	    prefixMinusPivot = take (len - suflen - 1) xs
-	in if suflen == len then (False, xs) else
-		let pivotIndex = len - suflen - 1
-		    pivot = xs !! pivotIndex
-		    newIndex = (length (takeWhile (> pivot) suffix)) - 1  -- Index of rightmost element in suffix greater than pivot
-		    newSuffix = reverse $ (take newIndex suffix) ++ (pivot : (drop (newIndex + 1) suffix))
-		in (True, prefixMinusPivot ++ ((suffix !! newIndex) : newSuffix))
+	let
+		len = length xs
+		revSuffix = findPrefix (reverse xs)  -- Reverse of longest non-increasing suffix
+		suffixLen = length revSuffix
+		prefixMinusPivot = take (len - suffixLen - 1) xs
+		pivot = xs !! (len - suffixLen - 1)
+		tempIndex = (length (takeWhile (<= pivot) revSuffix))  -- Index of new pivot in reversed suffix
+		newSuffix = (take tempIndex revSuffix) ++ (pivot : (drop (tempIndex + 1) revSuffix))
+	in
+		if suffixLen == len then Nothing else Just (prefixMinusPivot ++ ((revSuffix !! tempIndex) : newSuffix))
 	where
-		findSuffix [x] = ([x], True)
-		findSuffix (x:xs) =
-			let (suf, cont) = findSuffix xs
-			in if cont && x >= (head suf) then (x:suf, True) else (suf, False)
+		findPrefix [] = []
+		findPrefix (x:xs) = x : (if xs /= [] && x <= (head xs) then (findPrefix xs) else [])
 
--- Example: nextPermutation [0, 1, 0] -> (True, [1, 0, 0])
+-- Example: nextPermutation [0, 1, 0] -> Just [1, 0, 0]
