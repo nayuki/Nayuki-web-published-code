@@ -30,11 +30,10 @@ public class smallestenclosingcircle {
 	
 	/* 
 	 * Returns the smallest circle that encloses all the given points. Runs in expected O(n) time, randomized.
-	 * The returned array has 3 elements in this order: x-coordinate of center of circle, y-coordinate, and radius.
 	 * Note: If 0 points are given, null is returned. If 1 point is given, a circle of radius 0 is returned.
 	 */
 	// Initially: No boundary points known
-	public static double[] makeCircle(List<Point> points) {
+	public static Circle makeCircle(List<Point> points) {
 		// Clone list to preserve the caller's data, randomize order
 		List<Point> shuffled = new ArrayList<Point>(points);
 		Collections.shuffle(shuffled, new Random());
@@ -46,7 +45,7 @@ public class smallestenclosingcircle {
 			if (c == null || !c.contains(p))
 				c = makeCircleOnePoint(shuffled.subList(0, i + 1), p);
 		}
-		return new double[]{c.c.x, c.c.y, c.r};
+		return c;
 	}
 	
 	

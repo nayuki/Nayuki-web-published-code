@@ -35,7 +35,7 @@ public class smallestenclosingcircletest {
 		for (int i = 0; i < 1000; i++) {
 			List<Point> points = makeRandomPoints(random.nextInt(30) + 1);
 			Circle reference = smallestEnclosingCircleNaive(points);
-			Circle actual = smallestEnclosingCircleFast(points);
+			Circle actual = smallestenclosingcircle.makeCircle(points);
 			assertEquals(reference.c.x, actual.c.x, EPSILON);
 			assertEquals(reference.c.y, actual.c.y, EPSILON);
 			assertEquals(reference.r  , actual.r  , EPSILON);
@@ -47,7 +47,7 @@ public class smallestenclosingcircletest {
 	public void testTranslation() {
 		for (int i = 0; i < 100; i++) {
 			List<Point> points = makeRandomPoints(random.nextInt(300) + 1);
-			Circle reference = smallestEnclosingCircleFast(points);
+			Circle reference = smallestenclosingcircle.makeCircle(points);
 			for (int j = 0; j < 10; j++) {
 				double dx = random.nextGaussian();
 				double dy = random.nextGaussian();
@@ -55,7 +55,7 @@ public class smallestenclosingcircletest {
 				for (Point p : points)
 					newPoints.add(new Point(p.x + dx, p.y + dy));
 				
-				Circle translated = smallestEnclosingCircleFast(newPoints);
+				Circle translated = smallestenclosingcircle.makeCircle(newPoints);
 				assertEquals(reference.c.x + dx, translated.c.x, EPSILON);
 				assertEquals(reference.c.y + dy, translated.c.y, EPSILON);
 				assertEquals(reference.r       , translated.r  , EPSILON);
@@ -68,14 +68,14 @@ public class smallestenclosingcircletest {
 	public void testScaling() {
 		for (int i = 0; i < 100; i++) {
 			List<Point> points = makeRandomPoints(random.nextInt(300) + 1);
-			Circle reference = smallestEnclosingCircleFast(points);
+			Circle reference = smallestenclosingcircle.makeCircle(points);
 			for (int j = 0; j < 10; j++) {
 				double scale = random.nextGaussian();
 				List<Point> newPoints = new ArrayList<Point>();
 				for (Point p : points)
 					newPoints.add(new Point(p.x * scale, p.y * scale));
 				
-				Circle translated = smallestEnclosingCircleFast(newPoints);
+				Circle translated = smallestenclosingcircle.makeCircle(newPoints);
 				assertEquals(reference.c.x * scale, translated.c.x, EPSILON);
 				assertEquals(reference.c.y * scale, translated.c.y, EPSILON);
 				assertEquals(reference.r * Math.abs(scale), translated.r, EPSILON);
@@ -94,15 +94,6 @@ public class smallestenclosingcircletest {
 				result.add(new Point(random.nextGaussian(), random.nextGaussian()));
 		}
 		return result;
-	}
-	
-	
-	private static Circle smallestEnclosingCircleFast(List<Point> points) {
-		double[] temp = smallestenclosingcircle.makeCircle(points);
-		if (temp == null)
-			return null;
-		else
-			return new Circle(new Point(temp[0], temp[1]), temp[2]);
 	}
 	
 	
