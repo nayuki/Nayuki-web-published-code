@@ -1,8 +1,12 @@
 /* 
  * Next lexicographical permutation algorithm (C++)
- * By Nayuki Minase, 2013. Public domain.
+ * By Nayuki Minase, 2014. Public domain.
  * http://nayuki.eigenstate.org/page/next-lexicographical-permutation-algorithm
  */
+
+#include <algorithm>
+#include <cstddef>
+#include <vector>
 
 
 /* Basic integer array version */
@@ -11,16 +15,18 @@
  * returning whether a next permutation existed. (Returns false when the argument
  * is already the last possible permutation.)
  */
-bool next_permutation(int *array, int length) {
+bool next_permutation(int *array, size_t length) {
 	// Find non-increasing suffix
-	int i = length - 1;
+	if (length == 0)
+		return false;
+	size_t i = length - 1;
 	while (i > 0 && array[i - 1] >= array[i])
 		i--;
-	if (i <= 0)
+	if (i == 0)
 		return false;
 	
 	// Find successor to pivot
-	int j = length - 1;
+	size_t j = length - 1;
 	while (array[j] <= array[i - 1])
 		j--;
 	int temp = array[i - 1];
@@ -40,18 +46,20 @@ bool next_permutation(int *array, int length) {
 }
 
 
-/* Template version */
+/* Template array version */
 template <typename T>
-bool next_permutation(T *array, int length) {
+bool next_permutation(T *array, size_t length) {
 	// Find non-increasing suffix
-	int i = length - 1;
+	if (length == 0)
+		return false;
+	size_t i = length - 1;
 	while (i > 0 && array[i - 1] >= array[i])
 		i--;
-	if (i <= 0)
+	if (i == 0)
 		return false;
 	
 	// Find successor to pivot
-	int j = length - 1;
+	size_t j = length - 1;
 	while (array[j] <= array[i - 1])
 		j--;
 	T temp = array[i - 1];
@@ -67,5 +75,29 @@ bool next_permutation(T *array, int length) {
 		i++;
 		j--;
 	}
+	return true;
+}
+
+
+/* Template vector version */
+template <typename T>
+bool next_permutation(std::vector<T> &array) {
+	// Find non-increasing suffix
+	if (array.size() == 0)
+		return false;
+	typename std::vector<T>::iterator i = array.end() - 1;
+	while (i > array.begin() && *(i - 1) >= *i)
+		--i;
+	if (i == array.begin())
+		return false;
+	
+	// Find successor to pivot
+	typename std::vector<T>::iterator j = array.end() - 1;
+	while (*j <= *(i - 1))
+		--j;
+	std::iter_swap(i - 1, j);
+	
+	// Reverse suffix
+	std::reverse(i, array.end());
 	return true;
 }

@@ -1,9 +1,10 @@
 /* 
  * Next lexicographical permutation algorithm (Java)
- * By Nayuki Minase, 2013. Public domain.
+ * By Nayuki Minase, 2014. Public domain.
  * http://nayuki.eigenstate.org/page/next-lexicographical-permutation-algorithm
  */
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -95,14 +96,7 @@ public final class nextperm {
 		array.set(j, temp);
 		
 		// Reverse suffix
-		j = array.size() - 1;
-		while (i < j) {
-			temp = array.get(i);
-			array.set(i, array.get(j));
-			array.set(j, temp);
-			i++;
-			j--;
-		}
+		Collections.reverse(array.subList(i, array.size()));
 		return true;
 	}
 	
@@ -125,14 +119,7 @@ public final class nextperm {
 		array.set(j, temp);
 		
 		// Reverse suffix
-		j = array.size() - 1;
-		while (i < j) {
-			temp = array.get(i);
-			array.set(i, array.get(j));
-			array.set(j, temp);
-			i++;
-			j--;
-		}
+		Collections.reverse(array.subList(i, array.size()));
 		return true;
 	}
 	
