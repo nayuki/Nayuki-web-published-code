@@ -91,9 +91,7 @@ public final class nextperm {
 		int j = array.size() - 1;
 		while (array.get(j).compareTo(array.get(i - 1)) <= 0)
 			j--;
-		T temp = array.get(i - 1);
-		array.set(i - 1, array.get(j));
-		array.set(j, temp);
+		Collections.swap(array, i - 1, j);
 		
 		// Reverse suffix
 		Collections.reverse(array.subList(i, array.size()));
@@ -114,9 +112,7 @@ public final class nextperm {
 		int j = array.size() - 1;
 		while (comp.compare(array.get(j), array.get(i - 1)) <= 0)
 			j--;
-		T temp = array.get(i - 1);
-		array.set(i - 1, array.get(j));
-		array.set(j, temp);
+		Collections.swap(array, i - 1, j);
 		
 		// Reverse suffix
 		Collections.reverse(array.subList(i, array.size()));

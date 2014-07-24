@@ -200,7 +200,7 @@ static uint32_t crc32(uint32_t state, uint8_t *data, size_t len) {
 	for (i = 0; i < len; i++) {
 		unsigned int j;
 		for (j = 0; j < 8; j++) {
-			unsigned int bit = (state ^ (data[i] >> j)) & 1;
+			uint32_t bit = (state ^ (data[i] >> j)) & 1;
 			state = (state >> 1) ^ ((-bit) & 0xEDB88320);
 		}
 	}
