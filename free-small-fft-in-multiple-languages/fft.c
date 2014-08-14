@@ -52,6 +52,7 @@ int inverse_transform(double real[], double imag[], size_t n) {
 
 int transform_radix2(double real[], double imag[], size_t n) {
 	// Variables
+	int status = 0;
 	unsigned int levels;
 	double *cos_table, *sin_table;
 	size_t size;
@@ -74,13 +75,9 @@ int transform_radix2(double real[], double imag[], size_t n) {
 		return 0;
 	size = (n / 2) * sizeof(double);
 	cos_table = malloc(size);
-	if (cos_table == NULL)
-		return 0;
 	sin_table = malloc(size);
-	if (sin_table == NULL) {
-		free(cos_table);
-		return 0;
-	}
+	if (cos_table == NULL || sin_table == NULL)
+		goto cleanup;
 	for (i = 0; i < n / 2; i++) {
 		cos_table[i] = cos(2 * M_PI * i / n);
 		sin_table[i] = sin(2 * M_PI * i / n);
@@ -118,9 +115,12 @@ int transform_radix2(double real[], double imag[], size_t n) {
 		if (size == n)  // Prevent overflow in 'size *= 2'
 			break;
 	}
+	status = 1;
+	
+cleanup:
 	free(cos_table);
 	free(sin_table);
-	return 1;
+	return status;
 }
 
 
@@ -152,14 +152,19 @@ int transform_bluestein(double real[], double imag[], size_t n) {
 		return 0;
 	size_n = n * sizeof(double);
 	size_m = m * sizeof(double);
-	cos_table = malloc(size_n);         if (cos_table == NULL) goto cleanup0;
-	sin_table = malloc(size_n);         if (sin_table == NULL) goto cleanup1;
-	areal = calloc(m, sizeof(double));  if (areal     == NULL) goto cleanup2;
-	aimag = calloc(m, sizeof(double));  if (aimag     == NULL) goto cleanup3;
-	breal = calloc(m, sizeof(double));  if (breal     == NULL) goto cleanup4;
-	bimag = calloc(m, sizeof(double));  if (bimag     == NULL) goto cleanup5;
-	creal = malloc(size_m);             if (creal     == NULL) goto cleanup6;
-	cimag = malloc(size_m);             if (cimag     == NULL) goto cleanup7;
+	cos_table = malloc(size_n);
+	sin_table = malloc(size_n);
+	areal = calloc(m, sizeof(double));
+	aimag = calloc(m, sizeof(double));
+	breal = calloc(m, sizeof(double));
+	bimag = calloc(m, sizeof(double));
+	creal = malloc(size_m);
+	cimag = malloc(size_m);
+	if (cos_table == NULL || sin_table == NULL
+			|| areal == NULL || aimag == NULL
+			|| breal == NULL || bimag == NULL
+			|| creal == NULL || cimag == NULL)
+		goto cleanup;
 	
 	// Trignometric tables
 	for (i = 0; i < n; i++) {
@@ -182,31 +187,26 @@ int transform_bluestein(double real[], double imag[], size_t n) {
 	}
 	
 	// Convolution
-	status = convolve_complex(areal, aimag, breal, bimag, creal, cimag, m);
+	if (!convolve_complex(areal, aimag, breal, bimag, creal, cimag, m))
+		goto cleanup;
 	
 	// Postprocessing
 	for (i = 0; i < n; i++) {
 		real[i] =  creal[i] * cos_table[i] + cimag[i] * sin_table[i];
 		imag[i] = -creal[i] * sin_table[i] + cimag[i] * cos_table[i];
 	}
+	status = 1;
 	
-	// Clean-up
+	// Deallocation
+cleanup:
 	free(cimag);
-cleanup7:
 	free(creal);
-cleanup6:
 	free(bimag);
-cleanup5:
 	free(breal);
-cleanup4:
 	free(aimag);
-cleanup3:
 	free(areal);
-cleanup2:
 	free(sin_table);
-cleanup1:
 	free(cos_table);
-cleanup0:
 	return status;
 }
 
@@ -214,17 +214,17 @@ cleanup0:
 int convolve_real(double x[], double y[], double out[], size_t n) {
 	double *ximag, *yimag, *zimag;
 	int status = 0;
-	ximag = calloc(n, sizeof(double));  if (ximag == NULL) goto cleanup0;
-	yimag = calloc(n, sizeof(double));  if (yimag == NULL) goto cleanup1;
-	zimag = calloc(n, sizeof(double));  if (zimag == NULL) goto cleanup2;
+	ximag = calloc(n, sizeof(double));
+	yimag = calloc(n, sizeof(double));
+	zimag = calloc(n, sizeof(double));
+	if (ximag == NULL || yimag == NULL || zimag == NULL)
+		goto cleanup;
 	
 	status = convolve_complex(x, ximag, y, yimag, out, zimag, n);
+cleanup:
 	free(zimag);
-cleanup2:
 	free(yimag);
-cleanup1:
 	free(ximag);
-cleanup0:
 	return status;
 }
 
@@ -236,37 +236,35 @@ int convolve_complex(double xreal[], double ximag[], double yreal[], double yima
 	if (SIZE_MAX / sizeof(double) < n)
 		return 0;
 	size = n * sizeof(double);
-	xreal = memdup(xreal, size);  if (xreal == NULL) goto cleanup0;
-	ximag = memdup(ximag, size);  if (ximag == NULL) goto cleanup1;
-	yreal = memdup(yreal, size);  if (yreal == NULL) goto cleanup2;
-	yimag = memdup(yimag, size);  if (yimag == NULL) goto cleanup3;
+	xreal = memdup(xreal, size);
+	ximag = memdup(ximag, size);
+	yreal = memdup(yreal, size);
+	yimag = memdup(yimag, size);
+	if (xreal == NULL || ximag == NULL || yreal == NULL || yimag == NULL)
+		goto cleanup;
 	
 	if (!transform(xreal, ximag, n))
-		goto cleanup4;
+		goto cleanup;
 	if (!transform(yreal, yimag, n))
-		goto cleanup4;
+		goto cleanup;
 	for (i = 0; i < n; i++) {
 		double temp = xreal[i] * yreal[i] - ximag[i] * yimag[i];
 		ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
 		xreal[i] = temp;
 	}
 	if (!inverse_transform(xreal, ximag, n))
-		goto cleanup4;
+		goto cleanup;
 	for (i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
 		outreal[i] = xreal[i] / n;
 		outimag[i] = ximag[i] / n;
 	}
 	status = 1;
 	
-cleanup4:
+cleanup:
 	free(yimag);
-cleanup3:
 	free(yreal);
-cleanup2:
 	free(ximag);
-cleanup1:
 	free(xreal);
-cleanup0:
 	return status;
 }
 
