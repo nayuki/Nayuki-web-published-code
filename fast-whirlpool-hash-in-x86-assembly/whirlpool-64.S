@@ -64,7 +64,7 @@
 	pxor    %xmm3, %xmm7;
 
 
-/* void whirlpool_compress(uint8_t state[64], uint8_t block[64]) */
+/* void whirlpool_compress(uint8_t state[64], const uint8_t block[64]) */
 /* state and block can be optionally aligned to 8 bytes for slightly better performance. */
 .globl whirlpool_compress
 whirlpool_compress:

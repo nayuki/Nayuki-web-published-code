@@ -85,7 +85,7 @@
 	addl  %esi, %e;
 
 
-/* void sha1_compress(uint32_t state[5], uint8_t block[64]) */
+/* void sha1_compress(uint32_t state[5], const uint8_t block[64]) */
 .globl sha1_compress
 sha1_compress:
 	/* Save registers, allocate scratch space */

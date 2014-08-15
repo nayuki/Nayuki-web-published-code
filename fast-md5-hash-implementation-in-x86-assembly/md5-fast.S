@@ -66,7 +66,7 @@
 	addl  %b, %a;
 
 
-/* void md5_compress(uint32_t state[4], uint32_t block[16]) */
+/* void md5_compress(uint32_t state[4], const uint32_t block[16]) */
 .globl md5_compress
 md5_compress:
 	/* Save registers */

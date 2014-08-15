@@ -18,7 +18,7 @@
 	a += (expr) + UINT32_C(t) + block[k];  \
 	a = b + (a << s | a >> (32 - s));
 
-void md5_compress(uint32_t state[4], uint32_t block[16]) {
+void md5_compress(uint32_t state[4], const uint32_t block[16]) {
 	uint32_t a = state[0];
 	uint32_t b = state[1];
 	uint32_t c = state[2];
