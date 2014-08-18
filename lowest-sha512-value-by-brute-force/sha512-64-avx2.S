@@ -7,141 +7,135 @@
  */
 
 
-/* 
- * Storage usage:
- *   Bytes  Location  Description
- *       8  rcx       Stack pointer at function entry
- *       8  rsi       Base address of block array argument
- *       8  rdi       Base address of state array argument
- *       8  rsp       x86-64 stack pointer
- *     512  [rsp+0]   Circular buffer of most recent 16 key schedule items, 32 bytes each
- *      32  ymm0      SHA-512 state variable A
- *      32  ymm1      SHA-512 state variable B
- *      32  ymm2      SHA-512 state variable C
- *      32  ymm3      SHA-512 state variable D
- *      32  ymm4      SHA-512 state variable E
- *      32  ymm5      SHA-512 state variable F
- *      32  ymm6      SHA-512 state variable G
- *      32  ymm7      SHA-512 state variable H
- *      32  ymm8      Temporary for calculation per round
- *      32  ymm9      Temporary for calculation per round
- *      32  ymm10     Temporary for calculation per round
- *      32  ymm11     Temporary for calculation per round
- *      32  ymm15     Control value for byte endian reversal
- */
-
-
-/* Macros */
-
-#define SCHED(i)  (((i)&0xF)*32)(%rsp)
-
-#define ROUNDa(i, a, b, c, d, e, f, g, h)  \
-	vmovdqu   (i*32)(%rsi), %ymm8;  \
-	vpshufb  %ymm15, %ymm8, %ymm8;  \
-	ROUNDTAIL(i, a, b, c, d, e, f, g, h)
-
-#define ROUNDb(i, a, b, c, d, e, f, g, h)  \
-	/* ymm10 = schedule[(i - 15) % 16] */  \
-	vmovdqa SCHED(i-15), %ymm10;           \
-	/* ymm9 = rorq(ymm10, 1) */            \
-	vpsrlq  $ 1, %ymm10, %ymm9;            \
-	vpsllq  $63, %ymm10, %ymm11;           \
-	vpor    %ymm9, %ymm11, %ymm9;          \
-	/* ymm9 ^= rorq(ymm10, 8) */           \
-	vpsrlq  $ 8, %ymm10, %ymm11;           \
-	vpxor   %ymm9, %ymm11, %ymm9;          \
-	vpsllq  $56, %ymm10, %ymm11;           \
-	vpxor   %ymm9, %ymm11, %ymm9;          \
-	/* ymm8 = ymm9 ^ (ymm10 >> 7) */       \
-	vpsrlq  $7, %ymm10, %ymm10;            \
-	vpxor   %ymm9, %ymm10, %ymm8;          \
-	/* ymm10 = schedule[(i - 2) % 16] */   \
-	vmovdqa  SCHED(i-2), %ymm10;           \
-	/* ymm9 = rorq(ymm10, 19) */           \
-	vpsrlq  $19, %ymm10, %ymm9;            \
-	vpsllq  $45, %ymm10, %ymm11;           \
-	vpor    %ymm9, %ymm11, %ymm9;          \
-	/* ymm9 ^= rorq(ymm10, 61) */          \
-	vpsrlq  $61, %ymm10, %ymm11;           \
-	vpxor   %ymm9, %ymm11, %ymm9;          \
-	vpsllq  $ 3, %ymm10, %ymm11;           \
-	vpxor   %ymm9, %ymm11, %ymm9;          \
-	/* ymm9 ^= (ymm10 >> 6) */             \
-	vpsrlq  $6, %ymm10, %ymm10;            \
-	vpxor   %ymm9, %ymm10, %ymm9;          \
-	/* ymm8 += ymm9 */                     \
-	vpaddq  %ymm8, %ymm9, %ymm8;           \
-	/* ymm8 += schedule[(i - 16) % 16] */  \
-	vmovdqa  SCHED(i-16), %ymm9;           \
-	vpaddq  %ymm8, %ymm9, %ymm8;           \
-	/* ymm8 += schedule[(i - 7) % 16] */   \
-	vmovdqa  SCHED(i-7), %ymm9;            \
-	vpaddq  %ymm8, %ymm9, %ymm8;           \
-	ROUNDTAIL(i, a, b, c, d, e, f, g, h)
-
-#define ROUNDTAIL(i, a, b, c, d, e, f, g, h)  \
-	/* schedule[i % 16] = ymm8 */         \
-	vmovdqa   %ymm8, SCHED(i);            \
-	/* h += ymm8 */                       \
-	vpaddq  %h, %ymm8, %h;                \
-	/* ymm8 = rorq(e, 18) */              \
-	vpsrlq  $18, %e, %ymm8;               \
-	vpsllq  $46, %e, %ymm9;               \
-	vpor    %ymm8, %ymm9, %ymm8;          \
-	/* ymm8 ^= rorq(e, 41) */             \
-	vpsrlq  $41, %e, %ymm9;               \
-	vpxor   %ymm8, %ymm9, %ymm8;          \
-	vpsllq  $23, %e, %ymm9;               \
-	vpxor   %ymm8, %ymm9, %ymm8;          \
-	/* ymm8 ^= rorq(e, 14) */             \
-	vpsrlq  $14, %e, %ymm9;               \
-	vpxor   %ymm8, %ymm9, %ymm8;          \
-	vpsllq  $50, %e, %ymm9;               \
-	vpxor   %ymm8, %ymm9, %ymm8;          \
-	/* h += ymm8 */                       \
-	vpaddq  %h, %ymm8, %h;                \
-	/* h += roundconstants[i] */          \
-	vpaddq  roundconstants+i*32, %h, %h;  \
-	/* ymm8 = g ^ (e & (f ^ g)) */        \
-	vpxor   %f, %g, %ymm8;                \
-	vpand   %ymm8, %e, %ymm8;             \
-	vpxor   %ymm8, %g, %ymm8;             \
-	/* h += ymm8 */                       \
-	vpaddq  %h, %ymm8, %h;                \
-	/* d += h */                          \
-	vpaddq  %d, %h, %d;                   \
-	/* ymm8 = rorq(a, 28) */              \
-	vpsrlq  $28, %a, %ymm8;               \
-	vpsllq  $36, %a, %ymm9;               \
-	vpor    %ymm8, %ymm9, %ymm8;          \
-	/* ymm8 ^= rorq(a, 34) */             \
-	vpsrlq  $34, %a, %ymm9;               \
-	vpxor   %ymm8, %ymm9, %ymm8;          \
-	vpsllq  $30, %a, %ymm9;               \
-	vpxor   %ymm8, %ymm9, %ymm8;          \
-	/* ymm8 ^= rorq(a, 39) */             \
-	vpsrlq  $39, %a, %ymm9;               \
-	vpxor   %ymm8, %ymm9, %ymm8;          \
-	vpsllq  $25, %a, %ymm9;               \
-	vpxor   %ymm8, %ymm9, %ymm8;          \
-	/* h += ymm8 */                       \
-	vpaddq  %h, %ymm8, %h;                \
-	/* ymm8 = b & c */                    \
-	vpand   %b, %c, %ymm8;                \
-	/* ymm9 = a & (b | c) */              \
-	vpor    %b, %c, %ymm9;                \
-	vpand   %ymm9, %a, %ymm9;             \
-	/* ymm8 = ymm8 | ymm9 */              \
-	vpor    %ymm8, %ymm9, %ymm8;          \
-	/* h += ymm8 */                       \
-	vpaddq  %h, %ymm8, %h
-
-
-/* The function */
-
-/* void sha512_compress_quad(uint64_t states[32], uint8_t blocks[512]) */
+/* void sha512_compress_quad(uint64_t states[32], const uint8_t blocks[512]) */
 .globl sha512_compress_quad
 sha512_compress_quad:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location  Description
+	 *       8  rcx       Stack pointer at function entry
+	 *       8  rsi       Base address of block array argument
+	 *       8  rdi       Base address of state array argument
+	 *       8  rsp       x86-64 stack pointer
+	 *     512  [rsp+0]   Circular buffer of most recent 16 key schedule items, 32 bytes each
+	 *      32  ymm0      SHA-512 state variable A
+	 *      32  ymm1      SHA-512 state variable B
+	 *      32  ymm2      SHA-512 state variable C
+	 *      32  ymm3      SHA-512 state variable D
+	 *      32  ymm4      SHA-512 state variable E
+	 *      32  ymm5      SHA-512 state variable F
+	 *      32  ymm6      SHA-512 state variable G
+	 *      32  ymm7      SHA-512 state variable H
+	 *      32  ymm8      Temporary for calculation per round
+	 *      32  ymm9      Temporary for calculation per round
+	 *      32  ymm10     Temporary for calculation per round
+	 *      32  ymm11     Temporary for calculation per round
+	 *      32  ymm15     Control value for byte endian reversal
+	 */
+	
+	#define SCHED(i)  (((i)&0xF)*32)(%rsp)
+	
+	#define ROUNDa(i, a, b, c, d, e, f, g, h)  \
+		vmovdqu   (i*32)(%rsi), %ymm8;  \
+		vpshufb  %ymm15, %ymm8, %ymm8;  \
+		ROUNDTAIL(i, a, b, c, d, e, f, g, h)
+	
+	#define ROUNDb(i, a, b, c, d, e, f, g, h)  \
+		/* ymm10 = schedule[(i - 15) % 16] */  \
+		vmovdqa SCHED(i-15), %ymm10;           \
+		/* ymm9 = rorq(ymm10, 1) */            \
+		vpsrlq  $ 1, %ymm10, %ymm9;            \
+		vpsllq  $63, %ymm10, %ymm11;           \
+		vpor    %ymm9, %ymm11, %ymm9;          \
+		/* ymm9 ^= rorq(ymm10, 8) */           \
+		vpsrlq  $ 8, %ymm10, %ymm11;           \
+		vpxor   %ymm9, %ymm11, %ymm9;          \
+		vpsllq  $56, %ymm10, %ymm11;           \
+		vpxor   %ymm9, %ymm11, %ymm9;          \
+		/* ymm8 = ymm9 ^ (ymm10 >> 7) */       \
+		vpsrlq  $7, %ymm10, %ymm10;            \
+		vpxor   %ymm9, %ymm10, %ymm8;          \
+		/* ymm10 = schedule[(i - 2) % 16] */   \
+		vmovdqa  SCHED(i-2), %ymm10;           \
+		/* ymm9 = rorq(ymm10, 19) */           \
+		vpsrlq  $19, %ymm10, %ymm9;            \
+		vpsllq  $45, %ymm10, %ymm11;           \
+		vpor    %ymm9, %ymm11, %ymm9;          \
+		/* ymm9 ^= rorq(ymm10, 61) */          \
+		vpsrlq  $61, %ymm10, %ymm11;           \
+		vpxor   %ymm9, %ymm11, %ymm9;          \
+		vpsllq  $ 3, %ymm10, %ymm11;           \
+		vpxor   %ymm9, %ymm11, %ymm9;          \
+		/* ymm9 ^= (ymm10 >> 6) */             \
+		vpsrlq  $6, %ymm10, %ymm10;            \
+		vpxor   %ymm9, %ymm10, %ymm9;          \
+		/* ymm8 += ymm9 */                     \
+		vpaddq  %ymm8, %ymm9, %ymm8;           \
+		/* ymm8 += schedule[(i - 16) % 16] */  \
+		vmovdqa  SCHED(i-16), %ymm9;           \
+		vpaddq  %ymm8, %ymm9, %ymm8;           \
+		/* ymm8 += schedule[(i - 7) % 16] */   \
+		vmovdqa  SCHED(i-7), %ymm9;            \
+		vpaddq  %ymm8, %ymm9, %ymm8;           \
+		ROUNDTAIL(i, a, b, c, d, e, f, g, h)
+	
+	#define ROUNDTAIL(i, a, b, c, d, e, f, g, h)  \
+		/* schedule[i % 16] = ymm8 */         \
+		vmovdqa   %ymm8, SCHED(i);            \
+		/* h += ymm8 */                       \
+		vpaddq  %h, %ymm8, %h;                \
+		/* ymm8 = rorq(e, 18) */              \
+		vpsrlq  $18, %e, %ymm8;               \
+		vpsllq  $46, %e, %ymm9;               \
+		vpor    %ymm8, %ymm9, %ymm8;          \
+		/* ymm8 ^= rorq(e, 41) */             \
+		vpsrlq  $41, %e, %ymm9;               \
+		vpxor   %ymm8, %ymm9, %ymm8;          \
+		vpsllq  $23, %e, %ymm9;               \
+		vpxor   %ymm8, %ymm9, %ymm8;          \
+		/* ymm8 ^= rorq(e, 14) */             \
+		vpsrlq  $14, %e, %ymm9;               \
+		vpxor   %ymm8, %ymm9, %ymm8;          \
+		vpsllq  $50, %e, %ymm9;               \
+		vpxor   %ymm8, %ymm9, %ymm8;          \
+		/* h += ymm8 */                       \
+		vpaddq  %h, %ymm8, %h;                \
+		/* h += roundconstants[i] */          \
+		vpaddq  roundconstants+i*32, %h, %h;  \
+		/* ymm8 = g ^ (e & (f ^ g)) */        \
+		vpxor   %f, %g, %ymm8;                \
+		vpand   %ymm8, %e, %ymm8;             \
+		vpxor   %ymm8, %g, %ymm8;             \
+		/* h += ymm8 */                       \
+		vpaddq  %h, %ymm8, %h;                \
+		/* d += h */                          \
+		vpaddq  %d, %h, %d;                   \
+		/* ymm8 = rorq(a, 28) */              \
+		vpsrlq  $28, %a, %ymm8;               \
+		vpsllq  $36, %a, %ymm9;               \
+		vpor    %ymm8, %ymm9, %ymm8;          \
+		/* ymm8 ^= rorq(a, 34) */             \
+		vpsrlq  $34, %a, %ymm9;               \
+		vpxor   %ymm8, %ymm9, %ymm8;          \
+		vpsllq  $30, %a, %ymm9;               \
+		vpxor   %ymm8, %ymm9, %ymm8;          \
+		/* ymm8 ^= rorq(a, 39) */             \
+		vpsrlq  $39, %a, %ymm9;               \
+		vpxor   %ymm8, %ymm9, %ymm8;          \
+		vpsllq  $25, %a, %ymm9;               \
+		vpxor   %ymm8, %ymm9, %ymm8;          \
+		/* h += ymm8 */                       \
+		vpaddq  %h, %ymm8, %h;                \
+		/* ymm8 = b & c */                    \
+		vpand   %b, %c, %ymm8;                \
+		/* ymm9 = a & (b | c) */              \
+		vpor    %b, %c, %ymm9;                \
+		vpand   %ymm9, %a, %ymm9;             \
+		/* ymm8 = ymm8 | ymm9 */              \
+		vpor    %ymm8, %ymm9, %ymm8;          \
+		/* h += ymm8 */                       \
+		vpaddq  %h, %ymm8, %h
+	
 	/* Initialize, allocate stack scratch space for schedule */
 	movq     %rsp, %rcx
 	subq     $512, %rsp
@@ -259,7 +253,7 @@ sha512_compress_quad:
 	vmovdqu  %ymm6, 192(%rdi)
 	vmovdqu  %ymm7, 224(%rdi)
 	
-	ret
+	retq
 
 
 /* Constants */

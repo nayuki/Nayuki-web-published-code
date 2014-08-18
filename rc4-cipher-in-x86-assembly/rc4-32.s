@@ -7,26 +7,26 @@
  */
 
 
-/* 
- * Storage usage:
- *    Bytes  Location  Description
- *        1  al        Temporary s[i] per round (zero-extended to eax)
- *        1  bl        Temporary s[j] per round (zero-extended to ebx)
- *        1  cl        RC4 state variable i (zero-extended to ecx)
- *        1  dl        RC4 state variable j (zero-extended to edx)
- *        4  edi       Base address of RC4 state array of 256 bytes
- *        4  esi       Address of current message byte to encrypt
- *        4  ebp       End address of message array (msg + len)
- *        4  esp       x86 stack pointer
- *        4  [esp+ 0]  Caller's value of ebx
- *        4  [esp+ 4]  Caller's value of edi
- *        4  [esp+ 8]  Caller's value of esi
- *        4  [esp+12]  Caller's value of ebp
- */
-
-/* void rc4_encrypt_x86(rc4state *state, uint8_t *msg, int len); */
+/* void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, size_t len) */
 .globl rc4_encrypt_x86
 rc4_encrypt_x86:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location  Description
+	 *       1  al        Temporary s[i] per round (zero-extended to eax)
+	 *       1  bl        Temporary s[j] per round (zero-extended to ebx)
+	 *       1  cl        RC4 state variable i (zero-extended to ecx)
+	 *       1  dl        RC4 state variable j (zero-extended to edx)
+	 *       4  edi       Base address of RC4 state array of 256 bytes
+	 *       4  esi       Address of current message byte to encrypt
+	 *       4  ebp       End address of message array (msg + len)
+	 *       4  esp       x86 stack pointer
+	 *       4  [esp+ 0]  Caller's value of ebx
+	 *       4  [esp+ 4]  Caller's value of edi
+	 *       4  [esp+ 8]  Caller's value of esi
+	 *       4  [esp+12]  Caller's value of ebp
+	 */
+	
 	/* Preserve callee-save registers */
 	subl    $16, %esp
 	movl    %ebx,  0(%esp)

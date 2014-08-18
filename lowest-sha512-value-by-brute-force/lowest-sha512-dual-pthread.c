@@ -16,28 +16,30 @@
 #include <unistd.h>
 
 
+// This constant does not comprehensively cover all dependencies on the number of channels - do not modify
+#define NUM_CH 2
+
+// Please customize this to your system
+static const int num_threads = 4;
+
+// The message length can be anywhere from 1 to 111 (so that the message plus footer fits in a block).
+// For an alphabet of lowercase letters, 16 characters already provides about 2^75 possibilities to explore, which is much more than enough.
+#define MSG_LEN 28
+
+
 /* Function prototypes */
 
 static int self_check(void);
 static void benchmark(void);
 static void *worker(void *data);
-static int compare_hashes(uint64_t dualhash[16], int channel, uint64_t hash[8]);
-static uint8_t get_byte(uint8_t blocks[256], int index, int channel);
-static void    set_byte(uint8_t blocks[256], int index, int channel, uint8_t val);
-static void get_message(uint8_t blocks[256], int channel, char *message);
+static int compare_hashes(const uint64_t dualhash[8 * NUM_CH], int channel, const uint64_t hash[8]);
+static uint8_t get_byte(const uint8_t blocks[128 * NUM_CH], int index, int channel);
+static void    set_byte(uint8_t blocks[128 * NUM_CH], int index, int channel, uint8_t val);
+static void get_message(const uint8_t blocks[128 * NUM_CH], int channel, char *message);
 
 // Link this program with an external C or x86 compression function
-extern void sha512_compress_dual(uint64_t states[16], uint8_t blocks[256]);
+extern void sha512_compress_dual(uint64_t states[8 * NUM_CH], const uint8_t blocks[128 * NUM_CH]);
 
-// Please customize this to your system
-static const int num_threads = 4;
-
-// This constant does not comprehensively cover all dependencies on the number of channels - do not modify
-#define NUM_CH 2
-
-// The message length can be anywhere from 1 to 111 (so that the message plus footer fits in a block).
-// For an alphabet of lowercase letters, 16 characters already provides about 2^75 possibilities to explore, which is much more than enough.
-#define MSG_LEN 28
 
 #define DUAL(x)  x, x
 static const uint64_t initial_states[8 * NUM_CH] = {
@@ -207,7 +209,8 @@ static void *worker(void *blks) {
 }
 
 
-static int self_check(void) {  // Assumes NUM_CH = 2
+// Assumes NUM_CH = 2
+static int self_check(void) {
 	uint8_t blocks[128 * NUM_CH] = {
 		'm','e','s','s','a','g','e',' ',  'a','b','c','d','e','f','g','h',
 		'd','i','g','e','s','t',0x80,0,   'b','c','d','e','f','g','h','i',
@@ -256,7 +259,7 @@ static void benchmark(void) {
 }
 
 
-static int compare_hashes(uint64_t dualhash[16], int channel, uint64_t hash[8]) {
+static int compare_hashes(const uint64_t dualhash[8 * NUM_CH], int channel, const uint64_t hash[8]) {
 	int i;
 	for (i = 0; i < 8; i++) {
 		uint64_t x = dualhash[i * NUM_CH + channel];
@@ -270,19 +273,17 @@ static int compare_hashes(uint64_t dualhash[16], int channel, uint64_t hash[8]) 
 }
 
 
-// Assumes NUM_CH = 2
-static uint8_t get_byte(uint8_t blocks[256], int index, int channel) {
-	return blocks[((index & ~7) << 1) | (channel << 3) | (index & 7)];
+static uint8_t get_byte(const uint8_t blocks[128 * NUM_CH], int index, int channel) {
+	return blocks[((index & ~7) << 1) | (channel << 3) | (index & 7)];  // Assumes NUM_CH = 2
 }
 
 
-// Assumes NUM_CH = 2
-static void set_byte(uint8_t blocks[256], int index, int channel, uint8_t val) {
-	blocks[((index & ~7) << 1) | (channel << 3) | (index & 7)] = val;
+static void set_byte(uint8_t blocks[128 * NUM_CH], int index, int channel, uint8_t val) {
+	blocks[((index & ~7) << 1) | (channel << 3) | (index & 7)] = val;  // Assumes NUM_CH = 2
 }
 
 
-static void get_message(uint8_t blocks[256], int channel, char *message) {
+static void get_message(const uint8_t blocks[128 * NUM_CH], int channel, char *message) {
 	int i;
 	for (i = 0; i < MSG_LEN; i++)
 		message[i] = get_byte(blocks, i, channel);

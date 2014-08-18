@@ -18,8 +18,8 @@
 
 static int self_check(void);
 static void benchmark(void);
-static int compare_hashes(uint64_t hash0[8], uint64_t hash1[8]);
-static void sha512_compress(uint64_t state[8], uint8_t block[128]);
+static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]);
+static void sha512_compress(uint64_t state[8], const uint8_t block[128]);
 
 // The message length can be anywhere from 1 to 111 (so that the message plus footer fits in a block).
 // For an alphabet of lowercase letters, 16 characters already provides about 2^75 possibilities to explore, which is much more than enough.
@@ -153,7 +153,7 @@ static void benchmark(void) {
 }
 
 
-static int compare_hashes(uint64_t hash0[8], uint64_t hash1[8]) {
+static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]) {
 	int i;
 	for (i = 0; i < 8; i++) {
 		uint64_t x = hash0[i];
@@ -169,31 +169,31 @@ static int compare_hashes(uint64_t hash0[8], uint64_t hash1[8]) {
 
 /* SHA-512 compression function */
 
-// 64-bit right rotation
-#define ROR(x, i)  \
-	(((x) << (64 - (i))) | ((x) >> (i)))
-
-#define LOADSCHEDULE(i)  \
-	schedule[i] = (uint64_t)block[i * 8 + 0] << 56  \
-	            | (uint64_t)block[i * 8 + 1] << 48  \
-	            | (uint64_t)block[i * 8 + 2] << 40  \
-	            | (uint64_t)block[i * 8 + 3] << 32  \
-	            | (uint64_t)block[i * 8 + 4] << 24  \
-	            | (uint64_t)block[i * 8 + 5] << 16  \
-	            | (uint64_t)block[i * 8 + 6] <<  8  \
-	            | (uint64_t)block[i * 8 + 7];
-
-#define SCHEDULE(i)  \
-	schedule[i] = schedule[i - 16] + schedule[i - 7]  \
-		+ (ROR(schedule[i - 15], 1) ^ ROR(schedule[i - 15], 8) ^ (schedule[i - 15] >> 7))  \
-		+ (ROR(schedule[i - 2], 19) ^ ROR(schedule[i - 2], 61) ^ (schedule[i - 2] >> 6));
-
-#define ROUND(a, b, c, d, e, f, g, h, i, k) \
-	h += (ROR(e, 14) ^ ROR(e, 18) ^ ROR(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
-	d += h;  \
-	h += (ROR(a, 28) ^ ROR(a, 34) ^ ROR(a, 39)) + ((a & (b | c)) | (b & c));
-
-static void sha512_compress(uint64_t state[8], uint8_t block[128]) {
+static void sha512_compress(uint64_t state[8], const uint8_t block[128]) {
+	// 64-bit right rotation
+	#define ROR(x, i)  \
+		(((x) << (64 - (i))) | ((x) >> (i)))
+	
+	#define LOADSCHEDULE(i)  \
+		schedule[i] = (uint64_t)block[i * 8 + 0] << 56  \
+		            | (uint64_t)block[i * 8 + 1] << 48  \
+		            | (uint64_t)block[i * 8 + 2] << 40  \
+		            | (uint64_t)block[i * 8 + 3] << 32  \
+		            | (uint64_t)block[i * 8 + 4] << 24  \
+		            | (uint64_t)block[i * 8 + 5] << 16  \
+		            | (uint64_t)block[i * 8 + 6] <<  8  \
+		            | (uint64_t)block[i * 8 + 7];
+	
+	#define SCHEDULE(i)  \
+		schedule[i] = schedule[i - 16] + schedule[i - 7]  \
+			+ (ROR(schedule[i - 15], 1) ^ ROR(schedule[i - 15], 8) ^ (schedule[i - 15] >> 7))  \
+			+ (ROR(schedule[i - 2], 19) ^ ROR(schedule[i - 2], 61) ^ (schedule[i - 2] >> 6));
+	
+	#define ROUND(a, b, c, d, e, f, g, h, i, k) \
+		h += (ROR(e, 14) ^ ROR(e, 18) ^ ROR(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
+		d += h;  \
+		h += (ROR(a, 28) ^ ROR(a, 34) ^ ROR(a, 39)) + ((a & (b | c)) | (b & c));
+	
 	uint64_t schedule[80];
 	LOADSCHEDULE( 0)
 	LOADSCHEDULE( 1)

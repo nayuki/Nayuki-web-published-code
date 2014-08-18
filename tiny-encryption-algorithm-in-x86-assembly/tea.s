@@ -7,25 +7,25 @@
  */
 
 
-/* 
- * Storage usage:
- *    Bytes  Location  Description
- *        4  eax       Temporary computed value per subround
- *        4  ebx       Temporary computed value per subround
- *        4  ecx       Round constant (also serves as loop counter with nonstandard increment)
- *        4  edx       Base address of key array argument (read-only)
- *        4  esi       Message word 0
- *        4  edi       Message word 1
- *        4  ebp       x86 frame pointer
- *        4  esp       x86 stack pointer
- *        4  [esp+0]   Caller's value of ebx
- *        4  [esp+4]   Caller's value of esi
- *        4  [esp+8]   Caller's value of edi
- */
-
-/* void tea_encrypt_x86(uint32_t msg[2], uint32_t key[4]); */
+/* void tea_encrypt_x86(uint32_t msg[2], const uint32_t key[4]) */
 .globl tea_encrypt_x86
 tea_encrypt_x86:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location  Description
+	 *       4  eax       Temporary computed value per subround
+	 *       4  ebx       Temporary computed value per subround
+	 *       4  ecx       Round constant (also serves as loop counter with nonstandard increment)
+	 *       4  edx       Base address of key array argument (read-only)
+	 *       4  esi       Message word 0
+	 *       4  edi       Message word 1
+	 *       4  ebp       x86 frame pointer
+	 *       4  esp       x86 stack pointer
+	 *       4  [esp+0]   Caller's value of ebx
+	 *       4  [esp+4]   Caller's value of esi
+	 *       4  [esp+8]   Caller's value of edi
+	 */
+	
 	/* Enter */
 	pushl  %ebp
 	movl   %esp, %ebp
@@ -90,4 +90,4 @@ tea_encrypt_x86:
 	/* Exit */
 	addl   $12, %esp
 	popl   %ebp
-	ret
+	retl

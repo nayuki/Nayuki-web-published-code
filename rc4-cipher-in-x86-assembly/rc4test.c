@@ -21,9 +21,9 @@ typedef struct {
 
 /* Function prototypes */
 
-extern void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, int len);
-void rc4_init(Rc4State *state, uint8_t *key, int len);
-void rc4_encrypt_c(Rc4State *state, uint8_t *msg, int len);
+extern void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, size_t len);
+void rc4_init(Rc4State *state, const uint8_t *key, size_t len);
+void rc4_encrypt_c(Rc4State *state, uint8_t *msg, size_t len);
 static int self_check(void);
 
 
@@ -68,8 +68,10 @@ static int self_check(void) {
 	#define MSG_LEN 127
 	
 	uint8_t key[3] = {'K', 'e', 'y'};
-	uint8_t msg0[MSG_LEN] = {}, msg1[MSG_LEN] = {};
-	Rc4State state0, state1;
+	uint8_t msg0[MSG_LEN] = {};
+	uint8_t msg1[MSG_LEN] = {};
+	Rc4State state0;
+	Rc4State state1;
 	rc4_init(&state0, key, sizeof(key));
 	rc4_init(&state1, key, sizeof(key));
 	
@@ -87,16 +89,16 @@ static int self_check(void) {
 
 /* RC4 functions in C */
 
-void rc4_init(Rc4State *state, uint8_t *key, int len) {
-	int i;
+void rc4_init(Rc4State *state, const uint8_t *key, size_t len) {
+	size_t i;
 	for (i = 0; i < 256; i++)
 		state->s[i] = (uint8_t)i;
 	state->i = 0;
 	state->j = 0;
 	
-	int j;
+	uint8_t j;
 	for (i = 0, j = 0; i < 256; i++) {
-		j = (j + state->s[i] + key[i % len]) & 0xFF;
+		j += state->s[i] + key[i % len];
 		
 		// Swap
 		uint8_t temp = state->s[i];
@@ -106,14 +108,14 @@ void rc4_init(Rc4State *state, uint8_t *key, int len) {
 }
 
 
-void rc4_encrypt_c(Rc4State *state, uint8_t *msg, int len) {
-	int i = state->i;
-	int j = state->j;
+void rc4_encrypt_c(Rc4State *state, uint8_t *msg, size_t len) {
+	uint8_t i = state->i;
+	uint8_t j = state->j;
 	uint8_t *s = state->s;
-	int index;
+	size_t index;
 	for (index = 0; index < len; index++) {
-		i = (i + 1) & 0xFF;
-		j = (j + s[i]) & 0xFF;
+		i++;
+		j += s[i];
 		
 		// Swap
 		uint8_t si = s[i];

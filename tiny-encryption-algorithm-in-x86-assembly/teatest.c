@@ -13,10 +13,10 @@
 
 
 /* x86 assembly version */
-void tea_encrypt_x86(uint32_t msg[2], uint32_t key[4]);
+extern void tea_encrypt_x86(uint32_t msg[2], const uint32_t key[4]);
 
 /* C version */
-void tea_encrypt_c(uint32_t msg[2], uint32_t key[4]) {
+void tea_encrypt_c(uint32_t msg[2], const uint32_t key[4]) {
 	uint32_t y = msg[0], z = msg[1];
 	uint32_t k0 = key[0], k1 = key[1], k2 = key[2], k3 = key[3];
 	int i;
@@ -31,19 +31,23 @@ void tea_encrypt_c(uint32_t msg[2], uint32_t key[4]) {
 
 
 int main(int argc, char **argv) {
-	uint32_t msg[2] = {};
-	uint32_t key[4] = {};
+	uint32_t msg[2] = {0, 0};
+	uint32_t key[4] = {0, 0, 0, 0};
 	
-	// Sanity test
+	// Self-check
 	tea_encrypt_x86(msg, key);
-	printf("Ciphertext: %08x %08x\n", msg[0], msg[1]);  // Should be 41ea3a0a 94baa940
+	if (msg[0] != UINT32_C(0x41EA3A0A) || msg[1] != UINT32_C(0x94BAA940)) {
+		printf("Self-check failed\n");
+		return 1;
+	}
+	printf("Self-check passed\n");
 	
 	// Benchmark speed
 	const int N = 10000000;
 	int i;
 	for (i = 0; i < N; i++)
 		tea_encrypt_x86(msg, key);
-	printf("Speed: %.1f MiB/s\n", (double)N * 8 / clock() * CLOCKS_PER_SEC / 1048576);
+	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(msg) / clock() * CLOCKS_PER_SEC / 1048576);
 	
 	return 0;
 }
