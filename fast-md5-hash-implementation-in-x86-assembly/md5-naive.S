@@ -7,63 +7,62 @@
  */
 
 
-/* 
- * Storage usage:
- *   Bytes  Location  Description
- *       4  eax       MD5 state variable A
- *       4  ebx       MD5 state variable B
- *       4  ecx       MD5 state variable C
- *       4  edx       MD5 state variable D
- *       4  esi       Temporary for calculation per round
- *       4  edi       Temporary for calculation per round
- *       4  ebp       Base address of block array argument (read-only)
- *       4  esp       x86 stack pointer
- *       4  [esp+ 0]  Caller's value of ebp
- *       4  [esp+ 4]  Caller's value of edi
- *       4  [esp+ 8]  Caller's value of esi
- *       4  [esp+12]  Caller's value of ebx
- */
-
-#define ROUND0(a, b, c, d, k, s, t)  \
-	movl  %c, %esi;  \
-	xorl  %d, %esi;  \
-	andl  %b, %esi;  \
-	xorl  %d, %esi;  \
-	ROUNDTAIL(a, b, k, s, t)
-
-#define ROUND1(a, b, c, d, k, s, t)  \
-	movl  %c, %esi;  \
-	xorl  %b, %esi;  \
-	andl  %d, %esi;  \
-	xorl  %c, %esi;  \
-	ROUNDTAIL(a, b, k, s, t)
-
-#define ROUND2(a, b, c, d, k, s, t)  \
-	movl  %c, %esi;  \
-	xorl  %d, %esi;  \
-	xorl  %b, %esi;  \
-	ROUNDTAIL(a, b, k, s, t)
-
-#define ROUND3(a, b, c, d, k, s, t)  \
-	movl  %d, %esi;  \
-	notl  %esi;      \
-	orl   %b, %esi;  \
-	xorl  %c, %esi;  \
-	ROUNDTAIL(a, b, k, s, t)
-
-#define ROUNDTAIL(a, b, k, s, t)  \
-	movl  (k*4)(%ebp), %edi;  \
-	addl  %esi, %edi;         \
-	addl  $t, %edi;           \
-	addl  %a, %edi;           \
-	roll  $s, %edi;           \
-	addl  %b, %edi;           \
-	movl  %edi, %a;
-
-
 /* void md5_compress(uint32_t state[4], const uint32_t block[16]) */
 .globl md5_compress
 md5_compress:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location  Description
+	 *       4  eax       MD5 state variable A
+	 *       4  ebx       MD5 state variable B
+	 *       4  ecx       MD5 state variable C
+	 *       4  edx       MD5 state variable D
+	 *       4  esi       Temporary for calculation per round
+	 *       4  edi       Temporary for calculation per round
+	 *       4  ebp       Base address of block array argument (read-only)
+	 *       4  esp       x86 stack pointer
+	 *       4  [esp+ 0]  Caller's value of ebp
+	 *       4  [esp+ 4]  Caller's value of edi
+	 *       4  [esp+ 8]  Caller's value of esi
+	 *       4  [esp+12]  Caller's value of ebx
+	 */
+	
+	#define ROUND0(a, b, c, d, k, s, t)  \
+		movl  %c, %esi;  \
+		xorl  %d, %esi;  \
+		andl  %b, %esi;  \
+		xorl  %d, %esi;  \
+		ROUNDTAIL(a, b, k, s, t)
+	
+	#define ROUND1(a, b, c, d, k, s, t)  \
+		movl  %c, %esi;  \
+		xorl  %b, %esi;  \
+		andl  %d, %esi;  \
+		xorl  %c, %esi;  \
+		ROUNDTAIL(a, b, k, s, t)
+	
+	#define ROUND2(a, b, c, d, k, s, t)  \
+		movl  %c, %esi;  \
+		xorl  %d, %esi;  \
+		xorl  %b, %esi;  \
+		ROUNDTAIL(a, b, k, s, t)
+	
+	#define ROUND3(a, b, c, d, k, s, t)  \
+		movl  %d, %esi;  \
+		notl  %esi;      \
+		orl   %b, %esi;  \
+		xorl  %c, %esi;  \
+		ROUNDTAIL(a, b, k, s, t)
+	
+	#define ROUNDTAIL(a, b, k, s, t)  \
+		movl  (k*4)(%ebp), %edi;  \
+		addl  %esi, %edi;         \
+		addl  $t, %edi;           \
+		addl  %a, %edi;           \
+		roll  $s, %edi;           \
+		addl  %b, %edi;           \
+		movl  %edi, %a;
+	
 	/* Save registers */
 	pushl  %ebx
 	pushl  %esi
@@ -156,4 +155,4 @@ md5_compress:
 	popl   %edi
 	popl   %esi
 	popl   %ebx
-	ret
+	retl

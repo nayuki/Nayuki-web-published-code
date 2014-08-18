@@ -16,10 +16,10 @@
 /* Function prototypes */
 
 static int self_check(void);
-void sha224_hash(uint8_t *message, uint32_t len, uint32_t hash[7]);
+void sha224_hash(const uint8_t *message, uint32_t len, uint32_t hash[7]);
 
 // Link this program with an external C or x86 compression function
-extern void sha256_compress(uint32_t state[8], uint8_t block[64]);
+extern void sha256_compress(uint32_t state[8], const uint8_t block[64]);
 
 
 /* Main program */
@@ -38,8 +38,8 @@ int main(int argc, char **argv) {
 	clock_t start_time = clock();
 	int i;
 	for (i = 0; i < N; i++)
-		sha256_compress(state, (uint8_t*)block);
-	printf("Speed: %.1f MiB/s\n", (double)N * 64 / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
+		sha256_compress(state, (uint8_t *)block);  // Type-punning
+	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
 	
 	return 0;
 }
@@ -47,25 +47,35 @@ int main(int argc, char **argv) {
 
 /* Self-check */
 
+struct testcase {
+	uint32_t answer[7];
+	const uint8_t *message;
+};
+
+#define TESTCASE(a,b,c,d,e,f,g,msg) {{UINT32_C(a),UINT32_C(b),UINT32_C(c),UINT32_C(d),UINT32_C(e),UINT32_C(f),UINT32_C(g)}, (const uint8_t *)msg}
+
+static struct testcase testCases[] = {
+	TESTCASE(0xD14A028C,0x2A3A2BC9,0x476102BB,0x288234C4,0x15A2B01F,0x828EA62A,0xC5B3E42F, ""),
+	TESTCASE(0x23097D22,0x3405D822,0x8642A477,0xBDA255B3,0x2AADBCE4,0xBDA0B3F7,0xE36C9DA7, "abc"),
+	TESTCASE(0x75388B16,0x512776CC,0x5DBA5DA1,0xFD890150,0xB0C6455C,0xB4F58B19,0x52522525, "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+};
+
 static int self_check(void) {
-	uint32_t hash[7];
-	
-	sha224_hash((uint8_t*)"", 0, hash);
-	if (hash[0]!=UINT32_C(0xD14A028C)||hash[1]!=UINT32_C(0x2A3A2BC9)||hash[2]!=UINT32_C(0x476102BB)||hash[3]!=UINT32_C(0x288234C4)||hash[4]!=UINT32_C(0x15A2B01F)||hash[5]!=UINT32_C(0x828EA62A)||hash[6]!=UINT32_C(0xC5B3E42F)) return 0;
-	
-	sha224_hash((uint8_t*)"abc", 3, hash);
-	if (hash[0]!=UINT32_C(0x23097D22)||hash[1]!=UINT32_C(0x3405D822)||hash[2]!=UINT32_C(0x8642A477)||hash[3]!=UINT32_C(0xBDA255B3)||hash[4]!=UINT32_C(0x2AADBCE4)||hash[5]!=UINT32_C(0xBDA0B3F7)||hash[6]!=UINT32_C(0xE36C9DA7)) return 0;
-	
-	sha224_hash((uint8_t*)"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq", 56, hash);
-	if (hash[0]!=UINT32_C(0x75388B16)||hash[1]!=UINT32_C(0x512776CC)||hash[2]!=UINT32_C(0x5DBA5DA1)||hash[3]!=UINT32_C(0xFD890150)||hash[4]!=UINT32_C(0xB0C6455C)||hash[5]!=UINT32_C(0xB4F58B19)||hash[6]!=UINT32_C(0x52522525)) return 0;
-	
+	unsigned int i;
+	for (i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
+		struct testcase *tc = &testCases[i];
+		uint32_t hash[7];
+		sha224_hash(tc->message, strlen((const char *)tc->message), hash);
+		if (memcmp(hash, tc->answer, sizeof(tc->answer)) != 0)
+			return 0;
+	}
 	return 1;
 }
 
 
 /* Full message hasher */
 
-void sha224_hash(uint8_t *message, uint32_t len, uint32_t hash[7]) {
+void sha224_hash(const uint8_t *message, uint32_t len, uint32_t hash[7]) {
 	uint32_t state[8];
 	state[0] = UINT32_C(0xC1059ED8);
 	state[1] = UINT32_C(0x367CD507);

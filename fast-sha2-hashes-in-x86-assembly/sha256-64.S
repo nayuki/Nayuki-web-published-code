@@ -7,106 +7,106 @@
  */
 
 
-/* 
- * Storage usage:
- *   Bytes  Location  Description
- *       4  eax       Temporary for calculation per round
- *       4  ebx       Temporary for calculation per round
- *       4  ecx       Temporary for calculation per round
- *       4  edx       Temporary for calculation per round
- *       8  rsi       Base address of block array argument (read-only)
- *       8  rdi       Base address of state array argument (read-only)
- *       8  rsp       x86-64 stack pointer
- *       4  r8d       SHA-256 state variable A
- *       4  r9d       SHA-256 state variable B
- *       4  r10d      SHA-256 state variable C
- *       4  r11d      SHA-256 state variable D
- *       4  r12d      SHA-256 state variable E
- *       4  r13d      SHA-256 state variable F
- *       4  r14d      SHA-256 state variable G
- *       4  r15d      SHA-256 state variable H
- *      64  [rsp+0]   Circular buffer of most recent 16 key schedule items, 4 bytes each
- *      16  xmm0      Caller's value of r10 (only lower 64 bits are used)
- *      16  xmm1      Caller's value of r11 (only lower 64 bits are used)
- *      16  xmm2      Caller's value of r12 (only lower 64 bits are used)
- *      16  xmm3      Caller's value of r13 (only lower 64 bits are used)
- *      16  xmm4      Caller's value of r14 (only lower 64 bits are used)
- *      16  xmm5      Caller's value of r15 (only lower 64 bits are used)
- *      16  xmm6      Caller's value of rbx (only lower 64 bits are used)
- */
-
-#define SCHED(i)  (((i)&0xF)*4)(%rsp)
-
-#define ROUNDa(i, a, b, c, d, e, f, g, h, k)  \
-	movl    (i*4)(%rsi), %ebx;  \
-	bswapl  %ebx;               \
-	movl    %ebx, SCHED(i);     \
-	ROUNDTAIL(a, b, c, d, e, f, g, h, k)
-
-#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
-	movl  SCHED(i-15), %eax;  \
-	movl  SCHED(i-16), %ebx;  \
-	addl  SCHED(i- 7), %ebx;  \
-	movl  %eax, %ecx;         \
-	movl  %eax, %edx;         \
-	rorl  $18, %ecx;          \
-	shrl  $3, %edx;           \
-	rorl  $7, %eax;           \
-	xorl  %edx, %ecx;         \
-	xorl  %ecx, %eax;         \
-	addl  %eax, %ebx;         \
-	movl  SCHED(i- 2), %eax;  \
-	movl  %eax, %ecx;         \
-	movl  %eax, %edx;         \
-	rorl  $19, %ecx;          \
-	shrl  $10, %edx;          \
-	rorl  $17, %eax;          \
-	xorl  %edx, %ecx;         \
-	xorl  %ecx, %eax;         \
-	addl  %eax, %ebx;         \
-	movl  %ebx, SCHED(i);     \
-	ROUNDTAIL(a, b, c, d, e, f, g, h, k)
-
-#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
-	/* Part 0 */               \
-	movl  %e, %ecx;            \
-	movl  %e, %edx;            \
-	movl  %e, %eax;            \
-	rorl  $11, %ecx;           \
-	rorl  $25, %edx;           \
-	rorl  $6, %eax;            \
-	xorl  %edx, %ecx;          \
-	xorl  %ecx, %eax;          \
-	addl  %ebx, %h;            \
-	movl  %g, %ecx;            \
-	xorl  %f, %ecx;            \
-	andl  %e, %ecx;            \
-	xorl  %g, %ecx;            \
-	leal  k(%rax,%rcx), %eax;  \
-	addl  %eax, %h;            \
-	/* Part 1 */               \
-	addl  %h, %d;              \
-	/* Part 2 */               \
-	movl  %a, %ecx;            \
-	movl  %a, %edx;            \
-	movl  %a, %eax;            \
-	rorl  $13, %ecx;           \
-	rorl  $22, %edx;           \
-	rorl  $2, %eax;            \
-	xorl  %edx, %ecx;          \
-	xorl  %ecx, %eax;          \
-	movl  %c, %ecx;            \
-	addl  %eax, %h;            \
-	movl  %c, %eax;            \
-	orl   %b, %eax;            \
-	andl  %b, %ecx;            \
-	andl  %a, %eax;            \
-	orl   %ecx, %eax;          \
-	addl  %eax, %h;
-
-/* void sha256_compress(uint32_t state[8], uint8_t block[64]) */
+/* void sha256_compress(uint32_t state[8], const uint8_t block[64]) */
 .globl sha256_compress
 sha256_compress:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location  Description
+	 *       4  eax       Temporary for calculation per round
+	 *       4  ebx       Temporary for calculation per round
+	 *       4  ecx       Temporary for calculation per round
+	 *       4  edx       Temporary for calculation per round
+	 *       8  rsi       Base address of block array argument (read-only)
+	 *       8  rdi       Base address of state array argument (read-only)
+	 *       8  rsp       x86-64 stack pointer
+	 *       4  r8d       SHA-256 state variable A
+	 *       4  r9d       SHA-256 state variable B
+	 *       4  r10d      SHA-256 state variable C
+	 *       4  r11d      SHA-256 state variable D
+	 *       4  r12d      SHA-256 state variable E
+	 *       4  r13d      SHA-256 state variable F
+	 *       4  r14d      SHA-256 state variable G
+	 *       4  r15d      SHA-256 state variable H
+	 *      64  [rsp+0]   Circular buffer of most recent 16 key schedule items, 4 bytes each
+	 *      16  xmm0      Caller's value of r10 (only lower 64 bits are used)
+	 *      16  xmm1      Caller's value of r11 (only lower 64 bits are used)
+	 *      16  xmm2      Caller's value of r12 (only lower 64 bits are used)
+	 *      16  xmm3      Caller's value of r13 (only lower 64 bits are used)
+	 *      16  xmm4      Caller's value of r14 (only lower 64 bits are used)
+	 *      16  xmm5      Caller's value of r15 (only lower 64 bits are used)
+	 *      16  xmm6      Caller's value of rbx (only lower 64 bits are used)
+	 */
+	
+	#define SCHED(i)  (((i)&0xF)*4)(%rsp)
+	
+	#define ROUNDa(i, a, b, c, d, e, f, g, h, k)  \
+		movl    (i*4)(%rsi), %ebx;  \
+		bswapl  %ebx;               \
+		movl    %ebx, SCHED(i);     \
+		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
+	
+	#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
+		movl  SCHED(i-15), %eax;  \
+		movl  SCHED(i-16), %ebx;  \
+		addl  SCHED(i- 7), %ebx;  \
+		movl  %eax, %ecx;         \
+		movl  %eax, %edx;         \
+		rorl  $18, %ecx;          \
+		shrl  $3, %edx;           \
+		rorl  $7, %eax;           \
+		xorl  %edx, %ecx;         \
+		xorl  %ecx, %eax;         \
+		addl  %eax, %ebx;         \
+		movl  SCHED(i- 2), %eax;  \
+		movl  %eax, %ecx;         \
+		movl  %eax, %edx;         \
+		rorl  $19, %ecx;          \
+		shrl  $10, %edx;          \
+		rorl  $17, %eax;          \
+		xorl  %edx, %ecx;         \
+		xorl  %ecx, %eax;         \
+		addl  %eax, %ebx;         \
+		movl  %ebx, SCHED(i);     \
+		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
+	
+	#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
+		/* Part 0 */               \
+		movl  %e, %ecx;            \
+		movl  %e, %edx;            \
+		movl  %e, %eax;            \
+		rorl  $11, %ecx;           \
+		rorl  $25, %edx;           \
+		rorl  $6, %eax;            \
+		xorl  %edx, %ecx;          \
+		xorl  %ecx, %eax;          \
+		addl  %ebx, %h;            \
+		movl  %g, %ecx;            \
+		xorl  %f, %ecx;            \
+		andl  %e, %ecx;            \
+		xorl  %g, %ecx;            \
+		leal  k(%rax,%rcx), %eax;  \
+		addl  %eax, %h;            \
+		/* Part 1 */               \
+		addl  %h, %d;              \
+		/* Part 2 */               \
+		movl  %a, %ecx;            \
+		movl  %a, %edx;            \
+		movl  %a, %eax;            \
+		rorl  $13, %ecx;           \
+		rorl  $22, %edx;           \
+		rorl  $2, %eax;            \
+		xorl  %edx, %ecx;          \
+		xorl  %ecx, %eax;          \
+		movl  %c, %ecx;            \
+		addl  %eax, %h;            \
+		movl  %c, %eax;            \
+		orl   %b, %eax;            \
+		andl  %b, %ecx;            \
+		andl  %a, %eax;            \
+		orl   %ecx, %eax;          \
+		addl  %eax, %h;
+	
 	/* Save registers, allocate scratch space */
 	movq  %r10, %xmm0
 	movq  %r11, %xmm1
@@ -212,4 +212,4 @@ sha256_compress:
 	movq  %xmm5, %r15
 	movq  %xmm6, %rbx
 	addq  $64, %rsp
-	ret
+	retq

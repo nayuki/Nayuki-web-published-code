@@ -7,193 +7,193 @@
  */
 
 
-/* 
- * Storage usage:
- *   Bytes  Location   Description
- *       4  eax        Temporary for calculation per round
- *       4  ebx        Temporary for calculation per round
- *       4  ecx        Temporary for calculation per round
- *       4  edx        Temporary for calculation per round
- *       4  ebp        Temporary for calculation per round
- *       4  esi        Temporary for calculation per round
- *       4  edi        Temporary for calculation per round
- *       4  esp        x86 stack pointer
- *       8  [esp+  0]  Temporary for calculation per round (scratch space)
- *      64  [esp+  8]  SHA-512 state variables A,B,C,D,E,F,G,H (8 bytes each)
- *     640  [esp+ 72]  Key schedule of 80 * 8 bytes
- *       4  [esp+712]  Caller's value of ebp
- *       4  [esp+716]  Caller's value of edi
- *       4  [esp+720]  Caller's value of esi
- *       4  [esp+724]  Caller's value of ebx
- */
-
-#define SCHEDLO(i)  ((i)*8+72)(%esp)
-#define SCHEDHI(i)  ((i)*8+76)(%esp)
-
-#define LOADSCHEDULE(i)            \
-	movl    (i*8+0)(%esi), %eax;   \
-	movl    (i*8+4)(%esi), %ebx;   \
-	bswapl  %eax;                  \
-	bswapl  %ebx;                  \
-	movl    %eax, SCHEDHI(i);      \
-	movl    %ebx, SCHEDLO(i);
-
-#define SCHEDULE(i)              \
-	/* smallSigma0 */            \
-	movl   SCHEDLO(i-15), %eax;  \
-	movl   SCHEDHI(i-15), %ebx;  \
-	movl   %eax, %ecx;           \
-	movl   %ebx, %edx;           \
-	shrdl  $1, %ebx, %ecx;       \
-	shrdl  $1, %eax, %edx;       \
-	movl   %eax, %esi;           \
-	movl   %ebx, %edi;           \
-	shrdl  $8, %ebx, %esi;       \
-	shrdl  $8, %eax, %edi;       \
-	xorl   %esi, %ecx;           \
-	xorl   %edi, %edx;           \
-	shrdl  $7, %ebx, %eax;       \
-	shrl   $7, %ebx;             \
-	xorl   %eax, %ecx;           \
-	xorl   %ebx, %edx;           \
-	movl   %ecx, 0(%esp);        \
-	movl   %edx, 4(%esp);        \
-	/* smallSigma1 */            \
-	movl   SCHEDLO(i-2), %eax;   \
-	movl   SCHEDHI(i-2), %ebx;   \
-	movl   %eax, %ecx;           \
-	movl   %ebx, %edx;           \
-	shrdl  $19, %ebx, %ecx;      \
-	shrdl  $19, %eax, %edx;      \
-	movl   %eax, %esi;           \
-	movl   %ebx, %edi;           \
-	shldl  $3, %ebx, %esi;       \
-	shldl  $3, %eax, %edi;       \
-	xorl   %esi, %ecx;           \
-	xorl   %edi, %edx;           \
-	shrdl  $6, %ebx, %eax;       \
-	shrl   $6, %ebx;             \
-	xorl   %eax, %ecx;           \
-	xorl   %ebx, %edx;           \
-	addl   0(%esp), %ecx;        \
-	adcl   4(%esp), %edx;        \
-	/* The rest */               \
-	addl   SCHEDLO(i-7), %ecx;   \
-	adcl   SCHEDHI(i-7), %edx;   \
-	addl   SCHEDLO(i-16), %ecx;  \
-	adcl   SCHEDHI(i-16), %edx;  \
-	movl   %ecx, SCHEDLO(i);     \
-	movl   %edx, SCHEDHI(i);
-
-#define STATELO(i)  ((i)*8+ 8)(%esp)
-#define STATEHI(i)  ((i)*8+12)(%esp)
-
-#define ROUND(i, a, b, c, d, e, f, g, h, k1, k0)  \
-	/* bigSigma1 */           \
-	movl   STATELO(e), %eax;  \
-	movl   STATEHI(e), %ebx;  \
-	movl   %eax, %ecx;        \
-	movl   %ebx, %edx;        \
-	movl   %eax, %ebp;        \
-	shrdl  $14, %ebx, %ecx;   \
-	shrdl  $14, %eax, %edx;   \
-	movl   %eax, %esi;        \
-	movl   %ebx, %edi;        \
-	shrdl  $18, %ebx, %esi;   \
-	shrdl  $18, %eax, %edi;   \
-	xorl   %esi, %ecx;        \
-	xorl   %edi, %edx;        \
-	movl   %eax, %esi;        \
-	shldl  $23, %ebx, %eax;   \
-	shldl  $23, %esi, %ebx;   \
-	xorl   %eax, %ecx;        \
-	xorl   %ebx, %edx;        \
-	/* choose */              \
-	movl   STATELO(g), %eax;  \
-	movl   STATEHI(g), %ebx;  \
-	movl   %eax, %esi;        \
-	movl   %ebx, %edi;        \
-	xorl   STATELO(f), %esi;  \
-	xorl   STATEHI(f), %edi;  \
-	andl   %ebp, %esi;        \
-	andl   STATEHI(e), %edi;  \
-	xorl   %esi, %eax;        \
-	xorl   %edi, %ebx;        \
-	/* Sum */                 \
-	addl   $k0, %ecx;         \
-	adcl   $k1, %edx;         \
-	addl   STATELO(h), %eax;  \
-	adcl   STATEHI(h), %ebx;  \
-	addl   %ecx, %eax;        \
-	adcl   %edx, %ebx;        \
-	addl   SCHEDLO(i), %eax;  \
-	adcl   SCHEDHI(i), %ebx;  \
-	movl   %eax, 0(%esp);     \
-	movl   %ebx, 4(%esp);     \
-	/* Update d */            \
-	addl   %eax, STATELO(d);  \
-	adcl   %ebx, STATEHI(d);  \
-	/* bigSigma0 */           \
-	movl   STATELO(a), %eax;  \
-	movl   STATEHI(a), %ebx;  \
-	movl   %eax, %ecx;        \
-	movl   %ebx, %edx;        \
-	movl   %eax, %ebp;        \
-	shrdl  $28, %ebx, %ecx;   \
-	shrdl  $28, %eax, %edx;   \
-	movl   %eax, %esi;        \
-	movl   %ebx, %edi;        \
-	shldl  $30, %ebx, %esi;   \
-	shldl  $30, %eax, %edi;   \
-	xorl   %esi, %ecx;        \
-	xorl   %edi, %edx;        \
-	movl   %eax, %esi;        \
-	shldl  $25, %ebx, %eax;   \
-	shldl  $25, %esi, %ebx;   \
-	xorl   %eax, %ecx;        \
-	xorl   %ebx, %edx;        \
-	/* majority */            \
-	movl   STATELO(b), %eax;  \
-	movl   STATELO(c), %ebx;  \
-	movl   %eax, %esi;        \
-	orl    %ebx, %eax;        \
-	andl   %esi, %ebx;        \
-	andl   %ebp, %eax;        \
-	orl    %ebx, %eax;        \
-	addl   %eax, %ecx;        \
-	adcl   $0, %edx;          \
-	movl   STATEHI(b), %eax;  \
-	movl   STATEHI(c), %ebx;  \
-	movl   %eax, %esi;        \
-	orl    %ebx, %eax;        \
-	andl   %esi, %ebx;        \
-	andl   STATEHI(a), %eax;  \
-	orl    %ebx, %eax;        \
-	addl   %eax, %edx;        \
-	/* Update h */            \
-	addl   0(%esp), %ecx;     \
-	adcl   4(%esp), %edx;     \
-	movl   %ecx, STATELO(h);  \
-	movl   %edx, STATEHI(h);
-
-/* void sha512_compress(uint64_t state[8], uint8_t block[128]) */
+/* void sha512_compress(uint64_t state[8], const uint8_t block[128]) */
 .globl sha512_compress
 sha512_compress:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location   Description
+	 *       4  eax        Temporary for calculation per round
+	 *       4  ebx        Temporary for calculation per round
+	 *       4  ecx        Temporary for calculation per round
+	 *       4  edx        Temporary for calculation per round
+	 *       4  ebp        Temporary for calculation per round
+	 *       4  esi        Temporary for calculation per round
+	 *       4  edi        Temporary for calculation per round
+	 *       4  esp        x86 stack pointer
+	 *       8  [esp+  0]  Temporary for calculation per round (scratch space)
+	 *      64  [esp+  8]  SHA-512 state variables A,B,C,D,E,F,G,H (8 bytes each)
+	 *     640  [esp+ 72]  Key schedule of 80 * 8 bytes
+	 *       4  [esp+712]  Caller's value of ebp
+	 *       4  [esp+716]  Caller's value of edi
+	 *       4  [esp+720]  Caller's value of esi
+	 *       4  [esp+724]  Caller's value of ebx
+	 */
+	
+	#define SCHEDLO(i)  ((i)*8+72)(%esp)
+	#define SCHEDHI(i)  ((i)*8+76)(%esp)
+	
+	#define LOADSCHEDULE(i)            \
+		movl    (i*8+0)(%esi), %eax;   \
+		movl    (i*8+4)(%esi), %ebx;   \
+		bswapl  %eax;                  \
+		bswapl  %ebx;                  \
+		movl    %eax, SCHEDHI(i);      \
+		movl    %ebx, SCHEDLO(i);
+	
+	#define SCHEDULE(i)              \
+		/* smallSigma0 */            \
+		movl   SCHEDLO(i-15), %eax;  \
+		movl   SCHEDHI(i-15), %ebx;  \
+		movl   %eax, %ecx;           \
+		movl   %ebx, %edx;           \
+		shrdl  $1, %ebx, %ecx;       \
+		shrdl  $1, %eax, %edx;       \
+		movl   %eax, %esi;           \
+		movl   %ebx, %edi;           \
+		shrdl  $8, %ebx, %esi;       \
+		shrdl  $8, %eax, %edi;       \
+		xorl   %esi, %ecx;           \
+		xorl   %edi, %edx;           \
+		shrdl  $7, %ebx, %eax;       \
+		shrl   $7, %ebx;             \
+		xorl   %eax, %ecx;           \
+		xorl   %ebx, %edx;           \
+		movl   %ecx, 0(%esp);        \
+		movl   %edx, 4(%esp);        \
+		/* smallSigma1 */            \
+		movl   SCHEDLO(i-2), %eax;   \
+		movl   SCHEDHI(i-2), %ebx;   \
+		movl   %eax, %ecx;           \
+		movl   %ebx, %edx;           \
+		shrdl  $19, %ebx, %ecx;      \
+		shrdl  $19, %eax, %edx;      \
+		movl   %eax, %esi;           \
+		movl   %ebx, %edi;           \
+		shldl  $3, %ebx, %esi;       \
+		shldl  $3, %eax, %edi;       \
+		xorl   %esi, %ecx;           \
+		xorl   %edi, %edx;           \
+		shrdl  $6, %ebx, %eax;       \
+		shrl   $6, %ebx;             \
+		xorl   %eax, %ecx;           \
+		xorl   %ebx, %edx;           \
+		addl   0(%esp), %ecx;        \
+		adcl   4(%esp), %edx;        \
+		/* The rest */               \
+		addl   SCHEDLO(i-7), %ecx;   \
+		adcl   SCHEDHI(i-7), %edx;   \
+		addl   SCHEDLO(i-16), %ecx;  \
+		adcl   SCHEDHI(i-16), %edx;  \
+		movl   %ecx, SCHEDLO(i);     \
+		movl   %edx, SCHEDHI(i);
+	
+	#define STATELO(i)  ((i)*8+ 8)(%esp)
+	#define STATEHI(i)  ((i)*8+12)(%esp)
+	
+	#define ROUND(i, a, b, c, d, e, f, g, h, k1, k0)  \
+		/* bigSigma1 */           \
+		movl   STATELO(e), %eax;  \
+		movl   STATEHI(e), %ebx;  \
+		movl   %eax, %ecx;        \
+		movl   %ebx, %edx;        \
+		movl   %eax, %ebp;        \
+		shrdl  $14, %ebx, %ecx;   \
+		shrdl  $14, %eax, %edx;   \
+		movl   %eax, %esi;        \
+		movl   %ebx, %edi;        \
+		shrdl  $18, %ebx, %esi;   \
+		shrdl  $18, %eax, %edi;   \
+		xorl   %esi, %ecx;        \
+		xorl   %edi, %edx;        \
+		movl   %eax, %esi;        \
+		shldl  $23, %ebx, %eax;   \
+		shldl  $23, %esi, %ebx;   \
+		xorl   %eax, %ecx;        \
+		xorl   %ebx, %edx;        \
+		/* choose */              \
+		movl   STATELO(g), %eax;  \
+		movl   STATEHI(g), %ebx;  \
+		movl   %eax, %esi;        \
+		movl   %ebx, %edi;        \
+		xorl   STATELO(f), %esi;  \
+		xorl   STATEHI(f), %edi;  \
+		andl   %ebp, %esi;        \
+		andl   STATEHI(e), %edi;  \
+		xorl   %esi, %eax;        \
+		xorl   %edi, %ebx;        \
+		/* Sum */                 \
+		addl   $k0, %ecx;         \
+		adcl   $k1, %edx;         \
+		addl   STATELO(h), %eax;  \
+		adcl   STATEHI(h), %ebx;  \
+		addl   %ecx, %eax;        \
+		adcl   %edx, %ebx;        \
+		addl   SCHEDLO(i), %eax;  \
+		adcl   SCHEDHI(i), %ebx;  \
+		movl   %eax, 0(%esp);     \
+		movl   %ebx, 4(%esp);     \
+		/* Update d */            \
+		addl   %eax, STATELO(d);  \
+		adcl   %ebx, STATEHI(d);  \
+		/* bigSigma0 */           \
+		movl   STATELO(a), %eax;  \
+		movl   STATEHI(a), %ebx;  \
+		movl   %eax, %ecx;        \
+		movl   %ebx, %edx;        \
+		movl   %eax, %ebp;        \
+		shrdl  $28, %ebx, %ecx;   \
+		shrdl  $28, %eax, %edx;   \
+		movl   %eax, %esi;        \
+		movl   %ebx, %edi;        \
+		shldl  $30, %ebx, %esi;   \
+		shldl  $30, %eax, %edi;   \
+		xorl   %esi, %ecx;        \
+		xorl   %edi, %edx;        \
+		movl   %eax, %esi;        \
+		shldl  $25, %ebx, %eax;   \
+		shldl  $25, %esi, %ebx;   \
+		xorl   %eax, %ecx;        \
+		xorl   %ebx, %edx;        \
+		/* majority */            \
+		movl   STATELO(b), %eax;  \
+		movl   STATELO(c), %ebx;  \
+		movl   %eax, %esi;        \
+		orl    %ebx, %eax;        \
+		andl   %esi, %ebx;        \
+		andl   %ebp, %eax;        \
+		orl    %ebx, %eax;        \
+		addl   %eax, %ecx;        \
+		adcl   $0, %edx;          \
+		movl   STATEHI(b), %eax;  \
+		movl   STATEHI(c), %ebx;  \
+		movl   %eax, %esi;        \
+		orl    %ebx, %eax;        \
+		andl   %esi, %ebx;        \
+		andl   STATEHI(a), %eax;  \
+		orl    %ebx, %eax;        \
+		addl   %eax, %edx;        \
+		/* Update h */            \
+		addl   0(%esp), %ecx;     \
+		adcl   4(%esp), %edx;     \
+		movl   %ecx, STATELO(h);  \
+		movl   %edx, STATEHI(h);
+	
 	/* Save registers, allocate scratch space */
-	pushl %ebx
-	pushl %esi
-	pushl %edi
-	pushl %ebp
-	subl $712, %esp
+	pushl  %ebx
+	pushl  %esi
+	pushl  %edi
+	pushl  %ebp
+	subl   $712, %esp
 	
 	/* Copy state */
-	movl $16, %ecx
-	movl 732(%esp), %esi
-	leal 8(%esp), %edi
+	movl   $16, %ecx
+	movl   732(%esp), %esi
+	leal   8(%esp), %edi
 	rep movsl
 	
 	/* Load and expand key schedule */
-	movl 736(%esp), %esi
+	movl   736(%esp), %esi
 	LOADSCHEDULE( 0)
 	LOADSCHEDULE( 1)
 	LOADSCHEDULE( 2)
@@ -358,22 +358,22 @@ sha512_compress:
 	ROUND(79, 1, 2, 3, 4, 5, 6, 7, 0, 0x6C44198C, 0x4A475817)
 	
 	/* Add to state */
-	movl $0, %ecx
-	leal 8(%esp), %esi
-	movl 732(%esp), %edi
+	movl   $0, %ecx
+	leal   8(%esp), %esi
+	movl   732(%esp), %edi
 .addloop:
-	movl 0(%esi,%ecx,8), %eax
-	movl 4(%esi,%ecx,8), %ebx
-	addl %eax, 0(%edi,%ecx,8)
-	adcl %ebx, 4(%edi,%ecx,8)
-	incl %ecx
-	cmpl $8, %ecx
-	jb .addloop
+	movl   0(%esi,%ecx,8), %eax
+	movl   4(%esi,%ecx,8), %ebx
+	addl   %eax, 0(%edi,%ecx,8)
+	adcl   %ebx, 4(%edi,%ecx,8)
+	incl   %ecx
+	cmpl   $8, %ecx
+	jb     .addloop
 	
 	/* Restore registers */
-	addl $712, %esp
-	popl %ebp
-	popl %edi
-	popl %esi
-	popl %ebx
-	ret
+	addl   $712, %esp
+	popl   %ebp
+	popl   %edi
+	popl   %esi
+	popl   %ebx
+	retl

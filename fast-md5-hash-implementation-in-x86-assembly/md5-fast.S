@@ -7,68 +7,67 @@
  */
 
 
-/* 
- * Storage usage:
- *   Bytes  Location  Description
- *       4  eax       MD5 state variable A
- *       4  ebx       MD5 state variable B
- *       4  ecx       MD5 state variable C
- *       4  edx       MD5 state variable D
- *       4  esi       Temporary for calculation per round
- *       4  edi       Temporary for calculation per round
- *       4  ebp       Base address of block array argument (read-only)
- *       4  esp       x86 stack pointer
- *       4  [esp+ 0]  Caller's value of ebx
- *       4  [esp+ 4]  Caller's value of esi
- *       4  [esp+ 8]  Caller's value of edi
- *       4  [esp+12]  Caller's value of ebp
- */
-
-#define ROUND0(a, b, c, d, k, s, t)  \
-	movl  %c, %esi;         \
-	addl  (k*4)(%ebp), %a;  \
-	xorl  %d, %esi;         \
-	andl  %b, %esi;         \
-	xorl  %d, %esi;         \
-	leal  t(%esi,%a), %a;   \
-	roll  $s, %a;           \
-	addl  %b, %a;
-
-#define ROUND1(a, b, c, d, k, s, t)  \
-	movl  %d, %esi;         \
-	movl  %d, %edi;         \
-	addl  (k*4)(%ebp), %a;  \
-	notl  %esi;             \
-	andl  %b, %edi;         \
-	andl  %c, %esi;         \
-	orl   %edi, %esi;       \
-	leal  t(%esi,%a), %a;   \
-	roll  $s, %a;           \
-	addl  %b, %a;
-
-#define ROUND2(a, b, c, d, k, s, t)  \
-	movl  %c, %esi;         \
-	addl  (k*4)(%ebp), %a;  \
-	xorl  %d, %esi;         \
-	xorl  %b, %esi;         \
-	leal  t(%esi,%a), %a;   \
-	roll  $s, %a;           \
-	addl  %b, %a;
-
-#define ROUND3(a, b, c, d, k, s, t)  \
-	movl  %d, %esi;         \
-	not   %esi;             \
-	addl  (k*4)(%ebp), %a;  \
-	orl   %b, %esi;         \
-	xorl  %c, %esi;         \
-	leal  t(%esi,%a), %a;   \
-	roll  $s, %a;           \
-	addl  %b, %a;
-
-
 /* void md5_compress(uint32_t state[4], const uint32_t block[16]) */
 .globl md5_compress
 md5_compress:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location  Description
+	 *       4  eax       MD5 state variable A
+	 *       4  ebx       MD5 state variable B
+	 *       4  ecx       MD5 state variable C
+	 *       4  edx       MD5 state variable D
+	 *       4  esi       Temporary for calculation per round
+	 *       4  edi       Temporary for calculation per round
+	 *       4  ebp       Base address of block array argument (read-only)
+	 *       4  esp       x86 stack pointer
+	 *       4  [esp+ 0]  Caller's value of ebx
+	 *       4  [esp+ 4]  Caller's value of esi
+	 *       4  [esp+ 8]  Caller's value of edi
+	 *       4  [esp+12]  Caller's value of ebp
+	 */
+	
+	#define ROUND0(a, b, c, d, k, s, t)  \
+		movl  %c, %esi;         \
+		addl  (k*4)(%ebp), %a;  \
+		xorl  %d, %esi;         \
+		andl  %b, %esi;         \
+		xorl  %d, %esi;         \
+		leal  t(%esi,%a), %a;   \
+		roll  $s, %a;           \
+		addl  %b, %a;
+	
+	#define ROUND1(a, b, c, d, k, s, t)  \
+		movl  %d, %esi;         \
+		movl  %d, %edi;         \
+		addl  (k*4)(%ebp), %a;  \
+		notl  %esi;             \
+		andl  %b, %edi;         \
+		andl  %c, %esi;         \
+		orl   %edi, %esi;       \
+		leal  t(%esi,%a), %a;   \
+		roll  $s, %a;           \
+		addl  %b, %a;
+	
+	#define ROUND2(a, b, c, d, k, s, t)  \
+		movl  %c, %esi;         \
+		addl  (k*4)(%ebp), %a;  \
+		xorl  %d, %esi;         \
+		xorl  %b, %esi;         \
+		leal  t(%esi,%a), %a;   \
+		roll  $s, %a;           \
+		addl  %b, %a;
+	
+	#define ROUND3(a, b, c, d, k, s, t)  \
+		movl  %d, %esi;         \
+		not   %esi;             \
+		addl  (k*4)(%ebp), %a;  \
+		orl   %b, %esi;         \
+		xorl  %c, %esi;         \
+		leal  t(%esi,%a), %a;   \
+		roll  $s, %a;           \
+		addl  %b, %a;
+	
 	/* Save registers */
 	subl  $16, %esp
 	movl  %ebx,  0(%esp)
@@ -163,4 +162,4 @@ md5_compress:
 	movl   8(%esp), %edi
 	movl  12(%esp), %ebp
 	addl  $16, %esp
-	ret
+	retl

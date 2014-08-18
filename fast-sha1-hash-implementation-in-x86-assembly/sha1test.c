@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 	clock_t start_time = clock();
 	int i;
 	for (i = 0; i < N; i++)
-		sha1_compress(state, (uint8_t*)block);
+		sha1_compress(state, (uint8_t *)block);  // Type-punning
 	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
 	
 	return 0;

@@ -7,67 +7,66 @@
  */
 
 
-/*
- * Storage usage:
- *   Bytes  Location    Description
- *       8  rax         Temporary 16-bit value for each pair of bytes processed during a round
- *       8  rbx         Unused (retains caller's value)
- *       8  rcx         Upward loop counter for 10 rounds
- *       8  rdx         Temporary byte value
- *       8  rsi         Base address of block array argument (read-only)
- *       8  rdi         Base address of state array argument (read-only)
- *       8  rbp         Unused (retains caller's value)
- *       8  rsp         x86-64 stack pointer
- *      64  r8..r15     Output rows for current round being computed, in little endian (8 bytes per register)
- *      64  xmm0..xmm3  All contents of current state array, in little endian (16 bytes per register)
- *      64  xmm4..xmm7  All contents of current block array, in little endian (16 bytes per register)
- *       8  [rsp+ 0]    Temporary storage for transferring R15 to XMM
- *       8  [rsp+ 8]    Caller's value of r15
- *       8  [rsp+16]    Caller's value of r14
- *       8  [rsp+24]    Caller's value of r13
- *       8  [rsp+32]    Caller's value of r12
- *       8  [rsp+40]    Caller's value of r11
- *       8  [rsp+48]    Caller's value of r10
- */
-
-#define NUM_ROUNDS 10  /* Any number from 1 to 32 is allowed */
-
-#define DOBYTEPAIRFIRST(inreg,offset,outreg0,outreg1)  \
-	pextrw  $(offset), %inreg, %eax;                   \
-	movzbl  %ah, %edx;                                 \
-	andl    $0xFF, %eax;                               \
-	movq    .magictable0(,%rax,8), %outreg0;           \
-	movq    .magictable1(,%rdx,8), %outreg1;
-
-#define DOBYTEPAIR(inreg,offset,outreg0,outreg1)  \
-	pextrw  $(offset), %inreg, %eax;              \
-	movzbl  %ah, %edx;                            \
-	andl    $0xFF, %eax;                          \
-	xorq    .magictable0(,%rax,8), %outreg0;      \
-	xorq    .magictable1(,%rdx,8), %outreg1;
-
-#define ROTATERIGHT()   \
-	rorq    $16, %r8 ;  \
-	rorq    $16, %r9 ;  \
-	rorq    $16, %r10;  \
-	rorq    $16, %r11;  \
-	rorq    $16, %r12;  \
-	rorq    $16, %r13;  \
-	rorq    $16, %r14;  \
-	rorq    $16, %r15;
-
-/* Used for sigma (AddRoundKey) */
-#define XOR_XMM0_3_TO_XMM4_7()  \
-	pxor    %xmm0, %xmm4;       \
-	pxor    %xmm1, %xmm5;       \
-	pxor    %xmm2, %xmm6;       \
-	pxor    %xmm3, %xmm7;
-
-
 /* void whirlpool_compress(uint8_t state[64], const uint8_t block[64]) */
 /* state and block can be optionally aligned to 8 bytes for slightly better performance. */
 .globl whirlpool_compress
 whirlpool_compress:
+	/*
+	 * Storage usage:
+	 *   Bytes  Location    Description
+	 *       8  rax         Temporary 16-bit value for each pair of bytes processed during a round
+	 *       8  rbx         Unused (retains caller's value)
+	 *       8  rcx         Upward loop counter for 10 rounds
+	 *       8  rdx         Temporary byte value
+	 *       8  rsi         Base address of block array argument (read-only)
+	 *       8  rdi         Base address of state array argument (read-only)
+	 *       8  rbp         Unused (retains caller's value)
+	 *       8  rsp         x86-64 stack pointer
+	 *      64  r8..r15     Output rows for current round being computed, in little endian (8 bytes per register)
+	 *      64  xmm0..xmm3  All contents of current state array, in little endian (16 bytes per register)
+	 *      64  xmm4..xmm7  All contents of current block array, in little endian (16 bytes per register)
+	 *       8  [rsp+ 0]    Temporary storage for transferring R15 to XMM
+	 *       8  [rsp+ 8]    Caller's value of r15
+	 *       8  [rsp+16]    Caller's value of r14
+	 *       8  [rsp+24]    Caller's value of r13
+	 *       8  [rsp+32]    Caller's value of r12
+	 *       8  [rsp+40]    Caller's value of r11
+	 *       8  [rsp+48]    Caller's value of r10
+	 */
+	
+	#define NUM_ROUNDS 10  /* Any number from 1 to 32 is allowed */
+	
+	#define DOBYTEPAIRFIRST(inreg,offset,outreg0,outreg1)  \
+		pextrw  $(offset), %inreg, %eax;                   \
+		movzbl  %ah, %edx;                                 \
+		andl    $0xFF, %eax;                               \
+		movq    .magictable0(,%rax,8), %outreg0;           \
+		movq    .magictable1(,%rdx,8), %outreg1;
+	
+	#define DOBYTEPAIR(inreg,offset,outreg0,outreg1)  \
+		pextrw  $(offset), %inreg, %eax;              \
+		movzbl  %ah, %edx;                            \
+		andl    $0xFF, %eax;                          \
+		xorq    .magictable0(,%rax,8), %outreg0;      \
+		xorq    .magictable1(,%rdx,8), %outreg1;
+	
+	#define ROTATERIGHT()   \
+		rorq    $16, %r8 ;  \
+		rorq    $16, %r9 ;  \
+		rorq    $16, %r10;  \
+		rorq    $16, %r11;  \
+		rorq    $16, %r12;  \
+		rorq    $16, %r13;  \
+		rorq    $16, %r14;  \
+		rorq    $16, %r15;
+	
+	/* Used for sigma (AddRoundKey) */
+	#define XOR_XMM0_3_TO_XMM4_7()  \
+		pxor    %xmm0, %xmm4;       \
+		pxor    %xmm1, %xmm5;       \
+		pxor    %xmm2, %xmm6;       \
+		pxor    %xmm3, %xmm7;
+	
 	/* Save registers */
 	pushq   %r10
 	pushq   %r11
@@ -219,7 +218,7 @@ whirlpool_compress:
 	popq    %r12
 	popq    %r11
 	popq    %r10
-	ret
+	retq
 
 
 .balign 8

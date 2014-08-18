@@ -9,16 +9,15 @@
 #include <stdint.h>
 
 
-#define ROUND0(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, d ^ (b & (c ^ d)), k, s, t)
-#define ROUND1(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, c ^ (d & (b ^ c)), k, s, t)
-#define ROUND2(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, b ^ c ^ d        , k, s, t)
-#define ROUND3(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, c ^ (b | ~d)     , k, s, t)
-
-#define ROUND_TAIL(a, b, expr, k, s, t)    \
-	a += (expr) + UINT32_C(t) + block[k];  \
-	a = b + (a << s | a >> (32 - s));
-
 void md5_compress(uint32_t state[4], const uint32_t block[16]) {
+	#define ROUND0(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, d ^ (b & (c ^ d)), k, s, t)
+	#define ROUND1(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, c ^ (d & (b ^ c)), k, s, t)
+	#define ROUND2(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, b ^ c ^ d        , k, s, t)
+	#define ROUND3(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, c ^ (b | ~d)     , k, s, t)
+	#define ROUND_TAIL(a, b, expr, k, s, t)    \
+		a += (expr) + UINT32_C(t) + block[k];  \
+		a = b + (a << s | a >> (32 - s));
+	
 	uint32_t a = state[0];
 	uint32_t b = state[1];
 	uint32_t c = state[2];

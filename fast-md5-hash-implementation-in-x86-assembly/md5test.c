@@ -88,10 +88,10 @@ void md5_hash(const uint8_t *message, uint32_t len, uint32_t hash[4]) {
 	
 	uint32_t i;
 	for (i = 0; len - i >= 64; i += 64)
-		md5_compress(hash, (uint32_t*)(message + i));  // Type-punning
+		md5_compress(hash, (uint32_t *)(message + i));  // Type-punning
 	
 	uint32_t block[16];
-	uint8_t *byteBlock = (uint8_t*)block;  // Type-punning
+	uint8_t *byteBlock = (uint8_t *)block;  // Type-punning
 	
 	uint32_t rem = len - i;
 	memcpy(byteBlock, message + i, rem);

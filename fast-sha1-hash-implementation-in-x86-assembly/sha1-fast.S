@@ -7,87 +7,86 @@
  */
 
 
-/* 
- * Storage usage:
- *   Bytes  Location  Description
- *       4  eax       SHA-1 state variable A
- *       4  ebx       SHA-1 state variable B
- *       4  ecx       SHA-1 state variable C
- *       4  edx       SHA-1 state variable D
- *       4  ebp       SHA-1 state variable E
- *       4  esi       Temporary for calculation per round
- *       4  edi       (First 16 rounds) base address of block array argument (read-only); (last 64 rounds) temporary for calculation per round
- *       4  esp       x86 stack pointer
- *      64  [esp+ 0]  Circular buffer of most recent 16 key schedule items, 4 bytes each
- *       4  [esp+64]  Caller's value of ebx
- *       4  [esp+68]  Caller's value of esi
- *       4  [esp+72]  Caller's value of edi
- *       4  [esp+76]  Caller's value of ebp
- */
-
-#define ROUND0a(a, b, c, d, e, i)  \
-	movl    (i*4)(%edi), %esi;  \
-	bswapl  %esi;               \
-	movl    %esi, (i*4)(%esp);  \
-	addl    %esi, %e;           \
-	movl    %c, %esi;           \
-	xorl    %d, %esi;           \
-	andl    %b, %esi;           \
-	xorl    %d, %esi;           \
-	ROUNDTAIL(a, b, e, i, 0x5A827999)
-
-#define SCHEDULE(i, e)  \
-	movl  (((i- 3)&0xF)*4)(%esp), %esi;  \
-	xorl  (((i- 8)&0xF)*4)(%esp), %esi;  \
-	xorl  (((i-14)&0xF)*4)(%esp), %esi;  \
-	xorl  (((i-16)&0xF)*4)(%esp), %esi;  \
-	roll  $1, %esi;                      \
-	addl  %esi, %e;                      \
-	movl  %esi, ((i&0xF)*4)(%esp);
-
-#define ROUND0b(a, b, c, d, e, i)  \
-	SCHEDULE(i, e)   \
-	movl  %c, %esi;  \
-	xorl  %d, %esi;  \
-	andl  %b, %esi;  \
-	xorl  %d, %esi;  \
-	ROUNDTAIL(a, b, e, i, 0x5A827999)
-
-#define ROUND1(a, b, c, d, e, i)  \
-	SCHEDULE(i, e)   \
-	movl  %b, %esi;  \
-	xorl  %c, %esi;  \
-	xorl  %d, %esi;  \
-	ROUNDTAIL(a, b, e, i, 0x6ED9EBA1)
-
-#define ROUND2(a, b, c, d, e, i)  \
-	SCHEDULE(i, e)     \
-	movl  %c, %esi;    \
-	movl  %c, %edi;    \
-	orl   %d, %esi;    \
-	andl  %b, %esi;    \
-	andl  %d, %edi;    \
-	orl   %edi, %esi;  \
-	ROUNDTAIL(a, b, e, i, 0x8F1BBCDC)
-
-#define ROUND3(a, b, c, d, e, i)  \
-	SCHEDULE(i, e)   \
-	movl  %b, %esi;  \
-	xorl  %c, %esi;  \
-	xorl  %d, %esi;  \
-	ROUNDTAIL(a, b, e, i, 0xCA62C1D6)
-
-#define ROUNDTAIL(a, b, e, i, k)  \
-	roll  $30, %b;         \
-	leal  k(%e,%esi), %e;  \
-	movl  %a, %esi;        \
-	roll  $5, %esi;        \
-	addl  %esi, %e;
-
-
 /* void sha1_compress(uint32_t state[5], const uint8_t block[64]) */
 .globl sha1_compress
 sha1_compress:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location  Description
+	 *       4  eax       SHA-1 state variable A
+	 *       4  ebx       SHA-1 state variable B
+	 *       4  ecx       SHA-1 state variable C
+	 *       4  edx       SHA-1 state variable D
+	 *       4  ebp       SHA-1 state variable E
+	 *       4  esi       Temporary for calculation per round
+	 *       4  edi       (First 16 rounds) base address of block array argument (read-only); (last 64 rounds) temporary for calculation per round
+	 *       4  esp       x86 stack pointer
+	 *      64  [esp+ 0]  Circular buffer of most recent 16 key schedule items, 4 bytes each
+	 *       4  [esp+64]  Caller's value of ebx
+	 *       4  [esp+68]  Caller's value of esi
+	 *       4  [esp+72]  Caller's value of edi
+	 *       4  [esp+76]  Caller's value of ebp
+	 */
+	
+	#define ROUND0a(a, b, c, d, e, i)  \
+		movl    (i*4)(%edi), %esi;  \
+		bswapl  %esi;               \
+		movl    %esi, (i*4)(%esp);  \
+		addl    %esi, %e;           \
+		movl    %c, %esi;           \
+		xorl    %d, %esi;           \
+		andl    %b, %esi;           \
+		xorl    %d, %esi;           \
+		ROUNDTAIL(a, b, e, i, 0x5A827999)
+	
+	#define SCHEDULE(i, e)  \
+		movl  (((i- 3)&0xF)*4)(%esp), %esi;  \
+		xorl  (((i- 8)&0xF)*4)(%esp), %esi;  \
+		xorl  (((i-14)&0xF)*4)(%esp), %esi;  \
+		xorl  (((i-16)&0xF)*4)(%esp), %esi;  \
+		roll  $1, %esi;                      \
+		addl  %esi, %e;                      \
+		movl  %esi, ((i&0xF)*4)(%esp);
+	
+	#define ROUND0b(a, b, c, d, e, i)  \
+		SCHEDULE(i, e)   \
+		movl  %c, %esi;  \
+		xorl  %d, %esi;  \
+		andl  %b, %esi;  \
+		xorl  %d, %esi;  \
+		ROUNDTAIL(a, b, e, i, 0x5A827999)
+	
+	#define ROUND1(a, b, c, d, e, i)  \
+		SCHEDULE(i, e)   \
+		movl  %b, %esi;  \
+		xorl  %c, %esi;  \
+		xorl  %d, %esi;  \
+		ROUNDTAIL(a, b, e, i, 0x6ED9EBA1)
+	
+	#define ROUND2(a, b, c, d, e, i)  \
+		SCHEDULE(i, e)     \
+		movl  %c, %esi;    \
+		movl  %c, %edi;    \
+		orl   %d, %esi;    \
+		andl  %b, %esi;    \
+		andl  %d, %edi;    \
+		orl   %edi, %esi;  \
+		ROUNDTAIL(a, b, e, i, 0x8F1BBCDC)
+	
+	#define ROUND3(a, b, c, d, e, i)  \
+		SCHEDULE(i, e)   \
+		movl  %b, %esi;  \
+		xorl  %c, %esi;  \
+		xorl  %d, %esi;  \
+		ROUNDTAIL(a, b, e, i, 0xCA62C1D6)
+	
+	#define ROUNDTAIL(a, b, e, i, k)  \
+		roll  $30, %b;         \
+		leal  k(%e,%esi), %e;  \
+		movl  %a, %esi;        \
+		roll  $5, %esi;        \
+		addl  %esi, %e;
+	
 	/* Save registers */
 	subl    $80, %esp
 	movl    %ebx, 64(%esp)
@@ -200,4 +199,4 @@ sha1_compress:
 	movl    72(%esp), %edi
 	movl    76(%esp), %ebp
 	addl    $80, %esp
-	ret
+	retl

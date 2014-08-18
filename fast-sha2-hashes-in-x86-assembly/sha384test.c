@@ -16,10 +16,10 @@
 /* Function prototypes */
 
 static int self_check(void);
-void sha384_hash(uint8_t *message, uint32_t len, uint64_t hash[6]);
+void sha384_hash(const uint8_t *message, uint32_t len, uint64_t hash[6]);
 
 // Link this program with an external C or x86 compression function
-extern void sha512_compress(uint64_t state[8], uint8_t block[128]);
+extern void sha512_compress(uint64_t state[8], const uint8_t block[128]);
 
 
 /* Main program */
@@ -38,8 +38,8 @@ int main(int argc, char **argv) {
 	clock_t start_time = clock();
 	int i;
 	for (i = 0; i < N; i++)
-		sha512_compress(state, (uint8_t*)block);
-	printf("Speed: %.1f MiB/s\n", (double)N * 128 / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
+		sha512_compress(state, (uint8_t *)block);  // Type-punning
+	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
 	
 	return 0;
 }
@@ -48,18 +48,19 @@ int main(int argc, char **argv) {
 /* Self-check */
 
 struct testcase {
-	uint8_t* message;
-	uint32_t length;
 	uint64_t answer[6];
+	const uint8_t *message;
 };
 
+#define TESTCASE(a,b,c,d,e,f,msg) {{UINT64_C(a),UINT64_C(b),UINT64_C(c),UINT64_C(d),UINT64_C(e),UINT64_C(f)}, (const uint8_t *)msg}
+
 static struct testcase testCases[] = {
-	{(uint8_t*)""                                                                                                                ,   0, {UINT64_C(0x38B060A751AC9638), UINT64_C(0x4CD9327EB1B1E36A), UINT64_C(0x21FDB71114BE0743), UINT64_C(0x4C0CC7BF63F6E1DA), UINT64_C(0x274EDEBFE76F65FB), UINT64_C(0xD51AD2F14898B95B)}},
-	{(uint8_t*)"a"                                                                                                               ,   1, {UINT64_C(0x54A59B9F22B0B808), UINT64_C(0x80D8427E548B7C23), UINT64_C(0xABD873486E1F035D), UINT64_C(0xCE9CD697E8517503), UINT64_C(0x3CAA88E6D57BC35E), UINT64_C(0xFAE0B5AFD3145F31)}},
-	{(uint8_t*)"abc"                                                                                                             ,   3, {UINT64_C(0xCB00753F45A35E8B), UINT64_C(0xB5A03D699AC65007), UINT64_C(0x272C32AB0EDED163), UINT64_C(0x1A8B605A43FF5BED), UINT64_C(0x8086072BA1E7CC23), UINT64_C(0x58BAECA134C825A7)}},
-	{(uint8_t*)"message digest"                                                                                                  ,  14, {UINT64_C(0x473ED35167EC1F5D), UINT64_C(0x8E550368A3DB39BE), UINT64_C(0x54639F828868E945), UINT64_C(0x4C239FC8B52E3C61), UINT64_C(0xDBD0D8B4DE1390C2), UINT64_C(0x56DCBB5D5FD99CD5)}},
-	{(uint8_t*)"abcdefghijklmnopqrstuvwxyz"                                                                                      ,  26, {UINT64_C(0xFEB67349DF3DB6F5), UINT64_C(0x924815D6C3DC133F), UINT64_C(0x091809213731FE5C), UINT64_C(0x7B5F4999E463479F), UINT64_C(0xF2877F5F2936FA63), UINT64_C(0xBB43784B12F3EBB4)}},
-	{(uint8_t*)"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu", 112, {UINT64_C(0x09330C33F71147E8), UINT64_C(0x3D192FC782CD1B47), UINT64_C(0x53111B173B3B05D2), UINT64_C(0x2FA08086E3B0F712), UINT64_C(0xFCC7C71A557E2DB9), UINT64_C(0x66C3E9FA91746039)}},
+	TESTCASE(0x38B060A751AC9638,0x4CD9327EB1B1E36A,0x21FDB71114BE0743,0x4C0CC7BF63F6E1DA,0x274EDEBFE76F65FB,0xD51AD2F14898B95B, ""),
+	TESTCASE(0x54A59B9F22B0B808,0x80D8427E548B7C23,0xABD873486E1F035D,0xCE9CD697E8517503,0x3CAA88E6D57BC35E,0xFAE0B5AFD3145F31, "a"),
+	TESTCASE(0xCB00753F45A35E8B,0xB5A03D699AC65007,0x272C32AB0EDED163,0x1A8B605A43FF5BED,0x8086072BA1E7CC23,0x58BAECA134C825A7, "abc"),
+	TESTCASE(0x473ED35167EC1F5D,0x8E550368A3DB39BE,0x54639F828868E945,0x4C239FC8B52E3C61,0xDBD0D8B4DE1390C2,0x56DCBB5D5FD99CD5, "message digest"),
+	TESTCASE(0xFEB67349DF3DB6F5,0x924815D6C3DC133F,0x091809213731FE5C,0x7B5F4999E463479F,0xF2877F5F2936FA63,0xBB43784B12F3EBB4, "abcdefghijklmnopqrstuvwxyz"),
+	TESTCASE(0x09330C33F71147E8,0x3D192FC782CD1B47,0x53111B173B3B05D2,0x2FA08086E3B0F712,0xFCC7C71A557E2DB9,0x66C3E9FA91746039, "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
 };
 
 static int self_check(void) {
@@ -67,7 +68,7 @@ static int self_check(void) {
 	for (i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint64_t hash[6];
-		sha384_hash(tc->message, tc->length, hash);
+		sha384_hash(tc->message, strlen((const char *)tc->message), hash);
 		if (memcmp(hash, tc->answer, sizeof(tc->answer)) != 0)
 			return 0;
 	}
@@ -77,7 +78,7 @@ static int self_check(void) {
 
 /* Full message hasher */
 
-void sha384_hash(uint8_t *message, uint32_t len, uint64_t hash[6]) {
+void sha384_hash(const uint8_t *message, uint32_t len, uint64_t hash[6]) {
 	uint64_t state[8];
 	state[0] = UINT64_C(0xCBBB9D5DC1059ED8);
 	state[1] = UINT64_C(0x629A292A367CD507);

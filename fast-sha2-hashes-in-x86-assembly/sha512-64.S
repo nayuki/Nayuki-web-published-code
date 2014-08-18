@@ -7,108 +7,108 @@
  */
 
 
-/* 
- * Storage usage:
- *   Bytes  Location  Description
- *       8  rax       Temporary for calculation per round
- *       8  rbx       Temporary for calculation per round
- *       8  rcx       Temporary for calculation per round
- *       8  rdx       Temporary for calculation per round
- *       8  rsi       Base address of block array argument (read-only)
- *       8  rdi       Base address of state array argument (read-only)
- *       8  rsp       x86-64 stack pointer
- *       8  r8        SHA-512 state variable A
- *       8  r9        SHA-512 state variable B
- *       8  r10       SHA-512 state variable C
- *       8  r11       SHA-512 state variable D
- *       8  r12       SHA-512 state variable E
- *       8  r13       SHA-512 state variable F
- *       8  r14       SHA-512 state variable G
- *       8  r15       SHA-512 state variable H
- *     128  [rsp+0]   Circular buffer of most recent 16 key schedule items, 8 bytes each
- *      16  xmm0      Caller's value of r10 (only lower 64 bits are used)
- *      16  xmm1      Caller's value of r11 (only lower 64 bits are used)
- *      16  xmm2      Caller's value of r12 (only lower 64 bits are used)
- *      16  xmm3      Caller's value of r13 (only lower 64 bits are used)
- *      16  xmm4      Caller's value of r14 (only lower 64 bits are used)
- *      16  xmm5      Caller's value of r15 (only lower 64 bits are used)
- *      16  xmm6      Caller's value of rbx (only lower 64 bits are used)
- */
-
-#define SCHED(i)  (((i)&0xF)*8)(%rsp)
-
-#define ROUNDa(i, a, b, c, d, e, f, g, h, k)  \
-	movq    (i*8)(%rsi), %rbx;  \
-	bswapq  %rbx;               \
-	movq    %rbx, SCHED(i);     \
-	ROUNDTAIL(a, b, c, d, e, f, g, h, k)
-
-#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
-	movq  SCHED(i-15), %rax;  \
-	movq  SCHED(i-16), %rbx;  \
-	addq  SCHED(i- 7), %rbx;  \
-	movq  %rax, %rcx;         \
-	movq  %rax, %rdx;         \
-	rorq  $8, %rcx;           \
-	shrq  $7, %rdx;           \
-	rorq  $1, %rax;           \
-	xorq  %rdx, %rcx;         \
-	xorq  %rcx, %rax;         \
-	addq  %rax, %rbx;         \
-	movq  SCHED(i- 2), %rax;  \
-	movq  %rax, %rcx;         \
-	movq  %rax, %rdx;         \
-	rorq  $61, %rcx;          \
-	shrq  $6, %rdx;           \
-	rorq  $19, %rax;          \
-	xorq  %rdx, %rcx;         \
-	xorq  %rcx, %rax;         \
-	addq  %rax, %rbx;         \
-	movq  %rbx, SCHED(i);     \
-	ROUNDTAIL(a, b, c, d, e, f, g, h, k)
-
-#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
-	/* Part 0 */               \
-	movq  %e, %rcx;            \
-	movq  %e, %rdx;            \
-	movq  %e, %rax;            \
-	rorq  $18, %rcx;           \
-	rorq  $41, %rdx;           \
-	rorq  $14, %rax;           \
-	xorq  %rdx, %rcx;          \
-	xorq  %rcx, %rax;          \
-	addq  %rbx, %h;            \
-	movq  %g, %rcx;            \
-	xorq  %f, %rcx;            \
-	andq  %e, %rcx;            \
-	xorq  %g, %rcx;            \
-	addq  %rax, %h;            \
-	movq  $k, %rax;            \
-	addq  %rcx, %h;            \
-	addq  %rax, %h;            \
-	/* Part 1 */               \
-	addq  %h, %d;              \
-	/* Part 2 */               \
-	movq  %a, %rcx;            \
-	movq  %a, %rdx;            \
-	movq  %a, %rax;            \
-	rorq  $39, %rcx;           \
-	rorq  $34, %rdx;           \
-	rorq  $28, %rax;           \
-	xorq  %rdx, %rcx;          \
-	xorq  %rcx, %rax;          \
-	movq  %c, %rcx;            \
-	addq  %rax, %h;            \
-	movq  %c, %rax;            \
-	orq   %b, %rax;            \
-	andq  %b, %rcx;            \
-	andq  %a, %rax;            \
-	orq   %rcx, %rax;          \
-	addq  %rax, %h;
-
-/* void sha512_compress(uint64_t state[8], uint8_t block[128]) */
+/* void sha512_compress(uint64_t state[8], const uint8_t block[128]) */
 .globl sha512_compress
 sha512_compress:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location  Description
+	 *       8  rax       Temporary for calculation per round
+	 *       8  rbx       Temporary for calculation per round
+	 *       8  rcx       Temporary for calculation per round
+	 *       8  rdx       Temporary for calculation per round
+	 *       8  rsi       Base address of block array argument (read-only)
+	 *       8  rdi       Base address of state array argument (read-only)
+	 *       8  rsp       x86-64 stack pointer
+	 *       8  r8        SHA-512 state variable A
+	 *       8  r9        SHA-512 state variable B
+	 *       8  r10       SHA-512 state variable C
+	 *       8  r11       SHA-512 state variable D
+	 *       8  r12       SHA-512 state variable E
+	 *       8  r13       SHA-512 state variable F
+	 *       8  r14       SHA-512 state variable G
+	 *       8  r15       SHA-512 state variable H
+	 *     128  [rsp+0]   Circular buffer of most recent 16 key schedule items, 8 bytes each
+	 *      16  xmm0      Caller's value of r10 (only lower 64 bits are used)
+	 *      16  xmm1      Caller's value of r11 (only lower 64 bits are used)
+	 *      16  xmm2      Caller's value of r12 (only lower 64 bits are used)
+	 *      16  xmm3      Caller's value of r13 (only lower 64 bits are used)
+	 *      16  xmm4      Caller's value of r14 (only lower 64 bits are used)
+	 *      16  xmm5      Caller's value of r15 (only lower 64 bits are used)
+	 *      16  xmm6      Caller's value of rbx (only lower 64 bits are used)
+	 */
+	
+	#define SCHED(i)  (((i)&0xF)*8)(%rsp)
+	
+	#define ROUNDa(i, a, b, c, d, e, f, g, h, k)  \
+		movq    (i*8)(%rsi), %rbx;  \
+		bswapq  %rbx;               \
+		movq    %rbx, SCHED(i);     \
+		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
+	
+	#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
+		movq  SCHED(i-15), %rax;  \
+		movq  SCHED(i-16), %rbx;  \
+		addq  SCHED(i- 7), %rbx;  \
+		movq  %rax, %rcx;         \
+		movq  %rax, %rdx;         \
+		rorq  $8, %rcx;           \
+		shrq  $7, %rdx;           \
+		rorq  $1, %rax;           \
+		xorq  %rdx, %rcx;         \
+		xorq  %rcx, %rax;         \
+		addq  %rax, %rbx;         \
+		movq  SCHED(i- 2), %rax;  \
+		movq  %rax, %rcx;         \
+		movq  %rax, %rdx;         \
+		rorq  $61, %rcx;          \
+		shrq  $6, %rdx;           \
+		rorq  $19, %rax;          \
+		xorq  %rdx, %rcx;         \
+		xorq  %rcx, %rax;         \
+		addq  %rax, %rbx;         \
+		movq  %rbx, SCHED(i);     \
+		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
+	
+	#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
+		/* Part 0 */               \
+		movq  %e, %rcx;            \
+		movq  %e, %rdx;            \
+		movq  %e, %rax;            \
+		rorq  $18, %rcx;           \
+		rorq  $41, %rdx;           \
+		rorq  $14, %rax;           \
+		xorq  %rdx, %rcx;          \
+		xorq  %rcx, %rax;          \
+		addq  %rbx, %h;            \
+		movq  %g, %rcx;            \
+		xorq  %f, %rcx;            \
+		andq  %e, %rcx;            \
+		xorq  %g, %rcx;            \
+		addq  %rax, %h;            \
+		movq  $k, %rax;            \
+		addq  %rcx, %h;            \
+		addq  %rax, %h;            \
+		/* Part 1 */               \
+		addq  %h, %d;              \
+		/* Part 2 */               \
+		movq  %a, %rcx;            \
+		movq  %a, %rdx;            \
+		movq  %a, %rax;            \
+		rorq  $39, %rcx;           \
+		rorq  $34, %rdx;           \
+		rorq  $28, %rax;           \
+		xorq  %rdx, %rcx;          \
+		xorq  %rcx, %rax;          \
+		movq  %c, %rcx;            \
+		addq  %rax, %h;            \
+		movq  %c, %rax;            \
+		orq   %b, %rax;            \
+		andq  %b, %rcx;            \
+		andq  %a, %rax;            \
+		orq   %rcx, %rax;          \
+		addq  %rax, %h;
+	
 	/* Save registers, allocate scratch space */
 	movq  %r10, %xmm0
 	movq  %r11, %xmm1
@@ -230,4 +230,4 @@ sha512_compress:
 	movq  %xmm5, %r15
 	movq  %xmm6, %rbx
 	addq  $128, %rsp
-	ret
+	retq
