@@ -33,11 +33,11 @@
 // Private function prototypes
 static void test_fft(int n);
 static void test_convolution(int n);
-static void naive_dft(double *inreal, double *inimag, double *outreal, double *outimag, int inverse, int n);
-static void naive_convolve(double *xreal, double *ximag, double *yreal, double *yimag, double *outreal, double *outimag, int n);
-static double log10_rms_err(double *xreal, double *ximag, double *yreal, double *yimag, int n);
+static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, int inverse, int n);
+static void naive_convolve(const double *xreal, const double *ximag, const double *yreal, const double *yimag, double *outreal, double *outimag, int n);
+static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n);
 static double *random_reals(int n);
-static void *memdup(void *src, size_t n);
+static void *memdup(const void *src, size_t n);
 
 static double max_log_error = -INFINITY;
 
@@ -148,7 +148,7 @@ static void test_convolution(int n) {
 
 /* Naive reference computation functions */
 
-static void naive_dft(double *inreal, double *inimag, double *outreal, double *outimag, int inverse, int n) {
+static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, int inverse, int n) {
 	double coef = (inverse ? 2 : -2) * M_PI;
 	int k;
 	for (k = 0; k < n; k++) {  // For each output element
@@ -166,7 +166,7 @@ static void naive_dft(double *inreal, double *inimag, double *outreal, double *o
 }
 
 
-static void naive_convolve(double *xreal, double *ximag, double *yreal, double *yimag, double *outreal, double *outimag, int n) {
+static void naive_convolve(const double *xreal, const double *ximag, const double *yreal, const double *yimag, double *outreal, double *outimag, int n) {
 	int i;
 	for (i = 0; i < n; i++) {
 		double sumreal = 0;
@@ -185,7 +185,7 @@ static void naive_convolve(double *xreal, double *ximag, double *yreal, double *
 
 /* Utility functions */
 
-static double log10_rms_err(double *xreal, double *ximag, double *yreal, double *yimag, int n) {
+static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n) {
 	double err = 0;
 	int i;
 	for (i = 0; i < n; i++)
@@ -209,7 +209,7 @@ static double *random_reals(int n) {
 }
 
 
-static void *memdup(void *src, size_t n) {
+static void *memdup(const void *src, size_t n) {
 	void *dest = malloc(n);
 	if (dest != NULL)
 		memcpy(dest, src, n);

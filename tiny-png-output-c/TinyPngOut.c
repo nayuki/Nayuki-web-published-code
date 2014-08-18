@@ -1,7 +1,7 @@
 /* 
  * Tiny PNG Output (C)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * http://nayuki.eigenstate.org/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -33,9 +33,9 @@
 #define DEFLATE_MAX_BLOCK_SIZE 65535
 #define MIN(x, y) ((x) < (y) ? (x) : (y))
 
-static enum TinyPngOutStatus finish(struct TinyPngOut *pngout);
-static uint32_t crc32  (uint32_t state, uint8_t *data, size_t len);
-static uint32_t adler32(uint32_t state, uint8_t *data, size_t len);
+static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout);
+static uint32_t crc32  (uint32_t state, const uint8_t *data, size_t len);
+static uint32_t adler32(uint32_t state, const uint8_t *data, size_t len);
 
 
 /* Public function implementations */
@@ -94,7 +94,7 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 }
 
 
-enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, uint8_t *pixels, int count) {
+enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t *pixels, int count) {
 	int32_t width = pngout->width;
 	int32_t height = pngout->height;
 	if (pngout->positionY == height)
@@ -112,8 +112,8 @@ enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, uint8_t *pixel
 				pngout->deflateRemain <= DEFLATE_MAX_BLOCK_SIZE ? 1 : 0,
 				size >> 0,
 				size >> 8,
-				(~size) >> 0,
-				(~size) >> 8,
+				(size ^ UINT16_C(0xFFFF)) >> 0,
+				(size ^ UINT16_C(0xFFFF)) >> 8,
 			};
 			if (fwrite(blockheader, 1, 5, f) != 5)
 				return TINYPNGOUT_IO_ERROR;
@@ -170,7 +170,7 @@ enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, uint8_t *pixel
 
 /* Private function implementations */
 
-static enum TinyPngOutStatus finish(struct TinyPngOut *pngout) {
+static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout) {
 	uint32_t adler = pngout->adler;
 	uint8_t footer[20] = {
 		adler >> 24, adler >> 16, adler >> 8, adler >> 0,
@@ -194,7 +194,7 @@ static enum TinyPngOutStatus finish(struct TinyPngOut *pngout) {
 }
 
 
-static uint32_t crc32(uint32_t state, uint8_t *data, size_t len) {
+static uint32_t crc32(uint32_t state, const uint8_t *data, size_t len) {
 	state = ~state;
 	size_t i;
 	for (i = 0; i < len; i++) {
@@ -208,7 +208,7 @@ static uint32_t crc32(uint32_t state, uint8_t *data, size_t len) {
 }
 
 
-static uint32_t adler32(uint32_t state, uint8_t *data, size_t len) {
+static uint32_t adler32(uint32_t state, const uint8_t *data, size_t len) {
 	uint16_t s1 = state >>  0;
 	uint16_t s2 = state >> 16;
 	size_t i;

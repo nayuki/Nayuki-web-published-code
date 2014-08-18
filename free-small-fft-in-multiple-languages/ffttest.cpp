@@ -184,7 +184,6 @@ static double log10RmsErr(const vector<double> &xreal, const vector<double> &xim
 
 
 static void randomReals(vector<double> &vec) {
-	int n = vec.size();
-	for (int i = 0; i < n; i++)
-		vec[i] = (rand() / (RAND_MAX + 1.0)) * 2 - 1;
+	for (vector<double>::iterator it = vec.begin(); it != vec.end(); ++it)
+		*it = (rand() / (RAND_MAX + 1.0)) * 2 - 1;
 }

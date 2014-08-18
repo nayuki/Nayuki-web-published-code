@@ -1,7 +1,7 @@
 /* 
  * Tiny PNG Output (C)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * http://nayuki.eigenstate.org/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -84,4 +84,4 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
  *   }
  *   fclose(fout);
  */
-enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, uint8_t *pixels, int count);
+enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t *pixels, int count);

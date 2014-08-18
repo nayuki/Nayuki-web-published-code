@@ -30,7 +30,7 @@
 
 // Private function prototypes
 static size_t reverse_bits(size_t x, unsigned int n);
-static void *memdup(void *src, size_t n);
+static void *memdup(const void *src, size_t n);
 
 #define SIZE_MAX ((size_t)-1)
 
@@ -211,7 +211,7 @@ cleanup:
 }
 
 
-int convolve_real(double x[], double y[], double out[], size_t n) {
+int convolve_real(const double x[], const double y[], double out[], size_t n) {
 	double *ximag, *yimag, *zimag;
 	int status = 0;
 	ximag = calloc(n, sizeof(double));
@@ -229,42 +229,43 @@ cleanup:
 }
 
 
-int convolve_complex(double xreal[], double ximag[], double yreal[], double yimag[], double outreal[], double outimag[], size_t n) {
+int convolve_complex(const double xreal[], const double ximag[], const double yreal[], const double yimag[], double outreal[], double outimag[], size_t n) {
 	int status = 0;
 	size_t size;
 	size_t i;
+	double *xr, *xi, *yr, *yi;
 	if (SIZE_MAX / sizeof(double) < n)
 		return 0;
 	size = n * sizeof(double);
-	xreal = memdup(xreal, size);
-	ximag = memdup(ximag, size);
-	yreal = memdup(yreal, size);
-	yimag = memdup(yimag, size);
-	if (xreal == NULL || ximag == NULL || yreal == NULL || yimag == NULL)
+	xr = memdup(xreal, size);
+	xi = memdup(ximag, size);
+	yr = memdup(yreal, size);
+	yi = memdup(yimag, size);
+	if (xr == NULL || xi == NULL || yr == NULL || yi == NULL)
 		goto cleanup;
 	
-	if (!transform(xreal, ximag, n))
+	if (!transform(xr, xi, n))
 		goto cleanup;
-	if (!transform(yreal, yimag, n))
+	if (!transform(yr, yi, n))
 		goto cleanup;
 	for (i = 0; i < n; i++) {
-		double temp = xreal[i] * yreal[i] - ximag[i] * yimag[i];
-		ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
-		xreal[i] = temp;
+		double temp = xr[i] * yr[i] - xi[i] * yi[i];
+		xi[i] = xi[i] * yr[i] + xr[i] * yi[i];
+		xr[i] = temp;
 	}
-	if (!inverse_transform(xreal, ximag, n))
+	if (!inverse_transform(xr, xi, n))
 		goto cleanup;
 	for (i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
-		outreal[i] = xreal[i] / n;
-		outimag[i] = ximag[i] / n;
+		outreal[i] = xr[i] / n;
+		outimag[i] = xi[i] / n;
 	}
 	status = 1;
 	
 cleanup:
-	free(yimag);
-	free(yreal);
-	free(ximag);
-	free(xreal);
+	free(yi);
+	free(yr);
+	free(xi);
+	free(xr);
 	return status;
 }
 
@@ -278,7 +279,7 @@ static size_t reverse_bits(size_t x, unsigned int n) {
 }
 
 
-static void *memdup(void *src, size_t n) {
+static void *memdup(const void *src, size_t n) {
 	void *dest = malloc(n);
 	if (dest != NULL)
 		memcpy(dest, src, n);
