@@ -1,7 +1,7 @@
 /* 
  * Sinc-based image resampler
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * http://nayuki.eigenstate.org/page/sinc-based-image-resampler
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -26,20 +26,19 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 
+/* Command-line main program */
 public final class sincimageresample {
-	
-	/* Command-line program functions */
 	
 	/** 
 	 * The program main entry point.
-	 * Usage: java sincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]
+	 * <p>Usage: <code>java sincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]</code></p>
 	 * @param args the command-line arguments
 	 */
 	public static void main(String[] args) {
 		// Print help
 		if (args.length < 4 || args.length > 6) {
 			System.err.println("Sinc-based image resampler");
-			System.err.println("Copyright (c) 2013 Nayuki Minase");
+			System.err.println("Copyright (c) 2014 Nayuki Minase");
 			System.err.println("http://nayuki.eigenstate.org/");
 			System.err.println("");
 			System.err.println("Usage: java sincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]");
@@ -47,7 +46,7 @@ public final class sincimageresample {
 			return;
 		}
 		
-		// Run main program
+		// Run main program and catch error messages
 		String msg = main1(args);
 		if (msg != null) {
 			System.err.println(msg);
@@ -58,15 +57,15 @@ public final class sincimageresample {
 	
 	private static String main1(String[] args) {
 		// Parse and check numerical arguments
-		int outWidth  = parsePositiveInt(args[1]);
+		int outWidth = parsePositiveInt(args[1]);
 		int outHeight = parsePositiveInt(args[2]);
 		if (outWidth <= 0)
 			return "Output width must be a positive integer";
 		if (outHeight <= 0)
 			return "Output height must be a positive integer";
 		
-		double horzFilterLen;
-		double vertFilterLen;
+		double horzFilterLen = -1;
+		double vertFilterLen = -1;
 		if (args.length >= 5) {
 			horzFilterLen = parsePositiveDouble(args[4]);
 			if (horzFilterLen == 0)
@@ -78,9 +77,6 @@ public final class sincimageresample {
 					return "Vertical filter length must be a positive real number";
 			} else
 				vertFilterLen = horzFilterLen;
-		} else {
-			horzFilterLen = 0;
-			vertFilterLen = 0;
 		}
 		
 		// Check file arguments
@@ -88,16 +84,29 @@ public final class sincimageresample {
 		File outFile = new File(args[3]);
 		if (!inFile.isFile())
 			return "Input file does not exist";
-		String tempName = outFile.getName().toLowerCase();
-		if (!tempName.endsWith(".bmp") && !tempName.endsWith(".png"))
+		String lowername = outFile.getName().toLowerCase();
+		if (!lowername.endsWith(".bmp") && !lowername.endsWith(".png"))
 			return "Output file must be BMP or PNG";
 		
 		// Do the work!
+		SincImageResampler rs = new SincImageResampler();
 		try {
-			resampleFile(inFile, outWidth, outHeight, horzFilterLen, vertFilterLen, outFile, tempName.substring(tempName.length() - 3).toLowerCase(), true);
+			rs.inputFile = inFile;
+			rs.outputWidth = outWidth;
+			rs.outputHeight = outHeight;
+			rs.horizontalFilterLength = horzFilterLen;
+			rs.verticalFilterLength = vertFilterLen;
+			rs.outputFile = outFile;
+			rs.run();
 		} catch (IOException e) {
 			return e.getMessage();
 		}
+		
+		// Print info
+		System.err.printf("Input  image dimensions: %d * %d%n", rs.inputWidth, rs.inputHeight);
+		System.err.printf("Output image dimensions: %d * %d%n", outWidth, outHeight);
+		System.err.printf("Horizontal filter length: %.2f%n", rs.horizontalFilterLength);
+		System.err.printf("Vertical   filter length: %.2f%n", rs.verticalFilterLength);
 		return null;
 	}
 	
@@ -124,93 +133,156 @@ public final class sincimageresample {
 		}
 	}
 	
+}
+
+
+
+class SincImageResampler {
 	
-	/* Exportable library functions */
+	/* Convenience methods */
 	
 	/**
-	 * Resamples the specified image file to the specified output dimensions with the specified filter lengths, writing to the specified output file.
-	 * 
+	 * Resamples the specified image file to the specified output dimensions, writing to the specified output file.
 	 * @param inFile the input image file (must be in BMP or PNG format)
 	 * @param outWidth the output image width (must be positive)
 	 * @param outHeight the output image height (must be positive)
-	 * @param horzFilterLen the horizontal filter length (0 for automatic according to a default value, otherwise must be positive)
-	 * @param vertFilterLen the vertical filter length (0 for automatic according to a default value, otherwise must be positive)
 	 * @param outFile the output image file
-	 * @param outType the output image format (must be {@code "bmp"} or {@code "png"})
-	 * @param printInfo whether to print the image dimensions and filter lengths to standard error
-	 * @throws IllegalArgumentException if any argument does not meet the requirements
 	 * @throws IOException if an I/O exception occurred in reading the input image file or writing the output image file
 	 */
-	// (This is suitable for promotion to a public library function)
-	static void resampleFile(File inFile, int outWidth, int outHeight, double horzFilterLen, double vertFilterLen, File outFile, String outType, boolean printInfo) throws IOException {
-		// Read input image
-		BufferedImage inImg;
-		try {
-			inImg = ImageIO.read(inFile);
-		} catch (IOException e) {
-			throw new IOException("Error reading input image file: " + e.getMessage(), e);
-		}
-		
-		// Calculate default automatic filter length
-		if (horzFilterLen == 0)
-			horzFilterLen = Math.max((double)inImg.getWidth() / outWidth, 1) * 4.0;
-		if (vertFilterLen == 0)
-			vertFilterLen = Math.max((double)inImg.getHeight() / outHeight, 1) * 4.0;
-		
-		// Print info
-		if (printInfo) {
-			System.err.printf("Input  image dimensions: %d * %d%n", inImg.getWidth(), inImg.getHeight());
-			System.err.printf("Output image dimensions: %d * %d%n", outWidth, outHeight);
-			System.err.printf("Horizontal filter length: %.2f%n", horzFilterLen);
-			System.err.printf("Vertical   filter length: %.2f%n", vertFilterLen);
-		}
-		
-		// Resample
-		BufferedImage outImg = resampleImage(inImg, outWidth, outHeight, horzFilterLen, vertFilterLen);
-		
-		// Write output image
-		try {
-			ImageIO.write(outImg, outType, outFile);
-		} catch (IOException e) {
-			throw new IOException("Error writing output image file: " + e.getMessage(), e);
-		}
+	public static void resampleFile(File inFile, int outWidth, int outHeight, File outFile) throws IOException {
+		SincImageResampler rs = new SincImageResampler();
+		rs.inputFile = inFile;
+		rs.outputWidth = outWidth;
+		rs.outputHeight = outHeight;
+		rs.outputFile = outFile;
+		rs.run();
 	}
 	
 	
 	/**
-	 * Takes the specified image, resamples it to the specified output dimensions with the specified filter lengths, and returning the resulting image.
-	 * 
+	 * Resamples the specified image to the specified output dimensions, returning a new image.
 	 * @param image the input image (treated as RGB24)
 	 * @param outWidth the output image width (must be positive)
 	 * @param outHeight the output image height (must be positive)
-	 * @param horzFilterLen the horizontal filter length (must be positive)
-	 * @param vertFilterLen the vertical filter length (must be positive)
 	 * @return the output resampled image (RGB24 format)
 	 */
-	// (This is suitable for promotion to a public library function)
-	static BufferedImage resampleImage(BufferedImage image, int outWidth, int outHeight, double horzFilterLen, double vertFilterLen) {
-		if (image == null)
-			throw new NullPointerException();
-		if (outWidth <= 0 || outHeight <= 0
-				|| horzFilterLen <= 0 || Double.isInfinite(horzFilterLen) || Double.isNaN(horzFilterLen)
-				|| vertFilterLen <= 0 || Double.isInfinite(vertFilterLen) || Double.isNaN(vertFilterLen))
-			throw new IllegalArgumentException();
+	public static BufferedImage resampleImage(BufferedImage image, int outWidth, int outHeight) {
+		SincImageResampler rs = new SincImageResampler();
+		rs.inputImage = image;
+		rs.outputWidth = outWidth;
+		rs.outputHeight = outHeight;
+		try {
+			rs.run();
+		} catch (IOException e) {
+			throw new AssertionError(e);
+		}
+		return rs.outputImage;
+	}
+	
+	
+	/* Full functionality */
+	
+	public File inputFile = null;
+	public BufferedImage inputImage = null;
+	public int inputWidth   = -1;  // run() does not read this, but will overwrite this field
+	public int inputHeight  = -1;  // run() does not read this, but will overwrite this field
+	public int outputWidth  = -1;  // Must set to a positive number
+	public int outputHeight = -1;  // Must set to a positive number
+	public double horizontalFilterLength = -1;  // Horizontal filter length (set a positive value, otherwise an automatic default value will be computed)
+	public double verticalFilterLength   = -1;  // Vertical   filter length (set a positive value, otherwise an automatic default value will be computed)
+	public BufferedImage outputImage = null;  // run() does not read this, but will overwrite this field
+	public File outputFile = null;
+	public String outputFileType = null;  // Must be "png", "bmp", or null (auto-detection based on outputFile's extension)
+	
+	
+	/**
+	 * Constructs a blank resampler object - certain fields must be set before calling {@code run()}.
+	 */
+	public SincImageResampler() {}
+	
+	
+	/**
+	 * Runs the resampler. The data flow operates on a "waterfall" model, reading and writing the fields from top to bottom:
+	 * <ol>
+	 *   <li>If {@code inputFile} is non-{@code null}, then it is read into {@code inputImage}.</li>
+	 *   <li>{@code inputImage} needs to be non-{@code null} now (set explicitly or read from {@code inputFile}).</li>
+	 *   <li>{@code inputImage} is read into {@code inputWidth} and {@code inputHeight}.</li>
+	 *   <li>{@code outputWidth} and {@code outputHeight} must be positive (set explicitly).</li>
+	 *   <li>If a filter length is zero or negative, then a default filter length is computed and set for that axis.</li>
+	 *   <li><strong>{@code outputImage} is computed by resampling {@code inputImage}.</strong> (This is the main purpose of the class.)</li>
+	 *   <li>If {@code outputFile} is non-{@code null} and {@code outputFileType} is {@code null}: The type is set to {@code "png"} or {@code "bmp"}
+	 *       if the output file has that extension (case-insensitive), otherwise it is set to {@code "png"} by default.</li>
+	 *   <li>If {@code outputFile} is non-{@code null}, then {@code outputImage} is written to the file.</li>
+	 * </ol>
+	 * <p>After calling {@code run()}, it is recommend that this object should not be reused for another resampling operation.
+	 * This is because various fields probably need to be cleared, such as the filter length and output file type.</p>
+	 * @throws IOException if an I/O exception occurred
+	 * @throws IllegalStateException if there is no input image or the output dimensions are not set to positive values
+	 */
+	public void run() throws IOException {
+		// Read input file (optional)
+		if (inputFile != null) {
+			try {
+				inputImage = ImageIO.read(inputFile);
+			} catch (IOException e) {
+				throw new IOException("Error reading input file (" + inputFile + "): " + e.getMessage(), e);
+			}
+		}
+		
+		// Get input image dimensions
+		if (inputImage == null)
+			throw new IllegalStateException("No input image");
+		inputWidth = inputImage.getWidth();
+		inputHeight = inputImage.getHeight();
+		
+		// Calculate filter lengths (optional)
+		if (outputWidth <= 0 || outputHeight <= 0)
+			throw new IllegalStateException("Output dimensions not set");
+		if (horizontalFilterLength <= 0)
+			horizontalFilterLength = Math.max((double)inputWidth / outputWidth, 1) * 4.0;
+		if (verticalFilterLength <= 0)
+			verticalFilterLength = Math.max((double)inputHeight / outputHeight, 1) * 4.0;
+		
+		// Resample the image
+		resampleImage();
+		
+		// Write output file (optional)
+		if (outputFile != null) {
+			if (outputFileType == null) {  // Auto-detection by file extension
+				String lowername = outputFile.getName().toLowerCase();
+				if (lowername.endsWith(".bmp"))
+					outputFileType = "bmp";
+				else
+					outputFileType = "png";  // Default
+			}
+			try {
+				ImageIO.write(outputImage, outputFileType, outputFile);
+			} catch (IOException e) {
+				throw new IOException("Error writing output file (" + outputFile + "): " + e.getMessage(), e);
+			}
+		}
+	}
+	
+	
+	private void resampleImage() {
+		int inWidth = inputWidth;
+		int inHeight = inputHeight;
+		int outWidth = outputWidth;
+		int outHeight = outputHeight;
 		
 		// Resample each channel
-		int inWidth = image.getWidth();
-		int inHeight = image.getHeight();
-		BufferedImage result = new BufferedImage(outWidth, outHeight, BufferedImage.TYPE_INT_RGB);
+		outputImage = new BufferedImage(outWidth, outHeight, BufferedImage.TYPE_INT_RGB);
 		for (int i = 0; i < 3; i++) {
 			// Convert to float array
 			float[][] temp = new float[inHeight][inWidth];
 			for (int y = 0; y < inHeight; y++) {
 				for (int x = 0; x < inWidth; x++) {
-					temp[y][x] = (image.getRGB(x, y) >>> (i * 8)) & 0xFF;
+					temp[y][x] = (inputImage.getRGB(x, y) >>> (i * 8)) & 0xFF;
 				}
 			}
 			
-			temp = transpose(resample(temp, outWidth , horzFilterLen));
-			temp = transpose(resample(temp, outHeight, vertFilterLen));
+			temp = transpose(resample(temp, outWidth , horizontalFilterLength));
+			temp = transpose(resample(temp, outHeight, verticalFilterLength));
 			
 			// Accumulate to output image
 			for (int y = 0; y < outHeight; y++) {
@@ -220,12 +292,10 @@ public final class sincimageresample {
 						val = 255;
 					else if (val < 0)
 						val = 0;
-					result.setRGB(x, y, result.getRGB(x, y) | Math.round(val) << (i * 8));
+					outputImage.setRGB(x, y, outputImage.getRGB(x, y) | Math.round(val) << (i * 8));
 				}
 			}
 		}
-		
-		return result;
 	}
 	
 	
