@@ -44,7 +44,7 @@ def next_permutation(arr):
 # comp is a comparison function - comp(x, y) returns a negative number if x is considered to be less than y,
 # a positive number if x is considered to be greater than y, or 0 if x is considered to be equal to y.
 # 
-def next_permutation(arr, comp):
+def next_permutation_comp(arr, comp):
     # Find non-increasing suffix
     i = len(arr) - 1
     while i > 0 and comp(arr[i - 1], arr[i]) >= 0:
