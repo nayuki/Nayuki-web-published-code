@@ -7,7 +7,6 @@
  */
 
 #include <inttypes.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +56,7 @@ int main(int argc, char **argv) {
 		uint64_t temp = ts.tv_sec * UINT64_C(1000000000) + ts.tv_nsec;
 		int i;
 		for (i = 0; i < MSG_LEN; i++, temp /= 26)
-			block[i] = 'a'  + temp % 26;
+			block[i] = 'a' + temp % 26;
 		block[MSG_LEN] = 0x80;
 		block[126] = (uint8_t)(MSG_LEN >> 5);
 		block[127] = (uint8_t)(MSG_LEN << 3);
