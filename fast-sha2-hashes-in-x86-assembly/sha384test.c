@@ -79,15 +79,16 @@ static int self_check(void) {
 /* Full message hasher */
 
 void sha384_hash(const uint8_t *message, uint32_t len, uint64_t hash[6]) {
-	uint64_t state[8];
-	state[0] = UINT64_C(0xCBBB9D5DC1059ED8);
-	state[1] = UINT64_C(0x629A292A367CD507);
-	state[2] = UINT64_C(0x9159015A3070DD17);
-	state[3] = UINT64_C(0x152FECD8F70E5939);
-	state[4] = UINT64_C(0x67332667FFC00B31);
-	state[5] = UINT64_C(0x8EB44A8768581511);
-	state[6] = UINT64_C(0xDB0C2E0D64F98FA7);
-	state[7] = UINT64_C(0x47B5481DBEFA4FA4);
+	uint64_t state[8] = {
+		UINT64_C(0xCBBB9D5DC1059ED8),
+		UINT64_C(0x629A292A367CD507),
+		UINT64_C(0x9159015A3070DD17),
+		UINT64_C(0x152FECD8F70E5939),
+		UINT64_C(0x67332667FFC00B31),
+		UINT64_C(0x8EB44A8768581511),
+		UINT64_C(0xDB0C2E0D64F98FA7),
+		UINT64_C(0x47B5481DBEFA4FA4),
+	};
 	
 	uint32_t i;
 	for (i = 0; len - i >= 128; i += 128)

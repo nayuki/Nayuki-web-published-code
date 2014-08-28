@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -12,7 +12,7 @@
  * <p>Calculations are subject to errors due to rounding, overflow, and underflow.
  * But the results for typical calculations will be near the true result, which is why this class is provided.</p>
  */
-public class Float64Field extends Field<Double> {
+public final class Float64Field extends Field<Double> {
 	
 	/**
 	 * The singleton instance of this field.

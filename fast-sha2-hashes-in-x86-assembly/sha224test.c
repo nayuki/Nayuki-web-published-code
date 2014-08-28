@@ -76,15 +76,16 @@ static int self_check(void) {
 /* Full message hasher */
 
 void sha224_hash(const uint8_t *message, uint32_t len, uint32_t hash[7]) {
-	uint32_t state[8];
-	state[0] = UINT32_C(0xC1059ED8);
-	state[1] = UINT32_C(0x367CD507);
-	state[2] = UINT32_C(0x3070DD17);
-	state[3] = UINT32_C(0xF70E5939);
-	state[4] = UINT32_C(0xFFC00B31);
-	state[5] = UINT32_C(0x68581511);
-	state[6] = UINT32_C(0x64F98FA7);
-	state[7] = UINT32_C(0xBEFA4FA4);
+	uint32_t state[8] = {
+		UINT32_C(0xC1059ED8),
+		UINT32_C(0x367CD507),
+		UINT32_C(0x3070DD17),
+		UINT32_C(0xF70E5939),
+		UINT32_C(0xFFC00B31),
+		UINT32_C(0x68581511),
+		UINT32_C(0x64F98FA7),
+		UINT32_C(0xBEFA4FA4),
+	};
 	
 	uint32_t i;
 	for (i = 0; len - i >= 64; i += 64)

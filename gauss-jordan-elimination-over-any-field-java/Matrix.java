@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -11,7 +11,7 @@ public final class Matrix<T> implements Cloneable {
 	
 	/* Basic matrix implementation */
 	
-	// The values of the matrix, initially null
+	// The values of the matrix stored in row-major order, with each element initially null
 	private Object[][] values;
 	
 	// The field used to operate on the values in the matrix
@@ -59,8 +59,8 @@ public final class Matrix<T> implements Cloneable {
 	
 	/**
 	 * Returns the element at the specified location in this matrix.
-	 * @param row the row to read from
-	 * @param col the column to read from
+	 * @param row the row to read from (0-based indexing)
+	 * @param col the column to read from (0-based indexing)
 	 * @return the element at the specified location in this matrix
 	 * @throws IndexOutOfBoundsException if the specified row or column exceeds the bounds of the matrix
 	 */
@@ -74,8 +74,8 @@ public final class Matrix<T> implements Cloneable {
 	
 	/**
 	 * Stores the specified element at the specified location in this matrix.
-	 * @param row the row to write to
-	 * @param col the column to write to
+	 * @param row the row to write to (0-based indexing)
+	 * @param col the column to write to (0-based indexing)
 	 * @param val the element value to write
 	 * @throws IndexOutOfBoundsException if the specified row or column exceeds the bounds of the matrix
 	 */
@@ -94,7 +94,7 @@ public final class Matrix<T> implements Cloneable {
 		int rows = rowCount();
 		int cols = columnCount();
 		Matrix<T> result = new Matrix<T>(rows, cols, f);
-		for (int i = 0; i < values.length; i++)
+		for (int i = 0; i < values.length; i++)  // For each row
 			System.arraycopy(values[i], 0, result.values[i], 0, cols);
 		return result;
 	}
@@ -104,8 +104,8 @@ public final class Matrix<T> implements Cloneable {
 	
 	/**
 	 * Swaps the two specified rows of this matrix.
-	 * @param row0 one row to swap
-	 * @param row1 the other row to swap
+	 * @param row0 one row to swap (0-based indexing)
+	 * @param row1 the other row to swap (0-based indexing)
 	 * @throws IndexOutOfBoundsException if a specified row exceeds the bounds of the matrix
 	 */
 	public void swapRows(int row0, int row1) {
@@ -119,8 +119,9 @@ public final class Matrix<T> implements Cloneable {
 	
 	/**
 	 * Multiplies the specified row in this matrix by the specified factor. In other words, row *= factor.
-	 * @param row the row index to operate on
+	 * @param row the row index to operate on (0-based indexing)
 	 * @param factor the factor to multiply by
+	 * @throws IndexOutOfBoundsException if the specified row exceeds the bounds of the matrix
 	 */
 	public void multiplyRow(int row, T factor) {
 		for (int j = 0, cols = columnCount(); j < cols; j++)
@@ -131,9 +132,10 @@ public final class Matrix<T> implements Cloneable {
 	/**
 	 * Adds the first specified row in this matrix multiplied by the specified factor to the second specified row.
 	 * In other words, destRow += srcRow * factor.
-	 * @param srcRow the index of the row to read and multiply
-	 * @param destRow the index of the row to accumulate to
+	 * @param srcRow the index of the row to read and multiply (0-based indexing)
+	 * @param destRow the index of the row to accumulate to (0-based indexing)
 	 * @param factor the factor to multiply by
+	 * @throws IndexOutOfBoundsException if a specified row exceeds the bounds of the matrix
 	 */
 	public void addRows(int srcRow, int destRow, T factor) {
 		for (int j = 0, cols = columnCount(); j < cols; j++)
@@ -142,13 +144,18 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Returns the product of this matrix with the specified matrix. (Remember that matrix multiplication is not commutative.)
+	 * Returns the product of this matrix with the specified matrix. Requires the specified matrix to have the same number of rows as this matrix's number of columns. Remember that matrix multiplication is not commutative.
 	 * @param other the second matrix multiplicand
 	 * @return the product of this matrix with the specified matrix
+	 * @throws NullPointerException if the specified matrix is {@code null}
+	 * @throws IllegalArgumentException if the specified matrix has incompatible dimensions for multiplication
 	 */
 	public Matrix<T> multiply(Matrix<T> other) {
+		if (other == null)
+			throw new NullPointerException();
 		if (columnCount() != other.rowCount())
 			throw new IllegalArgumentException("Incompatible matrix sizes for multiplication");
+		
 		int rows = rowCount();
 		int cols = other.columnCount();
 		int cells = columnCount();
@@ -212,7 +219,9 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Replaces the values of this matrix with the inverse of this matrix. Requires the matrix to be square.
+	 * Replaces the values of this matrix with the inverse of this matrix. Requires the matrix to be square. If an exception is thrown, this matrix is unchanged.
+	 * @throws IllegalStateException if this matrix is not square
+	 * @throws IllegalStateException if this matrix has no inverse
 	 */
 	public void invert() {
 		int rows = rowCount();
@@ -231,7 +240,7 @@ public final class Matrix<T> implements Cloneable {
 		
 		temp.reducedRowEchelonForm();
 		
-		// Check that the RREF is in this form: [identity | inverse]
+		// Check that the left half is the identity matrix
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				if (!f.equals(temp.get(i, j), i == j ? f.one() : f.zero()))
@@ -239,7 +248,7 @@ public final class Matrix<T> implements Cloneable {
 			}
 		}
 		
-		// Extract inverse matrix
+		// Extract inverse matrix from: [identity | inverse]
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++)
 				set(i, j, temp.get(i, j + cols));
@@ -248,8 +257,9 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Returns the determinant of this matrix, and as a side effect converts the matrix to row echelon form (REF). Requires the matrix to be square.
+	 * Returns the determinant of this matrix, and as a side effect converts the matrix to row echelon form (REF). Requires the matrix to be square. The leading coefficient of each row is not guaranteed to be one.
 	 * @return the determinant of this matrix
+	 * @throws IllegalStateException if this matrix is not square
 	 */
 	public T determinantAndRef() {
 		int rows = rowCount();

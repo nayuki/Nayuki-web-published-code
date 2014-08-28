@@ -1,19 +1,15 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/gauss-jordan-elimination-over-any-field-java
  */
-
 
 import java.math.BigInteger;
 
 
 public final class Fraction implements Comparable<Fraction> {
-	
-	private static final BigInteger BI_TWO = BigInteger.valueOf(2);
-	
 	
 	public final BigInteger numerator;
 	
@@ -63,16 +59,17 @@ public final class Fraction implements Comparable<Fraction> {
 		
 		exponent -= 0x3FF;  // De-bias
 		if (exponent >= 52) {
-			numerator = BigInteger.valueOf(mantissa).multiply(BI_TWO.pow(exponent - 52));
+			numerator = BigInteger.valueOf(mantissa).shiftLeft(exponent - 52);
 			denominator = BigInteger.ONE;
 		} else {
 			BigInteger num = BigInteger.valueOf(mantissa);
-			BigInteger den = BI_TWO.pow(52 - exponent);
+			BigInteger den = BigInteger.ONE.shiftLeft(52 - exponent);
 			BigInteger gcd = num.gcd(den);
 			numerator = num.divide(gcd);
 			denominator = den.divide(gcd);
 		}
 	}
+	
 	
 	
 	public boolean equals(Object obj) {
