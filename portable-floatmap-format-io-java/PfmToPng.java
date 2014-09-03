@@ -55,26 +55,27 @@ public class PfmToPng {
 		PortableFloatMap pfm = new PortableFloatMap(infile);
 		int width = pfm.width;
 		int height = pfm.height;
+		float[] inpix = pfm.pixels;
 		
 		// Convert pixels from float32 to uint8 and do packing
-		int[] pixels = new int[pfm.width * pfm.height];
+		int[] outpix = new int[width * height];
 		if (pfm.mode == PortableFloatMap.Mode.COLOR) {
 			for (int y = height - 1, i = 0; y >= 0; y--) {
 				for (int x = 0; x < width; x++, i += 3) {
-					pixels[y * width + x] = floatToByte(pfm.pixels[i]) << 16 | floatToByte(pfm.pixels[i + 1]) << 8 | floatToByte(pfm.pixels[i + 2]);
+					outpix[y * width + x] = floatToByte(inpix[i]) << 16 | floatToByte(inpix[i + 1]) << 8 | floatToByte(inpix[i + 2]);
 				}
 			}
 		} else if (pfm.mode == PortableFloatMap.Mode.GRAYSCALE) {
 			for (int y = height - 1, i = 0; y >= 0; y--) {
 				for (int x = 0; x < width; x++, i++)
-					pixels[y * width + x] = floatToByte(pfm.pixels[i]) * 0x010101;
+					outpix[y * width + x] = floatToByte(inpix[i]) * 0x010101;
 			}
 		} else
 			throw new AssertionError();
 		
 		// Write output image file
-		BufferedImage img = new BufferedImage(pfm.width, pfm.height, BufferedImage.TYPE_INT_RGB);
-		img.setRGB(0, 0, pfm.width, pfm.height, pixels, 0, pfm.width);
+		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		img.setRGB(0, 0, width, height, outpix, 0, width);
 		ImageIO.write(img, "png", outfile);
 	}
 	
