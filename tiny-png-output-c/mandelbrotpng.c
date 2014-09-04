@@ -1,7 +1,7 @@
 /* 
- * Mandlebrot image for Tiny PNG Output (C)
+ * Mandlebrot image using Tiny PNG Output (C)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * http://nayuki.eigenstate.org/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -52,13 +52,11 @@ int main(int argc, char **argv) {
 	// Initialize
 	FILE *fout = fopen("demo-mandelbrot.png", "wb");
 	struct TinyPngOut pngout;
-	if (TinyPngOut_init(&pngout, fout, width, height) != TINYPNGOUT_OK) {
-		fprintf(stderr, "Error\n");
-		return 1;
-	}
+	if (fout == NULL || TinyPngOut_init(&pngout, fout, width, height) != TINYPNGOUT_OK)
+		goto error;
 	
 	// Compute and write Mandelbrot one line at a time
-	uint8_t *line = malloc(width * 3);
+	uint8_t *line = malloc(width * 3 * sizeof(uint8_t));
 	int y;
 	for (y = 0; y < height; y++) {
 		int x;
@@ -68,20 +66,22 @@ int main(int argc, char **argv) {
 			line[x * 3 + 1] = (uint8_t)(pix >>  8);
 			line[x * 3 + 2] = (uint8_t)(pix >>  0);
 		}
-		if (TinyPngOut_write(&pngout, line, width) != TINYPNGOUT_OK) {
-			fprintf(stderr, "Error\n");
-			return 1;
-		}
+		if (TinyPngOut_write(&pngout, line, width) != TINYPNGOUT_OK)
+			goto error;
 	}
 	
 	// Finalize
 	free(line);
-	if (TinyPngOut_write(&pngout, NULL, 0) != TINYPNGOUT_DONE) {
-		fprintf(stderr, "Error\n");
-		return 1;
-	}
+	if (TinyPngOut_write(&pngout, NULL, 0) != TINYPNGOUT_DONE)
+		goto error;
 	fclose(fout);
 	return 0;
+	
+error:
+	fprintf(stderr, "Error\n");
+	if (fout != NULL)
+		fclose(fout);
+	return 1;
 }
 
 

@@ -1,7 +1,7 @@
 /* 
- * Simple sample image for Tiny PNG Output (C)
+ * Simple sample image using Tiny PNG Output (C)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * http://nayuki.eigenstate.org/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -38,23 +38,22 @@ int main(int argc, char **argv) {
 	// Initialize file and Tiny Png Output
 	FILE *fout = fopen("demo-rgb.png", "wb");
 	struct TinyPngOut pngout;
-	if (TinyPngOut_init(&pngout, fout, width, height) != TINYPNGOUT_OK) {
-		fprintf(stderr, "Error\n");
-		return 1;
-	}
+	if (fout == NULL || TinyPngOut_init(&pngout, fout, width, height) != TINYPNGOUT_OK)
+		goto error;
 	
 	// Write image data
-	if (TinyPngOut_write(&pngout, pixels, width * height) != TINYPNGOUT_OK) {
-		fprintf(stderr, "Error\n");
-		return 1;
-	}
+	if (TinyPngOut_write(&pngout, pixels, width * height) != TINYPNGOUT_OK)
+		goto error;
 	
 	// Check for proper completion
-	if (TinyPngOut_write(&pngout, NULL, 0) != TINYPNGOUT_DONE) {
-		fprintf(stderr, "Error\n");
-		return 1;
-	}
+	if (TinyPngOut_write(&pngout, NULL, 0) != TINYPNGOUT_DONE)
+		goto error;
 	fclose(fout);
-	
 	return 0;
+	
+error:
+	fprintf(stderr, "Error\n");
+	if (fout != NULL)
+		fclose(fout);
+	return 1;
 }

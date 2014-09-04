@@ -45,27 +45,36 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 	if (fout == NULL || width <= 0 || height <= 0)
 		return TINYPNGOUT_INVALID_ARGUMENT;
 	
-	// Calculate data size
-	uint64_t lineSize = (uint64_t)width * 3 + 1;
-	if (lineSize >= UINT64_C(2147483648))
+	// Calculate data sizes
+	if (width > (UINT32_MAX - 1) / 3)
 		return TINYPNGOUT_IMAGE_TOO_LARGE;
-	uint64_t size = lineSize * height;  // Size of DEFLATE input
-	pngout->deflateRemain = (uint32_t)size;
-	size += (size + DEFLATE_MAX_BLOCK_SIZE - 1) / DEFLATE_MAX_BLOCK_SIZE * 5 + 6;  // Size of zlib+DEFLATE output
-	if (size >= UINT64_C(2147483648))
+	uint32_t lineSize = width * 3 + 1;
+	
+	if (lineSize > UINT32_MAX / height)
 		return TINYPNGOUT_IMAGE_TOO_LARGE;
+	uint32_t size = lineSize * height;  // Size of DEFLATE input
+	pngout->deflateRemain = size;
+	
+	uint32_t overhead = size / DEFLATE_MAX_BLOCK_SIZE;
+	if (overhead * DEFLATE_MAX_BLOCK_SIZE < size)
+		overhead++;  // Round up to next block
+	overhead = overhead * 5 + 6;
+	if (size > UINT32_MAX - overhead)
+		return TINYPNGOUT_IMAGE_TOO_LARGE;
+	size += overhead;  // Size of zlib+DEFLATE output
 	
 	// Set most of the fields
-	pngout->width = lineSize;
-	pngout->height = height;
+	pngout->width = lineSize;  // In bytes
+	pngout->height = height;   // In pixels
 	pngout->outStream = fout;
 	pngout->positionX = 0;
 	pngout->positionY = 0;
 	pngout->deflateFilled = 0;
 	pngout->adler = 1;
 	
-	// Write header
-	uint8_t header[43] = {
+	// Write header (not a pure header, but a couple of things concatenated together)
+	#define HEADER_SIZE 43
+	uint8_t header[HEADER_SIZE] = {
 		// PNG header
 		0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
 		// IHDR chunk
@@ -74,7 +83,7 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 		width  >> 24, width  >> 16, width  >> 8, width  >> 0,
 		height >> 24, height >> 16, height >> 8, height >> 0,
 		0x08, 0x02, 0x00, 0x00, 0x00,
-		0, 0, 0, 0,  // IHDR CRC-32 to be filled in
+		0, 0, 0, 0,  // IHDR CRC-32 to be filled in (starting at offset 29)
 		// IDAT chunk
 		size >> 24, size >> 16, size >> 8, size >> 0,
 		0x49, 0x44, 0x41, 0x54,
@@ -86,7 +95,7 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 	header[30] = crc >> 16;
 	header[31] = crc >>  8;
 	header[32] = crc >>  0;
-	if (fwrite(header, 1, 43, fout) != 43)
+	if (fwrite(header, 1, HEADER_SIZE, fout) != HEADER_SIZE)
 		return TINYPNGOUT_IO_ERROR;
 	
 	pngout->crc = crc32(0, &header[37], 6);
@@ -95,7 +104,7 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 
 
 enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t *pixels, int count) {
-	int32_t width = pngout->width;
+	int32_t width  = pngout->width;
 	int32_t height = pngout->height;
 	if (pngout->positionY == height)
 		return TINYPNGOUT_DONE;
@@ -107,17 +116,18 @@ enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t 
 	while (count > 0) {
 		// Start DEFLATE block
 		if (pngout->deflateFilled == 0) {
+			#define BLOCK_HEADER_SIZE 5
 			uint16_t size = (uint16_t)MIN(pngout->deflateRemain, DEFLATE_MAX_BLOCK_SIZE);
-			uint8_t blockheader[5] = {
+			uint8_t blockheader[BLOCK_HEADER_SIZE] = {
 				pngout->deflateRemain <= DEFLATE_MAX_BLOCK_SIZE ? 1 : 0,
 				size >> 0,
 				size >> 8,
 				(size ^ UINT16_C(0xFFFF)) >> 0,
 				(size ^ UINT16_C(0xFFFF)) >> 8,
 			};
-			if (fwrite(blockheader, 1, 5, f) != 5)
+			if (fwrite(blockheader, 1, BLOCK_HEADER_SIZE, f) != BLOCK_HEADER_SIZE)
 				return TINYPNGOUT_IO_ERROR;
-			pngout->crc = crc32(pngout->crc, blockheader, 5);
+			pngout->crc = crc32(pngout->crc, blockheader, BLOCK_HEADER_SIZE);
 		}
 		
 		// Calculate number of bytes to write in this loop iteration
@@ -139,6 +149,7 @@ enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t 
 			n--;
 		}
 		
+		// Write bytes and update checksums
 		if (fwrite(pixels, 1, n, f) != n)
 			return TINYPNGOUT_IO_ERROR;
 		pngout->crc = crc32(pngout->crc, pixels, n);
@@ -171,10 +182,11 @@ enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t 
 /* Private function implementations */
 
 static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout) {
+	#define FOOTER_SIZE 20
 	uint32_t adler = pngout->adler;
-	uint8_t footer[20] = {
+	uint8_t footer[FOOTER_SIZE] = {
 		adler >> 24, adler >> 16, adler >> 8, adler >> 0,
-		0, 0, 0, 0,  // IDAT CRC-32 to be filled in
+		0, 0, 0, 0,  // IDAT CRC-32 to be filled in (starting at offset 4)
 		// IEND chunk
 		0x00, 0x00, 0x00, 0x00,
 		0x49, 0x45, 0x4E, 0x44,
@@ -186,10 +198,8 @@ static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout) {
 	footer[6] = crc >>  8;
 	footer[7] = crc >>  0;
 	
-	FILE *f = pngout->outStream;
-	if (fwrite(footer, 1, 20, f) != 20)
+	if (fwrite(footer, 1, FOOTER_SIZE, pngout->outStream) != FOOTER_SIZE)
 		return TINYPNGOUT_IO_ERROR;
-	
 	return TINYPNGOUT_OK;
 }
 
@@ -199,7 +209,7 @@ static uint32_t crc32(uint32_t state, const uint8_t *data, size_t len) {
 	size_t i;
 	for (i = 0; i < len; i++) {
 		unsigned int j;
-		for (j = 0; j < 8; j++) {
+		for (j = 0; j < 8; j++) {  // Inefficient bitwise implementation, instead of table-based
 			uint32_t bit = (state ^ (data[i] >> j)) & 1;
 			state = (state >> 1) ^ ((-bit) & 0xEDB88320);
 		}

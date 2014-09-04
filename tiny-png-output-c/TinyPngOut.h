@@ -59,9 +59,9 @@ enum TinyPngOutStatus {
  * Example usage:
  *   #define WIDTH 640
  *   #define HEIGHT 480
- *   FILE *fout = fopen("image.png", "w");
+ *   FILE *fout = fopen("image.png", "wb");
  *   struct TinyPngOut pngout;
- *   if (TinyPngOut_init(&pngout, fout, width, height) != TINYPNGOUT_OK) {
+ *   if (fout == NULL || TinyPngOut_init(&pngout, fout, WIDTH, HEIGHT) != TINYPNGOUT_OK) {
  *     ... (handle error) ...
  *   }
  */
