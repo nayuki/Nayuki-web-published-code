@@ -16,6 +16,9 @@ function generate() {
 	if (document.getElementById("uppercase").checked) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	if (document.getElementById("symbols"  ).checked) charset += "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 	if (document.getElementById("space"    ).checked) charset += " ";
+	if (document.getElementById("custom"   ).checked) charset += document.getElementById("customchars").value;
+	charset = removeDuplicates(charset);
+	charset = charset.replace(/ /, "\u00A0");  // Replace space with non-breaking space
 	
 	var password = "";
 	var statistics = "";
@@ -52,6 +55,17 @@ function generate() {
 }
 
 
+function removeDuplicates(s) {
+	var result = "";
+	for (var i = 0; i < s.length; i++) {
+		var c = s.charAt(i);
+		if (result.indexOf(c) == -1)
+			result += c;
+	}
+	return result;
+}
+
+
 // Returns a random integer in the range [0, n) using a variety of methods
 function randomInt(n) {
 	var x = randomIntMathRandom(n);
@@ -61,7 +75,7 @@ function randomInt(n) {
 
 
 // Not secure or high quality, but always available
-function randomIntMathRandom(n) {	
+function randomIntMathRandom(n) {
 	var x = Math.floor(Math.random() * n);
 	if (x < 0 || x >= n)
 		throw "Arithmetic exception";
