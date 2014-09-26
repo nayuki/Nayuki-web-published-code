@@ -286,9 +286,9 @@ class FastSincImageResampler {
 		final float[] inVert = new float[inWidth * inHeight * 3];
 		for (int i = 0, j = 0; i < inPixels.length; i++, j += 3) {
 			int rgb = inPixels[i];
-			inVert[j + 0] = ((rgb >>> 16) & 0xFF);
-			inVert[j + 1] = ((rgb >>>  8) & 0xFF);
-			inVert[j + 2] = ((rgb >>>  0) & 0xFF);
+			inVert[j + 0] = (rgb >>> 16) & 0xFF;
+			inVert[j + 1] = (rgb >>>  8) & 0xFF;
+			inVert[j + 2] = (rgb >>>  0) & 0xFF;
 		}
 		inPixels = null;
 		
@@ -345,8 +345,11 @@ class FastSincImageResampler {
 					// Wait for all threads to finish the phase
 					try {
 						barrier.await();
-					} catch (InterruptedException e) {}
-					catch (BrokenBarrierException e) {}
+					} catch (InterruptedException e) {
+						throw new RuntimeException(e);
+					} catch (BrokenBarrierException e) {
+						throw new RuntimeException(e);
+					}
 					
 					// Resample horizontally and transpose
 					{

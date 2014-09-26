@@ -276,13 +276,12 @@ class SincImageResampler {
 			// Convert to float array
 			float[][] temp = new float[inHeight][inWidth];
 			for (int y = 0; y < inHeight; y++) {
-				for (int x = 0; x < inWidth; x++) {
+				for (int x = 0; x < inWidth; x++)
 					temp[y][x] = (inputImage.getRGB(x, y) >>> (i * 8)) & 0xFF;
-				}
 			}
 			
 			temp = transpose(resample(temp, outWidth , horizontalFilterLength));
-			temp = transpose(resample(temp, outHeight, verticalFilterLength));
+			temp = transpose(resample(temp, outHeight, verticalFilterLength  ));
 			
 			// Accumulate to output image
 			for (int y = 0; y < outHeight; y++) {
