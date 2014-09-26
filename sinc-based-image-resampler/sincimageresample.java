@@ -29,7 +29,7 @@ import javax.imageio.ImageIO;
 /* Command-line main program */
 public final class sincimageresample {
 	
-	/** 
+	/**
 	 * The program main entry point.
 	 * <p>Usage: <code>java sincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]</code></p>
 	 * @param args the command-line arguments

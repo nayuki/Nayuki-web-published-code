@@ -1,7 +1,7 @@
 /* 
  * Sinc-based image resampler (fast version)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * http://nayuki.eigenstate.org/page/sinc-based-image-resampler
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -22,25 +22,27 @@
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 
 
+/* Command-line main program */
 public final class fastsincimageresample {
 	
-	/* Command-line program functions */
-	
-	/** 
+	/**
 	 * The program main entry point.
-	 * Usage: java fastsincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]
+	 * <p>Usage: <code>java fastsincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]</code></p>
 	 * @param args the command-line arguments
 	 */
 	public static void main(String[] args) {
 		// Print help
 		if (args.length < 4 || args.length > 6) {
 			System.err.println("Sinc-based image resampler");
-			System.err.println("Copyright (c) 2013 Nayuki Minase");
+			System.err.println("Copyright (c) 2014 Nayuki Minase");
 			System.err.println("http://nayuki.eigenstate.org/");
 			System.err.println("");
 			System.err.println("Usage: java fastsincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]");
@@ -48,7 +50,7 @@ public final class fastsincimageresample {
 			return;
 		}
 		
-		// Run main program
+		// Run main program and catch error messages
 		String msg = main1(args);
 		if (msg != null) {
 			System.err.println(msg);
@@ -59,15 +61,15 @@ public final class fastsincimageresample {
 	
 	private static String main1(String[] args) {
 		// Parse and check numerical arguments
-		int outWidth  = parsePositiveInt(args[1]);
+		int outWidth = parsePositiveInt(args[1]);
 		int outHeight = parsePositiveInt(args[2]);
 		if (outWidth <= 0)
 			return "Output width must be a positive integer";
 		if (outHeight <= 0)
 			return "Output height must be a positive integer";
 		
-		double horzFilterLen;
-		double vertFilterLen;
+		double horzFilterLen = -1;
+		double vertFilterLen = -1;
 		if (args.length >= 5) {
 			horzFilterLen = parsePositiveDouble(args[4]);
 			if (horzFilterLen == 0)
@@ -79,9 +81,6 @@ public final class fastsincimageresample {
 					return "Vertical filter length must be a positive real number";
 			} else
 				vertFilterLen = horzFilterLen;
-		} else {
-			horzFilterLen = 0;
-			vertFilterLen = 0;
 		}
 		
 		// Check file arguments
@@ -89,16 +88,29 @@ public final class fastsincimageresample {
 		File outFile = new File(args[3]);
 		if (!inFile.isFile())
 			return "Input file does not exist";
-		String tempName = outFile.getName().toLowerCase();
-		if (!tempName.endsWith(".bmp") && !tempName.endsWith(".png"))
+		String lowername = outFile.getName().toLowerCase();
+		if (!lowername.endsWith(".bmp") && !lowername.endsWith(".png"))
 			return "Output file must be BMP or PNG";
 		
 		// Do the work!
+		FastSincImageResampler rs = new FastSincImageResampler();
 		try {
-			resampleFile(inFile, outWidth, outHeight, horzFilterLen, vertFilterLen, outFile, tempName.substring(tempName.length() - 3).toLowerCase(), Runtime.getRuntime().availableProcessors(), true);
+			rs.inputFile = inFile;
+			rs.outputWidth = outWidth;
+			rs.outputHeight = outHeight;
+			rs.horizontalFilterLength = horzFilterLen;
+			rs.verticalFilterLength = vertFilterLen;
+			rs.outputFile = outFile;
+			rs.run();
 		} catch (IOException e) {
 			return e.getMessage();
 		}
+		
+		// Print info
+		System.err.printf("Input  image dimensions: %d * %d%n", rs.inputWidth, rs.inputHeight);
+		System.err.printf("Output image dimensions: %d * %d%n", outWidth, outHeight);
+		System.err.printf("Horizontal filter length: %.2f%n", rs.horizontalFilterLength);
+		System.err.printf("Vertical   filter length: %.2f%n", rs.verticalFilterLength);
 		return null;
 	}
 	
@@ -125,211 +137,281 @@ public final class fastsincimageresample {
 		}
 	}
 	
+}
+
+
+
+class FastSincImageResampler {
 	
-	/* Exportable library functions */
+	/* Convenience methods */
 	
 	/**
-	 * Resamples the specified image file to the specified output dimensions with the specified filter lengths, writing to the specified output file.
-	 * 
+	 * Resamples the specified image file to the specified output dimensions, writing to the specified output file.
 	 * @param inFile the input image file (must be in BMP or PNG format)
 	 * @param outWidth the output image width (must be positive)
 	 * @param outHeight the output image height (must be positive)
-	 * @param horzFilterLen the horizontal filter length (0 for automatic according to a default value, otherwise must be positive)
-	 * @param vertFilterLen the vertical filter length (0 for automatic according to a default value, otherwise must be positive)
 	 * @param outFile the output image file
-	 * @param outType the output image format (must be {@code "bmp"} or {@code "png"})
-	 * @param threads the number of threads to use (must be positive)
-	 * @param printInfo whether to print the image dimensions and filter lengths to standard error
-	 * @throws IllegalArgumentException if any argument does not meet the requirements
 	 * @throws IOException if an I/O exception occurred in reading the input image file or writing the output image file
 	 */
-	// (This is suitable for promotion to a public library function)
-	static void resampleFile(File inFile, int outWidth, int outHeight, double horzFilterLen, double vertFilterLen, File outFile, String outType, int threads, boolean printInfo) throws IOException {
-		// Read input image
-		BufferedImage inImg;
-		try {
-			inImg = ImageIO.read(inFile);
-		} catch (IOException e) {
-			throw new IOException("Error reading input image file: " + e.getMessage(), e);
-		}
-		
-		// Calculate default automatic filter length
-		if (horzFilterLen == 0)
-			horzFilterLen = Math.max((double)inImg.getWidth() / outWidth, 1) * 4.0;
-		if (vertFilterLen == 0)
-			vertFilterLen = Math.max((double)inImg.getHeight() / outHeight, 1) * 4.0;
-		
-		// Print info
-		if (printInfo) {
-			System.err.printf("Input  image dimensions: %d * %d%n", inImg.getWidth(), inImg.getHeight());
-			System.err.printf("Output image dimensions: %d * %d%n", outWidth, outHeight);
-			System.err.printf("Horizontal filter length: %.2f%n", horzFilterLen);
-			System.err.printf("Vertical   filter length: %.2f%n", vertFilterLen);
-		}
-		
-		// Resample
-		BufferedImage outImg = resampleImage(inImg, outWidth, outHeight, horzFilterLen, vertFilterLen, threads);
-		
-		// Write output image
-		try {
-			ImageIO.write(outImg, outType, outFile);
-		} catch (IOException e) {
-			throw new IOException("Error writing output image file: " + e.getMessage(), e);
-		}
+	public static void resampleFile(File inFile, int outWidth, int outHeight, File outFile) throws IOException {
+		FastSincImageResampler rs = new FastSincImageResampler();
+		rs.inputFile = inFile;
+		rs.outputWidth = outWidth;
+		rs.outputHeight = outHeight;
+		rs.outputFile = outFile;
+		rs.run();
 	}
 	
 	
 	/**
-	 * Takes the specified image, resamples it to the specified output dimensions with the specified filter lengths, and returning the resulting image.
-	 * 
+	 * Resamples the specified image to the specified output dimensions, returning a new image.
 	 * @param image the input image (treated as RGB24)
 	 * @param outWidth the output image width (must be positive)
 	 * @param outHeight the output image height (must be positive)
-	 * @param horzFilterLen the horizontal filter length (must be positive)
-	 * @param vertFilterLen the vertical filter length (must be positive)
-	 * @param threads the number of threads to use (must be positive)
 	 * @return the output resampled image (RGB24 format)
 	 */
-	// (This is suitable for promotion to a public library function)
-	static BufferedImage resampleImage(BufferedImage image, int outWidth, int outHeight, double horzFilterLen, double vertFilterLen, int threads) {
-		if (image == null)
-			throw new NullPointerException();
-		if (outWidth <= 0 || outHeight <= 0
-				|| horzFilterLen <= 0 || Double.isInfinite(horzFilterLen) || Double.isNaN(horzFilterLen)
-				|| vertFilterLen <= 0 || Double.isInfinite(vertFilterLen) || Double.isNaN(vertFilterLen))
-			throw new IllegalArgumentException();
+	public static BufferedImage resampleImage(BufferedImage image, int outWidth, int outHeight) {
+		FastSincImageResampler rs = new FastSincImageResampler();
+		rs.inputImage = image;
+		rs.outputWidth = outWidth;
+		rs.outputHeight = outHeight;
+		try {
+			rs.run();
+		} catch (IOException e) {
+			throw new AssertionError(e);
+		}
+		return rs.outputImage;
+	}
+	
+	
+	/* Full functionality */
+	
+	public File inputFile = null;
+	public BufferedImage inputImage = null;
+	public int inputWidth   = -1;  // run() does not read this, but will overwrite this field
+	public int inputHeight  = -1;  // run() does not read this, but will overwrite this field
+	public int outputWidth  = -1;  // Must set to a positive number
+	public int outputHeight = -1;  // Must set to a positive number
+	public double horizontalFilterLength = -1;  // Horizontal filter length (set a positive value, otherwise an automatic default value will be computed)
+	public double verticalFilterLength   = -1;  // Vertical   filter length (set a positive value, otherwise an automatic default value will be computed)
+	public int threads = -1;  // Number of threads to use (set a positive value, otherwise an automatic default value will be computed)
+	public BufferedImage outputImage = null;  // run() does not read this, but will overwrite this field
+	public File outputFile = null;
+	public String outputFileType = null;  // Must be "png", "bmp", or null (auto-detection based on outputFile's extension)
+	
+	
+	/**
+	 * Constructs a blank resampler object - certain fields must be set before calling {@code run()}.
+	 */
+	public FastSincImageResampler() {}
+	
+	
+	/**
+	 * Runs the resampler. The data flow operates on a "waterfall" model, reading and writing the fields from top to bottom:
+	 * <ol>
+	 *   <li>If {@code inputFile} is non-{@code null}, then it is read into {@code inputImage}.</li>
+	 *   <li>{@code inputImage} needs to be non-{@code null} now (set explicitly or read from {@code inputFile}).</li>
+	 *   <li>{@code inputImage} is read into {@code inputWidth} and {@code inputHeight}.</li>
+	 *   <li>{@code outputWidth} and {@code outputHeight} must be positive (set explicitly).</li>
+	 *   <li>If a filter length is zero or negative, then a default filter length is computed and set for that axis.</li>
+	 *   <li>If {@code threads} is zero or negative, then a default number of threads is computed and set.</li>
+	 *   <li><strong>{@code outputImage} is computed by resampling {@code inputImage}.</strong> (This is the main purpose of the class.)</li>
+	 *   <li>If {@code outputFile} is non-{@code null} and {@code outputFileType} is {@code null}: The type is set to {@code "png"} or {@code "bmp"}
+	 *       if the output file has that extension (case-insensitive), otherwise it is set to {@code "png"} by default.</li>
+	 *   <li>If {@code outputFile} is non-{@code null}, then {@code outputImage} is written to the file.</li>
+	 * </ol>
+	 * <p>After calling {@code run()}, it is recommend that this object should not be reused for another resampling operation.
+	 * This is because various fields probably need to be cleared, such as the filter length and output file type.</p>
+	 * @throws IOException if an I/O exception occurred
+	 * @throws IllegalStateException if there is no input image or the output dimensions are not set to positive values
+	 */
+	public void run() throws IOException {
+		// Read input file (optional)
+		if (inputFile != null) {
+			try {
+				inputImage = ImageIO.read(inputFile);
+			} catch (IOException e) {
+				throw new IOException("Error reading input file (" + inputFile + "): " + e.getMessage(), e);
+			}
+		}
 		
-		// Convert image to array
-		int inWidth = image.getWidth();
-		int inHeight = image.getHeight();
+		// Get input image dimensions
+		if (inputImage == null)
+			throw new IllegalStateException("No input image");
+		inputWidth = inputImage.getWidth();
+		inputHeight = inputImage.getHeight();
+		
+		// Calculate filter lengths (optional)
+		if (outputWidth <= 0 || outputHeight <= 0)
+			throw new IllegalStateException("Output dimensions not set");
+		if (horizontalFilterLength <= 0)
+			horizontalFilterLength = Math.max((double)inputWidth / outputWidth, 1) * 4.0;
+		if (verticalFilterLength <= 0)
+			verticalFilterLength = Math.max((double)inputHeight / outputHeight, 1) * 4.0;
+		
+		// Resample the image
+		if (threads <= 0)
+			threads = Runtime.getRuntime().availableProcessors();
+		resampleImage();
+		
+		// Write output file (optional)
+		if (outputFile != null) {
+			if (outputFileType == null) {  // Auto-detection by file extension
+				String lowername = outputFile.getName().toLowerCase();
+				if (lowername.endsWith(".bmp"))
+					outputFileType = "bmp";
+				else
+					outputFileType = "png";  // Default
+			}
+			try {
+				ImageIO.write(outputImage, outputFileType, outputFile);
+			} catch (IOException e) {
+				throw new IOException("Error writing output file (" + outputFile + "): " + e.getMessage(), e);
+			}
+		}
+	}
+	
+	
+	private void resampleImage() {
+		final int inWidth = inputWidth;
+		final int inHeight = inputHeight;
+		final int outWidth = outputWidth;
+		final int outHeight = outputHeight;
+		
+		// Get packed int pixels
 		int[] inPixels = new int[inWidth * inHeight];
-		image.getRGB(0, 0, inWidth, inHeight, inPixels, 0, inWidth);
+		inputImage.getRGB(0, 0, inWidth, inHeight, inPixels, 0, inWidth);
 		
-		// Resample
-		float[][] temp = resampleHorizontal(inPixels, inWidth, outWidth, horzFilterLen, threads);
-		int[] outPixels = resampleVertical(temp, outWidth, outHeight, vertFilterLen, threads);
+		// Convert to float
+		final float[] inVert = new float[inWidth * inHeight * 3];
+		for (int i = 0, j = 0; i < inPixels.length; i++, j += 3) {
+			int rgb = inPixels[i];
+			inVert[j + 0] = ((rgb >>> 16) & 0xFF);
+			inVert[j + 1] = ((rgb >>>  8) & 0xFF);
+			inVert[j + 2] = ((rgb >>>  0) & 0xFF);
+		}
+		inPixels = null;
 		
-		// Convert array to image
-		BufferedImage result = new BufferedImage(outWidth, outHeight, BufferedImage.TYPE_INT_RGB);
-		result.setRGB(0, 0, outWidth, outHeight, outPixels, 0, outWidth);
-		return result;
-	}
-	
-	
-	/* Internal computation functions */
-	
-	// Convolution-based linear resampler
-	private static float[][] resampleHorizontal(final int[] image, final int oldWidth, final int newWidth, final double filterLen, int numThreads) {
-		if (image.length % oldWidth != 0)
-			throw new IllegalArgumentException();
-		final int height = image.length / oldWidth;
-		final float[][] result = new float[3][newWidth * height];
-		final double sincScale = Math.min((double)newWidth / oldWidth, 1) * Math.PI;
-		final double windowScale = 2.0 / filterLen;
-		
+		Thread[] thr = new Thread[threads];
 		final AtomicInteger sharedY = new AtomicInteger(0);
-		Thread[] threads = new Thread[numThreads];
-		for (int i = 0; i < threads.length; i++) {
-			threads[i] = new Thread() {
+		final float[] inHorz = new float[inWidth * outHeight * 3];
+		final CyclicBarrier barrier = new CyclicBarrier(threads);
+		final AtomicInteger sharedX = new AtomicInteger(0);
+		final int[] outPixels = new int[outWidth * outHeight];
+		for (int i = 0; i < thr.length; i++) {
+			thr[i] = new Thread() {
 				public void run() {
-					while (true) {
-						int y = sharedY.getAndIncrement();
-						if (y >= height)
-							break;
-						int inRowOff = y * oldWidth;
-						int outRowOff = y * newWidth;
-						for (int x = 0; x < newWidth; x++) {  // For each output pixel
-							double redSum = 0, greenSum = 0, blueSum = 0;
-							double filterSum = 0;
-							double centerX = (x + 0.5) / newWidth * oldWidth;  // In input image coordinates
-							double filterStartX = centerX - filterLen / 2;
-							int startIndex = (int)Math.ceil(filterStartX - 0.5);
-							for (int i = 0; i <= filterLen; i++) {
-								int inputX = startIndex + i;
-								double sincPos = (inputX + 0.5 - centerX) * sincScale;
-								double sinc = sincPos != 0 ? Math.sin(sincPos) / sincPos : 1;
-								double windowPos = (inputX + 0.5 - filterStartX) * windowScale - 1;  // Usually in the range [0, 2]
-								double weight = sinc * Math.max(1 - Math.abs(windowPos), 0);
-								int pixel = image[inRowOff + Math.min(Math.max(inputX, 0), oldWidth - 1)];
-								redSum    += weight * ((pixel >>> 16) & 0xFF);
-								greenSum  += weight * ((pixel >>> 8) & 0xFF);
-								blueSum   += weight * (pixel & 0xFF);
-								filterSum += weight;
+					// Resample vertically and transpose
+					{
+						double sincScale = Math.min((double)outHeight / inHeight, 1);
+						double[] weights = new double[(int)verticalFilterLength + 1];
+						float[] outVertRow = new float[inWidth * 3];
+						while (true) {  // For each output row
+							int y = sharedY.getAndIncrement();
+							if (y >= outHeight)
+								break;
+							
+							double weightSum = 0;
+							double centerY = (y + 0.5) / outHeight * inHeight;  // In input image coordinates
+							double filterStartY = centerY - verticalFilterLength / 2;
+							int startIndex = (int)Math.ceil(filterStartY - 0.5);
+							for (int i = 0; i < weights.length; i++) {
+								int inputY = startIndex + i;
+								double weight = windowedSinc((inputY + 0.5 - centerY) * sincScale, (inputY + 0.5 - filterStartY) / verticalFilterLength);
+								weights[i] = weight;
+								weightSum += weight;
 							}
-							result[0][outRowOff + x] = (float)(redSum   / filterSum);
-							result[1][outRowOff + x] = (float)(greenSum / filterSum);
-							result[2][outRowOff + x] = (float)(blueSum  / filterSum);
+							
+							Arrays.fill(outVertRow, 0);
+							for (int i = 0; i < weights.length; i++) {
+								double weight = weights[i] / weightSum;
+								int clippedInputY = Math.min(Math.max(startIndex + i, 0), inHeight - 1);
+								for (int x = 0; x < inWidth; x++) {  // For each pixel in the row
+									int j = (clippedInputY * inWidth + x) * 3;
+									outVertRow[x * 3 + 0] += inVert[j + 0] * weight;
+									outVertRow[x * 3 + 1] += inVert[j + 1] * weight;
+									outVertRow[x * 3 + 2] += inVert[j + 2] * weight;
+								}
+							}
+							for (int x = 0; x < inWidth; x++) {
+								int j = (x * outHeight + y) * 3;
+								inHorz[j + 0] = outVertRow[x * 3 + 0];
+								inHorz[j + 1] = outVertRow[x * 3 + 1];
+								inHorz[j + 2] = outVertRow[x * 3 + 2];
+							}
+						}
+					}
+					
+					// Wait for all threads to finish the phase
+					try {
+						barrier.await();
+					} catch (InterruptedException e) {}
+					catch (BrokenBarrierException e) {}
+					
+					// Resample horizontally and transpose
+					{
+						double sincScale = Math.min((double)outWidth / inWidth, 1);
+						double[] weights = new double[(int)horizontalFilterLength + 1];
+						double[] outHorzCol = new double[outHeight * 3];
+						while (true) {  // For each output column
+							int x = sharedX.getAndIncrement();
+							if (x >= outWidth)
+								break;
+							
+							double weightSum = 0;
+							double centerX = (x + 0.5) / outWidth * inWidth;  // In input image coordinates
+							double filterStartX = centerX - horizontalFilterLength / 2;
+							int startIndex = (int)Math.ceil(filterStartX - 0.5);
+							for (int i = 0; i < weights.length; i++) {
+								int inputX = startIndex + i;
+								double weight = windowedSinc((inputX + 0.5 - centerX) * sincScale, (inputX + 0.5 - filterStartX) / horizontalFilterLength);
+								weights[i] = weight;
+								weightSum += weight;
+							}
+							
+							Arrays.fill(outHorzCol, 0);
+							for (int i = 0; i < weights.length; i++) {
+								double weight = weights[i] / weightSum;
+								int clippedInputX = Math.min(Math.max(startIndex + i, 0), inWidth - 1);
+								for (int y = 0; y < outHeight; y++) {  // For each pixel in the column
+									int j = (clippedInputX * outHeight + y) * 3;
+									outHorzCol[y * 3 + 0] += inHorz[j + 0] * weight;
+									outHorzCol[y * 3 + 1] += inHorz[j + 1] * weight;
+									outHorzCol[y * 3 + 2] += inHorz[j + 2] * weight;
+								}
+							}
+							for (int y = 0; y < outHeight; y++) {
+								// Convert to 8 bits per channel and pack integers
+								double r = outHorzCol[y * 3 + 0];  if (r < 0) r = 0;  if (r > 255) r = 255;
+								double g = outHorzCol[y * 3 + 1];  if (g < 0) g = 0;  if (g > 255) g = 255;
+								double b = outHorzCol[y * 3 + 2];  if (b < 0) b = 0;  if (b > 255) b = 255;
+								outPixels[y * outWidth + x] = (int)(r + 0.5) << 16 | (int)(g + 0.5) << 8 | (int)(b + 0.5);
+							}
 						}
 					}
 				}
 			};
-			threads[i].start();
+			thr[i].start();
 		}
-		for (Thread th : threads) {
+		for (Thread th : thr) {
 			try {
 				th.join();
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		return result;
+		
+		outputImage = new BufferedImage(outWidth, outHeight, BufferedImage.TYPE_INT_RGB);
+		outputImage.setRGB(0, 0, outWidth, outHeight, outPixels, 0, outWidth);
 	}
 	
 	
-	// Convolution-based linear resampler
-	private static int[] resampleVertical(final float[][] image, final int width, final int newHeight, final double filterLen, int numThreads) {
-		if (image.length != 3 || image[0].length != image[1].length || image[1].length != image[2].length || image[0].length % width != 0)
-			throw new IllegalArgumentException();
-		final int[] result = new int[width * newHeight];
-		final int oldHeight = image[0].length / width;
-		final double sincScale = Math.min((double)newHeight / oldHeight, 1) * Math.PI;
-		final double windowScale = 2.0 / filterLen;
-		
-		final AtomicInteger sharedX = new AtomicInteger(0);
-		Thread[] threads = new Thread[numThreads];
-		for (int i = 0; i < threads.length; i++) {
-			threads[i] = new Thread() {
-				public void run() {
-					while (true) {
-						int x = sharedX.getAndIncrement();
-						if (x >= width)
-							break;
-						for (int y = 0; y < newHeight; y++) {  // For each output pixel
-							double redSum = 0, greenSum = 0, blueSum = 0;
-							double filterSum = 0;
-							double centerY = (y + 0.5) / newHeight * oldHeight;  // In input image coordinates
-							double filterStartY = centerY - filterLen / 2;
-							int startIndex = (int)Math.ceil(filterStartY - 0.5);
-							for (int i = 0; i <= filterLen; i++) {
-								int inputY = startIndex + i;
-								double sincPos = (inputY + 0.5 - centerY) * sincScale;
-								double sinc = sincPos != 0 ? Math.sin(sincPos) / sincPos : 1;
-								double windowPos = (inputY + 0.5 - filterStartY) * windowScale - 1;  // Usually in the range [0, 2]
-								double weight = sinc * Math.max(1 - Math.abs(windowPos), 0);
-								int index = Math.min(Math.max(inputY, 0), oldHeight - 1) * width + x;
-								redSum    += weight * image[0][index];
-								greenSum  += weight * image[1][index];
-								blueSum   += weight * image[2][index];
-								filterSum += weight;
-							}
-							double red   = (float)(redSum   / filterSum); if (red   < 0) red   = 0; else if (red   > 255) red   = 255;
-							double green = (float)(greenSum / filterSum); if (green < 0) green = 0; else if (green > 255) green = 255;
-							double blue  = (float)(blueSum  / filterSum); if (blue  < 0) blue  = 0; else if (blue  > 255) blue  = 255;
-							result[y * width + x] = (int)(red + 0.5) << 16 | (int)(green + 0.5) << 8 | (int)(blue + 0.5);
-						}
-					}
-				}
-			};
-			threads[i].start();
-		}
-		for (Thread th : threads) {
-			try {
-				th.join();
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-		}
-		return result;
+	// x is measured in half-cycles; y is for the window which has the domain [0, 1]
+	private static double windowedSinc(double x, double y) {
+		x *= Math.PI;
+		double sinc = x != 0 ? Math.sin(x) / x : 1;
+		double window = y >= 0 && y <= 1 ? 1 - Math.abs(y - 0.5) * 2 : 0;  // Triangle window
+		return sinc * window;
 	}
 	
 }
