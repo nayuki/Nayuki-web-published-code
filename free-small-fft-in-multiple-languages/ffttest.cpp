@@ -86,6 +86,7 @@ int main(int argc, char **argv) {
 	
 	cout << endl;
 	cout << "Max log err = " << std::setprecision(3) << maxLogError << endl;
+	cout << "Test " << (maxLogError < -10 ? "passed" : "failed") << endl;
 	return 0;
 }
 

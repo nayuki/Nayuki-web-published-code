@@ -64,6 +64,7 @@ public class FftTest {
 		
 		System.out.println();
 		System.out.printf("Max log err = %.1f%n", maxLogError);
+		System.out.println("Test " + (maxLogError < -10 ? "passed" : "failed"));
 	}
 	
 	

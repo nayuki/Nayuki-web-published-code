@@ -65,6 +65,7 @@ def main():
     
     print("")
     print("Max log err = {:.1f}".format(_maxlogerr))
+    print("Test " + ("passed" if _maxlogerr < -10 else "failed"))
 
 
 def _test_fft(size):

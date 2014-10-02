@@ -83,6 +83,7 @@ int main(int argc, char **argv) {
 	
 	printf("\n");
 	printf("Max log err = %.1f\n", max_log_error);
+	printf("Test %s\n", max_log_error < -10 ? "passed" : "failed");
 	return 0;
 }
 
