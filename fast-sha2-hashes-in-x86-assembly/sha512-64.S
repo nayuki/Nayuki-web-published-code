@@ -71,42 +71,42 @@ sha512_compress:
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
 	
 	#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
-		/* Part 0 */               \
-		movq  %e, %rcx;            \
-		movq  %e, %rdx;            \
-		movq  %e, %rax;            \
-		rorq  $18, %rcx;           \
-		rorq  $41, %rdx;           \
-		rorq  $14, %rax;           \
-		xorq  %rdx, %rcx;          \
-		xorq  %rcx, %rax;          \
-		addq  %rbx, %h;            \
-		movq  %g, %rcx;            \
-		xorq  %f, %rcx;            \
-		andq  %e, %rcx;            \
-		xorq  %g, %rcx;            \
-		addq  %rax, %h;            \
-		movq  $k, %rax;            \
-		addq  %rcx, %h;            \
-		addq  %rax, %h;            \
-		/* Part 1 */               \
-		addq  %h, %d;              \
-		/* Part 2 */               \
-		movq  %a, %rcx;            \
-		movq  %a, %rdx;            \
-		movq  %a, %rax;            \
-		rorq  $39, %rcx;           \
-		rorq  $34, %rdx;           \
-		rorq  $28, %rax;           \
-		xorq  %rdx, %rcx;          \
-		xorq  %rcx, %rax;          \
-		movq  %c, %rcx;            \
-		addq  %rax, %h;            \
-		movq  %c, %rax;            \
-		orq   %b, %rax;            \
-		andq  %b, %rcx;            \
-		andq  %a, %rax;            \
-		orq   %rcx, %rax;          \
+		/* Part 0 */       \
+		movq  %e, %rcx;    \
+		movq  %e, %rdx;    \
+		movq  %e, %rax;    \
+		rorq  $18, %rcx;   \
+		rorq  $41, %rdx;   \
+		rorq  $14, %rax;   \
+		xorq  %rdx, %rcx;  \
+		xorq  %rcx, %rax;  \
+		addq  %rbx, %h;    \
+		movq  %g, %rcx;    \
+		xorq  %f, %rcx;    \
+		andq  %e, %rcx;    \
+		xorq  %g, %rcx;    \
+		addq  %rax, %h;    \
+		movq  $k, %rax;    \
+		addq  %rcx, %h;    \
+		addq  %rax, %h;    \
+		/* Part 1 */       \
+		addq  %h, %d;      \
+		/* Part 2 */       \
+		movq  %a, %rcx;    \
+		movq  %a, %rdx;    \
+		movq  %a, %rax;    \
+		rorq  $39, %rcx;   \
+		rorq  $34, %rdx;   \
+		rorq  $28, %rax;   \
+		xorq  %rdx, %rcx;  \
+		xorq  %rcx, %rax;  \
+		movq  %c, %rcx;    \
+		addq  %rax, %h;    \
+		movq  %c, %rax;    \
+		orq   %b, %rax;    \
+		andq  %b, %rcx;    \
+		andq  %a, %rax;    \
+		orq   %rcx, %rax;  \
 		addq  %rax, %h;
 	
 	/* Save registers, allocate scratch space */
