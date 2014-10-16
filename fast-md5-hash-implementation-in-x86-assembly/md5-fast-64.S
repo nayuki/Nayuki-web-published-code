@@ -21,7 +21,6 @@ md5_compress:
 	 *       4  edi       Temporary for calculation per round
 	 *       8  rbp       Base address of block array argument (read-only)
 	 *       8  r8        Base address of state array argument (read-only)
-	 *       8  rsp       x86-64 stack pointer
 	 *      16  xmm0      Caller's value of rbx (only lower 64 bits are used)
 	 *      16  xmm1      Caller's value of rbp (only lower 64 bits are used)
 	 */

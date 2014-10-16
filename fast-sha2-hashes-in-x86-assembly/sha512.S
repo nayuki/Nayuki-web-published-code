@@ -101,7 +101,7 @@ sha512_compress:
 		pand   STATE(a), %mm3;             \
 		por    %mm2, %mm3;                 \
 		paddq  %mm3, %mm0;                 \
-		movq   %mm0, STATE(h)
+		movq   %mm0, STATE(h);
 	
 	/* Allocate 16-byte aligned scratch space */
 	movl   %esp, %ecx

@@ -33,20 +33,20 @@ whirlpool_compress:
 	#define NUM_ROUNDS 10  /* Any number from 1 to 32 is allowed */
 	
 	#define DOBYTEPAIRFIRST(inreg,offset,outreg0,outreg1)  \
-		pextrw  $(offset), %inreg, %eax;                   \
-		movzbl  %ah, %ebx;                                 \
-		andl    $0xFF, %eax;                               \
-		movq    .magictable0(,%eax,8), %outreg0;           \
+		pextrw  $(offset), %inreg, %eax;          \
+		movzbl  %ah, %ebx;                        \
+		andl    $0xFF, %eax;                      \
+		movq    .magictable0(,%eax,8), %outreg0;  \
 		movq    .magictable1(,%ebx,8), %outreg1;
 	
 	#define DOBYTEPAIR(inreg,offset,outreg0,outreg1)  \
-		pextrw  $(offset), %inreg, %eax;              \
-		movzbl  %ah, %ebx;                            \
-		andl    $0xFF, %eax;                          \
-		pxor    .magictable0(,%eax,8), %outreg0;      \
+		pextrw  $(offset), %inreg, %eax;          \
+		movzbl  %ah, %ebx;                        \
+		andl    $0xFF, %eax;                      \
+		pxor    .magictable0(,%eax,8), %outreg0;  \
 		pxor    .magictable1(,%ebx,8), %outreg1;
 	
-	#define ROTATERIGHT()           \
+	#define ROTATERIGHT()  \
 		pshufw  $0x39, %mm0, %mm0;  \
 		pshufw  $0x39, %mm1, %mm1;  \
 		pshufw  $0x39, %mm2, %mm2;  \
@@ -58,9 +58,9 @@ whirlpool_compress:
 	
 	/* Used for sigma (AddRoundKey) */
 	#define XOR_XMM0_3_TO_XMM4_7()  \
-		pxor    %xmm0, %xmm4;       \
-		pxor    %xmm1, %xmm5;       \
-		pxor    %xmm2, %xmm6;       \
+		pxor    %xmm0, %xmm4;  \
+		pxor    %xmm1, %xmm5;  \
+		pxor    %xmm2, %xmm6;  \
 		pxor    %xmm3, %xmm7;
 	
 	/* Save registers, load arguments */
