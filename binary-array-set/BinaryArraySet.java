@@ -41,6 +41,7 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	public BinaryArraySet() {
 		values = new Comparable[30][];
+		size = 0;
 	}
 	
 	
@@ -71,14 +72,19 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	}
 	
 	
-	// Runs in amortized O(1) time, worst-case O(n) time
+	// Runs in average-case O((log n)^2) time, worst-case O(n) time
 	@SuppressWarnings({"rawtypes","unchecked"})
 	public boolean add(E val) {
 		if (val == null)
 			throw new NullPointerException();
-		if (size == Integer.MAX_VALUE || contains(val))
+		if (size == Integer.MAX_VALUE)
+			throw new IllegalStateException("Maximum size reached");
+		
+		// Checking for duplicates is expensive, taking O((log n)^2) time
+		if (contains(val))
 			return false;
 		
+		// The pure add portion below runs in amortized O(1) time
 		Comparable[] toPut = new Comparable[]{val};
 		for (int i = 0; i < values.length; i++) {
 			assert toPut.length == 1 << i;

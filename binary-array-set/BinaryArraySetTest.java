@@ -127,7 +127,7 @@ public class BinaryArraySetTest {
 				// Add
 				int n = rand.nextInt(100) + 1;
 				for (int j = 0; j < n; j++) {
-					int val = rand.nextInt(1000);
+					int val = rand.nextInt(10000);
 					boolean added = set0.add(val);
 					assertTrue(set1.add(val) == added);
 					if (added)
@@ -137,7 +137,7 @@ public class BinaryArraySetTest {
 				// Contains
 				int n = rand.nextInt(100) + 1;
 				for (int j = 0; j < n; j++) {
-					int val = rand.nextInt(1000);
+					int val = rand.nextInt(10000);
 					assertTrue(set1.contains(val) == set0.contains(val));
 				}
 			} else
