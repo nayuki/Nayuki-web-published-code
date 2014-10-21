@@ -23,9 +23,7 @@
  */
 
 import java.util.AbstractQueue;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 
 public final class BinomialHeap<E extends Comparable<? super E>> extends AbstractQueue<E> {
@@ -52,12 +50,12 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	
 	
 	public void clear() {
-		head = null;
+		head.next = null;
 	}
 	
 	
 	public boolean offer(E val) {
-		head = Node.merge(head, new Node<E>(val));
+		merge(new Node<E>(val));
 		return true;
 	}
 	
@@ -91,8 +89,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		Node<E> temp = nodeBeforeMin.next;
 		nodeBeforeMin.next = nodeBeforeMin.next.next;
 		temp.next = null;
-		temp = Node.removeRoot(temp);
-		head = Node.merge(head, temp);
+		merge(Node.removeRoot(temp));
 		return min;
 	}
 	
@@ -101,7 +98,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	public void merge(BinomialHeap<E> other) {
 		if (other == this)
 			throw new IllegalArgumentException();
-		head = Node.merge(head, other.head.next);
+		merge(other.head.next);
 		other.head.next = null;
 	}
 	
@@ -109,6 +106,53 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	// Can't support traversal in place; need to clone the heap
 	public Iterator<E> iterator() {
 		throw new UnsupportedOperationException();
+	}
+	
+	
+	// 'other' must not start with a dummy node
+	private void merge(Node<E> other) {
+		assert head.rank == -1;
+		Node<E> self = head.next;
+		head.next = null;
+		Node<E> prevTail = null;
+		Node<E> tail = head;
+		
+		while (self != null || other != null) {
+			Node<E> node;
+			if (other == null || self != null && self.rank <= other.rank) {
+				node = self;
+				self = self.next;
+			} else {
+				node = other;
+				other = other.next;
+			}
+			node.next = null;
+			
+			assert tail.next == null;
+			if (tail.rank < node.rank) {
+				prevTail = tail;
+				tail.next = node;
+				tail = tail.next;
+			} else if (tail.rank == node.rank + 1) {
+				node.next = tail;
+				prevTail.next = node;
+				prevTail = node;
+			} else if (tail.rank == node.rank) {
+				// Merge nodes
+				if (tail.value.compareTo(node.value) <= 0) {
+					node.next = tail.down;
+					tail.down = node;
+					tail.rank++;
+				} else {
+					tail.next = node.down;
+					node.down = tail;
+					node.rank++;
+					tail = node;
+					prevTail.next = tail;
+				}
+			} else
+				throw new AssertionError();
+		}
 	}
 	
 	
@@ -150,65 +194,6 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 			next = null;
 		}
 		
-		
-		
-		// x and the result start with a dummy node, whereas y doesn't
-		public static <E extends Comparable<? super E>> Node<E> merge(Node<E> x, Node<E> y) {
-			Node<E> head = x;  // Dummy node
-			Node<E> tail = head;
-			x = x.next;
-			
-			// An algorithm like bitwise binary addition, starting from the least significant bit
-			Node<E> c = null;  // Carry
-			List<Node<E>> acc = new ArrayList<Node<E>>();  // Accumulator
-			while (x != null || y != null || c != null) {
-				int minRank = Integer.MAX_VALUE;
-				if (x != null) minRank = Math.min(x.rank, minRank);
-				if (y != null) minRank = Math.min(y.rank, minRank);
-				if (c != null) minRank = Math.min(c.rank, minRank);
-				assert minRank >= 0 && minRank != Integer.MAX_VALUE;
-				
-				if (x != null && x.rank == minRank) {
-					Node<E> temp = x;
-					x = x.next;
-					temp.next = null;
-					acc.add(temp);
-				}
-				if (y != null && y.rank == minRank) {
-					Node<E> temp = y;
-					y = y.next;
-					temp.next = null;
-					acc.add(temp);
-				}
-				if (c != null && c.rank == minRank) {
-					acc.add(c);
-					c = null;
-				}
-				
-				if (acc.size() >= 2) {
-					// Merge two nodes of the same rank that are detached from the main chain, assigning the new root
-					Node<E> u = acc.remove(0);
-					Node<E> v = acc.remove(0);
-					assert u.rank == v.rank && u.next == null && v.next == null;
-					if (u.value.compareTo(v.value) <= 0) {
-						v.next = u.down;
-						u.down = v;
-						u.rank++;
-						c = u;
-					} else {
-						u.next = v.down;
-						v.down = u;
-						v.rank++;
-						c = v;
-					}
-				}
-				if (acc.size() >= 1)
-					tail = tail.next = acc.remove(0);
-				assert acc.size() == 0;
-			}
-			
-			return head;  // Starts with dummy node
-		}
 		
 		
 		public static <E> Node<E> removeRoot(Node<E> node) {

@@ -32,7 +32,7 @@ import binomialheap
 
 # Comprehensively tests all the defined methods against Python's built-in queue.PriorityQueue class
 def main():
-	ITERATIONS = 3000
+	ITERATIONS = 10000
 	que = queue.PriorityQueue()
 	heap = binomialheap.BinomialHeap()
 	length = 0

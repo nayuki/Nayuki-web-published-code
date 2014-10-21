@@ -38,8 +38,12 @@ class BinomialHeap(object):
 		return result
 	
 	
+	def clear(self):
+		self.head.next = None
+	
+	
 	def enqueue(self, val):
-		self.head = BinomialHeap.Node.merge(self.head, BinomialHeap.Node(val))
+		self._merge(BinomialHeap.Node(val))
 	
 	
 	def peek(self):
@@ -73,8 +77,7 @@ class BinomialHeap(object):
 		temp = beforemin.next
 		beforemin.next = beforemin.next.next
 		temp.next = None
-		temp = BinomialHeap.Node.remove_root(temp)
-		self.head = BinomialHeap.Node.merge(self.head, temp)
+		self._merge(BinomialHeap.Node.remove_root(temp))
 		return min
 	
 	
@@ -82,8 +85,50 @@ class BinomialHeap(object):
 	def merge(self, other):
 		if other is self:
 			raise ValueError()
-		self.head = BinomialHeap.Node.merge(self.head, other.head.next)
+		self._merge(other.head.next)
 		other.head.next = None
+	
+	
+	# 'other' must be a bare node with no initial dummy node
+	def _merge(self, other):
+		assert self.head.rank == -1
+		this = self.head.next
+		self.head.next = None
+		prevtail = None
+		tail = self.head
+		
+		while this is not None or other is not None:
+			if other is None or (this is not None and this.rank <= other.rank):
+				node = this
+				this = this.next
+			else:
+				node = other
+				other = other.next
+			node.next = None
+			
+			assert tail.next is None
+			if tail.rank < node.rank:
+				prevtail = tail
+				tail.next = node
+				tail = tail.next
+			elif tail.rank == node.rank + 1:
+				node.next = tail
+				prevtail.next = node
+				prevtail = node
+			elif tail.rank == node.rank:
+				# Merge nodes
+				if tail.value <= node.value:
+					node.next = tail.down
+					tail.down = node
+					tail.rank += 1
+				else:
+					tail.next = node.down
+					node.down = tail
+					node.rank += 1
+					tail = node
+					prevtail.next = tail
+			else:
+				raise AssertionError()
 	
 	
 	# For unit tests
@@ -108,63 +153,6 @@ class BinomialHeap(object):
 				self.rank = 0
 			self.down = None
 			self.next = None
-		
-		
-		# x and the result start with a dummy node, whereas y doesn't
-		@staticmethod
-		def merge(x, y):
-			head = x  # Dummy node
-			tail = head
-			x = x.next
-			
-			# An algorithm like bitwise binary addition, starting from the least significant bit
-			c = None  # Carry
-			acc = []  # Accumulator
-			while (x is not None) or (y is not None) or (c is not None):
-				minrank = 999
-				if x is not None: minrank = min(x.rank, minrank)
-				if y is not None: minrank = min(y.rank, minrank)
-				if c is not None: minrank = min(c.rank, minrank)
-				assert minrank >= 0 and minrank != 999
-				
-				if x is not None and x.rank == minrank:
-					temp = x
-					x = x.next
-					temp.next = None
-					acc.append(temp)
-				if y is not None and y.rank == minrank:
-					temp = y
-					y = y.next
-					temp.next = None
-					acc.append(temp)
-				if c is not None and c.rank == minrank:
-					acc.append(c)
-					c = None
-				
-				if len(acc) >= 2:
-					c = BinomialHeap.Node.merge_same_rank(acc.pop(), acc.pop())
-				if len(acc) >= 1:
-					tail.next = acc.pop()
-					tail = tail.next
-				assert len(acc) == 0
-			
-			return head  # Starts with dummy node
-		
-		
-		# Merges two nodes of the same rank that are detached from the main chain, returning the new root
-		@staticmethod
-		def merge_same_rank(x, y):
-			assert x.rank == y.rank and x.next is None and y.next is None
-			if x.value < y.value:
-				y.next = x.down
-				x.down = y
-				x.rank += 1
-				return x
-			else:
-				x.next = y.down
-				y.down = x
-				y.rank += 1
-				return y
 		
 		
 		@staticmethod

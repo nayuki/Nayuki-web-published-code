@@ -82,7 +82,7 @@ public class BinomialHeapTest {
 		BinomialHeap<Integer> heap = new BinomialHeap<Integer>();
 		PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
 		int size = 0;
-		for (int i = 0; i < 30000; i++) {
+		for (int i = 0; i < 100000; i++) {
 			int op = rand.nextInt(100);
 			
 			if (op < 1) {  // Clear
