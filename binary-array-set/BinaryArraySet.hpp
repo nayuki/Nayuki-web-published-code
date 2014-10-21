@@ -22,6 +22,8 @@
  *   Software.
  */
 
+#pragma once
+
 #include <cstdlib>
 #include <utility>
 #include <vector>
