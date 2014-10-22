@@ -61,7 +61,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	
 	
 	public E peek() {
-		if (head == null)
+		if (head.next == null)
 			return null;
 		E result = null;
 		for (Node<E> node = head.next; node != null; node = node.next) {
@@ -76,7 +76,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		if (head.next == null)
 			return null;
 		E min = null;
-		Node<E> nodeBeforeMin = head;
+		Node<E> nodeBeforeMin = null;
 		for (Node<E> node = head.next, prevNode = head; node != null; prevNode = node, node = node.next) {
 			if (min == null || node.value.compareTo(min) < 0) {
 				min = node.value;

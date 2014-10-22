@@ -1,8 +1,8 @@
 /* 
- * Binary array set test (C++)
+ * Binomial heap test (C++)
  * 
  * Copyright (c) 2014 Nayuki Minase
- * http://nayuki.eigenstate.org/page/binary-array-set
+ * http://nayuki.eigenstate.org/page/binomial-heap
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,54 +22,58 @@
  *   Software.
  */
 
+#include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
-#include <set>
-#include "BinaryArraySet.hpp"
+#include <queue>
+#include "BinomialHeap.hpp"
 
 
 int main(int argc, char *argv[]) {
 	// Comprehensively tests all the defined methods
 	try {
 		srand(time(NULL));
-		std::set<int> set0;
-		BinaryArraySet<int> set1;
+		std::priority_queue<int,std::vector<int>,std::greater<int> > queue;  // std::greater effects a min-queue
+		BinomialHeap<int> heap;
 		size_t size = 0;
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < 300000; i++) {
 			int op = rand() % 100;
 			
-			if (op < 1) {
-				// Clear
-				set1.checkStructure();
-				set0.clear();
-				set1.clear();
+			if (op < 1) {  // Clear
+				heap.checkStructure();
+				queue = std::priority_queue<int,std::vector<int>,std::greater<int> >();
+				heap.clear();
 				size = 0;
 				
-			} else if (op < 70) {
-				// Add
+			} else if (op < 2) {  // Peek
+				heap.checkStructure();
+				if (size > 0 && queue.top() != heap.peek())
+					throw "Peek mismatch";
+				
+			} else if (op < 70) {  // Add
 				int n = rand() % 100 + 1;
 				for (int j = 0; j < n; j++) {
 					int val = rand() % 10000;
-					bool added = set1.add(val);
-					set0.insert(val);
-					if (added)
-						size++;
+					queue.push(val);
+					heap.enqueue(val);
 				}
+				size += n;
 				
 			} else if (op < 100) {
-				// Contains
-				int n = rand() % 100 + 1;
+				// Remove
+				int n = std::min(rand() % 100 + 1, (int)size);
 				for (int j = 0; j < n; j++) {
-					int val = rand() % 10000;
-					if (set1.contains(val) != (set0.find(val) != set0.end()))
-						throw "Contain test mismatch";
+					if (queue.top() != heap.dequeue())
+						throw "Dequeue mismatch";
+					queue.pop();
 				}
+				size -= n;
 				
 			} else
 				throw "Invalid random operation";
 			
-			if (set0.size() != size || set1.size() != size)
+			if (queue.size() != size || heap.size() != size)
 				throw "Set size mismatch";
 		}
 		std::cerr << "Test passed" << std::endl;

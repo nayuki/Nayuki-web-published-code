@@ -47,7 +47,7 @@ class BinomialHeap(object):
 	
 	
 	def peek(self):
-		if self.head is None:
+		if self.head.next is None:
 			raise Exception("Empty heap")
 		result = None
 		node = self.head.next
@@ -59,10 +59,10 @@ class BinomialHeap(object):
 	
 	
 	def dequeue(self):
-		if self.head is None:
+		if self.head.next is None:
 			raise Exception("Empty heap")
 		min = None
-		beforemin = self.head
+		beforemin = None
 		prevnode = self.head
 		node = self.head.next
 		while node is not None:
