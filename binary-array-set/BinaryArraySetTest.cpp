@@ -29,8 +29,8 @@
 #include "BinaryArraySet.hpp"
 
 
+// Comprehensively tests all the defined methods against std::set
 int main(int argc, char *argv[]) {
-	// Comprehensively tests all the defined methods
 	try {
 		srand(time(NULL));
 		std::set<int> set0;
@@ -39,15 +39,13 @@ int main(int argc, char *argv[]) {
 		for (int i = 0; i < 100000; i++) {
 			int op = rand() % 100;
 			
-			if (op < 1) {
-				// Clear
+			if (op < 1) {  // Clear
 				set1.checkStructure();
 				set0.clear();
 				set1.clear();
 				size = 0;
 				
-			} else if (op < 70) {
-				// Add
+			} else if (op < 70) {  // Add
 				int n = rand() % 100 + 1;
 				for (int j = 0; j < n; j++) {
 					int val = rand() % 10000;
@@ -57,8 +55,7 @@ int main(int argc, char *argv[]) {
 						size++;
 				}
 				
-			} else if (op < 100) {
-				// Contains
+			} else if (op < 100) {  // Contains
 				int n = rand() % 100 + 1;
 				for (int j = 0; j < n; j++) {
 					int val = rand() % 10000;

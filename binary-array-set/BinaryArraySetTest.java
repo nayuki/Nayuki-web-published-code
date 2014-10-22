@@ -25,7 +25,6 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,7 +34,7 @@ import java.util.Set;
 import org.junit.Test;
 
 
-public class BinaryArraySetTest {
+public final class BinaryArraySetTest {
 	
 	@Test public void testBlank() {
 		Set<Integer> set = newSet();
@@ -110,7 +109,8 @@ public class BinaryArraySetTest {
 		int size = 0;
 		for (int i = 0; i < 10000; i++) {
 			int op = rand.nextInt(100);
-			if (op < 1) {
+			
+			if (op < 1) {  // Clear
 				checkStructure(set1);
 				if (rand.nextBoolean()) {
 					// Fast clear
@@ -123,8 +123,8 @@ public class BinaryArraySetTest {
 					set1.clear();
 				}
 				size = 0;
-			} else if (op < 70) {
-				// Add
+				
+			} else if (op < 70) {  // Add
 				int n = rand.nextInt(100) + 1;
 				for (int j = 0; j < n; j++) {
 					int val = rand.nextInt(10000);
@@ -133,13 +133,14 @@ public class BinaryArraySetTest {
 					if (added)
 						size++;
 				}
-			} else if (op < 100) {
-				// Contains
+				
+			} else if (op < 100) {  // Contains
 				int n = rand.nextInt(100) + 1;
 				for (int j = 0; j < n; j++) {
 					int val = rand.nextInt(10000);
 					assertTrue(set1.contains(val) == set0.contains(val));
 				}
+				
 			} else
 				throw new AssertionError();
 			

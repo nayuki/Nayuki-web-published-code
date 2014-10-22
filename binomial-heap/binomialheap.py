@@ -74,10 +74,10 @@ class BinomialHeap(object):
 		if min is None:
 			raise AssertionError()
 		
-		temp = beforemin.next
-		beforemin.next = beforemin.next.next
-		temp.next = None
-		self._merge(BinomialHeap.Node.remove_root(temp))
+		minnode = beforemin.next
+		beforemin.next = minnode.next
+		minnode.next = None
+		self._merge(BinomialHeap.Node.remove_root(minnode))
 		return min
 	
 	

@@ -36,7 +36,8 @@ def main():
 		if i % 300 == 0:
 			print("Progress: {:.0%}".format(float(i) / ITERATIONS))
 		op = random.randint(0, 99)
-		if op < 1:
+		
+		if op < 1:  # Clear
 			set1.check_structure()
 			if random.randint(0, 1) == 0:
 				# Fast clear
@@ -48,8 +49,8 @@ def main():
 					set0.remove(val)
 				set1.clear()
 			length = 0
-		elif op < 70:
-			# Add
+			
+		elif op < 70:  # Add
 			n = random.randint(1, 100)
 			for j in range(n):
 				val = random.randint(0, 9999)
@@ -57,13 +58,14 @@ def main():
 					length += 1
 				set0.add(val)
 				set1.add(val)
-		elif op < 100:
-			# Contains
+			
+		elif op < 100:  # Contains
 			n = random.randint(1, 100)
 			for j in range(n):
 				val = random.randint(0, 9999)
 				if (val in set1) != (val in set0):
 					raise AssertionError()
+			
 		else:
 			raise AssertionError()
 		

@@ -25,12 +25,10 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-
 import org.junit.Test;
 
 
@@ -377,64 +375,68 @@ public final class AvlTreeListTest {
 		int size = 0;
 		for (int i = 0; i < 100000; i++) {
 			int op = rand.nextInt(100);
-			if (op < 1) {
-				// Clear
+			
+			if (op < 1) {  // Clear
 				checkStructure(list1);
 				list0.clear();
 				list1.clear();
 				size = 0;
-			} else if (op < 2) {
-				// Set
+				
+			} else if (op < 2) {  // Set
 				if (size > 0) {
 					int index = rand.nextInt(size);
 					int val = rand.nextInt();
 					list0.set(index, val);
 					list1.set(index, val);
 				}
-			} else if (op < 30) {
-				// Random insertion
+				
+			} else if (op < 30) {  // Random insertion
 				int n = rand.nextInt(100) + 1;
-				for (int j = 0; j < n; j++, size++) {
+				for (int j = 0; j < n; j++) {
 					int index = rand.nextInt(size + 1);
 					int val = rand.nextInt();
 					list0.add(index, val);
 					list1.add(index, val);
 				}
-			} else if (op < 50) {
-				// Ascending insertion
+				size += n;
+				
+			} else if (op < 50) {  // Ascending insertion
 				int n = rand.nextInt(100) + 1;
 				int offset = rand.nextInt(size + 1);
-				for (int j = 0; j < n; j++, offset++, size++) {
+				for (int j = 0; j < n; j++, offset++) {
 					int val = rand.nextInt();
 					list0.add(offset, val);
 					list1.add(offset, val);
 				}
-			} else if (op < 70) {
-				// Descending insertion
+				size += n;
+				
+			} else if (op < 70) {  // Descending insertion
 				int n = rand.nextInt(100) + 1;
 				int offset = rand.nextInt(size + 1);
-				for (int j = 0; j < n; j++, size++) {
+				for (int j = 0; j < n; j++) {
 					int val = rand.nextInt();
 					list0.add(offset, val);
 					list1.add(offset, val);
 				}
-			} else if (op < 80) {
-				// Random deletion
+				size += n;
+				
+			} else if (op < 80) {  // Random deletion
 				int n = rand.nextInt(100) + 1;
 				for (int j = 0; j < n && size > 0; j++, size--) {
 					int index = rand.nextInt(size);
 					assertEquals(list0.remove(index), list1.remove(index));
 				}
-			} else if (op < 90) {
-				// Ascending deletion
+				
+			} else if (op < 90) {  // Ascending deletion
 				int n = rand.nextInt(100) + 1;
 				if (size > 0) {
+					// Get
 					int offset = rand.nextInt(size);
 					for (int j = 0; j < n && offset < size; j++, size--)
 						assertEquals(list0.remove(offset), list1.remove(offset));
 				}
-			} else if (op < 100) {
-				// Descending deletion
+				
+			} else if (op < 100) {  // Descending deletion
 				int n = rand.nextInt(100) + 1;
 				if (size > 0) {
 					int offset = rand.nextInt(size);

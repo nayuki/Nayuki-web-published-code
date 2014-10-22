@@ -163,7 +163,7 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	
 	
-	private class Iter implements Iterator<E> {
+	private final class Iter implements Iterator<E> {
 		
 		private int index;
 		private int subIndex;

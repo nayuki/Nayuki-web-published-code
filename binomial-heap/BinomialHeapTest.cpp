@@ -30,8 +30,8 @@
 #include "BinomialHeap.hpp"
 
 
+// Comprehensively tests all the defined methods against std::priority_queue
 int main(int argc, char *argv[]) {
-	// Comprehensively tests all the defined methods
 	try {
 		srand(time(NULL));
 		std::priority_queue<int,std::vector<int>,std::greater<int> > queue;  // std::greater effects a min-queue
@@ -60,8 +60,7 @@ int main(int argc, char *argv[]) {
 				}
 				size += n;
 				
-			} else if (op < 100) {
-				// Remove
+			} else if (op < 100) {  // Remove
 				int n = std::min(rand() % 100 + 1, (int)size);
 				for (int j = 0; j < n; j++) {
 					if (queue.top() != heap.dequeue())

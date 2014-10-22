@@ -86,10 +86,10 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		if (min == null)
 			throw new AssertionError();
 		
-		Node<E> temp = nodeBeforeMin.next;
-		nodeBeforeMin.next = nodeBeforeMin.next.next;
-		temp.next = null;
-		merge(Node.removeRoot(temp));
+		Node<E> minNode = nodeBeforeMin.next;
+		nodeBeforeMin.next = minNode.next;
+		minNode.next = null;
+		merge(Node.removeRoot(minNode));
 		return min;
 	}
 	

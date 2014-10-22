@@ -29,7 +29,7 @@ import java.util.Random;
 import org.junit.Test;
 
 
-public class BinomialHeapTest {
+public final class BinomialHeapTest {
 	
 	@Test public void testSize1() {
 		Queue<Integer> h = newPriorityQueue();

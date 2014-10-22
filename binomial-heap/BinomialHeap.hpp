@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <cassert>
 #include <cstdlib>
 
 
@@ -31,8 +32,8 @@ template <typename E>
 class BinomialHeap {
 	
 private:
-	class Node;
-	Node head;
+	class Node;  // Forward declaration
+	Node head;   // The head node is a dummy node
 	
 	
 public:
@@ -40,9 +41,6 @@ public:
 	BinomialHeap()
 		: head()  // Dummy node
 	{}
-	
-	
-	~BinomialHeap() {}
 	
 	
 	size_t size() const {
@@ -58,6 +56,7 @@ public:
 	
 	
 	void clear() {
+		delete head.next;
 		head.next = NULL;
 	}
 	
@@ -91,12 +90,12 @@ public:
 			}
 		}
 		
-		Node *temp = nodeBeforeMin->next;
-		nodeBeforeMin->next = nodeBeforeMin->next->next;
-		temp->next = NULL;
-		merge(Node::removeRoot(temp));
+		Node *minNode = nodeBeforeMin->next;
+		nodeBeforeMin->next = minNode->next;
+		minNode->next = NULL;
+		merge(Node::removeRoot(minNode));
 		E result = std::move(*min);
-		delete temp;
+		delete minNode;
 		return result;
 	}
 	
@@ -114,8 +113,7 @@ private:
 	
 	// 'other' must not start with a dummy node
 	void merge(Node *other) {
-		if (head.rank != -1)
-			throw "Assertion error";
+		assert(head.rank == -1);
 		Node *self = head.next;
 		head.next = NULL;
 		Node *prevTail = NULL;
@@ -132,8 +130,7 @@ private:
 			}
 			node->next = NULL;
 			
-			if (tail->next != NULL)
-				throw "Assertion error";
+			assert(tail->next == NULL);
 			if (tail->rank < node->rank) {
 				prevTail = tail;
 				tail->next = node;
@@ -198,7 +195,7 @@ private:
 		
 		// Dummy sentinel node at head of list
 		Node() :
-			value(),  // Default constructor for type E
+			value(),  // Type E needs to have a default constructor
 			rank(-1),
 			down(NULL),
 			next(NULL)
@@ -224,8 +221,7 @@ private:
 		
 		
 		static Node *removeRoot(Node *node) {
-			if (node->next != NULL)
-				throw "Assertion error";
+			assert(node->next == NULL);
 			Node *temp = node->down;
 			node->down = NULL;
 			Node *result = NULL;
