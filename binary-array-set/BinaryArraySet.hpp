@@ -50,10 +50,17 @@ public:
 	}
 	
 	
-	// Runs in O(1) time
+	// Runs in O(n) time due to destructors
 	void clear() {
-		for (size_t i = 0; i < values.size(); i++)
-			free(values.at(i));
+		for (size_t i = 0; i < values.size(); i++) {
+			E *vals = values.at(i);
+			if (vals != NULL) {
+				size_t len = (size_t)1 << i;
+				for (size_t j = 0; j < len; j++)
+					vals[j].~E();
+			}
+			free(vals);
+		}
 		values.clear();
 		length = 0;
 	}
@@ -91,7 +98,7 @@ public:
 		
 		// The pure add portion below runs in amortized O(1) time
 		E *toPut = (E*)malloc(sizeof(E));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
-		toPut[0] = val;  // Copy assignment of input argument value
+		new (toPut) E(val);  // Placement copy constructor of input argument value
 		for (size_t i = 0; i < values.size(); i++) {
 			E *vals = values.at(i);
 			if (vals == NULL) {
@@ -109,17 +116,17 @@ public:
 				size_t l = 0;
 				for (; j < len && k < len; l++) {
 					if (vals[j] < toPut[k]) {
-						next[l] = std::move(vals[j]);
+						new (&next[l]) E(std::move(vals[j]));  // Placement move constructor
 						j++;
 					} else {
-						next[l] = std::move(toPut[k]);
+						new (&next[l]) E(std::move(toPut[k]));
 						k++;
 					}
 				}
 				for (; j < len; j++, l++)
-					next[l] = std::move(vals[j]);
+					new (&next[l]) E(std::move(vals[j]));
 				for (; k < len; k++, l++)
-					next[l] = std::move(toPut[k]);
+					new (&next[l]) E(std::move(toPut[k]));
 				free(vals);
 				free(toPut);
 				values.at(i) = NULL;
@@ -154,7 +161,7 @@ public:
 	
 private:
 	
-	std::vector<E*> values;
+	std::vector<E*> values;  // Element i is either NULL or a malloc()'d array of length 1 << i
 	size_t length;
 	
 };
