@@ -34,9 +34,9 @@ class BinaryArraySet {
 	
 public:
 	
-	BinaryArraySet() {
-		length = 0;
-	}
+	BinaryArraySet() :
+		values(),
+		length(0) {}
 	
 	
 	~BinaryArraySet() {

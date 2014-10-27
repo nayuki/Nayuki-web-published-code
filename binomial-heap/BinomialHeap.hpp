@@ -39,8 +39,7 @@ private:
 public:
 	
 	BinomialHeap()
-		: head()  // Dummy node
-	{}
+		: head() {}  // Dummy node
 	
 	
 	size_t size() const {
@@ -198,8 +197,7 @@ private:
 			value(),  // Type E needs to have a default constructor
 			rank(-1),
 			down(NULL),
-			next(NULL)
-		{}
+			next(NULL) {}
 		
 		
 		// Regular node
@@ -207,8 +205,7 @@ private:
 			value(val),  // Copy constructor
 			rank(0),
 			down(NULL),
-			next(NULL)
-		{}
+			next(NULL) {}
 		
 		
 		~Node() {
