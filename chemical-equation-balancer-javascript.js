@@ -1,7 +1,7 @@
 /* 
  * Chemical equation balancer
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/chemical-equation-balancer-javascript
  */
@@ -606,6 +606,7 @@ function Tokenizer(str) {
 		i += match[0].length;
 	}
 	
+	str = str.replace(/\u2212/g, "-");
 	skipSpaces();
 }
 
