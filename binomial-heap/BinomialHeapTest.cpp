@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 				throw "Invalid random operation";
 			
 			if (queue.size() != size || heap.size() != size)
-				throw "Set size mismatch";
+				throw "Heap size mismatch";
 		}
 		std::cerr << "Test passed" << std::endl;
 		return 0;

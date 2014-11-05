@@ -26,6 +26,7 @@
 
 #include <cassert>
 #include <cstdlib>
+#include <utility>
 
 
 template <typename E>

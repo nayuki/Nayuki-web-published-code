@@ -201,7 +201,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 				return (AvlTreeNode<E>)emptyLeafNode;
 			else if (left != emptyLeafNode && right == emptyLeafNode)
 				return left;
-			else if (left == emptyLeafNode && right == emptyLeafNode)
+			else if (left == emptyLeafNode && right != emptyLeafNode)
 				return right;
 			else {
 				// We can remove the successor or the predecessor

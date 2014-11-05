@@ -99,6 +99,24 @@ public:
 		// The pure add portion below runs in amortized O(1) time
 		E *toPut = (E*)malloc(sizeof(E));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
 		new (toPut) E(val);  // Placement copy constructor of input argument value
+		addHelper(toPut);
+		return true;
+	}
+	
+	
+	// Move version
+	bool add(E &&val) {
+		if (contains(val))
+			return false;
+		E *toPut = (E*)malloc(sizeof(E));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
+		new (toPut) E(std::move(val));  // Placement move constructor of input argument value
+		addHelper(toPut);
+		return true;
+	}
+	
+	
+private:
+	void addHelper(E *toPut) {
 		for (size_t i = 0; i < values.size(); i++) {
 			E *vals = values.at(i);
 			if (vals == NULL) {
@@ -136,11 +154,11 @@ public:
 		if (toPut != NULL)
 			values.push_back(toPut);
 		length++;
-		return true;
 	}
 	
 	
 	// For unit tests
+public:
 	void checkStructure() {
 		size_t sum = 0;
 		for (size_t i = 0; i < values.size(); i++) {

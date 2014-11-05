@@ -430,7 +430,6 @@ public final class AvlTreeListTest {
 			} else if (op < 90) {  // Ascending deletion
 				int n = rand.nextInt(100) + 1;
 				if (size > 0) {
-					// Get
 					int offset = rand.nextInt(size);
 					for (int j = 0; j < n && offset < size; j++, size--)
 						assertEquals(list0.remove(offset), list1.remove(offset));
