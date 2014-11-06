@@ -66,6 +66,11 @@ public:
 	}
 	
 	
+	void enqueue(E &&val) {
+		merge(new Node(std::move(val)));
+	}
+	
+	
 	const E &peek() const {
 		if (head.next == NULL)
 			throw "Empty heap";
@@ -94,7 +99,7 @@ public:
 		nodeBeforeMin->next = minNode->next;
 		minNode->next = NULL;
 		merge(Node::removeRoot(minNode));
-		E result = std::move(*min);
+		E result(std::move(*min));
 		delete minNode;
 		return result;
 	}
@@ -204,6 +209,14 @@ private:
 		// Regular node
 		Node(const E &val) :
 			value(val),  // Copy constructor
+			rank(0),
+			down(NULL),
+			next(NULL) {}
+		
+		
+		// Regular node
+		Node(E &&val) :
+			value(std::move(val)),  // Move constructor
 			rank(0),
 			down(NULL),
 			next(NULL) {}

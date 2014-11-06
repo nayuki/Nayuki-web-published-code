@@ -97,7 +97,7 @@ public:
 			return false;
 		
 		// The pure add portion below runs in amortized O(1) time
-		E *toPut = (E*)malloc(sizeof(E));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
+		E *toPut = static_cast<E*>(malloc(sizeof(E)));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
 		new (toPut) E(val);  // Placement copy constructor of input argument value
 		addHelper(toPut);
 		return true;
@@ -108,7 +108,7 @@ public:
 	bool add(E &&val) {
 		if (contains(val))
 			return false;
-		E *toPut = (E*)malloc(sizeof(E));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
+		E *toPut = static_cast<E*>(malloc(sizeof(E)));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
 		new (toPut) E(std::move(val));  // Placement move constructor of input argument value
 		addHelper(toPut);
 		return true;
@@ -128,7 +128,7 @@ private:
 				size_t len = (size_t)1 << i;
 				if (SIZE_MAX / len / 2 / sizeof(E) < 1)
 					throw "Maximum size reached";
-				E *next = (E*)malloc(len * 2 * sizeof(E));
+				E *next = static_cast<E*>(malloc(len * 2 * sizeof(E)));
 				size_t j = 0;
 				size_t k = 0;
 				size_t l = 0;
