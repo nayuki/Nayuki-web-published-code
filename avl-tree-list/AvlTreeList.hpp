@@ -273,15 +273,15 @@ private:
 		
 		// Balances the subtree rooted at this node and returns the new root
 		Node *balance() {
-			int balance = getBalance();
-			assert(std::abs(balance) <= 2);
+			int bal = getBalance();
+			assert(std::abs(bal) <= 2);
 			Node *result = this;
-			if (balance == -2) {
+			if (bal == -2) {
 				assert(std::abs(left->getBalance()) <= 1);
 				if (left->getBalance() == +1)
 					left = left->rotateLeft();
 				result = rotateRight();
-			} else if (balance == +2) {
+			} else if (bal == +2) {
 				assert(std::abs(right->getBalance()) <= 1);
 				if (right->getBalance() == -1)
 					right = right->rotateRight();

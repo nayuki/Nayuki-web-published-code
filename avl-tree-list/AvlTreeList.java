@@ -32,13 +32,13 @@ import java.util.Stack;
 
 public final class AvlTreeList<E> extends AbstractList<E> {
 	
-	private AvlTreeNode<E> root;
+	private Node<E> root;
 	
 	
 	
 	@SuppressWarnings("unchecked")
 	public AvlTreeList() {
-		root = (AvlTreeNode<E>)AvlTreeNode.emptyLeafNode;
+		root = (Node<E>)Node.emptyLeafNode;
 	}
 	
 	
@@ -60,7 +60,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		if (index < 0 || index >= size())
 			throw new IndexOutOfBoundsException();
 		
-		AvlTreeNode<E> node = root.getNodeAt(index);
+		Node<E> node = root.getNodeAt(index);
 		E result = node.value;
 		node.value = val;
 		return result;
@@ -89,7 +89,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	@SuppressWarnings("unchecked")
 	public void clear() {
-		root = (AvlTreeNode<E>)AvlTreeNode.emptyLeafNode;
+		root = (Node<E>)Node.emptyLeafNode;
 	}
 	
 	
@@ -100,15 +100,15 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	// For unit tests
 	void checkStructure() {
-		root.checkStructure(new HashSet<AvlTreeNode<E>>());
+		root.checkStructure(new HashSet<Node<E>>());
 	}
 	
 	
 	
-	private static final class AvlTreeNode<E> {
+	private static final class Node<E> {
 		
 		// A bit of a hack, but more elegant than using null values as leaf nodes
-		public static final AvlTreeNode<?> emptyLeafNode = new AvlTreeNode<Object>();
+		public static final Node<?> emptyLeafNode = new Node<Object>();
 		
 		
 		// The object stored at this node. Can be null.
@@ -123,15 +123,15 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		public int size;
 		
 		// The root node of the left subtree
-		public AvlTreeNode<E> left;
+		public Node<E> left;
 		
 		// The root node of the right subtree
-		public AvlTreeNode<E> right;
+		public Node<E> right;
 		
 		
 		
 		// For the singleton empty leaf node
-		private AvlTreeNode() {
+		private Node() {
 			value = null;
 			height = 0;
 			size = 0;
@@ -142,17 +142,17 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		// Normal non-leaf nodes
 		@SuppressWarnings("unchecked")
-		private AvlTreeNode(E val) {
+		private Node(E val) {
 			value = val;
 			height = 1;
 			size = 1;
-			left  = (AvlTreeNode<E>)emptyLeafNode;
-			right = (AvlTreeNode<E>)emptyLeafNode;
+			left  = (Node<E>)emptyLeafNode;
+			right = (Node<E>)emptyLeafNode;
 		}
 		
 		
 		
-		public AvlTreeNode<E> getNodeAt(int index) {
+		public Node<E> getNodeAt(int index) {
 			assert 0 <= index && index < size;
 			if (this == emptyLeafNode)
 				throw new IllegalArgumentException();
@@ -167,11 +167,11 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		}
 		
 		
-		public AvlTreeNode<E> insertAt(int index, E obj) {
+		public Node<E> insertAt(int index, E obj) {
 			assert 0 <= index && index <= size;
 			if (this == emptyLeafNode) {
 				if (index == 0)
-					return new AvlTreeNode<E>(obj);
+					return new Node<E>(obj);
 				else
 					throw new IndexOutOfBoundsException();
 			}
@@ -187,7 +187,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		
 		@SuppressWarnings("unchecked")
-		public AvlTreeNode<E> removeAt(int index) {
+		public Node<E> removeAt(int index) {
 			assert 0 <= index && index < size;
 			if (this == emptyLeafNode)
 				throw new IllegalArgumentException();
@@ -198,7 +198,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 			else if (index > leftSize)
 				right = right.removeAt(index - leftSize - 1);
 			else if (left == emptyLeafNode && right == emptyLeafNode)
-				return (AvlTreeNode<E>)emptyLeafNode;
+				return (Node<E>)emptyLeafNode;
 			else if (left != emptyLeafNode && right == emptyLeafNode)
 				return left;
 			else if (left == emptyLeafNode && right != emptyLeafNode)
@@ -216,7 +216,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		private E getSuccessor() {
 			if (this == emptyLeafNode || right == emptyLeafNode)
 				throw new IllegalArgumentException();
-			AvlTreeNode<E> node = right;
+			Node<E> node = right;
 			while (node.left != emptyLeafNode)
 				node = node.left;
 			return node.value;
@@ -224,16 +224,16 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		
 		// Balances the subtree rooted at this node and returns the new root
-		private AvlTreeNode<E> balance() {
-			int balance = getBalance();
-			assert Math.abs(balance) <= 2;
-			AvlTreeNode<E> result = this;
-			if (balance == -2) {
+		private Node<E> balance() {
+			int bal = getBalance();
+			assert Math.abs(bal) <= 2;
+			Node<E> result = this;
+			if (bal == -2) {
 				assert Math.abs(left.getBalance()) <= 1;
 				if (left.getBalance() == +1)
 					left = left.rotateLeft();
 				result = rotateRight();
-			} else if (balance == +2) {
+			} else if (bal == +2) {
 				assert Math.abs(right.getBalance()) <= 1;
 				if (right.getBalance() == -1)
 					right = right.rotateRight();
@@ -251,10 +251,10 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		 *    / \      / \
 		 *   1   2    0   1
 		 */
-		private AvlTreeNode<E> rotateLeft() {
+		private Node<E> rotateLeft() {
 			if (right == emptyLeafNode)
 				throw new IllegalStateException();
-			AvlTreeNode<E> root = this.right;
+			Node<E> root = this.right;
 			this.right = root.left;
 			root.left = this;
 			this.recalculate();
@@ -270,10 +270,10 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		 *  / \            / \
 		 * 0   1          1   2
 		 */
-		private AvlTreeNode<E> rotateRight() {
+		private Node<E> rotateRight() {
 			if (left == emptyLeafNode)
 				throw new IllegalStateException();
-			AvlTreeNode<E> root = this.left;
+			Node<E> root = this.left;
 			this.left = root.right;
 			root.right = this;
 			this.recalculate();
@@ -305,7 +305,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		
 		// For unit tests, invokable by the outer class
-		void checkStructure(Set<AvlTreeNode<E>> visitedNodes) {
+		void checkStructure(Set<Node<E>> visitedNodes) {
 			if (this == emptyLeafNode)
 				return;
 			
@@ -329,13 +329,13 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	private final class Iter implements Iterator<E> {
 		
-		private Stack<AvlTreeNode<E>> stack;
+		private Stack<Node<E>> stack;
 		
 		
 		public Iter() {
-			stack = new Stack<AvlTreeNode<E>>();
-			AvlTreeNode<E> node = root;
-			while (node != AvlTreeNode.emptyLeafNode) {
+			stack = new Stack<Node<E>>();
+			Node<E> node = root;
+			while (node != Node.emptyLeafNode) {
 				stack.push(node);
 				node = node.left;
 			}
@@ -351,10 +351,10 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 			if (!hasNext())
 				throw new NoSuchElementException();
 			else {
-				AvlTreeNode<E> node = stack.pop();
+				Node<E> node = stack.pop();
 				E result = node.value;
 				node = node.right;
-				while (node != AvlTreeNode.emptyLeafNode) {
+				while (node != Node.emptyLeafNode) {
 					stack.push(node);
 					node = node.left;
 				}
