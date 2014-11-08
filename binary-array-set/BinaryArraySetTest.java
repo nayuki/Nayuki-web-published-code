@@ -48,6 +48,7 @@ public final class BinaryArraySetTest {
 		List<Integer> list = new ArrayList<Integer>();
 		list.add(1);
 		list.add(5);
+		list.add(5);
 		list.add(8);
 		Set<Integer> set = new BinaryArraySet<Integer>(list);
 		assertEquals(3, set.size());
@@ -110,19 +111,24 @@ public final class BinaryArraySetTest {
 		for (int i = 0; i < 10000; i++) {
 			int op = rand.nextInt(100);
 			
-			if (op < 1) {  // Clear
+			if (op < 1) {  // Fast clear
 				checkStructure(set1);
-				if (rand.nextBoolean()) {
-					// Fast clear
-					set0.clear();
-					set1.clear();
-				} else {
-					// Clear with iterator and removal
-					for (Integer val : set1)
-						assertTrue(set0.remove(val));
-					set1.clear();
-				}
+				set0.clear();
+				set1.clear();
 				size = 0;
+				
+			} else if (op < 2) {  // Clear with iterator and removal
+				for (Integer val : set1)
+					assertTrue(set0.remove(val));
+				set1.clear();
+				size = 0;
+				
+			} else if (op < 3) {  // Check iterator fully
+				List<Integer> list0 = new ArrayList<Integer>(set0);
+				List<Integer> list1 = new ArrayList<Integer>(set1);
+				Collections.sort(list0);
+				Collections.sort(list1);
+				assertEquals(list0, list1);
 				
 			} else if (op < 70) {  // Add
 				int n = rand.nextInt(100) + 1;

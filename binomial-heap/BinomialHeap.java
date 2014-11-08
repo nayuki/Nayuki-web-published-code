@@ -61,8 +61,6 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	
 	
 	public E peek() {
-		if (head.next == null)
-			return null;
 		E result = null;
 		for (Node<E> node = head.next; node != null; node = node.next) {
 			if (result == null || node.value.compareTo(result) < 0)
@@ -83,13 +81,12 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 				nodeBeforeMin = prevNode;
 			}
 		}
-		if (min == null)
-			throw new AssertionError();
+		assert min != null && nodeBeforeMin != null;
 		
 		Node<E> minNode = nodeBeforeMin.next;
 		nodeBeforeMin.next = minNode.next;
 		minNode.next = null;
-		merge(Node.removeRoot(minNode));
+		merge(minNode.removeRoot());
 		return min;
 	}
 	
@@ -103,7 +100,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	}
 	
 	
-	// Can't support traversal in place; need to clone the heap
+	// Can't support min-order traversal in place; would need to clone the heap
 	public Iterator<E> iterator() {
 		throw new UnsupportedOperationException();
 	}
@@ -132,8 +129,9 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 			if (tail.rank < node.rank) {
 				prevTail = tail;
 				tail.next = node;
-				tail = tail.next;
+				tail = node;
 			} else if (tail.rank == node.rank + 1) {
+				assert prevTail != null;
 				node.next = tail;
 				prevTail.next = node;
 				prevTail = node;
@@ -144,11 +142,12 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 					tail.down = node;
 					tail.rank++;
 				} else {
+					assert prevTail != null;
 					tail.next = node.down;
 					node.down = tail;
 					node.rank++;
 					tail = node;
-					prevTail.next = tail;
+					prevTail.next = node;
 				}
 			} else
 				throw new AssertionError();
@@ -196,10 +195,10 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		
 		
 		
-		public static <E> Node<E> removeRoot(Node<E> node) {
-			assert node.next == null;
+		public Node<E> removeRoot() {
+			assert next == null;
 			Node<E> result = null;
-			node = node.down;
+			Node<E> node = down;
 			while (node != null) {  // Reverse the order of nodes from descending rank to ascending rank
 				Node<E> next = node.next;
 				node.next = result;

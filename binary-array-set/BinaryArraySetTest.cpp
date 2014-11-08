@@ -45,14 +45,15 @@ int main(int argc, char *argv[]) {
 				set1.clear();
 				size = 0;
 				
-			} else if (op < 70) {  // Add
+			} else if (op < 70) {  // Insert
 				int n = rand() % 100 + 1;
 				for (int j = 0; j < n; j++) {
 					int val = rand() % 10000;
-					bool added = set1.add(val);
-					set0.insert(val);
-					if (added)
+					if (!set1.contains(val)) {
+						set1.insert(val);
+						set0.insert(val);
 						size++;
+					}
 				}
 				
 			} else if (op < 100) {  // Contains

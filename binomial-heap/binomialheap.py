@@ -62,22 +62,21 @@ class BinomialHeap(object):
 		if self.head.next is None:
 			raise Exception("Empty heap")
 		min = None
-		beforemin = None
+		nodebeforemin = None
 		prevnode = self.head
 		node = self.head.next
 		while node is not None:
 			if min is None or node.value < min:
 				min = node.value
-				beforemin = prevnode
+				nodebeforemin = prevnode
 			prevnode = node
 			node = node.next
-		if min is None:
-			raise AssertionError()
+		assert min is not None and nodebeforemin is not None
 		
-		minnode = beforemin.next
-		beforemin.next = minnode.next
+		minnode = nodebeforemin.next
+		nodebeforemin.next = minnode.next
 		minnode.next = None
-		self._merge(BinomialHeap.Node.remove_root(minnode))
+		self._merge(minnode.remove_root())
 		return min
 	
 	
@@ -110,8 +109,9 @@ class BinomialHeap(object):
 			if tail.rank < node.rank:
 				prevtail = tail
 				tail.next = node
-				tail = tail.next
+				tail = node
 			elif tail.rank == node.rank + 1:
+				assert prevtail is not None
 				node.next = tail
 				prevtail.next = node
 				prevtail = node
@@ -122,11 +122,12 @@ class BinomialHeap(object):
 					tail.down = node
 					tail.rank += 1
 				else:
+					assert prevtail is not None
 					tail.next = node.down
 					node.down = tail
 					node.rank += 1
 					tail = node
-					prevtail.next = tail
+					prevtail.next = node
 			else:
 				raise AssertionError()
 	
@@ -155,11 +156,10 @@ class BinomialHeap(object):
 			self.next = None
 		
 		
-		@staticmethod
-		def remove_root(node):
-			assert node.next is None
+		def remove_root(self):
+			assert self.next is None
 			result = None
-			node = node.down
+			node = self.down
 			while node is not None:  # Reverse the order of nodes from descending rank to ascending rank
 				next = node.next
 				node.next = result

@@ -25,6 +25,7 @@
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -32,23 +33,33 @@ import java.util.NoSuchElementException;
 public final class BinaryArraySet<E extends Comparable<? super E>> extends AbstractSet<E> {
 	
 	// For each i, values[i] is either null or it's an ascending-sorted array of length 2^i
-	@SuppressWarnings("rawtypes")
-	private Comparable[][] values;
+	private E[][] values;
 	
 	private int size;
 	
 	
 	
+	// Runs in O(1) time
 	public BinaryArraySet() {
-		values = new Comparable[30][];
-		size = 0;
+		clear();
 	}
 	
 	
+	// Runs in O(n (log n)^2) time
 	public BinaryArraySet(Collection<? extends E> col) {
 		this();
-		for (E val : col)
-			add(val);
+		if (col == null)
+			throw new NullPointerException();
+		addAll(col);
+	}
+	
+	
+	// Runs in O(n (log n)^2) time
+	public BinaryArraySet(E... vals) {
+		this();
+		if (vals == null)
+			throw new NullPointerException();
+		Collections.addAll(this, vals);
 	}
 	
 	
@@ -61,19 +72,16 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	// Runs in O((log n)^2) time
 	public boolean contains(E val) {
-		for (Object[] vals : values) {
-			if (vals != null) {
-				int index = Arrays.binarySearch(vals, val);
-				if (index >= 0)
-					return true;
-			}
+		for (E[] vals : values) {
+			if (vals != null && Arrays.binarySearch(vals, val) >= 0)
+				return true;
 		}
 		return false;
 	}
 	
 	
 	// Runs in average-case O((log n)^2) time, worst-case O(n) time
-	@SuppressWarnings({"rawtypes","unchecked"})
+	@SuppressWarnings("unchecked")
 	public boolean add(E val) {
 		if (val == null)
 			throw new NullPointerException();
@@ -85,10 +93,10 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 			return false;
 		
 		// The pure add portion below runs in amortized O(1) time
-		Comparable[] toPut = new Comparable[]{val};
+		E[] toPut = (E[])new Comparable[]{val};
 		for (int i = 0; i < values.length; i++) {
 			assert toPut.length == 1 << i;
-			Comparable[] vals = values[i];
+			E[] vals = values[i];
 			if (vals == null) {
 				values[i] = toPut;
 				break;
@@ -97,26 +105,23 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 				if (i == values.length - 1)
 					throw new AssertionError();
 				assert vals.length == 1 << i;
-				Comparable[] next = new Comparable[2 << i];
+				E[] next = (E[])new Comparable[2 << i];
 				int j = 0;
 				int k = 0;
 				int l = 0;
 				for (; j < vals.length && k < toPut.length; l++) {
 					int cmp = vals[j].compareTo(toPut[k]);
-					assert cmp != 0;
 					if (cmp < 0) {
 						next[l] = vals[j];
 						j++;
-					} else {
+					} else if (cmp > 0) {
 						next[l] = toPut[k];
 						k++;
-					}
+					} else
+						throw new IllegalStateException();
 				}
-				for (; j < vals.length; j++, l++)
-					next[l] = vals[j];
-				for (; k < toPut.length; k++, l++)
-					next[l] = toPut[k];
-				assert l == next.length;
+				System.arraycopy(vals , j, next, l, vals .length - j);
+				System.arraycopy(toPut, k, next, l, toPut.length - k);
 				toPut = next;
 				values[i] = null;
 			}
@@ -127,8 +132,9 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	
 	// Runs in O(1) time
+	@SuppressWarnings("unchecked")
 	public void clear() {
-		values = new Comparable[30][];
+		values = (E[][])new Comparable[30][];
 		size = 0;
 	}
 	
@@ -139,14 +145,13 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	
 	// For unit tests
-	@SuppressWarnings({"rawtypes","unchecked"})
 	void checkStructure() {
 		if (size < 0)
 			throw new AssertionError();
 		
 		int sum = 0;
 		for (int i = 0; i < values.length; i++) {
-			Comparable[] vals = values[i];
+			E[] vals = values[i];
 			if (vals != null) {
 				if (vals.length != 1 << i)
 					throw new AssertionError();
@@ -163,6 +168,7 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	
 	
+	// Not fail-fast on concurrent modification
 	private final class Iter implements Iterator<E> {
 		
 		private int index;
@@ -185,18 +191,16 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 		
 		
 		// Runs in amortized O(1) time, worst-case O(log n) time
-		@SuppressWarnings("unchecked")
 		public E next() {
 			if (!hasNext())
 				throw new NoSuchElementException();
 			
-			E result = (E)values[index][subIndex];
+			E result = values[index][subIndex];
 			subIndex++;
 			if (subIndex == values[index].length) {
 				subIndex = 0;
-				index++;
-				while (index < values.length && values[index] == null)
-					index++;
+				do index++;
+				while (index < values.length && values[index] == null);
 			}
 			return result;
 		}

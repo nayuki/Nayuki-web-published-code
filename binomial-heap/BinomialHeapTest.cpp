@@ -46,24 +46,24 @@ int main(int argc, char *argv[]) {
 				heap.clear();
 				size = 0;
 				
-			} else if (op < 2) {  // Peek
+			} else if (op < 2) {  // Top
 				heap.checkStructure();
-				if (size > 0 && queue.top() != heap.peek())
+				if (size > 0 && queue.top() != heap.top())
 					throw "Peek mismatch";
 				
-			} else if (op < 70) {  // Add
+			} else if (op < 70) {  // Push
 				int n = rand() % 100 + 1;
 				for (int j = 0; j < n; j++) {
 					int val = rand() % 10000;
 					queue.push(val);
-					heap.enqueue(val);
+					heap.push(val);
 				}
 				size += n;
 				
-			} else if (op < 100) {  // Remove
+			} else if (op < 100) {  // Pop
 				int n = std::min(rand() % 100 + 1, (int)size);
 				for (int j = 0; j < n; j++) {
-					if (queue.top() != heap.dequeue())
+					if (queue.top() != heap.pop())
 						throw "Dequeue mismatch";
 					queue.pop();
 				}

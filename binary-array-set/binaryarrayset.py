@@ -22,10 +22,15 @@
 #   Software.
 # 
 
+import sys
+if sys.version_info.major == 2:
+	range = xrange
+
 
 class BinaryArraySet(object):
 	
-	# For each i, self.values[i] is either null or it's an ascending-sorted array of length 2^i
+	# Runs in O(1) time
+	# For each i, self.values[i] is either None or it's an ascending-sorted array of length 2^i
 	def __init__(self):
 		self.clear()
 	
@@ -122,6 +127,7 @@ class BinaryArraySet(object):
 	
 	
 	
+	# Not fail-fast on concurrent modification
 	class Iter(object):
 		
 		# Constructor runs in O(log n) time

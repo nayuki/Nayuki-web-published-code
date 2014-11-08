@@ -34,18 +34,20 @@ class BinaryArraySet {
 	
 public:
 	
+	// Runs in O(1) time
 	BinaryArraySet() :
 		values(),
 		length(0) {}
 	
 	
+	// Runs in O(n) time due to destructors
 	~BinaryArraySet() {
 		clear();
 	}
 	
 	
 	// Runs in O(1) time
-	size_t size() {
+	size_t size() const {
 		return length;
 	}
 	
@@ -67,7 +69,7 @@ public:
 	
 	
 	// Runs in O((log n)^2) time
-	bool contains(const E &val) {
+	bool contains(const E &val) const {
 		for (size_t i = 0; i < values.size(); i++) {
 			const E *vals = values.at(i);
 			if (vals != NULL) {
@@ -75,7 +77,7 @@ public:
 				size_t start = 0;
 				size_t end = (size_t)1 << i;
 				while (start < end) {
-					size_t mid = (start + end) / 2;
+					size_t mid = start + (end - start) / 2;
 					const E &midval = vals[mid];
 					if (val < midval)
 						end = mid;
@@ -91,32 +93,30 @@ public:
 	
 	
 	// Runs in average-case O((log n)^2) time, worst-case O(n) time
-	bool add(const E &val) {
+	void insert(const E &val) {
 		// Checking for duplicates is expensive, taking O((log n)^2) time
 		if (contains(val))
-			return false;
+			return;
 		
-		// The pure add portion below runs in amortized O(1) time
 		E *toPut = static_cast<E*>(malloc(sizeof(E)));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
 		new (toPut) E(val);  // Placement copy constructor of input argument value
-		addHelper(toPut);
-		return true;
+		insertHelper(toPut);
 	}
 	
 	
 	// Move version
-	bool add(E &&val) {
+	void insert(E &&val) {
 		if (contains(val))
-			return false;
+			return;
 		E *toPut = static_cast<E*>(malloc(sizeof(E)));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
 		new (toPut) E(std::move(val));  // Placement move constructor of input argument value
-		addHelper(toPut);
-		return true;
+		insertHelper(toPut);
 	}
 	
 	
+	// This pure insert method runs in amortized O(1) time
 private:
-	void addHelper(E *toPut) {
+	void insertHelper(E *toPut) {
 		for (size_t i = 0; i < values.size(); i++) {
 			E *vals = values.at(i);
 			if (vals == NULL) {
@@ -145,6 +145,10 @@ private:
 					new (&next[l]) E(std::move(vals[j]));
 				for (; k < len; k++, l++)
 					new (&next[l]) E(std::move(toPut[k]));
+				for (j = 0; j < len; j++) {
+					vals [j].~E();
+					toPut[j].~E();
+				}
 				free(vals);
 				free(toPut);
 				values.at(i) = NULL;
@@ -159,7 +163,7 @@ private:
 	
 	// For unit tests
 public:
-	void checkStructure() {
+	void checkStructure() const {
 		size_t sum = 0;
 		for (size_t i = 0; i < values.size(); i++) {
 			const E *vals = values.at(i);
@@ -179,7 +183,7 @@ public:
 	
 private:
 	
-	std::vector<E*> values;  // Element i is either NULL or a malloc()'d array of length 1 << i
+	std::vector<E*> values;  // Element i is either NULL or a malloc()'d array of length (1 << i) elements of E
 	size_t length;
 	
 };

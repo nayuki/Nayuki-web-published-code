@@ -34,7 +34,7 @@ class BinomialHeap {
 	
 private:
 	class Node;  // Forward declaration
-	Node head;   // The head node is a dummy node
+	Node head;   // The head node is an immovable dummy node
 	
 	
 public:
@@ -61,17 +61,17 @@ public:
 	}
 	
 	
-	void enqueue(const E &val) {
+	void push(const E &val) {
 		merge(new Node(val));
 	}
 	
 	
-	void enqueue(E &&val) {
+	void push(E &&val) {
 		merge(new Node(std::move(val)));
 	}
 	
 	
-	const E &peek() const {
+	const E &top() const {
 		if (head.next == NULL)
 			throw "Empty heap";
 		E *result = NULL;
@@ -83,7 +83,7 @@ public:
 	}
 	
 	
-	E dequeue() {
+	E pop() {
 		if (head.next == NULL)
 			throw "Empty heap";
 		E *min = NULL;
@@ -94,11 +94,13 @@ public:
 				nodeBeforeMin = prevNode;
 			}
 		}
+		assert(min != NULL && nodeBeforeMin != NULL);
 		
 		Node *minNode = nodeBeforeMin->next;
+		assert(min == &minNode->value);
 		nodeBeforeMin->next = minNode->next;
 		minNode->next = NULL;
-		merge(Node::removeRoot(minNode));
+		merge(minNode->removeRoot());
 		E result(std::move(*min));
 		delete minNode;
 		return result;
@@ -139,8 +141,9 @@ private:
 			if (tail->rank < node->rank) {
 				prevTail = tail;
 				tail->next = node;
-				tail = tail->next;
+				tail = node;
 			} else if (tail->rank == node->rank + 1) {
+				assert(prevTail != NULL);
 				node->next = tail;
 				prevTail->next = node;
 				prevTail = node;
@@ -151,11 +154,12 @@ private:
 					tail->down = node;
 					tail->rank++;
 				} else {
+					assert(prevTail != NULL);
 					tail->next = node->down;
 					node->down = tail;
 					node->rank++;
 					tail = node;
-					prevTail->next = tail;
+					prevTail->next = node;
 				}
 			} else
 				throw "Assertion error";
@@ -174,7 +178,7 @@ private:
 	
 public:
 	// For unit tests
-	void checkStructure() {
+	void checkStructure() const {
 		if (head.rank != -1)
 			throw "Assertion error";
 		if (head.next != NULL) {
@@ -231,12 +235,11 @@ private:
 		
 		
 		
-		static Node *removeRoot(Node *node) {
-			assert(node->next == NULL);
-			Node *temp = node->down;
-			node->down = NULL;
+		Node *removeRoot() {
+			assert(next == NULL);
+			Node *node = down;
+			down = NULL;
 			Node *result = NULL;
-			node = temp;
 			while (node != NULL) {  // Reverse the order of nodes from descending rank to ascending rank
 				Node *next = node->next;
 				node->next = result;
@@ -248,7 +251,7 @@ private:
 		
 		
 		// For unit tests
-		void checkStructure(bool isMain) {
+		void checkStructure(bool isMain) const {
 			if (rank < 0)
 				throw "Assertion error";
 			if (rank >= 1) {

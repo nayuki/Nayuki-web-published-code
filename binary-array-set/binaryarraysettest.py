@@ -37,18 +37,22 @@ def main():
 			print("Progress: {:.0%}".format(float(i) / ITERATIONS))
 		op = random.randint(0, 99)
 		
-		if op < 1:  # Clear
+		if op < 1:  # Fast clear
 			set1.check_structure()
-			if random.randint(0, 1) == 0:
-				# Fast clear
-				set0.clear()
-				set1.clear()
-			else:
-				# Clear with iterator and removal
-				for val in set1:
-					set0.remove(val)
-				set1.clear()
+			set0.clear()
+			set1.clear()
 			length = 0
+			
+		elif op < 2:  # Clear with iterator and removal
+			set1.check_structure()
+			for val in set1:
+				set0.remove(val)
+			set1.clear()
+			length = 0
+			
+		elif op < 3:  # Check iterator fully
+			if sorted(set1) != sorted(set0):
+				raise AssertionError()
 			
 		elif op < 70:  # Add
 			n = random.randint(1, 100)
