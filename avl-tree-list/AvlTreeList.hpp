@@ -22,6 +22,8 @@
  *   Software.
  */
 
+#pragma once
+
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -48,7 +50,7 @@ public:
 	}
 	
 	
-	size_t size() {
+	size_t size() const {
 		return root->size;
 	}
 	
@@ -100,8 +102,8 @@ public:
 	
 	
 	// For unit tests
-	void checkStructure() {
-		std::set<Node*> visited;
+	void checkStructure() const {
+		std::set<const Node*> visited;
 		root->checkStructure(visited);
 	}
 	
@@ -330,11 +332,6 @@ private:
 		}
 		
 		
-		int getBalance() {
-			return right->height - left->height;
-		}
-		
-		
 		// Needs to be called every time the left or right subtree is changed.
 		// Assumes the left and right subtrees have the correct values computed already.
 		void recalculate() {
@@ -347,9 +344,14 @@ private:
 		}
 		
 		
+		int getBalance() const {
+			return right->height - left->height;
+		}
+		
+		
 		// For unit tests, invokable by the outer class
 	public:
-		void checkStructure(std::set<Node*> &visitedNodes) {
+		void checkStructure(std::set<const Node*> &visitedNodes) const {
 			if (this == &emptyLeafNode)
 				return;
 			

@@ -32,13 +32,12 @@ import java.util.Stack;
 
 public final class AvlTreeList<E> extends AbstractList<E> {
 	
-	private Node<E> root;
+	private Node<E> root;  // Never null
 	
 	
 	
-	@SuppressWarnings("unchecked")
 	public AvlTreeList() {
-		root = (Node<E>)Node.emptyLeafNode;
+		clear();
 	}
 	
 	
@@ -213,6 +212,11 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		}
 		
 		
+		public String toString() {
+			return String.format("AvlTreeNode(size=%d, height=%d, val=%s)", size, height, value);
+		}
+		
+		
 		private E getSuccessor() {
 			if (this == emptyLeafNode || right == emptyLeafNode)
 				throw new IllegalArgumentException();
@@ -282,11 +286,6 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		}
 		
 		
-		private int getBalance() {
-			return right.height - left.height;
-		}
-		
-		
 		// Needs to be called every time the left or right subtree is changed.
 		// Assumes the left and right subtrees have the correct values computed already.
 		private void recalculate() {
@@ -299,8 +298,8 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		}
 		
 		
-		public String toString() {
-			return String.format("AvlTreeNode(size=%d, height=%d, val=%s)", size, height, value);
+		private int getBalance() {
+			return right.height - left.height;
 		}
 		
 		
@@ -327,6 +326,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	
 	
+	// Not fail-fast on concurrent modification
 	private final class Iter implements Iterator<E> {
 		
 		private Stack<Node<E>> stack;
@@ -350,16 +350,15 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		public E next() {
 			if (!hasNext())
 				throw new NoSuchElementException();
-			else {
-				Node<E> node = stack.pop();
-				E result = node.value;
-				node = node.right;
-				while (node != Node.emptyLeafNode) {
-					stack.push(node);
-					node = node.left;
-				}
-				return result;
+			
+			Node<E> node = stack.pop();
+			E result = node.value;
+			node = node.right;
+			while (node != Node.emptyLeafNode) {
+				stack.push(node);
+				node = node.left;
 			}
+			return result;
 		}
 		
 		
