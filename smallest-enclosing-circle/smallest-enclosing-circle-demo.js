@@ -41,9 +41,8 @@ var dragPointIndex = -1;
 /* Event handlers and UI functions */
 
 canvasElem.onmousedown = function(e) {
-	var x = e.pageX - canvasElem.offsetLeft;
-	var y = e.pageY - canvasElem.offsetTop;
-	var nearest = findNearestPoint(x, y);
+	var xy = getLocalCoordinates(e);
+	var nearest = findNearestPoint(xy[0], xy[1]);
 	
 	// Left mouse button: Add or move point
 	if (e.button == 0) {
@@ -53,7 +52,7 @@ canvasElem.onmousedown = function(e) {
 		} else {
 			// Add point and start moving it
 			dragPointIndex = canvasPoints.length;
-			canvasPoints.push({x: x, y: y});
+			canvasPoints.push({x: xy[0], y: xy[1]});
 			refreshCanvasCircle();
 		}
 	}
@@ -69,23 +68,32 @@ canvasElem.onmousedown = function(e) {
 
 
 canvasElem.onmousemove = function(e) {
-	var x = e.pageX - canvasElem.offsetLeft;
-	var y = e.pageY - canvasElem.offsetTop;
 	if (dragPointIndex != -1) {
-		canvasPoints[dragPointIndex] = {x: x, y: y};
+		var xy = getLocalCoordinates(e);
+		canvasPoints[dragPointIndex] = {x: xy[0], y: xy[1]};
 		refreshCanvasCircle();
 	}
 }
 
 
 canvasElem.onmouseup = function(e) {
-	var x = e.pageX - canvasElem.offsetLeft;
-	var y = e.pageY - canvasElem.offsetTop;
 	if (e.button == 0) {
-		canvasPoints[dragPointIndex] = {x: x, y: y};
+		var xy = getLocalCoordinates(e);
+		canvasPoints[dragPointIndex] = {x: xy[0], y: xy[1]};
 		dragPointIndex = -1;
 		refreshCanvasCircle();
 	}
+}
+
+
+function getLocalCoordinates(e) {
+	var x = e.pageX;
+	var y = e.pageY;
+	for (var elem = canvasElem; elem != null && elem != document.documentElement; elem = elem.offsetParent) {
+		x -= elem.offsetLeft;
+		y -= elem.offsetTop;
+	}
+	return [x, y];
 }
 
 
