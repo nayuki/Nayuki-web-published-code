@@ -1,11 +1,10 @@
 /* 
  * Linear congruential generator (LCG) with fast skipping and backward iteration
  * 
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2014 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
  * http://nayuki.eigenstate.org/page/fast-skipping-in-a-linear-congruential-generator
  */
-
 
 import java.math.BigInteger;
 
@@ -22,43 +21,44 @@ public class LcgRandom {
 		
 		// Choose seed and create LCG RNG
 		BigInteger seed = BigInteger.valueOf(System.currentTimeMillis());
-		LcgRandom rand0 = new LcgRandom(A, B, M, seed);
+		LcgRandom randSlow = new LcgRandom(A, B, M, seed);
 		
 		// Start testing
 		final int N = 1000;
 		
 		// Check that skipping forward is correct
 		for (int i = 0; i < N; i++) {
-			LcgRandom rand1 = new LcgRandom(A, B, M, seed);
-			rand1.skip(i);
-			if (!rand0.getState().equals(rand1.getState()))
+			LcgRandom randFast = new LcgRandom(A, B, M, seed);
+			randFast.skip(i);
+			if (!randSlow.getState().equals(randFast.getState()))
 				throw new AssertionError();
-			rand0.next();
+			randSlow.next();
 		}
 		
 		// Check that backward iteration is correct
 		for (int i = N - 1; i >= 0; i--) {
-			rand0.previous();
-			LcgRandom rand1 = new LcgRandom(A, B, M, seed);
-			rand1.skip(i);
-			if (!rand0.getState().equals(rand1.getState()))
+			randSlow.previous();
+			LcgRandom randFast = new LcgRandom(A, B, M, seed);
+			randFast.skip(i);
+			if (!randSlow.getState().equals(randFast.getState()))
 				throw new AssertionError();
 		}
 		
 		// Check that backward skipping is correct
 		for (int i = 0; i < N; i++) {
-			LcgRandom rand1 = new LcgRandom(A, B, M, seed);
-			rand1.skip(-i);
-			if (!rand0.getState().equals(rand1.getState()))
+			LcgRandom randFast = new LcgRandom(A, B, M, seed);
+			randFast.skip(-i);
+			if (!randSlow.getState().equals(randFast.getState()))
 				throw new AssertionError();
-			rand0.previous();
+			randSlow.previous();
 		}
 		
-		System.out.printf("Success (tested %d)%n", N);
+		System.out.printf("Test passed (n=%d)%n", N);
 	}
 	
 	
-	/* The LCG RNG object */
+	
+	/* Code for LCG RNG instances */
 	
 	private final BigInteger a;  // Multiplier
 	private final BigInteger b;  // Increment
@@ -71,11 +71,8 @@ public class LcgRandom {
 	public LcgRandom(BigInteger a, BigInteger b, BigInteger m, BigInteger seed) {
 		if (a == null || b == null || m == null || seed == null)
 			throw new NullPointerException();
-		if (a.compareTo(BigInteger.ZERO) <= 0 ||
-		    b.compareTo(BigInteger.ZERO) <  0 ||
-		    m.compareTo(BigInteger.ZERO) <= 0 ||
-		    seed.compareTo(BigInteger.ZERO) < 0)
-			throw new IllegalArgumentException("Arguments must be non-negative");
+		if (a.signum() != 1 || b.signum() == -1 || m.signum() != 1 || seed.signum() == -1 || seed.compareTo(m) >= 0)
+			throw new IllegalArgumentException("Arguments out of range");
 		
 		this.a = a;
 		this.aInv = a.modInverse(m);
@@ -96,7 +93,7 @@ public class LcgRandom {
 	
 	
 	public void previous() {
-		// After subtracting 'b' there may be negative intermediate result, but the modular arithmetic is correct. 
+		// The intermediate result after subtracting 'b' may be negative, but the modular arithmetic is correct
 		x = x.subtract(b).multiply(aInv).mod(m);  // x = (a^-1 * (x - b)) mod m
 	}
 	
