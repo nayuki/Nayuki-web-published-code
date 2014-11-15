@@ -2,7 +2,6 @@
 # Knuth-Morris-Pratt string matcher (Python)
 # 
 # Copyright (c) 2014 Nayuki Minase
-# All rights reserved. Contact Nayuki for licensing.
 # http://nayuki.eigenstate.org/page/knuth-morris-pratt-string-matching
 # 
 # (MIT License)
