@@ -26,7 +26,7 @@ function calculate() {
 		var y = parseInt(yStr, 10);
 		if (x < 0 || x >= 9007199254740992 || y < 0 || y >= 9007199254740992)
 			output = "Number out of range"
-		else 
+		else
 			output = gcd(Math.abs(x), Math.abs(y)).toString(10);
 	}
 	document.getElementById("output").value = output;

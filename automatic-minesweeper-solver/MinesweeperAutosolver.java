@@ -25,7 +25,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 
-/* Main application class, containing the Minesweeper solver logic */ 
+/* Main application class, containing the Minesweeper solver logic */
 
 public final class MinesweeperAutosolver {
 	

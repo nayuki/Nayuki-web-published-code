@@ -14,7 +14,7 @@ public final class nextperm {
 	/* Basic integer array version */
 	/**
 	 * Computes the next lexicographical permutation of the specified array of integers in place,
-	 * returning whether a next permutation existed. (Returns {@code false} when the argument 
+	 * returning whether a next permutation existed. (Returns {@code false} when the argument
 	 * is already the last possible permutation.)
 	 * @param array the array of integers to permute
 	 * @return whether the array was permuted to the next permutation
