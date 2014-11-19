@@ -2,7 +2,7 @@
  * Binomial heap (Java)
  * 
  * Copyright (c) 2014 Nayuki Minase
- * http://nayuki.eigenstate.org/page/binary-array-set
+ * http://nayuki.eigenstate.org/page/binomial-heap
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
