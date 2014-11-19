@@ -1,8 +1,8 @@
 /* 
  * Knuth-Morris-Pratt string matcher test (Java)
  * 
- * Copyright (c) 2014 Nayuki Minase
- * http://nayuki.eigenstate.org/page/knuth-morris-pratt-string-matching
+ * Copyright (c) 2014 Project Nayuki
+ * http://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

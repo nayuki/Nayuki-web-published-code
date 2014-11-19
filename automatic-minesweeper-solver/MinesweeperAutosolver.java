@@ -1,9 +1,9 @@
 /* 
  * Automatic Minesweeper solver
  * 
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/automatic-minesweeper-solver
+ * http://www.nayuki.io/page/automatic-minesweeper-solver
  */
 
 import java.awt.AWTException;

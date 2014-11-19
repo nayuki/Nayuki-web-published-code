@@ -1,9 +1,9 @@
 /* 
  * Karatsuba fast multiplication algorithm
  * 
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/karatsuba-multiplication
+ * http://www.nayuki.io/page/karatsuba-multiplication
  */
 
 import java.math.BigInteger;

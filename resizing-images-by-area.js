@@ -1,9 +1,9 @@
 /* 
  * Resizing images by area
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/resizing-images-by-area
+ * http://www.nayuki.io/page/resizing-images-by-area
  */
 
 "use strict";

@@ -1,9 +1,9 @@
 /* 
  * Random password generator (JavaScript)
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/random-password-generator-javascript
+ * http://www.nayuki.io/page/random-password-generator-javascript
  */
 
 "use strict";

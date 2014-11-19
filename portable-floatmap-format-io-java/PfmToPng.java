@@ -1,8 +1,8 @@
 /* 
  * Portable FloatMap to PNG
  * 
- * Copyright (c) 2014 Nayuki Minase
- * http://nayuki.eigenstate.org/page/portable-floatmap-format-io-java
+ * Copyright (c) 2014 Project Nayuki
+ * http://www.nayuki.io/page/portable-floatmap-format-io-java
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

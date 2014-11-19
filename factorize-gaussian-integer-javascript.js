@@ -1,9 +1,9 @@
 /* 
  * Factorize Gaussian integer
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/factorize-gaussian-integer-javascript
+ * http://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
 
 "use strict";

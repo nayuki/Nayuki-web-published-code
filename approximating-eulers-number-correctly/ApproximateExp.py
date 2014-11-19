@@ -1,9 +1,9 @@
 # 
 # Approximating the exponential function correctly (Python)
 # 
-# Copyright (c) 2014 Nayuki Minase
+# Copyright (c) 2014 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
-# http://nayuki.eigenstate.org/page/approximating-eulers-number-correctly
+# http://www.nayuki.io/page/approximating-eulers-number-correctly
 # 
 
 

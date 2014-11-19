@@ -1,7 +1,7 @@
 /* 
  * Next lexicographical permutation algorithm (Java)
- * By Nayuki Minase, 2014. Public domain.
- * http://nayuki.eigenstate.org/page/next-lexicographical-permutation-algorithm
+ * by Project Nayuki, 2014. Public domain.
+ * http://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
 
 import java.util.Collections;

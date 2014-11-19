@@ -1,9 +1,9 @@
 /* 
  * Vigenère cipher
  * 
- * Copyright (c) 2011 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/vigenere-cipher-javascript
+ * http://www.nayuki.io/page/vigenere-cipher-javascript
  */
 
 "use strict";

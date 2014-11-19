@@ -1,9 +1,9 @@
 /* 
  * MD5 hash in x86-64 assembly
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/fast-md5-hash-implementation-in-x86-assembly
+ * http://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
  */
 
 

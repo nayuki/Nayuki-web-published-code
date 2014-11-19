@@ -1,9 +1,9 @@
 /* 
  * Iterated popcount demo
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/iterated-popcount-results-in-0-or-1
+ * http://www.nayuki.io/page/iterated-popcount-results-in-0-or-1
  */
 
 import java.math.BigInteger;

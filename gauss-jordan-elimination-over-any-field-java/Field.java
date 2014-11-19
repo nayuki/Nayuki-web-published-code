@@ -1,9 +1,9 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/gauss-jordan-elimination-over-any-field-java
+ * http://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
 
 

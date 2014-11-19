@@ -1,9 +1,9 @@
 /* 
  * Quad SHA-512 hash in x86-64 AVX2 assembly
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/lowest-sha512-value-by-brute-force
+ * http://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
 
 

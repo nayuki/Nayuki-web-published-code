@@ -1,9 +1,9 @@
 /* 
  * Dumb PNG Output
  * 
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/dumb-png-output-java
+ * http://www.nayuki.io/page/dumb-png-output-java
  */
 
 import java.io.*;

@@ -1,9 +1,9 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/computing-wikipedias-internal-pageranks
+ * http://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
 
 import java.io.BufferedInputStream;

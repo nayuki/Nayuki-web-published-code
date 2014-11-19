@@ -1,9 +1,9 @@
 /* 
  * Whirlpool hash in C
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/fast-whirlpool-hash-in-x86-assembly
+ * http://www.nayuki.io/page/fast-whirlpool-hash-in-x86-assembly
  */
 
 #include <stdint.h>

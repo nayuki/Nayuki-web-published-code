@@ -1,8 +1,8 @@
 /* 
  * FFT and convolution test (C)
  * 
- * Copyright (c) 2014 Nayuki Minase
- * http://nayuki.eigenstate.org/page/free-small-fft-in-multiple-languages
+ * Copyright (c) 2014 Project Nayuki
+ * http://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

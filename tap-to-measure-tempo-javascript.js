@@ -1,9 +1,9 @@
 /* 
  * Tap to measure tempo
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/tap-to-measure-tempo-javascript
+ * http://www.nayuki.io/page/tap-to-measure-tempo-javascript
  */
 
 "use strict";

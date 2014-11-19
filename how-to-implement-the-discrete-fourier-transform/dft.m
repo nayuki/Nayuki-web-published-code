@@ -1,7 +1,7 @@
 % 
 % Discrete Fourier transform
-% By Nayuki Minase, 2014. Public domain.
-% http://nayuki.eigenstate.org/page/how-to-implement-the-discrete-fourier-transform
+% by Project Nayuki, 2014. Public domain.
+% http://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
 % 
 
 % 

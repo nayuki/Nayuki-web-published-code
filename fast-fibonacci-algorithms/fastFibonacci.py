@@ -1,9 +1,9 @@
 # 
 # Fast doubling Fibonacci algorithm
 # 
-# Copyright (c) 2013 Nayuki Minase
+# Copyright (c) 2014 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
-# http://nayuki.eigenstate.org/page/fast-fibonacci-algorithms
+# http://www.nayuki.io/page/fast-fibonacci-algorithms
 # 
 
 

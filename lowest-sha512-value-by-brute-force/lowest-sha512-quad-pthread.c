@@ -1,9 +1,9 @@
 /* 
  * Lowest SHA-512 value by brute force (C)
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/lowest-sha512-value-by-brute-force
+ * http://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
 
 #include <inttypes.h>

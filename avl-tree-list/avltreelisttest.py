@@ -1,8 +1,8 @@
 # 
 # AVL tree list test (Python)
 # 
-# Copyright (c) 2014 Nayuki Minase
-# http://nayuki.eigenstate.org/page/avl-tree-list
+# Copyright (c) 2014 Project Nayuki
+# http://www.nayuki.io/page/avl-tree-list
 # 
 # (MIT License)
 # Permission is hereby granted, free of charge, to any person obtaining a copy of

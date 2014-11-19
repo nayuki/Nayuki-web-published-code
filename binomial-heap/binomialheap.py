@@ -1,8 +1,8 @@
 # 
 # Binomial heap (Python)
 # 
-# Copyright (c) 2014 Nayuki Minase
-# http://nayuki.eigenstate.org/page/binomial-heap
+# Copyright (c) 2014 Project Nayuki
+# http://www.nayuki.io/page/binomial-heap
 # 
 # (MIT License)
 # Permission is hereby granted, free of charge, to any person obtaining a copy of

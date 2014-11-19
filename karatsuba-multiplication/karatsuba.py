@@ -1,8 +1,8 @@
 # 
 # Karatsuba fast multiplication algorithm
-# Copyright (c) 2013 Nayuki Minase
+# Copyright (c) 2014 Project Nayuki
 # 
-# http://nayuki.eigenstate.org/page/karatsuba-multiplication
+# http://www.nayuki.io/page/karatsuba-multiplication
 # 
 
 # Requires Python version >= 2.7 because of long.bit_length().

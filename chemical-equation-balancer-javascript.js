@@ -1,9 +1,9 @@
 /* 
  * Chemical equation balancer
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/chemical-equation-balancer-javascript
+ * http://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
 
 "use strict";

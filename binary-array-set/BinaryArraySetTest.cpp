@@ -1,8 +1,8 @@
 /* 
  * Binary array set test (C++)
  * 
- * Copyright (c) 2014 Nayuki Minase
- * http://nayuki.eigenstate.org/page/binary-array-set
+ * Copyright (c) 2014 Project Nayuki
+ * http://www.nayuki.io/page/binary-array-set
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

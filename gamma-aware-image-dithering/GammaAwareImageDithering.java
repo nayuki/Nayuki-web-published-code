@@ -1,9 +1,9 @@
 /* 
  * Gamma-aware image dithering
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/gamma-aware-image-dithering
+ * http://www.nayuki.io/page/gamma-aware-image-dithering
  */
 
 import java.awt.image.BufferedImage;

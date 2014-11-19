@@ -1,8 +1,8 @@
 # 
 # Smallest enclosing circle
 # 
-# Copyright (c) 2014 Nayuki Minase
-# http://nayuki.eigenstate.org/page/smallest-enclosing-circle
+# Copyright (c) 2014 Project Nayuki
+# http://www.nayuki.io/page/smallest-enclosing-circle
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -2,9 +2,9 @@
  * Test suite for Prf.
  * Runnable as a main program, which should print "All N tests passed".
  * 
- * Copyright (c) 2013 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/primitive-recursive-functions
+ * http://www.nayuki.io/page/primitive-recursive-functions
  */
 
 

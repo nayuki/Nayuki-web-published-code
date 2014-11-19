@@ -1,9 +1,9 @@
 /* 
  * Facebook Anniversary
  * 
- * Copyright (c) 2012 Nayuki Minase
+ * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/facebook-anniversary-ray-trace
+ * http://www.nayuki.io/page/facebook-anniversary-ray-trace
  */
 
 // Note: The aspect ratio is 4/3
