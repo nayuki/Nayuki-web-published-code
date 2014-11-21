@@ -23,7 +23,19 @@ final class TextTokenizer {
 	/* Convenience functions */
 	
 	public static List<TextToken> tokenize(File file) throws IOException {
-		return tokenize(readAll(file));
+		StringBuilder sb = new StringBuilder();
+		Reader in = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8");
+		try {
+			while (true) {
+				int c = in.read();
+				if (c == -1)
+					break;
+				sb.append((char)c);
+			}
+		} finally {
+			in.close();
+		}
+		return tokenize(sb.toString());
 	}
 		
 	
@@ -37,23 +49,6 @@ final class TextTokenizer {
 			result.add(tok);
 		}
 		return result;
-	}
-	
-	
-	private static String readAll(File file) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		Reader in = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8");
-		try {
-			while (true) {
-				int c = in.read();
-				if (c == -1)
-					break;
-				sb.append((char)c);
-			}
-		} finally {
-			in.close();
-		}
-		return sb.toString();
 	}
 	
 	
