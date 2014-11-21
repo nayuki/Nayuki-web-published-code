@@ -34,22 +34,17 @@ public final class KmpStringMatcher {
 			throw new NullPointerException();
 		pattern = patt;
 		
+		// Compute longest suffix-prefix table
 		lsp = new int[pattern.length()];
 		if (lsp.length > 0)
 			lsp[0] = 0;  // Base case
 		for (int i = 1; i < pattern.length(); i++) {
-			// Start by assuming we're extending the previous LSP
-			int j = lsp[i - 1];
-			while (true) {
-				assert 0 <= j && j < i;
-				if (pattern.charAt(i) == pattern.charAt(j)) {
-					j++;
-					break;
-				} else if (j > 0)
-					j = lsp[j - 1];
-				else  // j == 0
-					break;
-			}
+			int j = lsp[i - 1];  // Start by assuming we're extending the previous LSP
+			while (j > 0 && pattern.charAt(i) != pattern.charAt(j))
+				j = lsp[j - 1];
+			if (pattern.charAt(i) == pattern.charAt(j))
+				j++;
+			assert 0 <= j && j < i;
 			lsp[i] = j;
 		}
 	}
@@ -61,20 +56,15 @@ public final class KmpStringMatcher {
 		if (pattern.length() == 0)
 			return 0;  // Immediate match
 		
+		// Walk through text string
 		int j = 0;  // Number of chars matched in pattern
 		for (int i = 0; i < text.length(); i++) {
-			while (true) {
-				assert 0 <= j && j < pattern.length();
-				if (text.charAt(i) == pattern.charAt(j)) {  // Next char matched, increment position
-					j++;
-					if (j == pattern.length())
-						return i - (j - 1);
-					else
-						break;
-				} else if (j > 0) {  // Fall back in the pattern
-					j = lsp[j - 1];
-				} else  // j == 0
-					break;
+			while (j > 0 && text.charAt(i) != pattern.charAt(j))
+				j = lsp[j - 1];  // Fall back in the pattern
+			if (text.charAt(i) == pattern.charAt(j)) {
+				j++;  // Next char matched, increment position
+				if (j == pattern.length())
+					return i - (j - 1);
 			}
 		}
 		return -1;  // Not found

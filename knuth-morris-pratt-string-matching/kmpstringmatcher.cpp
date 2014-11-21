@@ -40,33 +40,22 @@ const char *kmpSearch(const char *pattern, const char *text) {
 	std::vector<size_t> lsp(strlen(pattern));
 	lsp.at(0) = 0;  // Base case
 	for (size_t i = 1; i < lsp.size(); i++) {
-		// Start by assuming we're extending the previous LSP
-		size_t j = lsp.at(i - 1);
-		while (true) {
-			if (pattern[i] == pattern[j]) {
-				j++;
-				break;
-			} else if (j > 0)
-				j = lsp.at(j - 1);
-			else  // j == 0
-				break;
-		}
+		size_t j = lsp.at(i - 1);  // Start by assuming we're extending the previous LSP
+		while (j > 0 && pattern[i] != pattern[j])
+			j = lsp.at(j - 1);
+		if (pattern[i] == pattern[j])
+			j++;
 		lsp.at(i) = j;
 	}
 	
 	// Walk through text string
 	for (size_t j = 0; *text != '\0'; text++) {  // j is the number of chars matched in pattern
-		while (true) {
-			if (*text == pattern[j]) {  // Next char matched, increment position
-				j++;
-				if (j == lsp.size()) {
-					return text - (j - 1);
-				} else
-					break;
-			} else if (j > 0) {  // Fall back in the pattern
-				j = lsp.at(j - 1);
-			} else  // j == 0
-				break;
+		while (j > 0 && *text != pattern[j])
+			j = lsp.at(j - 1);  // Fall back in the pattern
+		if (*text == pattern[j]) {
+			j++;  // Next char matched, increment position
+			if (j == lsp.size())
+				return text - (j - 1);
 		}
 	}
 	return NULL;  // Not found

@@ -47,35 +47,25 @@ char *kmp_search(char *pattern, char *text) {
 	lsp[0] = 0;  // Base case
 	size_t i;
 	for (i = 1; i < pattern_len; i++) {
-		// Start by assuming we're extending the previous LSP
-		size_t j = lsp[i - 1];
-		while (1) {
-			if (pattern[i] == pattern[j]) {
-				j++;
-				break;
-			} else if (j > 0)
-				j = lsp[j - 1];
-			else  // j == 0
-				break;
-		}
+		size_t j = lsp[i - 1];  // Start by assuming we're extending the previous LSP
+		while (j > 0 && pattern[i] != pattern[j])
+			j = lsp[j - 1];
+		if (pattern[i] == pattern[j])
+			j++;
 		lsp[i] = j;
 	}
 	
 	// Walk through text string
 	size_t j = 0;  // Number of chars matched in pattern
 	for (; *text != '\0'; text++) {
-		while (1) {
-			if (*text == pattern[j]) {  // Next char matched, increment position
-				j++;
-				if (j == pattern_len) {
-					free(lsp);
-					return text - (j - 1);
-				} else
-					break;
-			} else if (j > 0) {  // Fall back in the pattern
-				j = lsp[j - 1];
-			} else  // j == 0
-				break;
+		while (j > 0 && *text != pattern[j])
+			j = lsp[j - 1];  // Fall back in the pattern
+		if (*text == pattern[j]) {
+			j++;  // Next char matched, increment position
+			if (j == pattern_len) {
+				free(lsp);
+				return text - (j - 1);
+			}
 		}
 	}
 	

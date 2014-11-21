@@ -32,30 +32,20 @@ def kmp_search(pattern, text):
     # Compute longest suffix-prefix table
     lsp = [0]  # Base case
     for c in pattern[1 : ]:
-        # Start by assuming we're extending the previous LSP
-        j = lsp[-1]
-        while True:
-            if c == pattern[j]:
-                j += 1
-                break
-            elif j > 0:
-                j = lsp[j - 1]
-            else:  # j == 0
-                break
+        j = lsp[-1]  # Start by assuming we're extending the previous LSP
+        while j > 0 and c != pattern[j]:
+            j = lsp[j - 1]
+        if c == pattern[j]:
+            j += 1
         lsp.append(j)
     
     # Walk through text string
     j = 0  # Number of chars matched in pattern
     for i in range(len(text)):
-        while True:
-            if text[i] == pattern[j]:  # Next char matched, increment position
-                j += 1
-                if j == len(pattern):
-                    return i - (j - 1)
-                else:
-                    break
-            elif j > 0:  # Fall back in the pattern
-                j = lsp[j - 1]
-            else:  # j == 0
-                break
+        while j > 0 and text[i] != pattern[j]:
+            j = lsp[j - 1]  # Fall back in the pattern
+        if text[i] == pattern[j]:
+            j += 1  # Next char matched, increment position
+            if j == len(pattern):
+                return i - (j - 1)
     return None  # Not found
