@@ -214,7 +214,7 @@ public final class Inflater {
 				dictIndex = (dictIndex + 1) & DICTIONARY_SIZE_MASK;
 				bufIndex++;
 				if (bufIndex == OUTPUT_BUFFER_SIZE) {
-					this.dictionaryIndex = dictIndex;
+					dictionaryIndex = dictIndex;
 					writeOutputBuffer(bufIndex);
 					bufIndex = 0;
 				}
@@ -232,7 +232,7 @@ public final class Inflater {
 				
 				// Ensure sufficient room in buffer
 				if (bufIndex + len > OUTPUT_BUFFER_SIZE) {
-					this.dictionaryIndex = dictIndex;
+					dictionaryIndex = dictIndex;
 					writeOutputBuffer(bufIndex);
 					bufIndex = 0;
 				}
@@ -250,7 +250,7 @@ public final class Inflater {
 		}
 		
 		// Save variable, write output buffer
-		this.dictionaryIndex = dictIndex;
+		dictionaryIndex = dictIndex;
 		writeOutputBuffer(bufIndex);
 	}
 	
