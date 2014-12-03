@@ -62,10 +62,9 @@ public final class DumbPngOutput {
 		
 		// IDAT chunk (pixel values and row filters)
 		// Note: One additional byte at the beginning of each row specifies the filtering method
-		long temp = ((long)width * 3 + 1) * height;
-		if (temp > Integer.MAX_VALUE)
-			throw new ArithmeticException("Overflow");
-		byte[] idat = new byte[(int)temp];
+		if ((Integer.MAX_VALUE / height - 1) / width < 3)
+			throw new IllegalArgumentException("Dimensions too large");
+		byte[] idat = new byte[(width * 3 + 1) * height];
 		int rowSize = width * 3 + 1;
 		for (int y = 0; y < height; y++) {
 			idat[y * rowSize + 0] = 0;  // Filter type: None
