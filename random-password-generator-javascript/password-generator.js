@@ -1,7 +1,7 @@
 /* 
  * Random password generator (JavaScript)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/random-password-generator-javascript
  */
@@ -9,6 +9,13 @@
 "use strict";
 
 
+var passwordText = document.createTextNode("");
+var statisticsText = document.createTextNode("");
+document.getElementById("password").appendChild(passwordText);
+document.getElementById("statistics").appendChild(statisticsText);
+
+
+// The one and only function called from the HTML code
 function generate() {
 	var charset = "";
 	if (document.getElementById("numbers"  ).checked) charset += "0123456789";
@@ -50,11 +57,12 @@ function generate() {
 			statistics = "Length = " + length + " chars, Charset size = " + charset.length + " symbols, Entropy = " + entropystr + " bits";
 		}
 	}
-	setElementText("password", password);
-	setElementText("statistics", statistics);
+	passwordText.data = password;
+	statisticsText.data = statistics;
 }
 
 
+// e.g. "daabcccd" -> "dabc"
 function removeDuplicates(s) {
 	var result = "";
 	for (var i = 0; i < s.length; i++) {
@@ -93,12 +101,4 @@ function randomIntBrowserCrypto(n) {
 		return x[0] % n;
 	} else
 		return 0;
-}
-
-
-function setElementText(name, text) {
-	var elem = document.getElementById(name);
-	while (elem.firstChild != null)
-		elem.removeChild(elem.firstChild);
-	elem.appendChild(document.createTextNode(text));
 }

@@ -41,7 +41,7 @@
 				s += ((d.getHours() + 11) % 12 + 1) + ":";
 				s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + "\u00A0";
 				s += d.getHours() >= 12 ? "pm" : "am";
-				textNode.nodeValue = s;
+				textNode.data = s;
 				setTimeout(updateClock, 60000 - d.getTime() % 60000 + 100);
 			}
 			
