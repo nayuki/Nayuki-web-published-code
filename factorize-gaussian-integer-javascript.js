@@ -1,7 +1,7 @@
 /* 
  * Factorize Gaussian integer
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
@@ -9,17 +9,16 @@
 "use strict";
 
 
-var MINUS = "\u2212";
-
 /* 
  * Handles the HTML input/output for factoring a Gaussian integer.
  */
 function factor() {
 	var outElem = document.getElementById("factorization");
-	removeAllChildren(outElem);
+	while (outElem.firstChild != null)
+		outElem.removeChild(outElem.firstChild);
 	var input = document.getElementById("number").value;
 	if (/^\s*$/.test(input)) {
-		outElem.appendChild(document.createTextNode("\u00A0"));  // No-break space
+		outElem.appendChild(document.createTextNode(NBSP));
 		return;
 	}
 	
@@ -214,7 +213,5 @@ function parseGaussianInteger(str) {
 }
 
 
-function removeAllChildren(node) {
-	while (node.childNodes.length > 0)
-		node.removeChild(node.firstChild);
-}
+var MINUS = "\u2212";
+var NBSP  = "\u00A0";

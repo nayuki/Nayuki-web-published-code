@@ -1,7 +1,7 @@
 /* 
  * Prime factorization calculator
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/calculate-prime-factorization-javascript
  */
@@ -9,11 +9,11 @@
 "use strict";
 
 
-var TIMES = "\u00D7";  // Times sign
-var NBSP  = "\u00A0";  // No-break space
-
-
+var numberElem = document.getElementById("number");
+var factorization0Text = document.createTextNode("");
+document.getElementById("factorization0").appendChild(factorization0Text);
 var lastInput = "";
+
 
 /* 
  * Handles the HTML input/output for factoring an integer.
@@ -21,16 +21,13 @@ var lastInput = "";
  */
 function factor() {
 	// Don't factor if input text didn't change
-	var numberText = document.getElementById("number").value;
-	numberText = numberText.replace(/^\s+|\s+$/g, "");  // Trim whitespace
+	var numberText = numberElem.value;
 	if (numberText == lastInput)
 		return;
 	lastInput = numberText;
 	
 	// Reset output line 0
-	var outElem0 = document.getElementById("factorization0");
-	removeAllChildren(outElem0);
-	outElem0.appendChild(document.createTextNode(""));
+	factorization0Text.data = "";
 	
 	// Reset output line 1 with blank filler to prevent the page layout from bobbing up and down
 	var outElem1 = document.getElementById("factorization1");
@@ -41,7 +38,7 @@ function factor() {
 	outElem1.appendChild(temp);
 	
 	if (!/^-?\d+$/.test(numberText)) {
-		outElem0.firstChild.data = "Not an integer";
+		factorization0Text.data = "Not an integer";
 		return;
 	}
 	
@@ -51,16 +48,16 @@ function factor() {
 	
 	var n = parseInt(numberText, 10);
 	if (n < 2) {
-		outElem0.firstChild.data = "Number out of range (< 2)";
+		factorization0Text.data = "Number out of range (< 2)";
 	} else if (n >= 9007199254740992) {
-		outElem0.firstChild.data = "Number too large";
+		factorization0Text.data = "Number too large";
 	} else {
 		// Main case
 		var factors = primeFactorList(n);
 		var factorPowers = toFactorPowerList(factors);
 		
 		// Build prime factor list without powers
-		outElem0.firstChild.data = n + " = " + factors.join(" " + TIMES + " ");
+		factorization0Text.data = n + " = " + factors.join(" " + TIMES + " ");
 		
 		// Build prime factor list with powers in superscripts
 		if (factorPowers.length < factors.length) {
@@ -150,6 +147,10 @@ function toFactorPowerList(factors) {
 
 
 function removeAllChildren(node) {
-	while (node.childNodes.length > 0)
+	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }
+
+
+var TIMES = "\u00D7";  // Times sign
+var NBSP  = "\u00A0";  // No-break space

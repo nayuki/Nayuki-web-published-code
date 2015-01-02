@@ -1,7 +1,7 @@
 /* 
  * Divisors calculator
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/calculate-divisors-javascript
  */
@@ -9,7 +9,11 @@
 "use strict";
 
 
+var numberElem = document.getElementById("number");
+var outputText = document.createTextNode("");
+document.getElementById("output").appendChild(outputText)
 var lastInput = "";
+
 
 /*
  * Handles the HTML input/output for calculating the divisors of an integer.
@@ -17,32 +21,27 @@ var lastInput = "";
  */
 function divisors() {
 	// Don't calculate if input text didn't change
-	var numberText = document.getElementById("number").value;
-	numberText = numberText.replace(/^\s+|\s+$/g, "");  // Trim whitespace
+	var numberText = numberElem.value;
 	if (numberText == lastInput)
 		return;
 	lastInput = numberText;
 	
-	var out;
+	var s;
 	if (!/^-?\d+$/.test(numberText)) {
-		out = "Not an integer";
-	
+		s = "Not an integer";
 	} else {
 		var n = parseInt(numberText, 10);
 		if (n < 1) {
-			out = "Number out of range (< 1)";
+			s = "Number out of range (< 1)";
 		} else if (n >= 9007199254740992) {
-			out = "Number too large";
+			s = "Number too large";
 		} else {
 			// Main case
 			var divisors = listDivisors(n);
-			out = divisors.join(", ");
+			s = divisors.join(", ");
 		}
 	}
-	
-	var output = document.getElementById("output");
-	removeAllChildren(output);
-	output.appendChild(document.createTextNode(out));
+	outputText.data = s;
 }
 
 
@@ -69,10 +68,4 @@ function listDivisors(n) {
 	}
 	large.reverse();
 	return small.concat(large);
-}
-
-
-function removeAllChildren(node) {
-	while (node.childNodes.length > 0)
-		node.removeChild(node.firstChild);
 }

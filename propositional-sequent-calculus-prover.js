@@ -1,7 +1,7 @@
 /* 
  * Propositional sequent calculus prover
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
@@ -546,7 +546,7 @@ var OR        = "\u2228";
 
 // Removes all the children of the given DOM node.
 function removeAllChildren(node) {
-	while (node.childNodes.length > 0)
+	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }
 

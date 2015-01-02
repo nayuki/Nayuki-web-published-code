@@ -1,15 +1,12 @@
 /* 
  * Triangle solver
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/triangle-solver-javascript
  */
 
 "use strict";
-
-
-var DEGREE = "\u00B0";
 
 
 // The main function, which handles the HTML input/output for solving a triangle.
@@ -184,11 +181,11 @@ var ioNames = ["sideA", "sideB", "sideC", "angleA", "angleB", "angleC", "area"];
 var solution = null;
 
 
-// Parses the number from the HTML form field with the given ID. Trims leading and trailing whitespace.
+// Parses the number from the HTML form field with the given ID.
 // Returns the number if it's positive and finite. Throws an exception if it's zero, negative, infinite, or NaN.
-// Returns null if the field is blank (after trimming).
+// Returns null if the field is blank.
 function getInputNumber(elemId) {
-	var str = document.getElementById(elemId).value.replace(/^\s+|\s+$/g, "");  // Trim whitespace
+	var str = document.getElementById(elemId).value;
 	if (str == "")
 		return null;
 	var result = parseFloat(str);
@@ -215,12 +212,12 @@ var RECT_PADDED_SIZE = 36;
 
 // List of tuples (left, top, width, height). Values will be modified by initImageMap() to include padding.
 var rectangles = [
-	[246,221,12,12],
-	[ 89, 89,12,18],
-	[321, 87,11,13],
-	[177, 48,15,17],  // Tweaked for better aesthetics. True dimensions are [175,48,15,17]
-	[391,176,16,17],
-	[ 69,175,17,18]
+	[246, 221, 12, 12],
+	[ 89,  89, 12, 18],
+	[321,  87, 11, 13],
+	[177,  48, 15, 17],  // Tweaked for better aesthetics. True dimensions are [175,48,15,17]
+	[391, 176, 16, 17],
+	[ 69, 175, 17, 18],
 ];
 
 function initImageMap() {
@@ -290,13 +287,9 @@ function initImageMap() {
 
 function setElementText(nodeId, str) {
 	var node = document.getElementById(nodeId);
-	removeAllChildren(node);
-	node.appendChild(document.createTextNode(str));
-}
-
-function removeAllChildren(node) {
-	while (node.childNodes.length > 0)
+	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
+	node.appendChild(document.createTextNode(str));
 }
 
 function parsePixels(str) {
@@ -318,6 +311,9 @@ function degToRad(x) {
 function radToDeg(x) {
 	return x / Math.PI * 180;
 }
+
+
+var DEGREE = "\u00B0";
 
 
 /* Initialization */
