@@ -1,7 +1,7 @@
 /* 
  * Demonstration of fast Fibonacci algorithms
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/fast-fibonacci-algorithms
  */
@@ -13,16 +13,17 @@ public final class fastfibonacci {
 	
 	// Tests the speed of the 3 Fibonacci algorithms
 	public static void main(String[] args) {
-		if (args.length == 0) {
+		// Handle arguments
+		if (args.length != 1) {
 			System.err.println("Usage: java fastfibonacci N");
 			System.exit(1);
 			return;
 		}
-		
 		int n = Integer.parseInt(args[0]);
 		if (n < 0)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Number must be non-negative");
 		
+		// Do speed benchmark
 		long startTime;
 		
 		startTime = System.nanoTime();
@@ -37,11 +38,11 @@ public final class fastfibonacci {
 		BigInteger z = slowFibonacci(n);
 		System.out.printf("Slow DP: %d ms%n", (System.nanoTime() - startTime) / 1000000);
 		
+		// Print answer
 		System.out.println();
 		if (!x.equals(z) || !x.equals(y))
 			System.out.println("Wrong answer computed");
-		
-		if (z.bitLength() < 1000)
+		if (z.bitLength() < 10000)
 			System.out.printf("Answer: %d%n", z);
 		else
 			System.out.printf("Answer: (%d bits long)%n", z.bitLength());
@@ -50,8 +51,10 @@ public final class fastfibonacci {
 	
 	/* 
 	 * Fast doubling method. Faster than the matrix method.
-	 * F(2n) = F(n) * (2*F(n+1) - F(n))
-	 * F(2n+1) = F(n+1)^2 + F(n)^2
+	 * F(2n) = F(n) * (2*F(n+1) - F(n)).
+	 * F(2n+1) = F(n+1)^2 + F(n)^2.
+	 * This implementation is the non-recursive version. See the web page and
+	 * the other programming language implementations for the recursive version.
 	 */
 	private static BigInteger fastFibonacciDoubling(int n) {
 		BigInteger a = BigInteger.ZERO;
@@ -88,29 +91,29 @@ public final class fastfibonacci {
 	/* 
 	 * Fast matrix method. Easy to describe, but has a constant factor slowdown compared to doubling method.
 	 * [1 1]^n   [F(n+1) F(n)  ]
-	 * [1 0]   = [F(n)   F(n-1)]
+	 * [1 0]   = [F(n)   F(n-1)].
 	 */
 	private static BigInteger fastFibonacciMatrix(int n) {
 		BigInteger[] matrix = {BigInteger.ONE, BigInteger.ONE, BigInteger.ONE, BigInteger.ZERO};
-		return pow(matrix, n)[1];
+		return matrixPow(matrix, n)[1];
 	}
 	
-	// Computes the power of a matrix
-	private static BigInteger[] pow(BigInteger[] matrix, int n) {
+	// Computes the power of a matrix. The matrix is packed in row-major order.
+	private static BigInteger[] matrixPow(BigInteger[] matrix, int n) {
 		if (n < 0)
 			throw new IllegalArgumentException();
 		BigInteger[] result = {BigInteger.ONE, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE};
 		while (n != 0) {  // Exponentiation by squaring
 			if (n % 2 != 0)
-				result = multiply(result, matrix);
+				result = matrixMultiply(result, matrix);
 			n /= 2;
-			matrix = multiply(matrix, matrix);
+			matrix = matrixMultiply(matrix, matrix);
 		}
 		return result;
 	}
 	
-	// Multiplies two matrices
-	private static BigInteger[] multiply(BigInteger[] x, BigInteger[] y) {
+	// Multiplies two matrices.
+	private static BigInteger[] matrixMultiply(BigInteger[] x, BigInteger[] y) {
 		return new BigInteger[] {
 			multiply(x[0], y[0]).add(multiply(x[1], y[2])),
 			multiply(x[0], y[1]).add(multiply(x[1], y[3])),
@@ -121,8 +124,8 @@ public final class fastfibonacci {
 	
 	
 	/* 
-	 * Simple slow method, using dynamic programming
-	 * F(n+2) = F(n+1) + F(n)
+	 * Simple slow method, using dynamic programming.
+	 * F(n+2) = F(n+1) + F(n).
 	 */
 	private static BigInteger slowFibonacci(int n) {
 		BigInteger a = BigInteger.ZERO;
@@ -136,9 +139,9 @@ public final class fastfibonacci {
 	}
 	
 	
-	// Multiplies two BigIntegers
+	// Multiplies two BigIntegers. This function makes it easy to swap in a faster algorithm like Karatsuba multiplication.
 	private static BigInteger multiply(BigInteger x, BigInteger y) {
-		return x.multiply(y);  // Replace this line with Karatsuba multiplication, etc. if available
+		return x.multiply(y);
 	}
 	
 }
