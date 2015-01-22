@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (C++)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * http://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * (MIT License)
@@ -22,12 +22,10 @@
  *   Software.
  */
 
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
 #include <vector>
-
-#define SIZE_MAX ((size_t)-1)
 
 
 // Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
