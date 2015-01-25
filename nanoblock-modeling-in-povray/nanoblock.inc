@@ -1,9 +1,9 @@
 /* 
  * Nanoblock common definitions (POV-Ray)
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2015 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/
+ * http://www.nayuki.io/page/nanoblock-modeling-in-povray
  */
 
 

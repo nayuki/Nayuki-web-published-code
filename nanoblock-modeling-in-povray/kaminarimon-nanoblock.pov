@@ -1,9 +1,9 @@
 /* 
  * Kaminarimon Nanoblock model
  * 
- * Copyright (c) 2014 Nayuki Minase
+ * Copyright (c) 2015 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
- * http://nayuki.eigenstate.org/page/
+ * http://www.nayuki.io/page/nanoblock-modeling-in-povray
  */
 
 // Note: The preferred aspect ratio is 4:3
@@ -14,7 +14,7 @@
 
 // User configuration
 #local CameraMode = 0;  // 0 for normal, 1 or 2 for debug
-#local ShowStep = 0;  // 0 means to render all steps; a number from 1 to 10 means to render only that particular step
+#local ShowStep   = 0;  // 0 means to render all steps; a number from 1 to 10 means to render only that particular step
 
 
 // Globals
@@ -168,7 +168,6 @@ light_source {
 		Brick(<3,  5, 0>, <2,2>, Black)
 		Brick(<3,  8, 0>, <2,2>, Black)
 	};
-	
 	object { Half }
 	object { Half scale <-1,1,1> translate <20,0,0> }
 };
@@ -512,7 +511,6 @@ union {
 	#if (ShowStep = 0 | ShowStep =  8)  object { Step8  translate <0, 0, 12> }  #end
 	#if (ShowStep = 0 | ShowStep =  9)  object { Step9  translate <0, 0, 15> }  #end
 	#if (ShowStep = 0 | ShowStep = 10)  object { Step10 translate <0, 0,  1> }  #end
-	
 	scale <1, 1, 0.75>         // Shrink the z-axis slightly because Nanoblock bricks are not perfect cubes; they're slightly flattened in height
 	scale 1/20                 // Shrink the model so that the base plate is 1 unit long in both the x and y axes
 	translate <-0.5, -0.5, 0>  // Center the model on (0, 0) in the x and y axes
