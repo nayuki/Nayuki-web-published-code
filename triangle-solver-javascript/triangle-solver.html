@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Triangle solver (JavaScript)</title>
+		<!-- Copyright (c) 2015 Project Nayuki - http://www.nayuki.io/page/triangle-solver-javascript -->
+		<style type="text/css">
+		html {
+			background-color: #FFFFFF;
+			font-family: sans-serif;
+			font-size: 120%;
+			color: #000000;
+		}
+		
+		body {
+			max-width: 50em;
+			margin-left: auto;
+			margin-right: auto;
+		}
+		
+		h1 {
+			text-align: center;
+			font-size: 160%;
+		}
+		
+		h2 {
+			text-align: left;
+			font-size: 125%;
+		}
+		
+		p {
+			margin: 0.7em 0em;
+			line-height: 140%;
+		}
+		
+		td, th {
+			padding: 0.25em 0.5em;
+		}
+		
+		th {
+			font-weight: bold;
+		}
+		
+		li {
+			margin-top: 0.5em;
+			margin-bottom: 0.5em;
+		}
+		
+		hr {
+			margin: 1.5em 0em;
+		}
+		
+		input {
+			font-size: inherit;
+		}
+		
+		var {
+			font-family: serif;
+			font-style: italic;
+		}
+		
+		#footer a {
+			text-decoration: none;
+		}
+		
+		#footer a:hover {
+			text-decoration: underline;
+		}
+		
+		.nosolution2 td:nth-child(4), article .nosolution2 th:nth-child(4) span {
+			display: none;
+		}
+		
+		.letterhover {
+			display: block;
+			position: absolute;
+			border-radius: 4px;
+		}
+		
+		.letterhover:hover {
+			background-color: #808080;
+			opacity: 0.25;
+			filter: alpha(opacity=25);
+		}
+		</style>
+	</head>
+	
+	<body>
+		<h1>Triangle solver (JavaScript)</h1>
+		
+		<h2 style="display:none">Program</h2>
+		<div style="position:relative">
+			<div id="diagramcontainer" style="width:500px; margin:0em auto; position:relative">
+				<img src="data:image/png;base64,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" width="500" height="250" alt="Triangle diagram with sides and angles labelled" style="display:block"/>
+			</div>
+			<div id="hoveroutput" style="display:none; position:absolute; padding:0.5em; background-color:#FFFFFF; border:1px solid #A0A0A0; border-radius:3px"></div>
+		</div>
+		
+		<form action="#" method="get" onsubmit="solve(); return false">
+			<table class="noborder nosolution2" id="formtable" style="display:table; margin-left:auto; margin-right:auto">
+				<thead>
+					<tr>
+						<th>Variable</th>
+						<th>Input</th>
+						<th style="min-width:8em">Solution</th>
+						<th style="min-width:8em"><span>Solution 2</span></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><label for="sideAin">Side <var>a</var> (units):</label></td>
+						<td><input type="number" id="sideAin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td id="sideAout"></td>
+						<td id="sideAout2"></td>
+					</tr>
+					<tr>
+						<td><label for="sideBin">Side <var>b</var> (units):</label></td>
+						<td><input type="number" id="sideBin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td id="sideBout"></td>
+						<td id="sideBout2"></td>
+					</tr>
+					<tr>
+						<td><label for="sideCin">Side <var>c</var> (units):</label></td>
+						<td><input type="number" id="sideCin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td id="sideCout"></td>
+						<td id="sideCout2"></td>
+					</tr>
+					<tr>
+						<td><label for="angleAin">Angle <var>A</var> (degrees):</label></td>
+						<td><input type="number" id="angleAin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td id="angleAout"></td>
+						<td id="angleAout2"></td>
+					</tr>
+					<tr>
+						<td><label for="angleBin">Angle <var>B</var> (degrees):</label></td>
+						<td><input type="number" id="angleBin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td id="angleBout"></td>
+						<td id="angleBout2"></td>
+					</tr>
+					<tr>
+						<td><label for="angleCin">Angle <var>C</var> (degrees):</label></td>
+						<td><input type="number" id="angleCin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td id="angleCout"></td>
+						<td id="angleCout2"></td>
+					</tr>
+					<tr>
+						<td>Area (square units):</td>
+						<td></td>
+						<td id="areaout"></td>
+						<td id="areaout2"></td>
+					</tr>
+					<tr>
+						<td>Status:</td>
+						<td colspan="3" id="status"></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td colspan="3"><input value="Solve" type="submit"/> <input value="Clear" type="reset" onclick="clearOutputs()"/></td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+		<p>Tips: In the triangle diagram, click on a letter to jump to that input. When solved, hover over a letter to read its value.</p>
+		
+		<hr/>
+		<h2>Description</h2>
+		<p>This JavaScript program calculates the missing sides and angles of a triangle. Give exactly 3 pieces of information, including at least one side.</p>
+		<p>Notes:</p>
+		<ul>
+			<li><p>All sides are measured in the same unit. For example, you cannot directly solve a triangle with the sides 3 metres, 5 feet, and 2 yards; you must convert the side lengths to a common unit first.</p></li>
+			<li><p>In a valid solution, all side lengths are positive, and all angles are greater than 0° and less than 180°.</p></li>
+			<li><p>3 sides (<abbr title="side side side">SSS</abbr>) yields a unique solution, or no solution if the longest side is longer than the sum of the other sides.</p></li>
+			<li><p>2 angles and a side (<abbr title="angle side angle">ASA</abbr>) always yields a unique solution, provided that the two given angles add up to less than 180°.</p></li>
+			<li><p>2 sides and an enclosed angle (<abbr title="side angle side">SAS</abbr>) always yields a unique solution.</p></li>
+			<li><p>2 sides and a non-enclosed angle (<abbr title="side side angle">SSA</abbr>) yields 0, 1, or 2 solutions.</p></li>
+		</ul>
+		<p>More info:</p>
+		<ul>
+			<li><a href="http://en.wikipedia.org/wiki/Law_of_cosines">Wikipedia: Law of cosines</a></li>
+			<li><a href="http://en.wikipedia.org/wiki/Law_of_sines">Wikipedia: Law of sines</a></li>
+		</ul>
+		<hr>
+		<p id="footer">Copyright © 2015 Project Nayuki – <a href="http://www.nayuki.io/page/triangle-solver-javascript">http://www.nayuki.io/page/triangle-solver-javascript</a></p>
+		
+		<script type="text/javascript">
+			"use strict";
+			
+			
+			// The main function, which handles the HTML input/output for solving a triangle.
+			function solve() {
+				function doOutput(nodeId, val, suffix) {
+					if (and(typeof val == "object", val.length == 2)) {  // Array
+						setElementText(nodeId, formatNumber(val[0]) + suffix);
+						setElementText(nodeId + "2", formatNumber(val[1]) + suffix);
+						solution2 = true;
+					} else if (typeof val == "number") {
+						setElementText(nodeId, formatNumber(val) + suffix);
+						setElementText(nodeId + "2", formatNumber(val) + suffix);
+					} else
+						throw "Assertion error";
+				}
+				
+				try {
+					// Get input and solve
+					var a = getInputNumber("sideAin");
+					var b = getInputNumber("sideBin");
+					var c = getInputNumber("sideCin");
+					var A = getInputNumber("angleAin");
+					var B = getInputNumber("angleBin");
+					var C = getInputNumber("angleCin");
+					var answer = solveTriangle(a, b, c, A, B, C);
+					solution = answer.slice(0, 6);
+					
+					// Set outputs
+					setElementText("status", answer[7]);
+					var solution2 = false;
+					doOutput("sideAout" , answer[0], "");
+					doOutput("sideBout" , answer[1], "");
+					doOutput("sideCout" , answer[2], "");
+					doOutput("angleAout", answer[3], DEGREE);
+					doOutput("angleBout", answer[4], DEGREE);
+					doOutput("angleCout", answer[5], DEGREE);
+					doOutput("areaout"  , answer[6], "");
+					document.getElementById("formtable").className = solution2 ? "noborder" : "noborder nosolution2";
+					
+				} catch (e) {
+					clearOutputs();
+					setElementText("status", e);
+				}
+			}
+			
+			
+			/* Solver functions */
+			
+			function solveTriangle(a, b, c, A, B, C) {
+				var sides  = (a != null) + (b != null) + (c != null);  // Boolean to integer conversion
+				var angles = (A != null) + (B != null) + (C != null);  // Boolean to integer conversion
+				var area, status;
+				
+				if (sides + angles != 3)
+					throw "Give exactly 3 pieces of information";
+				else if (sides == 0)
+					throw "Give at least one side length";
+				
+				else if (sides == 3) {
+					status = "Side side side (SSS) case";
+					if (lessEqual(a + b, c) || lessEqual(b + c, a) || lessEqual(c + a, b))
+						throw status + " - No solution";
+					A = solveAngle(b, c, a);
+					B = solveAngle(c, a, b);
+					C = solveAngle(a, b, c);
+					// Heron's formula
+					var s = (a + b + c) / 2;
+					area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
+					
+				} else if (angles == 2) {
+					status = "Angle side angle (ASA) case";
+					// Find missing angle
+					if (A == null) A = 180 - B - C;
+					if (B == null) B = 180 - C - A;
+					if (C == null) C = 180 - A - B;
+					if (lessEqual(A, 0) || lessEqual(B, 0) || lessEqual(C, 0))
+						throw status + " - No solution";
+					var sinA = Math.sin(degToRad(A));
+					var sinB = Math.sin(degToRad(B));
+					var sinC = Math.sin(degToRad(C));
+					// Use law of sines to find sides
+					var ratio;  // side / sin(angle)
+					if (a != null) { ratio = a / sinA; area = a * ratio * sinB * sinC / 2; }
+					if (b != null) { ratio = b / sinB; area = b * ratio * sinC * sinA / 2; }
+					if (c != null) { ratio = c / sinC; area = c * ratio * sinA * sinB / 2; }
+					if (a == null) a = ratio * sinA;
+					if (b == null) b = ratio * sinB;
+					if (c == null) c = ratio * sinC;
+					
+				} else if (and(A != null, a == null) || and(B != null, b == null) || and(C != null, c == null)) {
+					status = "Side angle side (SAS) case";
+					if (and(A != null, A >= 180) || and(B != null, B >= 180) || and(C != null, C >= 180))
+						throw status + " - No solution";
+					if (a == null) a = solveSide(b, c, A);
+					if (b == null) b = solveSide(c, a, B);
+					if (c == null) c = solveSide(a, b, C);
+					if (A == null) A = solveAngle(b, c, a);
+					if (B == null) B = solveAngle(c, a, b);
+					if (C == null) C = solveAngle(a, b, c);
+					if (A != null) area = b * c * Math.sin(degToRad(A)) / 2;
+					if (B != null) area = c * a * Math.sin(degToRad(B)) / 2;
+					if (C != null) area = a * b * Math.sin(degToRad(C)) / 2;
+					
+				} else {
+					status = "Side side angle (SSA) case - ";
+					var knownSide, knownAngle, partialSide;
+					if (and(a != null, A != null)) { knownSide = a; knownAngle = A; }
+					if (and(b != null, B != null)) { knownSide = b; knownAngle = B; }
+					if (and(c != null, C != null)) { knownSide = c; knownAngle = C; }
+					if (and(a != null, A == null)) partialSide = a;
+					if (and(b != null, B == null)) partialSide = b;
+					if (and(c != null, C == null)) partialSide = c;
+					if (knownAngle >= 180)
+						throw status + "No solution";
+					var ratio = knownSide / Math.sin(degToRad(knownAngle));
+					var temp = partialSide / ratio;  // sin(partialAngle)
+					var partialAngle, unknownSide, unknownAngle;
+					if (temp > 1 || and(knownAngle >= 90, lessEqual(knownSide, partialSide)))
+						throw status + "No solution";
+					else if (temp == 1 || knownSide >= partialSide) {
+						status += "Unique solution";
+						partialAngle = radToDeg(Math.asin(temp));
+						unknownAngle = 180 - knownAngle - partialAngle;
+						unknownSide = ratio * Math.sin(degToRad(unknownAngle));  // Law of sines
+						area = knownSide * partialSide * Math.sin(degToRad(unknownAngle)) / 2;
+					} else {
+						status += "Two solutions";
+						var partialAngle0 = radToDeg(Math.asin(temp));
+						var partialAngle1 = 180 - partialAngle0;
+						var unknownAngle0 = 180 - knownAngle - partialAngle0;
+						var unknownAngle1 = 180 - knownAngle - partialAngle1;
+						var unknownSide0 = ratio * Math.sin(degToRad(unknownAngle0));  // Law of sines
+						var unknownSide1 = ratio * Math.sin(degToRad(unknownAngle1));  // Law of sines
+						partialAngle = [partialAngle0, partialAngle1];
+						unknownAngle = [unknownAngle0, unknownAngle1];
+						unknownSide = [unknownSide0, unknownSide1];
+						area = [knownSide * partialSide * Math.sin(degToRad(unknownAngle0)) / 2,
+								knownSide * partialSide * Math.sin(degToRad(unknownAngle1)) / 2];
+					}
+					if (and(a != null, A == null)) A = partialAngle;
+					if (and(b != null, B == null)) B = partialAngle;
+					if (and(c != null, C == null)) C = partialAngle;
+					if (and(a == null, A == null)) { a = unknownSide; A = unknownAngle; }
+					if (and(b == null, B == null)) { b = unknownSide; B = unknownAngle; }
+					if (and(c == null, C == null)) { c = unknownSide; C = unknownAngle; }
+				}
+				
+				return [a, b, c, A, B, C, area, status];
+			}
+			
+			
+			function solveSide(a, b, C) {  // Returns side c using law of cosines
+				return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(degToRad(C)));
+			}
+			
+			function solveAngle(a, b, c) {  // Returns angle C using law of cosines
+				var temp = (a * a + b * b - c * c) / (2 * a * b);
+				if (and(temp >= -1, lessEqual(temp, 1)))
+					return radToDeg(Math.acos(temp));
+				else
+					throw "No solution";
+			}
+			
+			
+			/* Input/output/GUI handling functions */
+			
+			// e.g. sideA is associated with sideAin, sideAout, and sideAout2. But area does not have an input.
+			var ioNames = ["sideA", "sideB", "sideC", "angleA", "angleB", "angleC", "area"];
+			
+			// Either null, or an array of 6 items: [sideA, sideB, sideC, angleA, angleB, angleC].
+			// Each item is either a number or an array of 2 numbers.
+			var solution = null;
+			
+			
+			// Parses the number from the HTML form field with the given ID.
+			// Returns the number if it's positive and finite. Throws an exception if it's zero, negative, infinite, or NaN.
+			// Returns null if the field is blank.
+			function getInputNumber(elemId) {
+				var str = document.getElementById(elemId).value;
+				if (str == "")
+					return null;
+				var result = parseFloat(str);
+				if (!isFinite(result))
+					throw "Invalid number";
+				if (lessEqual(result, 0))
+					throw "All inputs must be positive";
+				return result;
+			}
+			
+			
+			function clearOutputs() {
+				solution = null;
+				document.getElementById("formtable").className = "noborder nosolution2";
+				for (var i = 0; ioNames.length > i; i++) {
+					setElementText(ioNames[i] + "out" , "");
+					setElementText(ioNames[i] + "out2", "");
+				}
+				setElementText("status", "");
+			}
+			
+			
+			var RECT_PADDED_SIZE = 36;
+			
+			// List of tuples (left, top, width, height). Values will be modified by initImageMap() to include padding.
+			var rectangles = [
+				[246, 221, 12, 12],
+				[ 89,  89, 12, 18],
+				[321,  87, 11, 13],
+				[177,  48, 15, 17],  // Tweaked for better aesthetics. True dimensions are [175,48,15,17]
+				[391, 176, 16, 17],
+				[ 69, 175, 17, 18],
+			];
+			
+			function initImageMap() {
+				var container = document.getElementById("diagramcontainer");
+				for (var i = 0; rectangles.length > i; i++) {
+					var elem = document.createElement("a");
+					elem.href = "#";
+					elem.className = "letterhover";
+					var rect = rectangles[i];
+					rect[0] -= Math.round((RECT_PADDED_SIZE - rect[2]) / 2);
+					rect[1] -= Math.round((RECT_PADDED_SIZE - rect[3]) / 2);
+					elem.style.left   = rect[0] + "px";
+					elem.style.top    = rect[1]  + "px";
+					elem.style.width  = RECT_PADDED_SIZE + "px";
+					elem.style.height = RECT_PADDED_SIZE + "px";
+					
+					var setEvents = function(index) {
+						function hover() {
+							if (solution == null)
+								return;
+							
+							var suffix = and(index >= 3, 6 > index) ? DEGREE : "";
+							var text;
+							if (typeof solution[index] == "object")
+								text = formatNumber(solution[index][0]) + suffix + " or " + formatNumber(solution[index][1]) + suffix;
+							else
+								text = formatNumber(solution[index]) + suffix;
+							setElementText("hoveroutput", text);
+							
+							// Set hover element style
+							var hovelem = document.getElementById("hoveroutput");
+							hovelem.style.display = "block";
+							try {
+								var compStyle = window.getComputedStyle(hovelem, null);
+								var height = parsePixels(compStyle.getPropertyValue("height"))
+								height    += parsePixels(compStyle.getPropertyValue("padding-top"));
+								height    += parsePixels(compStyle.getPropertyValue("padding-bottom"));
+								hovelem.style.top = rectangles[index][1] - height - 8 + "px";
+								
+								var temp = document.getElementById("diagramcontainer");
+								var containerWidth = parsePixels(window.getComputedStyle(temp, null).getPropertyValue("width"));
+								var bodyWidth = parsePixels(window.getComputedStyle(temp.parentNode, null).getPropertyValue("width"));
+								hovelem.style.left = Math.round((bodyWidth - containerWidth) / 2) + rectangles[index][0] + "px";
+							} catch (e) {
+								hovelem.style.left = "0px";
+								hovelem.style.top = "0px";
+							}
+						}
+						
+						elem.onmouseover = hover;
+						elem.onmouseout = function() {
+							setElementText("hoveroutput", "");
+							document.getElementById("hoveroutput").style.display = "none";
+						};
+						elem.onclick = function() {
+							document.getElementById(ioNames[index] + "in").select();
+							return false;
+						}
+					}
+					setEvents(i);
+					container.appendChild(elem);
+				}
+			}
+			
+			
+			/* Simple functions */
+			
+			function setElementText(nodeId, str) {
+				var node = document.getElementById(nodeId);
+				while (node.firstChild != null)
+					node.removeChild(node.firstChild);
+				node.appendChild(document.createTextNode(str));
+			}
+			
+			function parsePixels(str) {
+				var match = /^(\d+(?:\.\d*)?)px$/.exec(str);
+				if (match != null)
+					return parseFloat(match[1]);
+				else
+					throw "Invalid unit";
+			}
+			
+			function formatNumber(x) {
+				return x.toPrecision(9);
+			}
+			
+			function degToRad(x) {
+				return x / 180 * Math.PI;
+			}
+			
+			function radToDeg(x) {
+				return x / Math.PI * 180;
+			}
+			
+			// Workarounds to avoid HTML issues
+			function lessEqual(x, y) {
+				return y >= x;
+			}
+			
+			function and(x, y) {
+				return x ? y : false;
+			}
+			
+			
+			var DEGREE = "\u00B0";
+			
+			
+			/* Initialization */
+			
+			initImageMap();
+		</script>
+	</body>
+</html>
