@@ -336,7 +336,10 @@
 			
 			
 			function solveSide(a, b, C) {  // Returns side c using law of cosines
-				return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(degToRad(C)));
+				if (C > 0.003)
+					return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(degToRad(C)));
+				else  // Improves numerical stability, relying on the approximation that cos C ~= 1 - C^2 / 2
+					return Math.sqrt((a - b) * (a - b) + a * b * degToRad(C) * degToRad(C));
 			}
 			
 			function solveAngle(a, b, c) {  // Returns angle C using law of cosines
