@@ -164,9 +164,14 @@ function solveSide(a, b, C) {  // Returns side c using law of cosines
 
 function solveAngle(a, b, c) {  // Returns angle C using law of cosines
 	var temp = (a * a + b * b - c * c) / (2 * a * b);
-	if (temp >= -1 && temp <= 1)
+	if (temp >= -1 && temp <= 0.9999999)
 		return radToDeg(Math.acos(temp));
-	else
+	else if (temp <= 1) {
+		// Improves numerical stability for angles near 0.
+		// For cases where a ~= b, and both a and b are much greater than c.
+		// Based on the fact that cos C ~= 1 - C^2 / 2.
+		return radToDeg(Math.sqrt((c * c - (a - b) * (a - b)) / (a * b)));
+	} else
 		throw "No solution";
 }
 
