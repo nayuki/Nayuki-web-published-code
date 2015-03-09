@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * http://www.nayuki.io/page/avl-tree-list
  * 
  * (MIT License)
@@ -23,6 +23,7 @@
  */
 
 import java.util.AbstractList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -38,6 +39,13 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	public AvlTreeList() {
 		clear();
+	}
+	
+	
+	public AvlTreeList(Collection<? extends E> coll) {
+		this();
+		for (E obj : coll)
+			add(obj);
 	}
 	
 	
