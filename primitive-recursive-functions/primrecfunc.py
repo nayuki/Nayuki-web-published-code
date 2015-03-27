@@ -1,7 +1,7 @@
 # 
 # Primitive recursive functions
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2015 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # http://www.nayuki.io/page/primitive-recursive-functions
 # 
@@ -206,7 +206,7 @@ factorial = C(R(const(1), C(mul, [C(S, [I(3,1)]), I(3,0)])), [I(1,0), Z])
 # -- Comparison functions --
 # Every function returns only Boolean values, i.e. 0 or 1
 
-# Is nonzero: nz(x, y) = if x == 0 then 0 else 1
+# Is nonzero: nz(x) = if x == 0 then 0 else 1
 nz = C(R(Z, C(const(1), [I(3,0)])), [I(1,0), Z])
 
 # Equal: eq(x, y) = if x == y then 1 else 0

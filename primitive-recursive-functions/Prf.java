@@ -1,7 +1,7 @@
 /* 
  * Primitive recursive functions
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/primitive-recursive-functions
  */
@@ -26,7 +26,7 @@ public abstract class Prf {
 	/* ---- Constants/factories for primitive recursive functions ---- */
 	
 	// Zero function: Z(x) = 0
-	public static Prf Z = new Prf() {
+	public static final Prf Z = new Prf() {
 		public long eval(long... xs) {
 			if (xs.length != 1 || xs[0] < 0)
 				throw new IllegalArgumentException();
@@ -39,7 +39,7 @@ public abstract class Prf {
 	
 	
 	// Successor function: S(x) = x + 1
-	public static Prf S = new Prf() {
+	public static final Prf S = new Prf() {
 		public long eval(long... xs) {
 			if (xs.length != 1 || xs[0] < 0)
 				throw new IllegalArgumentException();
@@ -164,143 +164,143 @@ public abstract class Prf {
 	}
 	
 	// Is zero: z(x, y) = if x == 0 then 1 else 0
-	public final static Prf z = C(R(konst(1), C(Z, I(3,0))), I(1,0), Z);
+	public static final Prf z = C(R(konst(1), C(Z, I(3,0))), I(1,0), Z);
 	
 	// Multiplex/select: mux(x, y, z) = if x == true then y else z. (x is Boolean; y and z are numbers)
-	public final static Prf mux = R(I(2,1), I(4,2));
+	public static final Prf mux = R(I(2,1), I(4,2));
 	
 	
 	// -- Boolean functions --
 	// 0 means false, 1 means true, and all other input values yield arbitrary output values
 	
 	// Negation (NOT): not(x)
-	public final static Prf not = z;
+	public static final Prf not = z;
 	
 	// Conjunction (AND): and(x, y)
-	public final static Prf and = R(Z, I(3,2));
+	public static final Prf and = R(Z, I(3,2));
 	
 	// Disjunction (OR): or(x, y)
-	public final static Prf or = R(I(1,0), C(S, I(3,1)));
+	public static final Prf or = R(I(1,0), C(S, I(3,1)));
 	
 	// Exclusive OR (XOR): xor(x, y)
-	public final static Prf xor = R(I(1,0), C(not, I(3,2)));
+	public static final Prf xor = R(I(1,0), C(not, I(3,2)));
 	
 	
 	// -- Arithmetic functions --
 	
 	// Predecessor: pred(0) = 0; pred(x) = x - 1
-	public final static Prf pred = C(R(Z, I(3,1)), I(1,0), Z);
+	public static final Prf pred = C(R(Z, I(3,1)), I(1,0), Z);
 	
 	// Addition/sum: add(x, y) = x + y
-	public final static Prf add = R(I(1,0), C(S, I(3,0)));
+	public static final Prf add = R(I(1,0), C(S, I(3,0)));
 	
 	// Reverse subtraction: subrev(x, y) = max(y - x, 0)
-	public final static Prf subrev = R(I(1,0), C(pred, I(3,0)));
+	public static final Prf subrev = R(I(1,0), C(pred, I(3,0)));
 	
 	// Subtraction/difference: sub(x, y) = max(x - y, 0)
-	public final static Prf sub = C(subrev, I(2,1), I(2,0));
+	public static final Prf sub = C(subrev, I(2,1), I(2,0));
 	
 	// Absolute difference: diff(x, y) = abs(x - y)
-	public final static Prf diff = C(add, sub, subrev);
+	public static final Prf diff = C(add, sub, subrev);
 	
 	// Minimum: min(x, y) = if x <= y then x else y
-	public final static Prf min = C(subrev, subrev, I(2,1));
+	public static final Prf min = C(subrev, subrev, I(2,1));
 	
 	// Maximum: max(x, y) = if x >= y then x else y
-	public final static Prf max = C(add, subrev, I(2,0));
+	public static final Prf max = C(add, subrev, I(2,0));
 	
 	// Multiplication/product: mul(x, y) = x * y
-	public final static Prf mul = R(Z, C(add, I(3,0), I(3,2)));
+	public static final Prf mul = R(Z, C(add, I(3,0), I(3,2)));
 	
 	// Power/exponentiation: pow(x, y) = x ^ y
-	public final static Prf pow = C(R(konst(1), C(mul, I(3,2), I(3,0))), I(2,1), I(2,0));
+	public static final Prf pow = C(R(konst(1), C(mul, I(3,2), I(3,0))), I(2,1), I(2,0));
 	
 	// Factorial: factorial(x) = x!
-	public final static Prf factorial = C(R(konst(1), C(mul, C(S, I(3,1)), I(3,0))), I(1,0), Z);
+	public static final Prf factorial = C(R(konst(1), C(mul, C(S, I(3,1)), I(3,0))), I(1,0), Z);
 	
 	
 	// -- Comparison functions --
 	// Every function returns only Boolean values, i.e. 0 or 1
 	
-	// Is nonzero: nz(x, y) = if x == 0 then 0 else 1
-	public final static Prf nz = C(R(Z, C(konst(1), I(3,0))), I(1,0), Z);
+	// Is nonzero: nz(x) = if x == 0 then 0 else 1
+	public static final Prf nz = C(R(Z, C(konst(1), I(3,0))), I(1,0), Z);
 	
 	// Equal: eq(x, y) = if x == y then 1 else 0
-	public final static Prf eq = C(z, diff);
+	public static final Prf eq = C(z, diff);
 	
 	// Not equal: neq(x, y) = if x != y then 1 else 0
-	public final static Prf neq = C(nz, diff);
+	public static final Prf neq = C(nz, diff);
 	
 	// Less than: lt(x, y) = if x < y then 1 else 0
-	public final static Prf lt = C(nz, subrev);
+	public static final Prf lt = C(nz, subrev);
 	
 	// Less than or equal: le(x, y) = if x <= y then 1 else 0
-	public final static Prf le = C(z, sub);
+	public static final Prf le = C(z, sub);
 	
 	// Greater than: gt(x, y) = if x > y then 1 else 0
-	public final static Prf gt = C(nz, sub);
+	public static final Prf gt = C(nz, sub);
 	
 	// Greater than or equal: ge(x, y) = if x >= y then 1 else 0
-	public final static Prf ge = C(z, subrev);
+	public static final Prf ge = C(z, subrev);
 	
 	
 	// -- Late functions --
 	
 	// Is even: even(x) = if x mod 2 == 0 then 1 else 0
-	public final static Prf even = C(R(konst(1), C(not, I(3,0))), I(1,0), Z);
+	public static final Prf even = C(R(konst(1), C(not, I(3,0))), I(1,0), Z);
 	
 	// Is odd: odd(x) = if x mod 2 == 1 then 1 else 0
-	public final static Prf odd = C(R(Z, C(not, I(3,0))), I(1,0), Z);
+	public static final Prf odd = C(R(Z, C(not, I(3,0))), I(1,0), Z);
 	
 	// Square root: sqrt(x) = floor(sqrt(x))
-	public final static Prf sqrt = C(R(Z, C(mux, C(le, C(mul, C(S, I(3,0)), C(S, I(3,0))), I(3,2)), C(S, I(3,0)), I(3,0))), I(1,0), I(1,0));
+	public static final Prf sqrt = C(R(Z, C(mux, C(le, C(mul, C(S, I(3,0)), C(S, I(3,0))), I(3,2)), C(S, I(3,0)), I(3,0))), I(1,0), I(1,0));
 	
 	// Logarithm: log(x, y) = if x >= 2 then (if y >= 1 then floor(ln(y) / ln(x)) else 0) else y
-	public final static Prf log = C(R(C(Z, I(2,0)), C(mux, C(le, C(pow, I(4,2), C(S, I(4,0))), I(4,3)), C(S, I(4,0)), I(4,0))), I(2,1), I(2,0), I(2,1));
+	public static final Prf log = C(R(C(Z, I(2,0)), C(mux, C(le, C(pow, I(4,2), C(S, I(4,0))), I(4,3)), C(S, I(4,0)), I(4,0))), I(2,1), I(2,0), I(2,1));
 	
 	// Truncating division: div(x, y) = if y != 0 then floor(x / y) else x
-	public final static Prf div = C(R(C(Z, I(2,0)), C(mux, C(le, C(mul, C(S, I(4,0)), I(4,3)), I(4,2)), C(S, I(4,0)), I(4,0))), I(2,0), I(2,0), I(2,1));
+	public static final Prf div = C(R(C(Z, I(2,0)), C(mux, C(le, C(mul, C(S, I(4,0)), I(4,3)), I(4,2)), C(S, I(4,0)), I(4,0))), I(2,0), I(2,0), I(2,1));
 	
 	// Modulo: mod(x, y) = if y != 0 then (x mod y) else x
-	public final static Prf mod = C(R(I(2,0), C(mux, C(ge, I(4,0), I(4,3)), C(sub, I(4,0), I(4,3)), I(4,0))), I(2,0), I(2,0), I(2,1));
+	public static final Prf mod = C(R(I(2,0), C(mux, C(ge, I(4,0), I(4,3)), C(sub, I(4,0), I(4,3)), I(4,0))), I(2,0), I(2,0), I(2,1));
 	
 	// Is divisible: divisible(x, y) = if (y > 0 and x mod y == 0) or x == 0 then 1 else 0
-	public final static Prf divisible = C(z, mod);
+	public static final Prf divisible = C(z, mod);
 	
 	// Is prime: prime(x) = if x is prime then 1 else 0
-	public final static Prf prime = C(eq, C(R(Z, C(add, C(divisible, I(3,2), I(3,1)), I(3,0))), I(1,0), I(1,0)), konst(1));
+	public static final Prf prime = C(eq, C(R(Z, C(add, C(divisible, I(3,2), I(3,1)), I(3,0))), I(1,0), I(1,0)), konst(1));
 	
 	// Greatest common divisor: gcd(x, y) = if (x != 0 or y != 0) then (largest z such that z divides x and z divides y) else 0
-	public final static Prf gcd = C(R(C(Z, I(2,0)), C(mux, C(and, C(divisible, I(4,2), I(4,1)), C(divisible, I(4,3), I(4,1))), I(4,1), I(4,0))), C(S, max), I(2,0), I(2,1));
+	public static final Prf gcd = C(R(C(Z, I(2,0)), C(mux, C(and, C(divisible, I(4,2), I(4,1)), C(divisible, I(4,3), I(4,1))), I(4,1), I(4,0))), C(S, max), I(2,0), I(2,1));
 	
 	// Least common multiple: lcm(x, y) = if (x != 0 and y != 0) then (smallest z such that x divides z and y divides z) else 0
-	public final static Prf lcm = C(R(C(Z, I(2,0)), C(mux, C(and, C(nz, I(4,0)), C(and, C(divisible, I(4,0), I(4,2)), C(divisible, I(4,0), I(4,3)))), I(4,0), I(4,1))), C(S, mul), I(2,0), I(2,1));
+	public static final Prf lcm = C(R(C(Z, I(2,0)), C(mux, C(and, C(nz, I(4,0)), C(and, C(divisible, I(4,0), I(4,2)), C(divisible, I(4,0), I(4,3)))), I(4,0), I(4,1))), C(S, mul), I(2,0), I(2,1));
 	
 	// Divisibility count: divisiblecount(x, y) =
 	//     if x == 0 or y == 0 then 0
 	//     elseif y >= 2 then (the highest power of y that divides x)
 	//     else y == 1 then x
-	public final static Prf divisiblecount = C(R(C(Z, I(2,0)), C(mux, C(divisible, I(4,2), C(pow, I(4,3), C(S, I(4,0)))), C(S, I(4,0)), I(4,0))), I(2,0), I(2,0), I(2,1));
+	public static final Prf divisiblecount = C(R(C(Z, I(2,0)), C(mux, C(divisible, I(4,2), C(pow, I(4,3), C(S, I(4,0)))), C(S, I(4,0)), I(4,0))), I(2,0), I(2,0), I(2,1));
 	
 	// Nth prime: nthprime(0) = 2, nthprime(1) = 3, nthprime(2) = 5, nthprime(3) = 7, nthprime(4) = 11, ...
-	public final static Prf nthprime = C(mux, I(1,0), C(R(Z, C(mux, C(even, I(3,0)), C(mux, C(prime, I(3,1)), C(mux, C(eq, I(3,0), C(add, I(3,2), I(3,2))), I(3,1), C(S, C(S, I(3,0)))), I(3,0)), I(3,0))), C(pow, konst(2), C(S, I(1,0))), I(1,0)), konst(2));
+	public static final Prf nthprime = C(mux, I(1,0), C(R(Z, C(mux, C(even, I(3,0)), C(mux, C(prime, I(3,1)), C(mux, C(eq, I(3,0), C(add, I(3,2), I(3,2))), I(3,1), C(S, C(S, I(3,0)))), I(3,0)), I(3,0))), C(pow, konst(2), C(S, I(1,0))), I(1,0)), konst(2));
 	
 	// Fibonacci number: fibonacci(0) = 0, fibonacci(1) = 1, fibonacci(2) = 1, fibonacci(3) = 2, fibonacci(4) = 3, fibonacci(5) = 5, ...
 	// Private: fib2(n) = fibonacci(n) | fibonacci(n+1)<<n
-	private static Prf fib2 = R(konst(1), C(C(C(add, I(3,0), C(mul, C(add, I(3,0), I(3,1)), I(3,2))), C(div, I(3,0), I(3,2)), C(mod, I(3,0), I(3,2)), C(add, I(3,2), I(3,2))), I(3,0), I(3,1), C(pow, C(konst(2), I(3,0)), I(3,1))));
-	public final static Prf fibonacci = C(mod, C(fib2, I(1,0), Z), C(pow, konst(2), I(1,0)));
+	private static final Prf fib2 = R(konst(1), C(C(C(add, I(3,0), C(mul, C(add, I(3,0), I(3,1)), I(3,2))), C(div, I(3,0), I(3,2)), C(mod, I(3,0), I(3,2)), C(add, I(3,2), I(3,2))), I(3,0), I(3,1), C(pow, C(konst(2), I(3,0)), I(3,1))));
+	public static final Prf fibonacci = C(mod, C(fib2, I(1,0), Z), C(pow, konst(2), I(1,0)));
 	
 	
 	// -- Bitwise functions --
 	
 	// Left shift: shl(x, y) = x << y
-	public final static Prf shl = C(mul, I(2,0), C(pow, C(konst(2), I(2,0)), I(2,1)));
+	public static final Prf shl = C(mul, I(2,0), C(pow, C(konst(2), I(2,0)), I(2,1)));
 	
 	// Right shift: shr(x, y) = x >> y
-	public final static Prf shr = C(div, I(2,0), C(pow, C(konst(2), I(2,0)), I(2,1)));
+	public static final Prf shr = C(div, I(2,0), C(pow, C(konst(2), I(2,0)), I(2,1)));
 	
 	// Private: log2p1(x) = if x != 0 then (floor(lg(x)) + 1) else 1
-	private static Prf log2p1 = C(S, C(log, konst(2), I(1,0)));
+	private static final Prf log2p1 = C(S, C(log, konst(2), I(1,0)));
 	// Private: bitCombine f (x, y, s) = f(floor(x/s), floor(y/s)) * s. (This combines x and y at bit position log2(s) with the Boolean function f. The scaler s must be a power of 2.)
 	private static Prf bitCombine(Prf f) {
 		return C(mul, C(f, C(odd, C(div, I(3,0), I(3,2))), C(odd, C(div, I(3,1), I(3,2)))), I(3,2));
@@ -311,18 +311,18 @@ public abstract class Prf {
 	}
 	
 	// Bitwise AND: band(x, y) = x & y
-	public final static Prf band = makeBitwiseOp(and);
+	public static final Prf band = makeBitwiseOp(and);
 	
 	// Bitwise AND-NOT: bandnot(x, y) = x & ~y
-	public final static Prf bandnot = makeBitwiseOp(C(R(I(1,0), C(Z, I(3,0))), I(2,1), I(2,0)));
+	public static final Prf bandnot = makeBitwiseOp(C(R(I(1,0), C(Z, I(3,0))), I(2,1), I(2,0)));
 	
 	// Bitwise OR: bor(x, y) = x | y
-	public final static Prf bor = makeBitwiseOp(or);
+	public static final Prf bor = makeBitwiseOp(or);
 	
 	// Bitwise XOR: bxor(x, y) = x ^ y
-	public final static Prf bxor = makeBitwiseOp(xor);
+	public static final Prf bxor = makeBitwiseOp(xor);
 	
 	// Get bit: getbit(x, y) = (x >> y) & 1
-	public final static Prf getbit = C(odd, shr);
+	public static final Prf getbit = C(odd, shr);
 	
 }

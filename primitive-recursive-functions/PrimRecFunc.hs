@@ -1,7 +1,7 @@
 {- 
  - Primitive recursive functions
  - 
- - Copyright (c) 2014 Project Nayuki
+ - Copyright (c) 2015 Project Nayuki
  - All rights reserved. Contact Nayuki for licensing.
  - http://www.nayuki.io/page/primitive-recursive-functions
  -}
@@ -166,7 +166,7 @@ mux = R (I 2 1) (I 4 2)
 -- Is zero: z(x, y) = if x == 0 then 1 else 0
 z = C (R (const 1) (C Z [I 3 0])) [I 1 0, Z]
 
--- Is nonzero: nz(x, y) = if x == 0 then 0 else 1
+-- Is nonzero: nz(x) = if x == 0 then 0 else 1
 nz = C (R Z (C (const 1) [I 3 0])) [I 1 0, Z]
 
 -- Equal: eq(x, y) = if x == y then 1 else 0
