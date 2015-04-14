@@ -40,9 +40,23 @@
  *       but take more computation time and memory.
  *     If the value is at least as large as width * height, then the entire
  *       image will necessarily be encoded in one block without clearing the
- *       dictionary.
+ *       dictionary (unless dictclear is specified).
  *     If the value is 0, then uncompressed LZW encoding is used, which will
  *       produce rather large files.
+ *   dictclear=int or "dcc"
+ *     For example: dictclear=4096
+ *     Valid range: [5, 4096]. Default is "dcc".
+ *     If this value is "dcc", then deferred clear codes are used - in other
+ *       words the dictionary will never be cleared because of reaching a certain
+ *       size; it will only be cleared for optimizing the LZW compression; this
+ *       allows the dictionary size to saturate at size 4096 for as long as needed.
+ *       This is the preferred mode when the output GIF is displayed on modern,
+ *       non-broken GIF decoders that support the deferred clear code behavior properly.
+ *     Otherwise if the value is n, then a clear code is sent every time the dictionary
+ *       size reaches n or greater. Setting this value hurts compression efficiency.
+ *       The value 4096 should be sufficient to work around decoder bugs; otherwise
+ *       try 4095 or 4094. There is no need to use lower values (which hurts
+ *       compression further), but this encoder easily supports all possible values.
  * 
  * 
  * Copyright (c) 2015 Project Nayuki
@@ -89,6 +103,7 @@ public final class WriteGif {
 		// Parse options
 		int transpColor = -1;  // -1 if unspecified, otherwise a number in the range [0x000000, 0xFFFFFF]
 		int blockSize = -1;
+		int dictClear = -2;
 		for (int i = 0; i < args.length - 2; i++) {
 			String opt = args[i];
 			if (opt.startsWith("transparent=")) {
@@ -103,11 +118,25 @@ public final class WriteGif {
 				if (!opt.matches("blocksize=[0-9]+"))
 					return "Invalid block size option format";
 				blockSize = Integer.parseInt(opt.substring(10));
+			} else if (opt.startsWith("dictclear=")) {
+				if (dictClear != -2)
+					return "Duplicate dictionary clear option";
+				if (opt.equals("dictclear=dcc"))
+					dictClear = -1;
+				else if (opt.matches("dictclear=[0-9]+")) {
+					dictClear = Integer.parseInt(opt.substring(10));
+					if (dictClear < 5 || dictClear > 4096)
+						return "Invalid dictionary clear option value";
+				} else
+					return "Invalid dictionary clear option format";
 			} else
 				return "Invalid option: " + opt;
 		}
+		// Set defaults
 		if (blockSize == -1)
 			blockSize = 1024;
+		if (dictClear == -2)
+			dictClear = -1;
 		
 		// Read input image
 		BufferedImage inImage = ImageIO.read(inFile);
@@ -180,7 +209,7 @@ public final class WriteGif {
 		byte[] palettedImage = convertToPaletted(inPixels, palette);
 		
 		// Encode and write output GIF file
-		writeGif(palettedImage, width, height, palette, transpIndex, blockSize, outFile);
+		writeGif(palettedImage, width, height, palette, transpIndex, blockSize, dictClear, outFile);
 		return null;
 	}
 	
@@ -226,7 +255,7 @@ public final class WriteGif {
 	// transparentIndex must be -1 if disabled or an index in [0, palette.length).
 	// blockSize must be a positive integer to specify optimizing LZW compression
 	// or 0 to specify uncompressed LZW encoding. 
-	private static void writeGif(byte[] pixels, int width, int height, int[] palette, int transparentIndex, int blockSize, File file) throws IOException {
+	private static void writeGif(byte[] pixels, int width, int height, int[] palette, int transparentIndex, int blockSize, int dictClear, File file) throws IOException {
 		// Check arguments
 		if (width  <= 0 || width  > 65535)
 			throw new IllegalArgumentException("Width out of range");
@@ -240,6 +269,8 @@ public final class WriteGif {
 			throw new IllegalArgumentException("Invalid transparent color index");
 		if (blockSize < 0)
 			throw new IllegalArgumentException("Invalid block size");
+		if (!(dictClear == -1 || dictClear >= 5 && dictClear <= 4096))
+			throw new IllegalArgumentException("Invalid dictionary clear interval");
 		
 		// paletteBits = ceil(log2(palette.length))
 		int paletteBits = 1;
@@ -300,7 +331,7 @@ public final class WriteGif {
 			SubblockOutputStream blockOut = new SubblockOutputStream(out);
 			ByteBitOutputStream bitOut = new ByteBitOutputStream(blockOut);
 			if (blockSize > 0)
-				GifLzwCompressor.encodeOptimized(pixels, 0, pixels.length, codeBits, blockSize, bitOut, true);
+				GifLzwCompressor.encodeOptimized(pixels, 0, pixels.length, codeBits, blockSize, dictClear, bitOut, true);
 			else if (blockSize == 0)
 				GifLzwCompressor.encodeUncompressed(pixels, 0, pixels.length, codeBits, bitOut);
 			else

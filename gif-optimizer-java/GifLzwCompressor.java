@@ -7,6 +7,7 @@
  */
 
 import java.io.IOException;
+import java.util.Arrays;
 
 
 // Provides different methods for performing GIF's dialect of LZW compression.
@@ -46,19 +47,13 @@ class GifLzwCompressor {
 	}
 	
 	
-	// Uses greedy word matching and never clears the dictionary.
-	public static void encodeMonolithic(byte[] data, int start, int end, int codeBits, BitOutputStream out) throws IOException {
-		encodeLzwBlock(data, start, end, end, codeBits, out);
-	}
-	
-	
-	private static void encodeLzwBlock(byte[] data, int rangeStart, int rangeEnd, int dataEnd, int codeBits, BitOutputStream out) throws IOException {
+	private static void encodeLzwBlock(byte[] data, int rangeStart, int rangeEnd, int dataEnd, int codeBits, int dictClear, BitOutputStream out) throws IOException {
 		if (!(0 <= rangeStart && rangeStart <= rangeEnd && rangeEnd <= dataEnd && dataEnd <= data.length))
 			throw new ArrayIndexOutOfBoundsException();
 		if (codeBits < 2 || codeBits > 8)
 			throw new IllegalArgumentException();
 		
-		DictionaryEncoder enc = new DictionaryEncoder(codeBits);
+		DictionaryEncoder enc = new DictionaryEncoder(codeBits, dictClear);
 		final int clearCode = 1 << codeBits;
 		final int stopCode = clearCode + 1;
 		int i = rangeStart;
@@ -74,7 +69,7 @@ class GifLzwCompressor {
 	/*---- Optimizing encoder ----*/
 	
 	// Based on splitting the data into blocks and applying encodeLzwBlock() to each.
-	public static void encodeOptimized(byte[] data, int start, int end, int codeBits, int blockSize, BitOutputStream out, boolean print) throws IOException {
+	public static void encodeOptimized(byte[] data, int start, int end, int codeBits, int blockSize, int dictClear, BitOutputStream out, boolean print) throws IOException {
 		if (start < 0 || end < start || end > data.length)
 			throw new ArrayIndexOutOfBoundsException();
 		if (codeBits < 2 || codeBits > 8 || blockSize <= 0)
@@ -90,7 +85,7 @@ class GifLzwCompressor {
 		long[][] sizes = new long[numBlocks][];
 		for (int i = 0, off = start; i < sizes.length; i++, off += blockSize) {
 			if (print) System.out.printf("\rOptimizing: %d of %d blocks", i, numBlocks);
-			sizes[i] = getLzwEncodedSizes(data, off, blockSize, codeBits);
+			sizes[i] = getLzwEncodedSizes(data, off, blockSize, codeBits, dictClear);
 		}
 		if (print) System.out.println();
 		
@@ -118,7 +113,7 @@ class GifLzwCompressor {
 			int n = bestNumBlocks[i];
 			int ed = Math.min(st + n * blockSize, end);
 			if (print) System.out.print(", " + ed);
-			encodeLzwBlock(data, st, ed, end, codeBits, out);
+			encodeLzwBlock(data, st, ed, end, codeBits, dictClear, out);
 			i += n;
 		}
 		if (print) System.out.println();
@@ -128,14 +123,14 @@ class GifLzwCompressor {
 	// Returns an array describing the number of bits to encode the byte sequences
 	// {data[off : off], data[off : off + blockSize], data[off : off + 2*blockSize], ...}
 	// until the last block (which may be a partial block that has [1, blockSize] bytes).
-	private static long[] getLzwEncodedSizes(byte[] data, int off, int blockSize, int codeBits) {
+	private static long[] getLzwEncodedSizes(byte[] data, int off, int blockSize, int codeBits, int dictClear) {
 		try {
 			// result[0] is the bit length of encoding 0 blocks of size 'blockSize' starting at off,
 			// result[1] is the bit length of encoding 1 blocks of size 'blockSize' starting at off, etc.
 			// result[result.length-1] is the length of encoding everything starting at off.
 			long[] result = new long[(data.length - off + blockSize - 1) / blockSize + 1];  // ceil((data.length - off) / blockSize) + 1
 			
-			DictionaryEncoder enc = new DictionaryEncoder(codeBits);
+			DictionaryEncoder enc = new DictionaryEncoder(codeBits, dictClear);
 			CountingBitOutputStream counter = new CountingBitOutputStream();
 			counter.writeBits(0, enc.codeBits);  // Pre-count the trailing Clear or Stop code that ends any block
 			result[0] = counter.length;
@@ -165,20 +160,25 @@ class GifLzwCompressor {
 		
 		private static final int MAX_DICT_SIZE = 4096;
 		
-		private Node root;    // A trie structure
-		private int size;     // Number of dictionary entries, max 4096
-		public int codeBits;  // Equal to ceil(log2(size))
+		private int initCodeBits;
+		private Node root;      // A trie structure
+		private int size;       // Number of dictionary entries, max 4096
+		public int codeBits;    // Equal to ceil(log2(size))
+		private int dictClear;  // -1 for deferred clear code, otherwise in the range [5, 4096]
 		
 		
-		public DictionaryEncoder(int codeBits) {
+		public DictionaryEncoder(int codeBits, int dictClear) {
 			if (codeBits < 2 || codeBits > 8)
 				throw new IllegalArgumentException();
-			size = 1 << codeBits;
+			initCodeBits = codeBits;
+			this.dictClear = dictClear;
+			
+			size = 1 << initCodeBits;
 			root = new Node(-1);  // Root has no symbol
 			for (int i = 0; i < size; i++)
 				root.children[i] = new Node(i);
 			size += 2;  // Add Clear and Stop codes
-			this.codeBits = codeBits + 1;
+			this.codeBits = initCodeBits + 1;
 		}
 		
 		
@@ -207,8 +207,20 @@ class GifLzwCompressor {
 				if ((size & (size - 1)) == 0)  // Is a power of 2
 					codeBits++;
 				size++;
+				if (dictClear != -1 && size >= dictClear) {
+					out.writeBits(1 << initCodeBits, codeBits);
+					clearDictionary();
+				}
 			}
 			return i - start;  // Length of match
+		}
+		
+		
+		private void clearDictionary() {
+			for (int i = 0; i < (1 << initCodeBits); i++)
+				Arrays.fill(root.children[i].children, null);
+			size = (1 << initCodeBits) + 2;  // Reset size and add Clear and Stop codes
+			this.codeBits = initCodeBits + 1;
 		}
 		
 		
