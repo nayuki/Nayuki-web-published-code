@@ -49,7 +49,7 @@ void whirlpool_compress(uint8_t state[64], const uint8_t block[64]) {
 	
 	// Initialization
 	for (i = 0; i < 8; i++) {
-		tempState[i] = 
+		tempState[i] =
 			  (uint64_t)state[i << 3]
 			| (uint64_t)state[(i << 3) + 1] <<  8
 			| (uint64_t)state[(i << 3) + 2] << 16

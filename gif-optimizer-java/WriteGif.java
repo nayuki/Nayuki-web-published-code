@@ -90,7 +90,7 @@ public final class WriteGif {
 	
 	
 	// Runs the main program and returns null if successful or an error message string.
-	private static String submain(String[] args) throws IOException {	
+	private static String submain(String[] args) throws IOException {
 		if (args.length < 2)
 			return "Not enough arguments";
 		
@@ -254,7 +254,7 @@ public final class WriteGif {
 	// Writes the given 8-bit paletted image to the given path as a GIF file.
 	// transparentIndex must be -1 if disabled or an index in [0, palette.length).
 	// blockSize must be a positive integer to specify optimizing LZW compression
-	// or 0 to specify uncompressed LZW encoding. 
+	// or 0 to specify uncompressed LZW encoding.
 	private static void writeGif(byte[] pixels, int width, int height, int[] palette, int transparentIndex, int blockSize, int dictClear, File file) throws IOException {
 		// Check arguments
 		if (width  <= 0 || width  > 65535)

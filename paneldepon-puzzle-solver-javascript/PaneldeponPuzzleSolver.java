@@ -70,7 +70,7 @@ public final class PaneldeponPuzzleSolver {
 				if (c == '.' || c >= 'a' && c <= 'z')
 					grid[y*WIDTH + x] = (byte)c;
 				else
-					throw new DataFormatException("Invalid tile character");					
+					throw new DataFormatException("Invalid tile character");
 			}
 		}
 		

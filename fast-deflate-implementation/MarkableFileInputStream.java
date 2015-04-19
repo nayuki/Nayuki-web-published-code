@@ -58,7 +58,7 @@ public final class MarkableFileInputStream extends InputStream {
 	
 	// Normally after a reset(), rereading the same file section will yield the same bytes.
 	// But this is not always true - e.g. due to concurrent writing. Thus this class does not
-	// provide a hard guarantee for the mark()/reset() behavior like BufferedInputStream does. 
+	// provide a hard guarantee for the mark()/reset() behavior like BufferedInputStream does.
 	public void reset() {
 		try {
 			raf.seek(markPosition);

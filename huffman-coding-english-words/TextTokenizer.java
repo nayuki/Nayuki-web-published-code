@@ -95,7 +95,7 @@ final class TextToken {
 	 * - 2: UPPERCASEWORD
 	 * - 3: WeIrDcaSEWord
 	 * - 4: Non-letter single character
-	 * Note: A single-letter uppercase word is considered to be title case instead of uppercase 
+	 * Note: A single-letter uppercase word is considered to be title case instead of uppercase
 	 */
 	public final int type;
 	
