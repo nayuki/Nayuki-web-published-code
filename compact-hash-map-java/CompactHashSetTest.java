@@ -27,6 +27,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import java.io.UnsupportedEncodingException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 import org.junit.Test;
@@ -77,7 +78,7 @@ public final class CompactHashSetTest {
 	@Test public void testMediumSimple() {
 		Set<String> set = new CompactHashSet<String>(TRANSLATOR);
 		for (int i = 0; i < 10000; i++) {
-			set.add(Integer.toString(i, 2));
+			assertTrue(set.add(Integer.toString(i, 2)));
 			assertEquals(i + 1, set.size());
 			int j = rand.nextInt(20000) - 5000;
 			assertTrue(set.contains(Integer.toString(j, 2)) == (j >= 0 && j <= i));
@@ -120,7 +121,7 @@ public final class CompactHashSetTest {
 	
 	@Test public void testLargeRandomly() {
 		Set<String> set0 = new HashSet<String>();
-		Set<String> set1 = new CompactHashSet<String>(TRANSLATOR);
+		CompactHashSet<String> set1 = new CompactHashSet<String>(TRANSLATOR);
 		for (int i = 0; i < 1000000; i++) {
 			String obj = Integer.toString(rand.nextInt(100000), 36);
 			int op = rand.nextInt(10);
@@ -131,6 +132,78 @@ public final class CompactHashSetTest {
 			assertEquals(set0.size(), set1.size());
 			String query = Integer.toString(rand.nextInt(100000), 36);
 			assertTrue(set0.contains(query) == set1.contains(query));
+			if (rand.nextDouble() < 0.0001)
+				set1.checkStructure();
+		}
+	}
+	
+	
+	@Test public void testIteratorDump() {
+		for (int i = 0; i < 100; i++) {
+			// Generate random data
+			int n = rand.nextInt(30000);
+			String[] objs = new String[n];
+			for (int j = 0; j < n; j++)
+				objs[j] = Integer.toString(rand.nextInt(100000), 36);  // Can produce duplicates
+			
+			// Do insertions and removals
+			Set<String> set0 = new HashSet<String>();
+			CompactHashSet<String> set1 = new CompactHashSet<String>(TRANSLATOR);
+			for (int j = 0; j < n / 2; j++) {
+				set0.add(objs[j]);
+				set1.add(objs[j]);
+			}
+			for (int j = n / 2; j < n; j++) {
+				set0.remove(objs[j]);
+				set1.remove(objs[j]);
+			}
+			set1.checkStructure();
+			
+			// Test the iterator
+			for (String obj : set1)
+				assertTrue(set0.remove(obj));
+			assertEquals(0, set0.size());
+		}
+	}
+	
+	
+	@Test public void testIteratorRemove() {
+		for (int i = 0; i < 100; i++) {
+			// Generate random data
+			int n = rand.nextInt(30000);
+			String[] objs = new String[n];
+			for (int j = 0; j < n; j++)
+				objs[j] = Integer.toString(rand.nextInt(100000), 36);  // Can produce duplicates
+			
+			// Do insertions and removals
+			Set<String> set0 = new HashSet<String>();
+			CompactHashSet<String> set1 = new CompactHashSet<String>(TRANSLATOR);
+			for (int j = 0; j < n / 2; j++) {
+				set0.add(objs[j]);
+				set1.add(objs[j]);
+			}
+			for (int j = n / 2; j < n; j++) {
+				set0.remove(objs[j]);
+				set1.remove(objs[j]);
+			}
+			set1.checkStructure();
+			
+			// Do iterator removals and map entry modifications
+			double deleteProb = rand.nextDouble();
+			for (Iterator<String> iter = set1.iterator(); iter.hasNext(); ) {
+				String obj = iter.next();
+				if (rand.nextDouble() < deleteProb) {
+					iter.remove();
+					set0.remove(obj);
+				}
+			}
+			set1.checkStructure();
+			assertEquals(set0.size(), set1.size());
+			
+			// Check remaining contents for sameness
+			for (String obj : set1)
+				assertTrue(set0.remove(obj));
+			assertEquals(0, set0.size());
 		}
 	}
 	

@@ -53,6 +53,7 @@ public final class CompactHashMapDemo {
 		// Keep adding entries to map until death by OutOfMemoryError
 		Runtime rt = Runtime.getRuntime();
 		Random r = new Random();
+		long lastPrint = 0;
 		while (true) {
 			char[] keyChars = new char[10];
 			for (int i = 0; i < keyChars.length; i++)
@@ -60,7 +61,10 @@ public final class CompactHashMapDemo {
 			String key = new String(keyChars);
 			Integer value = r.nextInt();
 			map.put(key, value);
-			System.out.printf("\rCount = %d, Memory = %.2f MiB", map.size(), (rt.totalMemory() - rt.freeMemory()) / 1048576.0);
+			if (System.currentTimeMillis() - lastPrint > 100) {
+				System.out.printf("\rCount = %d, Memory = %.2f MiB", map.size(), (rt.totalMemory() - rt.freeMemory()) / 1048576.0);
+				lastPrint = System.currentTimeMillis();
+			}
 		}
 	}
 	

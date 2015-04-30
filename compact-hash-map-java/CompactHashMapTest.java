@@ -23,10 +23,12 @@
  */
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import org.junit.Test;
@@ -83,7 +85,7 @@ public final class CompactHashMapTest {
 	@Test public void testMediumSimple() {
 		Map<String,Integer> map = new CompactHashMap<String,Integer>(TRANSLATOR);
 		for (int i = 0; i < 10000; i++) {
-			map.put(Integer.toString(i), i);
+			assertNull(map.put(Integer.toString(i), i));
 			assertEquals(i + 1, map.size());
 			int j = rand.nextInt(20000) - 5000;
 			assertEquals(j >= 0 && j <= i ? (Integer)j : null, map.get(Integer.toString(j)));
@@ -132,7 +134,7 @@ public final class CompactHashMapTest {
 	
 	@Test public void testLargeRandomly() {
 		Map<String,Integer> map0 = new HashMap<String,Integer>();
-		Map<String,Integer> map1 = new CompactHashMap<String,Integer>(TRANSLATOR);
+		CompactHashMap<String,Integer> map1 = new CompactHashMap<String,Integer>(TRANSLATOR);
 		for (int i = 0; i < 1000000; i++) {
 			String key = Integer.toString(rand.nextInt(100000), 36);
 			int op = rand.nextInt(10);
@@ -147,6 +149,88 @@ public final class CompactHashMapTest {
 			String query = Integer.toString(rand.nextInt(100000), 36);
 			assertTrue(map0.containsKey(query) == map1.containsKey(query));
 			assertEquals(map0.get(query), map1.get(query));
+			if (rand.nextDouble() < 0.0001)
+				map1.checkStructure();
+		}
+	}
+	
+	
+	@Test public void testIteratorDump() {
+		for (int i = 0; i < 100; i++) {
+			// Generate random data
+			int n = rand.nextInt(30000);
+			String[] keys = new String[n];
+			Integer[] values = new Integer[n];
+			for (int j = 0; j < n; j++) {
+				keys[j] = Integer.toString(rand.nextInt(100000), 36);  // Can produce duplicates
+				values[j] = rand.nextInt();
+			}
+			
+			// Do insertions and removals
+			Map<String,Integer> map0 = new HashMap<String,Integer>();
+			CompactHashMap<String,Integer> map1 = new CompactHashMap<String,Integer>(TRANSLATOR);
+			for (int j = 0; j < n / 2; j++) {
+				map0.put(keys[j], values[j]);
+				map1.put(keys[j], values[j]);
+			}
+			for (int j = n / 2; j < n; j++) {
+				map0.remove(keys[j]);
+				map1.remove(keys[j]);
+			}
+			map1.checkStructure();
+			
+			// Test the iterator
+			for (Map.Entry<String,Integer> entry : map1.entrySet())
+				assertEquals(map0.remove(entry.getKey()), entry.getValue());
+			assertEquals(0, map0.size());
+		}
+	}
+	
+	
+	@Test public void testIteratorModifyRemove() {
+		for (int i = 0; i < 100; i++) {
+			// Generate random data
+			int n = rand.nextInt(30000);
+			String[] keys = new String[n];
+			Integer[] values = new Integer[n];
+			for (int j = 0; j < n; j++) {
+				keys[j] = Integer.toString(rand.nextInt(100000), 36);  // Can produce duplicates
+				values[j] = rand.nextInt();
+			}
+			
+			// Do insertions and removals
+			Map<String,Integer> map0 = new HashMap<String,Integer>();
+			CompactHashMap<String,Integer> map1 = new CompactHashMap<String,Integer>(TRANSLATOR);
+			for (int j = 0; j < n / 2; j++) {
+				map0.put(keys[j], values[j]);
+				map1.put(keys[j], values[j]);
+			}
+			for (int j = n / 2; j < n; j++) {
+				map0.remove(keys[j]);
+				map1.remove(keys[j]);
+			}
+			map1.checkStructure();
+			
+			// Do iterator removals and map entry modifications
+			double deleteProb = rand.nextDouble();
+			for (Iterator<Map.Entry<String,Integer>> iter = map1.entrySet().iterator(); iter.hasNext(); ) {
+				Map.Entry<String,Integer> entry = iter.next();
+				if (rand.nextDouble() < deleteProb) {
+					iter.remove();
+					map0.remove(entry.getKey());
+				} else if (rand.nextDouble() < 0.2) {
+					int value = rand.nextInt();
+					entry.setValue(value);
+					map0.put(entry.getKey(), value);
+				}
+			}
+			map1.checkStructure();
+			assertEquals(map0.size(), map1.size());
+			
+			// Check remaining contents for sameness
+			for (Map.Entry<String,Integer> entry : map1.entrySet())
+				assertEquals(map0.remove(entry.getKey()), entry.getValue());
+			assertEquals(0, map0.size());
 		}
 	}
 	

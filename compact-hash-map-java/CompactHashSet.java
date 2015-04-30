@@ -23,22 +23,25 @@
  */
 
 import java.util.AbstractSet;
-import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 
 /**
- * A hash table based set that stores data as byte arrays, but converts to and from regular Java objects
+ * A hash table based map that stores data as byte arrays, but converts to and from regular Java objects
  * on the fly at each query. Requires a translator object for additional functionality.
  */
 public final class CompactHashSet<E> extends AbstractSet<E> {
 	
 	/* Fields */
 	
-	private Object[] table;  // Length is always a power of 2. Each element is either null, byte[], or Node.
-	private int size;        // Number of items stored (can be greater than table.length due to chaining)
-	private final double loadFactor = 1.0;  // Increase capacity when size / table.length > loadFactor
+	private byte[][] table;  // Length is always a power of 2. Each element is either null, tombstone, or data. At least one element must be null.
+	private int lengthBits;  // Equal to log2(table.length)
+	private int size;        // Number of items stored in hash table
+	private int filled;      // Items plus tombstones; 0 <= size <= filled < table.length
+	private int version;
+	private final double loadFactor = 0.5;  // 0 < loadFactor < 1
 	private final CompactSetTranslator<E> translator;
 	
 	
@@ -49,6 +52,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 		if (trans == null)
 			throw new NullPointerException();
 		this.translator = trans;
+		version = -1;
 		clear();
 	}
 	
@@ -57,8 +61,10 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	/* Basic methods */
 	
 	public void clear() {
-		table = new Object[1];
 		size = 0;
+		table = null;
+		version++;
+		resize(1);
 	}
 	
 	
@@ -67,72 +73,33 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	public boolean contains(Object obj) {
 		if (obj == null)
 			throw new NullPointerException();
 		if (!translator.isInstance(obj))
 			return false;
-		@SuppressWarnings("unchecked")
-		Object chain = table[getIndex((E)obj)];
-		if (chain == null)
-			return false;
-		while (true) {
-			if (chain instanceof byte[])
-				return equals(obj, (byte[])chain);
-			else {  // chain instanceof Node
-				Node node = (Node)chain;
-				if (equals(obj, node.object))
-					return true;
-				chain = node.next;
-			}
-		}
+		return probe((E)obj) >= 0;
 	}
 	
 	
 	public boolean add(E obj) {
 		if (obj == null)
 			throw new NullPointerException();
-		final int index = getIndex(obj);
-		final Object head = table[index];
-		final byte[] packed = translator.serialize(obj);
-		
-		// Simple cases
-		if (head == null) {
-			checkMaxSize();
-			table[index] = packed;
-			return incrementSize();
-		}
-		if (head instanceof byte[]) {
-			byte[] headObj = (byte[])head;
-			if (equals(obj, headObj))
-				return false;
-			else {
-				checkMaxSize();
-				table[index] = new Node(packed, head);
-				return incrementSize();
-			}
-		}
-		
-		// Else head instanceof Node
-		Node node = (Node)head;
-		while (true) {
-			byte[] nodeObj = node.object;
-			if (equals(obj, nodeObj))
-				return false;
-			Object next = node.next;
-			if (next instanceof byte[]) {
-				byte[] nextObj = (byte[])next;
-				if (equals(obj, nextObj))
-					return false;
-				else {
-					checkMaxSize();
-					node.next = new Node(packed, node.next);
-					return incrementSize();
-				}
-			}
-			// Else next instanceof Node
-			node = (Node)next;
-		}
+		int index = probe(obj);
+		if (index >= 0)
+			return false;
+		if (size == MAX_TABLE_LEN - 1)  // Because table.length is a power of 2, and at least one slot must be free
+			throw new IllegalStateException("Maximum size reached");
+		version++;
+		index = ~index;
+		if (table[index] != TOMBSTONE)
+			filled++;
+		table[index] = translator.serialize(obj);
+		incrementSize();
+		if (filled == MAX_TABLE_LEN)
+			resize(table.length);
+		return true;
 	}
 	
 	
@@ -142,133 +109,95 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 		if (!translator.isInstance(obj))
 			return false;
 		@SuppressWarnings("unchecked")
-		final int index = getIndex((E)obj);
-		final Object head = table[index];
-		
-		// Simple cases
-		if (head == null)
+		int index = probe((E)obj);
+		if (index >= 0) {
+			version++;
+			table[index] = TOMBSTONE;
+			decrementSize();
+			return true;
+		} else
 			return false;
-		if (head instanceof byte[]) {
-			if (equals(obj, (byte[])head)) {
-				table[index] = null;
-				return decrementSize();
-			}
-			return false;
-		}
-		
-		// Else head instanceof Node
-		Node node = (Node)head;
-		if (equals(obj, node.object)) {
-			table[index] = node.next;
-			return decrementSize();
-		}
-		Object next = node.next;
-		if (next instanceof byte[]) {
-			if (equals(obj, (byte[])next)) {
-				table[index] = node.object;
-				return decrementSize();
-			}
-			return false;
-		}
-		
-		// Else next instanceof Node
-		Node nextNode = (Node)next;
-		next = null;  // Do not use this variable anymore
-		while (true) {
-			Object nextNext = nextNode.next;
-			if (equals(obj, nextNode.object)) {
-				node.next = nextNext;
-				return decrementSize();
-			}
-			if (nextNext instanceof byte[]) {
-				if (equals(obj, (byte[])nextNext)) {
-					node.next = nextNode.object;
-					return decrementSize();
-				}
-				return false;
-			}
-			// Else nextNext instanceof Node
-			node = nextNode;
-			nextNode = (Node)nextNext;
-		}
 	}
 	
 	
 	/* Helper methods */
 	
-	private int getIndex(E obj) {
-		return translator.getHash(obj) & (table.length - 1);
+	// Returns either a match index (non-negative) or the bitwise complement of the first empty slot index (negative).
+	private int probe(E obj) {
+		final int lengthMask = table.length - 1;
+		final int hash = translator.getHash(obj);
+		final int initIndex = hash & lengthMask;
+		
+		int emptyIndex = -1;
+		byte[] item = table[initIndex];
+		if (item == null)
+			return ~initIndex;
+		else if (item == TOMBSTONE)
+			emptyIndex = initIndex;
+		else if (obj.equals(translator.deserialize(item)))
+			return initIndex;
+		
+		int increment = Math.max((hash >>> lengthBits) & lengthMask, 1);
+		int index = (initIndex + increment) & lengthMask;
+		int start = index;
+		while (true) {
+			item = table[index];
+			if (item == null) {
+				if (emptyIndex != -1)
+					return ~emptyIndex;
+				else
+					return ~index;
+			} else if (item == TOMBSTONE) {
+				if (emptyIndex == -1)
+					emptyIndex = index;
+			} else if (obj.equals(translator.deserialize(item)))
+				return index;
+			index = (index + 1) & lengthMask;
+			if (index == start)
+				throw new AssertionError();
+		}
 	}
 	
 	
-	private boolean equals(Object obj, byte[] packed) {
-		return obj.equals(translator.deserialize(packed));
-	}
-	
-	
-	private void checkMaxSize() {
-		if (size == Integer.MAX_VALUE)
-			throw new IllegalStateException("Maximum size reached");
-	}
-	
-	
-	private boolean incrementSize() {
+	private void incrementSize() {
 		size++;
-		if ((double)size / table.length > loadFactor && table.length <= Integer.MAX_VALUE / 2) {  // Expand hash table
-			Object[] oldTable = table;
-			table = new Object[table.length * 2];
-			for (Object chain : oldTable) {
-				while (chain != null) {
-					// Grab current entry and advance the chain
-					byte[] obj;
-					if (chain instanceof byte[]) {
-						obj = (byte[])chain;
-						chain = null;
-					} else {  // chain instanceof Node
-						Node node = (Node)chain;
-						obj = node.object;
-						chain = node.next;
-					}
-					
-					// Re-hash the entry and add to new table
-					int index = getIndex(translator.deserialize(obj));
-					if (table[index] == null)
-						table[index] = obj;
-					else
-						table[index] = new Node(obj, table[index]);
-				}
-			}
+		if (table.length < MAX_TABLE_LEN && (double)filled / table.length > loadFactor) {  // Refresh or expand hash table
+			int newLen = table.length;
+			while (newLen < MAX_TABLE_LEN && (double)size / newLen > loadFactor)
+				newLen *= 2;
+			resize(newLen);
 		}
-		return true;  // To save repeated code for the caller
 	}
 	
 	
-	private boolean decrementSize() {
+	private void decrementSize() {
 		size--;
-		if (table.length > 1 && (double)size / table.length < loadFactor / 4) {  // Shrink hash table
-			// The algorithm here only works for halving the length, not for other scale factors
-			int halfLen = table.length / 2;
-			Object[] newTable = Arrays.copyOf(table, halfLen);  // Copy first half
-			for (int i = halfLen; i < table.length; i++) {  // Merge second half
-				Object chain = table[i];
-				if (chain != null) {
-					int j = i - halfLen;
-					if (newTable[j] == null)
-						newTable[j] = chain;
-					else if (newTable[j] instanceof byte[])
-						newTable[j] = new Node((byte[])newTable[j], chain);
-					else {  // newTable[j] instanceof Node
-						Node node = (Node)newTable[j];
-						while (node.next instanceof Node)
-							node = (Node)node.next;
-						// Now node.next instanceof byte[]
-						node.next = new Node((byte[])node.next, chain);
-					}
-				}
+		int newLen = table.length;
+		while (newLen >= 2 && (double)size / newLen < loadFactor / 4 && size < newLen / 2)
+			newLen /= 2;
+		if (newLen < table.length)
+			resize(newLen);
+	}
+	
+	
+	private void resize(int newLen) {
+		if (newLen <= size)
+			throw new AssertionError();
+		byte[][] oldTable = table;
+		table = new byte[newLen][];
+		lengthBits = Integer.bitCount(newLen - 1);
+		filled = size;
+		if (oldTable == null)
+			return;
+		
+		for (byte[] item : oldTable) {
+			if (item != null && item != TOMBSTONE) {
+				int index = probe(translator.deserialize(item));
+				if (index >= 0)
+					throw new AssertionError();
+				table[~index] = item;
 			}
-			table = newTable;
 		}
-		return true;  // To save repeated code for the caller
 	}
 	
 	
@@ -281,101 +210,92 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	
 	// For unit tests.
 	void checkStructure() {
-		if (table == null || Integer.bitCount(table.length) != 1 || size < 0 || loadFactor <= 0 || Double.isNaN(loadFactor) || translator == null)
+		if (translator == null || table == null || Integer.bitCount(table.length) != 1 || lengthBits != Integer.bitCount(table.length - 1))
 			throw new AssertionError();
+		if (!(0 <= size && size <= filled && filled < table.length) || loadFactor <= 0 || loadFactor >= 1 || Double.isNaN(loadFactor))
+			throw new AssertionError();
+		if (table.length < MAX_TABLE_LEN && (double)filled / table.length > loadFactor)
+			throw new AssertionError();
+		// Note: Do not check for size / table.length < loadFactor / 4 because using the iterator's remove() can generate many empty slots
+		
 		int count = 0;
+		int occupied = 0;
+		boolean hasNull = false;
 		for (int i = 0; i < table.length; i++) {
-			Object chain = table[i];
-			while (chain != null) {
-				byte[] obj;
-				if (chain instanceof byte[]) {
-					obj = (byte[])chain;
-					chain = null;
-				} else if (chain instanceof Node) {
-					Node node = (Node)chain;
-					if (node.object == null || node.next == null)
+			byte[] item = table[i];
+			hasNull |= item == null;
+			if (item != null) {
+				occupied++;
+				if (item != TOMBSTONE) {
+					count++;
+					if (probe(translator.deserialize(item)) != i)
 						throw new AssertionError();
-					obj = node.object;
-					chain = node.next;
-				} else
-					throw new AssertionError();
-				count++;
-				if (getIndex(translator.deserialize(obj)) != i)
-					throw new AssertionError();
+				}
 			}
 		}
-		if (count != size)
+		if (!hasNull || count != size || occupied != filled)
 			throw new AssertionError();
 	}
+	
+	
+	// Special placeholder reference for deleted slots. Note that even if the translator returns a
+	// 0-length array, the tombstone is considered to be distinct from it, so no confusion can occur.
+	private static final byte[] TOMBSTONE = new byte[0];
+	
+	private static final int MAX_TABLE_LEN = 0x40000000;  // Largest power of 2 that fits in an int
 	
 	
 	
 	/* Helper classes */
 	
-	// A linked list non-terminal node.
-	private static class Node {
-		
-		public byte[] object;  // Represents a packed object. Not null.
-		public Object next;    // Either byte[] or Node, not null.
-		
-		
-		// Both arguments must be non-null.
-		public Node(byte[] object, Object next) {
-			this.object = object;
-			this.next = next;
-		}
-		
-	}
-	
-	
-	
-	// For the iterator() method.
 	private class Iter implements Iterator<E> {
 		
-		private int nextIndex;  // Managed by hasNext()
-		private Object chain;   // Set by hasNext(), advanced and cleared by next()
+		private final int myVersion;
+		private int currentIndex;
+		private int nextIndex;
 		
 		
 		public Iter() {
+			myVersion = version;
+			currentIndex = -1;
 			nextIndex = 0;
-			chain = null;
 		}
 		
 		
+		// Iterator methods
+		
 		public boolean hasNext() {
-			if (chain != null)
-				return true;
-			while (nextIndex < table.length) {
-				if (table[nextIndex] == null)
-					nextIndex++;
-				else {
-					chain = table[nextIndex];
-					nextIndex++;
+			if (myVersion != version)
+				throw new ConcurrentModificationException();
+			while (true) {
+				if (nextIndex >= table.length)
+					return false;
+				else if (table[nextIndex] != null && table[nextIndex] != TOMBSTONE)
 					return true;
-				}
+				else
+					nextIndex++;
 			}
-			return false;
 		}
 		
 		
 		public E next() {
+			if (myVersion != version)
+				throw new ConcurrentModificationException();
 			if (!hasNext())
 				throw new NoSuchElementException();
-			byte[] packed;
-			if (chain instanceof byte[]) {
-				packed = (byte[])chain;
-				chain = null;
-			} else {  // chain instanceof Node
-				Node node = (Node)chain;
-				packed = node.object;
-				chain = node.next;
-			}
-			return translator.deserialize(packed);
+			currentIndex = nextIndex;
+			nextIndex++;
+			return translator.deserialize(table[currentIndex]);
 		}
 		
 		
 		public void remove() {
-			throw new UnsupportedOperationException();
+			if (myVersion != version)
+				throw new ConcurrentModificationException();
+			if (currentIndex == -1 || table[currentIndex] == TOMBSTONE)
+				throw new IllegalStateException();
+			table[currentIndex] = TOMBSTONE;
+			size--;  // Note: Do not use decrementSize() because a table resize will screw up the iterator's indexing
 		}
 		
 	}

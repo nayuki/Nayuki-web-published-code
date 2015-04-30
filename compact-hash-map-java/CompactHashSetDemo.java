@@ -50,10 +50,14 @@ public class CompactHashSetDemo {
 		
 		// Keep adding entries to the set until death by OutOfMemoryError
 		Runtime rt = Runtime.getRuntime();
+		long lastPrint = 0;
 		while (true) {
 			String val = Integer.toString(set.size(), 36);
 			set.add(val);
-			System.out.printf("\rCount = %d, Memory = %.2f MiB", set.size(), (rt.totalMemory() - rt.freeMemory()) / 1048576.0);
+			if (System.currentTimeMillis() - lastPrint > 100) {
+				System.out.printf("\rCount = %d, Memory = %.2f MiB", set.size(), (rt.totalMemory() - rt.freeMemory()) / 1048576.0);
+				lastPrint = System.currentTimeMillis();
+			}
 		}
 	}
 	
