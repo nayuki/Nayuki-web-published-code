@@ -1,7 +1,8 @@
 # 
-# CRC-32 forcer
+# CRC-32 forcer (Python)
+# Compatible with Python 2 and 3.
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2015 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # http://www.nayuki.io/page/forcing-a-files-crc-to-any-value
 # 
@@ -22,7 +23,7 @@ def main(args):
     if offset < 0:
         return "Error: Negative byte offset"
     try:
-        if len(args[2]) != 8 or args[2].startswith("-"):
+        if len(args[2]) != 8 or args[2].startswith(("+", "-")):
             return "Error: Invalid new CRC-32 value"
         temp = int(args[2], 16)
         if temp & MASK != temp:

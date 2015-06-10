@@ -1,7 +1,7 @@
 /* 
- * CRC-32 forcer
+ * CRC-32 forcer (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  */
@@ -39,7 +39,7 @@ public class forcecrc32 {
 		if (offset < 0)
 			return "Error: Negative byte offset";
 		try {
-			if (args[2].length() != 8 || args[2].startsWith("-"))
+			if (args[2].length() != 8 || args[2].startsWith("+") || args[2].startsWith("-"))
 				return "Error: Invalid new CRC-32 value";
 			long temp = Long.parseLong(args[2], 16);
 			if ((temp & 0xFFFFFFFFL) != temp)
