@@ -1,7 +1,7 @@
 /* 
  * Chemical equation balancer
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
@@ -9,7 +9,7 @@
 "use strict";
 
 
-/* Main functions, which are the entry points from the HTML code */
+/*---- Main functions, which are the entry points from the HTML code ----*/
 
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function balance(formulaStr) {
@@ -222,17 +222,17 @@ function checkAnswer(eqn, coefs) {
 }
 
 
-/* Chemical equation data types */
+/*---- Chemical equation data types ----*/
 
 // A complete chemical equation. It has a left-hand side list of terms and a right-hand side list of terms.
 // For example: H2 + O2 -> H2O.
 function Equation(lhs, rhs) {
 	// Make defensive copies
-	lhs = cloneArray(lhs);
-	rhs = cloneArray(rhs);
+	lhs = lhs.clone();
+	rhs = rhs.clone();
 	
-	this.getLeftSide  = function() { return cloneArray(lhs); }
-	this.getRightSide = function() { return cloneArray(rhs); }
+	this.getLeftSide  = function() { return lhs.clone(); };
+	this.getRightSide = function() { return rhs.clone(); };
 	
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
@@ -243,7 +243,7 @@ function Equation(lhs, rhs) {
 		for (var i = 0; i < rhs.length; i++)
 			rhs[i].getElements(result);
 		return result.toArray();
-	}
+	};
 	
 	// Returns an HTML element representing this equation.
 	// 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
@@ -281,7 +281,7 @@ function Equation(lhs, rhs) {
 		termsToHtml(rhs);
 		
 		return node;
-	}
+	};
 }
 
 
@@ -291,15 +291,15 @@ function Term(items, charge) {
 	if (items.length == 0 && charge != -1)
 		throw "Invalid term";  // Electron case
 	
-	items = cloneArray(items);
+	items = items.clone();
 	
-	this.getItems = function() { return cloneArray(items); }
+	this.getItems = function() { return items.clone(); };
 	
 	this.getElements = function(resultSet) {
 		resultSet.add("e");
 		for (var i = 0; i < items.length; i++)
 			items[i].getElements(resultSet);
-	}
+	};
 	
 	// Counts the number of times the given element (specified as a string) occurs in this term, taking groups and counts into account, returning an integer.
 	this.countElement = function(name) {
@@ -311,7 +311,7 @@ function Term(items, charge) {
 				sum = checkedAdd(sum, items[i].countElement(name));
 			return sum;
 		}
-	}
+	};
 	
 	// Returns an HTML element representing this term.
 	this.toHtml = function() {
@@ -336,7 +336,7 @@ function Term(items, charge) {
 			}
 		}
 		return node;
-	}
+	};
 }
 
 
@@ -345,23 +345,23 @@ function Term(items, charge) {
 function Group(items, count) {
 	if (count < 1)
 		throw "Assertion error: Count must be a positive integer";
-	items = cloneArray(items);
+	items = items.clone();
 	
-	this.getItems = function() { return cloneArray(items); }
+	this.getItems = function() { return items.clone(); };
 	
-	this.getCount = function() { return count; }
+	this.getCount = function() { return count; };
 	
 	this.getElements = function(resultSet) {
 		for (var i = 0; i < items.length; i++)
 			items[i].getElements(resultSet);
-	}
+	};
 	
 	this.countElement = function(name) {
 		var sum = 0;
 		for (var i = 0; i < items.length; i++)
 			sum = checkedAdd(sum, checkedMultiply(items[i].countElement(name), count));
 		return sum;
-	}
+	};
 	
 	// Returns an HTML element representing this group.
 	this.toHtml = function() {
@@ -376,7 +376,7 @@ function Group(items, count) {
 			node.appendChild(sub);
 		}
 		return node;
-	}
+	};
 }
 
 
@@ -386,13 +386,13 @@ function Element(name, count) {
 	if (count < 1)
 		throw "Assertion error: Count must be a positive integer";
 	
-	this.getName = function() { return name; }
+	this.getName = function() { return name; };
 	
-	this.getCount = function() { return count; }
+	this.getCount = function() { return count; };
 	
-	this.getElements = function(resultSet) { resultSet.add(name); }
+	this.getElements = function(resultSet) { resultSet.add(name); };
 	
-	this.countElement = function(n) { return n == name ? count : 0; }
+	this.countElement = function(n) { return n == name ? count : 0; };
 	
 	// Returns an HTML element representing this element.
 	this.toHtml = function() {
@@ -404,11 +404,11 @@ function Element(name, count) {
 			node.appendChild(sub);
 		}
 		return node;
-	}
+	};
 }
 
 
-/* Parser functions */
+/*---- Parser functions ----*/
 
 // Parses the given formula string and returns an equation object, or throws an exception.
 function parse(formulaStr) {
@@ -499,7 +499,7 @@ function parseTerm(tok) {
 	elems = elems.toArray();  // List of all elements used in this term, with no repeats
 	if (items.length == 0) {
 		throw {message: "Invalid term - empty", start: startPosition, end: tok.position()};
-	} else if (indexOf(elems, "e") != -1) {  // If it's the special electron element
+	} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
 		if (items.length > 1)
 			throw {message: "Invalid term - electron needs to stand alone", start: startPosition, end: tok.position()};
 		else if (charge != 0 && charge != -1)
@@ -563,7 +563,7 @@ function parseOptionalNumber(tok) {
 }
 
 
-/* Tokenizer object */
+/*---- Tokenizer object ----*/
 
 // Tokenizes a formula into a stream of token strings.
 function Tokenizer(str) {
@@ -572,7 +572,7 @@ function Tokenizer(str) {
 	// Returns the index of the next character to tokenize.
 	this.position = function() {
 		return i;
-	}
+	};
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
 	this.peek = function() {
@@ -583,7 +583,7 @@ function Tokenizer(str) {
 		if (match == null)
 			throw {message: "Invalid symbol", start: i};
 		return match[0];
-	}
+	};
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
 	this.take = function() {
@@ -593,13 +593,13 @@ function Tokenizer(str) {
 		i += result.length;
 		skipSpaces();
 		return result;
-	}
+	};
 	
 	// Takes the next token and checks that it matches the given string, or throws an exception.
 	this.consume = function(s) {
 		if (this.take() != s)
 			throw "Token mismatch";
-	}
+	};
 	
 	function skipSpaces() {
 		var match = /^[ \t]*/.exec(str.substring(i));
@@ -611,7 +611,7 @@ function Tokenizer(str) {
 }
 
 
-/* Matrix object */
+/*---- Matrix object ----*/
 
 // A matrix of integers.
 function Matrix(rows, cols) {
@@ -624,27 +624,27 @@ function Matrix(rows, cols) {
 		row.push(0);
 	var cells = [];  // Main data (the matrix)
 	for (var i = 0; i < rows; i++)
-		cells.push(cloneArray(row));
+		cells.push(row.clone());
 	row = null;
 	
 	/* Accessor functions */
 	
-	this.rowCount = function() { return rows; }
-	this.columnCount = function() { return cols; }
+	this.rowCount    = function() { return rows; };
+	this.columnCount = function() { return cols; };
 	
 	// Returns the value of the given cell in the matrix, where r is the row and c is the column.
 	this.get = function(r, c) {
 		if (r < 0 || r >= rows || c < 0 || c >= cols)
 			throw "Index out of bounds";
 		return cells[r][c];
-	}
+	};
 	
 	// Sets the given cell in the matrix to the given value, where r is the row and c is the column.
 	this.set = function(r, c, val) {
 		if (r < 0 || r >= rows || c < 0 || c >= cols)
 			throw "Index out of bounds";
 		cells[r][c] = val;
-	}
+	};
 	
 	/* Private helper functions for gaussJordanEliminate() */
 	
@@ -660,7 +660,7 @@ function Matrix(rows, cols) {
 	// Returns a new row that is the sum of the two given rows. The rows are not indices. This object's data is unused.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
 	function addRows(x, y) {
-		var z = cloneArray(x);
+		var z = x.clone();
 		for (var i = 0; i < z.length; i++)
 			z[i] = checkedAdd(x[i], y[i]);
 		return z;
@@ -669,7 +669,7 @@ function Matrix(rows, cols) {
 	// Returns a new row that is the product of the given row with the given scalar. The row is is not an index. This object's data is unused.
 	// For example, multiplyRow([0, 1, 3], 4) = [0, 4, 12].
 	function multiplyRow(x, c) {
-		var y = cloneArray(x);
+		var y = x.clone();
 		for (var i = 0; i < y.length; i++)
 			y[i] = checkedMultiply(x[i], c);
 		return y;
@@ -697,7 +697,7 @@ function Matrix(rows, cols) {
 				break;
 			}
 		}
-		var y = cloneArray(x);
+		var y = x.clone();
 		if (sign == 0)
 			return y;
 		var g = gcdRow(x) * sign;
@@ -748,7 +748,7 @@ function Matrix(rows, cols) {
 				cells[j] = simplifyRow(addRows(multiplyRow(cells[j], pivot / g), multiplyRow(cells[i], -cells[j][pivotCol] / g)));
 			}
 		}
-	}
+	};
 	
 	// Returns a string representation of this matrix, for debugging purposes.
 	this.toString = function() {
@@ -763,11 +763,11 @@ function Matrix(rows, cols) {
 			result += "]";
 		}
 		return result + "]";
-	}
+	};
 }
 
 
-/* Set object */
+/*---- Set object ----*/
 
 function Set() {
 	// Storage for the set
@@ -775,23 +775,23 @@ function Set() {
 	
 	// Adds the given object to the set. Returns nothing.
 	this.add = function(obj) {
-		if (indexOf(items, obj) == -1)
+		if (items.indexOf(obj) == -1)
 			items.push(obj);
-	}
+	};
 	
 	// Tests if the given object is in the set, returning a Boolean.
 	this.contains = function(obj) {
 		return items.indexOf(obj) != -1;
-	}
+	};
 	
 	// Returns an array containing the elements of this set in an arbitrary order, with no duplicates.
 	this.toArray = function() {
-		return cloneArray(items);
-	}
+		return items.clone();
+	};
 }
 
 
-/* Math functions (especially checked integer operations) */
+/*---- Math functions (especially checked integer operations) ----*/
 
 var INT_MAX = 9007199254740992;  // 2^53
 
@@ -837,27 +837,29 @@ function gcd(x, y) {
 }
 
 
-/* Miscellaneous */
+/*---- Miscellaneous ----*/
 
 // Unicode character constants (because this script file's character encoding is unspecified)
 var MINUS = "\u2212";        // Minus sign
 var RIGHT_ARROW = "\u2192";  // Right arrow
 
 
-// A JavaScript 1.6 function for Array, which every browser has except for Internet Explorer.
-function indexOf(array, item) {
-	for (var i = 0; i < array.length; i++) {
-		if (array[i] == item)
-			return i;
-	}
-	return -1;
+// Monkey patching. Supported in JavaScript 1.6, but not available in Internet Explorer below version 9.
+if (!("indexOf" in Array.prototype)) {
+	Array.prototype.indexOf = function(item) {
+		for (var i = 0; i < this.length; i++) {
+			if (this[i] == item)
+				return i;
+		}
+		return -1;
+	};
 }
 
 
-// Returns a shallow copy of the given array. Usually used for making defensive copies.
-function cloneArray(array) {
-	return array.slice(0);
-}
+// Monkey patching. Returns a shallow copy of this array. Usually used for making defensive copies.
+Array.prototype.clone = function() {
+	return this.slice(0);
+};
 
 
 // Sets the page's message element to the given string. Returns nothing.
@@ -870,7 +872,7 @@ function setMessage(str) {
 
 // Removes all the children of the given DOM node. Returns nothing.
 function removeAllChildren(node) {
-	while (node.childNodes.length > 0)
+	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }
 

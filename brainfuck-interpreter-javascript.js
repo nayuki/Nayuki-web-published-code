@@ -1,7 +1,7 @@
 /* 
  * Brainfuck interpreter
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/brainfuck-interpreter-javascript
  */
@@ -89,7 +89,7 @@ function Brainfuck(code) {
 	this.run = function() {
 		if (!isHalted() && timeout == null)
 			run(1);
-	}
+	};
 	
 	this.step = function() {
 		if (!isHalted() && timeout == null) {
@@ -100,7 +100,7 @@ function Brainfuck(code) {
 				setButtonEnabled("run" , false);
 			}
 		}
-	}
+	};
 	
 	this.pause = function() {
 		if (timeout != null) {
@@ -108,7 +108,7 @@ function Brainfuck(code) {
 			timeout = null;
 			showState();
 		}
-	}
+	};
 	
 	
 	// Execution
