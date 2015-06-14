@@ -32,8 +32,9 @@ import java.util.TreeMap;
 
 
 /**
- * Provides static methods to convert between Java objects and JSON text.
- * <p>Types/values correspond as follows:</p>
+ * Provides static methods to convert between Java objects and JSON text,
+ * and also to query JSON data structures.
+ * <p>The types/values correspond as follows:</p>
  * <table>
  * <thead><tr><th>JSON</th><th>Java</th></tr></thead>
  * <tbody>
@@ -151,8 +152,9 @@ public final class Json {
 			}
 			sb.append('}');
 			
-		} else
+		} else {
 			throw new IllegalArgumentException("Unrecognized value: " + obj.getClass() + " " + obj.toString());
+		}
 	}
 	
 	
@@ -173,9 +175,9 @@ public final class Json {
 	 *   This safety feature prevents the user from confusing a non-existent key from a key that is truly
 	 *   mapped to a {@code null} value, both of which are expressible distinctly in JSON.</li>
 	 *   <li>The JSON text must have exactly one root object, nothing afterward (except whitespace).
-	 *   For example, these JSON strings are considered invalid: "[0,0] []", "1 2 3".
+	 *   For example, these JSON strings are considered invalid: "[0,0] []", "1 2 3".</li>
 	 * </ul>
-	 * @param str the JSON text string
+	 * @param str the JSON text string (not {@code null})
 	 * @return the object/tree (can be {@code null}) corresponding to the JSON data
 	 * @throws IllegalArgumentException if the JSON text fails to conform to
 	 * the standard syntax in any way or an object has a duplicate key
@@ -428,6 +430,230 @@ public final class Json {
 	// Special non-data values that parseGeneral() can return.
 	private enum SpecialToken {
 		EOF, COMMA, RIGHT_BRACKET, RIGHT_BRACE
+	}
+	
+	
+	
+	/*---- Convenience accessors for maps and lists ----*/
+	
+	/**
+	 * Traverses the specified JSON object along the specified path through
+	 * maps and lists, and returns the object at that location. The path is
+	 * a (possibly empty) sequence of strings or integers.
+	 * <p>For example, in this data structure:</p>
+	 * <pre>data = {
+	 *  "alpha": null,
+	 *  "beta": [9, 88, 777],
+	 *  "gamma": ["x", 3.21,
+	 *    {
+	 *      "y": 5,
+	 *      "z": 6
+	 *    }]
+	 * }</pre>
+	 * <p>The following queries produce these results:</p>
+	 * <p>{@code getObject(data): Map[alpha=null, beta=List[9, 88, 777], gamma=List["x", 3.21, Map[y=5, z=6]]]}<br>
+	 * {@code getObject(data, "alpha"): null}<br>
+	 * {@code getObject(data, "beta"): List[9, 88, 777]}<br>
+	 * {@code getObject(data, "beta", 0): 9}<br>
+	 * {@code getObject(data, "beta", 1): 88}<br>
+	 * {@code getObject(data, "beta", 2): 777}<br>
+	 * {@code getObject(data, "beta", 3): IndexOutOfBoundsException}<br>
+	 * {@code getObject(data, "charlie"): IllegalArgumentException (no such key)}<br>
+	 * {@code getObject(data, "gamma"): List["x", 3.21, Map[y=5, z=6]]}<br>
+	 * {@code getObject(data, "gamma", 0): "x"}<br>
+	 * {@code getObject(data, "gamma", 1): 3.21}<br>
+	 * {@code getObject(data, "gamma", 2): Map[y=5, z=6]}<br>
+	 * {@code getObject(data, "gamma", 2, "y"): 5}<br>
+	 * {@code getObject(data, "gamma", 2, "z"): 6}<br>
+	 * {@code getObject(data, "gamma", "2"): IllegalArgumentException (map expected)}<br>
+	 * {@code getObject(data, 0): IllegalArgumentException (list expected)}</p>
+	 * @param root the JSON object to query
+	 * @param path the sequence of strings and integers that expresses the query
+	 * @return the object at the location (can be {@code null})
+	 * @throws IllegalArgumentException if a map/list was expected but not found,
+	 * or a map key was not found, or a path component is not a string/integer
+	 * @throws IndexOutOfBoundsException if a list index is
+	 * negative or greater/equal to the list length
+	 * @throws NullPointerException if any argument or path component is {@code null}
+	 * (except if the root is {@code null} and the path is zero-length)
+	 */
+	@SuppressWarnings("unchecked")
+	public static Object getObject(Object root, Object... path) {
+		Object node = root;
+		for (Object key : path) {
+			if (key instanceof String) {
+				if (!(node instanceof Map))
+					throw new IllegalArgumentException("Expected a map");
+				Map<String,Object> map = (Map<String,Object>)node;
+				if (!map.containsKey(key))
+					throw new IllegalArgumentException("Map key not found: " + key);
+				node = map.get(key);
+			} else if (key instanceof Integer) {
+				if (!(node instanceof List))
+					throw new IllegalArgumentException("Expected a list");
+				List<Object> list = (List<Object>)node;
+				int index = (Integer)key;
+				if (index < 0 || index >= list.size())
+					throw new IndexOutOfBoundsException(key.toString());
+				node = list.get(index);
+			} else if (key == null) {
+				throw new NullPointerException();
+			} else {
+				throw new IllegalArgumentException("Invalid path component: " + key);
+			}
+		}
+		return node;
+	}
+	
+	
+	/**
+	 * Traverses the specified JSON object along the specified path, and
+	 * converts the located object to an {@code int} value to be returned.
+	 * See the documentation of {@link #getObject getObject()} for detailed examples.
+	 * @param root the JSON object to query
+	 * @param path the sequence of strings and integers that expresses the query
+	 * @return the {@code int} value at the location
+	 * @throws IllegalArgumentException if a map/list was expected but not found,
+	 * or a map key was not found, or a path component is not a string/integer
+	 * @throws IndexOutOfBoundsException if a list index is
+	 * negative or greater/equal to the list length
+	 * @throws ClassCastException if the located object is not a {@code Number}
+	 * @throws NullPointerException if any argument or path component
+	 * or the located object is {@code null}
+	 */
+	public static int getInt(Object root, Object... path) {
+		return ((Number)getObject(root, path)).intValue();
+	}
+	
+	
+	/**
+	 * Traverses the specified JSON object along the specified path, and
+	 * converts the located object to a {@code long} value to be returned.
+	 * See the documentation of {@link #getObject getObject()} for detailed examples.
+	 * @param root the JSON object to query
+	 * @param path the sequence of strings and integers that expresses the query
+	 * @return the {@code long} value at the location
+	 * @throws IllegalArgumentException if a map/list was expected but not found,
+	 * or a map key was not found, or a path component is not a string/integer
+	 * @throws IndexOutOfBoundsException if a list index is
+	 * negative or greater/equal to the list length
+	 * @throws ClassCastException if the located object is not a {@code Number}
+	 * @throws NullPointerException if any argument or path component
+	 * or the located object is {@code null}
+	 */
+	public static long getLong(Object root, Object... path) {
+		return ((Number)getObject(root, path)).longValue();
+	}
+	
+	
+	/**
+	 * Traverses the specified JSON object along the specified path, and
+	 * converts the located object to a {@code float} value to be returned.
+	 * See the documentation of {@link #getObject getObject()} for detailed examples.
+	 * @param root the JSON object to query
+	 * @param path the sequence of strings and integers that expresses the query
+	 * @return the {@code float} value at the location
+	 * @throws IllegalArgumentException if a map/list was expected but not found,
+	 * or a map key was not found, or a path component is not a string/integer
+	 * @throws IndexOutOfBoundsException if a list index is
+	 * negative or greater/equal to the list length
+	 * @throws ClassCastException if the located object is not a {@code Number}
+	 * @throws NullPointerException if any argument or path component
+	 * or the located object is {@code null}
+	 */
+	public static float getFloat(Object root, Object... path) {
+		return ((Number)getObject(root, path)).floatValue();
+	}
+	
+	
+	/**
+	 * Traverses the specified JSON object along the specified path, and
+	 * converts the located object to a {@code double} value to be returned.
+	 * See the documentation of {@link #getObject getObject()} for detailed examples.
+	 * @param root the JSON object to query
+	 * @param path the sequence of strings and integers that expresses the query
+	 * @return the {@code double} value at the location
+	 * @throws IllegalArgumentException if a map/list was expected but not found,
+	 * or a map key was not found, or a path component is not a string/integer
+	 * @throws IndexOutOfBoundsException if a list index is
+	 * negative or greater/equal to the list length
+	 * @throws ClassCastException if the located object is not a {@code Number}
+	 * @throws NullPointerException if any argument or path component
+	 * or the located object is {@code null}
+	 */
+	public static double getDouble(Object root, Object... path) {
+		return ((Number)getObject(root, path)).doubleValue();
+	}
+	
+	
+	/**
+	 * Traverses the specified JSON object along the specified path,
+	 * and converts the located object to a string to be returned.
+	 * See the documentation of {@link #getObject getObject()} for detailed examples.
+	 * @param root the JSON object to query
+	 * @param path the sequence of strings and integers that expresses the query
+	 * @return the string object at the location (not {@code null})
+	 * @throws IllegalArgumentException if a map/list was expected but not found,
+	 * or a map key was not found, or a path component is not a string/integer
+	 * @throws IndexOutOfBoundsException if a list index is
+	 * negative or greater/equal to the list length
+	 * @throws ClassCastException if the located object is not a {@code String}
+	 * @throws NullPointerException if any argument or path component
+	 * or the located object is {@code null}
+	 */
+	public static String getString(Object root, Object... path) {
+		String result = (String)getObject(root, path);
+		if (result == null)
+			throw new NullPointerException();
+		return result;
+	}
+	
+	
+	/**
+	 * Traverses the specified JSON object along the specified path,
+	 * and converts the located object to a list to be returned.
+	 * See the documentation of {@link #getObject getObject()} for detailed examples.
+	 * @param root the JSON object to query
+	 * @param path the sequence of strings and integers that expresses the query
+	 * @return the list object at the location (not {@code null})
+	 * @throws IllegalArgumentException if a map/list was expected but not found,
+	 * or a map key was not found, or a path component is not a string/integer
+	 * @throws IndexOutOfBoundsException if a list index is
+	 * negative or greater/equal to the list length
+	 * @throws ClassCastException if the located object is not a {@code List}
+	 * @throws NullPointerException if any argument or path component
+	 * or the located object is {@code null}
+	 */
+	@SuppressWarnings("unchecked")
+	public static List<Object> getList(Object root, Object... path) {
+		List<Object> result = (List<Object>)getObject(root, path);
+		if (result == null)
+			throw new NullPointerException();
+		return result;
+	}
+	
+	
+	/**
+	 * Traverses the specified JSON object along the specified path,
+	 * and converts the located object to a map to be returned.
+	 * See the documentation of {@link #getObject getObject()} for detailed examples.
+	 * @param root the JSON object to query
+	 * @param path the sequence of strings and integers that expresses the query
+	 * @return the map object at the location (not {@code null})
+	 * @throws IllegalArgumentException if a map/list was expected but not found,
+	 * or a map key was not found, or a path component is not a string/integer
+	 * @throws IndexOutOfBoundsException if a list index is
+	 * negative or greater/equal to the list length
+	 * @throws ClassCastException if the located object is not a {@code Map}
+	 * @throws NullPointerException if any argument or path component
+	 * or the located object is {@code null}
+	 */
+	@SuppressWarnings("unchecked")
+	public static Map<String,Object> getMap(Object root, Object... path) {
+		Map<String,Object> result = (Map<String,Object>)getObject(root, path);
+		if (result == null)
+			throw new NullPointerException();
+		return result;
 	}
 	
 	
