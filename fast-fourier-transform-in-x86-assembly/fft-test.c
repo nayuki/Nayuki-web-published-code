@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 	// Speed benchmark
 	const int64_t TARGET_TIME = 100000000;  // In nanoseconds
 	const int TRIALS = 10;
-	printf("Size       Time (ns)\n");
+	printf("%9s    %s\n", "Size", "Time per FFT (ns)");
 	size_t n;
 	for (n = 4; n <= (size_t)1 << 26; n *= 2) {
 		// Initialize data sets
@@ -109,7 +109,8 @@ int main(int argc, char **argv) {
 		}
 		double stddev = sqrt(sqrdiffsum / TRIALS);
 		free(runtimes);
-		printf("%9zu  min=%"PRIu64"  mean=%"PRIu64"  sd=%.2f%%\n", n, (uint64_t)(min + 0.5), (uint64_t)(mean + 0.5), stddev / mean * 100);
+		printf("%9zu    min=%"PRIu64"  mean=%"PRIu64"  sd=%.2f%%\n",
+			n, (uint64_t)(min + 0.5), (uint64_t)(mean + 0.5), stddev / mean * 100);
 	}
 	return 0;
 }
