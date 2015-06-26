@@ -36,18 +36,18 @@ import java.util.TreeMap;
  * and also to query JSON data structures.
  * <p>The types/values correspond as follows:</p>
  * <table>
- * <thead><tr><th>JSON</th><th>Java</th></tr></thead>
- * <tbody>
- * <tr><td>{@code null}</td><td>{@code null}</td></tr>
- * <tr><td>{@code false}</td><td>{@code java.lang.Boolean.FALSE}</td></tr>
- * <tr><td>{@code true}</td><td>{@code java.lang.Boolean.TRUE}</td></tr>
- * <tr><td>{@code 1.23}</td><td>{@code java.lang.Number} / {@code io.nayuki.json.JsonNumber}</td></tr>
- * <tr><td>{@code "abc"}</td><td>{@code java.lang.String} / {@code java.lang.CharSequence}</td></tr>
- * <tr><td>{@code [...]}</td><td>{@code java.util.List<Object>}</td></tr>
- * <tr><td><code>{...}</code></td><td>{@code java.util.Map<String,Object>}</td></tr>
- * </tbody>
+ *   <thead><tr><th>JSON</th><th>Java</th></tr></thead>
+ *   <tbody>
+ *     <tr><td>{@code null}</td><td>{@code null}</td></tr>
+ *     <tr><td>{@code false}</td><td>{@code java.lang.Boolean.FALSE}</td></tr>
+ *     <tr><td>{@code true}</td><td>{@code java.lang.Boolean.TRUE}</td></tr>
+ *     <tr><td>{@code 1.23}</td><td>{@code java.lang.Number} / {@code io.nayuki.json.JsonNumber}</td></tr>
+ *     <tr><td>{@code "abc"}</td><td>{@code java.lang.String} / {@code java.lang.CharSequence}</td></tr>
+ *     <tr><td>{@code [...]}</td><td>{@code java.util.List<Object>}</td></tr>
+ *     <tr><td><code>{...}</code></td><td>{@code java.util.Map<String,Object>}</td></tr>
+ *   </tbody>
  * </table>
- * <p>See caveats in {@link #serialize serialize()} and {@link #parse parse()}.</p>
+ * <p>See the full details and caveats in {@link #serialize serialize()} and {@link #parse parse()}.</p>
  */
 public final class Json {
 	
@@ -57,11 +57,12 @@ public final class Json {
 	 * Serializes the specified Java object / tree of objects into a JSON text string.
 	 * <p>There are a number of restrictions on the input object/tree:</p>
 	 * <ul>
-	 *   <li>Every object in the tree must be either {@code null}, {@code Boolean}, {@code Number},
-	 *   {@code String}/{@code CharSequence}, {@code List}, or {@code Map}. All other types are illegal.</li>
-	 *   <li>Double/Float values must be finite, not infinity or NaN.</li>
-	 *   <li>User-defined Number objects must produce strings that satisfy the JSON number syntax
-	 *   (e.g. a fraction string like 1/2 is disallowed).</li>
+	 *   <li>Every object in the tree must be either {@code null}, {@code Boolean},
+	 *   {@code Number}, {@code String}/{@code CharSequence}, {@code List}, or {@code Map}.
+	 *   All other types are illegal.</li>
+	 *   <li>{@code Double}/{@code Float} values must be finite, not infinity or NaN.</li>
+	 *   <li>User-defined {@code Number} objects must produce strings that satisfy
+	 *   the JSON number syntax (e.g. a fraction string like "1/2" is disallowed).</li>
 	 *   <li>No object can implement more than one of these interfaces:
 	 *   {@code CharSequence}, {@code List}, {@code Map}.</li>
 	 * </ul>
@@ -72,7 +73,7 @@ public final class Json {
 	 * above-ASCII Unicode characters are escaped, and there are no tabs or line breaks
 	 * in the output string.</p>
 	 * @param obj the object/tree to serialize to JSON (can be {@code null})
-	 * @return a JSON text string (not {@code null})
+	 * @return a JSON text string representing the given object/tree (not {@code null})
 	 * @throws IllegalArgumentException if any of the restrictions are violated
 	 */
 	public static String serialize(Object obj) {
@@ -97,8 +98,8 @@ public final class Json {
 			}
 			String temp = obj.toString();
 			if (!JsonNumber.SYNTAX.matcher(temp).matches())
-				throw new IllegalArgumentException("Invalid string serialization of number: " + temp);
-			sb.append(obj.toString());
+				throw new IllegalArgumentException("Number string cannot be serialized as JSON: " + temp);
+			sb.append(temp);
 			
 		} else if (obj instanceof CharSequence) {
 			if (obj instanceof List || obj instanceof Map)
@@ -119,7 +120,7 @@ public final class Json {
 						if (c >= 0x20 && c < 0x7F)
 							sb.append(c);
 						else
-							sb.append("\\u").append(String.format("%04X", (int)c));
+							sb.append(String.format("\\u%04X", (int)c));
 						break;
 				}
 			}
@@ -141,14 +142,16 @@ public final class Json {
 			sb.append('{');
 			boolean head = true;
 			Map map = (Map)obj;
-			for (Object key : map.keySet()) {
+			for (Object temp : map.entrySet()) {
+				Map.Entry entry = (Map.Entry)temp;
+				Object key = entry.getKey();
 				if (!(key instanceof CharSequence))
 					throw new IllegalArgumentException("Map key must be a String/CharSequence object");
 				if (head) head = false;
 				else sb.append(", ");
 				toJson(key, sb);
 				sb.append(": ");
-				toJson(map.get(key), sb);
+				toJson(entry.getValue(), sb);
 			}
 			sb.append('}');
 			
@@ -168,26 +171,28 @@ public final class Json {
 	 *   class casting, because most methods return a generic {@code Object}.</li>
 	 *   <li>All numbers are parsed into {@code JsonNumber} objects. The user needs
 	 *   to call {@code intValue()}, {@code doubleValue()}, etc. as appropriate.</li>
-	 *   <li>All JSON objects (<code>{...}</code>) are parsed into {@code SortedMap<String,Object>} objects.
-	 *   This allows the user to iterate over keys in sorted order. Furthermore, the map's {@code get()}
-	 *   method is customized so that if a given key is not found, it will throw an {@code IllegalArgumentException}
-	 *   - this differs from how standard Java map implementations return {@code null} in this situation.
-	 *   This safety feature prevents the user from confusing a non-existent key from a key that is truly
-	 *   mapped to a {@code null} value, both of which are expressible distinctly in JSON.</li>
-	 *   <li>The JSON text must have exactly one root object, nothing afterward (except whitespace).
+	 *   <li>All JSON objects (<code>{...}</code>) are parsed into Java {@code SortedMap<String,Object>} objects.
+	 *   Although technically allowed by the JSON specification, the input JSON object must not have duplicate
+	 *   string keys for simplicity and compatibility with Java maps. The sorted map allows the user to iterate
+	 *   over keys in ascending order. Furthermore, the map's {@code get()} method is customized so that if a
+	 *   given key is not found, it will throw an {@code IllegalArgumentException} - this differs from how
+	 *   standard Java map implementations return {@code null} in this situation. This safety feature prevents
+	 *   the user from confusing a non-existent key from a key that is truly mapped to a {@code null} value,
+	 *   both of which are expressible distinctly in JSON.</li>
+	 *   <li>The JSON text must have exactly one root object and no data afterward except whitespace.
 	 *   For example, these JSON strings are considered invalid: "[0,0] []", "1 2 3".</li>
 	 * </ul>
 	 * @param str the JSON text string (not {@code null})
 	 * @return the object/tree (can be {@code null}) corresponding to the JSON data
 	 * @throws IllegalArgumentException if the JSON text fails to conform to
-	 * the standard syntax in any way or an object has a duplicate key
+	 * the standard syntax in any manner or an object has a duplicate key
 	 */
 	public static Object parse(String str) {
 		StringStream ss = new StringStream(str);
 		Object result = parseGeneral(ss);
-		if (result instanceof SpecialToken)
+		if (result instanceof Symbol)
 			throw new IllegalArgumentException("Malformed JSON");
-		if (parseGeneral(ss) != SpecialToken.EOF)
+		if (!isSymbol(parseGeneral(ss), -1))
 			throw new IllegalArgumentException("Malformed JSON");
 		return result;
 	}
@@ -198,9 +203,6 @@ public final class Json {
 		ss.skipWhitespace();
 		ss.mark();
 		int c = ss.nextChar();
-		if (c == -1)
-			return SpecialToken.EOF;
-		
 		switch (c) {
 			case '{':
 				return parseObject(ss);
@@ -212,12 +214,12 @@ public final class Json {
 			case 'n':
 			case 't':
 				return parseConstant(ss);
+			case -1:
 			case ',':
-				return SpecialToken.COMMA;
+			case ':':
 			case ']':
-				return SpecialToken.RIGHT_BRACKET;
 			case '}':
-				return SpecialToken.RIGHT_BRACE;
+				return new Symbol(c);
 			default:
 				if (c >= '0' && c <= '9' || c == '-')
 					return parseNumber(ss);
@@ -233,25 +235,24 @@ public final class Json {
 		boolean head = true;
 		while (true) {
 			Object key = parseGeneral(ss);
-			if (key == SpecialToken.RIGHT_BRACE)
+			if (isSymbol(key, '}'))
 				break;
 			if (head)
 				head = false;
 			else {
-				if (key != SpecialToken.COMMA)
+				if (!isSymbol(key, ','))
 					throw new IllegalArgumentException("Malformed JSON");
 				key = parseGeneral(ss);
 			}
 			if (!(key instanceof String))
 				throw new IllegalArgumentException("Malformed JSON");
-			ss.skipWhitespace();
-			if (ss.nextChar() != ':')
-				throw new IllegalArgumentException("Malformed JSON");
-			Object value = parseGeneral(ss);
-			if (value instanceof SpecialToken)
-				throw new IllegalArgumentException("Malformed JSON");
 			if (result.containsKey(key))
 				throw new IllegalArgumentException("JSON object contains duplicate key");
+			if (!isSymbol(parseGeneral(ss), ':'))
+				throw new IllegalArgumentException("Malformed JSON");
+			Object value = parseGeneral(ss);
+			if (value instanceof Symbol)
+				throw new IllegalArgumentException("Malformed JSON");
 			result.put((String)key, value);
 		}
 		return result;
@@ -264,16 +265,16 @@ public final class Json {
 		boolean head = true;
 		while (true) {
 			Object obj = parseGeneral(ss);
-			if (obj == SpecialToken.RIGHT_BRACKET)
+			if (isSymbol(obj, ']'))
 				break;
 			if (head)
 				head = false;
 			else {
-				if (obj != SpecialToken.COMMA)
+				if (!isSymbol(obj, ','))
 					throw new IllegalArgumentException("Malformed JSON");
 				obj = parseGeneral(ss);
 			}
-			if (obj instanceof SpecialToken)
+			if (obj instanceof Symbol)
 				throw new IllegalArgumentException("Malformed JSON");
 			result.add(obj);
 		}
@@ -281,22 +282,18 @@ public final class Json {
 	}
 	
 	
-	// The method call starts immediately after '"' and ends immediately after the matching '"'. Mark unnecessary. Result is not null.
+	// Method call starts immediately after '"' and ends immediately after the matching '"'. Mark unnecessary. Result is not null.
 	private static String parseString(StringStream ss) {
 		StringBuilder sb = new StringBuilder();
 		outer:
 		while (true) {
 			int c = ss.nextChar();
 			switch (c) {
-				case -1:
-					throw new IllegalArgumentException("Malformed JSON");
 				case '"':
 					break outer;
 				case '\\':
 					c = ss.nextChar();
 					switch (c) {
-						case -1:
-							throw new IllegalArgumentException("Malformed JSON");
 						case '\\':
 						case '/':
 						case '"':
@@ -317,23 +314,23 @@ public final class Json {
 							String hex = "" + (char)w + (char)x + (char)y + (char)z;
 							sb.append((char)Integer.parseInt(hex, 16));
 							break;
+						case -1:
 						default:
 							throw new IllegalArgumentException("Malformed JSON");
 					}
 					break;
 				default:
-					if (c < 0x20)  // Control character
-						throw new IllegalArgumentException("Malformed JSON");
-					else
+					if (c >= 0x20)
 						sb.append((char)c);
-					break;
+					else  // ASCII control character (range [0x00,0x1F]) or special end of stream symbol (-1)
+						throw new IllegalArgumentException("Malformed JSON");
 			}
 		}
 		return sb.toString();
 	}
 	
 	
-	// The method call starts immediately after leading character and ends immediately after trailing character. Mark must be at leading character. Result may be null.
+	// Method call starts immediately after leading character and ends immediately after trailing character. Mark must be at leading character. Result may be null.
 	private static Boolean parseConstant(StringStream ss) {
 		while (true) {
 			int c = ss.nextChar();
@@ -352,7 +349,7 @@ public final class Json {
 	}
 	
 	
-	// The method call starts immediately after leading character and ends immediately after trailing character. Mark must be at leading character. Result is not null.
+	// Method call starts immediately after leading character and ends immediately after trailing character. Mark must be at leading character. Result is not null.
 	private static JsonNumber parseNumber(StringStream ss) {
 		while (true) {
 			int c = ss.nextChar();
@@ -371,7 +368,7 @@ public final class Json {
 	// A stateful character iterator that also supports dumping a substring.
 	private static final class StringStream {
 		
-		private String string;
+		private final String string;
 		private int index;
 		private int start;
 		
@@ -387,7 +384,7 @@ public final class Json {
 		
 		public int nextChar() {
 			if (index >= string.length())
-				return -1;
+				return -1;  // End of stream
 			else {
 				char result = string.charAt(index);
 				index++;
@@ -397,8 +394,9 @@ public final class Json {
 		
 		
 		public void previous() {
-			if (index >= 1)
-				index--;
+			if (index <= 0)
+				throw new IllegalStateException();
+			index--;
 		}
 		
 		
@@ -427,9 +425,23 @@ public final class Json {
 	
 	
 	
-	// Special non-data values that parseGeneral() can return.
-	private enum SpecialToken {
-		EOF, COMMA, RIGHT_BRACKET, RIGHT_BRACE
+	// Special non-data values that parseGeneral() (and only parseGeneral()) can return.
+	private static class Symbol {
+		
+		public final int charValue;
+		
+		public Symbol(int chr) {
+			if (chr < -1 || chr > 0xFFFF)
+				throw new IllegalArgumentException();
+			charValue = chr;
+		}
+		
+	}
+	
+	
+	// Convenience function for testing symbols.
+	private static boolean isSymbol(Object obj, int chr) {
+		return obj instanceof Symbol && ((Symbol)obj).charValue == chr;
 	}
 	
 	
@@ -437,13 +449,13 @@ public final class Json {
 	/*---- Convenience accessors for maps and lists ----*/
 	
 	/**
-	 * Traverses the specified JSON object along the specified path through
+	 * Traverses the specified JSON object/tree along the specified path through
 	 * maps and lists, and returns the object at that location. The path is
 	 * a (possibly empty) sequence of strings or integers.
 	 * <p>For example, in this data structure:</p>
 	 * <pre>data = {
 	 *  "alpha": null,
-	 *  "beta": [9, 88, 777],
+	 *  "beta" : [9, 88, 777],
 	 *  "gamma": ["x", 3.21,
 	 *    {
 	 *      "y": 5,
@@ -467,13 +479,13 @@ public final class Json {
 	 * {@code getObject(data, "gamma", 2, "z"): 6}<br>
 	 * {@code getObject(data, "gamma", "2"): IllegalArgumentException (map expected)}<br>
 	 * {@code getObject(data, 0): IllegalArgumentException (list expected)}</p>
-	 * @param root the JSON object to query
-	 * @param path the sequence of strings and integers that expresses the query
+	 * @param root the JSON object/tree to query
+	 * @param path the sequence of strings and integers that expresses the query path
 	 * @return the object at the location (can be {@code null})
 	 * @throws IllegalArgumentException if a map/list was expected but not found,
 	 * or a map key was not found, or a path component is not a string/integer
-	 * @throws IndexOutOfBoundsException if a list index is
-	 * negative or greater/equal to the list length
+	 * @throws IndexOutOfBoundsException if a list index
+	 * is negative or greater/equal to the list length
 	 * @throws NullPointerException if any argument or path component is {@code null}
 	 * (except if the root is {@code null} and the path is zero-length)
 	 */
@@ -507,16 +519,16 @@ public final class Json {
 	
 	
 	/**
-	 * Traverses the specified JSON object along the specified path, and
+	 * Traverses the specified JSON object/tree along the specified path, and
 	 * converts the located object to an {@code int} value to be returned.
 	 * See the documentation of {@link #getObject getObject()} for detailed examples.
-	 * @param root the JSON object to query
-	 * @param path the sequence of strings and integers that expresses the query
+	 * @param root the JSON object/tree to query
+	 * @param path the sequence of strings and integers that expresses the query path
 	 * @return the {@code int} value at the location
 	 * @throws IllegalArgumentException if a map/list was expected but not found,
 	 * or a map key was not found, or a path component is not a string/integer
-	 * @throws IndexOutOfBoundsException if a list index is
-	 * negative or greater/equal to the list length
+	 * @throws IndexOutOfBoundsException if a list index
+	 * is negative or greater/equal to the list length
 	 * @throws ClassCastException if the located object is not a {@code Number}
 	 * @throws NullPointerException if any argument or path component
 	 * or the located object is {@code null}
@@ -527,16 +539,16 @@ public final class Json {
 	
 	
 	/**
-	 * Traverses the specified JSON object along the specified path, and
+	 * Traverses the specified JSON object/tree along the specified path, and
 	 * converts the located object to a {@code long} value to be returned.
 	 * See the documentation of {@link #getObject getObject()} for detailed examples.
-	 * @param root the JSON object to query
-	 * @param path the sequence of strings and integers that expresses the query
+	 * @param root the JSON object/tree to query
+	 * @param path the sequence of strings and integers that expresses the query path
 	 * @return the {@code long} value at the location
 	 * @throws IllegalArgumentException if a map/list was expected but not found,
 	 * or a map key was not found, or a path component is not a string/integer
-	 * @throws IndexOutOfBoundsException if a list index is
-	 * negative or greater/equal to the list length
+	 * @throws IndexOutOfBoundsException if a list index
+	 * is negative or greater/equal to the list length
 	 * @throws ClassCastException if the located object is not a {@code Number}
 	 * @throws NullPointerException if any argument or path component
 	 * or the located object is {@code null}
@@ -547,16 +559,16 @@ public final class Json {
 	
 	
 	/**
-	 * Traverses the specified JSON object along the specified path, and
+	 * Traverses the specified JSON object/tree along the specified path, and
 	 * converts the located object to a {@code float} value to be returned.
 	 * See the documentation of {@link #getObject getObject()} for detailed examples.
-	 * @param root the JSON object to query
-	 * @param path the sequence of strings and integers that expresses the query
+	 * @param root the JSON object/tree to query
+	 * @param path the sequence of strings and integers that expresses the query path
 	 * @return the {@code float} value at the location
 	 * @throws IllegalArgumentException if a map/list was expected but not found,
 	 * or a map key was not found, or a path component is not a string/integer
-	 * @throws IndexOutOfBoundsException if a list index is
-	 * negative or greater/equal to the list length
+	 * @throws IndexOutOfBoundsException if a list index
+	 * is negative or greater/equal to the list length
 	 * @throws ClassCastException if the located object is not a {@code Number}
 	 * @throws NullPointerException if any argument or path component
 	 * or the located object is {@code null}
@@ -567,16 +579,16 @@ public final class Json {
 	
 	
 	/**
-	 * Traverses the specified JSON object along the specified path, and
+	 * Traverses the specified JSON object/tree along the specified path, and
 	 * converts the located object to a {@code double} value to be returned.
 	 * See the documentation of {@link #getObject getObject()} for detailed examples.
-	 * @param root the JSON object to query
-	 * @param path the sequence of strings and integers that expresses the query
+	 * @param root the JSON object/tree to query
+	 * @param path the sequence of strings and integers that expresses the query path
 	 * @return the {@code double} value at the location
 	 * @throws IllegalArgumentException if a map/list was expected but not found,
 	 * or a map key was not found, or a path component is not a string/integer
-	 * @throws IndexOutOfBoundsException if a list index is
-	 * negative or greater/equal to the list length
+	 * @throws IndexOutOfBoundsException if a list index
+	 * is negative or greater/equal to the list length
 	 * @throws ClassCastException if the located object is not a {@code Number}
 	 * @throws NullPointerException if any argument or path component
 	 * or the located object is {@code null}
@@ -587,16 +599,16 @@ public final class Json {
 	
 	
 	/**
-	 * Traverses the specified JSON object along the specified path,
+	 * Traverses the specified JSON object/tree along the specified path,
 	 * and converts the located object to a string to be returned.
 	 * See the documentation of {@link #getObject getObject()} for detailed examples.
-	 * @param root the JSON object to query
-	 * @param path the sequence of strings and integers that expresses the query
+	 * @param root the JSON object/tree to query
+	 * @param path the sequence of strings and integers that expresses the query path
 	 * @return the string object at the location (not {@code null})
 	 * @throws IllegalArgumentException if a map/list was expected but not found,
 	 * or a map key was not found, or a path component is not a string/integer
-	 * @throws IndexOutOfBoundsException if a list index is
-	 * negative or greater/equal to the list length
+	 * @throws IndexOutOfBoundsException if a list index
+	 * is negative or greater/equal to the list length
 	 * @throws ClassCastException if the located object is not a {@code String}
 	 * @throws NullPointerException if any argument or path component
 	 * or the located object is {@code null}
@@ -610,16 +622,16 @@ public final class Json {
 	
 	
 	/**
-	 * Traverses the specified JSON object along the specified path,
+	 * Traverses the specified JSON object/tree along the specified path,
 	 * and converts the located object to a list to be returned.
 	 * See the documentation of {@link #getObject getObject()} for detailed examples.
-	 * @param root the JSON object to query
-	 * @param path the sequence of strings and integers that expresses the query
+	 * @param root the JSON object/tree to query
+	 * @param path the sequence of strings and integers that expresses the query path
 	 * @return the list object at the location (not {@code null})
 	 * @throws IllegalArgumentException if a map/list was expected but not found,
 	 * or a map key was not found, or a path component is not a string/integer
-	 * @throws IndexOutOfBoundsException if a list index is
-	 * negative or greater/equal to the list length
+	 * @throws IndexOutOfBoundsException if a list index
+	 * is negative or greater/equal to the list length
 	 * @throws ClassCastException if the located object is not a {@code List}
 	 * @throws NullPointerException if any argument or path component
 	 * or the located object is {@code null}
@@ -634,16 +646,16 @@ public final class Json {
 	
 	
 	/**
-	 * Traverses the specified JSON object along the specified path,
+	 * Traverses the specified JSON object/tree along the specified path,
 	 * and converts the located object to a map to be returned.
 	 * See the documentation of {@link #getObject getObject()} for detailed examples.
-	 * @param root the JSON object to query
-	 * @param path the sequence of strings and integers that expresses the query
+	 * @param root the JSON object/tree to query
+	 * @param path the sequence of strings and integers that expresses the query path
 	 * @return the map object at the location (not {@code null})
 	 * @throws IllegalArgumentException if a map/list was expected but not found,
 	 * or a map key was not found, or a path component is not a string/integer
-	 * @throws IndexOutOfBoundsException if a list index is
-	 * negative or greater/equal to the list length
+	 * @throws IndexOutOfBoundsException if a list index
+	 * is negative or greater/equal to the list length
 	 * @throws ClassCastException if the located object is not a {@code Map}
 	 * @throws NullPointerException if any argument or path component
 	 * or the located object is {@code null}
@@ -665,6 +677,7 @@ public final class Json {
 	
 	
 	
+	// A SortedMap that throws an IllegalArgumentException when get()-ing a non-existent key. (Typical Java maps would return null instead.)
 	private static final class SafeTreeMap<K,V> extends TreeMap<K,V> {
 		
 		public SafeTreeMap() {

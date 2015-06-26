@@ -33,8 +33,8 @@ import java.util.regex.Pattern;
  * Represents a number parsed from JSON as a string, providing methods to convert to other number types.
  * <p>Examples of valid number strings: 0, 1, 93, -0, -2, 4.56, 8e9, 8e+9, 8e-9, -8.00e+99<br>
  * Examples of invalid number strings: +5, 01, .33, --1, 0x10, 10h, e2, 1/2</p>
- * <p>Note: For implementation simplicity, the integer conversion methods will throw an exception if
- * the number string contains a decimal point or exponent (such as 123.00 or 123e0), even if the actual value
+ * <p>Note: For implementation simplicity, the integer conversion methods will throw an exception if the
+ * number string contains a decimal point or exponent (such as 123.00 or 123e0), even if the actual value
  * represents an integer. The string must be in integer syntax (such as 123) in order to succeed.</p>
  */
 public final class JsonNumber extends Number {
@@ -67,7 +67,7 @@ public final class JsonNumber extends Number {
 	/*---- Conversion methods ----*/
 	
 	/**
-	 * Returns this number string parsed in base 10 as a 8-bit signed integer.
+	 * Returns this number string parsed in base 10 as an 8-bit signed integer.
 	 * @return this number parsed as a {@code byte}
 	 * @throws NumberFormatException if this number string does not satisfy the syntax or range of {@code byte}
 	 */
@@ -137,8 +137,8 @@ public final class JsonNumber extends Number {
 	
 	
 	/**
-	 * Returns this number string parsed in base 10 as an arbitrary-precision decimal floating-point number.
-	 * The result is exact and incurs no rounding. Does not throw an exception unless the exponent is unreasonably large.
+	 * Returns this number string parsed in base 10 as an arbitrary-precision decimal floating-point number. The result is exact
+	 * and incurs no rounding. Does not throw an exception unless the exponent is unreasonably large (beyond +/- 2 billion).
 	 * @return this number parsed as a {@code BigDecimal}
 	 */
 	public BigDecimal bigDecimalValue() {
