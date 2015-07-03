@@ -159,10 +159,11 @@ function solveTriangle(a, b, c, A, B, C) {
 
 
 function solveSide(a, b, C) {  // Returns side c using law of cosines
-	if (C > 0.003)
-		return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(degToRad(C)));
-	else  // Improves numerical stability, relying on the approximation that cos C ~= 1 - C^2 / 2
-		return Math.sqrt((a - b) * (a - b) + a * b * degToRad(C) * degToRad(C));
+	C = degToRad(C);
+	if (C > 0.001)
+		return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(C));
+	else  // Improves numerical stability, relying on the approximation that cos C ~= 1 - C^2 / 2 + C^4 / 24
+		return Math.sqrt((a - b) * (a - b) + a * b * C * C * (1 - C * C / 12));
 }
 
 function solveAngle(a, b, c) {  // Returns angle C using law of cosines
