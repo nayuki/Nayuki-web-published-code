@@ -56,7 +56,7 @@ def hash(message, printdebug=False):
 		if printdebug: print("    Block {} = {}".format(i, cryptocommon.bytelist_to_debugstr(block)))
 		state = _compress(block, state, printdebug)
 	
-	# Serialize the final state as bytes in little endian
+	# Serialize the final state as a bytelist in little endian
 	result = []
 	for x in state:
 		for i in reversed(range(4)):
@@ -86,8 +86,7 @@ def _compress(block, state, printdebug):
 	# Extend the message schedule by blending previous values
 	for i in range(len(schedule), 80):
 		temp = schedule[i - 3] ^ schedule[i - 8] ^ schedule[i - 14] ^ schedule[i - 16]
-		temp = rotl32(temp, 1)
-		schedule.append(temp)
+		schedule.append(rotl32(temp, 1))
 	
 	# Unpack state into variables; each one is a uint32
 	a, b, c, d, e = state

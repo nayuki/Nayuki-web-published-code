@@ -56,7 +56,7 @@ def hash(message, printdebug=False):
 		if printdebug: print("    Block {} = {}".format(i, cryptocommon.bytelist_to_debugstr(block)))
 		state = _compress(block, state, printdebug)
 	
-	# Return the final state
+	# Return the final state as a bytelist
 	if printdebug: print("")
 	return list(state)
 
@@ -78,7 +78,7 @@ def _compress(block, state, printdebug):
 	
 	# Combine data using the Miyaguchi-Preneel construction
 	newstate = []
-	for (x, y, z) in zip(state, tempmsg, block):
+	for (x, y, z) in zip(state, block, tempmsg):
 		newstate.append(x ^ y ^ z)
 	return tuple(newstate)
 
@@ -131,6 +131,8 @@ def _add_round_key(msg, key):
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
 def _multiply(x, y):
+	assert 0 <= x <= 0xFF
+	assert 0 <= y <= 0xFF
 	z = 0
 	for i in reversed(range(8)):
 		z <<= 1
@@ -138,6 +140,7 @@ def _multiply(x, y):
 			z ^= 0x11D
 		if ((y >> i) & 1) != 0:
 			z ^= x
+	assert 0 <= z <= 0xFF
 	return z
 
 

@@ -49,7 +49,7 @@ def encrypt(block, key, printdebug=False):
 		m[1] += ((m[0] << 4) + k[2]) ^ (m[0] + rcon) ^ ((m[0] >> 5) + k[3])
 		m[1] &= cryptocommon.UINT32_MASK
 	
-	# Unpack uint32 array into new block bytes in big endian
+	# Serialize the final block as a bytelist in big endian
 	result = []
 	for x in m:
 		result.append(int((x >> 24) & 0xFF))
@@ -82,7 +82,7 @@ def decrypt(block, key, printdebug=False):
 		m[0] &= cryptocommon.UINT32_MASK
 		rcon = (rcon - _ROUND_CONSTANT) & cryptocommon.UINT32_MASK
 	
-	# Unpack uint32 array into new block bytes in big endian
+	# Serialize the final block as a bytelist in big endian
 	result = []
 	for x in m:
 		result.append(int((x >> 24) & 0xFF))

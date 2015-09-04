@@ -1,5 +1,6 @@
 # 
-# The AES-128 (Advanced Encryption Standard) block cipher. It is described in FIPS Publication 197.
+# The AES (Advanced Encryption Standard) block cipher. It is described in FIPS Publication 197.
+# Note: Only the 128-bit key length is implemented.
 # 
 # Copyright (c) 2015 Project Nayuki
 # http://www.nayuki.io/page/cryptographic-primitives-in-plain-python
@@ -170,6 +171,8 @@ def _add_round_key(msg, key):
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
 def _multiply(x, y):
+	assert 0 <= x <= 0xFF
+	assert 0 <= y <= 0xFF
 	z = 0
 	for i in reversed(range(8)):
 		z <<= 1
@@ -177,11 +180,13 @@ def _multiply(x, y):
 			z ^= 0x11B
 		if ((y >> i) & 1) != 0:
 			z ^= x
+	assert 0 <= z <= 0xFF
 	return z
 
 
 # Computes the multiplicative inverse of the given byte, returning a byte.
 def _reciprocal(x):
+	assert 0 <= x <= 0xFF
 	if x == 0:
 		return 0
 	for y in range(256):

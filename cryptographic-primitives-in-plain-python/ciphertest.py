@@ -1,5 +1,5 @@
 # 
-# This program tests all the implementations of cryptographic ciphers.
+# This program tests the implementations of all the known cryptographic ciphers.
 # Run with no arguments. For Python 2 and 3.
 # 
 # Copyright (c) 2015 Project Nayuki
@@ -27,6 +27,8 @@ from cryptocommon import hexstr_to_bytelist
 
 
 # ---- Main program ----
+
+num_test_cases = 0
 
 def main():
 	test_aes_cipher()
@@ -508,9 +510,6 @@ def test_cipher(encfunc, decfunc, cases):
 		if decryptedbytelist != plaintextbytelist:
 			raise AssertionError()
 		num_test_cases += 1
-
-
-num_test_cases = 0
 
 
 if __name__ == "__main__":

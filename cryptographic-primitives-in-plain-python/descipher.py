@@ -1,5 +1,6 @@
 # 
 # The DES (Data Encryption Standard) block cipher.
+# Note: The key length is 64 bits but 8 of them are ignored, so the effective key length is 56 bits.
 # 
 # Copyright (c) 2015 Project Nayuki
 # http://www.nayuki.io/page/cryptographic-primitives-in-plain-python
@@ -99,8 +100,8 @@ def _expand_key_schedule(key):
 	left  = _extract_bits(key, 64, _PERMUTED_CHOICE_1_LEFT )
 	right = _extract_bits(key, 64, _PERMUTED_CHOICE_1_RIGHT)
 	for shift in _ROUND_KEY_SHIFTS:
-		left  = _rotate_left(left , 28, shift)
-		right = _rotate_left(right, 28, shift)
+		left  = _rotate_left_uint28(left , shift)
+		right = _rotate_left_uint28(right, shift)
 		packed = left << 28 | right
 		subkey = _extract_bits(packed, 56, _PERMUTED_CHOICE_2)  # uint56
 		result.append(subkey)
@@ -126,6 +127,10 @@ def _do_sboxes(data):
 	return result
 
 
+# Extracts bits from 'value' according to 'indices'. 'value' is uint(bitwidth), and the result is a uint(len(indices)).
+# Bit positions in 'value' are numbered from 1 at the most significant bit to 'bitwidth' at the least significant bit.
+# indices[0] selects which bit of 'value' maps into the MSB of the result, and indices[-1] maps to the LSB of the result.
+# For example: _extract_bits(0b10000, 5, [5, 1, 2]) = 0b010.
 def _extract_bits(value, bitwidth, indices):
 	assert 0 <= value < (1 << bitwidth)
 	result = 0
@@ -136,13 +141,17 @@ def _extract_bits(value, bitwidth, indices):
 	return result
 
 
-def _rotate_left(value, bitwidth, amount):
-	assert 0 <= value < (1 << bitwidth)
-	assert 0 <= amount < bitwidth
-	return ((value << amount) | (value >> (bitwidth - amount))) & ((1 << bitwidth) - 1)
+# 'value' is uint28, 'amount' is in the range [0, 28), and result is uint28.
+def _rotate_left_uint28(value, amount):
+	mask = (1 << 28) - 1
+	assert 0 <= value <= mask
+	assert 0 <= amount < 28
+	return ((value << amount) | (value >> (28 - amount))) & mask
 
 
 # ---- Numerical constants/tables ----
+
+# All tables below are copied from https://en.wikipedia.org/wiki/DES_supplementary_material .
 
 # Defines 16 rounds
 _ROUND_KEY_SHIFTS = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
