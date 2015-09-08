@@ -39,9 +39,9 @@ def encrypt(block, key, printdebug=False):
 	k = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
 	m = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
 	
-	# Perform 32 rounds of encryption
+	# Perform 64 rounds of encryption
 	rcon = 0
-	for i in range(_NUM_ROUNDS):
+	for i in range(_NUM_CYCLES):
 		if printdebug: print("    Round {:2d}: block = [{:08X} {:08X}]".format(i, m[0], m[1]))
 		rcon = (rcon + _ROUND_CONSTANT) & cryptocommon.UINT32_MASK
 		m[0] += ((m[1] << 4) + k[0]) ^ (m[1] + rcon) ^ ((m[1] >> 5) + k[1])
@@ -72,9 +72,9 @@ def decrypt(block, key, printdebug=False):
 	k = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
 	m = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
 	
-	# Perform 32 rounds of decryption
-	rcon = (_ROUND_CONSTANT * _NUM_ROUNDS) & cryptocommon.UINT32_MASK
-	for i in range(_NUM_ROUNDS):
+	# Perform 64 rounds of decryption
+	rcon = (_ROUND_CONSTANT * _NUM_CYCLES) & cryptocommon.UINT32_MASK
+	for i in range(_NUM_CYCLES):
 		if printdebug: print("    Round {:2d}: block = [{:08X} {:08X}]".format(i, m[0], m[1]))
 		m[1] -= ((m[0] << 4) + k[2]) ^ (m[0] + rcon) ^ ((m[0] >> 5) + k[3])
 		m[1] &= cryptocommon.UINT32_MASK
@@ -95,6 +95,7 @@ def decrypt(block, key, printdebug=False):
 
 # ---- Private functions ----
 
+# For example: _bytes_to_uint32_list_big_endian([0xFF, 0x00, 0xAB, 0xCD, 0x27, 0x18, 0x28, 0x44]) -> [0xFF00ABCD, 0x27182844].
 def _bytes_to_uint32_list_big_endian(bytelist):
 	assert len(bytelist) % 4 == 0
 	result = [0] * (len(bytelist) // 4)
@@ -106,6 +107,7 @@ def _bytes_to_uint32_list_big_endian(bytelist):
 
 # ---- Numerical constants/tables ----
 
-_NUM_ROUNDS = 32
+_NUM_ROUNDS = 64  # Must be even
+_NUM_CYCLES = _NUM_ROUNDS // 2
 
-_ROUND_CONSTANT = 0x9E3779B9  # uint32
+_ROUND_CONSTANT = 0x9E3779B9  # uint32, equal to floor((sqrt(5) - 1) / 2 * 2^32)

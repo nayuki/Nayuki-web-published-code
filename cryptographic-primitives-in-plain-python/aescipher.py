@@ -134,6 +134,7 @@ def _expand_key_schedule(key):
 
 # 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
 def _sub_bytes(msg, sbox):
+	assert len(sbox) == 256
 	newmsg = []
 	for b in msg:
 		newmsg.append(sbox[b])
@@ -142,6 +143,7 @@ def _sub_bytes(msg, sbox):
 
 # 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
 def _shift_rows(msg, direction):
+	assert direction in (-1, 1)
 	newmsg = [None] * 16
 	for row in range(4):
 		for col in range(4):
@@ -151,6 +153,7 @@ def _shift_rows(msg, direction):
 
 # 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
 def _mix_columns(msg, multipliers):
+	assert len(multipliers) == 4
 	newmsg = [None] * 16
 	for col in range(4):
 		for row in range(4):
@@ -197,6 +200,8 @@ def _reciprocal(x):
 
 # Rotates the given 8-bit integer left by the given number of bits.
 def _rotl8(value, amount):
+	assert 0 <= value <= 0xFF
+	assert 0 <= amount < 8
 	return ((value << amount) | (value >> (8 - amount))) & 0xFF
 
 

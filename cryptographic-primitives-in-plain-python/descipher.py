@@ -46,6 +46,7 @@ def _crypt(block, key, direction, printdebug):
 	# Check input arguments
 	assert type(block) == list and len(block) == 8
 	assert type(key) == list and len(key) == 8
+	assert direction in ("encrypt", "decrypt")
 	if printdebug: print("descipher.{}(block = {}, key = {})".format(direction, cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
 	
 	# Pack key bytes into uint64 in big endian
@@ -57,12 +58,8 @@ def _crypt(block, key, direction, printdebug):
 	
 	# Compute and handle the key schedule
 	keyschedule = _expand_key_schedule(k)
-	if direction == "encrypt":
-		pass
-	elif direction == "decrypt":
-		keyschedule = list(reversed(keyschedule))
-	else:
-		raise AssertionError()
+	if direction == "decrypt":
+		keyschedule = tuple(reversed(keyschedule))
 	
 	# Pack block bytes into uint64 in big endian
 	m = 0
@@ -80,6 +77,7 @@ def _crypt(block, key, direction, printdebug):
 	for (i, subkey) in enumerate(keyschedule):
 		if printdebug: print("    Round {:2d}: block = [{:08X} {:08X}]".format(i, left, right))
 		left, right = right, (left ^ _feistel_function(right, subkey))
+		assert 0 <= right <= cryptocommon.UINT32_MASK
 	
 	# Merge the halves back into a uint64 and do final permutation on new block
 	m = right << 32 | left
@@ -93,19 +91,21 @@ def _crypt(block, key, direction, printdebug):
 	return result
 
 
-# Given a uint64 key, this computes and returns a list containing 16 elements of uint48.
+# Given a uint64 key, this computes and returns a tuple containing 16 elements of uint48.
 def _expand_key_schedule(key):
 	result = []
-	# Both 'left' and 'right' are always uint28
 	left  = _extract_bits(key, 64, _PERMUTED_CHOICE_1_LEFT )
 	right = _extract_bits(key, 64, _PERMUTED_CHOICE_1_RIGHT)
 	for shift in _ROUND_KEY_SHIFTS:
 		left  = _rotate_left_uint28(left , shift)
 		right = _rotate_left_uint28(right, shift)
+		assert 0 <= left  < (1 << 28)
+		assert 0 <= right < (1 << 28)
 		packed = left << 28 | right
-		subkey = _extract_bits(packed, 56, _PERMUTED_CHOICE_2)  # uint56
+		subkey = _extract_bits(packed, 56, _PERMUTED_CHOICE_2)
+		assert 0 <= subkey < (1 << 48)
 		result.append(subkey)
-	return result
+	return tuple(result)
 
 
 # 'data' is uint32, 'subkey' is uint48, and result is uint32.
@@ -114,6 +114,7 @@ def _feistel_function(data, subkey):
 	b = a ^ subkey     # uint48
 	c = _do_sboxes(b)  # uint32
 	d = _extract_bits(c, 32, _FEISTEL_PERMUTATION)   # uint32
+	assert 0 <= d < cryptocommon.UINT32_MASK
 	return d
 
 
@@ -122,8 +123,9 @@ def _do_sboxes(data):
 	assert 0 <= data < (1 << 48)
 	mask = (1 << 6) - 1
 	result = 0
-	for i in range(8):
+	for i in range(8):  # Topmost 6 bits use _SBOXES[0], next lower 6 bits use _SBOXES[1], ..., lowest 6 bits use _SBOXES[7].
 		result |= _SBOXES[7 - i][(data >> (i * 6)) & mask] << (i * 4)
+	assert 0 <= result < cryptocommon.UINT32_MASK
 	return result
 
 
