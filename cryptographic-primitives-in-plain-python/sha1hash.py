@@ -56,7 +56,7 @@ def hash(message, printdebug=False):
 		if printdebug: print("    Block {} = {}".format(i, cryptocommon.bytelist_to_debugstr(block)))
 		state = _compress(block, state, printdebug)
 	
-	# Serialize the final state as a bytelist in little endian
+	# Serialize the final state as a bytelist in big endian
 	result = []
 	for x in state:
 		for i in reversed(range(4)):

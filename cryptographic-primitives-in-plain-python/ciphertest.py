@@ -33,6 +33,7 @@ num_test_cases = 0
 def main():
 	test_aes_cipher()
 	test_des_cipher()
+	test_idea_cipher()
 	test_tea_cipher()
 	print("All {} test cases passed".format(num_test_cases))
 
@@ -489,6 +490,16 @@ def test_des_cipher():
 		("02FE55778117F12A", "49E95D6D4CA229BF", "5A6B612CC26CCE4A"),
 		("1D9D5C5018F728C2", "018310DC409B26D6", "5F4C038ED12B2E41"),
 		("305532286D6F295A", "1C587F1C13924FEF", "63FAC0D034D9F793"),
+	])
+
+
+def test_idea_cipher():
+	print("Testing IDEA cipher...")
+	import ideacipher
+	test_cipher(ideacipher.encrypt, ideacipher.decrypt, [
+		("0000000100020003", "00010002000300040005000600070008", "11FBED2B01986DE5"),
+		("DB2D4A92AA68273F", "000102030405060708090A0B0C0D0E0F", "0011223344556677"),
+		("F129A6601EF62A47", "2BD6459F82C5B300952C49104881FF48", "EA024714AD5C4D84"),
 	])
 
 
