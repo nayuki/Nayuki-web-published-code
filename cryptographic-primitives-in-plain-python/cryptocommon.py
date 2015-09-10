@@ -68,6 +68,7 @@ def hexstr_to_bytelist(hexstr):
 
 # For example: bytelist_to_hexstr([255, 0, 192]) -> "FF00C0".
 def bytelist_to_hexstr(bytelist):
+	assert type(bytelist) in (list, tuple)
 	result = ""
 	for b in bytelist:
 		result += "{:02X}".format(b)
@@ -76,4 +77,5 @@ def bytelist_to_hexstr(bytelist):
 
 # For example: bytelist_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
 def bytelist_to_debugstr(bytelist):
+	assert type(bytelist) in (list, tuple)
 	return "[" + (" ".join(map(lambda b: "{:02X}".format(b), bytelist))) + "]"

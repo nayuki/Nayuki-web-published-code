@@ -1,6 +1,6 @@
 # 
 # The AES (Advanced Encryption Standard) block cipher. It is described in FIPS Publication 197.
-# Note: Only the 128-bit key length is implemented.
+# All three key lengths (128, 192, 256 bits) are supported.
 # 
 # Copyright (c) 2015 Project Nayuki
 # http://www.nayuki.io/page/cryptographic-primitives-in-plain-python
@@ -29,11 +29,11 @@ import cryptocommon
 # ---- Public functions ----
 
 # Computes the encryption of the given block (16-element bytelist) with
-# the given key (16-element bytelist), returning a new 16-element bytelist.
+# the given key (16/24/32-element bytelist), returning a new 16-element bytelist.
 def encrypt(block, key, printdebug=False):
 	# Check input arguments
 	assert type(block) == list and len(block) == 16
-	assert type(key) == list and len(key) == 16
+	assert type(key) == list and len(key) in (16, 24, 32)
 	if printdebug: print("aescipher.encrypt(block = {}, key = {})".format(cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
 	
 	# Compute key schedule from key
@@ -46,7 +46,7 @@ def encrypt(block, key, printdebug=False):
 	newblock = _add_round_key(newblock, keyschedule[0])
 	i += 1
 	
-	# Perform 9 regular rounds of encryption
+	# Perform 9/11/13 regular rounds of encryption
 	for subkey in keyschedule[1 : -1]:
 		if printdebug: print("    Round {:2d}: block = {}".format(i, cryptocommon.bytelist_to_debugstr(list(newblock))))
 		newblock = _sub_bytes(newblock, _SBOX_FORWARD)
@@ -67,11 +67,11 @@ def encrypt(block, key, printdebug=False):
 
 
 # Computes the decryption of the given block (16-element bytelist) with
-# the given key (16-element bytelist), returning a new 16-element bytelist.
+# the given key (16/24/32-element bytelist), returning a new 16-element bytelist.
 def decrypt(block, key, printdebug=False):
 	# Check input arguments
 	assert type(block) == list and len(block) == 16
-	assert type(key) == list and len(key) == 16
+	assert type(key) == list and len(key) in (16, 24, 32)
 	if printdebug: print("aescipher.decrypt(block = {}, key = {})".format(cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
 	
 	# Compute key schedule from key
@@ -86,7 +86,7 @@ def decrypt(block, key, printdebug=False):
 	newblock = _sub_bytes(newblock, _SBOX_INVERSE)
 	i += 1
 	
-	# Perform 9 regular rounds of decryption
+	# Perform 9/11/13 regular rounds of decryption
 	for subkey in keyschedule[1 : -1]:
 		if printdebug: print("    Round {:2d}: block = {}".format(i, cryptocommon.bytelist_to_debugstr(list(newblock))))
 		newblock = _add_round_key(newblock, subkey)
@@ -106,30 +106,38 @@ def decrypt(block, key, printdebug=False):
 
 # ---- Private functions ----
 
+# Given a 16/24/32-element bytelist, this computes and returns a tuple containing 11/13/15 tuples of 16 bytes each.
 def _expand_key_schedule(key):
 	# Initialize key schedule with the verbatim key
-	assert type(key) == list and len(key) == 16
-	result = [tuple(key)]  # Each element of this list is a 16-byte tuple
+	nk = len(key) // 4  # Number of 32-bit words in original key
+	assert type(key) == list and nk in (4, 6, 8)
+	schedule = list(key)
 	
 	# Extend the key schedule by blending previous values
-	numrounds = 10
+	numrounds = nk + 6
 	rcon = 1
-	for i in range(numrounds):
-		subkey = []
-		for j in range(16):
-			if j < 4:
-				val = result[i][12 + ((j + 1) % 4)]
+	for i in range(len(schedule), (numrounds + 1) * 16):
+		j = i // 4
+		if j % nk == 0:
+			val = schedule[(j - 1) * 4 + (i + 1) % 4]
+			val = _SBOX_FORWARD[val]
+			if i % 4 == 0:
+				val ^= rcon
+				rcon = _multiply(rcon, 0x02)
+		else:
+			val = schedule[i - 4]
+			if nk > 6 and j % nk == 4:
 				val = _SBOX_FORWARD[val]
-				if j == 0:
-					val ^= rcon
-			else:
-				val = subkey[j - 4]
-			subkey.append(val ^ result[i][j])
-		result.append(tuple(subkey))
-		rcon = _multiply(rcon, 0x02)
+		val ^= schedule[i - nk * 4]
+		schedule.append(val)
 	
-	# Return the list
-	return result
+	# Split up the schedule into chunks of 16-byte subkeys
+	result = []
+	for i in range(0, len(schedule), 16):
+		result.append(tuple(schedule[i : i + 16]))
+	
+	# Return the list of subkeys as a tuple
+	return tuple(result)
 
 
 # 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
