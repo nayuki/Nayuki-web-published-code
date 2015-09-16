@@ -24,6 +24,17 @@
 
 package io.nayuki.json;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -78,17 +89,21 @@ public final class Json {
 	 */
 	public static String serialize(Object obj) {
 		StringBuilder sb = new StringBuilder();
-		toJson(obj, sb);
+		try {
+			serializeJson(obj, sb);
+		} catch (IOException e) {
+			throw new AssertionError(e);  // Impossible
+		}
 		return sb.toString();
 	}
 	
 	
 	// Serializes the given object/tree as JSON to the given string buffer.
 	@SuppressWarnings("rawtypes")
-	private static void toJson(Object obj, StringBuilder sb) {
+	private static void serializeJson(Object obj, Appendable out) throws IOException {
 		// Recursive depth-first traversal
 		if (obj == null || obj instanceof Boolean) {
-			sb.append(String.valueOf(obj));
+			out.append(String.valueOf(obj));
 			
 		} else if (obj instanceof Number) {
 			if (obj instanceof Float || obj instanceof Double) {
@@ -99,47 +114,47 @@ public final class Json {
 			String temp = obj.toString();
 			if (!JsonNumber.SYNTAX.matcher(temp).matches())
 				throw new IllegalArgumentException("Number string cannot be serialized as JSON: " + temp);
-			sb.append(temp);
+			out.append(temp);
 			
 		} else if (obj instanceof CharSequence) {
 			if (obj instanceof List || obj instanceof Map)
 				throw new IllegalArgumentException("Ambiguous object is both charseq and list/map");
 			CharSequence str = (CharSequence)obj;
-			sb.append('"');
+			out.append('"');
 			for (int i = 0; i < str.length(); i++) {
 				char c = str.charAt(i);
 				switch (c) {
-					case '\b':  sb.append("\\b" );  break;
-					case '\f':  sb.append("\\f" );  break;
-					case '\n':  sb.append("\\n" );  break;
-					case '\r':  sb.append("\\r" );  break;
-					case '\t':  sb.append("\\t" );  break;
-					case '"' :  sb.append("\\\"");  break;
-					case '\\':  sb.append("\\\\");  break;
+					case '\b':  out.append("\\b" );  break;
+					case '\f':  out.append("\\f" );  break;
+					case '\n':  out.append("\\n" );  break;
+					case '\r':  out.append("\\r" );  break;
+					case '\t':  out.append("\\t" );  break;
+					case '"' :  out.append("\\\"");  break;
+					case '\\':  out.append("\\\\");  break;
 					default:
 						if (c >= 0x20 && c < 0x7F)
-							sb.append(c);
+							out.append(c);
 						else
-							sb.append(String.format("\\u%04X", (int)c));
+							out.append(String.format("\\u%04X", (int)c));
 						break;
 				}
 			}
-			sb.append('"');
+			out.append('"');
 			
 		} else if (obj instanceof List) {
 			if (obj instanceof Map)
 				throw new IllegalArgumentException("Ambiguous object is both list and map");
-			sb.append('[');
+			out.append('[');
 			boolean head = true;
 			for (Object sub : (List)obj) {
 				if (head) head = false;
-				else sb.append(", ");
-				toJson(sub, sb);
+				else out.append(", ");
+				serializeJson(sub, out);
 			}
-			sb.append(']');
+			out.append(']');
 			
 		} else if (obj instanceof Map) {
-			sb.append('{');
+			out.append('{');
 			boolean head = true;
 			Map map = (Map)obj;
 			for (Object temp : map.entrySet()) {
@@ -148,12 +163,12 @@ public final class Json {
 				if (!(key instanceof CharSequence))
 					throw new IllegalArgumentException("Map key must be a String/CharSequence object");
 				if (head) head = false;
-				else sb.append(", ");
-				toJson(key, sb);
-				sb.append(": ");
-				toJson(entry.getValue(), sb);
+				else out.append(", ");
+				serializeJson(key, out);
+				out.append(": ");
+				serializeJson(entry.getValue(), out);
 			}
-			sb.append('}');
+			out.append('}');
 			
 		} else {
 			throw new IllegalArgumentException("Unrecognized value: " + obj.getClass() + " " + obj.toString());
@@ -165,7 +180,7 @@ public final class Json {
 	/*---- Parser from JSON to Java objects ----*/
 	
 	/**
-	 * Parses the specified JSON text into a Java object / tree of objects. Notes:
+	 * Parses the specified JSON text and returns a Java object / tree of objects representing the data. Notes:
 	 * <ul>
 	 *   <li>The user is responsible for performing {@code instanceof} tests and
 	 *   class casting, because most methods return a generic {@code Object}.</li>
@@ -446,6 +461,114 @@ public final class Json {
 	
 	
 	
+	/*---- File and network I/O convenience methods ----*/
+	
+	/**
+	 * Reads the specified file in UTF-8, parses the JSON text, and returns a Java object /
+	 * tree of objects representing the data. See {@link #parse parse()} for more details.
+	 * @param file the file to read
+	 * @return the object/tree (can be {@code null}) corresponding to the JSON data
+	 * @throws IOException if an I/O exception occurred
+	 */
+	public static Object parseFromFile(File file) throws IOException {
+		return parseFromFile(file, Charset.forName("UTF-8"));
+	}
+	
+	
+	/**
+	 * Reads the specified file in the specified character encoding, parses the JSON text, and returns
+	 * a Java object / tree of objects representing the data. See {@link #parse parse()} for more details.
+	 * @param file the file to read
+	 * @param cs the character encoding to use
+	 * @return the object/tree (can be {@code null}) corresponding to the JSON data
+	 * @throws IOException if an I/O exception occurred
+	 */
+	public static Object parseFromFile(File file, Charset cs) throws IOException {
+		InputStream in = new FileInputStream(file);
+		try {
+			return parseFromStream(in, cs);
+		} finally {
+			in.close();
+		}
+	}
+	
+	
+	/**
+	 * Reads from the specified URL as text in UTF-8, parses the JSON text, and returns a Java
+	 * object / tree of objects representing the data. See {@link #parse parse()} for more details.
+	 * @param url the URL to read from
+	 * @return the object/tree (can be {@code null}) corresponding to the JSON data
+	 * @throws IOException if an I/O exception occurred
+	 */
+	public static Object parseFromUrl(URL url) throws IOException {
+		return parseFromUrl(url, Charset.forName("UTF-8"));
+	}
+	
+	
+	/**
+	 * Reads from the specified URL as text in the specified character encoding, parses the JSON text, and returns
+	 * a Java object / tree of objects representing the data. See {@link #parse parse()} for more details.
+	 * @param url the URL to read from
+	 * @param cs the character encoding to use
+	 * @return the object/tree (can be {@code null}) corresponding to the JSON data
+	 * @throws IOException if an I/O exception occurred
+	 */
+	public static Object parseFromUrl(URL url, Charset cs) throws IOException {
+		InputStream in = url.openStream();
+		try {
+			return parseFromStream(in, cs);
+		} finally {
+			in.close();
+		}
+	}
+	
+	
+	private static Object parseFromStream(InputStream in, Charset cs) throws IOException {
+		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+		byte[] buf = new byte[4096];
+		while (true) {
+			int n = in.read(buf);
+			if (n == -1)
+				break;
+			bout.write(buf, 0, n);
+		}
+		return parse(new String(bout.toByteArray(), cs));
+	}
+	
+	
+	/**
+	 * Serializes the specified Java object / tree of objects into a JSON text string,
+	 * and writes to text the specified file in the UTF-8 character encoding.
+	 * See the documentation of {@link #serialize serialize()} for more details.
+	 * @param obj the object/tree to serialize to JSON (can be {@code null})
+	 * @param file the file to write to
+	 * @throws IOException if an I/O exception occurred
+	 */
+	public static void serializeToFile(Object obj, File file) throws IOException {
+		serializeToFile(obj, file, Charset.forName("UTF-8"));
+	}
+	
+	
+	/**
+	 * Serializes the specified Java object / tree of objects into a JSON text string,
+	 * and writes to text the specified file in the specified character encoding.
+	 * See the documentation of {@link #serialize serialize()} for more details.
+	 * @param obj the object/tree to serialize to JSON (can be {@code null})
+	 * @param file the file to write to
+	 * @param cs the character encoding to use
+	 * @throws IOException if an I/O exception occurred
+	 */
+	public static void serializeToFile(Object obj, File file, Charset cs) throws IOException {
+		Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file)), cs);
+		try {
+			serializeJson(obj, out);
+		} finally {
+			out.close();
+		}
+	}
+	
+	
+	
 	/*---- Convenience accessors for maps and lists ----*/
 	
 	/**
@@ -515,6 +638,26 @@ public final class Json {
 			}
 		}
 		return node;
+	}
+	
+	
+	/**
+	 * Traverses the specified JSON object/tree along the specified path, and
+	 * converts the located object to an {@code boolean} value to be returned.
+	 * See the documentation of {@link #getObject getObject()} for detailed examples.
+	 * @param root the JSON object/tree to query
+	 * @param path the sequence of strings and integers that expresses the query path
+	 * @return the {@code boolean} value at the location
+	 * @throws IllegalArgumentException if a map/list was expected but not found,
+	 * or a map key was not found, or a path component is not a string/integer
+	 * @throws IndexOutOfBoundsException if a list index
+	 * is negative or greater/equal to the list length
+	 * @throws ClassCastException if the located object is not a {@code Boolean}
+	 * @throws NullPointerException if any argument or path component
+	 * or the located object is {@code null}
+	 */
+	public static boolean getBoolean(Object root, Object... path) {
+		return ((Boolean)getObject(root, path)).booleanValue();
 	}
 	
 	
