@@ -44,13 +44,13 @@ function factor() {
 		
 		appendGaussianInteger(num);
 		appendTextNode(outElem, " = ");
-		for (var i = 0; i < factorization.length; i++) {
+		factorization.forEach(function(factor, i) {
 			if (i > 0)
 				appendTextNode(outElem, " ");
 			appendTextNode(outElem, "(");
-			appendGaussianInteger(factorization[i]);
+			appendGaussianInteger(factor);
 			appendTextNode(outElem, ")");
-		}
+		});
 	} catch (e) {
 		outElem.appendChild(document.createTextNode(e.toString()));
 	}
@@ -84,22 +84,22 @@ function GaussianInteger(real, imag) {
 	
 	this.norm = function() {
 		return real * real + imag * imag;
-	}
+	};
 	
 	this.multiply = function(other) {
 		return new GaussianInteger(real * other.real - imag * other.imag, real * other.imag + imag * other.real);
-	}
+	};
 	
 	this.isDivisibleBy = function(re, im) {
 		var norm = re * re + im * im;
 		return (real * re + imag * im) % norm == 0 && (-real * im + imag * re) % norm == 0;
-	}
+	};
 	
 	this.divide = function(other) {
 		if (!this.isDivisibleBy(other.real, other.imag))
 			throw "Cannot divide";
 		return new GaussianInteger((real * other.real + imag * other.imag) / other.norm(), (-real * other.imag + imag * other.real) / other.norm());
-	}
+	};
 	
 	this.factorize = function() {
 		if (this.norm() <= 1)  // 0, 1, -1, i, -i
@@ -128,7 +128,7 @@ function GaussianInteger(real, imag) {
 			else return 0;
 		});
 		return result;
-	}
+	};
 	
 	this.findPrimeFactor = function() {
 		var norm = this.norm();
@@ -155,7 +155,7 @@ function GaussianInteger(real, imag) {
 		while (temp.real < 0 || temp.imag < 0)
 			temp = temp.multiply(new GaussianInteger(0, 1));
 		return temp;
-	}
+	};
 	
 	this.toString = function() {
 		if (real == 0 && imag == 0)
@@ -173,7 +173,7 @@ function GaussianInteger(real, imag) {
 			}
 			return result;
 		}
-	}
+	};
 }
 
 

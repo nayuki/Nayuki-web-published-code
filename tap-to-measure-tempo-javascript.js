@@ -1,7 +1,7 @@
 /* 
  * Tap to measure tempo
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/tap-to-measure-tempo-javascript
  */
@@ -49,7 +49,7 @@ function countBeat(currTime) {
 	beatTimes.push(y);
 	var beatCount = beatTimes.length;
 	setValue("simpleBeats", beatCount);
-	setValue("simpleTime", floatToString(y / 1000, 3));
+	setValue("simpleTime", (y / 1000).toFixed(3));
 	
 	// Regression cumulative variables
 	xsum  += x;
@@ -67,8 +67,8 @@ function countBeat(currTime) {
 	if (beatCount >= 2) {
 		// Period and tempo, simple
 		var period = y / x;
-		setValue("simpleTempo", floatToString(tempo, 2));
-		setValue("simplePeriod", floatToString(period, 2));
+		setValue("simpleTempo", tempo.toFixed(2));
+		setValue("simplePeriod", period.toFixed(2));
 		
 		// Advanced
 		var xx = beatCount * xxsum - xsum * xsum;
@@ -76,16 +76,16 @@ function countBeat(currTime) {
 		var xy = beatCount * xysum - xsum * ysum;
 		var a = (beatCount * xysum - xsum * ysum) / xx;  // Slope
 		var b = (ysum * xxsum - xsum * xysum) / xx;  // Intercept
-		setValue("advancedPeriod", floatToString(a, 3));
-		setValue("advancedOffset", floatToString(b, 3));
-		setValue("advancedCorrelation", floatToString(xy * xy / (xx * yy), 9));
-		setValue("advancedTempo", floatToString(60000 / a, 3));
+		setValue("advancedPeriod", a.toFixed(3));
+		setValue("advancedOffset", b.toFixed(3));
+		setValue("advancedCorrelation", (xy * xy / (xx * yy)).toFixed(9));
+		setValue("advancedTempo", (60000 / a).toFixed(3));
 		
 		// Deviations from prediction
 		if (beatCount >= 3) {
-			setValue("simpleLastDev"  , floatToString(periodprev * x - y, 1));
-			setValue("advancedStdDev" , floatToString(Math.sqrt(((yy - xy * xy / xx) / beatCount) / (beatCount - 2)), 3));
-			setValue("advancedLastDev", floatToString(aprev * x + bprev - y, 1));
+			setValue("simpleLastDev"  , (periodprev * x - y).toFixed(1));
+			setValue("advancedStdDev" , (Math.sqrt(((yy - xy * xy / xx) / beatCount) / (beatCount - 2))).toFixed(3));
+			setValue("advancedLastDev", (aprev * x + bprev - y).toFixed(1));
 		}
 		
 		periodprev = period;
@@ -100,21 +100,6 @@ function done() {
 	setValue("simplePosition" , "");
 	setValue("simpleLastDev"  , "");
 	setValue("advancedLastDev", "");
-}
-
-
-// d: Number of decimal places
-function floatToString(x, d) {
-	if (x < 0)
-		return "-" + floatToString(-x, d);
-	var m = Math.pow(10, d);
-	var tp = Math.round(x % 1 * m);
-	var s = "";
-	for (var i = 0; i < d; i++) {
-		s = tp % 10 + s;
-		tp = Math.floor(tp / 10);
-	}
-	return Math.floor(Math.round(x * m) / m) + "." + s;
 }
 
 

@@ -134,7 +134,11 @@ function Brainfuck(code) {
 			// Regulate the number of iterations to execute before relinquishing control of the main JavaScript thread
 			var execTime = Date.now() - startTime;  // How long this execution took
 			var nextIters = calcNextIters(execTime, iters);
-			timeout = setTimeout(function() { timeout = null; run(nextIters); }, 1);
+			timeout = setTimeout(
+				function() {
+					timeout = null;
+					run(nextIters);
+				}, 1);
 		}
 	}
 	

@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver (JavaScript)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -77,13 +77,13 @@ function doSolve() {
 			solnTextElem.appendChild(document.createTextNode("Solution: Self-clearing"));
 		else {
 			solnTextElem.appendChild(document.createTextNode("Solution:"));
-			for (var i = 0; i < solution[0].length; i++) {
+			solution[0].forEach(function(soln) {
 				var li = document.createElement("li");
-				var x = solution[0][i][0];
-				var y = solution[0][i][1];
+				var x = soln[0];
+				var y = soln[1];
 				li.appendChild(document.createTextNode(formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
 				solnStepsElem.appendChild(li);
-			}
+			});
 		}
 	} else
 		solnTextElem.appendChild(document.createTextNode("No solution"));
@@ -286,17 +286,16 @@ function Board(grid, width, height, prevBoard, prevMove, depth) {
 			
 			else if (board.depth < moves) {  // Enqueue neighbors
 				var nextBoards = board.getNextBoards();
-				for (var i = 0; i < nextBoards.length; i++) {
-					var next = nextBoards[i];
+				nextBoards.forEach(function(next) {
 					if (!(next in visited)) {
 						queue.push(next);
 						visited[next] = true;
 					}
-				}
+				});
 			}
 		}
 		return [null, Object.keys(visited).length];
-	}
+	};
 	
 	this.getNextBoards = function() {
 		var result = [];
@@ -308,7 +307,7 @@ function Board(grid, width, height, prevBoard, prevMove, depth) {
 			}
 		}
 		return result;
-	}
+	};
 	
 	function swap(x, y) {
 		if (x < 0 || x + 1 >= width || y < 0 || y >= height)
@@ -328,7 +327,7 @@ function Board(grid, width, height, prevBoard, prevMove, depth) {
 				return false;
 		}
 		return true;
-	}
+	};
 	
 	function dropTiles() {
 		var changed = false;
@@ -405,8 +404,9 @@ function Board(grid, width, height, prevBoard, prevMove, depth) {
 	
 	this.toString = function() {
 		var result = "";
-		for (var i = 0; i < grid.length; i++)
-			result += grid[i].toString();
+		grid.forEach(function(item) {
+			result += item.toString();
+		});
 		return result;
-	}
+	};
 }

@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * http://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -148,24 +148,24 @@ function refreshCanvasCircle() {
 	
 	// Draw points on top
 	ctx.fillStyle = POINT_COLOR;
-	for (var i = 0; i < canvasPoints.length; i++) {
+	canvasPoints.forEach(function(point) {
 		ctx.beginPath();
-		ctx.arc(canvasPoints[i].x, canvasPoints[i].y, POINT_RADIUS, 0, Math.PI * 2, false);
+		ctx.arc(point.x, point.y, POINT_RADIUS, 0, Math.PI * 2, false);
 		ctx.fill();
-	}
+	});
 }
 
 
 function findNearestPoint(x, y) {
 	var nearestIndex = -1;
 	var nearestDist = Infinity;
-	for (var i = 0; i < canvasPoints.length; i++) {
-		var d = distance(canvasPoints[i].x, canvasPoints[i].y, x, y);
+	canvasPoints.forEach(function(point, i) {
+		var d = distance(point.x, point.y, x, y);
 		if (d < nearestDist) {
 			nearestIndex = i;
 			nearestDist = d;
 		}
-	}
+	});
 	return {dist: nearestDist, index: nearestIndex};
 }
 

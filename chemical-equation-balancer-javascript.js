@@ -199,12 +199,11 @@ function checkAnswer(eqn, coefs) {
 		throw "Assertion error: Mismatched length";
 	
 	var allzero = true;
-	for (var i = 0; i < coefs.length; i++) {
-		var coef = coefs[i];
+	coefs.forEach(function(coef) {
 		if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
 			throw "Assertion error: Not an integer";
 		allzero &= coef == 0;
-	}
+	});
 	if (allzero)
 		throw "Assertion error: All-zero solution";
 	
@@ -238,10 +237,12 @@ function Equation(lhs, rhs) {
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
 	this.getElements = function() {
 		var result = new Set();
-		for (var i = 0; i < lhs.length; i++)
-			lhs[i].getElements(result);
-		for (var i = 0; i < rhs.length; i++)
-			rhs[i].getElements(result);
+		lhs.forEach(function(item) {
+			item.getElements(result);
+		});
+		rhs.forEach(function(item) {
+			item.getElements(result);
+		});
 		return result.toArray();
 	};
 	
@@ -297,8 +298,9 @@ function Term(items, charge) {
 	
 	this.getElements = function(resultSet) {
 		resultSet.add("e");
-		for (var i = 0; i < items.length; i++)
-			items[i].getElements(resultSet);
+		items.forEach(function(item) {
+			item.getElements(resultSet);
+		});
 	};
 	
 	// Counts the number of times the given element (specified as a string) occurs in this term, taking groups and counts into account, returning an integer.
@@ -307,8 +309,9 @@ function Term(items, charge) {
 			return -charge;
 		} else {
 			var sum = 0;
-			for (var i = 0; i < items.length; i++)
-				sum = checkedAdd(sum, items[i].countElement(name));
+			items.forEach(function(item) {
+				sum = checkedAdd(sum, item.countElement(name));
+			});
 			return sum;
 		}
 	};
@@ -322,8 +325,9 @@ function Term(items, charge) {
 			appendText(MINUS, sup);
 			node.appendChild(sup);
 		} else {
-			for (var i = 0; i < items.length; i++)
-				node.appendChild(items[i].toHtml());
+			items.forEach(function(item) {
+				node.appendChild(item.toHtml());
+			});
 			if (charge != 0) {
 				var sup = document.createElement("sup");
 				var s;
@@ -352,14 +356,16 @@ function Group(items, count) {
 	this.getCount = function() { return count; };
 	
 	this.getElements = function(resultSet) {
-		for (var i = 0; i < items.length; i++)
-			items[i].getElements(resultSet);
+		items.forEach(function(item) {
+			item.getElements(resultSet);
+		});
 	};
 	
 	this.countElement = function(name) {
 		var sum = 0;
-		for (var i = 0; i < items.length; i++)
-			sum = checkedAdd(sum, checkedMultiply(items[i].countElement(name), count));
+		items.forEach(function(item) {
+			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), count));
+		});
 		return sum;
 	};
 	
@@ -367,8 +373,9 @@ function Group(items, count) {
 	this.toHtml = function() {
 		var node = document.createElement("span");
 		appendText("(", node);
-		for (var i = 0; i < items.length; i++)
-			node.appendChild(items[i].toHtml());
+		items.forEach(function(item) {
+			node.appendChild(item.toHtml());
+		});
 		appendText(")", node);
 		if (count != 1) {
 			var sub = document.createElement("sub");
@@ -679,8 +686,9 @@ function Matrix(rows, cols) {
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
 	function gcdRow(x) {
 		var result = 0;
-		for (var i = 0; i < x.length; i++)
-			result = gcd(x[i], result);
+		x.forEach(function(val) {
+			result = gcd(val, result);
+		});
 		return result;
 	}
 	

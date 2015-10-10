@@ -29,8 +29,15 @@
 		}
 		
 		p {
-			margin: 0.7em 0em;
-			line-height: 140%;
+			margin: 0.5em 0em;
+			line-height: 1.35;
+		}
+		
+		p.small {
+			margin-top: 1.0em;
+			text-align: center;
+			font-size: 85%;
+			line-height: 1.25;
 		}
 		
 		td, th {
@@ -41,9 +48,18 @@
 			font-weight: bold;
 		}
 		
+		ul {
+			margin-top: 0em;
+			margin-bottom: 0em;
+			padding-top: 0em;
+			padding-bottom: 0em;
+		}
+		
 		li {
-			margin-top: 0.5em;
-			margin-bottom: 0.5em;
+			margin-top: 0.2em;
+			margin-bottom: 0.2em;
+			padding-top: 0em;
+			padding-bottom: 0em;
 		}
 		
 		hr {
@@ -57,6 +73,11 @@
 		var {
 			font-family: serif;
 			font-style: italic;
+		}
+		
+		#footer {
+			text-align: center;
+			color: #808080;
 		}
 		
 		#footer a {
@@ -160,7 +181,8 @@
 				</tbody>
 			</table>
 		</form>
-		<p>Tips: In the triangle diagram, click on a letter to jump to that input. When solved, hover over a letter to read its value.</p>
+		<p class="small">Tips: In the triangle diagram, click on a letter to jump to that input.<br/>
+		When solved, hover over a letter to read its value.</p>
 		
 		<hr/>
 		<h2>Description</h2>
@@ -321,7 +343,7 @@
 						unknownAngle = [unknownAngle0, unknownAngle1];
 						unknownSide = [unknownSide0, unknownSide1];
 						area = [knownSide * partialSide * Math.sin(degToRad(unknownAngle0)) / 2,
-								knownSide * partialSide * Math.sin(degToRad(unknownAngle1)) / 2];
+						        knownSide * partialSide * Math.sin(degToRad(unknownAngle1)) / 2];
 					}
 					if (and(a != null, A == null)) A = partialAngle;
 					if (and(b != null, B == null)) B = partialAngle;
@@ -336,15 +358,16 @@
 			
 			
 			function solveSide(a, b, C) {  // Returns side c using law of cosines
-				if (C > 0.003)
-					return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(degToRad(C)));
-				else  // Improves numerical stability, relying on the approximation that cos C ~= 1 - C^2 / 2
-					return Math.sqrt((a - b) * (a - b) + a * b * degToRad(C) * degToRad(C));
+				C = degToRad(C);
+				if (C > 0.001)
+					return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(C));
+				else  // Improves numerical stability, relying on the approximation that cos C ~= 1 - C^2 / 2 + C^4 / 24
+					return Math.sqrt((a - b) * (a - b) + a * b * C * C * (1 - C * C / 12));
 			}
 			
 			function solveAngle(a, b, c) {  // Returns angle C using law of cosines
 				var temp = (a * a + b * b - c * c) / (2 * a * b);
-				if (and(temp >= -1, lessEqual(temp, 0.9999999)))
+				if (and(lessEqual(-1, temp), lessEqual(temp, 0.9999999)))
 					return radToDeg(Math.acos(temp));
 				else if (lessEqual(temp, 1)) {
 					// Improves numerical stability for angles near 0.
@@ -385,10 +408,10 @@
 			function clearOutputs() {
 				solution = null;
 				document.getElementById("formtable").className = "noborder nosolution2";
-				for (var i = 0; ioNames.length > i; i++) {
-					setElementText(ioNames[i] + "out" , "");
-					setElementText(ioNames[i] + "out2", "");
-				}
+				ioNames.forEach(function(name) {
+					setElementText(name + "out" , "");
+					setElementText(name + "out2", "");
+				});
 				setElementText("status", "");
 			}
 			
@@ -407,11 +430,10 @@
 			
 			function initImageMap() {
 				var container = document.getElementById("diagramcontainer");
-				for (var i = 0; rectangles.length > i; i++) {
+				rectangles.forEach(function(rect, i) {
 					var elem = document.createElement("a");
 					elem.href = "#";
 					elem.className = "letterhover";
-					var rect = rectangles[i];
 					rect[0] -= Math.round((RECT_PADDED_SIZE - rect[2]) / 2);
 					rect[1] -= Math.round((RECT_PADDED_SIZE - rect[3]) / 2);
 					elem.style.left   = rect[0] + "px";
@@ -419,52 +441,48 @@
 					elem.style.width  = RECT_PADDED_SIZE + "px";
 					elem.style.height = RECT_PADDED_SIZE + "px";
 					
-					var setEvents = function(index) {
-						function hover() {
-							if (solution == null)
-								return;
-							
-							var suffix = and(index >= 3, 6 > index) ? DEGREE : "";
-							var text;
-							if (typeof solution[index] == "object")
-								text = formatNumber(solution[index][0]) + suffix + " or " + formatNumber(solution[index][1]) + suffix;
-							else
-								text = formatNumber(solution[index]) + suffix;
-							setElementText("hoveroutput", text);
-							
-							// Set hover element style
-							var hovelem = document.getElementById("hoveroutput");
-							hovelem.style.display = "block";
-							try {
-								var compStyle = window.getComputedStyle(hovelem, null);
-								var height = parsePixels(compStyle.getPropertyValue("height"))
-								height    += parsePixels(compStyle.getPropertyValue("padding-top"));
-								height    += parsePixels(compStyle.getPropertyValue("padding-bottom"));
-								hovelem.style.top = rectangles[index][1] - height - 8 + "px";
-								
-								var temp = document.getElementById("diagramcontainer");
-								var containerWidth = parsePixels(window.getComputedStyle(temp, null).getPropertyValue("width"));
-								var bodyWidth = parsePixels(window.getComputedStyle(temp.parentNode, null).getPropertyValue("width"));
-								hovelem.style.left = Math.round((bodyWidth - containerWidth) / 2) + rectangles[index][0] + "px";
-							} catch (e) {
-								hovelem.style.left = "0px";
-								hovelem.style.top = "0px";
-							}
-						}
+					elem.onmouseover = function() {
+						if (solution == null)
+							return;
 						
-						elem.onmouseover = hover;
-						elem.onmouseout = function() {
-							setElementText("hoveroutput", "");
-							document.getElementById("hoveroutput").style.display = "none";
-						};
-						elem.onclick = function() {
-							document.getElementById(ioNames[index] + "in").select();
-							return false;
+						var suffix = and(i >= 3, 6 > i) ? DEGREE : "";
+						var text;
+						if (typeof solution[i] == "object")
+							text = formatNumber(solution[i][0]) + suffix + " or " + formatNumber(solution[i][1]) + suffix;
+						else
+							text = formatNumber(solution[i]) + suffix;
+						setElementText("hoveroutput", text);
+						
+						// Set hover element style
+						var hovelem = document.getElementById("hoveroutput");
+						hovelem.style.display = "block";
+						try {
+							var compStyle = window.getComputedStyle(hovelem, null);
+							var height = parsePixels(compStyle.getPropertyValue("height"))
+							height    += parsePixels(compStyle.getPropertyValue("padding-top"));
+							height    += parsePixels(compStyle.getPropertyValue("padding-bottom"));
+							hovelem.style.top = rect[1] - height - 8 + "px";
+							
+							var temp = document.getElementById("diagramcontainer");
+							var containerWidth = parsePixels(window.getComputedStyle(temp, null).getPropertyValue("width"));
+							var bodyWidth = parsePixels(window.getComputedStyle(temp.parentNode, null).getPropertyValue("width"));
+							hovelem.style.left = Math.round((bodyWidth - containerWidth) / 2) + rect[0] + "px";
+						} catch (e) {
+							hovelem.style.left = "0px";
+							hovelem.style.top = "0px";
 						}
-					}
-					setEvents(i);
+					};
+					
+					elem.onmouseout = function() {
+						setElementText("hoveroutput", "");
+						document.getElementById("hoveroutput").style.display = "none";
+					};
+					elem.onclick = function() {
+						document.getElementById(ioNames[i] + "in").select();
+						return false;
+					};
 					container.appendChild(elem);
-				}
+				});
 			}
 			
 			

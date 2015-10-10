@@ -161,8 +161,9 @@ function display() {
 		if (typeof content == "string")
 			content = [document.createTextNode(content)];
 		var td = document.createElement("td");
-		for (var i = 0; i < content.length; i++)
-			td.appendChild(content[i]);
+		content.forEach(function(item) {
+			td.appendChild(item);
+		});
 		tr.appendChild(td);
 	}
 	

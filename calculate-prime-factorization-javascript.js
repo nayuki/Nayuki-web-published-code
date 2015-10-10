@@ -64,17 +64,17 @@ function factor() {
 			removeAllChildren(outElem1);
 			
 			appendText(n + " = ");
-			for (var i = 0; i < factorPowers.length; i++) {
+			factorPowers.forEach(function(factPow, i) {
 				if (i != 0)
 					appendText(" " + TIMES + " ");
 				
-				appendText(factorPowers[i][0].toString());
-				if (factorPowers[i][1] > 1) {
+				appendText(factPow[0].toString());
+				if (factPow[1] > 1) {
 					var temp = document.createElement("sup");
-					temp.appendChild(document.createTextNode(factorPowers[i][1].toString()));
+					temp.appendChild(document.createTextNode(factPow[1].toString()));
 					outElem1.appendChild(temp);
 				}
-			}
+			});
 		}
 	}
 }
@@ -130,18 +130,18 @@ function smallestFactor(n) {
  */
 function toFactorPowerList(factors) {
 	var result = [];
-	var factor = factors[0];
+	var prevFactor = factors[0];
 	var count = 1;
 	for (var i = 1; i < factors.length; i++) {
-		if (factors[i] == factor) {
+		if (factors[i] == prevFactor) {
 			count++;
 		} else {
-			result.push([factor, count]);
-			factor = factors[i];
+			result.push([prevFactor, count]);
+			prevFactor = factors[i];
 			count = 1;
 		}
 	}
-	result.push([factor, count]);
+	result.push([prevFactor, count]);
 	return result;
 }
 

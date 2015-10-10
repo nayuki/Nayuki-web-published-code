@@ -80,9 +80,9 @@ function Tree(sequent, left, right) {
 		if (sequent == "Fail")
 			li.appendChild(document.createTextNode(sequent));
 		else {
-			var elems = sequent.toHtml();
-			for (var i = 0; i < elems.length; i++)
-				li.appendChild(elems[i]);
+			sequent.toHtml().forEach(function(elem) {
+				li.appendChild(elem);
+			});
 		}
 		
 		if (left != null)
