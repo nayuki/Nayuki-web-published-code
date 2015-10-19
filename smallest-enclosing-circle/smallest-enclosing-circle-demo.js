@@ -26,7 +26,7 @@
 
 var POINT_RADIUS = 4;
 var CIRCLE_COLOR = "#E0E0E0";
-var POINT_COLOR = "#000000";
+var POINT_COLOR  = "#000000";
 
 
 /* Global state */
@@ -40,24 +40,25 @@ var dragPointIndex = -1;
 
 /* Event handlers and UI functions */
 
-canvasElem.onmousedown = function(e) {
-	var xy = getLocalCoordinates(e);
-	var nearest = findNearestPoint(xy[0], xy[1]);
+canvasElem.onmousedown = function(ev) {
+	var x = ev.offsetX;
+	var y = ev.offsetY;
+	var nearest = findNearestPoint(x, y);
 	
 	// Left mouse button: Add or move point
-	if (e.button == 0) {
+	if (ev.button == 0) {
 		if (nearest.dist <= POINT_RADIUS + 2) {
 			// Start moving existing point
 			dragPointIndex = nearest.index;
 		} else {
 			// Add point and start moving it
 			dragPointIndex = canvasPoints.length;
-			canvasPoints.push({x: xy[0], y: xy[1]});
+			canvasPoints.push({x: x, y: y});
 			refreshCanvasCircle();
 		}
 	}
 	// Right mouse button: Delete point
-	else if (e.button == 2) {
+	else if (ev.button == 2) {
 		if (nearest.dist <= POINT_RADIUS + 2) {
 			canvasPoints.splice(nearest.index, 1);
 			refreshCanvasCircle();
@@ -67,34 +68,21 @@ canvasElem.onmousedown = function(e) {
 };
 
 
-canvasElem.onmousemove = function(e) {
+canvasElem.onmousemove = function(ev) {
 	if (dragPointIndex != -1) {
-		var xy = getLocalCoordinates(e);
-		canvasPoints[dragPointIndex] = {x: xy[0], y: xy[1]};
+		canvasPoints[dragPointIndex] = {x: ev.offsetX, y: ev.offsetY};
 		refreshCanvasCircle();
 	}
 };
 
 
-canvasElem.onmouseup = function(e) {
-	if (e.button == 0) {
-		var xy = getLocalCoordinates(e);
-		canvasPoints[dragPointIndex] = {x: xy[0], y: xy[1]};
+canvasElem.onmouseup = function(ev) {
+	if (ev.button == 0) {
+		canvasPoints[dragPointIndex] = {x: ev.offsetX, y: ev.offsetY};
 		dragPointIndex = -1;
 		refreshCanvasCircle();
 	}
 };
-
-
-function getLocalCoordinates(e) {
-	var x = e.pageX;
-	var y = e.pageY;
-	for (var elem = canvasElem; elem != null && elem != document.documentElement; elem = elem.offsetParent) {
-		x -= elem.offsetLeft;
-		y -= elem.offsetTop;
-	}
-	return [x, y];
-}
 
 
 // Assumed to be invoked after onmousedown.
@@ -169,8 +157,6 @@ function findNearestPoint(x, y) {
 	return {dist: nearestDist, index: nearestIndex};
 }
 
-
-/* Simple mathematical functions */
 
 function randomGaussianPair() {
 	// Use rejection sampling to pick a point uniformly distributed in the unit circle

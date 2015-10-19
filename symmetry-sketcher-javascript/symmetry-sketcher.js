@@ -25,22 +25,23 @@ doneButtonElem.value = "Done";
 var mainGfx  = mainCanvasElem .getContext("2d");
 var guideGfx = guideCanvasElem.getContext("2d");
 var hoverGfx = hoverCanvasElem.getContext("2d");
-guideGfx.strokeStyle = "#C0C0FF";
 
 // Cached values from form inputs
-var strokeWidth = null;
-var rotationSymmetry = null;
-var mirrorSymmetry = null;
-var showGuidelines = null;
-var paintColor = null;
-var backgroundColor = null;
+var strokeWidth      = null;  // Type number, positive
+var paintColor       = null;  // Type string
+var backgroundColor  = null;  // Type string
+var rotationSymmetry = null;  // Type integer, positive
+var mirrorSymmetry   = null;  // Type boolean
+var showGuidelines   = null;  // Type boolean
 
 // State variables
 var isMouseDown = false;
-var lastCoord = null;
+var lastCoord = null;  // Is null iff isMouseDown is false
 var undoImages = [];
 
+// Internal configuration
 var MAX_UNDO_IMAGES = 5;
+guideGfx.strokeStyle = "#C0C0FF";
 
 
 
@@ -77,15 +78,15 @@ function drawPoint(gfx, x, y) {
 
 
 function drawLine(gfx, x0, y0, x1, y1) {
-	gfx.lineWidth = strokeWidth;
 	var starts = getSymmetryPoints(x0, y0);
-	var ends = getSymmetryPoints(x1, y1);
+	var ends   = getSymmetryPoints(x1, y1);
+	gfx.lineWidth = strokeWidth;
+	gfx.beginPath();
 	for (var i = 0; i < starts.length; i++) {
-		gfx.beginPath();
 		gfx.moveTo(starts[i][0], starts[i][1]);
-		gfx.lineTo(ends[i][0], ends[i][1]);
-		gfx.stroke();
+		gfx.lineTo(ends  [i][0], ends  [i][1]);
 	}
+	gfx.stroke();
 }
 
 
@@ -104,12 +105,8 @@ function getSymmetryPoints(x, y) {
 		var x = ctrX + Math.sin(theta) * dist;
 		var y = ctrY - Math.cos(theta) * dist;
 		result.push([x, y]);
-	}
-	if (mirrorSymmetry) {
-		for (var i = 0; i < rotationSymmetry; i++) {
-			var theta = -angle + Math.PI * 2 / rotationSymmetry * i;  // Radians
-			var x = ctrX + Math.sin(theta) * dist;
-			var y = ctrY - Math.cos(theta) * dist;
+		if (mirrorSymmetry) {
+			x = ctrX - Math.sin(theta) * dist;
 			result.push([x, y]);
 		}
 	}
@@ -133,13 +130,13 @@ function drawGuidelines() {
 	
 	guideGfx.beginPath();
 	guideGfx.moveTo(halfwidth, halfwidth);
-	var theta = mirrorSymmetry ? 0 : -Math.PI / rotationSymmetry;
+	var theta = mirrorSymmetry ? 0 : -Math.PI / rotationSymmetry;  // Radians
 	var x = halfwidth  + Math.sin(theta) * dist;
 	var y = halfheight - Math.cos(theta) * dist;
 	guideGfx.lineTo(x, y);
 	
 	guideGfx.moveTo(halfwidth, halfwidth);
-	theta = Math.PI / rotationSymmetry;
+	theta = Math.PI / rotationSymmetry;  // Radians
 	var x = halfwidth  + Math.sin(theta) * dist;
 	var y = halfheight - Math.cos(theta) * dist;
 	guideGfx.lineTo(x, y);
@@ -163,9 +160,7 @@ function clearMainCanvas() {
 
 
 function getLocalCoordinates(ev) {
-	var x = ev.offsetX + 0.5;
-	var y = ev.offsetY + 0.5;
-	return [x, y];
+	return [ev.offsetX + 0.5, ev.offsetY + 0.5];
 }
 
 
@@ -291,7 +286,7 @@ doneButtonElem.onclick = function() {
 };
 
 document.documentElement.onkeypress = function(ev) {
-	if (!undoButtonElem.disabled && ev.key == "z" && ev.ctrlKey) {
+	if (!isMouseDown && undoImages.length > 0 && ev.key == "z" && ev.ctrlKey) {
 		undoButtonElem.onclick();
 		return false;
 	}
