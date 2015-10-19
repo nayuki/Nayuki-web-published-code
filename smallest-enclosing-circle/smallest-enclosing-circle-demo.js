@@ -64,7 +64,7 @@ canvasElem.onmousedown = function(e) {
 		}
 		suppressContextMenu = nearest.dist <= POINT_RADIUS + 10;
 	}
-}
+};
 
 
 canvasElem.onmousemove = function(e) {
@@ -73,7 +73,7 @@ canvasElem.onmousemove = function(e) {
 		canvasPoints[dragPointIndex] = {x: xy[0], y: xy[1]};
 		refreshCanvasCircle();
 	}
-}
+};
 
 
 canvasElem.onmouseup = function(e) {
@@ -83,7 +83,7 @@ canvasElem.onmouseup = function(e) {
 		dragPointIndex = -1;
 		refreshCanvasCircle();
 	}
-}
+};
 
 
 function getLocalCoordinates(e) {
@@ -97,17 +97,17 @@ function getLocalCoordinates(e) {
 }
 
 
-// Assumed to be invoked after onmousedown
+// Assumed to be invoked after onmousedown.
 canvasElem.oncontextmenu = function() {
 	var result = !suppressContextMenu;
 	suppressContextMenu = false;
 	return result;
-}
+};
 
 
 canvasElem.onselectstart = function() {  // For Google Chrome
 	return false;
-}
+};
 
 
 function doClear() {

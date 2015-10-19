@@ -865,9 +865,7 @@ if (!("indexOf" in Array.prototype)) {
 
 
 // Monkey patching. Returns a shallow copy of this array. Usually used for making defensive copies.
-Array.prototype.clone = function() {
-	return this.slice(0);
-};
+Array.prototype.clone = Array.prototype.slice;
 
 
 // Sets the page's message element to the given string. Returns nothing.

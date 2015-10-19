@@ -79,8 +79,8 @@ function testFft(size) {
     var refoutimag = new Array(size);
     naiveDft(inputreal, inputimag, refoutreal, refoutimag, false);
     
-    var actualoutreal = inputreal.slice(0);
-    var actualoutimag = inputimag.slice(0);
+    var actualoutreal = inputreal.slice();
+    var actualoutimag = inputimag.slice();
     transform(actualoutreal, actualoutimag);
     
     document.write("fftsize=" + size + "  logerr=" + log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");

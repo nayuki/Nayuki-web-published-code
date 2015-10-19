@@ -183,7 +183,7 @@ function convolveReal(x, y, out) {
     var zeros = new Array(x.length);
     for (var i = 0; i < zeros.length; i++)
         zeros[i] = 0;
-    convolveComplex(x, zeros, y, zeros.slice(0), out, zeros.slice(0));
+    convolveComplex(x, zeros, y, zeros.slice(), out, zeros.slice());
 }
 
 
@@ -195,10 +195,10 @@ function convolveComplex(xreal, ximag, yreal, yimag, outreal, outimag) {
         throw "Mismatched lengths";
     
     var n = xreal.length;
-    xreal = xreal.slice(0);
-    ximag = ximag.slice(0);
-    yreal = yreal.slice(0);
-    yimag = yimag.slice(0);
+    xreal = xreal.slice();
+    ximag = ximag.slice();
+    yreal = yreal.slice();
+    yimag = yimag.slice();
     
     transform(xreal, ximag);
     transform(yreal, yimag);

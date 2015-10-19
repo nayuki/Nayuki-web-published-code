@@ -62,15 +62,15 @@ function Tree(sequent, left, right) {
 	
 	this.getSequent = function() {
 		return sequent;
-	}
+	};
 	
 	this.getLeft = function() {
 		return left;
-	}
+	};
 	
 	this.getRight = function() {
 		return right;
-	}
+	};
 	
 	// Returns a DOM node representing this proof tree.
 	this.toHtml = function() {
@@ -92,7 +92,7 @@ function Tree(sequent, left, right) {
 		
 		ul.appendChild(li);
 		return ul;
-	}
+	};
 }
 
 
@@ -102,16 +102,16 @@ function Tree(sequent, left, right) {
  *   right: Array of zero or more terms.
  */
 function Sequent(left, right) {
-	left  = cloneArray(left);
-	right = cloneArray(right);
+	left  = left .clone();
+	right = right.clone();
 	
 	this.getLeft = function() {
-		return cloneArray(left);
-	}
+		return left.clone();
+	};
 	
 	this.getRight = function() {
-		return cloneArray(right);
-	}
+		return right.clone();
+	};
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
 	this.toString = function() {
@@ -132,7 +132,7 @@ function Sequent(left, right) {
 				s += ", " + right[i].toString();
 		}
 		return s;
-	}
+	};
 	
 	// Returns an array of DOM nodes representing this sequent.
 	// The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
@@ -170,7 +170,7 @@ function Sequent(left, right) {
 		}
 		
 		return result;
-	}
+	};
 }
 
 
@@ -189,17 +189,17 @@ function Term(type, left, right) {
 	
 	this.getType = function() {
 		return type;
-	}
+	};
 	
 	this.getLeft = function() {
 		return left;
-	}
+	};
 	
 	this.getRight = function() {
 		if (type == "var" || type == "NOT")
 			throw "No such value";
 		return right;
-	}
+	};
 	
 	// Returns a string representation of this term, e.g.: "(A ∧ (¬B)) ∨ C".
 	// isRoot is an argument for internal use only.
@@ -221,7 +221,7 @@ function Term(type, left, right) {
 			s += isRoot ? "" : ")";
 			return s;
 		}
-	}
+	};
 }
 
 
@@ -286,7 +286,7 @@ function prove(sequent) {
 		if (term.getType() == "OR") {
 			left.splice(i, 1, term.getLeft());
 			var seq0 = new Sequent(left, right);
-			left = cloneArray(left);
+			left = left.clone();
 			left.splice(i, 1, term.getRight());
 			var seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
@@ -297,7 +297,7 @@ function prove(sequent) {
 		if (term.getType() == "AND") {
 			right.splice(i, 1, term.getLeft());
 			var seq0 = new Sequent(left, right);
-			right = cloneArray(right);
+			right = right.clone();
 			right.splice(i, 1, term.getRight());
 			var seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
@@ -489,7 +489,7 @@ function Tokenizer(str) {
 	// Returns the index of the next character to tokenize.
 	this.position = function() {
 		return i;
-	}
+	};
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
 	this.peek = function() {
@@ -507,7 +507,7 @@ function Tokenizer(str) {
 		else if (token == "|") token = OR;
 		else if (token == ">") token = TURNSTILE;
 		return token;
-	}
+	};
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
 	this.take = function() {
@@ -517,13 +517,13 @@ function Tokenizer(str) {
 		i += result.length;
 		skipSpaces();
 		return result;
-	}
+	};
 	
 	// Takes the next token and checks that it matches the given string, or throws an exception.
 	this.consume = function(s) {
 		if (this.take() != s)
 			throw "Token mismatch";
-	}
+	};
 	
 	function skipSpaces() {
 		var match = /^[ \t]*/.exec(str.substring(i));
@@ -551,7 +551,5 @@ function removeAllChildren(node) {
 }
 
 
-// Sometimes used for making a defensive copy
-function cloneArray(array) {
-	return array.slice(0);
-}
+// Monkey patching. Returns a shallow copy of this array. Usually used for making defensive copies.
+Array.prototype.clone = Array.prototype.slice;

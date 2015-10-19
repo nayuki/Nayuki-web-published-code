@@ -70,7 +70,7 @@ function doSolve() {
 	var solnStepsElem = document.getElementById("solutionsteps");
 	var boardsVisitedElem = document.getElementById("boardsvisited");
 	
-	var board = new Board(pageBoard.grid.slice(0), pageBoard.width, pageBoard.height, null, null, 0);
+	var board = new Board(pageBoard.grid.slice(), pageBoard.width, pageBoard.height, null, null, 0);
 	var solution = board.solve(parseInt(document.getElementById("nummoves").value, 10));
 	if (solution[0] != null) {
 		if (solution[0].length == 0)
@@ -315,7 +315,7 @@ function Board(grid, width, height, prevBoard, prevMove, depth) {
 		if (grid[y*width + x + 0] == grid[y*width + x + 1])
 			return null;
 		
-		var newGrid = grid.slice(0);  // Clone
+		var newGrid = grid.slice();  // Clone
 		newGrid[y*width + x + 0] = grid[y*width + x + 1];
 		newGrid[y*width + x + 1] = grid[y*width + x + 0];
 		return new Board(newGrid, width, height, self, [x, y], depth + 1);

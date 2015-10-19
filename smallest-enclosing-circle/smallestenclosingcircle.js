@@ -30,7 +30,7 @@
  */
 function makeCircle(points) {
 	// Clone list to preserve the caller's data, do Knuth shuffle
-	var shuffled = points.slice(0);
+	var shuffled = points.slice();
 	for (var i = points.length - 1; i >= 0; i--) {
 		var j = Math.floor(Math.random() * (i + 1));
 		j = Math.max(Math.min(j, i), 0);
