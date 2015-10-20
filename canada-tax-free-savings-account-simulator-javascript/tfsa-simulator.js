@@ -110,7 +110,7 @@ function nextMonth() {
 	
 	// Handle excess amount
 	var ct = chequingTransactions;
-	var amount = Math.round(maxExcess / 100);
+	amount = Math.round(maxExcess / 100);
 	if (amount > 0) {
 		balance = ct[ct.length - 1][3];
 		ct.push([date, "TFSA tax", amount, balance - amount]);

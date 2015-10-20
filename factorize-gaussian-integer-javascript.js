@@ -187,7 +187,7 @@ function parseGaussianInteger(str) {
 	function checkedParseInt(s) {
 		var n = parseInt(s, 10);
 		if (Math.abs(n) >= 67108864)
-			throw "Number is too large"
+			throw "Number is too large";
 		return n;
 	}
 	

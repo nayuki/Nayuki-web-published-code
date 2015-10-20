@@ -102,8 +102,8 @@ function getSymmetryPoints(x, y) {
 	var result = [];
 	for (var i = 0; i < rotationSymmetry; i++) {
 		var theta = angle + Math.PI * 2 / rotationSymmetry * i;  // Radians
-		var x = ctrX + Math.sin(theta) * dist;
-		var y = ctrY - Math.cos(theta) * dist;
+		x = ctrX + Math.sin(theta) * dist;
+		y = ctrY - Math.cos(theta) * dist;
 		result.push([x, y]);
 		if (mirrorSymmetry) {
 			x = ctrX - Math.sin(theta) * dist;
@@ -137,8 +137,8 @@ function drawGuidelines() {
 	
 	guideGfx.moveTo(halfwidth, halfwidth);
 	theta = Math.PI / rotationSymmetry;  // Radians
-	var x = halfwidth  + Math.sin(theta) * dist;
-	var y = halfheight - Math.cos(theta) * dist;
+	x = halfwidth  + Math.sin(theta) * dist;
+	y = halfheight - Math.cos(theta) * dist;
 	guideGfx.lineTo(x, y);
 	guideGfx.stroke();
 }

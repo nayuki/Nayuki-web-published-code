@@ -117,7 +117,7 @@ function doImport() {
 			else if (c >= "a".charCodeAt(0) && c - "a".charCodeAt(0) < TILE_COLORS.length - 1)
 				newGrid.push(c - "a".charCodeAt(0) + 1);
 			else {
-				alert("Invalid tile character: '" + lines[y].charAt(x) + "'")
+				alert("Invalid tile character: '" + lines[y].charAt(x) + "'");
 				return;
 			}
 		}
@@ -267,7 +267,7 @@ function Board(grid, width, height, prevBoard, prevMove, depth) {
 	var self = this;
 	
 	this.solve = function(moves) {
-		var visited = new Object();
+		var visited = {};
 		visited[self] = true;
 		var queue = [self];
 		

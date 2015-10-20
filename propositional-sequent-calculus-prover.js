@@ -513,7 +513,7 @@ function Tokenizer(str) {
 	this.take = function() {
 		var result = this.peek();
 		if (result == null)
-			throw "Advancing beyond last token"
+			throw "Advancing beyond last token";
 		i += result.length;
 		skipSpaces();
 		return result;

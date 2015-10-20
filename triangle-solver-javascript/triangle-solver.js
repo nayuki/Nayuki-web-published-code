@@ -259,7 +259,7 @@ function initImageMap() {
 			hovelem.style.display = "block";
 			try {
 				var compStyle = window.getComputedStyle(hovelem, null);
-				var height = parsePixels(compStyle.getPropertyValue("height"))
+				var height = parsePixels(compStyle.getPropertyValue("height"));
 				height    += parsePixels(compStyle.getPropertyValue("padding-top"));
 				height    += parsePixels(compStyle.getPropertyValue("padding-bottom"));
 				hovelem.style.top = rect[1] - height - 8 + "px";

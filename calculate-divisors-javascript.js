@@ -11,7 +11,7 @@
 
 var numberElem = document.getElementById("number");
 var outputText = document.createTextNode("");
-document.getElementById("output").appendChild(outputText)
+document.getElementById("output").appendChild(outputText);
 var lastInput = "";
 
 
@@ -37,8 +37,8 @@ function divisors() {
 			s = "Number too large";
 		} else {
 			// Main case
-			var divisors = listDivisors(n);
-			s = divisors.join(", ");
+			var divs = listDivisors(n);
+			s = divs.join(", ");
 		}
 	}
 	outputText.data = s;
