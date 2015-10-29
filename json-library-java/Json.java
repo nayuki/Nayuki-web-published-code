@@ -73,7 +73,7 @@ public final class Json {
 	 *   All other types are illegal.</li>
 	 *   <li>{@code Double}/{@code Float} values must be finite, not infinity or NaN.</li>
 	 *   <li>User-defined {@code Number} objects must produce strings that satisfy
-	 *   the JSON number syntax (e.g. a fraction string like "1/2" is disallowed).</li>
+	 *   the JSON number syntax (e.g. a fraction string like {@code "1/2"} is disallowed).</li>
 	 *   <li>No object can implement more than one of these interfaces:
 	 *   {@code CharSequence}, {@code List}, {@code Map}.</li>
 	 * </ul>
@@ -195,7 +195,7 @@ public final class Json {
 	 *   the user from confusing a non-existent key from a key that is truly mapped to a {@code null} value,
 	 *   both of which are expressible distinctly in JSON.</li>
 	 *   <li>The JSON text must have exactly one root object and no data afterward except whitespace.
-	 *   For example, these JSON strings are considered invalid: "[0,0] []", "1 2 3".</li>
+	 *   For example, these JSON strings are considered invalid: {@code "[0,0] []"}, {@code "1 2 3"}.</li>
 	 * </ul>
 	 * @param str the JSON text string (not {@code null})
 	 * @return the object/tree (can be {@code null}) corresponding to the JSON data
