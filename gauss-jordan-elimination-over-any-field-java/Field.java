@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -21,19 +21,21 @@
  *   <li>&minus;<var>x</var> is an element of the field, such that <var>x</var> + (&minus;<var>x</var>) = 0. (Existence of additive inverse)</li>
  *   <li><var>x</var><sup>&minus;1</sup> is an element of the field, such that <var>x</var> * (<var>x</var><sup>&minus;1</sup>) = 1. (Existence of multiplicative inverse)</li>
  * </ol>
+ * <p>Each {@code Field} object should be stateless and immutable. The field element objects should be immutable too.</p>
+ * <p>All methods must return a non-{@code null} value, and must throw {@code NullPointerException} if any argument is null.</p>
  * @param <T> the type of the field's elements
  */
 public abstract class Field<T> {
 	
 	/**
-	 * Returns the additive identity of this field.
-	 * @return the additive identity of this field
+	 * Returns the additive identity constant of this field.
+	 * @return the additive identity constant of this field
 	 */
 	public abstract T zero();
 	
 	/**
-	 * Returns the multiplicative identity of this field.
-	 * @return the multiplicative identity of this field
+	 * Returns the multiplicative identity constant of this field.
+	 * @return the multiplicative identity constant of this field
 	 */
 	public abstract T one();
 	
@@ -62,7 +64,7 @@ public abstract class Field<T> {
 	public abstract T negate(T x);
 	
 	/**
-	 * Returns the multiplicative inverse of the specified element.
+	 * Returns the multiplicative inverse of the specified non-zero element.
 	 * @param x the element whose multiplicative inverse to compute
 	 * @return the multiplicative inverse of the specified element
 	 * @throws ArithmeticException if {@code x} equals {@code zero()}
@@ -71,6 +73,7 @@ public abstract class Field<T> {
 	
 	/**
 	 * Returns the first element minus the second element.
+	 * A correct default implementation is provided.
 	 * @param x the minuend
 	 * @param y the subtrahend
 	 * @return the first element minus the second element
@@ -80,7 +83,8 @@ public abstract class Field<T> {
 	}
 	
 	/**
-	 * Returns the first element divided by the second element.
+	 * Returns the first element divided by the non-zero second element.
+	 * A correct default implementation is provided.
 	 * @param x the dividend
 	 * @param y the divisor
 	 * @return the first element divided by the second element
@@ -93,7 +97,8 @@ public abstract class Field<T> {
 	
 	/**
 	 * Tests whether the two specified elements are equal.
-	 * Note that the elements are not required to implement their own {@code equals()} correctly &ndash; {@code x.equals(y)} can mismatch {@code f.equals(x, y)}.
+	 * Note that the elements are not required to implement their own {@code equals()} correctly.
+	 * This means {@code x.equals(y)} is allowed to mismatch {@code f.equals(x, y)}.
 	 * @param x an element to test for equality
 	 * @param y an element to test for equality
 	 * @return {@code true} if the two specified elements are equal, {@code false} otherwise

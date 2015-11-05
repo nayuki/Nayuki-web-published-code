@@ -1,12 +1,15 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
 
 
+/* 
+ * Run with no command-line arguments.
+ */
 public class Main {
 	
 	public static void main(String[] args) {

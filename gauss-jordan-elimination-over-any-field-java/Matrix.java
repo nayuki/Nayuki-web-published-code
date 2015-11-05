@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -9,13 +9,13 @@
 
 public final class Matrix<T> implements Cloneable {
 	
-	/* Basic matrix implementation */
+	/*---- Basic matrix implementation ----*/
 	
-	// The values of the matrix stored in row-major order, with each element initially null
+	// The values of the matrix stored in row-major order, with each element initially null.
 	private Object[][] values;
 	
-	// The field used to operate on the values in the matrix
-	private Field<T> f;
+	// The field used to operate on the values in the matrix.
+	private final Field<T> f;
 	
 	
 	
@@ -58,10 +58,10 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Returns the element at the specified location in this matrix.
+	 * Returns the element at the specified location in this matrix. The result may be {@code null}.
 	 * @param row the row to read from (0-based indexing)
 	 * @param col the column to read from (0-based indexing)
-	 * @return the element at the specified location in this matrix
+	 * @return the element at the specified location in this matrix (possibly {@code null})
 	 * @throws IndexOutOfBoundsException if the specified row or column exceeds the bounds of the matrix
 	 */
 	@SuppressWarnings("unchecked")
@@ -73,10 +73,10 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Stores the specified element at the specified location in this matrix.
+	 * Stores the specified element at the specified location in this matrix. The value to store can be {@code null}.
 	 * @param row the row to write to (0-based indexing)
 	 * @param col the column to write to (0-based indexing)
-	 * @param val the element value to write
+	 * @param val the element value to write (possibly {@code null})
 	 * @throws IndexOutOfBoundsException if the specified row or column exceeds the bounds of the matrix
 	 */
 	public void set(int row, int col, T val) {
@@ -87,7 +87,7 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Returns a clone of this matrix. The field and underlying values are shallow-copied because they are assumed to be immutable.
+	 * Returns a clone of this matrix. The field and elements are shallow-copied because they are assumed to be immutable.
 	 * @return a clone of this matrix
 	 */
 	public Matrix<T> clone() {
@@ -100,10 +100,10 @@ public final class Matrix<T> implements Cloneable {
 	}
 	
 	
-	/* Basic matrix operations */
+	/*---- Basic matrix operations ----*/
 	
 	/**
-	 * Swaps the two specified rows of this matrix.
+	 * Swaps the two specified rows of this matrix. If the two row indices are the same, the swap is a no-op.
 	 * @param row0 one row to swap (0-based indexing)
 	 * @param row1 the other row to swap (0-based indexing)
 	 * @throws IndexOutOfBoundsException if a specified row exceeds the bounds of the matrix
@@ -144,7 +144,8 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Returns the product of this matrix with the specified matrix. Requires the specified matrix to have the same number of rows as this matrix's number of columns. Remember that matrix multiplication is not commutative.
+	 * Returns a new matrix representing this matrix multiplied by the specified matrix. Requires the specified matrix to have
+	 * the same number of rows as this matrix's number of columns. Remember that matrix multiplication is not commutative.
 	 * @param other the second matrix multiplicand
 	 * @return the product of this matrix with the specified matrix
 	 * @throws NullPointerException if the specified matrix is {@code null}
@@ -172,10 +173,11 @@ public final class Matrix<T> implements Cloneable {
 	}
 	
 	
-	/* Advanced matrix operation methods */
+	/*---- Advanced matrix operation methods ----*/
 	
 	/**
 	 * Converts this matrix to reduced row echelon form (RREF) using Gauss-Jordan elimination.
+	 * Always succeeds, as long as the field follows the mathematical rules and does not throw an exception.
 	 */
 	public void reducedRowEchelonForm() {
 		int rows = rowCount();
@@ -219,7 +221,8 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Replaces the values of this matrix with the inverse of this matrix. Requires the matrix to be square. If an exception is thrown, this matrix is unchanged.
+	 * Replaces the values of this matrix with the inverse of this matrix. Requires the matrix to be square.
+	 * Throws an exception if the matrix is singular (not invertible). If an exception is thrown, this matrix is unchanged.
 	 * @throws IllegalStateException if this matrix is not square
 	 * @throws IllegalStateException if this matrix has no inverse
 	 */
@@ -238,6 +241,7 @@ public final class Matrix<T> implements Cloneable {
 			}
 		}
 		
+		// Do the main calculation
 		temp.reducedRowEchelonForm();
 		
 		// Check that the left half is the identity matrix
@@ -257,7 +261,9 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	/**
-	 * Returns the determinant of this matrix, and as a side effect converts the matrix to row echelon form (REF). Requires the matrix to be square. The leading coefficient of each row is not guaranteed to be one.
+	 * Returns the determinant of this matrix, and as a side effect converts the matrix to row echelon form (REF).
+	 * Requires the matrix to be square. The leading coefficient of each row is not guaranteed to be one.
+	 * Always succeeds, as long as the field follows the mathematical rules and does not throw an exception.
 	 * @return the determinant of this matrix
 	 * @throws IllegalStateException if this matrix is not square
 	 */

@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -17,10 +17,9 @@ public final class RationalField extends Field<Fraction> {
 	 */
 	public static RationalField FIELD = new RationalField();
 	
+	
 	private static Fraction ZERO = new Fraction(0, 1);
-	
 	private static Fraction ONE = new Fraction(1, 1);
-	
 	
 	public Fraction zero() {
 		return ZERO;

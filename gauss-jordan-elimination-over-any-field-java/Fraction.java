@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -11,8 +11,10 @@ import java.math.BigInteger;
 
 public final class Fraction implements Comparable<Fraction> {
 	
+	// Always coprime with the denominator.
 	public final BigInteger numerator;
 	
+	// Always greater than zero.
 	public final BigInteger denominator;
 	
 	
@@ -26,7 +28,7 @@ public final class Fraction implements Comparable<Fraction> {
 		if (den.signum() == 0)
 			throw new IllegalArgumentException("Zero denominator");
 		
-		// Simplify the fraction to canonical form, where denominator > 0 and gcd(numerator, denominator) = 1
+		// Simplify the fraction to the canonical form
 		if (den.signum() == -1) {
 			num = num.negate();
 			den = den.negate();

@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -18,94 +18,81 @@ public final class MatrixTest {
 	private static Random random = new Random();
 	
 	
-	@Test
-	public void testSingle0() {
+	@Test public void testSingle0() {
 		int[][] in = {{0}};
 		int[][] out = {{0}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testSingle1() {
+	@Test public void testSingle1() {
 		int[][] in = {{1}};
 		int[][] out = {{1}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testSingle2() {
+	@Test public void testSingle2() {
 		int[][] in = {{2, 3}};
 		int[][] out = {{1, 7}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testSingle3() {
+	@Test public void testSingle3() {
 		int[][] in = {{9, 2, 7}};
 		int[][] out = {{1, 10, 2}};
 		testReduceMatrix(in, out);
 	}
 	
 	
-	@Test
-	public void testDouble0() {
+	@Test public void testDouble0() {
 		int[][] in = {{1, 0}, {0, 1}};
 		int[][] out = {{1, 0}, {0, 1}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testDouble1() {
+	@Test public void testDouble1() {
 		int[][] in = {{0, 1}, {1, 0}};
 		int[][] out = {{1, 0}, {0, 1}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testDouble2() {
+	@Test public void testDouble2() {
 		int[][] in = {{2, 3}, {4, 5}};
 		int[][] out = {{1, 0}, {0, 1}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testDouble3() {
+	@Test public void testDouble3() {
 		int[][] in = {{0, 2}, {0, 5}};
 		int[][] out = {{0, 1}, {0, 0}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testDouble4() {
+	@Test public void testDouble4() {
 		int[][] in = {{7, 3}, {2, 4}};
 		int[][] out = {{1, 2}, {0, 0}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testDouble5() {
+	@Test public void testDouble5() {
 		int[][] in = {{6, 1, 5}, {2, 4, 3}};
 		int[][] out = {{1, 2, 0}, {0, 0, 1}};
 		testReduceMatrix(in, out);
 	}
 	
 	
-	@Test
-	public void testTriple0() {
+	@Test public void testTriple0() {
 		int[][] in = {{0, 0, 4}, {1, 0, 3}, {0, 8, 2}};
 		int[][] out = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testTriple1() {
+	@Test public void testTriple1() {
 		int[][] in = {{1, 1, 1, 1}, {1, 1, 2, 3}, {1, 2, 2, 2}};
 		int[][] out = {{1, 0, 0, 0}, {0, 1, 0, 10}, {0, 0, 1, 2}};
 		testReduceMatrix(in, out);
 	}
 	
-	@Test
-	public void testTriple2() {
+	@Test public void testTriple2() {
 		int[][] in = {{2, 5, 10, 1}, {7, 1, 6, 3}, {6, 4, 6, 6}};
 		int[][] out = {{1, 8, 0, 8}, {0, 0, 1, 4}, {0, 0, 0, 0}};
 		testReduceMatrix(in, out);
@@ -130,8 +117,7 @@ public final class MatrixTest {
 	
 	
 	
-	@Test
-	public void testDeterminant1() {
+	@Test public void testDeterminant1() {
 		for (int i = 0; i < field.size; i++) {
 			Matrix<Integer> mat = new Matrix<Integer>(1, 1, field);
 			mat.set(0, 0, i);
@@ -140,8 +126,7 @@ public final class MatrixTest {
 	}
 	
 	
-	@Test
-	public void testDeterminant2() {
+	@Test public void testDeterminant2() {
 		for (int i = 0; i < 1000; i++) {
 			Matrix<Integer> mat = new Matrix<Integer>(2, 2, field);
 			mat.set(0, 0, random.nextInt(field.size));
@@ -153,8 +138,7 @@ public final class MatrixTest {
 	}
 	
 	
-	@Test
-	public void testDeterminants() {
+	@Test public void testDeterminants() {
 		for (int i = 0; i < 10000; i++) {
 			int size = (int)(Math.sqrt(random.nextDouble()) * 5) + 2;
 			size = Math.max(Math.min(size, 6), 1);
@@ -170,6 +154,7 @@ public final class MatrixTest {
 	}
 	
 	
+	// Slow O(n^n) algorithm using cofactor expansion.
 	private static <T> T determinant(Matrix<T> mat, int row, boolean[] colsUsed, Field<T> f) {
 		if (row == mat.rowCount())
 			return f.one();
@@ -191,8 +176,7 @@ public final class MatrixTest {
 	}
 	
 	
-	@Test
-	public void testInvert() {
+	@Test public void testInvert() {
 		for (int i = 0; i < 10000; i++) {
 			int size = (int)(Math.sqrt(random.nextDouble()) * 9) + 2;
 			size = Math.max(Math.min(size, 10), 1);

@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -14,7 +14,7 @@
 public final class PrimeField extends Field<Integer> {
 	
 	/**
-	 * The number of elements in this finite field.
+	 * The number of elements in this finite field. Must be positive and prime.
 	 */
 	public final int size;
 	
@@ -84,6 +84,7 @@ public final class PrimeField extends Field<Integer> {
 	}
 	
 	
+	// Returns the same value if it's within the range [0, size); otherwise throws an exception.
 	private int check(Integer x) {
 		int y = x;
 		if (y < 0 || y >= size)
