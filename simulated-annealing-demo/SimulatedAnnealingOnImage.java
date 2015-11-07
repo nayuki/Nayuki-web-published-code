@@ -54,7 +54,7 @@ public class SimulatedAnnealingOnImage {
 			if ((i & 0xFFFFFFF) == 0) {
 				int[] nonce = new int[624];
 				for (int j = 0; j < nonce.length; j++)
-					nonce[j] = slowRandom.nextInt();
+					nonce[j] ^= slowRandom.nextInt();
 				rand = new MersenneTwister(nonce);
 			}
 			
@@ -144,18 +144,18 @@ public class SimulatedAnnealingOnImage {
 	}
 	
 	
-	// Computes 2^x in a fast manner. Maximum relative error of 0.019% on the input range [-1020, 1020], guaranteed.
+	// Computes 2^x in a fast manner. Maximum relative error of 0.019% over the input range [-1020, 1020], guaranteed.
 	private static double fast2Pow(double x) {
-		if (x < -1022)
+		if (x < -1022)  // Underflow
 			return 0;
-		if (x >= 1024)
+		if (x >= 1024)  // Overflow
 			return Double.POSITIVE_INFINITY;
 		double y = Math.floor(x);
 		double z = x - y;  // In the range [0.0, 1.0)
-		double a = Double.longBitsToDouble((long)((int)y + 1023) << 52);  // Equal to 2^floor(x)
-		// Coefficients from numerical minimization in Wolfram Mathematica
-		double b = 0.99981190792895544660 + z * (0.69683883597650776993 + z * (0.22412622970387342355 + z * 0.07901988694851840505));
-		return a * b;
+		double u = Double.longBitsToDouble((long)((int)y + 1023) << 52);  // Equal to 2^floor(x)
+		// Cubic polynomial, coefficients from numerical minimization in Wolfram Mathematica
+		double v = ((0.07901988694851840505 * z + 0.22412622970387342355) * z + 0.69683883597650776993) * z + 0.99981190792895544660;
+		return u * v;
 	}
 	
 	

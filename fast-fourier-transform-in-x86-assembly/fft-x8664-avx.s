@@ -85,19 +85,18 @@ bitrevskip:
 	jb          bitrevloop
 	
 	/* Size 2 merge (special) */
-	vmovapd     size2negation, %ymm15
 	movq        $0, %rcx  /* Loop counter: Range [0, rdx), step size 4 */
 size2loop:
 	vmovupd     (%rdi,%rcx,8), %ymm0
 	vmovupd     (%rsi,%rcx,8), %ymm2
 	vshufpd     $15, %ymm0, %ymm0, %ymm1
-	vshufpd     $15, %ymm2, %ymm2, %ymm3
 	vshufpd     $0, %ymm0, %ymm0, %ymm0
+	vshufpd     $15, %ymm2, %ymm2, %ymm3
 	vshufpd     $0, %ymm2, %ymm2, %ymm2
-	vmulpd      %ymm1, %ymm15, %ymm1
-	vmulpd      %ymm3, %ymm15, %ymm3
-	vaddpd      %ymm0, %ymm1, %ymm0
-	vaddpd      %ymm2, %ymm3, %ymm2
+	vaddsubpd   %ymm1, %ymm0, %ymm0
+	vaddsubpd   %ymm3, %ymm2, %ymm2
+	vshufpd     $5, %ymm0, %ymm0, %ymm0
+	vshufpd     $5, %ymm2, %ymm2, %ymm2
 	vmovupd     %ymm0, (%rdi,%rcx,8)
 	vmovupd     %ymm2, (%rsi,%rcx,8)
 	addq        $4, %rcx
@@ -131,11 +130,11 @@ size4loop:
 	movq        $4, %rcx  /* rcx: halfsize */
 	cmpq        %rdx, %rcx
 	jae         end
-outerloop:   /* For each merge size: From 8, 16, 32, ..., to rdx (inclusive) */
+outerloop:   /* For each merge size: From 8, 16, 32, ..., to rdx (inclusive). rcx is half the merge size. */
 	movq        $0, %rax
-middleloop:  /* For each block of the current size: From 0, 2*rcx, 4*rcx, 6*rcx, ..., to rdx (exclusive) */
+middleloop:  /* For each block of the current size: From 0, 2*rcx, 4*rcx, 6*rcx, ..., to rdx (exclusive). rax is the block start. */
 	movq        $0, %r9
-innerloop:   /* For each 4 elements up to halfsize */
+innerloop:   /* For each 4 elements up to halfsize. r9 is the vector start. */
 	leaq        (%rax,%r9 ), %r10
 	leaq        (%r10,%rcx), %r11
 	vmovupd     (%rdi,%r10,8), %ymm0
@@ -184,6 +183,5 @@ end:
 
 /* Constants for YMM */
 .balign 32
-size2negation : .double +1.0, -1.0, +1.0, -1.0
 size4negation0: .double +1.0, +1.0, -1.0, -1.0
 size4negation1: .double +1.0, -1.0, -1.0, +1.0

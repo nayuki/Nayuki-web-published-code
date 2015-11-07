@@ -36,6 +36,8 @@ double   MtRandom_next_double(struct MtRandom *mt);
 void     MtRandom_reseed(struct MtRandom *mt);
 
 void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, const char *filepath);
+int32_t horizontal_energy_diff_if_swapped(const uint32_t *pixels, uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
+int32_t vertical_energy_diff_if_swapped  (const uint32_t *pixels, uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
 uint32_t pixel_diff(uint32_t p0, uint32_t p1);
 double fast_2_pow(double x);
 int abs(int x);
@@ -46,7 +48,8 @@ int abs(int x);
 int main(int argc, char **argv) {
 	// Create initial image state deterministically
 	struct MtRandom mt;
-	uint32_t pixels[WIDTH * HEIGHT];
+	uint32_t raw_pixels[WIDTH * (HEIGHT + 2)];
+	uint32_t *pixels = &raw_pixels[WIDTH];  // Has one row of padding above and below
 	int64_t i;
 	MtRandom_init(&mt, 0);
 	for (i = 0; i < WIDTH * HEIGHT; i++)
@@ -75,68 +78,21 @@ int main(int argc, char **argv) {
 		double t = (double)i / ITERATIONS;  // Normalized time from 0.0 to 1.0
 		double temperature = (1 - t) * START_TEMPERATURE;  // Cooling schedule function
 		
-		int dir = MtRandom_next_int(&mt) >> 31;
+		int energydiff;
 		int x0, y0, x1, y1;
-		if (dir == 1) {  // Horizontal swap with (x + 1, y)
+		int dir = MtRandom_next_int(&mt) >> 31;
+		if (dir != 0) {  // Horizontal swap with (x + 1, y)
 			x0 = MtRandom_next_int_bounded(&mt, WIDTH - 1);
 			y0 = MtRandom_next_int_bounded(&mt, HEIGHT);
 			x1 = x0 + 1;
 			y1 = y0;
+			energydiff = horizontal_energy_diff_if_swapped(pixels, WIDTH, HEIGHT, x0, y0);
 		} else {  // Vertical swap with (x, y + 1)
 			x0 = MtRandom_next_int_bounded(&mt, WIDTH);
 			y0 = MtRandom_next_int_bounded(&mt, HEIGHT - 1);
 			x1 = x0;
 			y1 = y0 + 1;
-		}
-		int index0 = y0 * WIDTH + x0;
-		int index1 = y1 * WIDTH + x1;
-		uint32_t pix0 = pixels[index0];
-		uint32_t pix1 = pixels[index1];
-		int energydiff = 0;
-		
-		// Subtract old local energies, then add new
-		if (dir == 1) {
-			if (x0 > 0) {
-				energydiff -= pixel_diff(pix0, pixels[index0 - 1]);
-				energydiff += pixel_diff(pix1, pixels[index0 - 1]);
-			}
-			if (x1 + 1 < WIDTH) {
-				energydiff -= pixel_diff(pix1, pixels[index1 + 1]);
-				energydiff += pixel_diff(pix0, pixels[index1 + 1]);
-			}
-			if (y0 > 0) {
-				energydiff -= pixel_diff(pix0, pixels[index0 - WIDTH]);
-				energydiff += pixel_diff(pix1, pixels[index0 - WIDTH]);
-				energydiff -= pixel_diff(pix1, pixels[index1 - WIDTH]);
-				energydiff += pixel_diff(pix0, pixels[index1 - WIDTH]);
-			}
-			if (y0 + 1 < HEIGHT) {
-				energydiff -= pixel_diff(pix0, pixels[index0 + WIDTH]);
-				energydiff += pixel_diff(pix1, pixels[index0 + WIDTH]);
-				energydiff -= pixel_diff(pix1, pixels[index1 + WIDTH]);
-				energydiff += pixel_diff(pix0, pixels[index1 + WIDTH]);
-			}
-		} else {
-			if (y0 > 0) {
-				energydiff -= pixel_diff(pix0, pixels[index0 - WIDTH]);
-				energydiff += pixel_diff(pix1, pixels[index0 - WIDTH]);
-			}
-			if (y1 + 1 < HEIGHT) {
-				energydiff -= pixel_diff(pix1, pixels[index1 + WIDTH]);
-				energydiff += pixel_diff(pix0, pixels[index1 + WIDTH]);
-			}
-			if (x0 > 0) {
-				energydiff -= pixel_diff(pix0, pixels[index0 - 1]);
-				energydiff += pixel_diff(pix1, pixels[index0 - 1]);
-				energydiff -= pixel_diff(pix1, pixels[index1 - 1]);
-				energydiff += pixel_diff(pix0, pixels[index1 - 1]);
-			}
-			if (x0 + 1 < WIDTH) {
-				energydiff -= pixel_diff(pix0, pixels[index0 + 1]);
-				energydiff += pixel_diff(pix1, pixels[index0 + 1]);
-				energydiff -= pixel_diff(pix1, pixels[index1 + 1]);
-				energydiff += pixel_diff(pix0, pixels[index1 + 1]);
-			}
+			energydiff = vertical_energy_diff_if_swapped(pixels, WIDTH, HEIGHT, x0, y0);
 		}
 		
 		// Probabilistic conditional acceptance
@@ -144,8 +100,11 @@ int main(int argc, char **argv) {
 			fprintf(stderr, "%7.3f%%  %15"PRId64"  %10d  %8d  %11.3f  %10.8f\n", t * 100, i, energy, energydiff, temperature, fmin(fast_2_pow(-energydiff / temperature), 1.0));
 		if (energydiff < 0 || MtRandom_next_double(&mt) < fast_2_pow(-energydiff / temperature)) {
 			// Accept new image state
-			pixels[index0] = pix1;
-			pixels[index1] = pix0;
+			int index0 = y0 * WIDTH + x0;
+			int index1 = y1 * WIDTH + x1;
+			uint32_t temp = pixels[index0];
+			pixels[index0] = pixels[index1];
+			pixels[index1] = temp;
 			energy += energydiff;
 		}  // Else discard the proposed change
 	}
@@ -225,27 +184,27 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 }
 
 
+// Computes 2^x in a fast manner. Maximum relative error of 0.019% over the input range [-1020, 1020], guaranteed.
+double fast_2_pow(double x) {
+	if (x < -1022)  // Underflow
+		return 0;
+	if (x >= 1024)  // Overflow
+		return INFINITY;
+	double y = floor(x);
+	double z = x - y;  // In the range [0.0, 1.0)
+	uint64_t w = (uint64_t)((int)y + 1023) << 52;
+	double u;
+	memcpy(&u, &w, sizeof(u));  // Equal to 2^floor(x)
+	// Cubic polynomial, coefficients from numerical minimization in Wolfram Mathematica
+	double v = ((0.07901988694851840505 * z + 0.22412622970387342355) * z + 0.69683883597650776993) * z + 0.99981190792895544660;
+	return u * v;
+}
+
+
 uint32_t pixel_diff(uint32_t p0, uint32_t p1) {
 	int r0 = p0 >> 16, g0 = (p0 >> 8) & 0xFF, b0 = p0 & 0xFF;
 	int r1 = p1 >> 16, g1 = (p1 >> 8) & 0xFF, b1 = p1 & 0xFF;
 	return (uint32_t)(abs(r0 - r1) + abs(g0 - g1) + abs(b0 - b1));
-}
-
-
-// Computes 2^x in a fast manner. Maximum relative error of 0.019% on the input range [-1020, 1020], guaranteed.
-double fast_2_pow(double x) {
-	if (x < -1022)
-		return 0;
-	if (x >= 1024)
-		return INFINITY;
-	double y = floor(x);
-	double z = x - y;  // In the range [0.0, 1.0)
-	uint64_t c = (uint64_t)((int)y + 1023) << 52;
-	double a;
-	memcpy(&a, &c, sizeof(a));  // Equal to 2^floor(x)
-	// Coefficients from numerical minimization in Wolfram Mathematica
-	double b = 0.99981190792895544660 + z * (0.69683883597650776993 + z * (0.22412622970387342355 + z * 0.07901988694851840505));
-	return a * b;
 }
 
 
