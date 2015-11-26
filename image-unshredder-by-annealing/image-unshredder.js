@@ -11,88 +11,42 @@
 
 /*---- Global variables and initialization ----*/
 
-// Canvas element
-var canvasElem = document.getElementById("canvas");
+// HTML elements
+var canvasElem = element("canvas");
 var graphics = canvasElem.getContext("2d");
+var imageSelectElem = element("image-select"     );
+var shuffleButton   = element("shuffle-button"   );
+var annealButton    = element("anneal-button"    );
+var stopButton      = element("stop-button"      );
+var imageAttribElem = element("image-attribution");
+var imageAttribText    = makeTextNodeChild("image-attribution"  , ""      );
+var curIterationsText  = makeTextNodeChild("current-iterations" , "\u2012");
+var curTemperatureText = makeTextNodeChild("current-temperature", "\u2012");
+var curEnergyText      = makeTextNodeChild("current-energy"     , "\u2012");
 
-// Button elements
-var shuffleButton = document.getElementById("shuffle-button");
-var annealButton  = document.getElementById("anneal-button");
-var stopButton    = document.getElementById("stop-button");
-shuffleButton.disabled = true;
-annealButton .disabled = true;
-stopButton   .disabled = true;
-shuffleButton.onclick = doShuffle;
-annealButton .onclick = doAnneal;
-stopButton   .onclick = doStop;
-
-// Text nodes
-var curIterationsText  = document.createTextNode("\u2012");
-var curTemperatureText = document.createTextNode("\u2012");
-var curEnergyText      = document.createTextNode("\u2012");
-document.getElementById("current-iterations" ).appendChild(curIterationsText );
-document.getElementById("current-temperature").appendChild(curTemperatureText);
-document.getElementById("current-energy"     ).appendChild(curEnergyText     );
-
-// List of images and selection logic
+// List of images to play with
 var IMAGE_LIST = [
-	["Abstract Light Painting", "abstract-light-painting.png", "Alexander Nie", "https://www.flickr.com/photos/niephotography/15821646318/"],
-	["Alaska Railroad", "alaska-railroad.png", "Luke Jones", "https://www.flickr.com/photos/befuddledsenses/7392384974/"],
-	["Blue Hour in Paris", "blue-hour-paris.png", "Falcon\u00AE Photography", "https://www.flickr.com/photos/falcon_33/15178077733/"],
+	["Abstract Light Painting", "abstract-light-painting.png", "Alexander Nie"           , "https://www.flickr.com/photos/niephotography/15821646318/"],
+	["Alaska Railroad"        , "alaska-railroad.png"        , "Luke Jones"              , "https://www.flickr.com/photos/befuddledsenses/7392384974/"],
+	["Blue Hour in Paris"     , "blue-hour-paris.png"        , "Falcon\u00AE Photography", "https://www.flickr.com/photos/falcon_33/15178077733/"     ],
+	["Lower Kananaskis Lake"  , "lower-kananaskis-lake.png"  , "davebloggs007"           , "https://www.flickr.com/photos/davebloggs007/15223201038/" ],
+	["Marlet 2 Radio Board"   , "marlet2-radio-board.png"    , "Adam Greig"              , "https://www.flickr.com/photos/randomskk/14915187162/"     ],
+	["Nikos\u2019s Cat"       , "nikos-cat.png"              , "Nikos Koutoulas"         , "https://www.flickr.com/photos/33284937@N04/8854205418/"   ],
+	["Pizza food wallpaper"   , "pizza-food-wallpaper.png"   , "Michael Stern"           , "https://www.flickr.com/photos/68711844@N07/15204301893/"  ],
+	["The Enchanted Garden"   , "the-enchanted-garden.png"   , "Julie Geiger"            , "https://www.flickr.com/photos/julesbeans/11318885443/"    ],
+	["Tokyo Skytree Aerial"   , "tokyo-skytree-aerial.png"   , "IQRemix"                 , "https://www.flickr.com/photos/iqremix/18088821468/"       ],
 ];
-var imageAttributionElem = document.getElementById("image-attribution");
-var imageSelectElem = document.getElementById("image-select");
-imageSelectElem.disabled = false;
-imageSelectElem.onchange = function() {
-	selectImage(imageSelectElem.selectedIndex);
-};
-while (imageSelectElem.firstChild != null)
-	imageSelectElem.removeChild(imageSelectElem.firstChild);
-IMAGE_LIST.forEach(function(entry) {
-	var option = document.createElement("option");
-	option.appendChild(document.createTextNode(entry[0]));
-	imageSelectElem.appendChild(option);
-});
-function selectImage(index) {
-	isImageLoaded = false;
-	width = -1;
-	height = -1;
-	shuffleButton.disabled = true;
-	annealButton .disabled = true;
-	stopButton   .disabled = true;
-	var entry = IMAGE_LIST[index];
-	baseImage.src = "/res/image-unshredder-by-annealing/" + entry[1];
-	while (imageAttributionElem.firstChild != null)
-		imageAttributionElem.removeChild(imageAttributionElem.firstChild);
-	imageAttributionElem.appendChild(document.createTextNode("by " + entry[2]));
-	imageAttributionElem.href = entry[3];
-}
 
-// Base image
-var isImageLoaded = false;
+// Base image properties
+var baseImage = new Image();
 var width = -1;
 var height = -1;
-var baseImage = new Image();
-baseImage.onload = function() {
-	var img = baseImage;
-	width = img.width;
-	height = img.height;
-	canvasElem.width = width;
-	canvasElem.height = height;
-	graphics.drawImage(img, 0, 0, width, height);
-	isImageLoaded = true;
-	shuffleButton.disabled = false;
-	shuffleStartColumn = 0;
-	shuffledImage = null;
-	columnDiffs = null;
-};
-imageSelectElem.selectedIndex = 1;
-imageSelectElem.onchange();
 
-// Operation state/progress
+// Variables for image shuffling
 var shuffleStartColumn = -1;
 var shuffledImage = null;
 
+// Variables for image annealing
 var numIterations = -1;
 var startTemperature = -1;
 var curIteration = -1;
@@ -101,6 +55,46 @@ var columnDiffs = null;  // columnDiffs[x0][x1] is the amount of difference betw
 var colPermutation = null;
 var annealingLastDrawTime = null;
 
+// Performance tuning
+var YIELD_AFTER_TIME = 20;  // In milliseconds; a long computation relinquishes/yields after this amount of time; short will mean high execution overhead; long will mean the GUI hangs
+var ANNEAL_REDRAW_TIME = 300;  // In milliseconds; the minimum amount of time between image and text updates when performing annealing
+
+
+function init() {
+	baseImage.onload = function() {
+		canvasElem.width = width = baseImage.width;
+		canvasElem.height = height = baseImage.height;
+		graphics.drawImage(baseImage, 0, 0, width, height);
+		setButtonState(1);
+		shuffleStartColumn = 0;
+		shuffledImage = null;
+		columnDiffs = null;
+	};
+	
+	shuffleButton.onclick = doShuffle;
+	annealButton .onclick = doAnneal;
+	stopButton   .onclick = doStop;
+	
+	while (imageSelectElem.firstChild != null)
+		imageSelectElem.removeChild(imageSelectElem.firstChild);
+	IMAGE_LIST.forEach(function(entry) {
+		var option = document.createElement("option");
+		option.appendChild(document.createTextNode(entry[0]));
+		imageSelectElem.appendChild(option);
+	});
+	
+	imageSelectElem.selectedIndex = Math.floor(Math.random() * IMAGE_LIST.length);
+	imageSelectElem.onchange = function() {
+		width = -1;
+		height = -1;
+		setButtonState(0);
+		var entry = IMAGE_LIST[imageSelectElem.selectedIndex];
+		baseImage.src = "/res/image-unshredder-by-annealing/" + entry[1];
+		imageAttribText.data = "by " + entry[2];
+		imageAttribElem.href = entry[3];
+	};
+	imageSelectElem.onchange();
+}
 
 
 /*---- Main functions ----*/
@@ -113,10 +107,7 @@ function doStop() {
 
 function doShuffle() {
 	if (shuffleStartColumn == 0) {
-		shuffleButton.disabled = true;
-		annealButton.disabled = true;
-		stopButton.disabled = false;
-		imageSelectElem.disabled = true;
+		setButtonState(2);
 		graphics.drawImage(baseImage, 0, 0, width, height);
 		shuffledImage = graphics.getImageData(0, 0, width, height);
 	}
@@ -124,6 +115,8 @@ function doShuffle() {
 	var startTime = Date.now();
 	var pixels = shuffledImage.data;
 	while (shuffleStartColumn < width) {
+		// Pick a random column j in the range [i, width) and move it to position i.
+		// This is effectively an inefficient but more animatedly appealing variant of the unbiased Fisher-Yates shuffle.
 		var i = shuffleStartColumn;
 		var j = i + Math.floor(Math.random() * (width - i));
 		for (var y = 0; y < height; y++) {
@@ -137,18 +130,16 @@ function doShuffle() {
 			}
 		}
 		shuffleStartColumn++;
-		if (Date.now() - startTime > 20)
+		if (Date.now() - startTime > YIELD_AFTER_TIME)
 			break;
 	}
-	
 	graphics.putImageData(shuffledImage, 0, 0);
+	
+	// Continue shuffling or finish
 	if (shuffleStartColumn < width)
 		setTimeout(doShuffle, 0);
 	else {
-		shuffleButton.disabled = false;
-		annealButton.disabled = false;
-		stopButton.disabled = true;
-		imageSelectElem.disabled = false;
+		setButtonState(3);
 		shuffleStartColumn = 0;
 		curIteration = 0;
 		curEnergy = -1;
@@ -159,12 +150,9 @@ function doShuffle() {
 
 function doAnneal() {
 	if (curIteration == 0) {  // Initialize the annealing
-		shuffleButton.disabled = true;
-		annealButton.disabled = true;
-		stopButton.disabled = false;
-		imageSelectElem.disabled = true;
-		numIterations = Math.round(parseFloat(document.getElementById("number-iterations").value) * 1000000);
-		startTemperature = Math.round(parseFloat(document.getElementById("start-temperature").value));
+		setButtonState(2);
+		numIterations = Math.round(parseFloat(element("number-iterations").value) * 1000000);
+		startTemperature = Math.round(parseFloat(element("start-temperature").value));
 		
 		if (columnDiffs == null) {
 			columnDiffs = [];
@@ -192,16 +180,13 @@ function doAnneal() {
 	} else if (curIteration == -1) {  // Stop requested
 		curIteration = 0;
 		colPermutation = null;
-		shuffleButton.disabled = false;
-		annealButton.disabled = false;
-		stopButton.disabled = true;
-		imageSelectElem.disabled = false;
+		setButtonState(3);
 		return;
 	}
 	
 	var startTime = Date.now();
-	var t;
-	var temperature;
+	var t = -1;
+	var temperature = -1;
 	var perm = colPermutation;
 	while (curIteration < numIterations) {
 		t = curIteration / numIterations;
@@ -211,7 +196,7 @@ function doAnneal() {
 		var col0 = Math.floor(Math.random() * width);
 		var col1 = Math.floor(Math.random() * width);
 		if (col0 != col1) {
-			// Calculate the change in energy if the col0 was removed and inserted at col1
+			// Calculate the change in energy if the col0 were removed and inserted at col1
 			var energyDiff = 0;
 			if (col0 >= 1)
 				energyDiff -= columnDiffs[perm[col0 - 1]][perm[col0]];
@@ -241,20 +226,20 @@ function doAnneal() {
 			}
 		}
 		curIteration++;
-		if (Date.now() - startTime > 20)
+		if (Date.now() - startTime > YIELD_AFTER_TIME)
 			break;
 	}
 	
 	// Show image and statistics on screen periodically
-	if (curIteration == numIterations || Date.now() - annealingLastDrawTime > 300) {
+	if (curIteration == numIterations || Date.now() - annealingLastDrawTime > ANNEAL_REDRAW_TIME) {
 		curIterationsText.data = formatWithThousandsSeparators(curIteration) + " (" + (t * 100).toFixed(2) + "%)";
 		curTemperatureText.data = temperature.toFixed(2);
 		curEnergyText.data = formatWithThousandsSeparators(curEnergy);
 		var annealedImage = new ImageData(width, height);
 		var shuffledPixels = shuffledImage.data;
 		var annealedPixels = annealedImage.data;
-		for (var x = 0; x < width; x++) {
-			for (var y = 0; y < height; y++) {
+		for (var y = 0; y < height; y++) {
+			for (var x = 0; x < width; x++) {
 				var off0 = (y * width + perm[x]) * 4;
 				var off1 = (y * width + x) * 4;
 				for (var i = 0; i < 4; i++)
@@ -271,10 +256,7 @@ function doAnneal() {
 	else {
 		curIteration = 0;
 		colPermutation = null;
-		shuffleButton.disabled = false;
-		annealButton.disabled = false;
-		stopButton.disabled = true;
-		imageSelectElem.disabled = false;
+		setButtonState(3);
 	}
 }
 
@@ -299,3 +281,28 @@ function formatWithThousandsSeparators(n) {
 		s = s.substr(0, i) + " " + s.substring(i);
 	return s;
 }
+
+
+// 0: Loading image, 1: Image loaded, 2: Currently shuffling or annealing, 3: Image shuffled
+function setButtonState(state) {
+	imageSelectElem.disabled = state == 2;
+	shuffleButton.disabled = state == 0 || state == 2;
+	annealButton.disabled = state != 3;
+	stopButton.disabled = state != 2;
+}
+
+
+function makeTextNodeChild(elemId, initText) {
+	var result = document.createTextNode(initText);
+	element(elemId).appendChild(result);
+	return result;
+}
+
+
+function element(elemId) {
+	return document.getElementById(elemId);
+}
+
+
+// We put this call after all global variables are declared
+init();

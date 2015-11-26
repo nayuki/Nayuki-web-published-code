@@ -93,7 +93,7 @@ public class AnnealImageColumns {
 			int col0 = rand.nextInt(width);
 			int col1 = rand.nextInt(width);
 			if (col0 != col1) {
-				// Calculate the change in energy if the col0 was removed and inserted at col1
+				// Calculate the change in energy if the col0 were removed and inserted at col1
 				int energyDiff = 0;
 				if (col0 >= 1)
 					energyDiff -= columnDiffs[colPermutation[col0 - 1] * width + colPermutation[col0]];
