@@ -149,15 +149,32 @@ function doShuffle() {
 
 
 function doAnneal() {
+	if (curIteration == -1) {  // Stop requested
+		curIteration = 0;
+		colPermutation = null;
+		setButtonState(3);
+		return;
+	}
+	
+	var startTime = Date.now();
 	if (curIteration == 0) {  // Initialize the annealing
-		setButtonState(2);
-		numIterations = Math.round(parseFloat(element("number-iterations").value) * 1000000);
-		startTemperature = Math.round(parseFloat(element("start-temperature").value));
+		if (colPermutation == null) {
+			setButtonState(2);
+			numIterations = Math.round(parseFloat(element("number-iterations").value) * 1000000);
+			startTemperature = Math.round(parseFloat(element("start-temperature").value));
+			colPermutation = [];
+			for (var i = 0; i < width; i++)
+				colPermutation.push(i);
+		}
 		
 		if (columnDiffs == null) {
 			columnDiffs = [];
+			curIterationsText.data = "Precomputing...";
+		}
+		if (columnDiffs.length < width) {
 			var pixels = shuffledImage.data;
-			for (var i = 0; i < width; i++) {
+			while (columnDiffs.length < width && Date.now() - startTime < YIELD_AFTER_TIME) {
+				var i = columnDiffs.length;
 				var entry = new Uint32Array(width);
 				for (var j = 0; j < width; j++) {
 					if (i <= j)
@@ -167,24 +184,18 @@ function doAnneal() {
 				}
 				columnDiffs.push(entry);
 			}
+			if (columnDiffs.length < width) {
+				setTimeout(doAnneal, 0);
+				return;
+			}
 		}
 		
 		curEnergy = 0;
 		for (var i = 0; i < width - 1; i++)
 			curEnergy += columnDiffs[i][i + 1];
-		colPermutation = [];
-		for (var i = 0; i < width; i++)
-			colPermutation.push(i);
 		annealingLastDrawTime = Date.now();
-	
-	} else if (curIteration == -1) {  // Stop requested
-		curIteration = 0;
-		colPermutation = null;
-		setButtonState(3);
-		return;
 	}
 	
-	var startTime = Date.now();
 	var t = -1;
 	var temperature = -1;
 	var perm = colPermutation;
