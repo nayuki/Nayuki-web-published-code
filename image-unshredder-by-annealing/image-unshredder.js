@@ -42,18 +42,18 @@ var baseImage = new Image();
 var width = -1;
 var height = -1;
 
-// Variables for image shuffling
+// Variables for shuffling
 var shuffleStartColumn = -1;
 var shuffledImage = null;
 
-// Variables for image annealing
-var numIterations = -1;
+// Variables for annealing
+var numIterations    = -1;
 var startTemperature = -1;
-var curIteration = -1;
-var curEnergy = -1;
-var columnDiffs = null;  // columnDiffs[x0][x1] is the amount of difference between column x0 and column x1 in shuffledImage
+var curIteration     = -1;
+var curEnergy        = -1;
+var columnDiffs    = null;  // columnDiffs[x0][x1] is the amount of difference between column x0 and column x1 in shuffledImage
 var colPermutation = null;
-var annealingLastDrawTime = null;
+var annealingLastDrawTime = -1;
 
 // Performance tuning
 var YIELD_AFTER_TIME = 20;  // In milliseconds; a long computation relinquishes/yields after this amount of time; short will mean high execution overhead; long will mean the GUI hangs
@@ -106,9 +106,9 @@ function doStop() {
 
 function startShuffle() {
 	setButtonState(2);
-	curIterationsText.data = "\u2012";
+	curIterationsText.data  = "\u2012";
 	curTemperatureText.data = "\u2012";
-	curEnergyText.data = "\u2012";
+	curEnergyText.data      = "\u2012";
 	graphics.drawImage(baseImage, 0, 0, width, height);
 	shuffledImage = graphics.getImageData(0, 0, width, height);
 	shuffleStartColumn = 0;
@@ -166,32 +166,32 @@ function doAnnealPrecompute() {
 		columnDiffs = [];
 		curIterationsText.data = "Precomputing...";
 	}
-	if (columnDiffs.length < width) {
-		var pixels = shuffledImage.data;
-		while (columnDiffs.length < width && Date.now() - startTime < YIELD_AFTER_TIME) {
-			var i = columnDiffs.length;
-			var entry = new Uint32Array(width);
-			for (var j = 0; j < width; j++) {
-				if (i <= j)
-					entry[j] = lineDiff(pixels, width, height, i, j);
-				else
-					entry[j] = columnDiffs[j][i];
-			}
-			columnDiffs.push(entry);
+	var pixels = shuffledImage.data;
+	while (columnDiffs.length < width) {
+		var i = columnDiffs.length;
+		var entry = new Uint32Array(width);
+		for (var j = 0; j < width; j++) {
+			if (i <= j)
+				entry[j] = lineDiff(pixels, width, height, i, j);
+			else
+				entry[j] = columnDiffs[j][i];
 		}
-		if (columnDiffs.length < width) {
-			setTimeout(doAnnealPrecompute, 0);
-			return;
-		}
+		columnDiffs.push(entry);
+		if (Date.now() - startTime > YIELD_AFTER_TIME)
+			break;
 	}
-	curEnergy = 0;
-	for (var i = 0; i < width - 1; i++)
-		curEnergy += columnDiffs[i][i + 1];
-	colPermutation = [];
-	for (var i = 0; i < width; i++)
-		colPermutation.push(i);
-	annealingLastDrawTime = Date.now();
-	doAnneal();
+	if (columnDiffs.length < width)
+		setTimeout(doAnnealPrecompute, 0);
+	else {
+		curEnergy = 0;
+		for (var i = 0; i < width - 1; i++)
+			curEnergy += columnDiffs[i][i + 1];
+		colPermutation = [];
+		for (var i = 0; i < width; i++)
+			colPermutation.push(i);
+		annealingLastDrawTime = Date.now();
+		doAnneal();
+	}
 }
 
 
