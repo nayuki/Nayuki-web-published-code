@@ -306,7 +306,7 @@ function calcAllEdgeWeights(nodes) {
 function calcSpanningTree(allEdges, nodes) {
 	// Kruskal's MST algorithm
 	var result = [];
-	var ds = new DisjointSets(nodes.length);
+	var ds = new DisjointSet(nodes.length);
 	for (var i = 0; i < allEdges.length && result.length < nodes.length - 1; i++) {
 		var edge = allEdges[i];
 		var j = edge[1];
@@ -331,8 +331,8 @@ function containsEdge(array, edge) {
 }
 
 
-// The union-find data structure. A heavily stripped-down version derived from http://www.nayuki.io/page/disjoint-sets-data-structure .
-function DisjointSets(size) {
+// The union-find data structure. A heavily stripped-down version derived from http://www.nayuki.io/page/disjoint-set-data-structure .
+function DisjointSet(size) {
 	var parents = [];
 	var ranks = [];
 	for (var i = 0; i < size; i++) {
