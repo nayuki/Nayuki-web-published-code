@@ -11,73 +11,86 @@
 
 /*---- User interface functions ----*/
 
+// Each function takes a text string and returns an array of 0s and 1s
+var BARCODE_GENERATOR_FUNCTIONS = {
+	"code128"        : makeCode128Barcode,
+	"code93"         : makeCode93Barcode,
+	"code39"         : makeCode39Barcode,
+	"interleaved2of5": makeInterleaved2Of5Barcode,
+	"codabar"        : makeCodabarBarcode,
+	"upca-raw"       : makeUpcABarcode,
+	"ean13-raw"      : makeEan13Barcode,
+	"ean8-raw"       : makeEan8Barcode,
+	"upca-check"     : function(s) { return makeUpcABarcode (addCheckDigit(11, s)); },
+	"ean13-check"    : function(s) { return makeEan13Barcode(addCheckDigit(12, s)); },
+	"ean8-check"     : function(s) { return makeEan8Barcode (addCheckDigit( 7, s)); },
+};
+
+// Initialize HTML elements
 var canvasElem = document.getElementById("canvas");
+var graphics = canvasElem.getContext("2d");
+var feedbackText = document.createTextNode("");
+document.getElementById("feedback").appendChild(feedbackText);
+
+// Set form input event handlers
+document.querySelector("article form").onsubmit = function() {
+	generate();
+	return false;
+};
+for (var name in BARCODE_GENERATOR_FUNCTIONS)
+	document.getElementById(name).onchange = generate;
+document.getElementById("text").oninput = generate;
+document.getElementById("barwidth").oninput = generate;
 
 
-// The one and only entry point from the HTML code
-function generate(explicit) {
-	// Select barcode generator function
-	// Each function takes a text string and returns an array of 0s and 1s
-	var funcs = {
-		"code128"        : makeCode128Barcode,
-		"code93"         : makeCode93Barcode,
-		"code39"         : makeCode39Barcode,
-		"interleaved2of5": makeInterleaved2Of5Barcode,
-		"codabar"        : makeCodabarBarcode,
-		"upca-raw"       : makeUpcABarcode,
-		"ean13-raw"      : makeEan13Barcode,
-		"ean8-raw"       : makeEan8Barcode,
-		"upca-check"     : function(s) { return makeUpcABarcode (addCheckDigit(11, s)); },
-		"ean13-check"    : function(s) { return makeEan13Barcode(addCheckDigit(12, s)); },
-		"ean8-check"     : function(s) { return makeEan8Barcode (addCheckDigit( 7, s)); },
-	};
+// The function is the one and only entry point from the HTML code.
+function generate() {
+	// Select barcode generator function based on radio buttons
 	var func = null;
-	for (var name in funcs) {
+	for (var name in BARCODE_GENERATOR_FUNCTIONS) {
 		if (document.getElementById(name).checked)
-			func = funcs[name];
+			func = BARCODE_GENERATOR_FUNCTIONS[name];
 	}
 	
 	// Try to generate barcode
+	graphics.clearRect(0, 0, canvasElem.width, canvasElem.height);
 	var barcode;  // Array of 0s and 1s
-	var ctx = canvasElem.getContext("2d");
 	try {
 		if (func == null)
 			throw "Assertion error";
 		barcode = func(document.getElementById("text").value);
+		feedbackText.data = "OK";
 	} catch (e) {
-		// Clear canvas on error
-		ctx.fillStyle = "#FFFFFF";
-		ctx.fillRect(0, 0, canvasElem.width, canvasElem.height);
-		if (explicit)
-			alert(e);
+		feedbackText.data = "Error: " + e;
 		return;
 	}
 	
-	// Parameters for new white image
+	// Dimensions of canvas and new image
 	var scale = parseInt(document.getElementById("barwidth").value, 10);
-	var width = barcode.length * scale + 100;
-	var height = 300;
-	var image = ctx.createImageData(width, height);
-	var data = image.data;
-	for (var i = 0; i < width * height * 4; i++)
-		data[i] = 0xFF;
+	var padding = 50;  // Number of pixels on each of the four sides
+	var width  = canvasElem.width  = barcode.length * scale + padding * 2;
+	var height = canvasElem.height = 200 + padding * 2;
+	
+	// Create image and fill with opaque white color
+	var image = graphics.createImageData(width, height);
+	var pixels = image.data;  // An array of bytes in RGBA format
+	for (var i = 0; i < pixels.length; i++)
+		pixels[i] = 0xFF;
 	
 	// Draw barcode onto image and canvas
-	for (var y = 50; y < 250; y++) {
-		for (var i = 0, x = 50; i < barcode.length; i++) {
+	for (var y = padding; y < height - padding; y++) {
+		for (var i = 0, x = padding; i < barcode.length; i++) {
 			for (var j = 0; j < scale; j++, x++) {
 				var k = ((y * width) + x) * 4;
-				data[k + 0] = data[k + 1] = data[k + 2] = barcode[i] * 255;
+				pixels[k + 0] = pixels[k + 1] = pixels[k + 2] = barcode[i] * 255;  // Red, green, blue channels
 			}
 		}
 	}
-	canvasElem.width  = width;
-	canvasElem.height = height;
-	ctx.putImageData(image, 0, 0);
+	graphics.putImageData(image, 0, 0);
 }
 
 
-/*---- Barcode generation functions ----*/
+/*---- Barcode generator functions ----*/
 // By convention, 0 means black and 1 means white
 
 // Code 128 barcode
@@ -268,7 +281,7 @@ function makeCodabarBarcode(s) {
 // UPC-A barcode
 function makeUpcABarcode(s) {
 	if (!/^\d{12}$/.test(s))
-		throw "Text must be 12 digits";
+		throw "Text must be 12 digits long";
 	
 	var table = ["1110010", "1100110", "1101100", "1000010", "1011100", "1001110", "1010000", "1000100", "1001000", "1110100"];
 	var result = [];
@@ -289,7 +302,7 @@ function makeUpcABarcode(s) {
 // EAN-13 barcode
 function makeEan13Barcode(s) {
 	if (!/^\d{13}$/.test(s))
-		throw "Text must be 13 digits";
+		throw "Text must be 13 digits long";
 	
 	var table0 = ["LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG", "LGGLLG", "LGGGLL", "LGLGLG", "LGLGGL", "LGGLGL"];
 	var table1 = ["11001", "10011", "10110", "00001", "01110", "00111", "01000", "00010", "00100", "11010"];
@@ -317,7 +330,7 @@ function makeEan13Barcode(s) {
 // EAN-8 barcode
 function makeEan8Barcode(s) {
 	if (!/^\d{8}$/.test(s))
-		throw "Text must be 8 digits";
+		throw "Text must be 8 digits long";
 	
 	var table = ["11001", "10011", "10110", "00001", "01110", "00111", "01000", "00010", "00100", "11010"];
 	var result = [];
@@ -337,30 +350,30 @@ function makeEan8Barcode(s) {
 
 /*---- Shared utility functions ----*/
 
-// e.g. array = []; appendDigits(array, "010001"); array equals [0,1,0,0,0,1]
+// e.g. array = [1, 1]; appendDigits(array, "001"); array equals [1, 1, 0, 0, 1].
 function appendDigits(arr, str) {
 	for (var i = 0; i < str.length; i++)
-		arr.push(parseInt(str.charAt(i), 10));
+		arr.push(+str.charAt(i));  // Abuses JavaScript weak type coercion
 }
 
 
-// e.g. array = []; appendRepeat(array, 1, 3); array equals [1,1,1]
+// e.g. array = []; appendRepeat(array, 1, 3); array equals [1,1,1].
 function appendRepeat(arr, digit, rep) {
 	for (var i = 0; i < rep; i++)
 		arr.push(digit);
 }
 
 
-// e.g. "001101" -> "110010"
+// e.g. "001101" -> "110010".
 function invertBits(s) {
-	return s.replace(/./g, function(d) { return 1 - d + ""; });  // Abuses JavaScript weak type coercion
+	return s.replace(/./g, function(d) { return (1 - d) + ""; });  // Abuses JavaScript weak type coercion
 }
 
 
-// e.g. addCheckDigit(7, "3216548") -> "32165487"
+// e.g. addCheckDigit(7, "3216548") -> "32165487".
 function addCheckDigit(len, s) {
 	if (!/^\d*$/.test(s) || s.length != len)
-		throw "Text must be " + len + " digits";
+		throw "Text must be " + len + " digits long";
 	var sum = 0;
 	for (var i = 0; i < s.length; i++) {
 		var weight = i % 2 == 0 ? 3 : 1;  // Rightmost digit has weight of 3, then alternate 1 and 3

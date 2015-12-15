@@ -311,10 +311,8 @@ function calcSpanningTree(allEdges, nodes) {
 		var edge = allEdges[i];
 		var j = edge[1];
 		var k = edge[2];
-		if (!ds.areInSameSet(j, k)) {
+		if (ds.mergeSets(j, k))
 			result.push({nodeA:nodes[j], nodeB:nodes[k]});
-			ds.unionSets(j, k);
-		}
 	}
 	return result;
 }
@@ -333,49 +331,34 @@ function containsEdge(array, edge) {
 }
 
 
-// Constructs a new set of disjoint sets of the given size, a non-negative integer.
-// This is the standard union-find data structure found in textbooks.
+// The union-find data structure. A heavily stripped-down version derived from http://www.nayuki.io/page/disjoint-sets-data-structure .
 function DisjointSets(size) {
-	var nodes = [];
+	var parents = [];
+	var ranks = [];
 	for (var i = 0; i < size; i++) {
-		var node = {rank: 0};
-		node.parent = node;
-		nodes.push(node);
+		parents.push(i);
+		ranks.push(0);
 	}
 	
-	// Returns the representative node object for the given index. Requires 0 <= i < nodes.length.
-	function find(i) {
-		var node = nodes[i];
-		if (node.parent == node)
-			return node;
-		else {
-			var temp = node;
-			while (temp.parent != temp)
-				temp = temp.parent;
-			node.parent = temp;  // Path compression
-			return temp;
-		}
+	function getRepr(i) {
+		if (parents[i] != i)
+			parents[i] = getRepr(parents[i]);
+		return parents[i];
+	}
+	
+	this.mergeSets = function(i, j) {
+		var repr0 = getRepr(i);
+		var repr1 = getRepr(j);
+		if (repr0 == repr1)
+			return false;
+		var cmp = ranks[repr0] - ranks[repr1];
+		if (cmp >= 0) {
+			if (cmp == 0)
+				ranks[repr0]++;
+			parents[repr1] = repr0;
+		} else
+			parents[repr0] = repr1;
+		return true;
 	};
 	
-	// Tests whether elements i and j are members of the same set. Requires 0 <= i, j < size.
-	this.areInSameSet = function(i, j) {
-		return find(i) == find(j);
-	};
-	
-	// Merges the set containing element i and the set containing element j. Requires 0 <= i, j < size.
-	// If both elements are already members of the same set, then the operation does nothing.
-	this.unionSets = function(i, j) {
-		var x = find(i);
-		var y = find(j);
-		if (x == y)
-			return;
-		else if (x.rank < y.rank)
-			x.parent = y;
-		else if (x.rank > y.rank)
-			y.parent = x;
-		else {
-			x.parent = y;
-			y.rank++;
-		}
-	};
 }
