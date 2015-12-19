@@ -15,7 +15,7 @@ function solve() {
 		if (typeof val == "object" && val.length == 2) {  // Array
 			setElementText(nodeId, formatNumber(val[0]) + suffix);
 			setElementText(nodeId + "2", formatNumber(val[1]) + suffix);
-			solution2 = true;
+			twosoln = true;
 		} else if (typeof val == "number") {
 			setElementText(nodeId, formatNumber(val) + suffix);
 			setElementText(nodeId + "2", formatNumber(val) + suffix);
@@ -32,11 +32,11 @@ function solve() {
 		var B = getInputNumber("angleBin");
 		var C = getInputNumber("angleCin");
 		var answer = solveTriangle(a, b, c, A, B, C);
-		solution = answer.slice(0, 6);
+		solution = answer.slice(0, 6);  // Global variable for mouse hover
 		
 		// Set outputs
 		setElementText("status", answer[7]);
-		var solution2 = false;
+		var twosoln = false;  // Is set to true by doOutput() if any answer item is a length-2 array
 		doOutput("sideAout" , answer[0], "");
 		doOutput("sideBout" , answer[1], "");
 		doOutput("sideCout" , answer[2], "");
@@ -44,7 +44,7 @@ function solve() {
 		doOutput("angleBout", answer[4], DEGREE);
 		doOutput("angleCout", answer[5], DEGREE);
 		doOutput("areaout"  , answer[6], "");
-		document.getElementById("formtable").className = solution2 ? "noborder" : "noborder nosolution2";
+		document.getElementById("formtable").className = twosoln ? "noborder" : "noborder onesoln";
 		
 	} catch (e) {
 		clearOutputs();
@@ -53,8 +53,9 @@ function solve() {
 }
 
 
-/* Solver functions */
+/*---- Solver functions ----*/
 
+// Given some sides and angles, this returns a tuple of 8 number/string values.
 function solveTriangle(a, b, c, A, B, C) {
 	var sides  = (a != null) + (b != null) + (c != null);  // Boolean to integer conversion
 	var angles = (A != null) + (B != null) + (C != null);  // Boolean to integer conversion
@@ -158,29 +159,29 @@ function solveTriangle(a, b, c, A, B, C) {
 }
 
 
-function solveSide(a, b, C) {  // Returns side c using law of cosines
+// Returns side c using law of cosines
+function solveSide(a, b, C) {
 	C = degToRad(C);
 	if (C > 0.001)
 		return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(C));
-	else  // Improves numerical stability, relying on the approximation that cos C ~= 1 - C^2 / 2 + C^4 / 24
+	else  // Explained in http://www.nayuki.io/page/numerically-stable-law-of-cosines
 		return Math.sqrt((a - b) * (a - b) + a * b * C * C * (1 - C * C / 12));
 }
 
-function solveAngle(a, b, c) {  // Returns angle C using law of cosines
+
+// Returns angle C using law of cosines
+function solveAngle(a, b, c) {
 	var temp = (a * a + b * b - c * c) / (2 * a * b);
 	if (-1 <= temp && temp <= 0.9999999)
 		return radToDeg(Math.acos(temp));
-	else if (temp <= 1) {
-		// Improves numerical stability for angles near 0.
-		// For cases where a ~= b, and both a and b are much greater than c.
-		// Based on the fact that cos C ~= 1 - C^2 / 2.
+	else if (temp <= 1)  // Explained in http://www.nayuki.io/page/numerically-stable-law-of-cosines
 		return radToDeg(Math.sqrt((c * c - (a - b) * (a - b)) / (a * b)));
-	} else
+	else
 		throw "No solution";
 }
 
 
-/* Input/output/GUI handling functions */
+/*---- Input/output/GUI handling ----*/
 
 // e.g. sideA is associated with sideAin, sideAout, and sideAout2. But area does not have an input.
 var ioNames = ["sideA", "sideB", "sideC", "angleA", "angleB", "angleC", "area"];
@@ -208,7 +209,7 @@ function getInputNumber(elemId) {
 
 function clearOutputs() {
 	solution = null;
-	document.getElementById("formtable").className = "noborder nosolution2";
+	document.getElementById("formtable").className = "noborder onesoln";
 	ioNames.forEach(function(name) {
 		setElementText(name + "out" , "");
 		setElementText(name + "out2", "");
@@ -287,7 +288,7 @@ function initImageMap() {
 }
 
 
-/* Simple functions */
+/*---- Simple functions ----*/
 
 function setElementText(nodeId, str) {
 	var node = document.getElementById(nodeId);
@@ -316,10 +317,6 @@ function radToDeg(x) {
 	return x / Math.PI * 180;
 }
 
-
 var DEGREE = "\u00B0";
-
-
-/* Initialization */
 
 initImageMap();
