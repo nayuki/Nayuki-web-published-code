@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in x86-64 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * http://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * (MIT License)
@@ -45,13 +45,13 @@ sha256_compress:
 	 *       4  r14d      SHA-256 state variable G
 	 *       4  r15d      SHA-256 state variable H
 	 *      64  [rsp+0]   Circular buffer of most recent 16 key schedule items, 4 bytes each
-	 *      16  xmm0      Caller's value of r10 (only lower 64 bits are used)
-	 *      16  xmm1      Caller's value of r11 (only lower 64 bits are used)
-	 *      16  xmm2      Caller's value of r12 (only lower 64 bits are used)
-	 *      16  xmm3      Caller's value of r13 (only lower 64 bits are used)
-	 *      16  xmm4      Caller's value of r14 (only lower 64 bits are used)
-	 *      16  xmm5      Caller's value of r15 (only lower 64 bits are used)
-	 *      16  xmm6      Caller's value of rbx (only lower 64 bits are used)
+	 *      16  xmm0      Caller's value of r10 (only low 64 bits are used)
+	 *      16  xmm1      Caller's value of r11 (only low 64 bits are used)
+	 *      16  xmm2      Caller's value of r12 (only low 64 bits are used)
+	 *      16  xmm3      Caller's value of r13 (only low 64 bits are used)
+	 *      16  xmm4      Caller's value of r14 (only low 64 bits are used)
+	 *      16  xmm5      Caller's value of r15 (only low 64 bits are used)
+	 *      16  xmm6      Caller's value of rbx (only low 64 bits are used)
 	 */
 	
 	#define SCHED(i)  (((i)&0xF)*4)(%rsp)

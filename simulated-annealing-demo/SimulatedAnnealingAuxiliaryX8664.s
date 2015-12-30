@@ -10,6 +10,20 @@
 /* int32_t horizontal_energy_diff_if_swapped(const uint32_t *pixels, uint32_t width, uint32_t height, uint32_t x, uint32_t y) */
 .globl horizontal_energy_diff_if_swapped
 horizontal_energy_diff_if_swapped:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location    Description
+	 *       8  rdi         Base address of pixels array argument, later becoming pixel address = &pixels[y * width + x]
+	 *       4  esi         Width argument (zero-extended to rsi) (read-only)
+	 *       4  edx         Height argument (zero-extended to rdx) (read-only)
+	 *       4  ecx         X argument (zero-extended to rcx), temporary for calculations
+	 *       4  r8d         Y argument (zero-extended to r8), temporary for calculations
+	 *       4  r9d         Temporary for calculations (zero-extended to r9)
+	 *     128  xmm0..xmm7  Neighboring pixel RGBA values (only low 32 bits are used)
+	 *      16  xmm8        Temporary for calculations (only low 32 bits are used)
+	 *      16  xmm9        Accumulator for return value (only low 32 bits are used)
+	 *       4  eax         Final return value (zero-extended to rax)
+	 */
 	/* rdi = &pixels[y * width + x] */
 	movl    %r8d, %r9d
 	imul    %esi, %r9d
@@ -30,7 +44,7 @@ horizontal_energy_diff_if_swapped:
 	movd     0(%rdi,%rsi,4), %xmm6  /* Down pixel        */
 	movd     4(%rdi,%rsi,4), %xmm7  /* Down right pixel  */
 	
-	pxor     %xmm9, %xmm9  /* Output accumulator */
+	pxor    %xmm9, %xmm9  /* Output accumulator */
 	
 	/* If x > 0 */
 	testl   %ecx, %ecx
@@ -91,6 +105,20 @@ horizontal_energy_diff_if_swapped:
 /* int32_t vertical_energy_diff_if_swapped(const uint32_t *pixels, uint32_t width, uint32_t height, uint32_t x, uint32_t y) */
 .globl vertical_energy_diff_if_swapped
 vertical_energy_diff_if_swapped:
+	/* 
+	 * Storage usage:
+	 *   Bytes  Location    Description
+	 *       8  rdi         Base address of pixels array argument, later becoming pixel address = &pixels[y * width + x]
+	 *       4  esi         Width argument (zero-extended to rsi) (read-only)
+	 *       4  edx         Height argument (zero-extended to rdx) (read-only)
+	 *       4  ecx         X argument (zero-extended to rcx), temporary for calculations
+	 *       4  r8d         Y argument (zero-extended to r8), temporary for calculations
+	 *       4  r9d         Temporary for calculations (zero-extended to r9)
+	 *     128  xmm0..xmm7  Neighboring pixel RGBA values (only low 32 bits are used)
+	 *      16  xmm8        Temporary for calculations (only low 32 bits are used)
+	 *      16  xmm9        Accumulator for return value (only low 32 bits are used)
+	 *       4  eax         Final return value (zero-extended to rax)
+	 */
 	/* rdi = &pixels[y * width + x] */
 	movl    %r8d, %r9d
 	imul    %esi, %r9d
@@ -111,7 +139,7 @@ vertical_energy_diff_if_swapped:
 	movd     4(%rdi)       , %xmm6  /* Right pixel      */
 	movd     4(%rdi,%rsi,4), %xmm7  /* Right down pixel */
 	
-	pxor     %xmm9, %xmm9  /* Output accumulator */
+	pxor    %xmm9, %xmm9  /* Output accumulator */
 	
 	/* If y > 0 */
 	testl   %r8d, %r8d

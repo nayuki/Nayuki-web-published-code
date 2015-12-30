@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in x86-64 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * http://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
  * 
  * (MIT License)
@@ -37,8 +37,8 @@ md5_compress:
 	 *       4  edi       Temporary for calculation per round
 	 *       8  rbp       Base address of block array argument (read-only)
 	 *       8  r8        Base address of state array argument (read-only)
-	 *      16  xmm0      Caller's value of rbx (only lower 64 bits are used)
-	 *      16  xmm1      Caller's value of rbp (only lower 64 bits are used)
+	 *      16  xmm0      Caller's value of rbx (only low 64 bits are used)
+	 *      16  xmm1      Caller's value of rbp (only low 64 bits are used)
 	 */
 	
 	#define ROUND0(a, b, c, d, k, s, t)  \

@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in x86-64 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * http://www.nayuki.io/page/fast-sha1-hash-implementation-in-x86-assembly
  * 
  * (MIT License)
@@ -40,8 +40,8 @@ sha1_compress:
 	 *       8  r8        Base address of state array argument (read-only)
 	 *       8  rsp       x86-64 stack pointer
 	 *      64  [rsp+0]   Circular buffer of most recent 16 key schedule items, 4 bytes each
-	 *      16  xmm0      Caller's value of rbx (only lower 64 bits are used)
-	 *      16  xmm1      Caller's value of rbp (only lower 64 bits are used)
+	 *      16  xmm0      Caller's value of rbx (only low 64 bits are used)
+	 *      16  xmm1      Caller's value of rbp (only low 64 bits are used)
 	 */
 	
 	#define ROUND0a(a, b, c, d, e, i)  \

@@ -1,7 +1,7 @@
 /* 
  * Tiny Encryption Algorithm (TEA) in x86-64 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2015 Project Nayuki
  * http://www.nayuki.io/page/tiny-encryption-algorithm-in-x86-assembly
  * 
  * (MIT License)
@@ -40,9 +40,9 @@ tea_encrypt_x86:
 	 *       4  r11d      Key word 3 (read-only) (zero-extended to r11)
 	 *       8  rbp       x86 frame pointer
 	 *       8  rsp       x86 stack pointer
-	 *      16  xmm0      Caller's value of r10 (only lower 64 bits are used)
-	 *      16  xmm1      Caller's value of r11 (only lower 64 bits are used)
-	 *      16  xmm2      Base address of message array argument (only lower 64 bits are used)
+	 *      16  xmm0      Caller's value of r10 (only low 64 bits are used)
+	 *      16  xmm1      Caller's value of r11 (only low 64 bits are used)
+	 *      16  xmm2      Base address of message array argument (only low 64 bits are used)
 	 */
 	
 	/* Enter */
