@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * http://www.nayuki.io/page/avl-tree-list
  * 
  * (MIT License)
@@ -50,7 +50,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	
 	
-	// Must not exceed Integer.MAX_VALUE
+	// Must not exceed Integer.MAX_VALUE.
 	public int size() {
 		return root.size;
 	}
@@ -105,7 +105,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	}
 	
 	
-	// For unit tests
+	// For unit tests.
 	void checkStructure() {
 		root.checkStructure(new HashSet<Node<E>>());
 	}
@@ -114,7 +114,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	private static final class Node<E> {
 		
-		// A bit of a hack, but more elegant than using null values as leaf nodes
+		// A bit of a hack, but more elegant than using null values as leaf nodes.
 		public static final Node<?> emptyLeafNode = new Node<Object>();
 		
 		
@@ -129,30 +129,30 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		// Empty nodes have size 0. This node has size equal to left.size + right.size + 1.
 		public int size;
 		
-		// The root node of the left subtree
+		// The root node of the left subtree.
 		public Node<E> left;
 		
-		// The root node of the right subtree
+		// The root node of the right subtree.
 		public Node<E> right;
 		
 		
 		
-		// For the singleton empty leaf node
+		// For the singleton empty leaf node.
 		private Node() {
 			value = null;
 			height = 0;
-			size = 0;
-			left = null;
+			size   = 0;
+			left  = null;
 			right = null;
 		}
 		
 		
-		// Normal non-leaf nodes
+		// Normal non-leaf nodes.
 		@SuppressWarnings("unchecked")
 		private Node(E val) {
 			value = val;
 			height = 1;
-			size = 1;
+			size   = 1;
 			left  = (Node<E>)emptyLeafNode;
 			right = (Node<E>)emptyLeafNode;
 		}
@@ -227,7 +227,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		private E getSuccessor() {
 			if (this == emptyLeafNode || right == emptyLeafNode)
-				throw new IllegalArgumentException();
+				throw new IllegalStateException();
 			Node<E> node = right;
 			while (node.left != emptyLeafNode)
 				node = node.left;
@@ -235,7 +235,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		}
 		
 		
-		// Balances the subtree rooted at this node and returns the new root
+		// Balances the subtree rooted at this node and returns the new root.
 		private Node<E> balance() {
 			int bal = getBalance();
 			assert Math.abs(bal) <= 2;
@@ -311,7 +311,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		}
 		
 		
-		// For unit tests, invokable by the outer class
+		// For unit tests, invokable by the outer class.
 		void checkStructure(Set<Node<E>> visitedNodes) {
 			if (this == emptyLeafNode)
 				return;
@@ -334,7 +334,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	
 	
-	// Not fail-fast on concurrent modification
+	// Not fail-fast on concurrent modification.
 	private final class Iter implements Iterator<E> {
 		
 		private Stack<Node<E>> stack;

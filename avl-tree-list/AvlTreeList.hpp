@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (C++)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * http://www.nayuki.io/page/avl-tree-list
  * 
  * (MIT License)
@@ -36,7 +36,7 @@ class AvlTreeList {
 	
 private:
 	class Node;  // Forward declaration
-	Node *root;
+	Node *root;  // Never nullptr
 	
 	
 public:
@@ -86,9 +86,9 @@ public:
 	void erase(size_t index) {
 		if (index >= size())
 			throw "Index out of bounds";
-		Node *toDelete = NULL;
+		Node *toDelete = nullptr;
 		root = root->removeAt(index, &toDelete);
-		if (toDelete != NULL)
+		if (toDelete != nullptr)
 			delete toDelete;
 	}
 	
@@ -101,7 +101,7 @@ public:
 	}
 	
 	
-	// For unit tests
+	// For unit tests.
 	void checkStructure() const {
 		std::set<const Node*> visited;
 		root->checkStructure(visited);
@@ -112,11 +112,11 @@ private:
 	class Node {
 		
 	public:
-		// A bit of a hack, but more elegant than using null values as leaf nodes
+		// A bit of a hack, but more elegant than using nullptr values as leaf nodes.
 		static Node emptyLeafNode;
 		
 		
-		// The object stored at this node
+		// The object stored at this node.
 		E value;
 		
 		// The height of the tree rooted at this node. Empty nodes have height 0.
@@ -127,25 +127,25 @@ private:
 		// Empty nodes have size 0. This node has size equal to left->size + right->size + 1.
 		size_t size;
 		
-		// The root node of the left subtree
+		// The root node of the left subtree.
 		Node *left;
 		
-		// The root node of the right subtree
+		// The root node of the right subtree.
 		Node *right;
 		
 		
 	private:
 		
-		// For the singleton empty leaf node
+		// For the singleton empty leaf node.
 		Node() :
 			value(),  // Default constructor on type E
 			height(0),
 			size  (0),
-			left (NULL),
-			right(NULL) {}
+			left (nullptr),
+			right(nullptr) {}
 		
 		
-		// Normal non-leaf nodes
+		// Normal non-leaf nodes.
 		Node(const E &val) :
 			value(val),  // Copy constructor on type E
 			height(1),
@@ -154,7 +154,7 @@ private:
 			right(&emptyLeafNode) {}
 		
 		
-		// Normal non-leaf nodes
+		// Normal non-leaf nodes.
 		Node(E &&val) :
 			value(std::move(val)),  // Move constructor on type E
 			height(1),
@@ -236,19 +236,19 @@ private:
 			else if (index > leftSize)
 				right = right->removeAt(index - leftSize - 1, toDelete);
 			else if (left == &emptyLeafNode && right == &emptyLeafNode) {
-				assert(*toDelete == NULL);
+				assert(*toDelete == nullptr);
 				*toDelete = this;
 				return &emptyLeafNode;
 			} else if (left != &emptyLeafNode && right == &emptyLeafNode) {
 				Node *result = left;
-				left = NULL;
-				assert(*toDelete == NULL);
+				left = nullptr;
+				assert(*toDelete == nullptr);
 				*toDelete = this;
 				return result;
 			} else if (left == &emptyLeafNode && right != &emptyLeafNode) {
 				Node *result = right;
-				right = NULL;
-				assert(*toDelete == NULL);
+				right = nullptr;
+				assert(*toDelete == nullptr);
 				*toDelete = this;
 				return result;
 			} else {
@@ -263,9 +263,10 @@ private:
 		
 	private:
 		
+		// Note: This returns a mutable value.
 		E &getSuccessor() {
 			if (this == &emptyLeafNode || right == &emptyLeafNode)
-				throw "Illegal argument";
+				throw "Illegal state";
 			Node *node = right;
 			while (node->left != &emptyLeafNode)
 				node = node->left;
@@ -273,7 +274,7 @@ private:
 		}
 		
 		
-		// Balances the subtree rooted at this node and returns the new root
+		// Balances the subtree rooted at this node and returns the new root.
 		Node *balance() {
 			int bal = getBalance();
 			assert(std::abs(bal) <= 2);
@@ -349,7 +350,7 @@ private:
 		}
 		
 		
-		// For unit tests, invokable by the outer class
+		// For unit tests, invokable by the outer class.
 	public:
 		void checkStructure(std::set<const Node*> &visitedNodes) const {
 			if (this == &emptyLeafNode)

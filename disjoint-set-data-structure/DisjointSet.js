@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (JavaScript)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * http://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * (MIT License)
@@ -21,6 +21,8 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
+
+"use strict";
 
 
 /* 

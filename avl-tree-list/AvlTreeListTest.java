@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * http://www.nayuki.io/page/avl-tree-list
  * 
  * (MIT License)
@@ -273,29 +273,23 @@ public final class AvlTreeListTest {
 		assertEquals('u', (char)list.remove( 4));
 		assertEquals('q', (char)list.remove( 3));
 		assertEquals(' ', (char)list.remove( 2));
-		
 		assertEquals('f', (char)list.remove(12));
 		assertEquals(' ', (char)list.remove(11));
 		assertEquals('n', (char)list.remove(10));
 		assertEquals('w', (char)list.remove( 9));
-		
 		assertEquals(' ', (char)list.remove(11));
 		assertEquals('j', (char)list.remove(11));
 		assertEquals('u', (char)list.remove(11));
 		assertEquals('x', (char)list.remove(10));
-		
 		assertEquals('p', (char)list.remove(11));
 		assertEquals('d', (char)list.remove(12));
 		assertEquals('e', (char)list.remove(11));
-		
 		assertEquals('v', (char)list.remove(13));
 		assertEquals('e', (char)list.remove(13));
-		
 		assertEquals('l', (char)list.remove(19));
 		assertEquals('z', (char)list.remove(20));
 		assertEquals('a', (char)list.remove(19));
 		assertEquals(' ', (char)list.remove(18));
-		
 		assertEquals('g', (char)list.remove(22));
 		
 		{
@@ -305,8 +299,7 @@ public final class AvlTreeListTest {
 				assertEquals(str.charAt(i), (char)list.get(i));
 		}
 		
-		assertEquals('t', (char)list.remove( 0));
-		
+		assertEquals('t', (char)list.remove(0));
 		assertEquals('c', (char)list.remove(2));
 		assertEquals('k', (char)list.remove(2));
 		assertEquals(' ', (char)list.remove(2));
@@ -314,15 +307,11 @@ public final class AvlTreeListTest {
 		assertEquals('r', (char)list.remove(2));
 		assertEquals('o', (char)list.remove(2));
 		assertEquals('o', (char)list.remove(2));
-		
 		assertEquals('o', (char)list.remove(4));
-		
 		assertEquals('h', (char)list.remove(7));
 		assertEquals(' ', (char)list.remove(5));
 		assertEquals('t', (char)list.remove(5));
-		
 		assertEquals('o', (char)list.remove(9));
-		
 		assertEquals(' ', (char)list.remove(7));
 		assertEquals('y', (char)list.remove(6));
 		
@@ -367,7 +356,7 @@ public final class AvlTreeListTest {
 	}
 	
 	
-	// Comprehensively tests all the defined methods
+	// Comprehensively tests all the defined methods.
 	@Test public void testAgainstJavaListRandomly() {
 		Random rand = new Random();
 		List<Integer> list0 = new ArrayList<Integer>();

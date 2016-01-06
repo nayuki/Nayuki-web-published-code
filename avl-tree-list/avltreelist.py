@@ -1,7 +1,7 @@
 #  
 # AVL tree list (Python)
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2016 Project Nayuki
 # http://www.nayuki.io/page/avl-tree-list
 # 
 # (MIT License)
@@ -25,8 +25,10 @@
 
 class AvlTreeList(object):
 	
-	def __init__(self):
+	def __init__(self, lst=None):
 		self.clear()
+		if lst is not None:
+			self.extend(lst)
 	
 	
 	def __len__(self):
@@ -53,6 +55,11 @@ class AvlTreeList(object):
 	
 	def append(self, val):
 		self.insert(len(self), val)
+	
+	
+	def extend(self, lst):
+		for val in lst:
+			self.append(val)
 	
 	
 	def __delitem__(self, index):
@@ -100,10 +107,10 @@ class AvlTreeList(object):
 				# Empty nodes have size 0. This node has size equal to left.size + right.size + 1.
 				self.size = 1
 				
-				# The root node of the left subtree
+				# The root node of the left subtree.
 				self.left  = AvlTreeList.Node.EMPTY_LEAF_NODE
 				
-				# The root node of the right subtree
+				# The root node of the right subtree.
 				self.right = AvlTreeList.Node.EMPTY_LEAF_NODE
 		
 		
@@ -176,7 +183,7 @@ class AvlTreeList(object):
 			return node.value
 		
 		
-		# Balances the subtree rooted at this node and returns the new root
+		# Balances the subtree rooted at this node and returns the new root.
 		def _balance(self):
 			bal = self._get_balance()
 			assert abs(bal) <= 2
@@ -246,7 +253,7 @@ class AvlTreeList(object):
 			return self.right.height - self.left.height
 		
 		
-		# For unit tests
+		# For unit tests, invokable by the outer class.
 		def check_structure(self, visitednodes):
 			if self is AvlTreeList.Node.EMPTY_LEAF_NODE:
 				return
@@ -266,7 +273,7 @@ class AvlTreeList(object):
 	
 	
 	
-	# Not fail-fast on concurrent modification
+	# Note: An iterator is not fail-fast on concurrent modification.
 	class Iter(object):
 		
 		def __init__(self, outer):
