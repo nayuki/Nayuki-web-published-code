@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -9,92 +9,114 @@
 import java.util.Arrays;
 
 
+/* 
+ * Calculates PageRank, by encapsulating a list of links and a list of current PageRank values.
+ */
 final class Pagerank {
 	
-	// Links in packed run-length format: (target page ID, number of incoming links, source page IDs...), ...
+	/*---- Fields ----*/
+	
+	// The vector of current PageRank values, changing after each iteration. Length equals idLimit.
+	// Other classes can read this data, but should not modify it.
+	public double[] pageranks;
+	
+	
+	// List of page-to-page links in a packed run-length format:
+	// (target page ID, number of incoming links, source page IDs...), ... .
 	private int[] links;
 	
-	private int idLimit;  // Maximum page ID plus 1. This sets the length of various arrays.
-	private int activePages;  // Number of pages with incoming links or outgoing links (ignore disconnected nodes)
+	// Maximum page ID value plus 1. This sets the length of various arrays.
+	private int idLimit;
+	
+	// Number of page IDs with incoming links or outgoing links (ignores disconnected nodes).
+	private int numActive;
+	
+	// Indicates whether each page ID is active or not. Length equals idLimit.
 	private boolean[] isActive;
+	
+	// The number of outgoing links each page ID has. Length equals idLimit.
 	private int[] numOutgoingLinks;
 	
-	public double[] pageranks;
-	private double[] newPageranks;  // Temporary, filled and discarded per iteration
+	// Temporary array, which is filled and discarded per iteration. Length equals idLimit.
+	private double[] newPageranks;
 	
 	
+	/*---- Constructor ----*/
 	
+	// Constructs a PageRank calculator based on the given array of links
+	// in the compressed format returned by class PageLinksList.
 	public Pagerank(int[] links) {
 		this.links = links;
 		
-		// Find highest page ID
-		int max = 0;
+		// Find highest page ID among all links
+		int maxId = 0;
 		for (int i = 0; i < links.length; ) {
 			int dest = links[i];
-			max = Math.max(dest, max);
-			int n = links[i + 1];
-			for (int j = 0; j < n; j++) {
+			maxId = Math.max(dest, maxId);
+			int numIncoming = links[i + 1];
+			for (int j = 0; j < numIncoming; j++) {
 				int src = links[i + 2 + j];
-				max = Math.max(src, max);
+				maxId = Math.max(src, maxId);
 			}
-			i += n + 2;
+			i += numIncoming + 2;
 		}
-		idLimit = max + 1;
+		idLimit = maxId + 1;
 		
-		// Initialize metadata
+		// Compute metadata fields
 		boolean[] hasIncomingLinks = new boolean[idLimit];
 		numOutgoingLinks = new int[idLimit];
 		for (int i = 0; i < links.length; ) {
 			int dest = links[i];
 			hasIncomingLinks[dest] = true;
-			int n = links[i + 1];
-			for (int j = 0; j < n; j++) {
+			int numIncoming = links[i + 1];
+			for (int j = 0; j < numIncoming; j++) {
 				int src = links[i + 2 + j];
 				numOutgoingLinks[src]++;
 			}
-			i += n + 2;
+			i += numIncoming + 2;
 		}
 		isActive = new boolean[idLimit];
-		activePages = 0;
+		numActive = 0;
 		for (int i = 0; i < idLimit; i++) {
 			if (numOutgoingLinks[i] > 0 || hasIncomingLinks[i]) {
 				isActive[i] = true;
-				activePages++;
+				numActive++;
 			}
 		}
 		
 		// Initialize PageRanks uniformly for active pages
 		pageranks = new double[idLimit];
-		double initWeight = 1.0 / activePages;
+		double initWeight = 1.0 / numActive;
 		for (int i = 0; i < idLimit; i++) {
-			if (isActive[i]) {
+			if (isActive[i])
 				pageranks[i] = initWeight;
-			}
 		}
 		newPageranks = new double[idLimit];
 	}
 	
 	
+	/*---- Methods ----*/
 	
-	public void iterate(double damping) {
+	// Performs one iteration of the PageRank algorithm and updates the values in the array 'pageranks'.
+	public void iterateOnce(double damping) {
 		// Pre-divide by number of outgoing links
 		for (int i = 0; i < idLimit; i++) {
 			if (numOutgoingLinks[i] > 0)
 				pageranks[i] /= numOutgoingLinks[i];
 		}
 		
-		// Distribute PageRanks over links
+		// Distribute PageRanks over links (main calculation)
 		Arrays.fill(newPageranks, 0);
 		for (int i = 0; i < links.length; ) {
-			int n = links[i + 1];
+			int numIncoming = links[i + 1];
 			double sum = 0;
-			for (int j = 0; j < n; j++) {
+			for (int j = 0; j < numIncoming; j++) {
 				int src = links[i + 2 + j];
 				sum += pageranks[src];
 			}
 			int dest = links[i];
 			newPageranks[dest] = sum;
-			i += n + 2;
+			i += numIncoming + 2;
 		}
 		
 		// Calculate global bias due to pages without outgoing links
@@ -103,10 +125,10 @@ final class Pagerank {
 			if (isActive[i] && numOutgoingLinks[i] == 0)
 				bias += pageranks[i];
 		}
-		bias /= activePages;
+		bias /= numActive;
 		
 		// Apply bias and damping to all active pages
-		double temp = bias * damping + (1 - damping) / activePages;  // Factor out some arithmetic
+		double temp = bias * damping + (1 - damping) / numActive;  // Factor out some arithmetic
 		for (int i = 0; i < idLimit; i++) {
 			if (isActive[i])
 				pageranks[i] = newPageranks[i] * damping + temp;

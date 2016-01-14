@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -12,55 +12,63 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-// Parses SQL "INSERT INTO" statements from a text input stream.
+/* 
+ * An FSM for parsing lines of SQL statements, particularly to extract data from "INSERT INTO" statements.
+ */
 final class SqlReader {
 	
-	private final String prefix;
-	private final String suffix;
+	/*---- Fields ----*/
 	
-	private BufferedReader in;
+	private final String matchLinePrefix;
+	private final String matchLineSuffix;
+	
+	private BufferedReader input;
 	
 	
+	/*---- Constructor ----*/
 	
+	// Constructs an SQL reader over the given line-based text input stream, to extract data from the given table name.
 	public SqlReader(BufferedReader in, String tableName) {
-		this.in = in;
-		prefix = "INSERT INTO `" + tableName + "` VALUES ";
-		suffix = ";";
+		this.input = in;
+		matchLinePrefix = "INSERT INTO `" + tableName + "` VALUES ";
+		matchLineSuffix = ";";
 	}
 	
 	
+	/*---- Methods ----*/
 	
-	// Returns a list of tuples, or null at the end of the stream.
+	// Returns the next list of data tuples, or null at the end of stream.
 	public List<List<Object>> readInsertionTuples() throws IOException {
 		while (true) {
-			String line = in.readLine();
+			String line = input.readLine();
 			if (line == null)
 				return null;
 			else if (line.equals("") || line.startsWith("--"))  // SQL comment lines
 				continue;
-			else if (!(line.startsWith(prefix) && line.endsWith(suffix)))  // Other SQL lines
+			else if (!line.startsWith(matchLinePrefix) || !line.endsWith(matchLineSuffix))  // Other SQL lines
 				continue;
 			
 			// Current line has the form: "INSERT into `tablename` VALUES (...),(...),...,(...);"
-			return parseTuples(line.substring(prefix.length(), line.length() - 1));
+			String valuesText = line.substring(matchLinePrefix.length(), line.length() - matchLineSuffix.length());
+			return parseTuples(valuesText);
 		}
 	}
 	
 	
 	public void close() throws IOException {
-		in.close();
+		input.close();
 	}
 	
 	
-	private static List<List<Object>> parseTuples(String line) {
+	private static List<List<Object>> parseTuples(String text) {
 		List<List<Object>> result = new ArrayList<List<Object>>();
 		
 		// Finite-state machine (ugly)
 		int state = 0;
 		List<Object> tuple = new ArrayList<Object>();
 		int tokenStart = -1;
-		for (int i = 0; i < line.length(); i++) {
-			char c = line.charAt(i);
+		for (int i = 0; i < text.length(); i++) {
+			char c = text.charAt(i);
 			switch (state) {
 				// Outside tuple, expecting '('
 				case 0:
@@ -93,7 +101,7 @@ final class SqlReader {
 				case 2:
 					if (c >= '0' && c <= '9' || c == '-' || c == '.');
 					else if (c == ',' || c == ')') {
-						String s = line.substring(tokenStart, i);
+						String s = text.substring(tokenStart, i);
 						tokenStart = -1;
 						if (s.indexOf(".") == -1)
 							tuple.add(new Integer(s));
@@ -113,7 +121,7 @@ final class SqlReader {
 				// Accumulating string
 				case 3:
 					if (c == '\'') {
-						String s = line.substring(tokenStart, i);
+						String s = text.substring(tokenStart, i);
 						tokenStart = -1;
 						if (s.indexOf('\\') != -1)
 							s = s.replaceAll("\\\\(.)", "$1");  // Unescape backslashed characters
@@ -137,7 +145,7 @@ final class SqlReader {
 				case 5:
 					if (c >= 'A' && c <= 'Z');
 					else if (c == ',' || c == ')') {
-						if (line.substring(tokenStart, i).equals("NULL"))
+						if (text.substring(tokenStart, i).equals("NULL"))
 							tuple.add(null);
 						else
 							throw new IllegalArgumentException();

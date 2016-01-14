@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -21,44 +21,53 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 
+/* 
+ * Provides static functions for working with page ID/title data.
+ */
 final class PageIdTitleMap {
 	
+	// Reads the given gzipped SQL file and returns a mapping of page title to integer ID.
 	public static Map<String,Integer> readSqlFile(File file) throws IOException {
 		long startTime = System.currentTimeMillis();
 		Map<String,Integer> result = new HashMap<String,Integer>();
 		
 		SqlReader in = new SqlReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), "UTF-8")), "page");
+		long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 		try {
 			while (true) {
-				List<List<Object>> data = in.readInsertionTuples();
-				if (data == null)
+				List<List<Object>> multipleRows = in.readInsertionTuples();
+				if (multipleRows == null)
 					break;
 				
-				for (List<Object> tuple : data) {
+				for (List<Object> tuple : multipleRows) {
 					if (tuple.size() != 12)
-						throw new IllegalArgumentException();
-					
+						throw new IllegalArgumentException("Incorrect number of columns");
 					Object namespace = tuple.get(1);
-					if (!(namespace instanceof Integer))
-						throw new IllegalArgumentException();
-					if (((Integer)namespace).intValue() != 0)
-						continue;
-					
 					Object id = tuple.get(0);
 					Object title = tuple.get(2);
-					if (!(id instanceof Integer && title instanceof String))
-						throw new IllegalArgumentException();
+					
+					if (!(namespace instanceof Integer))
+						throw new IllegalArgumentException("Namespace must be integer");
+					if (!(id instanceof Integer))
+						throw new IllegalArgumentException("ID must be integer");
+					if (!(title instanceof String))
+						throw new IllegalArgumentException("Title must be string");
+					if (((Integer)namespace).intValue() != 0)  // Filter out pages not in the main namespace
+						continue;
 					if (result.containsKey(title))
-						throw new IllegalArgumentException();
+						throw new IllegalArgumentException("Duplicate page title");
 					result.put((String)title, (Integer)id);
 				}
-				System.out.printf("\rParsing %s: %.3f million entries stored...", file.getName(), result.size() / 1000000.0);
+				
+				if (System.currentTimeMillis() - lastPrint >= PRINT_INTERVAL) {
+					System.out.printf("\rParsing %s: %.3f million entries stored...", file.getName(), result.size() / 1000000.0);
+					lastPrint = System.currentTimeMillis();
+				}
 			}
 		} finally {
 			in.close();
 		}
-		
-		System.out.printf("\rParsing %s: %.3f million entries stored... Done (%.2f s)%n", file.getName(), result.size() / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
+		System.out.printf("\rParsing %s: %.3f million entries stored... Done (%.3f s)%n", file.getName(), result.size() / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
 		return result;
 	}
 	
@@ -66,20 +75,22 @@ final class PageIdTitleMap {
 	public static Map<String,Integer> readRawFile(File file) throws IOException {
 		long startTime = System.currentTimeMillis();
 		Map<String,Integer> result = new HashMap<String,Integer>();
+		
 		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-		int nextPrint = 0;
 		try {
+			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 			for (int i = 0; ; i++) {
 				String line = in.readLine();
 				if (line == null)
 					break;
-				if (i >= nextPrint) {
-					System.out.printf("\rReading %s: %.1f million entries...", file.getName(), i / 1000000.0);
-					nextPrint += 100000;
-				}
 				result.put(line, new Integer(in.readLine()));
+				
+				if (System.currentTimeMillis() - lastPrint >= PRINT_INTERVAL) {
+					System.out.printf("\rReading %s: %.3f million entries...", file.getName(), i / 1000000.0);
+					lastPrint = System.currentTimeMillis();
+				}
 			}
-			System.out.printf("\rReading %s: %.1f million entries... Done (%.2f s)%n", file.getName(), result.size() / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
+			System.out.printf("\rReading %s: %.3f million entries... Done (%.3f s)%n", file.getName(), result.size() / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
 		} finally {
 			in.close();
 		}
@@ -91,31 +102,37 @@ final class PageIdTitleMap {
 		long startTime = System.currentTimeMillis();
 		PrintWriter out = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file), 128 * 1024), "UTF-8"));
 		try {
-			int nextPrint = 0;
 			int i = 0;
+			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 			for (String title : idByTitle.keySet()) {
-				if (i >= nextPrint) {
-					System.out.printf("\rWriting %s: %.1f million entries...", file.getName(), i / 1000000.0);
-					nextPrint += 100000;
-				}
 				out.println(title);
 				out.println(idByTitle.get(title));
 				i++;
+				
+				if (System.currentTimeMillis() - lastPrint >= PRINT_INTERVAL) {
+					System.out.printf("\rWriting %s: %.3f million entries...", file.getName(), i / 1000000.0);
+					lastPrint = System.currentTimeMillis();
+				}
 			}
-			System.out.printf("\rWriting %s: %.1f million entries... Done (%.2f s)%n", file.getName(), i / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
+			System.out.printf("\rWriting %s: %.3f million entries... Done (%.3f s)%n", file.getName(), i / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
 		} finally {
 			out.close();
 		}
 	}
 	
 	
-	public static <K,V> Map<V,K> reverseMap(Map<K,V> map) {
+	public static <K,V> Map<V,K> computeReverseMap(Map<K,V> map) {
+		System.out.print("Creating reverse mapping...");
+		long startTime = System.currentTimeMillis();
 		Map<V,K> result = new HashMap<V,K>();
 		for (K key : map.keySet())
 			result.put(map.get(key), key);
+		System.out.printf(" Done (%.3f s)%n", (System.currentTimeMillis() - startTime) / 1000.0);
 		return result;
 	}
 	
+	
+	private static final int PRINT_INTERVAL = 30;  // In milliseconds
 	
 	
 	private PageIdTitleMap() {}  // Not instantiable

@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * http://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -25,10 +25,12 @@ import java.util.Set;
 
 
 /* 
- * Reads a text file with one page title per line, sorts the titles by descending PageRank, and writes to a new text file.
- * Requires raw data files already computed by the program "wikipediapagerank".
+ * Reads a text file with one page title per line, sorts the titles by descending PageRank, and writes
+ * to a new text file. Requires raw data files already computed by the program "wikipediapagerank".
  */
 public final class sortpagetitlesbypagerank {
+	
+	/*---- Input/output files configuration ----*/
 	
 	// User input/output files
 	private static final File PAGE_TITLES_INPUT_FILE = new File("page-titles.txt");
@@ -39,9 +41,11 @@ public final class sortpagetitlesbypagerank {
 	private static final File PAGERANK_RAW_FILE = new File("wikipedia-pageranks.raw");
 	
 	
+	/*---- Main program ----*/
+	
 	public static void main(String[] args) throws IOException {
 		// Read title-ID map
-		Map<String,Integer> idByTitle = PageIdTitleMap.readRawFile(PAGE_ID_TITLE_RAW_FILE);
+		Map<String,Integer> titleToId = PageIdTitleMap.readRawFile(PAGE_ID_TITLE_RAW_FILE);
 		
 		// Read page titles to sort
 		Set<String> titles = new HashSet<String>();
@@ -53,7 +57,7 @@ public final class sortpagetitlesbypagerank {
 					break;
 				if (titles.contains(line))
 					System.out.println("Duplicate removed: " + line);
-				else if (!idByTitle.containsKey(line))
+				else if (!titleToId.containsKey(line))
 					System.out.println("Nonexistent page title removed: " + line);
 				else
 					titles.add(line);
@@ -75,7 +79,7 @@ public final class sortpagetitlesbypagerank {
 		// Sort and write output
 		List<Entry> entries = new ArrayList<Entry>();
 		for (String title : titles)
-			entries.add(new Entry(pageranks[idByTitle.get(title)], title));
+			entries.add(new Entry(pageranks[titleToId.get(title)], title));
 		Collections.sort(entries);
 		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(PAGE_TITLES_OUTPUT_FILE), "UTF-8"));
 		try {
@@ -88,7 +92,9 @@ public final class sortpagetitlesbypagerank {
 	
 	
 	
-	private static class Entry implements Comparable<Entry> {
+	/*---- Helper data structure ----*/
+	
+	private static final class Entry implements Comparable<Entry> {
 		
 		public final double pagerank;
 		public final String title;
@@ -109,5 +115,9 @@ public final class sortpagetitlesbypagerank {
 		}
 		
 	}
+	
+	
+	
+	private sortpagetitlesbypagerank() {}  // Not instantiable
 	
 }
