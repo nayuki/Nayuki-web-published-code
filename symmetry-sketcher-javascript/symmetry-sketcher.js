@@ -17,15 +17,14 @@ var undoButtonElem = element("undo-button");
 var doneButtonElem = element("done-button");
 
 // Graphics initialization
-var width  = canvasElem.width;
-var height = canvasElem.height;
+var width  = null;
+var height = null;
 var baseCanvas  = document.createElement('canvas');  // Off-screen
 var guideCanvas = document.createElement('canvas');  // Off-screen
-guideCanvas.width  = baseCanvas.width  = width;
-guideCanvas.height = baseCanvas.height = height;
 var baseGfx   = baseCanvas .getContext("2d");
 var guideGfx  = guideCanvas.getContext("2d");
 var screenGfx = canvasElem .getContext("2d");
+initCanvasesSize();
 
 // Cached values from form inputs
 var strokeWidth      = null;  // Type number, positive
@@ -44,7 +43,14 @@ undoButtonElem.disabled = undoImages.length == 0;
 
 // Internal configuration
 var MAX_UNDO_IMAGES = 5;
-guideGfx.strokeStyle = "#C0C0FF";
+
+
+function initCanvasesSize() {
+	width = height = parseInt(document.getElementById("canvas-size").value, 10);
+	canvasElem.width  = guideCanvas.width  = baseCanvas.width  = width;
+	canvasElem.height = guideCanvas.height = baseCanvas.height = height;
+	guideGfx.strokeStyle = "#C0C0FF";
+}
 
 
 
@@ -290,6 +296,8 @@ setAndCallHandler("show-guidelines", "onchange", function() {
 
 element("clear-button").onclick = function() {
 	if (confirm("Clear the drawing?")) {
+		initCanvasesSize();
+		updatePaintColor();
 		clearBaseCanvas();
 		if (isDone)
 			doneButtonElem.onclick();
