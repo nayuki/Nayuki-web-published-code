@@ -3,7 +3,7 @@
 # Compatible with Python 2 and 3.
 # 
 # Copyright (c) 2015 Project Nayuki
-# http://www.nayuki.io/page/forcing-a-files-crc-to-any-value
+# https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

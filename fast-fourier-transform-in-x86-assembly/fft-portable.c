@@ -2,7 +2,7 @@
  * Fast Fourier transform (C)
  * 
  * Copyright (c) 2015 Project Nayuki
- * http://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
+ * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

@@ -1,7 +1,7 @@
 # 
 # Discrete Fourier transform
 # by Project Nayuki, 2014. Public domain.
-# http://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
+# https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
 # 
 
 # 

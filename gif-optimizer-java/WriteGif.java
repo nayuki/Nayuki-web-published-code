@@ -61,7 +61,7 @@
  * 
  * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/gif-optimizer-java
+ * https://www.nayuki.io/page/gif-optimizer-java
  */
 
 import java.awt.image.BufferedImage;

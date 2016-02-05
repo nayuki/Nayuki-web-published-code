@@ -2,7 +2,7 @@
  * Free FFT and convolution (C++)
  * 
  * Copyright (c) 2014 Project Nayuki
- * http://www.nayuki.io/page/free-small-fft-in-multiple-languages
+ * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

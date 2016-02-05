@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/computing-wikipedias-internal-pageranks
+ * https://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
 
 import java.util.Arrays;

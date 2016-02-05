@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/canada-tax-free-savings-account-simulator-javascript
+ * https://www.nayuki.io/page/canada-tax-free-savings-account-simulator-javascript
  */
 
 "use strict";

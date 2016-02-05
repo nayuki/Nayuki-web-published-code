@@ -2,7 +2,7 @@
  * JSON library test
  * 
  * Copyright (c) 2015 Project Nayuki
- * http://www.nayuki.io/page/json-library-java
+ * https://www.nayuki.io/page/json-library-java
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

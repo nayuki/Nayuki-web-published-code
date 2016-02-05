@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/montgomery-reduction-algorithm
+ * https://www.nayuki.io/page/montgomery-reduction-algorithm
  */
 
 import static junit.framework.Assert.assertEquals;

@@ -2,7 +2,7 @@
 # The MD2 hash function. It is described in RFC 1319.
 # 
 # Copyright (c) 2015 Project Nayuki
-# http://www.nayuki.io/page/cryptographic-primitives-in-plain-python
+# https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # (MIT License)
 # Permission is hereby granted, free of charge, to any person obtaining a copy of

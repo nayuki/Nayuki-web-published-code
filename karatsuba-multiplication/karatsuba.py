@@ -2,7 +2,7 @@
 # Karatsuba fast multiplication algorithm
 # Copyright (c) 2014 Project Nayuki
 # 
-# http://www.nayuki.io/page/karatsuba-multiplication
+# https://www.nayuki.io/page/karatsuba-multiplication
 # 
 
 # Requires Python version >= 2.7 because of long.bit_length().

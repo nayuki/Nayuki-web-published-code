@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/triangle-solver-javascript
+ * https://www.nayuki.io/page/triangle-solver-javascript
  */
 
 "use strict";
@@ -164,7 +164,7 @@ function solveSide(a, b, C) {
 	C = degToRad(C);
 	if (C > 0.001)
 		return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(C));
-	else  // Explained in http://www.nayuki.io/page/numerically-stable-law-of-cosines
+	else  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
 		return Math.sqrt((a - b) * (a - b) + a * b * C * C * (1 - C * C / 12));
 }
 
@@ -174,7 +174,7 @@ function solveAngle(a, b, c) {
 	var temp = (a * a + b * b - c * c) / (2 * a * b);
 	if (-1 <= temp && temp <= 0.9999999)
 		return radToDeg(Math.acos(temp));
-	else if (temp <= 1)  // Explained in http://www.nayuki.io/page/numerically-stable-law-of-cosines
+	else if (temp <= 1)  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
 		return radToDeg(Math.sqrt((c * c - (a - b) * (a - b)) / (a * b)));
 	else
 		throw "No solution";

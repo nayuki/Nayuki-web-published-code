@@ -2,7 +2,7 @@
  * Compact hash set test
  * 
  * Copyright (c) 2015 Project Nayuki
- * http://www.nayuki.io/page/compact-hash-map-java
+ * https://www.nayuki.io/page/compact-hash-map-java
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

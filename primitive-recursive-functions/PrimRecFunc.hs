@@ -3,7 +3,7 @@
  - 
  - Copyright (c) 2015 Project Nayuki
  - All rights reserved. Contact Nayuki for licensing.
- - http://www.nayuki.io/page/primitive-recursive-functions
+ - https://www.nayuki.io/page/primitive-recursive-functions
  -}
 
 module PrimRecFunc

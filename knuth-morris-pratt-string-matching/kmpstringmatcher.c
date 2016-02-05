@@ -2,7 +2,7 @@
  * Knuth-Morris-Pratt string matcher (C)
  * 
  * Copyright (c) 2014 Project Nayuki
- * http://www.nayuki.io/page/knuth-morris-pratt-string-matching
+ * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

@@ -4,7 +4,7 @@
 # 
 # Copyright (c) 2014 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
-# http://www.nayuki.io/page/primitive-recursive-functions
+# https://www.nayuki.io/page/primitive-recursive-functions
 # 
 
 from primrecfunc import *

@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2015 Nayuki Minase
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/nanoblock-modeling-in-povray
+ * https://www.nayuki.io/page/nanoblock-modeling-in-povray
  */
 
 // Note: The preferred aspect ratio is 4:3

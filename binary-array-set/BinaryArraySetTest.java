@@ -2,7 +2,7 @@
  * Binary array set test (Java)
  * 
  * Copyright (c) 2014 Project Nayuki
- * http://www.nayuki.io/page/binary-array-set
+ * https://www.nayuki.io/page/binary-array-set
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

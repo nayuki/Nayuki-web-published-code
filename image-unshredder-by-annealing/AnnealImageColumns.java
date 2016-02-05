@@ -7,7 +7,7 @@
  * 
  * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/image-unshredder-by-annealing
+ * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
 
 import java.awt.image.BufferedImage;

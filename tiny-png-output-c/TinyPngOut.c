@@ -2,7 +2,7 @@
  * Tiny PNG Output (C)
  * 
  * Copyright (c) 2014 Project Nayuki
- * http://www.nayuki.io/page/tiny-png-output-c
+ * https://www.nayuki.io/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

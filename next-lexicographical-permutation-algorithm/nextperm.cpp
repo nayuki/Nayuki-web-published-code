@@ -1,7 +1,7 @@
 /* 
  * Next lexicographical permutation algorithm (C++)
  * by Project Nayuki, 2014. Public domain.
- * http://www.nayuki.io/page/next-lexicographical-permutation-algorithm
+ * https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
 
 #include <algorithm>

@@ -2,7 +2,7 @@
  * Sinc-based image resampler
  * 
  * Copyright (c) 2014 Project Nayuki
- * http://www.nayuki.io/page/sinc-based-image-resampler
+ * https://www.nayuki.io/page/sinc-based-image-resampler
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ public final class sincimageresample {
 		if (args.length < 4 || args.length > 6) {
 			System.err.println("Sinc-based image resampler");
 			System.err.println("Copyright (c) 2014 Project Nayuki");
-			System.err.println("http://www.nayuki.io/");
+			System.err.println("https://www.nayuki.io/");
 			System.err.println("");
 			System.err.println("Usage: java sincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]");
 			System.exit(1);

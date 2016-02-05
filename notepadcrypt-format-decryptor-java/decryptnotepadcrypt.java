@@ -18,7 +18,7 @@
  * 
  * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/notepadcrypt-format-decryptor-java
+ * https://www.nayuki.io/page/notepadcrypt-format-decryptor-java
  * 
  * NotepadCrypt resources:
  * - http://www.andromeda.com/people/ddyer/notepad/NotepadCrypt.html

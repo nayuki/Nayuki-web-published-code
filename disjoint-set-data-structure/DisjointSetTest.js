@@ -2,7 +2,7 @@
  * Disjoint-set data structure - Test suite (JavaScript)
  * 
  * Copyright (c) 2016 Project Nayuki
- * http://www.nayuki.io/page/disjoint-set-data-structure
+ * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

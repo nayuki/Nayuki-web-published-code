@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/animated-floating-graph-nodes
+ * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
 
 "use strict";
@@ -331,7 +331,7 @@ function containsEdge(array, edge) {
 }
 
 
-// The union-find data structure. A heavily stripped-down version derived from http://www.nayuki.io/page/disjoint-set-data-structure .
+// The union-find data structure. A heavily stripped-down version derived from https://www.nayuki.io/page/disjoint-set-data-structure .
 function DisjointSet(size) {
 	var parents = [];
 	var ranks = [];

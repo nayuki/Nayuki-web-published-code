@@ -2,7 +2,7 @@
  * AVL tree list (Java)
  * 
  * Copyright (c) 2016 Project Nayuki
- * http://www.nayuki.io/page/avl-tree-list
+ * https://www.nayuki.io/page/avl-tree-list
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

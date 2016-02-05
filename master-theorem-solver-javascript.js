@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/master-theorem-solver
+ * https://www.nayuki.io/page/master-theorem-solver
  */
 
 "use strict";

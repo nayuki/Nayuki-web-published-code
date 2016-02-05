@@ -2,7 +2,7 @@
  * CRC-32 forcer (C)
  * 
  * Copyright (c) 2016 Project Nayuki
- * http://www.nayuki.io/page/forcing-a-files-crc-to-any-value
+ * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

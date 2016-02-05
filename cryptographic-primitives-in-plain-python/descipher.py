@@ -3,7 +3,7 @@
 # Note: The key length is 64 bits but 8 of them are ignored, so the effective key length is 56 bits.
 # 
 # Copyright (c) 2015 Project Nayuki
-# http://www.nayuki.io/page/cryptographic-primitives-in-plain-python
+# https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # (MIT License)
 # Permission is hereby granted, free of charge, to any person obtaining a copy of

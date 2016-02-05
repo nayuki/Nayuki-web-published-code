@@ -2,7 +2,7 @@
  * Binomial heap (Java)
  * 
  * Copyright (c) 2014 Project Nayuki
- * http://www.nayuki.io/page/binomial-heap
+ * https://www.nayuki.io/page/binomial-heap
  * 
  * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

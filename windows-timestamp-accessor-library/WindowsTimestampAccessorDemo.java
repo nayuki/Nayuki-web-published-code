@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * http://www.nayuki.io/page/windows-timestamp-accessor-library
+ * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
 
 import java.io.File;
