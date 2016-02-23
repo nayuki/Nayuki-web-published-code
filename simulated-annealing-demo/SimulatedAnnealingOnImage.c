@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
 	}
 	
 	// Write image to file
-	char filename[100] = {};
+	char filename[100] = {0};
 	int code = snprintf(filename, sizeof(filename), "simulated-annealing-time%"PRId64"-iters%"PRId64"-starttemp%.1f.bmp", (int64_t)time(NULL) * 1000, ITERATIONS, START_TEMPERATURE);
 	if (code < 0 || code + 1 > sizeof(filename))
 		strncpy(filename, "simulated-annealing.bmp", sizeof(filename));

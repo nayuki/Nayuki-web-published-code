@@ -48,8 +48,8 @@ int main(int argc, char **argv) {
 	printf("Self-check passed\n");
 	
 	// Benchmark speed
-	uint8_t state[64] = {};
-	uint8_t block[64] = {};
+	uint8_t state[64] = {0};
+	uint8_t block[64] = {0};
 	const int N = 1000000;
 	clock_t start_time = clock();
 	int i;

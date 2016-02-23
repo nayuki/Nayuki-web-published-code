@@ -248,8 +248,8 @@ static int self_check(void) {
 
 static void benchmark(void) {
 	const int N = 3000000;
-	uint8_t blocks[128 * NUM_CH] = {};
-	uint64_t states[8 * NUM_CH] = {};
+	uint8_t blocks[128 * NUM_CH] = {0};
+	uint64_t states[8 * NUM_CH] = {0};
 	clock_t start_time = clock();
 	int i;
 	for (i = 0; i < N; i++)

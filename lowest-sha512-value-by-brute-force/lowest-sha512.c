@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 	benchmark();
 	
 	// Set up the SHA-512 processed block: Message (28 bytes), terminator and padding (96 bytes), length (16 bytes)
-	uint8_t block[128] = {};
+	uint8_t block[128] = {0};
 	{
 		struct timespec ts;
 		clock_gettime(CLOCK_REALTIME, &ts);
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
 		if (i >= ITERS_PER_PRINT) {
 			totaliters += i;
 			i = 0;
-			char message[MSG_LEN + 1] = {};
+			char message[MSG_LEN + 1] = {0};
 			memcpy(message, block, MSG_LEN);
 			fprintf(stderr, "\rHash trials: %.3f billion (%s)", totaliters / 1000000000.0, message);
 			fflush(stderr);
@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
 		
 		// Compare with lowest hash
 		if (hash[0] <= lowesthash[0] && compare_hashes(hash, lowesthash) < 0) {
-			char message[MSG_LEN + 1] = {};
+			char message[MSG_LEN + 1] = {0};
 			memcpy(message, block, MSG_LEN);
 			fprintf(stdout, "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 " %s\n",
 					hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7], message);
@@ -142,8 +142,8 @@ static int self_check(void) {
 
 static void benchmark(void) {
 	const int N = 3000000;
-	uint8_t block[128] = {};
-	uint64_t state[8] = {};
+	uint8_t block[128] = {0};
+	uint64_t state[8] = {0};
 	clock_t start_time = clock();
 	int i;
 	for (i = 0; i < N; i++)

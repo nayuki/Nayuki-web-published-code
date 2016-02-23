@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 	#define MSG_LEN 1024
 	
 	uint8_t key[3] = {'a', 'b', 'c'};
-	uint8_t msg[MSG_LEN] = {};
+	uint8_t msg[MSG_LEN] = {0};
 	Rc4State state;
 	rc4_init(&state, key, sizeof(key));
 	
@@ -84,8 +84,8 @@ static int self_check(void) {
 	#define MSG_LEN 127
 	
 	uint8_t key[3] = {'K', 'e', 'y'};
-	uint8_t msg0[MSG_LEN] = {};
-	uint8_t msg1[MSG_LEN] = {};
+	uint8_t msg0[MSG_LEN] = {0};
+	uint8_t msg1[MSG_LEN] = {0};
 	Rc4State state0;
 	Rc4State state1;
 	rc4_init(&state0, key, sizeof(key));
