@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform for x86-64 AVX (C)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
@@ -43,7 +43,7 @@ static int floor_log2(uint64_t n);
 static uint64_t reverse_bits(uint64_t x, unsigned int n);
 
 
-/**** Function implementations ****/
+/*---- Function implementations ----*/
 
 // Returns a pointer to an opaque structure of FFT tables. n must be a power of 2 and n >= 4.
 void *fft_init(size_t n) {

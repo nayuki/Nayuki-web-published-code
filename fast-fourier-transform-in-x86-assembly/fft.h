@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
@@ -22,6 +22,9 @@
  *   Software.
  */
 
+
 void *fft_init(size_t n);
+
 void fft_transform(const void *tables, double *real, double *imag);
+
 void fft_destroy(void *tables);

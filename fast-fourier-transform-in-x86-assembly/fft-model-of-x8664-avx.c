@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform for x86-64 AVX (C)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
@@ -35,7 +35,7 @@ struct FftTables {
 };
 
 
-/**** Function implementations ****/
+/*---- Function implementations ----*/
 
 // This is a C implementation that models the x86-64 AVX implementation.
 void fft_transform(const void *tables, double *real, double *imag) {

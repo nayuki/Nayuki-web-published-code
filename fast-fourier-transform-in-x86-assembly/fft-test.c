@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform test
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
@@ -41,7 +41,7 @@ static double *random_reals(int n);
 static void *memdup(const void *src, size_t n);
 
 
-/**** Function implementations ****/
+/*---- Function implementations ----*/
 
 int main(int argc, char **argv) {
 	// Self-test to check correct computation of values
