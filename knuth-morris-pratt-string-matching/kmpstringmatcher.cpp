@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (C++)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * (MIT License)
@@ -29,7 +29,7 @@
 
 
 // Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
-// If the pattern is found, a pointer to the start of the earliest match in 'text' is returned. Otherwise NULL is returned.
+// If the pattern is found, a pointer to the start of the earliest match in 'text' is returned. Otherwise nullptr is returned.
 const char *kmpSearch(const char *pattern, const char *text) {
 	if (pattern[0] == '\0')
 		return text;  // Immediate match
@@ -56,5 +56,5 @@ const char *kmpSearch(const char *pattern, const char *text) {
 				return text - (j - 1);
 		}
 	}
-	return NULL;  // Not found
+	return nullptr;  // Not found
 }

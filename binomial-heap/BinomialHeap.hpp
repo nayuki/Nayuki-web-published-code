@@ -1,7 +1,7 @@
 /* 
  * Binomial heap (C++)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/binomial-heap
  * 
  * (MIT License)
@@ -45,7 +45,7 @@ public:
 	
 	size_t size() const {
 		size_t result = 0;
-		for (Node *node = head.next; node != NULL; node = node->next) {
+		for (Node *node = head.next; node != nullptr; node = node->next) {
 			size_t temp = safeLeftShift(1, node->rank);
 			if (temp == 0)
 				throw "Size overflow";  // The result cannot be returned, however the data structure is still valid
@@ -57,7 +57,7 @@ public:
 	
 	void clear() {
 		delete head.next;
-		head.next = NULL;
+		head.next = nullptr;
 	}
 	
 	
@@ -72,11 +72,11 @@ public:
 	
 	
 	const E &top() const {
-		if (head.next == NULL)
+		if (head.next == nullptr)
 			throw "Empty heap";
-		E *result = NULL;
-		for (Node *node = head.next; node != NULL; node = node->next) {
-			if (result == NULL || node->value < *result)
+		E *result = nullptr;
+		for (Node *node = head.next; node != nullptr; node = node->next) {
+			if (result == nullptr || node->value < *result)
 				result = &node->value;
 		}
 		return *result;
@@ -84,22 +84,22 @@ public:
 	
 	
 	E pop() {
-		if (head.next == NULL)
+		if (head.next == nullptr)
 			throw "Empty heap";
-		E *min = NULL;
-		Node *nodeBeforeMin = NULL;
-		for (Node *node = head.next, *prevNode = &head; node != NULL; prevNode = node, node = node->next) {
-			if (min == NULL || node->value < *min) {
+		E *min = nullptr;
+		Node *nodeBeforeMin = nullptr;
+		for (Node *node = head.next, *prevNode = &head; node != nullptr; prevNode = node, node = node->next) {
+			if (min == nullptr || node->value < *min) {
 				min = &node->value;
 				nodeBeforeMin = prevNode;
 			}
 		}
-		assert(min != NULL && nodeBeforeMin != NULL);
+		assert(min != nullptr && nodeBeforeMin != nullptr);
 		
 		Node *minNode = nodeBeforeMin->next;
 		assert(min == &minNode->value);
 		nodeBeforeMin->next = minNode->next;
-		minNode->next = NULL;
+		minNode->next = nullptr;
 		merge(minNode->removeRoot());
 		E result(std::move(*min));
 		delete minNode;
@@ -112,7 +112,7 @@ public:
 		if (&other == this)
 			throw "Merging with self";
 		merge(other.head.next);
-		other.head.next = NULL;
+		other.head.next = nullptr;
 	}
 	
 	
@@ -122,28 +122,28 @@ private:
 	void merge(Node *other) {
 		assert(head.rank == -1);
 		Node *self = head.next;
-		head.next = NULL;
-		Node *prevTail = NULL;
+		head.next = nullptr;
+		Node *prevTail = nullptr;
 		Node *tail = &head;
 		
-		while (self != NULL || other != NULL) {
+		while (self != nullptr || other != nullptr) {
 			Node *node;
-			if (other == NULL || (self != NULL && self->rank <= other->rank)) {
+			if (other == nullptr || (self != nullptr && self->rank <= other->rank)) {
 				node = self;
 				self = self->next;
 			} else {
 				node = other;
 				other = other->next;
 			}
-			node->next = NULL;
+			node->next = nullptr;
 			
-			assert(tail->next == NULL);
+			assert(tail->next == nullptr);
 			if (tail->rank < node->rank) {
 				prevTail = tail;
 				tail->next = node;
 				tail = node;
 			} else if (tail->rank == node->rank + 1) {
-				assert(prevTail != NULL);
+				assert(prevTail != nullptr);
 				node->next = tail;
 				prevTail->next = node;
 				prevTail = node;
@@ -154,7 +154,7 @@ private:
 					tail->down = node;
 					tail->rank++;
 				} else {
-					assert(prevTail != NULL);
+					assert(prevTail != nullptr);
 					tail->next = node->down;
 					node->down = tail;
 					node->rank++;
@@ -181,7 +181,7 @@ public:
 	void checkStructure() const {
 		if (head.rank != -1)
 			throw "Assertion error";
-		if (head.next != NULL) {
+		if (head.next != nullptr) {
 			if (head.next->rank <= head.rank)
 				throw "Assertion error";
 			head.next->checkStructure(true);
@@ -206,41 +206,41 @@ private:
 		Node() :
 			value(),  // Type E needs to have a default constructor
 			rank(-1),
-			down(NULL),
-			next(NULL) {}
+			down(nullptr),
+			next(nullptr) {}
 		
 		
 		// Regular node
 		Node(const E &val) :
 			value(val),  // Copy constructor
 			rank(0),
-			down(NULL),
-			next(NULL) {}
+			down(nullptr),
+			next(nullptr) {}
 		
 		
 		// Regular node
 		Node(E &&val) :
 			value(std::move(val)),  // Move constructor
 			rank(0),
-			down(NULL),
-			next(NULL) {}
+			down(nullptr),
+			next(nullptr) {}
 		
 		
 		~Node() {
-			if (down != NULL)
+			if (down != nullptr)
 				delete down;
-			if (next != NULL)
+			if (next != nullptr)
 				delete next;
 		}
 		
 		
 		
 		Node *removeRoot() {
-			assert(next == NULL);
+			assert(next == nullptr);
 			Node *node = down;
-			down = NULL;
-			Node *result = NULL;
-			while (node != NULL) {  // Reverse the order of nodes from descending rank to ascending rank
+			down = nullptr;
+			Node *result = nullptr;
+			while (node != nullptr) {  // Reverse the order of nodes from descending rank to ascending rank
 				Node *next = node->next;
 				node->next = result;
 				result = node;
@@ -255,16 +255,16 @@ private:
 			if (rank < 0)
 				throw "Assertion error";
 			if (rank >= 1) {
-				if (down == NULL || down->rank != rank - 1)
+				if (down == nullptr || down->rank != rank - 1)
 					throw "Assertion error";
 				down->checkStructure(false);
 				if (!isMain) {
-					if (next == NULL || next->rank != rank - 1)
+					if (next == nullptr || next->rank != rank - 1)
 						throw "Assertion error";
 					next->checkStructure(false);
 				}
 			}
-			if (isMain && next != NULL) {
+			if (isMain && next != nullptr) {
 				if (next->rank <= rank)
 					throw "Assertion error";
 				next->checkStructure(true);

@@ -1,7 +1,7 @@
 /* 
  * Binary array set (C++)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/binary-array-set
  * 
  * (MIT License)
@@ -56,7 +56,7 @@ public:
 	void clear() {
 		for (size_t i = 0; i < values.size(); i++) {
 			E *vals = values.at(i);
-			if (vals != NULL) {
+			if (vals != nullptr) {
 				size_t len = (size_t)1 << i;
 				for (size_t j = 0; j < len; j++)
 					vals[j].~E();
@@ -72,7 +72,7 @@ public:
 	bool contains(const E &val) const {
 		for (size_t i = 0; i < values.size(); i++) {
 			const E *vals = values.at(i);
-			if (vals != NULL) {
+			if (vals != nullptr) {
 				// Binary search
 				size_t start = 0;
 				size_t end = (size_t)1 << i;
@@ -119,9 +119,9 @@ private:
 	void insertHelper(E *toPut) {
 		for (size_t i = 0; i < values.size(); i++) {
 			E *vals = values.at(i);
-			if (vals == NULL) {
+			if (vals == nullptr) {
 				values.at(i) = toPut;
-				toPut = NULL;
+				toPut = nullptr;
 				break;
 			} else {
 				// Merge two sorted arrays
@@ -151,11 +151,11 @@ private:
 				}
 				free(vals);
 				free(toPut);
-				values.at(i) = NULL;
+				values.at(i) = nullptr;
 				toPut = next;
 			}
 		}
-		if (toPut != NULL)
+		if (toPut != nullptr)
 			values.push_back(toPut);
 		length++;
 	}
@@ -167,7 +167,7 @@ public:
 		size_t sum = 0;
 		for (size_t i = 0; i < values.size(); i++) {
 			const E *vals = values.at(i);
-			if (vals != NULL) {
+			if (vals != nullptr) {
 				size_t len = (size_t)1 << i;
 				sum += len;
 				for (size_t j = 1; j < len; j++) {
@@ -183,7 +183,7 @@ public:
 	
 private:
 	
-	std::vector<E*> values;  // Element i is either NULL or a malloc()'d array of length (1 << i) elements of E
+	std::vector<E*> values;  // Element i is either nullptr or a malloc()'d array of length (1 << i) elements of E
 	size_t length;
 	
 };

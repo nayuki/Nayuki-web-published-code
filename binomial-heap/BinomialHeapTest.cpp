@@ -1,7 +1,7 @@
 /* 
  * Binomial heap test (C++)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/binomial-heap
  * 
  * (MIT License)
@@ -33,7 +33,7 @@
 // Comprehensively tests all the defined methods against std::priority_queue
 int main(int argc, char *argv[]) {
 	try {
-		srand(time(NULL));
+		srand(time(nullptr));
 		std::priority_queue<int,std::vector<int>,std::greater<int> > queue;  // std::greater effects a min-queue
 		BinomialHeap<int> heap;
 		size_t size = 0;

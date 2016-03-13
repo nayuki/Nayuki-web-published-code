@@ -1,7 +1,7 @@
 /* 
  * Binary array set test (C++)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/binary-array-set
  * 
  * (MIT License)
@@ -32,7 +32,7 @@
 // Comprehensively tests all the defined methods against std::set
 int main(int argc, char *argv[]) {
 	try {
-		srand(time(NULL));
+		srand(time(nullptr));
 		std::set<int> set0;
 		BinaryArraySet<int> set1;
 		size_t size = 0;
