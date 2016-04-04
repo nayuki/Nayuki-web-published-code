@@ -1,7 +1,7 @@
 /* 
  * Tiny PNG Output (C)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,8 @@
  * along with this program (see COPYING.txt).
  * If not, see <http://www.gnu.org/licenses/>.
  */
+
+#pragma once
 
 
 /* 

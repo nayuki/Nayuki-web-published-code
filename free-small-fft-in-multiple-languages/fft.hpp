@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C++)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -21,6 +21,8 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
+
+#pragma once
 
 
 namespace Fft {

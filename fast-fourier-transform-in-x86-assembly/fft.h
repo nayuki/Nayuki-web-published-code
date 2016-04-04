@@ -22,6 +22,8 @@
  *   Software.
  */
 
+#pragma once
+
 
 void *fft_init(size_t n);
 
