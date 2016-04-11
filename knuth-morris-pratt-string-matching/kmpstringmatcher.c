@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (C)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * (MIT License)
@@ -31,7 +31,8 @@
 
 // Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
 // If the pattern is found, a pointer to the start of the earliest match in 'text' is returned. Otherwise NULL is returned.
-char *kmp_search(char *pattern, char *text) {
+// However in the case that malloc() fails, NULL is also returned.
+const char *kmp_search(const char *pattern, const char *text) {
 	if (pattern[0] == '\0')
 		return text;  // Immediate match
 	

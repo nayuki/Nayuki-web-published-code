@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@
  * Note: If 0 points are given, null is returned. If 1 point is given, a circle of radius 0 is returned.
  */
 function makeCircle(points) {
-	// Clone list to preserve the caller's data, do Knuth shuffle
+	// Clone list to preserve the caller's data, do Durstenfeld shuffle
 	var shuffled = points.slice();
 	for (var i = points.length - 1; i >= 0; i--) {
 		var j = Math.floor(Math.random() * (i + 1));

@@ -1,7 +1,7 @@
 /* 
  * Image unshredder demo (JavaScript)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -121,7 +121,7 @@ function doShuffle() {
 	var pixels = shuffledImage.data;
 	while (shuffleStartColumn < width) {
 		// Pick a random column j in the range [i, width) and move it to position i.
-		// This is effectively an inefficient but more animatedly appealing variant of the unbiased Fisher-Yates shuffle.
+		// This Fisher-Yates shuffle is the less efficient than the Durstenfeld shuffle but more animatedly appealing.
 		var i = shuffleStartColumn;
 		var j = i + Math.floor(Math.random() * (width - i));
 		for (var y = 0; y < height; y++) {

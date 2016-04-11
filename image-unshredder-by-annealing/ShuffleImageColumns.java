@@ -4,7 +4,7 @@
  * Usage: java ShuffleImageColumns InFile.{png,bmp} OutFile.png
  * This program randomly permutes the columns of the input image to generate an output image.
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -37,7 +37,7 @@ public class ShuffleImageColumns {
 		BufferedImage image = ImageIO.read(inFile);
 		Random rand = new Random();
 		for (int x = 0; x < image.getWidth(); x++) {
-			// Fisher-Yates shuffle 
+			// Durstenfeld shuffle
 			int xx = x + rand.nextInt(image.getWidth() - x);
 			for (int y = 0; y < image.getHeight(); y++) {
 				int temp = image.getRGB(x, y);
