@@ -28,9 +28,9 @@
 /* 
  * Module "qrcodegen". Public members inside this namespace:
  * - Function encodeText(str text, QrCode.Ecc ecl) -> QrCode
- * - Function encodeTextToSegment(str text) -> QrSegment
  * - Function encodeBinary(list<int> data, QrCode.Ecc ecl) -> QrCode
- * - Function encodeSegments(list<QrSegment> segs, QrCode.Ecc ecl) -> QrCode
+ * - Function encodeSegments(list<QrSegment> segs, QrCode.Ecc ecl,
+ *       int minVersion=1, int maxVersion=40, mask=-1, boostEcl=true) -> QrCode
  * - Class QrCode:
  *   - Constructor QrCode(QrCode qr, int mask)
  *   - Constructor QrCode(list<int> bytes, int mask, int version, QrCode.Ecc ecl)
@@ -48,6 +48,7 @@
  *   - Function makeBytes(list<int> data) -> QrSegment
  *   - Function makeNumeric(str data) -> QrSegment
  *   - Function makeAlphanumeric(str data) -> QrSegment
+ *   - Function makeSegments(str text) -> list<QrSegment>
  *   - Constructor QrSegment(QrSegment.Mode mode, int numChars, list<int> bitData)
  *   - Method getMode() -> QrSegment.Mode
  *   - Method getNumChars() -> int
@@ -67,22 +68,8 @@ var qrcodegen = new function() {
 	 * code points (not UTF-16 code units). The smallest possible QR Code version is automatically chosen for the output.
 	 */
 	this.encodeText = function(text, ecl) {
-		var seg = this.encodeTextToSegment(text);
-		return this.encodeSegments([seg], ecl);
-	};
-	
-	
-	/* 
-	 * Returns a single QR segment representing the given Unicode text string.
-	 */
-	this.encodeTextToSegment = function(text) {
-		// Select the most efficient segment encoding automatically
-		if (QrSegment.NUMERIC_REGEX.test(text))
-			return this.QrSegment.makeNumeric(text);
-		else if (QrSegment.ALPHANUMERIC_REGEX.test(text))
-			return this.QrSegment.makeAlphanumeric(text);
-		else
-			return this.QrSegment.makeBytes(toUtf8ByteArray(text));
+		var segs = this.QrSegment.makeSegments(text);
+		return this.encodeSegments(segs, ecl);
 	};
 	
 	
@@ -98,40 +85,39 @@ var qrcodegen = new function() {
 	
 	
 	/* 
-	 * Returns a QR Code symbol representing the given data segments at the given error
-	 * correction level. The smallest possible QR Code version is automatically chosen for the output.
+	 * Returns a QR Code symbol representing the specified data segments with the specified encoding parameters.
+	 * The smallest possible QR Code version within the specified range is automatically chosen for the output.
 	 * This function allows the user to create a custom sequence of segments that switches
-	 * between modes (such as alphanumeric and binary) to encode text more efficiently. This
-	 * function is considered to be lower level than simply encoding text or binary data.
+	 * between modes (such as alphanumeric and binary) to encode text more efficiently.
+	 * This function is considered to be lower level than simply encoding text or binary data.
 	 */
-	this.encodeSegments = function(segs, ecl) {
+	this.encodeSegments = function(segs, ecl, minVersion, maxVersion, mask, boostEcl) {
+		if (minVersion == undefined) minVersion = 1;
+		if (maxVersion == undefined) maxVersion = 40;
+		if (mask == undefined) mask = -1;
+		if (boostEcl == undefined) boostEcl = true;
+		if (!(1 <= minVersion && minVersion <= maxVersion && maxVersion <= 40) || mask < -1 || mask > 7)
+			throw "Invalid value";
+		
 		// Find the minimal version number to use
-		var version, dataCapacityBits;
-		outer:
-		for (version = 1; ; version++) {  // Increment until the data fits in the QR Code
-			if (version > 40)  // All versions could not fit the given data
-				throw "Data too long";
-			dataCapacityBits = QrCode.getNumDataCodewords(version, ecl) * 8;  // Number of data bits available
-			
-			// Calculate the total number of bits needed at this version number
-			// to encode all the segments (i.e. segment metadata and payloads)
-			var dataUsedBits = 0;
-			for (var i = 0; i < segs.length; i++) {
-				var seg = segs[i];
-				if (seg.numChars < 0)
-					throw "Assertion error";
-				var ccbits = seg.getMode().numCharCountBits(version);
-				if (seg.getNumChars() >= (1 << ccbits)) {
-					// Segment length value doesn't fit in the length field's bit-width, so fail immediately
-					continue outer;
-				}
-				dataUsedBits += 4 + ccbits + seg.getBits().length;
-			}
-			if (dataUsedBits <= dataCapacityBits)
+		var version, dataUsedBits;
+		for (version = minVersion; ; version++) {
+			var dataCapacityBits = QrCode.getNumDataCodewords(version, ecl) * 8;  // Number of data bits available
+			dataUsedBits = this.QrSegment.getTotalBits(segs, version);
+			if (dataUsedBits != null && dataUsedBits <= dataCapacityBits)
 				break;  // This version number is found to be suitable
+			if (version >= maxVersion)  // All versions in the range could not fit the given data
+				throw "Data too long";
 		}
 		
+		// Increase the error correction level while the data still fits in the current version number
+		[this.QrCode.Ecc.MEDIUM, this.QrCode.Ecc.QUARTILE, this.QrCode.Ecc.HIGH].forEach(function(newEcl) {
+			if (boostEcl && dataUsedBits <= QrCode.getNumDataCodewords(version, newEcl) * 8)
+				ecl = newEcl;
+		});
+		
 		// Create the data bit string by concatenating all segments
+		var dataCapacityBits = QrCode.getNumDataCodewords(version, ecl) * 8;
 		var bb = new BitBuffer();
 		segs.forEach(function(seg) {
 			bb.appendBits(seg.getMode().getModeBits(), 4);
@@ -150,7 +136,7 @@ var qrcodegen = new function() {
 			throw "Assertion error";
 		
 		// Create the QR Code symbol
-		return new this.QrCode(bb.getBytes(), -1, version, ecl);
+		return new this.QrCode(bb.getBytes(), mask, version, ecl);
 	};
 	
 	
@@ -354,7 +340,7 @@ var qrcodegen = new function() {
 				rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
 			data = data << 10 | rem;
 			data ^= 0x5412;  // uint15
-			if ((data & ((1 << 15) - 1)) != data)
+			if (data >>> 15 != 0)
 				throw "Assertion error";
 			
 			// Draw first copy
@@ -386,7 +372,7 @@ var qrcodegen = new function() {
 			for (var i = 0; i < 12; i++)
 				rem = (rem << 1) ^ ((rem >>> 11) * 0x1F25);
 			var data = version << 12 | rem;  // uint18
-			if ((data & ((1 << 18) - 1)) != data)
+			if (data >>> 18 != 0)
 				throw "Assertion error";
 			
 			// Draw two copies
@@ -771,6 +757,37 @@ var qrcodegen = new function() {
 		if (i < text.length)  // 1 character remaining
 			bb.appendBits(QrSegment.ALPHANUMERIC_ENCODING_TABLE[text.charCodeAt(i) - 32], 6);
 		return new this(this.Mode.ALPHANUMERIC, text.length, bb.getBits());
+	};
+	
+	/* 
+	 * Returns a new mutable list of zero or more segments to represent the given Unicode text string.
+	 * The result may use various segment modes and switch modes to optimize the length of the bit stream.
+	 */
+	this.QrSegment.makeSegments = function(text) {
+		// Select the most efficient segment encoding automatically
+		if (text == "")
+			return [];
+		else if (QrSegment.NUMERIC_REGEX.test(text))
+			return [this.makeNumeric(text)];
+		else if (QrSegment.ALPHANUMERIC_REGEX.test(text))
+			return [this.makeAlphanumeric(text)];
+		else
+			return [this.makeBytes(toUtf8ByteArray(text))];
+	};
+	
+	// Package-private helper function.
+	this.QrSegment.getTotalBits = function(segs, version) {
+		if (version < 1 || version > 40)
+			throw "Version number out of range";
+		var result = 0;
+		segs.forEach(function(seg) {
+			var ccbits = seg.getMode().numCharCountBits(version);
+			// Fail if segment length value doesn't fit in the length field's bit-width
+			if (seg.getNumChars() >= (1 << ccbits))
+				return null;
+			result += 4 + ccbits + seg.getBits().length;
+		});
+		return result;
 	};
 	
 	/*-- Constants --*/
