@@ -26,6 +26,26 @@
 
 
 function redrawQrCode() {
+	// Show/hide rows based on bitmap/vector image output
+	var bitmapOutput = document.getElementById("output-format-bitmap").checked;
+	var scaleRow = document.getElementById("scale-row");
+	var svgXmlRow = document.getElementById("svg-xml-row");
+	if (bitmapOutput) {
+		scaleRow.style.removeProperty("display");
+		svgXmlRow.style.display = "none";
+	} else {
+		scaleRow.style.display = "none";
+		svgXmlRow.style.removeProperty("display");
+	}
+	var svgXml = document.getElementById("svg-xml-output");
+	svgXml.value = "";
+	
+	// Reset output images in case of early termination
+	var canvas = document.getElementById("qrcode-canvas");
+	var svg = document.getElementById("qrcode-svg");
+	canvas.style.display = "none";
+	svg.style.display = "none";
+	
 	// Returns a QrCode.Ecc object based on the radio buttons in the HTML form.
 	function getInputErrorCorrectionLevel() {
 		if (document.getElementById("errcorlvl-medium").checked)
@@ -42,27 +62,38 @@ function redrawQrCode() {
 	var ecl = getInputErrorCorrectionLevel();
 	var text = document.getElementById("text-input").value;
 	var segs = qrcodegen.QrSegment.makeSegments(text);
-	var qr = qrcodegen.encodeSegments(segs, ecl);
+	var minVer = parseInt(document.getElementById("version-min-input").value, 10);
+	var maxVer = parseInt(document.getElementById("version-max-input").value, 10);
+	var mask = parseInt(document.getElementById("mask-input").value, 10);
+	var boostEcc = document.getElementById("boost-ecc-input").checked;
+	var qr = qrcodegen.QrCode.encodeSegments(segs, ecl, minVer, maxVer, mask, boostEcc);
 	
-	// Get scale and border
-	var scale = parseInt(document.getElementById("scale-input").value, 10);
+	// Draw image output
 	var border = parseInt(document.getElementById("border-input").value, 10);
-	if (scale <= 0 || border < 0 || scale > 30 || border > 100)
+	if (border < 0 || border > 100)
 		return;
-	
-	// Draw QR Code onto canvas
-	var canvas = document.getElementById("qrcode-canvas");
-	var width = (qr.getSize() + border * 2) * scale;
-	if (canvas.width != width) {
+	if (bitmapOutput) {
+		var scale = parseInt(document.getElementById("scale-input").value, 10);
+		if (scale <= 0 || scale > 30)
+			return;
+		// Draw QR Code onto canvas
+		var width = (qr.getSize() + border * 2) * scale;
 		canvas.width = width;
 		canvas.height = width;
-	}
-	var ctx = canvas.getContext("2d");
-	for (var y = -border; y < qr.getSize() + border; y++) {
-		for (var x = -border; x < qr.getSize() + border; x++) {
-			ctx.fillStyle = qr.getModule(x, y) == 1 ? "#000000" : "#FFFFFF";
-			ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
+		var ctx = canvas.getContext("2d");
+		for (var y = -border; y < qr.getSize() + border; y++) {
+			for (var x = -border; x < qr.getSize() + border; x++) {
+				ctx.fillStyle = qr.getModule(x, y) == 1 ? "#000000" : "#FFFFFF";
+				ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
+			}
 		}
+		canvas.style.removeProperty("display");
+	} else {
+		var code = qr.toSvgString(border);
+		svg.setAttribute("viewBox", / viewBox="([^"]*)"/.exec(code)[1]);
+		svg.querySelector("path").setAttribute("d", / d="([^"]*)"/.exec(code)[1]);
+		svg.style.removeProperty("display");
+		svgXml.value = qr.toSvgString(border);
 	}
 	
 	
@@ -111,6 +142,23 @@ function redrawQrCode() {
 	while (elem.firstChild != null)
 		elem.removeChild(elem.firstChild);
 	elem.appendChild(document.createTextNode(stats));
+}
+
+
+function handleVersionMinMax(which) {
+	var minElem = document.getElementById("version-min-input");
+	var maxElem = document.getElementById("version-max-input");
+	var minVal = parseInt(minElem.value, 10);
+	var maxVal = parseInt(maxElem.value, 10);
+	minVal = Math.max(Math.min(minVal, 40), 1);
+	maxVal = Math.max(Math.min(maxVal, 40), 1);
+	if (which == "min" && minVal > maxVal)
+		maxVal = minVal;
+	else if (which == "max" && maxVal < minVal)
+		minVal = maxVal;
+	minElem.value = minVal.toString();
+	maxElem.value = maxVal.toString();
+	redrawQrCode();
 }
 
 
