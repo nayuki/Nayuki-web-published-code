@@ -1,7 +1,7 @@
 # 
-# Knuth's -yllion number notation demo
+# Knuth's -yllion number notation demo (Python)
 # 
-# Run main program with no arguments. Prints stuff to standard output. For Python 2 and 3.
+# Run main program with no arguments. Prints stuff to standard output. For Python 2.7+ and 3.3+.
 # 
 # Copyright (c) 2016 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
@@ -27,7 +27,7 @@ def main():
 			break
 		print("({} bits, {} digits) {}".format(n.bit_length(), numdigits, n))
 		
-		# Print number in various notations
+		# Print the number in various notations
 		if numdigits <= 69:
 			print(ConventionalEnglishNotation.to_string_with_commas(n))
 			print(ConventionalEnglishNotation.number_to_words(n))
@@ -35,16 +35,16 @@ def main():
 			print(YllionEnglishNotation.to_string_with_separators(n))
 			print(YllionEnglishNotation.number_to_words(n))
 			chinese = YllionChineseNotation.number_to_words(n)
-			if sys.version_info[0] >= 3:
-				print(chinese)
-			else:
-				print(chinese.encode("UTF-8"))
+			if sys.version_info[0] < 3:
+				chinese = chinese.encode("UTF-8")
+			print(chinese)
 		print("")
 
 
 
-# ---- Submodules ----
+# ---- Submodules for different number formats ----
 
+# See https://en.wikipedia.org/wiki/English_numerals .
 class ConventionalEnglishNotation(object):
 	
 	# For example: number_to_words(1234567) -> "one million two hundred thirty-four thousand five hundred sixty-seven".
@@ -63,7 +63,7 @@ class ConventionalEnglishNotation(object):
 				s += ConventionalEnglishNotation._ONES[n // 100] + " hundred"
 				if n % 100 != 0:
 					s += " "
-			n %= 100
+				n %= 100
 			s += ConventionalEnglishNotation._TENS[n // 10]
 			if n < 20:
 				s += ConventionalEnglishNotation._ONES[n]
@@ -73,20 +73,18 @@ class ConventionalEnglishNotation(object):
 		
 		else:  # n >= 1000
 			parts = []
-			for i in itertools.count():
+			for illion in ConventionalEnglishNotation._ILLIONS:
 				if n == 0:
 					break
-				if i >= len(ConventionalEnglishNotation._ILLIONS):
-					raise ValueError("Number too large")
 				rem = n % 1000
 				if rem > 0:
-					s = ConventionalEnglishNotation.number_to_words(rem)
-					if i > 0:
-						s += " " + ConventionalEnglishNotation._ILLIONS[i]
-					parts.append(s)
+					s0 = ConventionalEnglishNotation.number_to_words(rem)
+					s1 = (" " + illion) if (illion is not None) else ""
+					parts.append(s0 + s1)
 				n //= 1000
-			parts.reverse()
-			return " ".join(parts)
+			if n != 0:
+				raise ValueError("Number too large")
+			return " ".join(reversed(parts))
 	
 	
 	# For example: to_string_with_commas(-123456789) -> "-123,456,798".
@@ -122,13 +120,9 @@ class YllionEnglishNotation(object):
 	
 	@staticmethod
 	def number_to_words(n):
-		# Simple cases
 		if n < 0:
 			return "negative " + YllionEnglishNotation.number_to_words(-n)
-		elif n == 0:
-			return "zero"
-		
-		elif n < 100:  # 1 <= n <= 99, borrow functionality from another class
+		elif n < 100:  # 0 <= n <= 99, borrow functionality from another class
 			return ConventionalEnglishNotation.number_to_words(n)
 		
 		else:  # n >= 100
@@ -137,9 +131,10 @@ class YllionEnglishNotation(object):
 			if len(temp) > (1 << yllionslen):
 				raise ValueError("Number too large")
 			for i in reversed(range(1, yllionslen)):
-				if len(temp) > (1 << i):
-					high = int(temp[ : -(1 << i)])
-					low  = int(temp[-(1 << i) : ])
+				negsplit = 1 << i
+				if len(temp) > negsplit:
+					high = int(temp[ : -negsplit])
+					low  = int(temp[-negsplit : ])
 					return ((YllionEnglishNotation.number_to_words(high) + " " + YllionEnglishNotation._YLLIONS[i]) if (high > 0) else "") \
 						+ (" " if (high > 0 and low > 0) else "") \
 						+ (YllionEnglishNotation.number_to_words(low) if low > 0 else "")
@@ -153,13 +148,11 @@ class YllionEnglishNotation(object):
 			return "-" + YllionEnglishNotation.to_string_with_separators(-n)
 		else:
 			s = str(n)
-			j = 1
-			for i in range(len(s) - 4, 0, -4):
+			for (i, j) in zip(range(len(s) - 4, 0, -4), itertools.count(1)):
 				temp = bin(j)
-				k = len(temp) - len(temp.rstrip("0"))
+				k = len(temp) - len(temp.rstrip("0"))  # Number of trailing zeros in j
 				k = min(len(YllionEnglishNotation._SEPARATORS) - 1, k)
 				s = s[ : i] + YllionEnglishNotation._SEPARATORS[k] + s[i : ]
-				j += 1
 			return s
 	
 	
@@ -182,22 +175,23 @@ class YllionChineseNotation(object):
 			return u"\u96F6"
 		elif n < 100:
 			return (((YllionChineseNotation._ONES[n // 10] if (n >= 20) else u"") + u"\u5341") if (n >= 10) else u"") \
-				+ (YllionChineseNotation._ONES[n % 10] if (n % 10 != 0) else u"")
+				+ YllionChineseNotation._ONES[n % 10]
 		else:
 			temp = str(n)
 			yllionslen = len(YllionChineseNotation._YLLIONS)
 			if len(temp) > (1 << yllionslen):
 				raise ValueError("Number too large")
 			for i in reversed(range(1, yllionslen)):
-				if len(temp) > (1 << i):
-					high = int(temp[ : -(1 << i)])
-					low  = int(temp[-(1 << i) : ])
+				negsplit = 1 << i
+				if len(temp) > negsplit:
+					high = int(temp[ : -negsplit])
+					low  = int(temp[-negsplit : ])
 					return ((YllionChineseNotation.number_to_words(high) + YllionChineseNotation._YLLIONS[i]) if (high > 0) else u"") \
 						+ (YllionChineseNotation.number_to_words(low) if (low > 0) else u"")
 			raise AssertionError()
 	
 	
-	_ONES = [None, u"\u4E00", u"\u4E8C", u"\u4E09", u"\u56DB", u"\u4E94", u"\u516D", u"\u4E03", u"\u516B", u"\u4E5D"]
+	_ONES = [u"", u"\u4E00", u"\u4E8C", u"\u4E09", u"\u56DB", u"\u4E94", u"\u516D", u"\u4E03", u"\u516B", u"\u4E5D"]
 	
 	_YLLIONS = [None, u"\u767E", u"\u842C", u"\u5104", u"\u5146", u"\u4EAC", u"\u5793", u"\u79ED", u"\u7A70", u"\u6E9D", u"\u6F97", u"\u6B63", u"\u8F09"]
 

@@ -1,5 +1,5 @@
 /* 
- * Knuth's -yllion number notation demo
+ * Knuth's -yllion number notation demo (Java)
  * 
  * Run main program with no arguments. Prints stuff to standard output. For Java 8+.
  * 
@@ -29,7 +29,7 @@ public final class IntegerToWordsDemo {
 				break;
 			System.out.printf("(%d bits, %d digits) %d%n", n.bitLength(), len, n);
 			
-			// Print number in various notations
+			// Print the number in various notations
 			if (len <= 69) {
 				System.out.println(ConventionalEnglishNotation.toStringWithCommas(n));
 				System.out.println(ConventionalEnglishNotation.numberToWords(n));
@@ -47,6 +47,9 @@ public final class IntegerToWordsDemo {
 
 
 
+/*---- Submodules for different number formats ----*/
+
+// See https://en.wikipedia.org/wiki/English_numerals .
 final class ConventionalEnglishNotation {
 	
 	// For example: numberToWords(1234567) -> "one million two hundred thirty-four thousand five hundred sixty-seven".
@@ -65,8 +68,8 @@ final class ConventionalEnglishNotation {
 				s += ONES[m / 100] + " hundred";
 				if (m % 100 != 0)
 					s += " ";
+				m %= 100;
 			}
-			m %= 100;
 			s += TENS[m / 10];
 			if (m < 20)
 				s += ONES[m];
@@ -77,18 +80,16 @@ final class ConventionalEnglishNotation {
 		
 		else {  // n >= 1000
 			List<String> parts = new ArrayList<>();
-			for (int i = 0; n.signum() != 0; i++) {
-				if (i >= ILLIONS.length)
-					throw new IllegalArgumentException("Number too large");
+			for (String illion : ILLIONS) {
+				if (n.signum() == 0)
+					break;
 				BigInteger[] quotrem = n.divideAndRemainder(BI_THOUSAND);
-				if (quotrem[1].signum() == 1) {
-					String s = numberToWords(quotrem[1]);
-					if (i > 0)
-						s += " " + ILLIONS[i];
-					parts.add(s);
-				}
+				if (quotrem[1].signum() == 1)
+					parts.add(numberToWords(quotrem[1]) + (illion != null ? " " + illion : ""));
 				n = quotrem[0];
 			}
+			if (n.signum() != 0)
+				throw new IllegalArgumentException("Number too large");
 			Collections.reverse(parts);
 			return String.join(" ", parts);
 		}
@@ -133,13 +134,9 @@ final class ConventionalEnglishNotation {
 final class YllionEnglishNotation {
 	
 	public static String numberToWords(BigInteger n) {
-		// Simple cases
 		if (n.signum() == -1)
 			return "negative " + numberToWords(n.negate());
-		else if (n.signum() == 0)
-			return "zero";
-		
-		// 1 <= n <= 99, borrow functionality from another class
+		// 0 <= n <= 99, borrow functionality from another class
 		else if (n.compareTo(BigInteger.valueOf(100)) < 0)
 			return ConventionalEnglishNotation.numberToWords(n);
 		
@@ -198,7 +195,7 @@ final class YllionChineseNotation {
 			return "零";
 		else if (n.compareTo(BigInteger.valueOf(100)) < 0) {
 			int m = n.intValue();
-			return (m >= 10 ? (m >= 20 ? ONES[m / 10] : "") + "十" : "") + (m % 10 != 0 ? ONES[m % 10] : "");
+			return (m >= 10 ? (m >= 20 ? ONES[m / 10] : "") + "十" : "") + ONES[m % 10];
 		} else {
 			String temp = n.toString();
 			int yllionsLen = YLLIONS.length;
@@ -218,7 +215,7 @@ final class YllionChineseNotation {
 	}
 	
 	
-	private static final String[] ONES = {null, "一", "二", "三", "四", "五", "六", "七", "八", "九"};
+	private static final String[] ONES = {"", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
 	
 	private static final String[] YLLIONS = {null, "百", "萬", "億", "兆", "京", "垓", "秭", "穰", "溝", "澗", "正", "載"};
 	
