@@ -361,5 +361,13 @@ function element(name) {
 }
 
 
+// Polyfill
+if (!("hypot" in Math)) {
+	Math.hypot = function(x, y) {
+		return Math.sqrt(x * x + y * y);
+	};
+}
+
+
 clearBaseCanvas();
 doneButtonElem.onclick();

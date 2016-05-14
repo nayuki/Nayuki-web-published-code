@@ -36,6 +36,13 @@ function initialize() {
 	var graphics = canvasElem.getContext("2d");
 	initInputHandlers();
 	
+	// Polyfill
+	if (!("hypot" in Math)) {
+		Math.hypot = function(x, y) {
+			return Math.sqrt(x * x + y * y);
+		};
+	}
+	
 	// State of graph nodes - each object has these properties:
 	// - posX: Horizontal position in relative coordinates, typically in the range [0.0, relWidth], where relWidth <= 1.0
 	// - posY: Vertical position in relative coordinates, typically in the range [0.0, relHeight], where relHeight <= 1.0

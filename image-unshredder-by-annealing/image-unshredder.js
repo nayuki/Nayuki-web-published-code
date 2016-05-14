@@ -254,7 +254,7 @@ function doAnneal() {
 		curIterationsText.data = formatWithThousandsSeparators(curIteration) + " (" + (t * 100).toFixed(2) + "%)";
 		curTemperatureText.data = temperature.toFixed(2);
 		curEnergyText.data = formatWithThousandsSeparators(curEnergy);
-		var annealedImage = new ImageData(width, height);
+		var annealedImage = graphics.createImageData(width, height);
 		var shuffledPixels = shuffledImage.data;
 		var annealedPixels = annealedImage.data;
 		for (var y = 0; y < height; y++) {
