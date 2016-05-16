@@ -1,7 +1,7 @@
 /* 
  * Master theorem solver (JavaScript)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/master-theorem-solver
  */
@@ -54,7 +54,7 @@ function calc() {
 	var recurrenceElem = document.getElementById("recurrence");
 	recurrenceElem.appendChild(document.createTextNode(recurrenceText));
 	MathJax.Hub.Queue(["Typeset", MathJax.Hub, recurrenceElem]);
-	if (recurrenceText.substring(0, 6) == "Error:")
+	if (recurrenceText.substr(0, 6) == "Error:")
 		return;
 	
 	var p = Math.log(a) / Math.log(b);
@@ -93,7 +93,7 @@ function example(a, b, k, i) {
 
 function clearOutput() {
 	function removeAllChildren(node) {
-		while (node.childNodes.length > 0)
+		while (node.childNodes.firstChild != null)
 			node.removeChild(node.firstChild);
 	}
 	removeAllChildren(document.getElementById("recurrence"));
@@ -101,8 +101,9 @@ function clearOutput() {
 }
 
 
-// Returns a natural TeX string for the polylogarithmic function n^k log^i n
+// Returns a natural TeX string for the polylogarithmic expression (n^k log^i n).
 function formatPolyLog(k, i) {
+	// Process n^k
 	var result = null;
 	if (typeof k == "number") {
 		if (k == 0 && i != 0)
@@ -122,6 +123,7 @@ function formatPolyLog(k, i) {
 	else
 		throw "Invalid argument";
 	
+	// Process log^i n
 	if (i != 0) {
 		if (result != "")
 			result += " ";
