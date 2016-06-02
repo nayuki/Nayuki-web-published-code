@@ -1,7 +1,7 @@
 /* 
  * Chemical equation balancer
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
@@ -667,19 +667,18 @@ function Matrix(rows, cols) {
 	// Returns a new row that is the sum of the two given rows. The rows are not indices. This object's data is unused.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
 	function addRows(x, y) {
-		var z = x.clone();
-		for (var i = 0; i < z.length; i++)
-			z[i] = checkedAdd(x[i], y[i]);
+		var z = [];
+		for (var i = 0; i < x.length; i++)
+			z.push(checkedAdd(x[i], y[i]));
 		return z;
 	}
 	
 	// Returns a new row that is the product of the given row with the given scalar. The row is is not an index. This object's data is unused.
 	// For example, multiplyRow([0, 1, 3], 4) = [0, 4, 12].
 	function multiplyRow(x, c) {
-		var y = x.clone();
-		for (var i = 0; i < y.length; i++)
-			y[i] = checkedMultiply(x[i], c);
-		return y;
+		return x.map(function(val) {
+			return checkedMultiply(val, c);
+		});
 	}
 	
 	// Returns the GCD of all the numbers in the given row. The row is is not an index. This object's data is unused.
@@ -717,8 +716,7 @@ function Matrix(rows, cols) {
 	// Changes this matrix to reduced row echelon form (RREF), except that each leading coefficient is not necessarily 1. Each row is simplified.
 	this.gaussJordanEliminate = function() {
 		// Simplify all rows
-		for (var i = 0; i < rows; i++)
-			cells[i] = simplifyRow(cells[i]);
+		cells = cells.map(simplifyRow);
 		
 		// Compute row echelon form (REF)
 		var numPivots = 0;
@@ -792,7 +790,7 @@ function Set() {
 		return items.indexOf(obj) != -1;
 	};
 	
-	// Returns an array containing the elements of this set in an arbitrary order, with no duplicates.
+	// Returns a new array containing the elements of this set in an arbitrary order, with no duplicates.
 	this.toArray = function() {
 		return items.clone();
 	};
@@ -850,18 +848,6 @@ function gcd(x, y) {
 // Unicode character constants (because this script file's character encoding is unspecified)
 var MINUS = "\u2212";        // Minus sign
 var RIGHT_ARROW = "\u2192";  // Right arrow
-
-
-// Monkey patching. Supported in JavaScript 1.6, but not available in Internet Explorer below version 9.
-if (!("indexOf" in Array.prototype)) {
-	Array.prototype.indexOf = function(item) {
-		for (var i = 0; i < this.length; i++) {
-			if (this[i] == item)
-				return i;
-		}
-		return -1;
-	};
-}
 
 
 // Monkey patching. Returns a shallow copy of this array. Usually used for making defensive copies.
