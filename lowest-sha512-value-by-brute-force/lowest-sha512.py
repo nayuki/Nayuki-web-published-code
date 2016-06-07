@@ -1,7 +1,7 @@
 # 
 # Lowest SHA-512 value by brute force (Python)
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2016 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
 # 
@@ -37,15 +37,14 @@ def main():
         print("Search space exhausted")
     
     elif sys.version_info.major == 3:
-        message = [ord('a')] * MSG_LEN
+        message = bytearray([ord('a')]) * MSG_LEN
         lowest_hash = b'\xFF' * 64
         while True:
             # Hash and compare
-            msg = bytes(message)
-            hash = hashlib.sha512(msg)
+            hash = hashlib.sha512(message)
             binhash = hash.digest()
             if binhash < lowest_hash:
-                print(hash.hexdigest()[ : 32] + "... " + msg.decode("ASCII"))
+                print(hash.hexdigest()[ : 32] + "... " + message.decode("ASCII"))
                 lowest_hash = binhash
             
             # Increment message
