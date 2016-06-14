@@ -1,5 +1,5 @@
 /* 
- * Barrett reduction algorithm (int/long)
+ * Barrett reduction algorithm (Java int/long)
  * 
  * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.

@@ -1,7 +1,7 @@
 /* 
- * Factorize Gaussian integer
+ * Factorize Gaussian integer (JavaScript)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
@@ -12,20 +12,22 @@
 /* 
  * Handles the HTML input/output for factoring a Gaussian integer.
  */
-function factor() {
+function doFactor() {
 	var outElem = document.getElementById("factorization");
 	while (outElem.firstChild != null)
 		outElem.removeChild(outElem.firstChild);
 	var input = document.getElementById("number").value;
-	if (/^\s*$/.test(input)) {
+	if (/^\s*$/.test(input)) {  // Blank input
 		outElem.appendChild(document.createTextNode(NBSP));
 		return;
 	}
 	
-	function appendTextNode(elem, str) {
-		elem.appendChild(document.createTextNode(str));
+	// DOM helper function
+	function appendTextNode(elem, s) {
+		elem.appendChild(document.createTextNode(s));
 	}
 	
+	// Formatting helper function
 	function appendGaussianInteger(n) {
 		var s = n.toString();
 		if (s.charAt(s.length - 1) != "i")
@@ -57,7 +59,7 @@ function factor() {
 }
 
 
-function random() {
+function doRandom() {
 	function randInt() {
 		return Math.floor(Math.random() * 2000) - 1000;
 	}
@@ -74,32 +76,44 @@ function random() {
 		str = real + (imag >= 0 ? " + " : " - ") + Math.abs(imag) + "i";
 	}
 	document.getElementById("number").value = str;
-	factor();
+	doFactor();
 }
 
 
+
 function GaussianInteger(real, imag) {
+	
 	this.real = real;
 	this.imag = imag;
+	
 	
 	this.norm = function() {
 		return real * real + imag * imag;
 	};
 	
+	
 	this.multiply = function(other) {
-		return new GaussianInteger(real * other.real - imag * other.imag, real * other.imag + imag * other.real);
+		return new GaussianInteger(
+			real * other.real - imag * other.imag,
+			real * other.imag + imag * other.real);
 	};
 	
+	
 	this.isDivisibleBy = function(re, im) {
-		var norm = re * re + im * im;
-		return (real * re + imag * im) % norm == 0 && (-real * im + imag * re) % norm == 0;
+		var divisorNorm = re * re + im * im;
+		return ( real * re + imag * im) % divisorNorm == 0 &&
+		       (-real * im + imag * re) % divisorNorm == 0;
 	};
+	
 	
 	this.divide = function(other) {
 		if (!this.isDivisibleBy(other.real, other.imag))
 			throw "Cannot divide";
-		return new GaussianInteger((real * other.real + imag * other.imag) / other.norm(), (-real * other.imag + imag * other.real) / other.norm());
+		return new GaussianInteger(
+			( real * other.real + imag * other.imag) / other.norm(),
+			(-real * other.imag + imag * other.real) / other.norm());
 	};
+	
 	
 	this.factorize = function() {
 		if (this.norm() <= 1)  // 0, 1, -1, i, -i
@@ -130,13 +144,13 @@ function GaussianInteger(real, imag) {
 		return result;
 	};
 	
+	
 	this.findPrimeFactor = function() {
 		var norm = this.norm();
 		if (norm % 2 == 0)
 			return new GaussianInteger(1, 1);
 		
-		var end = Math.floor(Math.sqrt(norm));
-		for (var i = 3; i <= end; i += 2) {  // Find factors of norm
+		for (var i = 3, end = Math.floor(Math.sqrt(norm)); i <= end; i += 2) {  // Find factors of norm
 			if (norm % i == 0) {
 				if (i % 4 == 3)
 					return new GaussianInteger(i, 0);
@@ -156,6 +170,7 @@ function GaussianInteger(real, imag) {
 			temp = temp.multiply(new GaussianInteger(0, 1));
 		return temp;
 	};
+	
 	
 	this.toString = function() {
 		if (real == 0 && imag == 0)
@@ -177,6 +192,7 @@ function GaussianInteger(real, imag) {
 }
 
 
+
 function parseGaussianInteger(str) {
 	if (/\d\s+\d/.test(str))  // Spaces are not allowed between digits
 		throw "Invalid number";
@@ -192,21 +208,20 @@ function parseGaussianInteger(str) {
 	}
 	
 	// Match one of the syntax cases
-	var real;
-	var imag;
-	var m;
-	if ((m = /^([+-]?\d+)$/.exec(str)) != null) {  // e.g. 1, +0, -2
-		real = checkedParseInt(m[1]);
+	var real, imag;
+	var mat;
+	if ((mat = /^([+-]?\d+)$/.exec(str)) != null) {  // e.g. 1, +0, -2
+		real = checkedParseInt(mat[1]);
 		imag = 0;
-	} else if ((m = /^([+-]?)(\d*)i$/.exec(str)) != null) {  // e.g. i, 4i, -3i
+	} else if ((mat = /^([+-]?)(\d*)i$/.exec(str)) != null) {  // e.g. i, 4i, -3i
 		real = 0;
-		imag = checkedParseInt(m[1] + (m[2] != "" ? m[2] : "1"));
-	} else if ((m = /^([+-]?\d+)([+-])(\d*)i$/.exec(str)) != null) {  // e.g. 1+2i, -3-4i, +5+i
-		real = checkedParseInt(m[1]);
-		imag = checkedParseInt(m[2] + (m[3] != "" ? m[3] : "1"));
-	} else if ((m = /^([+-]?)(\d*)i([+-]\d+)$/.exec(str)) != null) {  // e.g. 2i+1, -4i-3, +i+5
-		real = checkedParseInt(m[3]);
-		imag = checkedParseInt(m[1] + (m[2] != "" ? m[2] : "1"));
+		imag = checkedParseInt(mat[1] + (mat[2] != "" ? mat[2] : "1"));
+	} else if ((mat = /^([+-]?\d+)([+-])(\d*)i$/.exec(str)) != null) {  // e.g. 1+2i, -3-4i, +5+i
+		real = checkedParseInt(mat[1]);
+		imag = checkedParseInt(mat[2] + (mat[3] != "" ? mat[3] : "1"));
+	} else if ((mat = /^([+-]?)(\d*)i([+-]\d+)$/.exec(str)) != null) {  // e.g. 2i+1, -4i-3, +i+5
+		real = checkedParseInt(mat[3]);
+		imag = checkedParseInt(mat[1] + (mat[2] != "" ? mat[2] : "1"));
 	} else
 		throw "Invalid number";
 	return new GaussianInteger(real, imag);

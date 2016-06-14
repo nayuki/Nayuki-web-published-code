@@ -1,5 +1,5 @@
 /* 
- * Montgomery reduction algorithm demo
+ * Montgomery reduction algorithm demo (Java)
  * 
  * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.

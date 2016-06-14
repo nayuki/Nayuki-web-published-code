@@ -1,5 +1,5 @@
 /* 
- * Barrett reduction algorithm (BigInteger)
+ * Barrett reduction algorithm (Java BigInteger)
  * 
  * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
