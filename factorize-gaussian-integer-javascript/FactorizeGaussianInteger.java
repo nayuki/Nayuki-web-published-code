@@ -38,7 +38,7 @@ public final class FactorizeGaussianInteger {
 
 
 
-// Immutable complex number where real and imag are integers, and (0 <= real, imag < 2^31).
+// Immutable complex number where real and imag are integers, and (0 <= abs(real), abs(imag) < 2^31).
 final class GaussianInteger {
 	
 	/* Fields */
