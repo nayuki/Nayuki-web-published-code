@@ -1,7 +1,7 @@
 /* 
- * Galois linear feedback shift register (LFSR) in Java
+ * Galois linear feedback shift register (LFSR) (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/galois-linear-feedback-shift-register
  */
@@ -15,7 +15,7 @@ import java.util.Random;
  * In this class, a polynomial is represented as a BigInteger, where the coefficient of
  * the <var>x</var><sup><var>k</var></sup> term is represented by bit <var>k</var>.
  */
-public class LfsrRandom extends Random {
+public final class LfsrRandom extends Random {
 	
 	// Demo program
 	public static void main(String[] args) {
@@ -25,6 +25,7 @@ public class LfsrRandom extends Random {
 			System.out.printf("%08x%n", r.nextInt());
 		r.printDebug();
 	}
+	
 	
 	
 	private BigInteger characteristic;
@@ -76,7 +77,7 @@ public class LfsrRandom extends Random {
 	
 	public void printDebug() {
 		System.out.printf("characteristic: degree=%d  poly = %s%nstate: degree=%d  poly = %s%n",
-				degree, polynomialToString(characteristic), state.bitLength() - 1, polynomialToString(state));
+			degree, polynomialToString(characteristic), state.bitLength() - 1, polynomialToString(state));
 	}
 	
 	

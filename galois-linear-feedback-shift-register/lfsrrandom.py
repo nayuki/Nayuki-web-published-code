@@ -1,20 +1,17 @@
 # 
-# Galois linear feedback shift register (LFSR) in Python
+# Galois linear feedback shift register (LFSR) (Python)
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2016 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/galois-linear-feedback-shift-register
 # 
 
-import random
-
-import sys
+import numbers, random, sys
 if sys.version_info.major == 2:
     range = xrange
 
 
 # Random number generator class (implements most functionality of random.Random)
-
 class LfsrRandom(random.Random):
     
     def __new__(cls, *args, **kwargs):  # Magic because the superclass doesn't cooperate
@@ -22,8 +19,8 @@ class LfsrRandom(random.Random):
     
     
     def __init__(self, charis, state):
-        assert isinstance(charis, int)
-        assert isinstance(state, int)
+        assert isinstance(charis, numbers.Integral)
+        assert isinstance(state, numbers.Integral)
         
         if charis < 0:
             raise ValueError("Invalid characteristic polynomial - negative")
@@ -40,10 +37,10 @@ class LfsrRandom(random.Random):
     
     
     def randbit(self):
-        result = self.state & 1                            # Use bit 0 in the LFSR state as the result
-        self.state = self.state << 1                       # Multiply by x
-        if (self.state >> self.degree) & 1 != 0:           # If degree of state polynomial matches degree of characteristic polynomial
-            self.state = self.state ^ self.characteristic  # Then subtract the characteristic polynomial from the state polynomial
+        result = self.state & 1                   # Use bit 0 in the LFSR state as the result
+        self.state = self.state << 1              # Multiply by x
+        if (self.state >> self.degree) & 1 != 0:  # If degree of state polynomial matches degree of characteristic polynomial
+            self.state ^= self.characteristic     # Then subtract the characteristic polynomial from the state polynomial
         return result
     
     
@@ -60,7 +57,6 @@ class LfsrRandom(random.Random):
 
 
 # Demo main program
-
 if __name__ == "__main__":
     # Polynomial: x^16 + x^14 + x^13 + x^11 + x^0
     rand = LfsrRandom(0b10110100000000001, 1)
