@@ -1,7 +1,7 @@
 /* 
- * Linear congruential generator (LCG) with fast skipping and backward iteration
+ * Linear congruential generator (LCG) with fast skipping and backward iteration (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
  */
@@ -11,7 +11,7 @@ import java.math.BigInteger;
 
 public class LcgRandom {
 	
-	/* The main method, which runs a correctness check */
+	/* Demo main program, which runs a correctness check */
 	
 	public static void main(String[] args) {
 		// Use the parameters from Java's LCG RNG
@@ -68,11 +68,12 @@ public class LcgRandom {
 	private BigInteger x;  // State
 	
 	
+	// Requires a > 0, b >= 0, m > 0, 0 <= seed < m
 	public LcgRandom(BigInteger a, BigInteger b, BigInteger m, BigInteger seed) {
 		if (a == null || b == null || m == null || seed == null)
 			throw new NullPointerException();
 		if (a.signum() != 1 || b.signum() == -1 || m.signum() != 1 || seed.signum() == -1 || seed.compareTo(m) >= 0)
-			throw new IllegalArgumentException("Arguments out of range");
+			throw new IllegalArgumentException("Value out of range");
 		
 		this.a = a;
 		this.aInv = a.modInverse(m);
@@ -82,22 +83,27 @@ public class LcgRandom {
 	}
 	
 	
+	// Returns the raw state, with 0 <= x < m. To get a pseudorandom number
+	// with a certain distribution, the value needs to be further processed.
 	public BigInteger getState() {
 		return x;
 	}
 	
 	
+	// Advances the state by one iteration.
 	public void next() {
 		x = x.multiply(a).add(b).mod(m);  // x = (a*x + b) mod m
 	}
 	
 	
+	// Rewinds the state by one iteration.
 	public void previous() {
 		// The intermediate result after subtracting 'b' may be negative, but the modular arithmetic is correct
 		x = x.subtract(b).multiply(aInv).mod(m);  // x = (a^-1 * (x - b)) mod m
 	}
 	
 	
+	// Advances/rewinds the state by the given number of iterations.
 	public void skip(int n) {
 		if (n >= 0)
 			skip(a, b, BigInteger.valueOf(n));
@@ -106,6 +112,7 @@ public class LcgRandom {
 	}
 	
 	
+	// Private helper method
 	private void skip(BigInteger a, BigInteger b, BigInteger n) {
 		BigInteger a1 = a.subtract(BigInteger.ONE);  // a - 1
 		BigInteger ma = a1.multiply(m);              // (a - 1) * m
