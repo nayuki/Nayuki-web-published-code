@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * https://www.nayuki.io/page/simple-deflate-implementation
+ * https://www.nayuki.io/page/fast-deflate-implementation
  */
 
 import java.io.File;
