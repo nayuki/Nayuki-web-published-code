@@ -191,9 +191,9 @@ int main(int argc, char **argv) {
 		testBigMerge();
 		testAgainstNaiveRandomly();
 		std::cerr << "Test passed" << std::endl;
-		return 0;
+		return EXIT_SUCCESS;
 	} catch (const char *msg) {
 		std::cerr << msg << std::endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 }

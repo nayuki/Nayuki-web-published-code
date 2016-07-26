@@ -1,7 +1,7 @@
 /* 
  * RC4 stream cipher in C and x86 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/rc4-cipher-in-x86-assembly
  * 
  * (MIT License)
@@ -22,9 +22,9 @@
  *   Software.
  */
 
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -48,7 +48,7 @@ static int self_check(void);
 int main(int argc, char **argv) {
 	if (!self_check()) {
 		printf("Self-check failed\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	printf("Self-check passed\n");
 	
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 		rc4_encrypt_x86(&state, msg, MSG_LEN);
 	printf("Speed (x86): %.1f MiB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1048576);
 	
-	return 0;
+	return EXIT_SUCCESS;
 	#undef MSG_LEN
 }
 

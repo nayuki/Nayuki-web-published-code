@@ -1,7 +1,7 @@
 /* 
  * Simple sample image using Tiny PNG Output (C)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "TinyPngOut.h"
 
 
@@ -49,11 +50,11 @@ int main(int argc, char **argv) {
 	if (TinyPngOut_write(&pngout, NULL, 0) != TINYPNGOUT_DONE)
 		goto error;
 	fclose(fout);
-	return 0;
+	return EXIT_SUCCESS;
 	
 error:
 	fprintf(stderr, "Error\n");
 	if (fout != NULL)
 		fclose(fout);
-	return 1;
+	return EXIT_FAILURE;
 }

@@ -45,20 +45,20 @@ int main(int argc, char **argv) {
 	// Handle arguments
 	if (argc != 4) {
 		fprintf(stderr, "Usage: %s FileName ByteOffset NewCrc32Value\n", argv[0]);
-		return 1;
+		return EXIT_FAILURE;
 	}
 	
 	// Parse and check file offset argument
 	uint64_t offset;
 	if (sscanf(argv[2], "%" SCNu64, &offset) != 1) {
 		fprintf(stderr, "Error: Invalid byte offset\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	char temp[21] = {0};
 	sprintf(temp, "%" PRIu64, offset);
 	if (strcmp(temp, argv[2]) != 0) {
 		fprintf(stderr, "Error: Invalid byte offset\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	
 	// Parse and check new CRC argument
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 	if (strlen(argv[3]) != 8 || argv[3][0] == '+' || argv[3][0] == '-'
 			|| sscanf(argv[3], "%" SCNx32, &newcrc) != 1) {
 		fprintf(stderr, "Error: Invalid new CRC-32 value\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	newcrc = reverse_bits(newcrc);
 	
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 	FILE *f = fopen(argv[1], "r+b");
 	if (f == NULL) {
 		perror("fopen");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	
 	// Read entire file and calculate original CRC-32 value.
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 	uint32_t crc = get_crc32_and_length(f, &length);
 	if (offset > UINT64_MAX - 4 || offset + 4 > length) {
 		fprintf(stderr, "Error: Byte offset plus 4 exceeds file length\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	fprintf(stdout, "Original CRC-32: %08" PRIX32 "\n", reverse_bits(crc));
 	
@@ -99,16 +99,16 @@ int main(int argc, char **argv) {
 		int b = fgetc(f);
 		if (b == EOF) {
 			perror("fgetc");
-			return 1;
+			return EXIT_FAILURE;
 		}
 		b ^= (int)((reverse_bits(delta) >> (i * 8)) & 0xFF);
 		if (fseek(f, -1, SEEK_CUR) != 0) {
 			perror("fseek");
-			return 1;
+			return EXIT_FAILURE;
 		}
 		if (fputc(b, f) == EOF) {
 			perror("fputc");
-			return 1;
+			return EXIT_FAILURE;
 		}
 	}
 	fprintf(stdout, "Computed and wrote patch\n");
@@ -117,10 +117,10 @@ int main(int argc, char **argv) {
 	if (get_crc32_and_length(f, &length) == newcrc) {
 		fprintf(stdout, "New CRC-32 successfully verified\n");
 		fclose(f);
-		return 0;
+		return EXIT_SUCCESS;
 	} else {
 		fprintf(stderr, "Error: Failed to update CRC-32 to desired value\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 }
 
@@ -139,7 +139,7 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 		size_t n = fread(buffer, sizeof(buffer[0]), sizeof(buffer) / sizeof(char), f);
 		if (ferror(f) != 0) {
 			perror("fread");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 		size_t i;
 		for (i = 0; i < n; i++) {
@@ -216,7 +216,7 @@ static uint64_t pow_mod(uint64_t x, uint64_t y) {
 static void divide_and_remainder(uint64_t x, uint64_t y, uint64_t *q, uint64_t *r) {
 	if (y == 0) {
 		fprintf(stderr, "Division by zero\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	if (x == 0) {
 		*q = 0;
@@ -258,7 +258,7 @@ static uint64_t reciprocal_mod(uint64_t x) {
 		return a;
 	else {
 		fprintf(stderr, "Reciprocal does not exist\n");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 }
 

@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in C and x86 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
  * 
  * (MIT License)
@@ -43,7 +43,7 @@ extern void md5_compress(uint32_t state[4], const uint32_t block[16]);
 int main(int argc, char **argv) {
 	if (!self_check()) {
 		printf("Self-check failed\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	printf("Self-check passed\n");
 	
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 		md5_compress(state, block);
 	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
 	
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 

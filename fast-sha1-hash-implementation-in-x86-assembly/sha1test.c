@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in C and x86 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/fast-sha1-hash-implementation-in-x86-assembly
  * 
  * (MIT License)
@@ -43,7 +43,7 @@ extern void sha1_compress(uint32_t state[5], const uint8_t block[64]);
 int main(int argc, char **argv) {
 	if (!self_check()) {
 		printf("Self-check failed\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	printf("Self-check passed\n");
 	
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 		sha1_compress(state, (uint8_t *)block);  // Type-punning
 	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
 	
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 

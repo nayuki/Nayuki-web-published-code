@@ -1,7 +1,7 @@
 # 
 # Optimizing brainfuck compiler
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2016 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/optimizing-brainfuck-compiler
 # 
@@ -227,6 +227,7 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 	if maincall:
 		result += indent("#include <stdint.h>", 0)
 		result += indent("#include <stdio.h>", 0)
+		result += indent("#include <stdlib.h>", 0)
 		result += indent("", 0)
 		result += indent("static uint8_t read() {", 0)
 		result += indent("int temp = getchar();", 1)
@@ -283,7 +284,7 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 	
 	if maincall:
 		result += indent("")
-		result += indent("return 0;")
+		result += indent("return EXIT_SUCCESS;")
 		result += indent("}", 0)
 	return result
 

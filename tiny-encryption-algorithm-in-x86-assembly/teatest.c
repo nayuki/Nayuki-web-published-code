@@ -1,7 +1,7 @@
 /* 
  * Tiny Encryption Algorithm (TEA) in C and x86 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/tiny-encryption-algorithm-in-x86-assembly
  * 
  * (MIT License)
@@ -22,9 +22,9 @@
  *   Software.
  */
 
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 
@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 	tea_encrypt_x86(msg, key);
 	if (msg[0] != UINT32_C(0x41EA3A0A) || msg[1] != UINT32_C(0x94BAA940)) {
 		printf("Self-check failed\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	printf("Self-check passed\n");
 	
@@ -65,5 +65,5 @@ int main(int argc, char **argv) {
 		tea_encrypt_x86(msg, key);
 	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(msg) / clock() * CLOCKS_PER_SEC / 1048576);
 	
-	return 0;
+	return EXIT_SUCCESS;
 }

@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 	printf("\n");
 	printf("Max log err = %.1f\n", max_log_error);
 	printf("Test %s\n", max_log_error < -10 ? "passed" : "failed");
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 

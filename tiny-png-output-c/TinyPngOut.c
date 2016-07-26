@@ -134,7 +134,7 @@ enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t 
 		int n = MIN(count, width - pngout->positionX);
 		n = MIN(DEFLATE_MAX_BLOCK_SIZE - pngout->deflateFilled, n);
 		if (n <= 0)  // Impossible
-			exit(2);
+			exit(EXIT_FAILURE);
 		
 		// Beginning of row - write filter method
 		if (pngout->positionX == 0) {

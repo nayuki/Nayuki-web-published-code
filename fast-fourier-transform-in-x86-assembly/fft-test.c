@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 	for (i = 2; i <= 10; i++) {  // Test FFT sizes 4, 8, 16, ..., 512, 1024
 		if (test_fft_log_error(1 << i) > -10) {
 			printf("Self-test failed\n");
-			return 1;
+			return EXIT_FAILURE;
 		}
 	}
 	printf("Self-test passed\n");
@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
 		double *imag = random_reals(n);
 		if (fftTables == NULL || real == NULL || imag == NULL) {
 			printf("Memory allocation failed\n");
-			return 1;
+			return EXIT_FAILURE;
 		}
 		
 		// Determine number of iterations to run to spend TARGET_TIME
@@ -112,7 +112,7 @@ int main(int argc, char **argv) {
 		printf("%9zu    min=%"PRIu64"  mean=%"PRIu64"  sd=%.2f%%\n",
 			n, (uint64_t)(min + 0.5), (uint64_t)(mean + 0.5), stddev / mean * 100);
 	}
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 

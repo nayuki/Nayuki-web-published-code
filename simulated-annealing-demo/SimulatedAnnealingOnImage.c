@@ -1,7 +1,7 @@
 /* 
  * Simulated annealing on image demo (C)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/simulated-annealing-demo
  */
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
 	if (code < 0 || code + 1 > sizeof(filename))
 		strncpy(filename, "simulated-annealing.bmp", sizeof(filename));
 	write_bmp_image(pixels, WIDTH, HEIGHT, filename);
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 
@@ -126,11 +126,11 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 	uint8_t *row = calloc(rowsize, sizeof(uint8_t));
 	if (f == NULL) {
 		perror("fopen");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	if (row == NULL) {
 		perror("calloc");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	
 	// Write header
@@ -156,7 +156,7 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 	};
 	if (fwrite(header, sizeof(uint8_t), sizeof(header) / sizeof(uint8_t), f) != sizeof(header) / sizeof(uint8_t)) {
 		perror("fwrite");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	
 	// Write image rows
@@ -171,14 +171,14 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 		}
 		if (fwrite(row, sizeof(uint8_t), rowsize, f) != rowsize) {
 			perror("fwrite");
-			exit(1);
+			exit(EXIT_FAILURE);
 		}
 	}
 	
 	// Clean up
 	if (fclose(f) != 0) {
 		perror("fclose");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	free(row);
 }
@@ -345,10 +345,10 @@ void MtRandom_reseed(struct MtRandom *mt) {
 		if (c == EOF) {
 			if (ferror(f)) {
 				perror("fgetc");
-				exit(1);
+				exit(EXIT_FAILURE);
 			} else {
 				fprintf(stderr, "fgetc: Unexpected EOF\n");
-				exit(1);
+				exit(EXIT_FAILURE);
 			}
 		}
 		// Blend random byte into state
@@ -357,6 +357,6 @@ void MtRandom_reseed(struct MtRandom *mt) {
 	
 	if (fclose(f) != 0) {
 		perror("fclose");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 }

@@ -1,7 +1,7 @@
 /* 
  * Lowest SHA-512 value by brute force (C)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
 	// Sanity test
 	if (!self_check()) {
 		fprintf(stderr, "Self-check failed\n");
-		return 1;
+		return EXIT_FAILURE;
 	}
 	benchmark();
 	
@@ -131,7 +131,7 @@ int main(int argc, char **argv) {
 		pthread_join(threads[i], NULL);
 	free(blocks);
 	free(threads);
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 
