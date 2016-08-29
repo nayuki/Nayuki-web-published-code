@@ -92,12 +92,12 @@ function example(a, b, k, i) {
 
 
 function clearOutput() {
-	function removeAllChildren(node) {
-		while (node.childNodes.firstChild != null)
+	function clearChildren(node) {
+		while (node.firstChild != null)
 			node.removeChild(node.firstChild);
 	}
-	removeAllChildren(document.getElementById("recurrence"));
-	removeAllChildren(document.getElementById("solution"));
+	clearChildren(document.getElementById("recurrence"));
+	clearChildren(document.getElementById("solution"));
 }
 
 
