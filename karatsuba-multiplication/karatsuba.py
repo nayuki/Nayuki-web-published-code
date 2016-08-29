@@ -1,7 +1,8 @@
 # 
-# Karatsuba fast multiplication algorithm
-# Copyright (c) 2014 Project Nayuki
+# Karatsuba fast multiplication algorithm (Python)
 # 
+# Copyright (c) 2014 Project Nayuki
+# All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/karatsuba-multiplication
 # 
 

@@ -1,5 +1,5 @@
 /* 
- * Karatsuba fast multiplication algorithm
+ * Karatsuba fast multiplication algorithm (Java)
  * 
  * Copyright (c) 2014 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.

@@ -1,5 +1,5 @@
 {- 
- - Test suite for PrimRecFunc.
+ - Test suite for PrimRecFunc (Python).
  - Runnable as a main program, which should print "All N tests passed".
  - 
  - Copyright (c) 2014 Project Nayuki

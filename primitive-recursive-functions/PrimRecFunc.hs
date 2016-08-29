@@ -1,5 +1,5 @@
 {- 
- - Primitive recursive functions
+ - Primitive recursive functions (Haskell)
  - 
  - Copyright (c) 2015 Project Nayuki
  - All rights reserved. Contact Nayuki for licensing.
