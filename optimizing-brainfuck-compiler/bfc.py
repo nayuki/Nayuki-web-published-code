@@ -1,12 +1,13 @@
 # 
 # Optimizing brainfuck compiler
 # 
+# This script translates brainfuck source code into C/Java/Python source code.
+# Usage: python bfc.py BrainfuckFile OutputFile.c/java/py
+# For Python 2 and 3.
+# 
 # Copyright (c) 2016 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/optimizing-brainfuck-compiler
-# 
-# This script translates brainfuck source code into C/Java/Python source code.
-# Usage: python bfc.py BrainfuckFile OutputFile.c/java/py
 # 
 
 import os, re, sys
@@ -235,7 +236,7 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 		result += indent("}", 0)
 		result += indent("", 0)
 		result += indent("int main(int argc, char **argv) {", 0)
-		result += indent("uint8_t mem[1000000] = {};")
+		result += indent("uint8_t mem[1000000] = {0};")
 		result += indent("uint8_t *p = &mem[1000];")
 		result += indent("")
 	
@@ -378,7 +379,8 @@ def commands_to_python(commands, name, maincall=True, indentlevel=0):
 		if isinstance(cmd, Assign):
 			result += indent("{} = {}".format(format_memory(cmd.offset), cmd.value))
 		elif isinstance(cmd, Add):
-			result += indent("{} = ({} {} {}) & 0xFF".format(format_memory(cmd.offset), format_memory(cmd.offset), "+" if cmd.value >= 0 else "-", abs(cmd.value)))
+			result += indent("{} = ({} {} {}) & 0xFF".format(format_memory(cmd.offset),
+				format_memory(cmd.offset), "+" if cmd.value >= 0 else "-", abs(cmd.value)))
 		elif isinstance(cmd, MultAssign):
 			if cmd.value == 1:
 				result += indent("{} = {}".format(format_memory(cmd.destOff), format_memory(cmd.srcOff)))
@@ -453,7 +455,6 @@ class Loop(Command):
 # ---- Miscellaneous ----
 
 if __name__ == "__main__":
-	errmsg = main(sys.argv[1:])
+	errmsg = main(sys.argv[1 : ])
 	if errmsg is not None:
-		print >>sys.stderr, errmsg
-		sys.exit(1)
+		sys.exit(errmsg)
