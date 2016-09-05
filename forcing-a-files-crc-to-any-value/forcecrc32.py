@@ -2,7 +2,7 @@
 # CRC-32 forcer (Python)
 # Compatible with Python 2 and 3.
 # 
-# Copyright (c) 2015 Project Nayuki
+# Copyright (c) 2016 Project Nayuki
 # https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -191,5 +191,4 @@ def get_degree(x):
 if __name__ == "__main__":
     errmsg = main(sys.argv[1:])
     if errmsg is not None:
-        sys.stderr.write(errmsg + "\n")
-        sys.exit(1)
+        sys.exit(errmsg)

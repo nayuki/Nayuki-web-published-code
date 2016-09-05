@@ -1,7 +1,7 @@
 # 
 # Disjoint-set data structure - Test suite (Python)
 # 
-# Copyright (c) 2015 Project Nayuki
+# Copyright (c) 2016 Project Nayuki
 # https://www.nayuki.io/page/disjoint-set-data-structure
 # 
 # (MIT License)
@@ -139,8 +139,7 @@ if __name__ == "__main__":
 	# Test that the 'assert' statement works
 	try:
 		assert False
-		print("Error: Need to run with assertions enabled")
-		sys.exit(1)
+		sys.exit("Error: Need to run with assertions enabled")
 	except AssertionError:
 		pass
 	
