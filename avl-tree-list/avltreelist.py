@@ -72,12 +72,24 @@ class AvlTreeList(object):
 		self.root = AvlTreeList.Node.EMPTY_LEAF_NODE
 	
 	
+	# Note: An iterator is not fail-fast on concurrent modification.
 	def __iter__(self):
-		return AvlTreeList.Iter(self)
+		stack = []
+		node = self.root
+		while node is not AvlTreeList.Node.EMPTY_LEAF_NODE:
+			stack.append(node)
+			node = node.left
+		while len(stack) > 0:
+			node = stack.pop()
+			yield node.value
+			node = node.right
+			while node is not AvlTreeList.Node.EMPTY_LEAF_NODE:
+				stack.append(node)
+				node = node.left
 	
 	
 	def __str__(self):
-		return "[" + ", ".join([str(self[i]) for i in range(len(self))]) + "]"
+		return "[" + ", ".join(str(x) for x in self) + "]"
 	
 	
 	# For unit tests
@@ -270,33 +282,6 @@ class AvlTreeList(object):
 				raise AssertionError("AVL tree structure violated: Incorrect cached size")
 			if abs(self._get_balance()) > 1:
 				raise AssertionError("AVL tree structure violated: Height imbalance")
-	
-	
-	
-	# Note: An iterator is not fail-fast on concurrent modification.
-	class Iter(object):
-		
-		def __init__(self, outer):
-			self.stack = []
-			node = outer.root
-			while node is not AvlTreeList.Node.EMPTY_LEAF_NODE:
-				self.stack.append(node)
-				node = node.left
-		
-		
-		def __next__(self):  # Python 3
-			if len(self.stack) == 0:
-				raise StopIteration
-			else:
-				node = self.stack.pop()
-				result = node.value
-				node = node.right
-				while node is not AvlTreeList.Node.EMPTY_LEAF_NODE:
-					self.stack.append(node)
-					node = node.left
-				return result
-		
-		next = __next__  # Python 2
 
 
 # Static initializer. A bit of a hack, but more elegant than using None values as leaf nodes.

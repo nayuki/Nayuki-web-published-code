@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * (MIT License)
@@ -48,22 +48,22 @@ public class DisjointSetTest {
 	
 	@Test public void testMerge() {
 		DisjointSet ds = new DisjointSet(10);
-		ds.mergeSets(0, 1);
+		assertTrue(ds.mergeSets(0, 1));
 		ds.checkStructure();
 		assertEquals(9, ds.getNumberOfSets());
 		assertTrue(ds.areInSameSet(0, 1));
 		
-		ds.mergeSets(2, 3);
+		assertTrue(ds.mergeSets(2, 3));
 		ds.checkStructure();
 		assertEquals(8, ds.getNumberOfSets());
 		assertTrue(ds.areInSameSet(2, 3));
 		
-		ds.mergeSets(2, 3);
+		assertFalse(ds.mergeSets(2, 3));
 		ds.checkStructure();
 		assertEquals(8, ds.getNumberOfSets());
 		assertFalse(ds.areInSameSet(0, 2));
 		
-		ds.mergeSets(0, 3);
+		assertTrue(ds.mergeSets(0, 3));
 		ds.checkStructure();
 		assertEquals(7, ds.getNumberOfSets());
 		assertTrue(ds.areInSameSet(0, 2));

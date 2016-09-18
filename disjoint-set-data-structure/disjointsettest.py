@@ -41,22 +41,22 @@ def test_new():
 
 def test_merge():
 	ds = disjointset.DisjointSet(10)
-	ds.merge_sets(0, 1)
+	assert ds.merge_sets(0, 1)
 	ds.check_structure()
 	assert ds.get_num_sets() == 9
 	assert ds.are_in_same_set(0, 1)
 	
-	ds.merge_sets(2, 3)
+	assert ds.merge_sets(2, 3)
 	ds.check_structure()
 	assert ds.get_num_sets() == 8
 	assert ds.are_in_same_set(2, 3)
 	
-	ds.merge_sets(2, 3)
+	assert not ds.merge_sets(2, 3)
 	ds.check_structure()
 	assert ds.get_num_sets() == 8
 	assert not ds.are_in_same_set(0, 2)
 	
-	ds.merge_sets(0, 3)
+	assert ds.merge_sets(0, 3)
 	ds.check_structure()
 	assert ds.get_num_sets() == 7
 	assert ds.are_in_same_set(0, 2)
@@ -115,11 +115,11 @@ class NaiveDisjointSet(object):
 		self.representatives = list(range(numElems))
 	
 	def get_num_sets(self):
-		return sum((1 if repr == i else 0) for (i, repr) in enumerate(self.representatives))
+		return sum(1 for (i, repr) in enumerate(self.representatives) if repr == i)
 	
 	def get_size_of_set(self, elemIndex):
 		repr = self.representatives[elemIndex]
-		return sum((1 if r == repr else 0) for r in self.representatives)
+		return sum(1 for r in self.representatives if r == repr)
 	
 	def are_in_same_set(self, elemIndex0, elemIndex1):
 		return self.representatives[elemIndex0] ==  self.representatives[elemIndex1]
@@ -148,3 +148,4 @@ if __name__ == "__main__":
 	test_merge()
 	test_big_merge()
 	test_against_naive_randomly()
+	print("Test passed")

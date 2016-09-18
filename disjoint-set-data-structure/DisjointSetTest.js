@@ -42,22 +42,22 @@ function testNew() {
 
 function testMerge() {
 	var ds = new DisjointSet(10);
-	ds.mergeSets(0, 1);
+	assertEquals(true, ds.mergeSets(0, 1));
 	ds.checkStructure();
 	assertEquals(9, ds.getNumberOfSets());
 	assertEquals(true, ds.areInSameSet(0, 1));
 	
-	ds.mergeSets(2, 3);
+	assertEquals(true, ds.mergeSets(2, 3));
 	ds.checkStructure();
 	assertEquals(8, ds.getNumberOfSets());
 	assertEquals(true, ds.areInSameSet(2, 3));
 	
-	ds.mergeSets(2, 3);
+	assertEquals(false, ds.mergeSets(2, 3));
 	ds.checkStructure();
 	assertEquals(8, ds.getNumberOfSets());
 	assertEquals(false, ds.areInSameSet(0, 2));
 	
-	ds.mergeSets(0, 3);
+	assertEquals(true, ds.mergeSets(0, 3));
 	ds.checkStructure();
 	assertEquals(7, ds.getNumberOfSets());
 	assertEquals(true, ds.areInSameSet(0, 2));
