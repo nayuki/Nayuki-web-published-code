@@ -1,5 +1,5 @@
 # 
-# Smallest enclosing circle
+# Smallest enclosing circle - Library (Python)
 # 
 # Copyright (c) 2014 Project Nayuki
 # https://www.nayuki.io/page/smallest-enclosing-circle

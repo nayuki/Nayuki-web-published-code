@@ -1,7 +1,7 @@
 /* 
- * Fast doubling Fibonacci algorithm
+ * Fast doubling Fibonacci algorithm (C#)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/fast-fibonacci-algorithms
  */
@@ -15,10 +15,10 @@ using System.Numerics;
  *   Command: fastfibonacci.exe 7
  *   Output: "fibonacci(7) = 13"
  */
-public class fastfibonacci {
+public sealed class fastfibonacci {
 	
 	public static int Main(string[] args) {
-		if (args.Length == 0) {
+		if (args.Length != 1) {
 			Console.WriteLine("Usage: fastfibonacci.exe N");
 			return 1;
 		}

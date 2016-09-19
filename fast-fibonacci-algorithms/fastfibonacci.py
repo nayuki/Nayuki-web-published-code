@@ -1,5 +1,5 @@
 # 
-# Fast doubling Fibonacci algorithm
+# Fast doubling Fibonacci algorithm (Python)
 # 
 # Copyright (c) 2015 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.

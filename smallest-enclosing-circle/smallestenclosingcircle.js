@@ -1,5 +1,5 @@
 /* 
- * Smallest enclosing circle
+ * Smallest enclosing circle - Library (JavaScript)
  * 
  * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
