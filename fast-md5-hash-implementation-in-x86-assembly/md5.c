@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in C
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
  * 
  * (MIT License)
@@ -31,8 +31,8 @@ void md5_compress(uint32_t state[4], const uint32_t block[16]) {
 	#define ROUND2(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, b ^ c ^ d        , k, s, t)
 	#define ROUND3(a, b, c, d, k, s, t)  ROUND_TAIL(a, b, c ^ (b | ~d)     , k, s, t)
 	#define ROUND_TAIL(a, b, expr, k, s, t)    \
-		a += (expr) + UINT32_C(t) + block[k];  \
-		a = b + (a << s | a >> (32 - s));
+		a = 0U + a + (expr) + UINT32_C(t) + block[k];  \
+		a = 0U + b + ((0U + a) << s | a >> (32 - s));
 	
 	uint32_t a = state[0];
 	uint32_t b = state[1];
@@ -104,8 +104,8 @@ void md5_compress(uint32_t state[4], const uint32_t block[16]) {
 	ROUND3(c, d, a, b,  2, 15, 0x2AD7D2BB)
 	ROUND3(b, c, d, a,  9, 21, 0xEB86D391)
 	
-	state[0] += a;
-	state[1] += b;
-	state[2] += c;
-	state[3] += d;
+	state[0] = 0U + state[0] + a;
+	state[1] = 0U + state[1] + b;
+	state[2] = 0U + state[2] + c;
+	state[3] = 0U + state[3] + d;
 }

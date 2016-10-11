@@ -1,7 +1,7 @@
 /* 
  * SHA-512 hash in C
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * (MIT License)
@@ -28,7 +28,7 @@
 void sha512_compress(uint64_t state[8], const uint8_t block[128]) {
 	// 64-bit right rotation
 	#define ROR(x, i)  \
-		(((x) << (64 - (i))) | ((x) >> (i)))
+		(((0U + x) << (64 - (i))) | ((x) >> (i)))
 	
 	#define LOADSCHEDULE(i)  \
 		schedule[i] = (uint64_t)block[i * 8 + 0] << 56  \
@@ -41,14 +41,14 @@ void sha512_compress(uint64_t state[8], const uint8_t block[128]) {
 		            | (uint64_t)block[i * 8 + 7];
 	
 	#define SCHEDULE(i)  \
-		schedule[i] = schedule[i - 16] + schedule[i - 7]  \
+		schedule[i] = 0U + schedule[i - 16] + schedule[i - 7]  \
 			+ (ROR(schedule[i - 15], 1) ^ ROR(schedule[i - 15], 8) ^ (schedule[i - 15] >> 7))  \
 			+ (ROR(schedule[i - 2], 19) ^ ROR(schedule[i - 2], 61) ^ (schedule[i - 2] >> 6));
 	
 	#define ROUND(a, b, c, d, e, f, g, h, i, k) \
-		h += (ROR(e, 14) ^ ROR(e, 18) ^ ROR(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
-		d += h;  \
-		h += (ROR(a, 28) ^ ROR(a, 34) ^ ROR(a, 39)) + ((a & (b | c)) | (b & c));
+		h = 0U + h + (ROR(e, 14) ^ ROR(e, 18) ^ ROR(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
+		d = 0U + d + h;  \
+		h = 0U + h + (ROR(a, 28) ^ ROR(a, 34) ^ ROR(a, 39)) + ((a & (b | c)) | (b & c));
 	
 	uint64_t schedule[80];
 	LOADSCHEDULE( 0)
@@ -220,12 +220,12 @@ void sha512_compress(uint64_t state[8], const uint8_t block[128]) {
 	ROUND(d, e, f, g, h, a, b, c, 77, 0x597F299CFC657E2A)
 	ROUND(c, d, e, f, g, h, a, b, 78, 0x5FCB6FAB3AD6FAEC)
 	ROUND(b, c, d, e, f, g, h, a, 79, 0x6C44198C4A475817)
-	state[0] += a;
-	state[1] += b;
-	state[2] += c;
-	state[3] += d;
-	state[4] += e;
-	state[5] += f;
-	state[6] += g;
-	state[7] += h;
+	state[0] = 0U + state[0] + a;
+	state[1] = 0U + state[1] + b;
+	state[2] = 0U + state[2] + c;
+	state[3] = 0U + state[3] + d;
+	state[4] = 0U + state[4] + e;
+	state[5] = 0U + state[5] + f;
+	state[6] = 0U + state[6] + g;
+	state[7] = 0U + state[7] + h;
 }
