@@ -67,12 +67,12 @@ int main(int argc, char **argv) {
 	start = clock();
 	for (i = 0; i < TRIALS; i++)
 		rc4_encrypt_c(&state, msg, MSG_LEN);
-	printf("Speed (C)  : %.1f MiB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1048576);
+	printf("Speed (C)  : %.1f MB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1000000);
 	
 	start = clock();
 	for (i = 0; i < TRIALS; i++)
 		rc4_encrypt_x86(&state, msg, MSG_LEN);
-	printf("Speed (x86): %.1f MiB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1048576);
+	printf("Speed (x86): %.1f MB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1000000);
 	
 	return EXIT_SUCCESS;
 	#undef MSG_LEN

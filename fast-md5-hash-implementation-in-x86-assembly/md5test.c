@@ -22,6 +22,7 @@
  *   Software.
  */
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,10 +33,10 @@
 /* Function prototypes */
 
 static int self_check(void);
-void md5_hash(const uint8_t *message, uint32_t len, uint32_t hash[4]);
+void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]);
 
 // Link this program with an external C or x86 compression function
-extern void md5_compress(uint32_t state[4], const uint32_t block[16]);
+extern void md5_compress(uint32_t state[4], const uint8_t block[64]);
 
 
 /* Main program */
@@ -49,13 +50,13 @@ int main(int argc, char **argv) {
 	
 	// Benchmark speed
 	uint32_t state[4] = {0};
-	uint32_t block[16] = {0};
+	uint8_t block[64] = {0};
 	const int N = 10000000;
 	clock_t start_time = clock();
 	int i;
 	for (i = 0; i < N; i++)
 		md5_compress(state, block);
-	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
+	printf("Speed: %.1f MB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 	
 	return EXIT_SUCCESS;
 }
@@ -96,32 +97,33 @@ static int self_check(void) {
 
 /* Full message hasher */
 
-void md5_hash(const uint8_t *message, uint32_t len, uint32_t hash[4]) {
+void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]) {
 	hash[0] = UINT32_C(0x67452301);
 	hash[1] = UINT32_C(0xEFCDAB89);
 	hash[2] = UINT32_C(0x98BADCFE);
 	hash[3] = UINT32_C(0x10325476);
 	
-	uint32_t i;
+	size_t i;
 	for (i = 0; len - i >= 64; i += 64)
-		md5_compress(hash, (uint32_t *)(message + i));  // Type-punning
+		md5_compress(hash, &message[i]);
 	
-	uint32_t block[16];
-	uint8_t *byteBlock = (uint8_t *)block;  // Type-punning
+	uint8_t block[64];
+	size_t rem = len - i;
+	memcpy(block, &message[i], rem);
 	
-	uint32_t rem = len - i;
-	memcpy(byteBlock, message + i, rem);
-	
-	byteBlock[rem] = 0x80;
+	block[rem] = 0x80;
 	rem++;
 	if (64 - rem >= 8)
-		memset(byteBlock + rem, 0, 56 - rem);
+		memset(&block[rem], 0, 56 - rem);
 	else {
-		memset(byteBlock + rem, 0, 64 - rem);
+		memset(&block[rem], 0, 64 - rem);
 		md5_compress(hash, block);
 		memset(block, 0, 56);
 	}
-	block[14] = len << 3;
-	block[15] = len >> 29;
+	
+	block[64 - 8] = (uint8_t)((len & 0x1FU) << 3);
+	len >>= 5;
+	for (i = 1; i < 8; i++, len >>= 8)
+		block[64 - 8 + i] = (uint8_t)len;
 	md5_compress(hash, block);
 }

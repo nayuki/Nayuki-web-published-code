@@ -22,6 +22,7 @@
  *   Software.
  */
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +33,7 @@
 /* Function prototypes */
 
 static int self_check(void);
-void sha384_hash(const uint8_t *message, uint32_t len, uint64_t hash[6]);
+void sha384_hash(const uint8_t *message, size_t len, uint64_t hash[6]);
 
 // Link this program with an external C or x86 compression function
 extern void sha512_compress(uint64_t state[8], const uint8_t block[128]);
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
 	int i;
 	for (i = 0; i < N; i++)
 		sha512_compress(state, (uint8_t *)block);  // Type-punning
-	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
+	printf("Speed: %.1f MB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 	
 	return EXIT_SUCCESS;
 }
@@ -80,7 +81,7 @@ static struct testcase testCases[] = {
 };
 
 static int self_check(void) {
-	int i;
+	unsigned int i;
 	for (i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint64_t hash[6];
@@ -94,7 +95,7 @@ static int self_check(void) {
 
 /* Full message hasher */
 
-void sha384_hash(const uint8_t *message, uint32_t len, uint64_t hash[6]) {
+void sha384_hash(const uint8_t *message, size_t len, uint64_t hash[6]) {
 	uint64_t state[8] = {
 		UINT64_C(0xCBBB9D5DC1059ED8),
 		UINT64_C(0x629A292A367CD507),
@@ -106,27 +107,28 @@ void sha384_hash(const uint8_t *message, uint32_t len, uint64_t hash[6]) {
 		UINT64_C(0x47B5481DBEFA4FA4),
 	};
 	
-	uint32_t i;
+	size_t i;
 	for (i = 0; len - i >= 128; i += 128)
-		sha512_compress(state, message + i);
+		sha512_compress(state, &message[i]);
 	
 	uint8_t block[128];
-	uint32_t rem = len - i;
-	memcpy(block, message + i, rem);
+	size_t rem = len - i;
+	memcpy(block, &message[i], rem);
 	
 	block[rem] = 0x80;
 	rem++;
 	if (128 - rem >= 16)
-		memset(block + rem, 0, 120 - rem);
+		memset(&block[rem], 0, 120 - rem);
 	else {
-		memset(block + rem, 0, 128 - rem);
+		memset(&block[rem], 0, 128 - rem);
 		sha512_compress(state, block);
 		memset(block, 0, 120);
 	}
 	
-	uint64_t longLen = ((uint64_t)len) << 3;
-	for (i = 0; i < 8; i++)
-		block[128 - 1 - i] = (uint8_t)(longLen >> (i * 8));
+	block[128 - 1] = (uint8_t)((len & 0x1FU) << 3);
+	len >>= 5;
+	for (i = 1; i < 16; i++, len >>= 8)
+		block[128 - 1 - i] = (uint8_t)len;
 	sha512_compress(state, block);
 	
 	memcpy(hash, state, 6 * sizeof(uint64_t));

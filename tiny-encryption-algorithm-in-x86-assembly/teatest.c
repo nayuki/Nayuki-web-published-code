@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 	int i;
 	for (i = 0; i < N; i++)
 		tea_encrypt_x86(msg, key);
-	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(msg) / clock() * CLOCKS_PER_SEC / 1048576);
+	printf("Speed: %.1f MB/s\n", (double)N * sizeof(msg) / clock() * CLOCKS_PER_SEC / 1000000);
 	
 	return EXIT_SUCCESS;
 }

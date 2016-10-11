@@ -26,9 +26,7 @@
 
 
 void sha512_compress(uint64_t state[8], const uint8_t block[128]) {
-	// 64-bit right rotation
-	#define ROR(x, i)  \
-		(((0U + x) << (64 - (i))) | ((x) >> (i)))
+	#define ROTR64(x, n)  (((0U + (x)) << (64 - (n))) | ((x) >> (n)))  // Assumes that x is uint64_t and 0 < n < 64
 	
 	#define LOADSCHEDULE(i)  \
 		schedule[i] = (uint64_t)block[i * 8 + 0] << 56  \
@@ -38,17 +36,17 @@ void sha512_compress(uint64_t state[8], const uint8_t block[128]) {
 		            | (uint64_t)block[i * 8 + 4] << 24  \
 		            | (uint64_t)block[i * 8 + 5] << 16  \
 		            | (uint64_t)block[i * 8 + 6] <<  8  \
-		            | (uint64_t)block[i * 8 + 7];
+		            | (uint64_t)block[i * 8 + 7] <<  0;
 	
 	#define SCHEDULE(i)  \
 		schedule[i] = 0U + schedule[i - 16] + schedule[i - 7]  \
-			+ (ROR(schedule[i - 15], 1) ^ ROR(schedule[i - 15], 8) ^ (schedule[i - 15] >> 7))  \
-			+ (ROR(schedule[i - 2], 19) ^ ROR(schedule[i - 2], 61) ^ (schedule[i - 2] >> 6));
+			+ (ROTR64(schedule[i - 15], 1) ^ ROTR64(schedule[i - 15], 8) ^ (schedule[i - 15] >> 7))  \
+			+ (ROTR64(schedule[i - 2], 19) ^ ROTR64(schedule[i - 2], 61) ^ (schedule[i - 2] >> 6));
 	
 	#define ROUND(a, b, c, d, e, f, g, h, i, k) \
-		h = 0U + h + (ROR(e, 14) ^ ROR(e, 18) ^ ROR(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
+		h = 0U + h + (ROTR64(e, 14) ^ ROTR64(e, 18) ^ ROTR64(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
 		d = 0U + d + h;  \
-		h = 0U + h + (ROR(a, 28) ^ ROR(a, 34) ^ ROR(a, 39)) + ((a & (b | c)) | (b & c));
+		h = 0U + h + (ROTR64(a, 28) ^ ROTR64(a, 34) ^ ROTR64(a, 39)) + ((a & (b | c)) | (b & c));
 	
 	uint64_t schedule[80];
 	LOADSCHEDULE( 0)

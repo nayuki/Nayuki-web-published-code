@@ -22,6 +22,7 @@
  *   Software.
  */
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,7 +33,7 @@
 /* Function prototypes */
 
 static int self_check(void);
-void sha256_hash(const uint8_t *message, uint32_t len, uint32_t hash[8]);
+void sha256_hash(const uint8_t *message, size_t len, uint32_t hash[8]);
 
 // Link this program with an external C or x86 compression function
 extern void sha256_compress(uint32_t state[8], const uint8_t block[64]);
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
 	int i;
 	for (i = 0; i < N; i++)
 		sha256_compress(state, (uint8_t *)block);  // Type-punning
-	printf("Speed: %.1f MiB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
+	printf("Speed: %.1f MB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 	
 	return EXIT_SUCCESS;
 }
@@ -94,7 +95,7 @@ static int self_check(void) {
 
 /* Full message hasher */
 
-void sha256_hash(const uint8_t *message, uint32_t len, uint32_t hash[8]) {
+void sha256_hash(const uint8_t *message, size_t len, uint32_t hash[8]) {
 	hash[0] = UINT32_C(0x6A09E667);
 	hash[1] = UINT32_C(0xBB67AE85);
 	hash[2] = UINT32_C(0x3C6EF372);
@@ -104,26 +105,27 @@ void sha256_hash(const uint8_t *message, uint32_t len, uint32_t hash[8]) {
 	hash[6] = UINT32_C(0x1F83D9AB);
 	hash[7] = UINT32_C(0x5BE0CD19);
 	
-	uint32_t i;
+	size_t i;
 	for (i = 0; len - i >= 64; i += 64)
-		sha256_compress(hash, message + i);
+		sha256_compress(hash, &message[i]);
 	
 	uint8_t block[64];
-	uint32_t rem = len - i;
-	memcpy(block, message + i, rem);
+	size_t rem = len - i;
+	memcpy(block, &message[i], rem);
 	
 	block[rem] = 0x80;
 	rem++;
 	if (64 - rem >= 8)
-		memset(block + rem, 0, 56 - rem);
+		memset(&block[rem], 0, 56 - rem);
 	else {
-		memset(block + rem, 0, 64 - rem);
+		memset(&block[rem], 0, 64 - rem);
 		sha256_compress(hash, block);
 		memset(block, 0, 56);
 	}
 	
-	uint64_t longLen = ((uint64_t)len) << 3;
-	for (i = 0; i < 8; i++)
-		block[64 - 1 - i] = (uint8_t)(longLen >> (i * 8));
+	block[64 - 1] = (uint8_t)((len & 0x1FU) << 3);
+	len >>= 5;
+	for (i = 1; i < 8; i++, len >>= 8)
+		block[64 - 1 - i] = (uint8_t)len;
 	sha256_compress(hash, block);
 }
