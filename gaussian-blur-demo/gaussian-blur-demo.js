@@ -113,7 +113,7 @@ function updateRadius() {
 	if (width == -1)
 		return false;
 	var raw = parseFloat(document.getElementById("radius-in").value) / 100;  // Normalized from 0.0 to 1.0
-	var newRad = Math.pow(raw, 1.5) * 100;
+	var newRad = Math.pow(raw, 2.5) * 100;
 	if (newRad == 0)
 		newRad = 0.000001;  // To avoid division by zero
 	if (newRad == radius)

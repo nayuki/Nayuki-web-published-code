@@ -18,7 +18,7 @@ public final class GaussianBlurDemo {
 	public static void main(String[] args) throws IOException {
 		// Handle command line arguments
 		if (args.length != 3) {
-			System.err.println("java GaussianBlurDemo InputImg.png/bmp Radius OutputImg.png");
+			System.err.println("java GaussianBlurDemo Input.png/bmp Radius Output.png");
 			System.exit(1);
 			return;
 		}
@@ -80,9 +80,7 @@ public final class GaussianBlurDemo {
 		double scaler = -1 / (radius * radius * 2);
 		
 		// Make row kernel
-		int length = 1;
-		while (length < width * 3 - 2)
-			length *= 2;
+		int length = Integer.highestOneBit((width * 3 - 2) - 1) * 2;  // Round up to nearest power of 2
 		double[] kernel = new double[length];
 		for (int i = -(width - 1); i < width; i++)
 			kernel[(i + length) % length] = Math.exp(scaler * i * i);
@@ -93,20 +91,16 @@ public final class GaussianBlurDemo {
 		double[] lineImag = new double[length];
 		for (int ch = 0; ch < pixels.length; ch++) {
 			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++)
-					lineReal[x] = pixels[ch][y * width + x];
+				System.arraycopy(pixels[ch], y * width, lineReal, 0, width);
 				Arrays.fill(lineReal, width, lineReal.length, 0);
 				Arrays.fill(lineImag, 0);
 				conv.convolve(lineReal, lineImag);
-				for (int x = 0; x < width; x++)
-					pixels[ch][y * width + x] = lineReal[x];
+				System.arraycopy(lineReal, 0, pixels[ch], y * width, width);
 			}
 		}
 		
 		// Make column kernel
-		length = 1;
-		while (length < height * 3 - 2)
-			length *= 2;
+		length = Integer.highestOneBit((height * 3 - 2) - 1) * 2;  // Round up to nearest power of 2
 		kernel = new double[length];
 		for (int i = -(height - 1); i < height; i++)
 			kernel[(i + length) % length] = Math.exp(scaler * i * i);

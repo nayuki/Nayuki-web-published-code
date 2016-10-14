@@ -96,7 +96,7 @@ static bool self_check(void) {
 	for(i = 0; i < TRIALS; i++){
 		rc4_encrypt_c  (&state0, msg0, MSG_LEN);
 		rc4_encrypt_x86(&state1, msg1, MSG_LEN);
-		if (memcmp(msg0, msg1, MSG_LEN) !=0 || memcmp(&state0, &state1, sizeof(Rc4State)) != 0)
+		if (memcmp(msg0, msg1, MSG_LEN) != 0 || memcmp(&state0, &state1, sizeof(Rc4State)) != 0)
 			return false;
 	}
 	return true;

@@ -35,9 +35,9 @@ static void *memdup(const void *src, size_t n);
 #define SIZE_MAX ((size_t)-1)
 
 
-int transform(double real[], double imag[], size_t n) {
+bool transform(double real[], double imag[], size_t n) {
 	if (n == 0)
-		return 1;
+		return true;
 	else if ((n & (n - 1)) == 0)  // Is power of 2
 		return transform_radix2(real, imag, n);
 	else  // More complicated algorithm for arbitrary sizes
@@ -45,14 +45,14 @@ int transform(double real[], double imag[], size_t n) {
 }
 
 
-int inverse_transform(double real[], double imag[], size_t n) {
+bool inverse_transform(double real[], double imag[], size_t n) {
 	return transform(imag, real, n);
 }
 
 
-int transform_radix2(double real[], double imag[], size_t n) {
+bool transform_radix2(double real[], double imag[], size_t n) {
 	// Variables
-	int status = 0;
+	bool status = false;
 	unsigned int levels;
 	double *cos_table, *sin_table;
 	size_t size;
@@ -67,12 +67,12 @@ int transform_radix2(double real[], double imag[], size_t n) {
 			temp >>= 1;
 		}
 		if (1u << levels != n)
-			return 0;  // n is not a power of 2
+			return false;  // n is not a power of 2
 	}
 	
 	// Trignometric tables
 	if (SIZE_MAX / sizeof(double) < n / 2)
-		return 0;
+		return false;
 	size = (n / 2) * sizeof(double);
 	cos_table = malloc(size);
 	sin_table = malloc(size);
@@ -115,7 +115,7 @@ int transform_radix2(double real[], double imag[], size_t n) {
 		if (size == n)  // Prevent overflow in 'size *= 2'
 			break;
 	}
-	status = 1;
+	status = true;
 	
 cleanup:
 	free(cos_table);
@@ -124,9 +124,9 @@ cleanup:
 }
 
 
-int transform_bluestein(double real[], double imag[], size_t n) {
+bool transform_bluestein(double real[], double imag[], size_t n) {
 	// Variables
-	int status = 0;
+	bool status = false;
 	double *cos_table, *sin_table;
 	double *areal, *aimag;
 	double *breal, *bimag;
@@ -139,17 +139,17 @@ int transform_bluestein(double real[], double imag[], size_t n) {
 	{
 		size_t target;
 		if (n > (SIZE_MAX - 1) / 2)
-			return 0;
+			return false;
 		target = n * 2 + 1;
 		for (m = 1; m < target; m *= 2) {
 			if (SIZE_MAX / 2 < m)
-				return 0;
+				return false;
 		}
 	}
 	
 	// Allocate memory
 	if (SIZE_MAX / sizeof(double) < n || SIZE_MAX / sizeof(double) < m)
-		return 0;
+		return false;
 	size_n = n * sizeof(double);
 	size_m = m * sizeof(double);
 	cos_table = malloc(size_n);
@@ -195,7 +195,7 @@ int transform_bluestein(double real[], double imag[], size_t n) {
 		real[i] =  creal[i] * cos_table[i] + cimag[i] * sin_table[i];
 		imag[i] = -creal[i] * sin_table[i] + cimag[i] * cos_table[i];
 	}
-	status = 1;
+	status = true;
 	
 	// Deallocation
 cleanup:
@@ -211,9 +211,9 @@ cleanup:
 }
 
 
-int convolve_real(const double x[], const double y[], double out[], size_t n) {
+bool convolve_real(const double x[], const double y[], double out[], size_t n) {
 	double *ximag, *yimag, *zimag;
-	int status = 0;
+	bool status = false;
 	ximag = calloc(n, sizeof(double));
 	yimag = calloc(n, sizeof(double));
 	zimag = calloc(n, sizeof(double));
@@ -229,13 +229,13 @@ cleanup:
 }
 
 
-int convolve_complex(const double xreal[], const double ximag[], const double yreal[], const double yimag[], double outreal[], double outimag[], size_t n) {
-	int status = 0;
+bool convolve_complex(const double xreal[], const double ximag[], const double yreal[], const double yimag[], double outreal[], double outimag[], size_t n) {
+	bool status = false;
 	size_t size;
 	size_t i;
 	double *xr, *xi, *yr, *yi;
 	if (SIZE_MAX / sizeof(double) < n)
-		return 0;
+		return false;
 	size = n * sizeof(double);
 	xr = memdup(xreal, size);
 	xi = memdup(ximag, size);
@@ -259,7 +259,7 @@ int convolve_complex(const double xreal[], const double ximag[], const double yr
 		outreal[i] = xr[i] / n;
 		outimag[i] = xi[i] / n;
 	}
-	status = 1;
+	status = true;
 	
 cleanup:
 	free(yi);
