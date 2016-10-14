@@ -22,6 +22,7 @@
  *   Software.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +32,7 @@
 
 /* Function prototypes */
 
-static int self_check(void);
+static bool self_check(void);
 void whirlpool_hash(const uint8_t *message, uint32_t len, uint8_t hash[64]);
 
 // Link this program with an external C or x86 compression function
@@ -85,16 +86,16 @@ static struct testcase testCases[] = {
 		(const uint8_t *)"The quick brown fox jumps over the lazy dog"},
 };
 
-static int self_check(void) {
+static bool self_check(void) {
 	unsigned int i;
 	for (i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint8_t hash[64];
 		whirlpool_hash(tc->message, strlen((const char *)tc->message), hash);
 		if (memcmp(hash, tc->answer, sizeof(tc->answer)) != 0)
-			return 0;
+			return false;
 	}
-	return 1;
+	return true;
 }
 
 

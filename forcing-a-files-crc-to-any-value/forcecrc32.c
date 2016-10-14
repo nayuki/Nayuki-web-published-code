@@ -21,6 +21,7 @@
 
 #include <inttypes.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -134,7 +135,7 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 	rewind(f);
 	uint32_t crc = UINT32_C(0xFFFFFFFF);
 	*length = 0;
-	while (1) {
+	while (true) {
 		char buffer[32 * 1024];
 		size_t n = fread(buffer, sizeof(buffer[0]), sizeof(buffer) / sizeof(char), f);
 		if (ferror(f) != 0) {

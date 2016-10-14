@@ -24,6 +24,7 @@
 
 #include <inttypes.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,7 +35,7 @@
 
 // Private function prototypes
 static double test_fft_log_error(int n);
-static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, int inverse, int n);
+static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n);
 static int64_t benchmark_time(const void *fttTables, double *real, double *imag, uint64_t iterations);
 static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n);
 static double *random_reals(int n);
@@ -72,7 +73,7 @@ int main(int argc, char **argv) {
 		
 		// Determine number of iterations to run to spend TARGET_TIME
 		uint64_t iterations = 1;
-		while (1) {
+		while (true) {
 			int64_t time = benchmark_time(fftTables, real, imag, iterations);
 			if (time >= TARGET_TIME) {
 				iterations = (uint64_t)((double)TARGET_TIME / time * iterations + 0.5);
@@ -127,7 +128,7 @@ static double test_fft_log_error(int n) {
 	
 	refoutreal = malloc(n * sizeof(double));
 	refoutimag = malloc(n * sizeof(double));
-	naive_dft(inputreal, inputimag, refoutreal, refoutimag, 0, n);
+	naive_dft(inputreal, inputimag, refoutreal, refoutimag, false, n);
 	
 	actualoutreal = memdup(inputreal, n * sizeof(double));
 	actualoutimag = memdup(inputimag, n * sizeof(double));
@@ -149,7 +150,7 @@ static double test_fft_log_error(int n) {
 
 
 // Computes the discrete Fourier transform using the naive O(n^2) time algorithm.
-static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, int inverse, int n) {
+static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n) {
 	double coef = (inverse ? 2 : -2) * M_PI;
 	int k;
 	for (k = 0; k < n; k++) {  // For each output element

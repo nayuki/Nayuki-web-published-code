@@ -22,6 +22,7 @@
  *   Software.
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,7 +41,7 @@ typedef struct {
 extern void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, size_t len);
 void rc4_init(Rc4State *state, const uint8_t *key, size_t len);
 void rc4_encrypt_c(Rc4State *state, uint8_t *msg, size_t len);
-static int self_check(void);
+static bool self_check(void);
 
 
 /* Main program */
@@ -79,7 +80,7 @@ int main(int argc, char **argv) {
 }
 
 
-static int self_check(void) {
+static bool self_check(void) {
 	const int TRIALS = 1000;
 	#define MSG_LEN 127
 	
@@ -96,9 +97,9 @@ static int self_check(void) {
 		rc4_encrypt_c  (&state0, msg0, MSG_LEN);
 		rc4_encrypt_x86(&state1, msg1, MSG_LEN);
 		if (memcmp(msg0, msg1, MSG_LEN) !=0 || memcmp(&state0, &state1, sizeof(Rc4State)) != 0)
-			return 0;
+			return false;
 	}
-	return 1;
+	return true;
 	#undef MSG_LEN
 }
 

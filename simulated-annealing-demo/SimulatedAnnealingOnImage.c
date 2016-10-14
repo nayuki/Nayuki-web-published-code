@@ -8,6 +8,7 @@
 
 #include <inttypes.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -288,7 +289,7 @@ uint32_t MtRandom_next_int(struct MtRandom *mt) {
 
 // Unbiased generator of integers in the range [0, bound).
 uint32_t MtRandom_next_int_bounded(struct MtRandom *mt, uint32_t bound) {
-	while (1) {
+	while (true) {
 		uint32_t raw = MtRandom_next_int(mt);
 		uint32_t val = raw % bound;
 		if (UINT32_MAX - (raw - val) >= bound - 1)
@@ -299,7 +300,7 @@ uint32_t MtRandom_next_int_bounded(struct MtRandom *mt, uint32_t bound) {
 	// Alternate version to match java.util.Random.nextInt(int bound):
 	if ((bound & (bound - 1)) == 0)  // Is power of 2
 		return (uint32_t)(((uint64_t)bound * MtRandom_next_int(mt)) >> 32);
-	while (1) {
+	while (true) {
 		uint32_t raw = MtRandom_next_int(mt) >> 1;
 		uint32_t val = raw % bound;
 		if ((UINT32_MAX >> 1) - (raw - val) >= bound - 1)

@@ -23,6 +23,7 @@
  */
 
 #include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,7 +34,7 @@
 // Private function prototypes
 static void test_fft(int n);
 static void test_convolution(int n);
-static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, int inverse, int n);
+static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n);
 static void naive_convolve(const double *xreal, const double *ximag, const double *yreal, const double *yimag, double *outreal, double *outimag, int n);
 static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n);
 static double *random_reals(int n);
@@ -98,7 +99,7 @@ static void test_fft(int n) {
 	
 	refoutreal = malloc(n * sizeof(double));
 	refoutimag = malloc(n * sizeof(double));
-	naive_dft(inputreal, inputimag, refoutreal, refoutimag, 0, n);
+	naive_dft(inputreal, inputimag, refoutreal, refoutimag, false, n);
 	
 	actualoutreal = memdup(inputreal, n * sizeof(double));
 	actualoutimag = memdup(inputimag, n * sizeof(double));
@@ -149,7 +150,7 @@ static void test_convolution(int n) {
 
 /* Naive reference computation functions */
 
-static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, int inverse, int n) {
+static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n) {
 	double coef = (inverse ? 2 : -2) * M_PI;
 	int k;
 	for (k = 0; k < n; k++) {  // For each output element

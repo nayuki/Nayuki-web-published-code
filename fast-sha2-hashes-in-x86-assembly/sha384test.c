@@ -22,6 +22,7 @@
  *   Software.
  */
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -32,7 +33,7 @@
 
 /* Function prototypes */
 
-static int self_check(void);
+static bool self_check(void);
 void sha384_hash(const uint8_t *message, size_t len, uint64_t hash[6]);
 
 // Link this program with an external C or x86 compression function
@@ -80,16 +81,16 @@ static struct testcase testCases[] = {
 	TESTCASE(0x09330C33F71147E8,0x3D192FC782CD1B47,0x53111B173B3B05D2,0x2FA08086E3B0F712,0xFCC7C71A557E2DB9,0x66C3E9FA91746039, "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
 };
 
-static int self_check(void) {
+static bool self_check(void) {
 	unsigned int i;
 	for (i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint64_t hash[6];
 		sha384_hash(tc->message, strlen((const char *)tc->message), hash);
 		if (memcmp(hash, tc->answer, sizeof(tc->answer)) != 0)
-			return 0;
+			return false;
 	}
-	return 1;
+	return true;
 }
 
 

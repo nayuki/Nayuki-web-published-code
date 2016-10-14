@@ -22,6 +22,7 @@
  *   Software.
  */
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -32,7 +33,7 @@
 
 /* Function prototypes */
 
-static int self_check(void);
+static bool self_check(void);
 void md5_hash(const uint8_t *message, size_t len, uint32_t hash[4]);
 
 // Link this program with an external C or x86 compression function
@@ -82,16 +83,16 @@ static struct testcase testCases[] = {
 	TESTCASE(0xA2F4ED57,0x55C9E32B,0x2EDA49AC,0x7AB60721, "12345678901234567890123456789012345678901234567890123456789012345678901234567890"),
 };
 
-static int self_check(void) {
+static bool self_check(void) {
 	unsigned int i;
 	for (i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint32_t hash[4];
 		md5_hash(tc->message, strlen((const char *)tc->message), hash);
 		if (memcmp(hash, tc->answer, sizeof(tc->answer)) != 0)
-			return 0;
+			return false;
 	}
-	return 1;
+	return true;
 }
 
 

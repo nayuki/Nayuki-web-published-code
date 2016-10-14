@@ -8,6 +8,7 @@
 
 #include <inttypes.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -108,7 +109,7 @@ int main(int argc, char **argv) {
 		pthread_create(&threads[i], NULL, worker, &blocks[128 * NUM_CH * i]);
 	
 	// Print status until threads finish
-	while (1) {
+	while (true) {
 		pthread_mutex_lock(&mutex);
 		if (finished_threads >= num_threads) {
 			pthread_mutex_unlock(&mutex);

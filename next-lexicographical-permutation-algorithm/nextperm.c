@@ -1,9 +1,10 @@
 /* 
  * Next lexicographical permutation algorithm (C)
- * by Project Nayuki, 2014. Public domain.
+ * by Project Nayuki, 2016. Public domain.
  * https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
 
+#include <stdbool.h>
 #include <stddef.h>
 
 
@@ -12,18 +13,18 @@
  * returning a Boolean to indicate whether a next permutation existed.
  * (Returns false when the argument is already the last possible permutation.)
  */
-int next_permutation(int *array, size_t length) {
+bool next_permutation(int *array, size_t length) {
 	size_t i, j;
 	int temp;
 	
 	// Find non-increasing suffix
 	if (length == 0)
-		return 0;
+		return false;
 	i = length - 1;
 	while (i > 0 && array[i - 1] >= array[i])
 		i--;
 	if (i == 0)
-		return 0;
+		return false;
 	
 	// Find successor to pivot
 	j = length - 1;
@@ -42,5 +43,5 @@ int next_permutation(int *array, size_t length) {
 		i++;
 		j--;
 	}
-	return 1;
+	return true;
 }
