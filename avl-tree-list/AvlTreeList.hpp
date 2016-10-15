@@ -26,7 +26,8 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cstdlib>
+#include <cstddef>
+#include <cstdint>
 #include <set>
 #include <utility>
 
@@ -72,6 +73,8 @@ public:
 	void insert(size_t index, const E &val) {
 		if (index > size())  // Different constraint than the other methods
 			throw "Index out of bounds";
+		if (size() == SIZE_MAX)
+			throw "Maximum size reached";
 		root = root->insertAt(index, val);
 	}
 	
@@ -79,6 +82,8 @@ public:
 	void insert(size_t index, E &&val) {
 		if (index > size())  // Different constraint than the other methods
 			throw "Index out of bounds";
+		if (size() == SIZE_MAX)
+			throw "Maximum size reached";
 		root = root->insertAt(index, std::move(val));
 	}
 	
