@@ -80,7 +80,7 @@ public final class GaussianBlurDemo {
 		double scaler = -1 / (radius * radius * 2);
 		
 		// Make row kernel
-		int length = Integer.highestOneBit((width * 3 - 2) - 1) * 2;  // Round up to nearest power of 2
+		int length = Integer.highestOneBit(width * 2 - 1) * 2;  // Round up to nearest power of 2
 		double[] kernel = new double[length];
 		for (int i = -(width - 1); i < width; i++)
 			kernel[(i + length) % length] = Math.exp(scaler * i * i);
@@ -100,7 +100,7 @@ public final class GaussianBlurDemo {
 		}
 		
 		// Make column kernel
-		length = Integer.highestOneBit((height * 3 - 2) - 1) * 2;  // Round up to nearest power of 2
+		length = Integer.highestOneBit(height * 2 - 1) * 2;  // Round up to nearest power of 2
 		kernel = new double[length];
 		for (int i = -(height - 1); i < height; i++)
 			kernel[(i + length) % length] = Math.exp(scaler * i * i);

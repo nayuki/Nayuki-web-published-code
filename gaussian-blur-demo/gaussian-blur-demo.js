@@ -143,7 +143,7 @@ function makeGaussianKernel(stdDev, dataLen) {
 	
 	// Calculate length for full padded kernel
 	var length = 1;
-	while (length < (kernel.length - 1) * 2 + dataLen)
+	while (length < dataLen + kernel.length - 1)
 		length *= 2;
 	var result = new Float32Array(length);
 	
