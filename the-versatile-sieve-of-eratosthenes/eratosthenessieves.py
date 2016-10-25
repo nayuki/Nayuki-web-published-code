@@ -1,5 +1,5 @@
 # 
-# Variants of the sieve of Eratosthenes
+# Variants of the sieve of Eratosthenes (Python)
 # by Project Nayuki, 2016. Public domain.
 # https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
 # 
@@ -12,7 +12,8 @@ def sieve_primeness(limit):
 		raise ValueError("Limit must be non-negative")
 	result = [True] * (limit + 1)
 	result[0] = False
-	result[1] = False
+	if limit > 0:
+		result[1] = False
 	for i in range(2, len(result)):
 		if result[i]:
 			for j in range(i * i, len(result), i):
@@ -26,7 +27,8 @@ def sieve_smallest_prime_factor(limit):
 	if limit < 0:
 		raise ValueError("Limit must be non-negative")
 	result = [0] * (limit + 1)
-	result[1] = 1
+	if limit > 0:
+		result[1] = 1
 	for i in range(2, len(result)):
 		if result[i] == 0:
 			result[i] = i
