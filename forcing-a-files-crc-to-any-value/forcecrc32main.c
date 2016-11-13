@@ -29,6 +29,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef DISABLE_ZLIB
+#include <zlib.h>
+#endif
 
 #include "forcecrc32.h"
 
@@ -37,7 +40,9 @@
 
 static uint32_t get_crc32_and_length(FILE *f, uint64_t *length);
 static void fseek64(FILE *f, uint64_t offset);
+#ifdef DISABLE_ZLIB
 static uint32_t reverse_bits(uint32_t x);
+#endif
 
 
 /* Main program */
@@ -131,7 +136,7 @@ static const uint64_t POLYNOMIAL = UINT64_C(0x104C11DB7);  // Generator polynomi
 
 static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 	rewind(f);
-	uint32_t crc = UINT32_C(0xFFFFFFFF);
+	uint32_t crc = 0;
 	*length = 0;
 	while (true) {
 		char buffer[32 * 1024];
@@ -140,6 +145,8 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 			perror("fread");
 			exit(EXIT_FAILURE);
 		}
+#ifdef DISABLE_ZLIB
+		crc = ~reverse_bits(crc);
 		size_t i;
 		for (i = 0; i < n; i++) {
 			int j;
@@ -152,9 +159,13 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 					crc ^= (uint32_t)POLYNOMIAL;
 			}
 		}
+		crc = reverse_bits(~crc);
+#else
+		crc = crc32(crc, (Bytef *)buffer, n);
+#endif
 		*length += n;
 		if (feof(f))
-			return reverse_bits(~crc);
+			return crc;
 	}
 }
 
@@ -171,6 +182,7 @@ static void fseek64(FILE *f, uint64_t offset) {
 }
 
 
+#ifdef DISABLE_ZLIB
 static uint32_t reverse_bits(uint32_t x) {
 	uint32_t result = 0;
 	int i;
@@ -178,4 +190,5 @@ static uint32_t reverse_bits(uint32_t x) {
 		result = (result << 1) | ((x >> i) & 1);
 	return result;
 }
+#endif
 
