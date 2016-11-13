@@ -25,6 +25,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef DISABLE_ZLIB
+#include <zlib.h>
+#endif
 
 
 /* Forward declarations */
@@ -133,7 +136,11 @@ static const uint64_t POLYNOMIAL = UINT64_C(0x104C11DB7);  // Generator polynomi
 
 static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 	rewind(f);
+#ifdef DISABLE_ZLIB
 	uint32_t crc = UINT32_C(0xFFFFFFFF);
+#else
+	uint32_t crc = 0;
+#endif
 	*length = 0;
 	while (true) {
 		char buffer[32 * 1024];
@@ -142,6 +149,7 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 			perror("fread");
 			exit(EXIT_FAILURE);
 		}
+#ifdef DISABLE_ZLIB
 		size_t i;
 		for (i = 0; i < n; i++) {
 			int j;
@@ -154,9 +162,16 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 					crc ^= (uint32_t)POLYNOMIAL;
 			}
 		}
+#else
+		crc = crc32(crc, (Bytef *)buffer, n);
+#endif
 		*length += n;
 		if (feof(f))
+#ifdef DISABLE_ZLIB
 			return ~crc;
+#else
+			return reverse_bits(crc);
+#endif
 	}
 }
 
