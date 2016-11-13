@@ -6,6 +6,7 @@
  *
  * Copyright (c) 2016 Elliott Mitchell
  * Creation this file from portion of Project Nayuki forcecrc32.c file.
+ * Modification of get_crc32_and_length().
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +69,6 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Error: Invalid new CRC-32 value\n");
 		return EXIT_FAILURE;
 	}
-	newcrc = reverse_bits(newcrc);
 
 	// Process the file
 	FILE *f = fopen(argv[1], "r+b");
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Error: Byte offset plus 4 exceeds file length\n");
 		return EXIT_FAILURE;
 	}
-	fprintf(stdout, "Original CRC-32: %08" PRIX32 "\n", reverse_bits(crc));
+	fprintf(stdout, "Original CRC-32: %08" PRIX32 "\n", crc);
 
 	// Compute the change to make
 	uint32_t delta = reverse_crc32(crc ^ newcrc, length - offset);
@@ -154,7 +154,7 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 		}
 		*length += n;
 		if (feof(f))
-			return ~crc;
+			return reverse_bits(~crc);
 	}
 }
 
