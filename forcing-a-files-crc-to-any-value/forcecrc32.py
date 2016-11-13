@@ -1,24 +1,24 @@
-# 
+#
 # CRC-32 forcer (Python)
 # Compatible with Python 2 and 3.
-# 
+#
 # Copyright (c) 2016 Project Nayuki
 # https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program (see COPYING.txt).
 # If not, see <http://www.gnu.org/licenses/>.
-# 
+#
 
 import os, sys, zlib
 
@@ -44,7 +44,7 @@ def main(args):
         new_crc = reverse32(temp)
     except ValueError:
         return "Error: Invalid new CRC-32 value"
-    
+
     # Process the file
     try:
         raf = open(args[0], "r+b")
@@ -53,15 +53,15 @@ def main(args):
             length = raf.tell()
             if offset + 4 > length:
                 return "Error: Byte offset plus 4 exceeds file length"
-            
+
             # Read entire file and calculate original CRC-32 value
             crc = get_crc32(raf)
             print("Original CRC-32: {:08X}".format(reverse32(crc)))
-            
+
             # Compute the change to make
             delta = crc ^ new_crc
             delta = multiply_mod(reciprocal_mod(pow_mod(2, (length - offset) * 8)), delta)
-            
+
             # Patch 4 bytes in the file
             raf.seek(offset)
             bytes4 = bytearray(raf.read(4))
@@ -72,13 +72,13 @@ def main(args):
             raf.seek(offset)
             raf.write(bytes4)
             print("Computed and wrote patch")
-            
+
             # Recheck entire file
             if get_crc32(raf) == new_crc:
                 print("New CRC-32 successfully verified")
             else:
                 return "Error: Failed to update CRC-32 to desired value"
-        
+
         except IOError as e:
             return "Error: I/O error"
         finally:
@@ -146,7 +146,7 @@ def divide_and_remainder(x, y):
         raise ValueError("Division by zero")
     if x == 0:
         return (0, 0)
-    
+
     ydeg = get_degree(y)
     z = 0
     for i in range(get_degree(x) - ydeg, -1, -1):

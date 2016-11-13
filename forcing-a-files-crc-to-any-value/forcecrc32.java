@@ -1,19 +1,19 @@
-/* 
+/*
  * CRC-32 forcer (Java)
- * 
+ *
  * Copyright (c) 2015 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program (see COPYING.txt).
  * If not, see <http://www.gnu.org/licenses/>.
@@ -26,9 +26,9 @@ import java.io.RandomAccessFile;
 
 
 public class forcecrc32 {
-	
+
 	/* Main function */
-	
+
 	public static void main(String[] args) {
 		String errmsg = main1(args);
 		if (errmsg != null) {
@@ -36,8 +36,8 @@ public class forcecrc32 {
 			System.exit(1);
 		}
 	}
-	
-	
+
+
 	private static String main1(String[] args) {
 		// Handle arguments
 		long offset;
@@ -64,22 +64,22 @@ public class forcecrc32 {
 		File file = new File(args[0]);
 		if (!file.isFile())
 			return "Error: File does not exist: " + file;
-		
+
 		// Process the file
 		try {
 			RandomAccessFile raf = new RandomAccessFile(file, "rws");
 			try {
 				if (offset + 4 > raf.length())
 					return "Error: Byte offset plus 4 exceeds file length";
-				
+
 				// Read entire file and calculate original CRC-32 value
 				int crc = getCrc32(raf);
 				System.out.printf("Original CRC-32: %08X%n", Integer.reverse(crc));
-				
+
 				// Compute the change to make
 				int delta = crc ^ newCrc;
 				delta = (int)multiplyMod(reciprocalMod(powMod(2, (raf.length() - offset) * 8)), delta & 0xFFFFFFFFL);
-				
+
 				// Patch 4 bytes in the file
 				raf.seek(offset);
 				byte[] bytes4 = new byte[4];
@@ -89,13 +89,13 @@ public class forcecrc32 {
 				raf.seek(offset);
 				raf.write(bytes4);
 				System.out.println("Computed and wrote patch");
-				
+
 				// Recheck entire file
 				if (getCrc32(raf) == newCrc)
 					System.out.println("New CRC-32 successfully verified");
 				else
 					return "Error: Failed to update CRC-32 to desired value";
-				
+
 			} catch (IOException e) {
 				return "Error: I/O exception: " + e.getMessage();
 			} finally {
@@ -106,13 +106,13 @@ public class forcecrc32 {
 		}
 		return null;
 	}
-	
-	
+
+
 	/* Utilities */
-	
+
 	private static long POLYNOMIAL = 0x104C11DB7L;  // Generator polynomial. Do not modify, because there are many dependencies
-	
-	
+
+
 	private static int getCrc32(RandomAccessFile raf) throws IOException {
 		raf.seek(0);
 		int crc = 0xFFFFFFFF;
@@ -132,10 +132,10 @@ public class forcecrc32 {
 			}
 		}
 	}
-	
-	
+
+
 	/* Polynomial arithmetic */
-	
+
 	// Returns polynomial x multiplied by polynomial y modulo the generator polynomial.
 	private static long multiplyMod(long x, long y) {
 		// Russian peasant multiplication algorithm
@@ -149,8 +149,8 @@ public class forcecrc32 {
 		}
 		return z;
 	}
-	
-	
+
+
 	// Returns polynomial x to the power of natural number y modulo the generator polynomial.
 	private static long powMod(long x, long y) {
 		// Exponentiation by squaring
@@ -163,15 +163,15 @@ public class forcecrc32 {
 		}
 		return z;
 	}
-	
-	
+
+
 	// Computes polynomial x divided by polynomial y, returning the quotient and remainder.
 	private static long[] divideAndRemainder(long x, long y) {
 		if (y == 0)
 			throw new IllegalArgumentException("Division by zero");
 		if (x == 0)
 			return new long[]{0, 0};
-		
+
 		int ydeg = getDegree(y);
 		long z = 0;
 		for (int i = getDegree(x) - ydeg; i >= 0; i--) {
@@ -182,8 +182,8 @@ public class forcecrc32 {
 		}
 		return new long[]{z, x};
 	}
-	
-	
+
+
 	// Returns the reciprocal of polynomial x with respect to the generator polynomial.
 	private static long reciprocalMod(long x) {
 		// Based on a simplification of the extended Euclidean algorithm
@@ -204,10 +204,10 @@ public class forcecrc32 {
 		else
 			throw new IllegalArgumentException("Reciprocal does not exist");
 	}
-	
-	
+
+
 	private static int getDegree(long x) {
 		return 63 - Long.numberOfLeadingZeros(x);
 	}
-	
+
 }
