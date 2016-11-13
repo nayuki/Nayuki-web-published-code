@@ -137,7 +137,7 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 	*length = 0;
 	while (true) {
 		char buffer[32 * 1024];
-		size_t n = fread(buffer, sizeof(buffer[0]), sizeof(buffer) / sizeof(char), f);
+		size_t n = fread(buffer, 1, sizeof(buffer), f);
 		if (ferror(f) != 0) {
 			perror("fread");
 			exit(EXIT_FAILURE);
@@ -173,12 +173,14 @@ static void fseek64(FILE *f, uint64_t offset) {
 }
 
 
-static uint32_t reverse_bits(uint32_t x) {
-	uint32_t result = 0;
-	int i;
-	for (i = 0; i < 32; i++)
-		result = (result << 1) | ((x >> i) & 1);
-	return result;
+static uint32_t reverse_bits(uint32_t val) {
+	int s;
+	// blitter-type solution, rather faster than the naive solution
+	const uint32_t masks[] = {0x55555555, 0x33333333, 0xF0F0F0F, 0xFF00FF, 0xFFFF};
+	for (s = 0; s<sizeof(masks)/sizeof(masks[0]); ++s)
+		val = ((val >> (1<<s)) & masks[s]) | ((val & masks[s]) << (1<<s));
+
+	return val;
 }
 
 
