@@ -36,7 +36,9 @@
 
 static uint32_t get_crc32_and_length(FILE *f, uint64_t *length);
 static void fseek64(FILE *f, uint64_t offset);
+#ifdef DISABLE_ZLIB
 static uint32_t reverse_bits(uint32_t x);
+#endif
 
 
 /* Main program */
@@ -68,7 +70,6 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Error: Invalid new CRC-32 value\n");
 		return EXIT_FAILURE;
 	}
-	newcrc = reverse_bits(newcrc);
 
 	// Process the file
 	FILE *f = fopen(argv[1], "r+b");
@@ -86,7 +87,7 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Error: Byte offset plus 4 exceeds file length\n");
 		return EXIT_FAILURE;
 	}
-	fprintf(stdout, "Original CRC-32: %08" PRIX32 "\n", reverse_bits(crc));
+	fprintf(stdout, "Original CRC-32: %08" PRIX32 "\n", crc);
 
 	// Compute the change to make
 	uint32_t delta = reverse_crc32(crc ^ newcrc, length - offset);
@@ -163,9 +164,9 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 		*length += n;
 		if (feof(f))
 #ifdef DISABLE_ZLIB
-			return ~crc;
+			return reverse_bits(~crc);
 #else
-			return reverse_bits(crc);
+			return crc;
 #endif
 	}
 }
@@ -183,6 +184,7 @@ static void fseek64(FILE *f, uint64_t offset) {
 }
 
 
+#ifdef DISABLE_ZLIB
 static uint32_t reverse_bits(uint32_t val) {
 	int s;
 	// blitter-type solution, rather faster than the naive solution
@@ -192,4 +194,5 @@ static uint32_t reverse_bits(uint32_t val) {
 
 	return val;
 }
+#endif
 

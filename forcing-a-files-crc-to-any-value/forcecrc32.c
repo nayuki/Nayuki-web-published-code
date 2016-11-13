@@ -49,6 +49,8 @@ static int get_degree(uint64_t x);
 uint32_t reverse_crc32(uint32_t delta, uint64_t endDistance)
 {
 	// Compute the change to make
+	delta = reverse_bits(delta);
+
 	delta = (uint32_t)multiply_mod(reciprocal_mod(pow_mod(2, endDistance * 8)), delta);
 
 	delta = reverse_bits(delta);
