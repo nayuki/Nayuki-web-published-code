@@ -4,7 +4,10 @@
 # 
 # Copyright (c) 2016 Project Nayuki
 # https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
-# 
+#
+# Copyright (c) 2016 Elliott Mitchell
+# Modification of reverse32()
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -105,12 +108,12 @@ def get_crc32(raf):
             crc = zlib.crc32(buffer, crc)
 
 
-def reverse32(x):
-    y = 0
-    for i in range(32):
-        y = (y << 1) | (x & 1)
-        x >>= 1
-    return y
+def reverse32(v):
+	# blitter-type solution, rather faster than the naive solution
+	masks = 0x55555555, 0x33333333, 0xF0F0F0F, 0xFF00FF, 0xFFFF
+	for s in range(len(masks)):
+		v = ((v >> (1<<s)) & masks[s]) | ((v & masks[s]) << (1<<s))
+	return v
 
 
 # ---- Polynomial arithmetic ----

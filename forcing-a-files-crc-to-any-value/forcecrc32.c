@@ -5,7 +5,7 @@
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  *
  * Copyright (c) 2016 Elliott Mitchell
- * Creation of reverse_crc32()
+ * Creation of reverse_crc32() and modification of reverse_bits()
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,12 +67,14 @@ uint32_t reverse_crc32(uint32_t delta, uint64_t endDistance)
 static const uint64_t POLYNOMIAL = UINT64_C(0x104C11DB7);  // Generator polynomial. Do not modify, because there are many dependencies
 
 
-static uint32_t reverse_bits(uint32_t x) {
-	uint32_t result = 0;
-	int i;
-	for (i = 0; i < 32; i++)
-		result = (result << 1) | ((x >> i) & 1);
-	return result;
+static uint32_t reverse_bits(uint32_t val) {
+	int s;
+	// blitter-type solution, rather faster than the naive solution
+	const uint32_t masks[] = {0x55555555, 0x33333333, 0xF0F0F0F, 0xFF00FF, 0xFFFF};
+	for (s = 0; s<sizeof(masks)/sizeof(masks[0]); ++s)
+		val = ((val >> (1<<s)) & masks[s]) | ((val & masks[s]) << (1<<s));
+
+	return val;
 }
 
 
