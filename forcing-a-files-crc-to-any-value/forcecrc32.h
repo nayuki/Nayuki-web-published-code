@@ -4,6 +4,9 @@
  * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  *
+ * Copyright (c) 2016 Elliott Mitchell
+ * Creation of this whole header.
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or

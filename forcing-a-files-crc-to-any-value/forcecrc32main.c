@@ -4,6 +4,10 @@
  * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  *
+ * Copyright (c) 2016 Elliott Mitchell
+ * Creation this file from portion of Project Nayuki forcecrc32.c file.
+ * Modification of reverse_bits() and get_crc32_and_length().
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
