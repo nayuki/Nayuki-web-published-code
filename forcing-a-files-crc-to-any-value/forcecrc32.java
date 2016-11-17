@@ -20,17 +20,16 @@
  */
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 
 public class forcecrc32 {
 	
-	/* Main function */
+	/*---- Main application ----*/
 	
 	public static void main(String[] args) {
-		String errmsg = main1(args);
+		String errmsg = submain(args);
 		if (errmsg != null) {
 			System.err.println(errmsg);
 			System.exit(1);
@@ -38,7 +37,7 @@ public class forcecrc32 {
 	}
 	
 	
-	private static String main1(String[] args) {
+	private static String submain(String[] args) {
 		// Handle arguments
 		long offset;
 		int newCrc;
@@ -67,48 +66,61 @@ public class forcecrc32 {
 		
 		// Process the file
 		try {
-			RandomAccessFile raf = new RandomAccessFile(file, "rws");
-			try {
-				if (offset + 4 > raf.length())
-					return "Error: Byte offset plus 4 exceeds file length";
-				
-				// Read entire file and calculate original CRC-32 value
-				int crc = getCrc32(raf);
-				System.out.printf("Original CRC-32: %08X%n", Integer.reverse(crc));
-				
-				// Compute the change to make
-				int delta = crc ^ newCrc;
-				delta = (int)multiplyMod(reciprocalMod(powMod(2, (raf.length() - offset) * 8)), delta & 0xFFFFFFFFL);
-				
-				// Patch 4 bytes in the file
-				raf.seek(offset);
-				byte[] bytes4 = new byte[4];
-				raf.readFully(bytes4);
-				for (int i = 0; i < bytes4.length; i++)
-					bytes4[i] ^= Integer.reverse(delta) >>> (i * 8);
-				raf.seek(offset);
-				raf.write(bytes4);
-				System.out.println("Computed and wrote patch");
-				
-				// Recheck entire file
-				if (getCrc32(raf) == newCrc)
-					System.out.println("New CRC-32 successfully verified");
-				else
-					return "Error: Failed to update CRC-32 to desired value";
-				
-			} catch (IOException e) {
-				return "Error: I/O exception: " + e.getMessage();
-			} finally {
-				raf.close();
-			}
+			modifyFileCrc32(file, offset, newCrc, true);
 		} catch (IOException e) {
-			return "Error: I/O exception: " + e.getMessage();
+			return "I/O error: " + e.getMessage();
+		} catch (IllegalArgumentException e) {
+			return "Error: " + e.getMessage();
+		} catch (AssertionError e) {
+			return "Assertion error: " + e.getMessage();
 		}
 		return null;
 	}
 	
 	
-	/* Utilities */
+	/*---- Main function ----*/
+	
+	// Public library function.
+	public static void modifyFileCrc32(File file, long offset, int newCrc, boolean printStatus) throws IOException {
+		if (file == null)
+			throw new NullPointerException();
+		if (offset < 0)
+			throw new IllegalArgumentException("Negative file offset");
+		
+		try (RandomAccessFile raf = new RandomAccessFile(file, "rws")) {
+			if (offset + 4 > raf.length())
+				throw new IllegalArgumentException("Byte offset plus 4 exceeds file length");
+			
+			// Read entire file and calculate original CRC-32 value
+			int crc = getCrc32(raf);
+			if (printStatus)
+				System.out.printf("Original CRC-32: %08X%n", Integer.reverse(crc));
+			
+			// Compute the change to make
+			int delta = crc ^ newCrc;
+			delta = (int)multiplyMod(reciprocalMod(powMod(2, (raf.length() - offset) * 8)), delta & 0xFFFFFFFFL);
+			
+			// Patch 4 bytes in the file
+			raf.seek(offset);
+			byte[] bytes4 = new byte[4];
+			raf.readFully(bytes4);
+			for (int i = 0; i < bytes4.length; i++)
+				bytes4[i] ^= Integer.reverse(delta) >>> (i * 8);
+			raf.seek(offset);
+			raf.write(bytes4);
+			if (printStatus)
+				System.out.println("Computed and wrote patch");
+			
+			// Recheck entire file
+			if (getCrc32(raf) != newCrc)
+				throw new AssertionError("Failed to update CRC-32 to desired value");
+			else if (printStatus)
+				System.out.println("New CRC-32 successfully verified");
+		}
+	}
+	
+	
+	/*---- Utilities ----*/
 	
 	private static long POLYNOMIAL = 0x104C11DB7L;  // Generator polynomial. Do not modify, because there are many dependencies
 	
@@ -134,7 +146,7 @@ public class forcecrc32 {
 	}
 	
 	
-	/* Polynomial arithmetic */
+	/*---- Polynomial arithmetic ----*/
 	
 	// Returns polynomial x multiplied by polynomial y modulo the generator polynomial.
 	private static long multiplyMod(long x, long y) {

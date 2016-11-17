@@ -29,6 +29,8 @@
 
 /* Forward declarations */
 
+const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc, bool printstatus);
+
 static uint32_t get_crc32_and_length(FILE *f, uint64_t *length);
 static void fseek64(FILE *f, uint64_t offset);
 static uint32_t reverse_bits(uint32_t x);
@@ -40,7 +42,7 @@ static uint64_t reciprocal_mod(uint64_t x);
 static int get_degree(uint64_t x);
 
 
-/* Main program */
+/*---- Main application ----*/
 
 int main(int argc, char **argv) {
 	// Handle arguments
@@ -72,11 +74,25 @@ int main(int argc, char **argv) {
 	newcrc = reverse_bits(newcrc);
 	
 	// Process the file
-	FILE *f = fopen(argv[1], "r+b");
-	if (f == NULL) {
-		perror("fopen");
-		return EXIT_FAILURE;
-	}
+	const char *errmsg = modify_file_crc32(argv[1], offset, newcrc, true);
+	if (errmsg == NULL)
+		return EXIT_SUCCESS;
+	else if (0 < strcmp(errmsg, "I/O error: ") && strcmp(errmsg, "I/O error:!") < 0)  // Prefix test
+		perror(errmsg);
+	else
+		fprintf(stderr, "%s\n", errmsg);
+	return EXIT_FAILURE;
+}
+
+
+/*---- Main function ----*/
+
+// Public library function. Returns NULL if successful, a string starting with "I/O error: "
+// if an I/O error occurred (please see perror()), or a string if some other error occurred.
+const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc, bool printstatus) {
+	FILE *f = fopen(path, "r+b");
+	if (f == NULL)
+		return "I/O error: fopen";
 	
 	// Read entire file and calculate original CRC-32 value.
 	// Note: We can't use fseek(f, 0, SEEK_END) + ftell(f) to determine the length of the file, due to undefined behavior.
@@ -84,10 +100,11 @@ int main(int argc, char **argv) {
 	uint64_t length;
 	uint32_t crc = get_crc32_and_length(f, &length);
 	if (offset > UINT64_MAX - 4 || offset + 4 > length) {
-		fprintf(stderr, "Error: Byte offset plus 4 exceeds file length\n");
-		return EXIT_FAILURE;
+		fclose(f);
+		return "Error: Byte offset plus 4 exceeds file length";
 	}
-	fprintf(stdout, "Original CRC-32: %08" PRIX32 "\n", reverse_bits(crc));
+	if (printstatus)
+		fprintf(stdout, "Original CRC-32: %08" PRIX32 "\n", reverse_bits(crc));
 	
 	// Compute the change to make
 	uint32_t delta = crc ^ newcrc;
@@ -99,34 +116,35 @@ int main(int argc, char **argv) {
 	for (i = 0; i < 4; i++) {
 		int b = fgetc(f);
 		if (b == EOF) {
-			perror("fgetc");
-			return EXIT_FAILURE;
+			fclose(f);
+			return "I/O error: fgetc";
 		}
 		b ^= (int)((reverse_bits(delta) >> (i * 8)) & 0xFF);
 		if (fseek(f, -1, SEEK_CUR) != 0) {
-			perror("fseek");
-			return EXIT_FAILURE;
+			fclose(f);
+			return "I/O error: fseek";
 		}
 		if (fputc(b, f) == EOF) {
-			perror("fputc");
-			return EXIT_FAILURE;
+			fclose(f);
+			return "I/O error: fputc";
 		}
 	}
-	fprintf(stdout, "Computed and wrote patch\n");
+	if (printstatus)
+		fprintf(stdout, "Computed and wrote patch\n");
 	
 	// Recheck entire file
-	if (get_crc32_and_length(f, &length) == newcrc) {
-		fprintf(stdout, "New CRC-32 successfully verified\n");
-		fclose(f);
-		return EXIT_SUCCESS;
-	} else {
-		fprintf(stderr, "Error: Failed to update CRC-32 to desired value\n");
-		return EXIT_FAILURE;
-	}
+	bool match = get_crc32_and_length(f, &length) == newcrc;
+	fclose(f);
+	if (match) {
+		if (printstatus)
+			fprintf(stdout, "New CRC-32 successfully verified\n");
+		return NULL;  // Success
+	} else
+		return "Assertion error: Failed to update CRC-32 to desired value";
 }
 
 
-/* Utilities */
+/*---- Utilities ----*/
 
 static const uint64_t POLYNOMIAL = UINT64_C(0x104C11DB7);  // Generator polynomial. Do not modify, because there are many dependencies
 
@@ -182,7 +200,7 @@ static uint32_t reverse_bits(uint32_t x) {
 }
 
 
-/* Polynomial arithmetic */
+/*---- Polynomial arithmetic ----*/
 
 // Returns polynomial x multiplied by polynomial y modulo the generator polynomial.
 static uint64_t multiply_mod(uint64_t x, uint64_t y) {
