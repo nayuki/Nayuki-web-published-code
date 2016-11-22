@@ -47,8 +47,7 @@ def sieve_totient(limit):
 	for i in range(2, len(result)):
 		if result[i] == i:
 			for j in range(i, len(result), i):
-				result[j] //= i
-				result[j] *= (i - 1)
+				result[j] -= result[j] // i
 	return result
 
 

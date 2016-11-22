@@ -74,7 +74,7 @@ uint32_t *sieve_totient(uint32_t limit) {
 	for (uint32_t i = 2; i <= limit; i++) {
 		if (result[i] == i) {
 			for (uint32_t j = i, bound = (uint32_t)-i; j <= limit; j += i) {
-				result[j] = (result[j] / i) * (i - 1);
+				result[j] -= result[j] / i;
 				if (j >= bound)
 					break;
 			}

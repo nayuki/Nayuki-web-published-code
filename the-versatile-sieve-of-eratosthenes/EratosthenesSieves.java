@@ -61,7 +61,7 @@ public final class EratosthenesSieves {
 		for (int i = 2; i < result.length; i++) {
 			if (result[i] == i) {
 				for (int j = i; 0 <= j && j < result.length; j += i)
-					result[j] = (result[j] / i) * (i - 1);
+					result[j] -= result[j] / i;
 			}
 		}
 		return result;
