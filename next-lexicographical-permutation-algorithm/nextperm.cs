@@ -7,9 +7,11 @@
 
 public sealed class nextperm {
 	
-	// Computes the next lexicographical permutation of the given array
-	// of integers in place, returning whether a next permutation existed.
-	// (Returns false when the argument is already the last possible permutation.)
+	/* 
+	 * Computes the next lexicographical permutation of the given array
+	 * of integers in place, returning whether a next permutation existed.
+	 * (Returns false when the argument is already the last possible permutation.)
+	 */
 	public static bool NextPermutation(int[] array) {
 		// Find non-increasing suffix
 		int i = array.Length - 1;

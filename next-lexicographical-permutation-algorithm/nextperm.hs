@@ -1,6 +1,6 @@
 {- 
  - Next lexicographical permutation algorithm
- - by Project Nayuki, 2014. Public domain.
+ - by Project Nayuki, 2016. Public domain.
  - https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  -}
 
@@ -11,7 +11,7 @@ module NextPerm (nextPermutation) where
  - Computes the next lexicographical permutation of the specified finite list of numbers.
  - Returns Nothing if the argument is already the highest permutation.
  -}
-nextPermutation :: [Integer] -> Maybe [Integer]
+nextPermutation :: Ord a => [a] -> Maybe [a]
 nextPermutation xs =
 	let
 		len = length xs
