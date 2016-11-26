@@ -22,90 +22,92 @@
 #   Software.
 # 
 
-import random, sys
+import random, unittest
 import disjointset
 
 
 # ---- Test suite ----
 
-def test_new():
-	ds = disjointset.DisjointSet(10)
-	assert ds.get_num_sets() == 10
-	assert ds.get_size_of_set(0) == 1
-	assert ds.get_size_of_set(2) == 1
-	assert ds.get_size_of_set(9) == 1
-	assert ds.are_in_same_set(0, 0)
-	assert not ds.are_in_same_set(0, 1)
-	assert not ds.are_in_same_set(9, 3)
-
-
-def test_merge():
-	ds = disjointset.DisjointSet(10)
-	assert ds.merge_sets(0, 1)
-	ds.check_structure()
-	assert ds.get_num_sets() == 9
-	assert ds.are_in_same_set(0, 1)
+class DisjointSetTest(unittest.TestCase):
 	
-	assert ds.merge_sets(2, 3)
-	ds.check_structure()
-	assert ds.get_num_sets() == 8
-	assert ds.are_in_same_set(2, 3)
+	def test_new(self):
+		ds = disjointset.DisjointSet(10)
+		self.assertEqual(ds.get_num_sets(), 10)
+		self.assertEqual(ds.get_size_of_set(0), 1)
+		self.assertEqual(ds.get_size_of_set(2), 1)
+		self.assertEqual(ds.get_size_of_set(9), 1)
+		self.assertTrue(ds.are_in_same_set(0, 0))
+		self.assertFalse(ds.are_in_same_set(0, 1))
+		self.assertFalse(ds.are_in_same_set(9, 3))
 	
-	assert not ds.merge_sets(2, 3)
-	ds.check_structure()
-	assert ds.get_num_sets() == 8
-	assert not ds.are_in_same_set(0, 2)
 	
-	assert ds.merge_sets(0, 3)
-	ds.check_structure()
-	assert ds.get_num_sets() == 7
-	assert ds.are_in_same_set(0, 2)
-	assert ds.are_in_same_set(3, 0)
-	assert ds.are_in_same_set(1, 3)
-
-
-def test_big_merge():
-	maxRank = 20
-	trials = 10000
-	
-	numElems = 1 << maxRank  # Grows exponentially
-	ds = disjointset.DisjointSet(numElems)
-	for level in range(maxRank):
-		mergeStep = 1 << level
-		incrStep = mergeStep * 2
-		for i in range(0, numElems, incrStep):
-			assert not ds.are_in_same_set(i, i + mergeStep)
-			assert ds.merge_sets(i, i + mergeStep)
-		# Now we have a bunch of sets of size 2^(level+1)
-		
-		# Do random tests
-		mask = -incrStep
-		for i in range(trials):
-			j = random.randrange(numElems)
-			k = random.randrange(numElems)
-			expect = (j & mask) == (k & mask)
-			assert ds.are_in_same_set(j, k) == expect
-
-
-def test_against_naive_randomly():
-	trials = 300
-	iterations = 1000
-	numElems = 100
-	
-	for i in range(trials):
-		nds = NaiveDisjointSet(numElems)
-		ds = disjointset.DisjointSet(numElems)
-		for j in range(iterations):
-			k = random.randrange(numElems)
-			l = random.randrange(numElems)
-			assert ds.get_size_of_set(k) == nds.get_size_of_set(k)
-			assert ds.are_in_same_set(k, l) == nds.are_in_same_set(k, l)
-			if random.random() < 0.1:
-				assert ds.merge_sets(k, l) == nds.merge_sets(k, l)
-			assert nds.get_num_sets() == ds.get_num_sets()
-			if random.random() < 0.001:
-				ds.check_structure()
+	def test_merge(self):
+		ds = disjointset.DisjointSet(10)
+		self.assertTrue(ds.merge_sets(0, 1))
 		ds.check_structure()
+		self.assertEqual(ds.get_num_sets(), 9)
+		self.assertTrue(ds.are_in_same_set(0, 1))
+		
+		self.assertTrue(ds.merge_sets(2, 3))
+		ds.check_structure()
+		self.assertEqual(ds.get_num_sets(), 8)
+		self.assertTrue(ds.are_in_same_set(2, 3))
+		
+		self.assertFalse(ds.merge_sets(2, 3))
+		ds.check_structure()
+		self.assertEqual(ds.get_num_sets(), 8)
+		self.assertFalse(ds.are_in_same_set(0, 2))
+		
+		self.assertTrue(ds.merge_sets(0, 3))
+		ds.check_structure()
+		self.assertEqual(ds.get_num_sets(), 7)
+		self.assertTrue(ds.are_in_same_set(0, 2))
+		self.assertTrue(ds.are_in_same_set(3, 0))
+		self.assertTrue(ds.are_in_same_set(1, 3))
+	
+	
+	def test_big_merge(self):
+		maxRank = 20
+		trials = 10000
+		
+		numElems = 1 << maxRank  # Grows exponentially
+		ds = disjointset.DisjointSet(numElems)
+		for level in range(maxRank):
+			mergeStep = 1 << level
+			incrStep = mergeStep * 2
+			for i in range(0, numElems, incrStep):
+				self.assertFalse(ds.are_in_same_set(i, i + mergeStep))
+				self.assertTrue(ds.merge_sets(i, i + mergeStep))
+			# Now we have a bunch of sets of size 2^(level+1)
+			
+			# Do random tests
+			mask = -incrStep
+			for i in range(trials):
+				j = random.randrange(numElems)
+				k = random.randrange(numElems)
+				expect = (j & mask) == (k & mask)
+				self.assertEqual(ds.are_in_same_set(j, k), expect)
+	
+	
+	def test_against_naive_randomly(self):
+		trials = 300
+		iterations = 1000
+		numElems = 100
+		
+		for i in range(trials):
+			nds = NaiveDisjointSet(numElems)
+			ds = disjointset.DisjointSet(numElems)
+			for j in range(iterations):
+				k = random.randrange(numElems)
+				l = random.randrange(numElems)
+				self.assertEqual(ds.get_size_of_set(k), nds.get_size_of_set(k))
+				self.assertEqual(ds.are_in_same_set(k, l), nds.are_in_same_set(k, l))
+				if random.random() < 0.1:
+					self.assertEqual(ds.merge_sets(k, l), nds.merge_sets(k, l))
+				self.assertEqual(nds.get_num_sets(), ds.get_num_sets())
+				if random.random() < 0.001:
+					ds.check_structure()
+			ds.check_structure()
 
 
 # ---- Helper class ----
@@ -136,16 +138,4 @@ class NaiveDisjointSet(object):
 # ---- Main runner ----
 
 if __name__ == "__main__":
-	# Test that the 'assert' statement works
-	try:
-		assert False
-		sys.exit("Error: Need to run with assertions enabled")
-	except AssertionError:
-		pass
-	
-	# Run test case functions
-	test_new()
-	test_merge()
-	test_big_merge()
-	test_against_naive_randomly()
-	print("Test passed")
+	unittest.main()
