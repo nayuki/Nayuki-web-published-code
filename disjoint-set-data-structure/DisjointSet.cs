@@ -75,7 +75,7 @@ public sealed class DisjointSet {
 	
 	
 	// Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to mergeSets() either decrements the number by one or leaves it unchanged.
+	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 1 <= result <= getNumberOfElements().
 	public int GetNumberOfSets() {
 		return numSets;
 	}

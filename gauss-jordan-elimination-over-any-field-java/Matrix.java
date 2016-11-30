@@ -1,15 +1,19 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
 
 
+/**
+ * Represents a mutable matrix of field elements, supporting linear algebra operations.
+ * Note that the dimensions of a matrix cannot be changed after construction. Not thread-safe.
+ */
 public final class Matrix<T> implements Cloneable {
 	
-	/*---- Basic matrix implementation ----*/
+	/*---- Fields ----*/
 	
 	// The values of the matrix stored in row-major order, with each element initially null.
 	private Object[][] values;
@@ -19,8 +23,11 @@ public final class Matrix<T> implements Cloneable {
 	
 	
 	
+	/*---- Constructors ----*/
+	
 	/**
-	 * Constructs a blank matrix with the specified number of rows and columns, with operations from the specified field. All the elements are initially {@code null}.
+	 * Constructs a blank matrix with the specified number of rows and columns,
+	 * with operations from the specified field. All the elements are initially {@code null}.
 	 * @param rows the number of rows in this matrix
 	 * @param cols the number of columns in this matrix
 	 * @param f the field used to operate on the values in this matrix
@@ -38,6 +45,8 @@ public final class Matrix<T> implements Cloneable {
 	}
 	
 	
+	
+	/*---- Basic matrix methods ----*/
 	
 	/**
 	 * Returns the number of rows in this matrix, which is positive.
@@ -88,22 +97,67 @@ public final class Matrix<T> implements Cloneable {
 	
 	/**
 	 * Returns a clone of this matrix. The field and elements are shallow-copied because they are assumed to be immutable.
+	 * Any matrix element can be {@code null} when performing this operation.
 	 * @return a clone of this matrix
 	 */
 	public Matrix<T> clone() {
+		try {
+			@SuppressWarnings("unchecked")
+			Matrix<T> result = (Matrix<T>)super.clone();
+			result.values = result.values.clone();
+			for (int i = 0; i < result.values.length; i++)
+				result.values[i] = result.values[i].clone();
+			return result;
+		} catch (CloneNotSupportedException e) {
+			throw new AssertionError(e);
+		}
+	}
+	
+	
+	/**
+	 * Returns a new matrix that is equal to the transpose of this matrix. The field and elements are shallow-copied
+	 * because they are assumed to be immutable. Any matrix element can be {@code null} when performing this operation.
+	 * @return a transpose of this matrix
+	 */
+	public Matrix<T> transpose() {
 		int rows = rowCount();
 		int cols = columnCount();
-		Matrix<T> result = new Matrix<T>(rows, cols, f);
-		for (int i = 0; i < values.length; i++)  // For each row
-			System.arraycopy(values[i], 0, result.values[i], 0, cols);
+		Matrix<T> result = new Matrix<T>(cols, rows, f);
+		for (int i = 0; i < rows; i++) {
+			for (int j = 0; j < cols; j++)
+				result.values[j][i] = values[i][j];
+		}
 		return result;
 	}
 	
 	
-	/*---- Basic matrix operations ----*/
+	/**
+	 * Returns a string representation of this matrix. The format is subject to change.
+	 * @return a string representation of this matrix
+	 */
+	public String toString() {
+		StringBuilder sb = new StringBuilder("[");
+		for (int i = 0; i < rowCount(); i++) {
+			if (i > 0)
+				sb.append(",\n ");
+			sb.append("[");
+			for (int j = 0; j < columnCount(); j++) {
+				if (j > 0)
+					sb.append(", ");
+				sb.append(values[i][j]);
+			}
+			sb.append("]");
+		}
+		return sb.append("]").toString();
+	}
+	
+	
+	
+	/*---- Simple matrix row operations ----*/
 	
 	/**
 	 * Swaps the two specified rows of this matrix. If the two row indices are the same, the swap is a no-op.
+	 * Any matrix element can be {@code null} when performing this operation.
 	 * @param row0 one row to swap (0-based indexing)
 	 * @param row1 the other row to swap (0-based indexing)
 	 * @throws IndexOutOfBoundsException if a specified row exceeds the bounds of the matrix
@@ -119,6 +173,7 @@ public final class Matrix<T> implements Cloneable {
 	
 	/**
 	 * Multiplies the specified row in this matrix by the specified factor. In other words, row *= factor.
+	 * The elements of the specified row should all be non-{@code null} when performing this operation.
 	 * @param row the row index to operate on (0-based indexing)
 	 * @param factor the factor to multiply by
 	 * @throws IndexOutOfBoundsException if the specified row exceeds the bounds of the matrix
@@ -131,7 +186,8 @@ public final class Matrix<T> implements Cloneable {
 	
 	/**
 	 * Adds the first specified row in this matrix multiplied by the specified factor to the second specified row.
-	 * In other words, destRow += srcRow * factor.
+	 * In other words, destRow += srcRow * factor. The elements of the specified two rows
+	 * should all be non-{@code null} when performing this operation.
 	 * @param srcRow the index of the row to read and multiply (0-based indexing)
 	 * @param destRow the index of the row to accumulate to (0-based indexing)
 	 * @param factor the factor to multiply by
@@ -146,6 +202,8 @@ public final class Matrix<T> implements Cloneable {
 	/**
 	 * Returns a new matrix representing this matrix multiplied by the specified matrix. Requires the specified matrix to have
 	 * the same number of rows as this matrix's number of columns. Remember that matrix multiplication is not commutative.
+	 * All elements of both matrices should be non-{@code null} when performing this operation.
+	 * The time complexity of this operation is <var>O</var>(this.rows &times; this.cols &times; other.cols).
 	 * @param other the second matrix multiplicand
 	 * @return the product of this matrix with the specified matrix
 	 * @throws NullPointerException if the specified matrix is {@code null}
@@ -173,11 +231,14 @@ public final class Matrix<T> implements Cloneable {
 	}
 	
 	
-	/*---- Advanced matrix operation methods ----*/
+	
+	/*---- Advanced matrix operations ----*/
 	
 	/**
 	 * Converts this matrix to reduced row echelon form (RREF) using Gauss-Jordan elimination.
+	 * All elements of this matrix should be non-{@code null} when performing this operation.
 	 * Always succeeds, as long as the field follows the mathematical rules and does not throw an exception.
+	 * The time complexity of this operation is <var>O</var>(rows &times; cols &times; min(rows, cols)).
 	 */
 	public void reducedRowEchelonForm() {
 		int rows = rowCount();
@@ -185,7 +246,7 @@ public final class Matrix<T> implements Cloneable {
 		
 		// Compute row echelon form (REF)
 		int numPivots = 0;
-		for (int j = 0; j < cols; j++) {  // For each column
+		for (int j = 0; j < cols && numPivots < rows; j++) {  // For each column
 			// Find a pivot row for this column
 			int pivotRow = numPivots;
 			while (pivotRow < rows && f.equals(get(pivotRow, j), f.zero()))
@@ -205,7 +266,7 @@ public final class Matrix<T> implements Cloneable {
 		}
 		
 		// Compute reduced row echelon form (RREF)
-		for (int i = rows - 1; i >= 0; i--) {
+		for (int i = numPivots - 1; i >= 0; i--) {
 			// Find pivot
 			int pivotCol = 0;
 			while (pivotCol < cols && f.equals(get(i, pivotCol), f.zero()))
@@ -222,7 +283,9 @@ public final class Matrix<T> implements Cloneable {
 	
 	/**
 	 * Replaces the values of this matrix with the inverse of this matrix. Requires the matrix to be square.
+	 * All elements of this matrix should be non-{@code null} when performing this operation.
 	 * Throws an exception if the matrix is singular (not invertible). If an exception is thrown, this matrix is unchanged.
+	 * The time complexity of this operation is <var>O</var>(rows<sup>3</sup>).
 	 * @throws IllegalStateException if this matrix is not square
 	 * @throws IllegalStateException if this matrix has no inverse
 	 */
@@ -263,7 +326,9 @@ public final class Matrix<T> implements Cloneable {
 	/**
 	 * Returns the determinant of this matrix, and as a side effect converts the matrix to row echelon form (REF).
 	 * Requires the matrix to be square. The leading coefficient of each row is not guaranteed to be one.
+	 * All elements of this matrix should be non-{@code null} when performing this operation.
 	 * Always succeeds, as long as the field follows the mathematical rules and does not throw an exception.
+	 * The time complexity of this operation is <var>O</var>(rows<sup>3</sup>).
 	 * @return the determinant of this matrix
 	 * @throws IllegalStateException if this matrix is not square
 	 */
@@ -272,7 +337,6 @@ public final class Matrix<T> implements Cloneable {
 		int cols = columnCount();
 		if (rows != cols)
 			throw new IllegalStateException("Matrix dimensions are not square");
-		
 		T det = f.one();
 		
 		// Compute row echelon form (REF)
@@ -305,7 +369,6 @@ public final class Matrix<T> implements Cloneable {
 			// Update determinant
 			det = f.multiply(get(j, j), det);
 		}
-		
 		return det;
 	}
 	

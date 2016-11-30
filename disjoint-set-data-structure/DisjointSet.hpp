@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library header (C++)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * (MIT License)
@@ -75,7 +75,7 @@ public:
 	
 	
 	// Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to mergeSets() either decrements the number by one or leaves it unchanged.
+	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 1 <= result <= getNumberOfElements().
 	size_t getNumberOfSets() const;
 	
 	
