@@ -31,21 +31,36 @@ public final class RenderFrameTextOverlays {
 	private static final float FONT_SIZE = 30.0f * UPSCALE;
 	private static final float LINE_HEIGHT = 1.3f * FONT_SIZE;
 	private static final double OUTLINE_RADIUS = 2.0 * UPSCALE;
+	private static final int TEXT_COLOR = 0xFFFFFF;
+	private static final int OUTLINE_COLOR = 0x000000;
+	private static final int TRANSPARENT = 0;  // Upper 24 bits must be 0
 	private static Font font;
 	
 	
 	public static void main(String[] args) throws IOException, FontFormatException {
+		// Handle command line arguments
+		if (args.length != 2) {
+			System.err.println("Usage: java RenderFrameTextOverlays PostprocessedMotion.tsv TextFramesDir");
+			System.exit(1);
+			return;
+		}
+		File textFile = new File(args[0]);
+		if (!textFile.isFile())
+			throw new IllegalArgumentException("Invalid text file");
 		File outDir = new File(args[1]);
 		if (!outDir.isDirectory())
-			throw new IllegalArgumentException();
-		
+			throw new IllegalArgumentException("Invalid output directory");
 		font = Font.createFont(Font.TRUETYPE_FONT, new File("swiss-721-bt-normal.ttf"));
-		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(args[0]), StandardCharsets.UTF_8))) {
-			in.readLine();
+		
+		// Read each line of the text file
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(textFile), StandardCharsets.UTF_8))) {
+			in.readLine();  // Skip header line
 			while (true) {
 				String line = in.readLine();
 				if (line == null)
 					break;
+				
+				// Parse numbers and render single image frame
 				String[] parts = line.split("\t", -1);
 				int frameNum = Integer.parseInt(parts[0]);
 				render(
@@ -60,20 +75,21 @@ public final class RenderFrameTextOverlays {
 	}
 	
 	
+	// Renders an image based on the given numbers and saves it to the given output file.
 	private static void render(int frameNum, double time, double displacement, double velocity, double acceleration, File outFile) throws IOException {
 		// Create blank image
-		int width  = 1280 * UPSCALE;
-		int height =  180 * UPSCALE;
+		int width  = 1280 * UPSCALE;  // Full width
+		int height =  180 * UPSCALE;  // Less than full height to save processing time
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++)
-				image.setRGB(x, y, 0);  // Transparent black
+				image.setRGB(x, y, TRANSPARENT);
 		}
 		
 		// Set graphics style
 		Graphics2D g = image.createGraphics();
 		g.setFont(font.deriveFont(FONT_SIZE));
-		g.setColor(Color.WHITE);
+		g.setColor(new Color(TEXT_COLOR));
 		
 		// Draw text strings
 		g.drawString(String.format("Frame = %d"   , frameNum             ), LINE_HEIGHT, LINE_HEIGHT * 1.5f);
@@ -82,13 +98,13 @@ public final class RenderFrameTextOverlays {
 		g.drawString(String.format("Velocity = %s km/h"    , formatReal(velocity    , 2, false)), LINE_HEIGHT * 15, LINE_HEIGHT * 2.5f);
 		g.drawString(String.format("Acceleration = %s m/s²", formatReal(acceleration, 3, true )), LINE_HEIGHT * 15, LINE_HEIGHT * 3.5f);
 		
-		// Create outline
-		int limit = (int)OUTLINE_RADIUS;
+		// Create outlines around text pixels
 		int[] pixels = new int[width * height];
 		image.getRGB(0, 0, width, height, pixels, 0, width);
+		int limit = (int)OUTLINE_RADIUS;
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				if (pixels[y * width + x] != 0xFFFFFFFF)
+				if (pixels[y * width + x] != (0xFF << 24 | TEXT_COLOR))
 					continue;
 				for (int i = -limit; i <= limit; i++) {
 					for (int j = -limit; j <= limit; j++) {
@@ -96,25 +112,28 @@ public final class RenderFrameTextOverlays {
 							int k = y + i;
 							int l = x + j;
 							int index = k * width + l;
-							if (0 <= k && k < height && 0 <= l && l < width && pixels[index] == 0x00000000)
-								pixels[index] = 0xFF000000;
+							if (0 <= k && k < height && 0 <= l && l < width && pixels[index] == TRANSPARENT)
+								pixels[index] = 0xFF << 24 | OUTLINE_COLOR;
 						}
 					}
 				}
 			}
 		}
-		
-		// Downsample image
 		image.setRGB(0, 0, width, height, pixels, 0, width);
-		image = FastSincImageResampler.resampleImage(image, width / UPSCALE, height / UPSCALE);
 		
-		// Pad bottom
+		// Downsample image and pad bottom to full height
+		image = FastSincImageResampler.resampleImage(image, width / UPSCALE, height / UPSCALE);
 		BufferedImage outImg = new BufferedImage(1280, 720, BufferedImage.TYPE_INT_ARGB);
+		for (int y = 0; y < outImg.getHeight(); y++) {
+			for (int x = 0; x < outImg.getWidth(); x++)
+				outImg.setRGB(x, y, TRANSPARENT);
+		}
 		outImg.getGraphics().drawImage(image, 0, 0, null);
 		ImageIO.write(outImg, "png", outFile);
 	}
 	
 	
+	// Returns a decimal string representation of the given number with the given parameters. Pure function.
 	private static String formatReal(double val, int digits, boolean forcePlus) {
 		if (digits < 0)
 			throw new IllegalArgumentException();
@@ -128,6 +147,7 @@ public final class RenderFrameTextOverlays {
 	
 	
 	
+	// Based on https://www.nayuki.io/page/sinc-based-image-resampler
 	private static class FastSincImageResampler {
 		
 		/* Convenience methods */

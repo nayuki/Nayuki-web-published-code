@@ -1,9 +1,8 @@
 # 
 # Fit motion displacements
-# Reads a TSV file with motion vectors, performs analysis, and writes to standard output.
 # 
+# Reads a TSV file with motion vectors, performs analysis, and writes to standard output.
 # For Python 3+. Requires NumPy library.
-# Usage: python fit-motion-displacements.py motion-vectors.tsv
 # 
 # Copyright (c) 2016 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
@@ -16,6 +15,9 @@ if sys.version_info[ : 3] < (3, 0, 0):
 
 
 def main(args):
+	if len(args) != 1:
+		sys.exit("Usage: python fit-motion-displacements.py motion-vectors.tsv")
+	
 	# Read TSV file data into ndarray
 	data = []
 	with open(args[0], "rt", encoding="UTF-8", newline=None) as fin:
@@ -50,7 +52,9 @@ def main(args):
 	# Print results
 	print("Frame\tDisplacement x (pixels)\tDisplacement y (pixels)\tDisplacement magnitude (pixels)")
 	for i in range(solutionx.size):
-		print("{}\t{}\t{}\t{}".format(i, solutionx[i], solutiony[i], math.hypot(solutionx[i], solutiony[i])))
+		x = solutionx[i]
+		y = solutiony[i]
+		print("{}\t{}\t{}\t{}".format(i, x, y, math.hypot(x, y)))
 
 
 if __name__ == "__main__":

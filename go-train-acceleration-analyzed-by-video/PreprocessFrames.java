@@ -19,26 +19,33 @@ import javax.imageio.ImageIO;
 public final class PreprocessFrames {
 	
 	// Configuration
-	private static final int INPUT_FRAME_START = 990;
-	private static final int INPUT_FRAME_END = 3900;
+	private static final int INPUT_FRAME_START =  990;
+	private static final int INPUT_FRAME_END   = 3900;
 	private static final int INPUT_FRAME_DECIMATE = 3;
+	private static final int IMAGE_WIDTH  = 1280;
+	private static final int IMAGE_HEIGHT =  192;
 	private static final int IMAGE_UPSCALE = 4;
 	
 	
 	public static void main(String[] args) throws IOException {
 		// Get and check arguments
+		if (args.length != 2) {
+			System.err.println("Usage: java PreprocessFrames InDir OutDir");
+			System.exit(1);
+			return;
+		}
 		File inDir  = new File(args[0]);
 		File outDir = new File(args[1]);
 		if (!inDir.isDirectory())
-			throw new RuntimeException();
+			throw new RuntimeException("Invalid input directory");
 		if (!outDir.isDirectory())
-			throw new RuntimeException();
+			throw new RuntimeException("Invalid output directory");
 		
 		// Process image frames
 		for (int inFrame = INPUT_FRAME_START, outFrame = 0; inFrame < INPUT_FRAME_END; inFrame += INPUT_FRAME_DECIMATE, outFrame++) {
 			File inFile  = new File(inDir , String.format("%04d.bmp", inFrame ));
 			File outFile = new File(outDir, String.format("%04d.bmp", outFrame));
-			FastSincImageResampler.resampleFile(inFile, 1280 * IMAGE_UPSCALE, 192 * IMAGE_UPSCALE, outFile);
+			FastSincImageResampler.resampleFile(inFile, IMAGE_WIDTH * IMAGE_UPSCALE, IMAGE_HEIGHT * IMAGE_UPSCALE, outFile);
 			System.out.printf("%s --> %s%n", inFile.getName(), outFile.getName());
 		}
 	}

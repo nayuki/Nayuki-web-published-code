@@ -39,19 +39,24 @@ public final class FindMotionVectors {
 	
 	public static void main(String[] args) throws IOException {
 		// Handle command line arguments
+		if (args.length != 1) {
+			System.err.println("Usage: java FindMotionVectors FramesDir");
+			System.exit(1);
+			return;
+		}
 		framesDir = new File(args[0]);
 		if (!framesDir.isDirectory())
-			throw new RuntimeException();
+			throw new RuntimeException("Invalid frames directory");
 		
 		// First search displacements for all adjacent frames
-		System.out.print("From frame number\tTo frame number\tDisplacement x\tDisplacement y\n");
-		Point[][] knownDisplacements = new Point[NUM_FRAMES][NUM_FRAMES];
+		System.out.println("From frame number\tTo frame number\tDisplacement x\tDisplacement y");
+		Point[][] knownDisplacements = new Point[NUM_FRAMES - 1][NUM_FRAMES];
 		{
 			Point prevDisplacement = new Point(0, 0);
 			for (int i = 1; i < NUM_FRAMES; i++) {
 				Point displacement = searchForDisplacement(i - 1, i, prevDisplacement, SEARCH_RANGE);
 				knownDisplacements[i - 1][i] = displacement;
-				System.out.printf("%d\t%d\t%d\t%d\n", i - 1, i, displacement.x, displacement.y);
+				System.out.printf("%d\t%d\t%d\t%d%n", i - 1, i, displacement.x, displacement.y);
 				prevDisplacement = displacement;
 			}
 		}
@@ -78,6 +83,7 @@ public final class FindMotionVectors {
 	}
 	
 	
+	// Updates knownDisplacements[startFrame][various indices] and prints lines to standard output.
 	private static void doDeepSearch(int startFrame, Point[][] knownDisplacements) throws IOException {
 		Point velocity = knownDisplacements[startFrame][startFrame + 1];
 		Point prevDisplacement = new Point(velocity);
@@ -91,7 +97,7 @@ public final class FindMotionVectors {
 			}
 			knownDisplacements[startFrame][endFrame] = displacement;
 			synchronized(FindMotionVectors.class) {
-				System.out.printf("%d\t%d\t%d\t%d\n", startFrame, endFrame, displacement.x, displacement.y);
+				System.out.printf("%d\t%d\t%d\t%d%n", startFrame, endFrame, displacement.x, displacement.y);
 			}
 			
 			velocity = new Point(displacement.x - prevDisplacement.x, displacement.y - prevDisplacement.y);
@@ -103,6 +109,9 @@ public final class FindMotionVectors {
 	
 	/*---- Image search/matching logic ----*/
 	
+	// Compares the images at beforeFrame and afterFrame, searches for a motion displacement within
+	// searchCenter+/-searchRange, and returns the best match as a new displacement. Pure function.
+	// Throws IllegalArgumentException if the motion search range exceeds image bounds.
 	private static Point searchForDisplacement(int beforeFrame, int afterFrame, Point searchCenter, Point searchRange) throws IOException {
 		int[] beforePixels = getFramePixels(beforeFrame);
 		int[] afterPixels  = getFramePixels(afterFrame );
@@ -114,12 +123,12 @@ public final class FindMotionVectors {
 		{
 			int minBeforeX = imageCenterX - (searchCenter.x + searchRange.x) / 2;
 			int maxBeforeX = imageCenterX - (searchCenter.x - searchRange.x) / 2 + SEARCH_WINDOW_WIDTH;
-			int minAfterX = imageCenterX - (searchCenter.x - searchRange.x) / 2 + (searchCenter.x - searchRange.x);
-			int maxAfterX = imageCenterX - (searchCenter.x + searchRange.x) / 2 + (searchCenter.x + searchRange.x) + SEARCH_WINDOW_WIDTH;
+			int minAfterX  = imageCenterX - (searchCenter.x - searchRange.x) / 2 + (searchCenter.x - searchRange.x);
+			int maxAfterX  = imageCenterX - (searchCenter.x + searchRange.x) / 2 + (searchCenter.x + searchRange.x) + SEARCH_WINDOW_WIDTH;
 			symmetricWindow = 0 <= minBeforeX && maxBeforeX <= beforeValidWidth && 0 <= minAfterX && maxAfterX <= afterValidWidth;
 		}
 		
-		int bestError = Integer.MAX_VALUE;
+		long bestError = Long.MAX_VALUE;
 		int resultX = 0;
 		int resultY = 0;
 		for (int dy = -searchRange.y; dy <= searchRange.y; dy++) {
@@ -144,7 +153,7 @@ public final class FindMotionVectors {
 				if (beforeX < 0 || beforeX + SEARCH_WINDOW_WIDTH > IMAGE_WIDTH || beforeY < 0 || beforeY + SEARCH_WINDOW_HEIGHT > IMAGE_HEIGHT ||
 						afterX < 0 || afterX + SEARCH_WINDOW_WIDTH > IMAGE_WIDTH || afterY < 0 || afterY + SEARCH_WINDOW_HEIGHT > IMAGE_HEIGHT)
 					throw new IllegalArgumentException("Motion vector too large for search window");
-				int error = getSubimageDifference(beforePixels, afterPixels, beforeX, beforeY, afterX, afterY, windowWidth, SEARCH_WINDOW_HEIGHT);
+				long error = getSubimageDifference(beforePixels, afterPixels, beforeX, beforeY, afterX, afterY, windowWidth, SEARCH_WINDOW_HEIGHT);
 				if (error < bestError) {
 					bestError = error;
 					resultX = dispX;
@@ -156,6 +165,32 @@ public final class FindMotionVectors {
 	}
 	
 	
+	// Returns the total difference for the subimages pix0[x0 : x0 + h, y0 : y0 + h] versus pix1[x1 : x1 + w, y1 : y1 + h].
+	// The result is always non-negative. Pure function. Throws an exception if any range is out of bounds.
+	private static long getSubimageDifference(int[] pix0, int[] pix1, int x0, int y0, int x1, int y1, int w, int h) {
+		if (pix0.length != pix1.length || pix0.length != IMAGE_WIDTH * IMAGE_HEIGHT)
+			throw new IllegalArgumentException();
+		if (x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0 || w < 0 || h < 0 ||
+				x0 + w > IMAGE_WIDTH || x1 + w > IMAGE_WIDTH || y0 + h > IMAGE_HEIGHT || y1 + h > IMAGE_HEIGHT)
+			throw new IndexOutOfBoundsException();
+		
+		long result = 0;
+		for (int y = 0; y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				int p = pix0[(y0 + y) * IMAGE_WIDTH + (x0 + x)];
+				int q = pix1[(y1 + y) * IMAGE_WIDTH + (x1 + x)];
+				result += Math.abs(((p >>> 16) & 0xFF) - ((q >>> 16) & 0xFF));  // Red
+				result += 2 * Math.abs(((p >>> 8) & 0xFF) - ((q >>> 8) & 0xFF));  // Green
+				result += Math.abs((p & 0xFF) - (q & 0xFF));  // Blue
+			}
+		}
+		return result;
+	}
+	
+	
+	// Returns how many leftmost pixels of the given frame number is valid. The result is in the range [0, IMAGE_WIDTH].
+	// Basically, the answer is IMAGE_WIDTH for most of the video, excep the last hundred frames where the result
+	// linearly decreases to zero because the train moves leftward and uncovers the non-moving background. Pure function.
 	private static int getValidImageWidth(int frameNum) {
 		if (frameNum < 0 || frameNum >= NUM_FRAMES)
 			throw new IndexOutOfBoundsException();
@@ -172,38 +207,17 @@ public final class FindMotionVectors {
 	
 	
 	
-	/*---- Simple utilities ----*/
-	
-	// Returns the total difference for the subimages pix0[x0 : x0 + h, y0 : y0 + h] versus pix1[x1 : x1 + w, y1 : y1 + h].
-	// The result is always non-negative. Pure function. Throws an exception if any range is out of bounds.
-	private static int getSubimageDifference(int[] pix0, int[] pix1, int x0, int y0, int x1, int y1, int w, int h) {
-		if (pix0.length != pix1.length || pix0.length != IMAGE_WIDTH * IMAGE_HEIGHT)
-			throw new IllegalArgumentException();
-		if (x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0 || w < 0 || h < 0 ||
-				x0 + w > IMAGE_WIDTH || x1 + w > IMAGE_WIDTH || y0 + h > IMAGE_HEIGHT || y1 + h > IMAGE_HEIGHT)
-			throw new IndexOutOfBoundsException();
-		
-		int result = 0;
-		for (int y = 0; y < h; y++) {
-			for (int x = 0; x < w; x++) {
-				int p = pix0[(y0 + y) * IMAGE_WIDTH + (x0 + x)];
-				int q = pix1[(y1 + y) * IMAGE_WIDTH + (x1 + x)];
-				result += Math.abs(((p >>> 16) & 0xFF) - ((q >>> 16) & 0xFF));  // Red
-				result += 2 * Math.abs(((p >>> 8) & 0xFF) - ((q >>> 8) & 0xFF));  // Green
-				result += Math.abs((p & 0xFF) - (q & 0xFF));  // Blue
-			}
-		}
-		return result;
-	}
-	
-	
-	/* Image reading with caching */
+	/*---- Image reading with caching ----*/
 	
 	private static List<Object[]> framePixelCache = new ArrayList<>();
 	private static final int MAX_CACHE_SIZE = 10;
 	
 	
+	// Returns a read-only array of RGB pixels for the given frame number. Pure function and thread-safe.
 	private static int[] getFramePixels(int frameNum) throws IOException {
+		if (frameNum < 0 || frameNum >= NUM_FRAMES)
+			throw new IndexOutOfBoundsException();
+		
 		// Search the cache
 		synchronized(FindMotionVectors.class) {
 			for (int i = 0; i < framePixelCache.size(); i++) {

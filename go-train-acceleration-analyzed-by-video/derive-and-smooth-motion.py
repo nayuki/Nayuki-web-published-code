@@ -1,29 +1,30 @@
 # 
 # Derive and smooth motion
-# Reads a TSV file with motion vectors, performs analysis, and writes to standard output.
 # 
+# Reads a TSV file with motion vectors, performs analysis, and writes to standard output.
 # For Python 3+. Requires NumPy library.
-# Usage: python derive-and-smooth-motion.py motion-displacements.tsv
 # 
 # Copyright (c) 2016 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/go-train-acceleration-analyzed-by-video
 # 
 
-import itertools, math, numpy, sys
+import math, numpy, sys
 if sys.version_info[ : 3] < (3, 0, 0):
     raise AssertionError("Requires Python 3+")
 
 
+# Configuration
+FRAMES_PER_SECOND = 20 / 1.001
+METERS_PER_PIXEL = 0.007452
+DISPLACEMENT_SMOOTHING = 1.5
+VELOCITY_SMOOTHING = 9.0
+ACCELERATION_SMOOTHING = 60.0
+
 
 def main(args):
-	# Configuration
-	FRAMES_PER_SECOND = 20 / 1.001
-	METERS_PER_PIXEL = 0.007452
-	DISPLACEMENT_SMOOTHING = 1.5
-	VELOCITY_SMOOTHING = 9.0
-	ACCELERATION_SMOOTHING = 60.0
-	
+	if len(args) != 1:
+		sys.exit("Usage: python derive-and-smooth-motion.py motion-displacements.tsv")
 	
 	# Read TSV file data into ndarray
 	data = []
@@ -78,22 +79,16 @@ def main(args):
 	HEADER = ("Frame", "Displacement (m)", "Velocity (km/h)", "Acceleration (m/s^2)")
 	print("\t".join(HEADER))
 	for i in range(disp.size):
-		print("{}\t{}\t{}\t{}".format(
-			i, disp[i], vel[i] * 3.6, acc[i]))
+		print("{}\t{}\t{}\t{}".format(i, disp[i], vel[i] * 3.6, acc[i]))
 
 
 
+# Returns a new 1D ndarray containing an appropriately truncated unnormalized
+# Gaussian kernel with the given standard deviation. Pure function.
 def make_gaussian_kernel(sigma):
-	assert isinstance(sigma, float)
-	temp = []
-	for i in itertools.count():
-		val = i / sigma
-		if val > 10.0:
-			break
-		temp.append(val)
-	temp = numpy.array(temp[ : 0 : -1] + temp)
-	return numpy.exp(-temp**2)
-
+	assert isinstance(sigma, float) and sigma > 0
+	n = math.floor(10 * sigma)  # Truncation limit
+	return numpy.exp(-(numpy.arange(-n, n + 1) / sigma)**2)
 
 
 if __name__ == "__main__":
