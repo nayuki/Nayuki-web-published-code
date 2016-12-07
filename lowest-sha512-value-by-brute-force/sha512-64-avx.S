@@ -1,7 +1,7 @@
 /* 
  * Dual SHA-512 hash in x86-64 AVX assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
@@ -253,6 +253,7 @@ sha512_compress_dual:
 	vmovdqu  %xmm6,  96(%rdi)
 	vmovdqu  %xmm7, 112(%rdi)
 	
+	vzeroupper
 	retq
 
 

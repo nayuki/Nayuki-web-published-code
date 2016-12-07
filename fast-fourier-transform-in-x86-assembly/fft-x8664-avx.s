@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform (x86-64 AVX)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2016 Project Nayuki
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
@@ -178,6 +178,7 @@ end:
 	popq        %r12
 	popq        %r11
 	popq        %r10
+	vzeroupper
 	retq
 
 
