@@ -1,7 +1,7 @@
 /* 
  * Reed-Solomon error-correcting code decoder
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
  */
@@ -56,11 +56,13 @@ public final class ReedSolomon<E> {
 	 * @throws IllegalArgumentException if msgLen &le; 0, eccLen &le; 0, or mlgLen + eccLen > Integer.MAX_VALUE
 	 */
 	public ReedSolomon(Field<E> f, E gen, Class<E> elemType, int msgLen, int eccLen) {
+		// Check arguments
 		if (f == null || gen == null || elemType == null)
 			throw new NullPointerException();
 		if (msgLen <= 0 || eccLen <= 0 || Integer.MAX_VALUE - msgLen < eccLen)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Invalid message or ECC length");
 		
+		// Assign fields
 		this.f = f;
 		this.generator = gen;
 		this.elementType = elemType;
@@ -83,8 +85,11 @@ public final class ReedSolomon<E> {
 	 * @throws IllegalArgumentException if the message array has the wrong length
 	 */
 	public E[] encode(E[] message) {
+		// Check arguments
+		if (message == null)
+			throw new NullPointerException();
 		if (message.length != messageLen)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Invalid message length");
 		
 		// Make the generator polynomial (this doesn't depend on the message)
 		E[] genPoly = makeGeneratorPolynomial();
@@ -299,7 +304,7 @@ public final class ReedSolomon<E> {
 		// Check arguments
 		if (errLocPoly == null)
 			throw new NullPointerException();
-		if ( maxSolutions <= 0 || maxSolutions > codewordLen)
+		if (maxSolutions <= 0 || maxSolutions > codewordLen)
 			throw new IllegalArgumentException();
 		
 		// Create temporary buffer for roots found

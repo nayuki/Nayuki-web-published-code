@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -22,78 +22,12 @@
  *   <li><var>x</var><sup>&minus;1</sup> is an element of the field, such that <var>x</var> * (<var>x</var><sup>&minus;1</sup>) = 1. (Existence of multiplicative inverse)</li>
  * </ol>
  * <p>Each {@code Field} object should be stateless and immutable. The field element objects should be immutable too.</p>
- * <p>All methods must return a non-{@code null} value, and must throw {@code NullPointerException} if any argument is null.</p>
+ * <p>All methods must return a non-{@code null} value, and must throw {@code NullPointerException} if any argument is {@code null}.</p>
  * @param <T> the type of the field's elements
  */
 public abstract class Field<T> {
 	
-	/**
-	 * Returns the additive identity constant of this field.
-	 * @return the additive identity constant of this field
-	 */
-	public abstract T zero();
-	
-	/**
-	 * Returns the multiplicative identity constant of this field.
-	 * @return the multiplicative identity constant of this field
-	 */
-	public abstract T one();
-	
-	
-	/**
-	 * Returns the sum of the two specified elements.
-	 * @param x an addend
-	 * @param y an addend
-	 * @return the sum of {@code x} and {@code y}
-	 */
-	public abstract T add(T x, T y);
-	
-	/**
-	 * Returns the product of the two specified elements.
-	 * @param x a multiplicand
-	 * @param y a multiplicand
-	 * @return the product of {@code x} and {@code y}
-	 */
-	public abstract T multiply(T x, T y);
-	
-	/**
-	 * Returns the additive inverse of the specified element.
-	 * @param x the element whose additive inverse to compute
-	 * @return the additive inverse of the specified element
-	 */
-	public abstract T negate(T x);
-	
-	/**
-	 * Returns the multiplicative inverse of the specified non-zero element.
-	 * @param x the element whose multiplicative inverse to compute
-	 * @return the multiplicative inverse of the specified element
-	 * @throws ArithmeticException if {@code x} equals {@code zero()}
-	 */
-	public abstract T reciprocal(T x);
-	
-	/**
-	 * Returns the first element minus the second element.
-	 * A correct default implementation is provided.
-	 * @param x the minuend
-	 * @param y the subtrahend
-	 * @return the first element minus the second element
-	 */
-	public T subtract(T x, T y) {
-		return add(x, negate(y));
-	}
-	
-	/**
-	 * Returns the first element divided by the non-zero second element.
-	 * A correct default implementation is provided.
-	 * @param x the dividend
-	 * @param y the divisor
-	 * @return the first element divided by the second element
-	 * @throws ArithmeticException if {@code y} equals {@code zero()}
-	 */
-	public T divide(T x, T y) {
-		return multiply(x, reciprocal(y));
-	}
-	
+	/* Comparison */
 	
 	/**
 	 * Tests whether the two specified elements are equal.
@@ -104,5 +38,93 @@ public abstract class Field<T> {
 	 * @return {@code true} if the two specified elements are equal, {@code false} otherwise
 	 */
 	public abstract boolean equals(T x, T y);
+	
+	
+	
+	/* Constant values */
+	
+	/**
+	 * Returns the additive identity constant of this field.
+	 * @return the additive identity constant of this field
+	 */
+	public abstract T zero();
+	
+	
+	/**
+	 * Returns the multiplicative identity constant of this field.
+	 * @return the multiplicative identity constant of this field
+	 */
+	public abstract T one();
+	
+	
+	
+	/* Addition/subtraction */
+	
+	/**
+	 * Returns the additive inverse of the specified element.
+	 * @param x the element whose additive inverse to compute
+	 * @return the additive inverse of the specified element
+	 * @throws NullPointerException if the argument is {@code null}
+	 */
+	public abstract T negate(T x);
+	
+	
+	/**
+	 * Returns the sum of the two specified elements.
+	 * @param x an addend
+	 * @param y an addend
+	 * @return the result of {@code x} plus {@code y}
+	 * @throws NullPointerException if any argument is {@code null}
+	 */
+	public abstract T add(T x, T y);
+	
+	
+	/**
+	 * Returns the difference of the two specified elements.
+	 * A correct default implementation is provided.
+	 * @param x the minuend
+	 * @param y the subtrahend
+	 * @return the result of {@code x} minus {@code y}
+	 * @throws NullPointerException if any argument is {@code null}
+	 */
+	public T subtract(T x, T y) {
+		return add(x, negate(y));
+	}
+	
+	
+	
+	/* Multiplication/division */
+	
+	/**
+	 * Returns the multiplicative inverse of the specified non-zero element.
+	 * @param x the element whose multiplicative inverse to compute
+	 * @return the multiplicative inverse of the specified element
+	 * @throws ArithmeticException if {@code x} equals {@code zero()}
+	 * @throws NullPointerException if the argument is {@code null}
+	 */
+	public abstract T reciprocal(T x);
+	
+	
+	/**
+	 * Returns the product of the two specified elements.
+	 * @param x a multiplicand
+	 * @param y a multiplicand
+	 * @return the result of {@code x} times {@code y}
+	 * @throws NullPointerException if any argument is {@code null}
+	 */
+	public abstract T multiply(T x, T y);
+	
+	
+	/**
+	 * Returns the quotient of the specified elements.
+	 * A correct default implementation is provided.
+	 * @param x the dividend
+	 * @param y the divisor (non-zero)
+	 * @return the result of {@code x} divided by {@code y}
+	 * @throws ArithmeticException if {@code y} equals {@code zero()}
+	 */
+	public T divide(T x, T y) {
+		return multiply(x, reciprocal(y));
+	}
 	
 }

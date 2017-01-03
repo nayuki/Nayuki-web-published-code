@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
  */
@@ -11,7 +11,7 @@
  * Represents a mutable matrix of field elements, supporting linear algebra operations.
  * Note that the dimensions of a matrix cannot be changed after construction. Not thread-safe.
  */
-public final class Matrix<T> implements Cloneable {
+public final class Matrix<E> implements Cloneable {
 	
 	/*---- Fields ----*/
 	
@@ -19,7 +19,7 @@ public final class Matrix<T> implements Cloneable {
 	private Object[][] values;
 	
 	// The field used to operate on the values in the matrix.
-	private final Field<T> f;
+	private final Field<E> f;
 	
 	
 	
@@ -34,7 +34,7 @@ public final class Matrix<T> implements Cloneable {
 	 * @throws IllegalArgumentException if {@code rows} &le; 0 or {@code cols} &le; 0
 	 * @throws NullPointerException if {@code f} is {@code null}
 	 */
-	public Matrix(int rows, int cols, Field<T> f) {
+	public Matrix(int rows, int cols, Field<E> f) {
 		if (rows <= 0 || cols <= 0)
 			throw new IllegalArgumentException("Invalid number of rows or columns");
 		if (f == null)
@@ -74,10 +74,10 @@ public final class Matrix<T> implements Cloneable {
 	 * @throws IndexOutOfBoundsException if the specified row or column exceeds the bounds of the matrix
 	 */
 	@SuppressWarnings("unchecked")
-	public T get(int row, int col) {
+	public E get(int row, int col) {
 		if (row < 0 || row >= values.length || col < 0 || col >= values[row].length)
 			throw new IndexOutOfBoundsException("Row or column index out of bounds");
-		return (T)values[row][col];
+		return (E)values[row][col];
 	}
 	
 	
@@ -88,7 +88,7 @@ public final class Matrix<T> implements Cloneable {
 	 * @param val the element value to write (possibly {@code null})
 	 * @throws IndexOutOfBoundsException if the specified row or column exceeds the bounds of the matrix
 	 */
-	public void set(int row, int col, T val) {
+	public void set(int row, int col, E val) {
 		if (row < 0 || row >= values.length || col < 0 || col >= values[0].length)
 			throw new IndexOutOfBoundsException("Row or column index out of bounds");
 		values[row][col] = val;
@@ -100,10 +100,10 @@ public final class Matrix<T> implements Cloneable {
 	 * Any matrix element can be {@code null} when performing this operation.
 	 * @return a clone of this matrix
 	 */
-	public Matrix<T> clone() {
+	public Matrix<E> clone() {
 		try {
 			@SuppressWarnings("unchecked")
-			Matrix<T> result = (Matrix<T>)super.clone();
+			Matrix<E> result = (Matrix<E>)super.clone();
 			result.values = result.values.clone();
 			for (int i = 0; i < result.values.length; i++)
 				result.values[i] = result.values[i].clone();
@@ -119,10 +119,10 @@ public final class Matrix<T> implements Cloneable {
 	 * because they are assumed to be immutable. Any matrix element can be {@code null} when performing this operation.
 	 * @return a transpose of this matrix
 	 */
-	public Matrix<T> transpose() {
+	public Matrix<E> transpose() {
 		int rows = rowCount();
 		int cols = columnCount();
-		Matrix<T> result = new Matrix<T>(cols, rows, f);
+		Matrix<E> result = new Matrix<E>(cols, rows, f);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++)
 				result.values[j][i] = values[i][j];
@@ -178,7 +178,9 @@ public final class Matrix<T> implements Cloneable {
 	 * @param factor the factor to multiply by
 	 * @throws IndexOutOfBoundsException if the specified row exceeds the bounds of the matrix
 	 */
-	public void multiplyRow(int row, T factor) {
+	public void multiplyRow(int row, E factor) {
+		if (row < 0 || row >= values.length)
+			throw new IndexOutOfBoundsException("Row index out of bounds");
 		for (int j = 0, cols = columnCount(); j < cols; j++)
 			set(row, j, f.multiply(get(row, j), factor));
 	}
@@ -193,7 +195,9 @@ public final class Matrix<T> implements Cloneable {
 	 * @param factor the factor to multiply by
 	 * @throws IndexOutOfBoundsException if a specified row exceeds the bounds of the matrix
 	 */
-	public void addRows(int srcRow, int destRow, T factor) {
+	public void addRows(int srcRow, int destRow, E factor) {
+		if (srcRow < 0 || srcRow >= values.length || destRow < 0 || destRow >= values.length)
+			throw new IndexOutOfBoundsException("Row index out of bounds");
 		for (int j = 0, cols = columnCount(); j < cols; j++)
 			set(destRow, j, f.add(get(destRow, j), f.multiply(get(srcRow, j), factor)));
 	}
@@ -209,7 +213,7 @@ public final class Matrix<T> implements Cloneable {
 	 * @throws NullPointerException if the specified matrix is {@code null}
 	 * @throws IllegalArgumentException if the specified matrix has incompatible dimensions for multiplication
 	 */
-	public Matrix<T> multiply(Matrix<T> other) {
+	public Matrix<E> multiply(Matrix<E> other) {
 		if (other == null)
 			throw new NullPointerException();
 		if (columnCount() != other.rowCount())
@@ -218,10 +222,10 @@ public final class Matrix<T> implements Cloneable {
 		int rows = rowCount();
 		int cols = other.columnCount();
 		int cells = columnCount();
-		Matrix<T> result = new Matrix<T>(rows, cols, f);
+		Matrix<E> result = new Matrix<E>(rows, cols, f);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
-				T sum = f.zero();
+				E sum = f.zero();
 				for (int k = 0; k < cells; k++)
 					sum = f.add(f.multiply(get(i, k), other.get(k, j)), sum);
 				result.set(i, j, sum);
@@ -296,7 +300,7 @@ public final class Matrix<T> implements Cloneable {
 			throw new IllegalStateException("Matrix dimensions are not square");
 		
 		// Build augmented matrix: [this | identity]
-		Matrix<T> temp = new Matrix<T>(rows, cols * 2, f);
+		Matrix<E> temp = new Matrix<E>(rows, cols * 2, f);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				temp.set(i, j, get(i, j));
@@ -332,12 +336,12 @@ public final class Matrix<T> implements Cloneable {
 	 * @return the determinant of this matrix
 	 * @throws IllegalStateException if this matrix is not square
 	 */
-	public T determinantAndRef() {
+	public E determinantAndRef() {
 		int rows = rowCount();
 		int cols = columnCount();
 		if (rows != cols)
 			throw new IllegalStateException("Matrix dimensions are not square");
-		T det = f.one();
+		E det = f.one();
 		
 		// Compute row echelon form (REF)
 		int numPivots = 0;
@@ -357,7 +361,7 @@ public final class Matrix<T> implements Cloneable {
 				numPivots++;
 				
 				// Simplify the pivot row
-				T temp = get(pivotRow, j);
+				E temp = get(pivotRow, j);
 				multiplyRow(pivotRow, f.reciprocal(temp));
 				det = f.multiply(temp, det);
 				

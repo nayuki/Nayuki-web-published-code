@@ -1,7 +1,7 @@
 /* 
  * Reed-Solomon error-correcting code decoder
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
  */
@@ -96,25 +96,6 @@ public final class Matrix<E> implements Cloneable {
 	
 	
 	/**
-	 * Returns a clone of this matrix. The field and elements are shallow-copied because they are assumed to be immutable.
-	 * Any matrix element can be {@code null} when performing this operation.
-	 * @return a clone of this matrix
-	 */
-	public Matrix<E> clone() {
-		try {
-			@SuppressWarnings("unchecked")
-			Matrix<E> result = (Matrix<E>)super.clone();
-			result.values = result.values.clone();
-			for (int i = 0; i < result.values.length; i++)
-				result.values[i] = result.values[i].clone();
-			return result;
-		} catch (CloneNotSupportedException e) {
-			throw new AssertionError(e);
-		}
-	}
-	
-	
-	/**
 	 * Returns a string representation of this matrix. The format is subject to change.
 	 * @return a string representation of this matrix
 	 */
@@ -162,6 +143,8 @@ public final class Matrix<E> implements Cloneable {
 	 * @throws IndexOutOfBoundsException if the specified row exceeds the bounds of the matrix
 	 */
 	public void multiplyRow(int row, E factor) {
+		if (row < 0 || row >= values.length)
+			throw new IndexOutOfBoundsException("Row index out of bounds");
 		for (int j = 0, cols = columnCount(); j < cols; j++)
 			set(row, j, f.multiply(get(row, j), factor));
 	}
@@ -177,40 +160,10 @@ public final class Matrix<E> implements Cloneable {
 	 * @throws IndexOutOfBoundsException if a specified row exceeds the bounds of the matrix
 	 */
 	public void addRows(int srcRow, int destRow, E factor) {
+		if (srcRow < 0 || srcRow >= values.length || destRow < 0 || destRow >= values.length)
+			throw new IndexOutOfBoundsException("Row index out of bounds");
 		for (int j = 0, cols = columnCount(); j < cols; j++)
 			set(destRow, j, f.add(get(destRow, j), f.multiply(get(srcRow, j), factor)));
-	}
-	
-	
-	/**
-	 * Returns a new matrix representing this matrix multiplied by the specified matrix. Requires the specified matrix to have
-	 * the same number of rows as this matrix's number of columns. Remember that matrix multiplication is not commutative.
-	 * All elements of both matrices should be non-{@code null} when performing this operation.
-	 * The time complexity of this operation is <var>O</var>(this.rows &times; this.cols &times; other.cols).
-	 * @param other the second matrix multiplicand
-	 * @return the product of this matrix with the specified matrix
-	 * @throws NullPointerException if the specified matrix is {@code null}
-	 * @throws IllegalArgumentException if the specified matrix has incompatible dimensions for multiplication
-	 */
-	public Matrix<E> multiply(Matrix<E> other) {
-		if (other == null)
-			throw new NullPointerException();
-		if (columnCount() != other.rowCount())
-			throw new IllegalArgumentException("Incompatible matrix sizes for multiplication");
-		
-		int rows = rowCount();
-		int cols = other.columnCount();
-		int cells = columnCount();
-		Matrix<E> result = new Matrix<E>(rows, cols, f);
-		for (int i = 0; i < rows; i++) {
-			for (int j = 0; j < cols; j++) {
-				E sum = f.zero();
-				for (int k = 0; k < cells; k++)
-					sum = f.add(f.multiply(get(i, k), other.get(k, j)), sum);
-				result.set(i, j, sum);
-			}
-		}
-		return result;
 	}
 	
 	

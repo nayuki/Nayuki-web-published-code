@@ -1,7 +1,7 @@
 /* 
  * Reed-Solomon error-correcting code decoder
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
  */

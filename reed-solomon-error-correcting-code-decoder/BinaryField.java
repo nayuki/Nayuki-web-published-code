@@ -1,7 +1,7 @@
 /* 
  * Reed-Solomon error-correcting code decoder
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
  */
@@ -135,7 +135,7 @@ public final class BinaryField extends Field<Integer> {
 		if (x == 1)
 			return a;
 		else  // All non-zero values must have a reciprocal
-			throw new AssertionError("Reciprocal does not exist");
+			throw new AssertionError("Modulus is not irreducible");
 	}
 	
 	
