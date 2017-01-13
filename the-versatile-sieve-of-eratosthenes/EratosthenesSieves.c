@@ -1,6 +1,6 @@
 /* 
  * Variants of the sieve of Eratosthenes (C)
- * by Project Nayuki, 2016. Public domain.
+ * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -15,7 +15,7 @@ static uint32_t floor_sqrt(uint32_t x);
 /*---- Function definitions ----*/
 
 bool *sieve_primeness(uint32_t limit) {
-	if (limit == UINT32_MAX)
+	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
 		return NULL;
 	bool *result = calloc(limit + 1, sizeof(bool));
 	if (result == NULL)
@@ -37,7 +37,7 @@ bool *sieve_primeness(uint32_t limit) {
 
 
 uint32_t *sieve_smallest_prime_factor(uint32_t limit) {
-	if (limit == UINT32_MAX)
+	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
 		return NULL;
 	uint32_t *result = calloc(limit + 1, sizeof(uint32_t));
 	if (result == NULL)
@@ -63,7 +63,7 @@ uint32_t *sieve_smallest_prime_factor(uint32_t limit) {
 
 
 uint32_t *sieve_totient(uint32_t limit) {
-	if (limit == UINT32_MAX)
+	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
 		return NULL;
 	uint32_t *result = calloc(limit + 1, sizeof(uint32_t));
 	if (result == NULL)
@@ -85,7 +85,7 @@ uint32_t *sieve_totient(uint32_t limit) {
 
 
 uint32_t *sieve_omega(uint32_t limit) {
-	if (limit == UINT32_MAX)
+	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
 		return NULL;
 	uint32_t *result = calloc(limit + 1, sizeof(uint32_t));
 	if (result == NULL)
@@ -105,7 +105,7 @@ uint32_t *sieve_omega(uint32_t limit) {
 
 
 uint32_t *sieve_radical(uint32_t limit) {
-	if (limit == UINT32_MAX)
+	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
 		return NULL;
 	uint32_t *result = calloc(limit + 1, sizeof(uint32_t));
 	if (result == NULL)
