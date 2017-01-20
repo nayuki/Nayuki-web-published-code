@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (C)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -112,8 +112,7 @@ const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc
 	
 	// Patch 4 bytes in the file
 	fseek64(f, offset);
-	int i;
-	for (i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++) {
 		int b = fgetc(f);
 		if (b == EOF) {
 			fclose(f);
@@ -127,6 +126,10 @@ const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc
 		if (fputc(b, f) == EOF) {
 			fclose(f);
 			return "I/O error: fputc";
+		}
+		if (fflush(f) == EOF) {
+			fclose(f);
+			return "I/O error: fflush";
 		}
 	}
 	if (printstatus)
@@ -146,7 +149,8 @@ const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc
 
 /*---- Utilities ----*/
 
-static const uint64_t POLYNOMIAL = UINT64_C(0x104C11DB7);  // Generator polynomial. Do not modify, because there are many dependencies
+// Generator polynomial. Do not modify, because there are many dependencies
+static const uint64_t POLYNOMIAL = UINT64_C(0x104C11DB7);
 
 
 static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
@@ -155,25 +159,23 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 	*length = 0;
 	while (true) {
 		char buffer[32 * 1024];
-		size_t n = fread(buffer, sizeof(buffer[0]), sizeof(buffer) / sizeof(char), f);
+		size_t n = fread(buffer, sizeof(buffer[0]), sizeof(buffer) / sizeof(buffer[0]), f);
 		if (ferror(f) != 0) {
 			perror("fread");
 			exit(EXIT_FAILURE);
 		}
-		size_t i;
-		for (i = 0; i < n; i++) {
-			int j;
-			for (j = 0; j < 8; j++) {
-				int bit = ((uint8_t)buffer[i] >> j) & 1;
-				crc ^= (uint32_t)bit << 31;
-				int xor = crc >> 31;  // Boolean
-				crc = (crc & UINT32_C(0x7FFFFFFFF)) << 1;
+		for (size_t i = 0; i < n; i++) {
+			for (int j = 0; j < 8; j++) {
+				uint32_t bit = ((uint8_t)buffer[i] >> j) & 1;
+				crc ^= bit << 31;
+				bool xor = (crc >> 31) != 0;
+				crc = (crc & UINT32_C(0x7FFFFFFF)) << 1;
 				if (xor)
 					crc ^= (uint32_t)POLYNOMIAL;
 			}
 		}
 		*length += n;
-		if (feof(f))
+		if (feof(f) != 0)
 			return ~crc;
 	}
 }
@@ -182,19 +184,18 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 static void fseek64(FILE *f, uint64_t offset) {
 	rewind(f);
 	while (offset > 0) {
-		long n = LONG_MAX;
-		if (offset < (unsigned long)n)
-			n = (long)offset;
-		fseek(f, n, SEEK_CUR);
-		offset -= (unsigned long)n;
+		unsigned long n = LONG_MAX;
+		if (offset < n)
+			n = (unsigned long)offset;
+		fseek(f, (long)n, SEEK_CUR);
+		offset -= n;
 	}
 }
 
 
 static uint32_t reverse_bits(uint32_t x) {
 	uint32_t result = 0;
-	int i;
-	for (i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 		result = (result << 1) | ((x >> i) & 1);
 	return result;
 }
@@ -245,8 +246,7 @@ static void divide_and_remainder(uint64_t x, uint64_t y, uint64_t *q, uint64_t *
 	
 	int ydeg = get_degree(y);
 	uint64_t z = 0;
-	int i;
-	for (i = get_degree(x) - ydeg; i >= 0; i--) {
+	for (int i = get_degree(x) - ydeg; i >= 0; i--) {
 		if ((x & ((uint64_t)1 << (i + ydeg))) != 0) {
 			x ^= y << i;
 			z |= (uint64_t)1 << i;
@@ -284,9 +284,7 @@ static uint64_t reciprocal_mod(uint64_t x) {
 
 static int get_degree(uint64_t x) {
 	int result = -1;
-	while (x != 0) {
-		x >>= 1;
+	for (; x != 0; x >>= 1)
 		result++;
-	}
 	return result;
 }
