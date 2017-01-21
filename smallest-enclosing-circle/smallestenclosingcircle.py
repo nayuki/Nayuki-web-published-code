@@ -20,6 +20,7 @@
 # 
 
 import math, random
+_EPSILON = 1e-12
 
 
 # Data conventions: A point is a pair of floats (x, y). A circle is a triple of floats (center x, center y, radius).
@@ -68,9 +69,9 @@ def _make_circle_two_points(points, p, q):
         c = _make_circumcircle(p, q, r)
         if c is None:
             continue
-        elif cross > 0.0 and (left is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) > _cross_product(p[0], p[1], q[0], q[1], left[0], left[1])):
+        elif cross > _EPSILON and (left is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) > _cross_product(p[0], p[1], q[0], q[1], left[0], left[1])):
             left = c
-        elif cross < 0.0 and (right is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) < _cross_product(p[0], p[1], q[0], q[1], right[0], right[1])):
+        elif cross < -_EPSILON and (right is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) < _cross_product(p[0], p[1], q[0], q[1], right[0], right[1])):
             right = c
     return left if (right is None or (left is not None and left[2] <= right[2])) else right
 
@@ -81,7 +82,7 @@ def _make_circumcircle(p0, p1, p2):
     bx = p1[0]; by = p1[1]
     cx = p2[0]; cy = p2[1]
     d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2.0
-    if d == 0.0:
+    if abs(d) < _EPSILON:
         return None
     x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
     y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
@@ -91,8 +92,6 @@ def _make_circumcircle(p0, p1, p2):
 def _make_diameter(p0, p1):
     return ((p0[0] + p1[0]) / 2.0, (p0[1] + p1[1]) / 2.0, math.hypot(p0[0] - p1[0], p0[1] - p1[1]) / 2.0)
 
-
-_EPSILON = 1e-12
 
 def _is_in_circle(c, p):
     return c is not None and math.hypot(p[0] - c[0], p[1] - c[1]) < c[2] + _EPSILON
