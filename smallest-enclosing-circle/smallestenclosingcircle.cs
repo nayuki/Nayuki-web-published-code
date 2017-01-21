@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (C#)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -27,11 +27,11 @@ public sealed class smallestenclosingcircle {
 	
 	/* 
 	 * Returns the smallest circle that encloses all the given points. Runs in expected O(n) time, randomized.
-	 * Note: If 0 points are given, null is returned. If 1 point is given, a circle of radius 0 is returned.
+	 * Note: If 0 points are given, a circle of radius -1 is returned. If 1 point is given, a circle of radius 0 is returned.
 	 */
 	// Initially: No boundary points known
 	public static Circle MakeCircle(IList<Point> points) {
-		// Clone list to preserve the caller's data, randomize order
+		// Clone list to preserve the caller's data, do Durstenfeld shuffle
 		List<Point> shuffled = new List<Point>(points);
 		Random rand = new Random();
 		for (int i = shuffled.Count - 1; i > 0; i--) {
@@ -70,14 +70,17 @@ public sealed class smallestenclosingcircle {
 	
 	// Two boundary points known
 	private static Circle makeCircleTwoPoints(List<Point> points, Point p, Point q) {
-		Circle temp = makeDiameter(p, q);
-		if (temp.Contains(points))
-			return temp;
-		
+		Circle circ = makeDiameter(p, q);
 		Circle left = new Circle(new Point(0, 0), -1);
 		Circle right = new Circle(new Point(0, 0), -1);
-		foreach (Point r in points) {  // Form a circumcircle with each point
-			Point pq = q.Subtract(p);
+		
+		// For each point not in the two-point circle
+		Point pq = q.Subtract(p);
+		foreach (Point r in points) {
+			if (circ.Contains(r))
+				continue;
+			
+			// Form a circumcircle and classify it on left or right side
 			double cross = pq.Cross(r.Subtract(p));
 			Circle c = makeCircumcircle(p, q, r);
 			if (c.r == -1)
@@ -87,12 +90,22 @@ public sealed class smallestenclosingcircle {
 			else if (cross < 0 && (right.r == -1 || pq.Cross(c.c.Subtract(p)) < pq.Cross(right.c.Subtract(p))))
 				right = c;
 		}
-		return right.r == -1 || left.r != -1 && left.r <= right.r ? left : right;
+		
+		// Select which circle to return
+		if (left.r == -1 && right.r == -1)
+			return circ;
+		else if (left.r == -1)
+			return right;
+		else if (right.r == -1)
+			return left;
+		else
+			return left.r <= right.r ? left : right;
 	}
 	
 	
 	private static Circle makeDiameter(Point a, Point b) {
-		return new Circle(new Point((a.x + b.x)/ 2, (a.y + b.y) / 2), a.Distance(b) / 2);
+		Point c = new Point((a.x + b.x) / 2, (a.y + b.y) / 2);
+		return new Circle(c, Math.Max(c.Distance(a), c.Distance(b)));
 	}
 	
 	
@@ -104,7 +117,8 @@ public sealed class smallestenclosingcircle {
 		double x = (a.Norm() * (b.y - c.y) + b.Norm() * (c.y - a.y) + c.Norm() * (a.y - b.y)) / d;
 		double y = (a.Norm() * (c.x - b.x) + b.Norm() * (a.x - c.x) + c.Norm() * (b.x - a.x)) / d;
 		Point p = new Point(x, y);
-		return new Circle(p, p.Distance(a));
+		double r = Math.Max(Math.Max(p.Distance(a), p.Distance(b)), p.Distance(c));
+		return new Circle(p, r);
 	}
 	
 }
@@ -113,7 +127,7 @@ public sealed class smallestenclosingcircle {
 
 public struct Circle {
 	
-	private static double EPSILON = 1e-12;
+	private static double MULTIPLICATIVE_EPSILON = 1 + 1e-14;
 	
 	
 	public Point c;   // Center
@@ -127,7 +141,7 @@ public struct Circle {
 	
 	
 	public bool Contains(Point p) {
-		return c.Distance(p) <= r + EPSILON;
+		return c.Distance(p) <= r * MULTIPLICATIVE_EPSILON;
 	}
 	
 	

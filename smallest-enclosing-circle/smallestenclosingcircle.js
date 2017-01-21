@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@
  * Output: A circle object of the form {x: float, y: float, r: float}.
  * Note: If 0 points are given, null is returned. If 1 point is given, a circle of radius 0 is returned.
  */
+// Initially: No boundary points known
 function makeCircle(points) {
 	// Clone list to preserve the caller's data, do Durstenfeld shuffle
 	var shuffled = points.slice();
@@ -68,27 +69,35 @@ function makeCircleOnePoint(points, p) {
 
 // Two boundary points known
 function makeCircleTwoPoints(points, p, q) {
-	var temp = makeDiameter(p, q);
-	var containsAll = true;
-	for (var i = 0; i < points.length; i++)
-		containsAll = containsAll && isInCircle(temp, points[i]);
-	if (containsAll)
-		return temp;
-	
+	var circ = makeDiameter(p, q);
 	var left = null;
 	var right = null;
-	for (var i = 0; i < points.length; i++) {
-		var r = points[i];
+	
+	// For each point not in the two-point circle
+	points.forEach(function(r) {
+		if (isInCircle(circ, r))
+			return;
+		
+		// Form a circumcircle and classify it on left or right side
 		var cross = crossProduct(p.x, p.y, q.x, q.y, r.x, r.y);
 		var c = makeCircumcircle(p, q, r);
 		if (c == null)
-			continue;
+			return;
 		else if (cross > 0 && (left == null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) > crossProduct(p.x, p.y, q.x, q.y, left.x, left.y)))
 			left = c;
 		else if (cross < 0 && (right == null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) < crossProduct(p.x, p.y, q.x, q.y, right.x, right.y)))
 			right = c;
-	}
-	return right == null || left != null && left.r <= right.r ? left : right;
+	});
+	
+	// Select which circle to return
+	if (left == null && right == null)
+		return circ;
+	else if (left == null)
+		return right;
+	else if (right == null)
+		return left;
+	else
+		return left.r <= right.r ? left : right;
 }
 
 
@@ -102,29 +111,32 @@ function makeCircumcircle(p0, p1, p2) {
 		return null;
 	var x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
 	var y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
-	return {x: x, y: y, r: distance(x, y, ax, ay)};
+	var ra = distance(x, y, ax, ay);
+	var rb = distance(x, y, bx, by);
+	var rc = distance(x, y, cx, cy);
+	return {x: x, y: y, r: Math.max(ra, rb, rc)};
 }
 
 
 function makeDiameter(p0, p1) {
-	return {
-		x: (p0.x + p1.x) / 2,
-		y: (p0.y + p1.y) / 2,
-		r: distance(p0.x, p0.y, p1.x, p1.y) / 2
-	};
+	var x = (p0.x + p1.x) / 2;
+	var y = (p0.y + p1.y) / 2;
+	var r0 = distance(x, y, p0.x, p0.y);
+	var r1 = distance(x, y, p1.x, p1.y);
+	return {x: x, y: y, r: Math.max(r0, r1)};
 }
 
 
 /* Simple mathematical functions */
 
-var EPSILON = 1e-12;
+var MULTIPLICATIVE_EPSILON = 1 + 1e-14;
 
 function isInCircle(c, p) {
-	return c != null && distance(p.x, p.y, c.x, c.y) < c.r + EPSILON;
+	return c != null && distance(p.x, p.y, c.x, c.y) <= c.r * MULTIPLICATIVE_EPSILON;
 }
 
 
-// Returns twice the signed area of the triangle defined by (x0, y0), (x1, y1), (x2, y2)
+// Returns twice the signed area of the triangle defined by (x0, y0), (x1, y1), (x2, y2).
 function crossProduct(x0, y0, x1, y1, x2, y2) {
 	return (x1 - x0) * (y2 - y0) - (y1 - y0) * (x2 - x0);
 }

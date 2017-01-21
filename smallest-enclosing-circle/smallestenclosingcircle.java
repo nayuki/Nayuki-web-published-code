@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -35,7 +35,7 @@ public class smallestenclosingcircle {
 	// Initially: No boundary points known
 	public static Circle makeCircle(List<Point> points) {
 		// Clone list to preserve the caller's data, randomize order
-		List<Point> shuffled = new ArrayList<Point>(points);
+		List<Point> shuffled = new ArrayList<>(points);
 		Collections.shuffle(shuffled, new Random());
 		
 		// Progressively add points to circle or recompute circle
@@ -67,14 +67,17 @@ public class smallestenclosingcircle {
 	
 	// Two boundary points known
 	private static Circle makeCircleTwoPoints(List<Point> points, Point p, Point q) {
-		Circle temp = makeDiameter(p, q);
-		if (temp.contains(points))
-			return temp;
-		
+		Circle circ = makeDiameter(p, q);
 		Circle left = null;
 		Circle right = null;
-		for (Point r : points) {  // Form a circumcircle with each point
-			Point pq = q.subtract(p);
+		
+		// For each point not in the two-point circle
+		Point pq = q.subtract(p);
+		for (Point r : points) {
+			if (circ.contains(r))
+				continue;
+			
+			// Form a circumcircle and classify it on left or right side
 			double cross = pq.cross(r.subtract(p));
 			Circle c = makeCircumcircle(p, q, r);
 			if (c == null)
@@ -84,12 +87,22 @@ public class smallestenclosingcircle {
 			else if (cross < 0 && (right == null || pq.cross(c.c.subtract(p)) < pq.cross(right.c.subtract(p))))
 				right = c;
 		}
-		return right == null || left != null && left.r <= right.r ? left : right;
+		
+		// Select which circle to return
+		if (left == null && right == null)
+			return circ;
+		else if (left == null)
+			return right;
+		else if (right == null)
+			return left;
+		else
+			return left.r <= right.r ? left : right;
 	}
 	
 	
 	static Circle makeDiameter(Point a, Point b) {
-		return new Circle(new Point((a.x + b.x)/ 2, (a.y + b.y) / 2), a.distance(b) / 2);
+		Point c = new Point((a.x + b.x) / 2, (a.y + b.y) / 2);
+		return new Circle(c, Math.max(c.distance(a), c.distance(b)));
 	}
 	
 	
@@ -101,7 +114,8 @@ public class smallestenclosingcircle {
 		double x = (a.norm() * (b.y - c.y) + b.norm() * (c.y - a.y) + c.norm() * (a.y - b.y)) / d;
 		double y = (a.norm() * (c.x - b.x) + b.norm() * (a.x - c.x) + c.norm() * (b.x - a.x)) / d;
 		Point p = new Point(x, y);
-		return new Circle(p, p.distance(a));
+		double r = Math.max(Math.max(p.distance(a), p.distance(b)), p.distance(c));
+		return new Circle(p, r);
 	}
 	
 }
@@ -110,7 +124,7 @@ public class smallestenclosingcircle {
 
 class Circle {
 	
-	private static double EPSILON = 1e-12;
+	private static double MULTIPLICATIVE_EPSILON = 1 + 1e-14;
 	
 	
 	public final Point c;   // Center
@@ -124,7 +138,7 @@ class Circle {
 	
 	
 	public boolean contains(Point p) {
-		return c.distance(p) <= r + EPSILON;
+		return c.distance(p) <= r * MULTIPLICATIVE_EPSILON;
 	}
 	
 	

@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Demo (JavaScript)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -77,7 +77,7 @@ canvasElem.onmousemove = function(ev) {
 
 
 canvasElem.onmouseup = function(ev) {
-	if (ev.button == 0) {
+	if (dragPointIndex != -1 && ev.button == 0) {
 		canvasPoints[dragPointIndex] = {x: ev.offsetX, y: ev.offsetY};
 		dragPointIndex = -1;
 		refreshCanvasCircle();

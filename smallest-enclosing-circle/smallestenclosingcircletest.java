@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Test suite (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -20,18 +20,17 @@
  */
 
 import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import org.junit.Test;
 
 
 public class smallestenclosingcircletest {
 	
-	@Test
-	public void testMatchingNaiveAlgorithm() {
+	/*---- Test suite functions ----*/
+	
+	@Test public void testMatchingNaiveAlgorithm() {
 		for (int i = 0; i < 1000; i++) {
 			List<Point> points = makeRandomPoints(random.nextInt(30) + 1);
 			Circle reference = smallestEnclosingCircleNaive(points);
@@ -43,15 +42,15 @@ public class smallestenclosingcircletest {
 	}
 	
 	
-	@Test
-	public void testTranslation() {
+	@Test public void testTranslation() {
 		for (int i = 0; i < 100; i++) {
 			List<Point> points = makeRandomPoints(random.nextInt(300) + 1);
 			Circle reference = smallestenclosingcircle.makeCircle(points);
+			
 			for (int j = 0; j < 10; j++) {
 				double dx = random.nextGaussian();
 				double dy = random.nextGaussian();
-				List<Point> newPoints = new ArrayList<Point>();
+				List<Point> newPoints = new ArrayList<>();
 				for (Point p : points)
 					newPoints.add(new Point(p.x + dx, p.y + dy));
 				
@@ -64,28 +63,30 @@ public class smallestenclosingcircletest {
 	}
 	
 	
-	@Test
-	public void testScaling() {
+	@Test public void testScaling() {
 		for (int i = 0; i < 100; i++) {
 			List<Point> points = makeRandomPoints(random.nextInt(300) + 1);
 			Circle reference = smallestenclosingcircle.makeCircle(points);
+			
 			for (int j = 0; j < 10; j++) {
 				double scale = random.nextGaussian();
-				List<Point> newPoints = new ArrayList<Point>();
+				List<Point> newPoints = new ArrayList<>();
 				for (Point p : points)
 					newPoints.add(new Point(p.x * scale, p.y * scale));
 				
-				Circle translated = smallestenclosingcircle.makeCircle(newPoints);
-				assertEquals(reference.c.x * scale, translated.c.x, EPSILON);
-				assertEquals(reference.c.y * scale, translated.c.y, EPSILON);
-				assertEquals(reference.r * Math.abs(scale), translated.r, EPSILON);
+				Circle scaled = smallestenclosingcircle.makeCircle(newPoints);
+				assertEquals(reference.c.x * scale, scaled.c.x, EPSILON);
+				assertEquals(reference.c.y * scale, scaled.c.y, EPSILON);
+				assertEquals(reference.r * Math.abs(scale), scaled.r, EPSILON);
 			}
 		}
 	}
 	
 	
+	/*---- Helper functions ----*/
+	
 	private static List<Point> makeRandomPoints(int n) {
-		List<Point> result = new ArrayList<Point>();
+		List<Point> result = new ArrayList<>();
 		if (random.nextDouble() < 0.2) {  // Discrete lattice (to have a chance of duplicated points)
 			for (int i = 0; i < n; i++)
 				result.add(new Point(random.nextInt(10), random.nextInt(10)));
@@ -97,38 +98,39 @@ public class smallestenclosingcircletest {
 	}
 	
 	
-	// Smallest enclosing circle - naive algorithm (O(n^4) time)
+	// Returns the smallest enclosing circle in O(n^4) time using the naive algorithm.
 	private static Circle smallestEnclosingCircleNaive(List<Point> points) {
+		// Degenerate cases
 		if (points.size() == 0)
 			return null;
 		else if (points.size() == 1)
 			return new Circle(points.get(0), 0);
 		
 		// Try all unique pairs
-		Circle best = null;
+		Circle result = null;
 		for (int i = 0; i < points.size(); i++) {
 			for (int j = i + 1; j < points.size(); j++) {
 				Circle c = smallestenclosingcircle.makeDiameter(points.get(i), points.get(j));
-				if (c.contains(points) && (best == null || c.r < best.r))
-					best = c;
+				if ((result == null || c.r < result.r) && c.contains(points))
+					result = c;
 			}
 		}
-		if (best != null)
-			return best;  // This optimization is not mathematically proven
+		if (result != null)
+			return result;  // This optimization is not mathematically proven
 		
 		// Try all unique triples
 		for (int i = 0; i < points.size(); i++) {
 			for (int j = i + 1; j < points.size(); j++) {
 				for (int k = j + 1; k < points.size(); k++) {
 					Circle c = smallestenclosingcircle.makeCircumcircle(points.get(i), points.get(j), points.get(k));
-					if (c != null && c.contains(points) && (best == null || c.r < best.r))
-						best = c;
+					if (c != null && (result == null || c.r < result.r) && c.contains(points))
+						result = c;
 				}
 			}
 		}
-		if (best == null)
+		if (result == null)
 			throw new AssertionError();
-		return best;
+		return result;
 	}
 	
 	
