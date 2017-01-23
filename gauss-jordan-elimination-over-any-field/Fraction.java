@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2015 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field-java
+ * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
  */
 
 import java.math.BigInteger;
