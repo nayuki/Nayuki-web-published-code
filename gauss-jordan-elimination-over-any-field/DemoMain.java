@@ -1,32 +1,33 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
  */
 
 
 /* 
- * Run with no command-line arguments.
+ * Run with no command line arguments.
  */
-public class Main {
+public class DemoMain {
 	
 	public static void main(String[] args) {
 		// Set up the matrix
-		Matrix<Fraction> mat = new Matrix<Fraction>(3, 4, RationalField.FIELD);
-		mat.set(0, 0, new Fraction(2, 1));
-		mat.set(0, 1, new Fraction(5, 1));
-		mat.set(0, 2, new Fraction(3, 1));
-		mat.set(0, 3, new Fraction(7, 1));
-		mat.set(1, 0, new Fraction(1, 1));
-		mat.set(1, 1, new Fraction(0, 1));
-		mat.set(1, 2, new Fraction(1, 1));
-		mat.set(1, 3, new Fraction(1, 1));
+		Field<Fraction> f = RationalField.FIELD;
+		Matrix<Fraction> mat = new Matrix<>(3, 4, f);
+		mat.set(0, 0, new Fraction( 2, 1));
+		mat.set(0, 1, new Fraction( 5, 1));
+		mat.set(0, 2, new Fraction( 3, 1));
+		mat.set(0, 3, new Fraction( 7, 1));
+		mat.set(1, 0, new Fraction( 1, 1));
+		mat.set(1, 1, new Fraction( 0, 1));
+		mat.set(1, 2, new Fraction( 1, 1));
+		mat.set(1, 3, new Fraction( 1, 1));
 		mat.set(2, 0, new Fraction(-4, 1));
-		mat.set(2, 1, new Fraction(2, 1));
+		mat.set(2, 1, new Fraction( 2, 1));
 		mat.set(2, 2, new Fraction(-9, 1));
-		mat.set(2, 3, new Fraction(6, 1));
+		mat.set(2, 3, new Fraction( 6, 1));
 		
 		// Gauss-Jordan elimination
 		mat.reducedRowEchelonForm();

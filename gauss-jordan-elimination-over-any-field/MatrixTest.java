@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
  */
@@ -102,13 +102,12 @@ public final class MatrixTest {
 	
 	private static void testReduceMatrix(int[][] in, int[][] out) {
 		Matrix<Integer> mat = new Matrix<Integer>(in.length, in[0].length, field);
-		for (int i = 0; i < out.length; i++) {
-			for (int j = 0; j < out[i].length; j++)
+		for (int i = 0; i < in.length; i++) {
+			for (int j = 0; j < in[i].length; j++)
 				mat.set(i, j, in[i][j]);
 		}
 		
 		mat.reducedRowEchelonForm();
-		
 		for (int i = 0; i < out.length; i++) {
 			for (int j = 0; j < out[i].length; j++)
 				assertEquals(out[i][j], (int)mat.get(i, j));
@@ -133,7 +132,8 @@ public final class MatrixTest {
 			mat.set(0, 1, random.nextInt(field.size));
 			mat.set(1, 0, random.nextInt(field.size));
 			mat.set(1, 1, random.nextInt(field.size));
-			assertEquals(field.subtract(field.multiply(mat.get(0, 0), mat.get(1, 1)), field.multiply(mat.get(0, 1), mat.get(1, 0))), mat.determinantAndRef());
+			Integer expect = field.subtract(field.multiply(mat.get(0, 0), mat.get(1, 1)), field.multiply(mat.get(0, 1), mat.get(1, 0)));
+			assertEquals(expect, mat.determinantAndRef());
 		}
 	}
 	
