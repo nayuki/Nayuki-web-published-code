@@ -1,7 +1,7 @@
 /* 
  * Lowest SHA-512 value by brute force (C)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
@@ -75,21 +75,22 @@ int main(int argc, char **argv) {
 	
 	// Set up the SHA-512 processed blocks: Message (28 bytes), terminator and padding (96 bytes), length (16 bytes)
 	uint8_t *blocks = calloc(128 * NUM_CH * num_threads, sizeof(uint8_t));
+	if (blocks == NULL) {
+		perror("calloc");
+		return EXIT_FAILURE;
+	}
 	{
 		struct timespec ts;
 		clock_gettime(CLOCK_REALTIME, &ts);
 		uint64_t time = ts.tv_sec * UINT64_C(1000000000) + ts.tv_nsec;
 		
-		int i;
-		for (i = 0; i < num_threads; i++) {
-			int ch;
-			for (ch = 0; ch < NUM_CH; ch++) {
+		for (int i = 0; i < num_threads; i++) {
+			for (int ch = 0; ch < NUM_CH; ch++) {
 				uint8_t *blks = &blocks[128 * NUM_CH * i];
 				uint64_t temp = time + i * NUM_CH + ch;
-				int j;
-				for (j = 0; j < MSG_LEN / 2; j++, temp /= 26)
+				for (int j = 0; j < MSG_LEN / 2; j++, temp /= 26)
 					set_byte(blks, j, ch, 'a' + temp % 26);
-				for (j = 0; j < MSG_LEN / 2; j++)
+				for (int j = 0; j < MSG_LEN / 2; j++)
 					set_byte(blks, j + MSG_LEN / 2, ch, 'a');
 				set_byte(blks, MSG_LEN, ch, 0x80);
 				set_byte(blks, 126, ch, MSG_LEN >> 5);
@@ -104,8 +105,11 @@ int main(int argc, char **argv) {
 	
 	// Launch threads
 	pthread_t *threads = malloc(num_threads * sizeof(pthread_t));
-	int i;
-	for (i = 0; i < num_threads; i++)
+	if (threads == NULL) {
+		perror("malloc");
+		return EXIT_FAILURE;
+	}
+	for (int i = 0; i < num_threads; i++)
 		pthread_create(&threads[i], NULL, worker, &blocks[128 * NUM_CH * i]);
 	
 	// Print status until threads finish
@@ -128,7 +132,7 @@ int main(int argc, char **argv) {
 	fprintf(stderr, "\nSearch space exhausted\n");
 	
 	// Clean up
-	for (i = 0; i < num_threads; i++)
+	for (int i = 0; i < num_threads; i++)
 		pthread_join(threads[i], NULL);
 	free(blocks);
 	free(threads);
@@ -146,8 +150,7 @@ static void *worker(void *blks) {
 	pthread_mutex_unlock(&mutex);
 	uint8_t *blocks = (uint8_t *)blks;
 	
-	int i;
-	for (i = 0; ; i++) {
+	for (int i = 0; ; i++) {
 		// Accumulate status
 		if (i >= ITERS_PER_ACCUMULATE) {
 			pthread_mutex_lock(&mutex);
@@ -164,8 +167,7 @@ static void *worker(void *blks) {
 		// Compare with lowest hash
 		if (hashes[0] <= lowesthash[0] || hashes[1] <= lowesthash[0]) {  // Assumes NUM_CH = 2
 			pthread_mutex_lock(&mutex);
-			int ch;
-			for (ch = 0; ch < NUM_CH; ch++) {
+			for (int ch = 0; ch < NUM_CH; ch++) {
 				if (compare_hashes(hashes, ch, global_lowest_hash) < 0) {
 					char message[MSG_LEN + 1];
 					get_message(blocks, ch, message);
@@ -177,14 +179,12 @@ static void *worker(void *blks) {
 					fprintf(stderr, "%016" PRIx64 "%016" PRIx64 "... %s\n", hashes[0 * NUM_CH + ch], hashes[1 * NUM_CH + ch], message);
 					fflush(stdout);
 					fflush(stderr);
-					int j;
-					for (j = 0; j < 8; j++)
+					for (int j = 0; j < 8; j++)
 						global_lowest_hash[j] = hashes[j * NUM_CH + ch];
 					prev_print_type = 0;
 				}
 			}
-			int j;
-			for (j = 0; j < 8; j++)
+			for (int j = 0; j < 8; j++)
 				lowesthash[j] = global_lowest_hash[j];
 			pthread_mutex_unlock(&mutex);
 		}
@@ -192,14 +192,12 @@ static void *worker(void *blks) {
 		// Increment messages
 		int j;
 		for (j = MSG_LEN - 1; j >= 0 && get_byte(blocks, j, 0) >= 'z'; j--) {
-			int ch;
-			for (ch = 0; ch < NUM_CH; ch++)
+			for (int ch = 0; ch < NUM_CH; ch++)
 				set_byte(blocks, j, ch, 'a');
 		}
 		if (j < 0)
 			break;
-		int ch;
-		for (ch = 0; ch < NUM_CH; ch++)
+		for (int ch = 0; ch < NUM_CH; ch++)
 			set_byte(blocks, j, ch, get_byte(blocks, j, ch) + 1);
 	}
 	pthread_mutex_lock(&mutex);
@@ -252,16 +250,14 @@ static void benchmark(void) {
 	uint8_t blocks[128 * NUM_CH] = {0};
 	uint64_t states[8 * NUM_CH] = {0};
 	clock_t start_time = clock();
-	int i;
-	for (i = 0; i < N; i++)
+	for (int i = 0; i < N; i++)
 		sha512_compress_dual(states, blocks);
 	fprintf(stderr, "Speed: %.3f million iterations per second\n", (double)N / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 }
 
 
 static int compare_hashes(const uint64_t dualhash[8 * NUM_CH], int channel, const uint64_t hash[8]) {
-	int i;
-	for (i = 0; i < 8; i++) {
+	for (int i = 0; i < 8; i++) {
 		uint64_t x = dualhash[i * NUM_CH + channel];
 		uint64_t y = hash[i];
 		if (x < y)
@@ -284,8 +280,7 @@ static void set_byte(uint8_t blocks[128 * NUM_CH], int index, int channel, uint8
 
 
 static void get_message(const uint8_t blocks[128 * NUM_CH], int channel, char *message) {
-	int i;
-	for (i = 0; i < MSG_LEN; i++)
+	for (int i = 0; i < MSG_LEN; i++)
 		message[i] = get_byte(blocks, i, channel);
 	message[MSG_LEN] = '\0';
 }
