@@ -1,7 +1,7 @@
 /* 
  * Random password generator (JavaScript)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/random-password-generator-javascript
  */
@@ -10,7 +10,7 @@
 
 
 var passwordText = document.createTextNode("");
-var statisticsText = document.createTextNode("");
+var statisticsText = document.createTextNode("\u00A0");
 document.getElementById("password").appendChild(passwordText);
 document.getElementById("statistics").appendChild(statisticsText);
 
@@ -29,9 +29,11 @@ function generate() {
 	
 	var password = "";
 	var statistics = "";
-	if (charset == "") {
+	if (charset == "")
 		alert("Error: Character set is empty");
-	} else {
+	else if (document.getElementById("by-entropy").checked && charset.length == 1)
+		alert("Error: Need at least 2 distinct characters in set");
+	else {
 		var length;
 		if (document.getElementById("by-length").checked)
 			length = parseInt(document.getElementById("length").value, 10);
@@ -40,8 +42,10 @@ function generate() {
 		else
 			throw "Assertion error";
 		
-		if (length < 0 || length > 10000)
-			alert("Invalid password length");
+		if (length < 0)
+			alert("Negative password length");
+		else if (length > 10000)
+			alert("Password length too large");
 		else {
 			for (var i = 0; i < length; i++)
 				password += charset.charAt(randomInt(charset.length));
@@ -54,7 +58,7 @@ function generate() {
 				entropystr = entropy.toFixed(1);
 			else
 				entropystr = entropy.toFixed(0);
-			statistics = "Length = " + length + " chars, Charset size = " + charset.length + " symbols, Entropy = " + entropystr + " bits";
+			statistics = "Length = " + length + " chars, \u00A0\u00A0Charset size = " + charset.length + " symbols, \u00A0\u00A0Entropy = " + entropystr + " bits";
 		}
 	}
 	passwordText.data = password;
@@ -91,14 +95,36 @@ function randomIntMathRandom(n) {
 }
 
 
+var cryptoObject = null;
+
 // Uses a secure, unpredictable random number generator if available; otherwise returns 0
 function randomIntBrowserCrypto(n) {
-	if (typeof Uint32Array == "function" && "crypto" in window && "getRandomValues" in window.crypto) {
-		// Generate an unbiased sample
-		var x = new Uint32Array(1);
-		do window.crypto.getRandomValues(x);
-		while (x[0] - x[0] % n > 4294967296 - n);
-		return x[0] % n;
-	} else
+	if (cryptoObject == null)
 		return 0;
+	// Generate an unbiased sample
+	var x = new Uint32Array(1);
+	do cryptoObject.getRandomValues(x);
+	while (x[0] - x[0] % n > 4294967296 - n);
+	return x[0] % n;
 }
+
+
+function initCrypto() {
+	var textNode = document.createTextNode("\u2717");
+	document.getElementById("crypto-getrandomvalues-entropy").appendChild(textNode);
+	
+	if ("crypto" in window)
+		cryptoObject = crypto;
+	else if ("msCrypto" in window)
+		cryptoObject = msCrypto;
+	else
+		return;
+	
+	if ("getRandomValues" in cryptoObject && "Uint32Array" in window && typeof Uint32Array == "function")
+		textNode.data = "\u2713";
+	else
+		cryptoObject = null;
+}
+
+
+initCrypto();
