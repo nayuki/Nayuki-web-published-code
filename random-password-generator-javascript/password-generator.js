@@ -9,27 +9,86 @@
 "use strict";
 
 
+var CHARACTER_SETS = [
+	[true, "Numbers", "0123456789"],
+	[true, "Lowercase", "abcdefghijklmnopqrstuvwxyz"],
+	[false, "Uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"],
+	[false, "ASCII symbols", "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"],
+	[false, "Space", " "],
+];
+
+
 var passwordText = document.createTextNode("");
 var statisticsText = document.createTextNode("\u00A0");
-document.getElementById("password").appendChild(passwordText);
-document.getElementById("statistics").appendChild(statisticsText);
+
+function init() {
+	document.getElementById("password").appendChild(passwordText);
+	document.getElementById("statistics").appendChild(statisticsText);
+	var elements = document.createDocumentFragment();
+	CHARACTER_SETS.forEach(function(entry, i) {
+		var spanElem = document.createElement("span");
+		var inputElem = document.createElement("input");
+		inputElem.type = "checkbox";
+		inputElem.checked = entry[0];
+		inputElem.id = "charset-" + i;
+		spanElem.appendChild(inputElem);
+		var labelElem = document.createElement("label");
+		labelElem.htmlFor = inputElem.id;
+		labelElem.appendChild(document.createTextNode(" " + entry[1] + " "));
+		var smallElem = document.createElement("small");
+		smallElem.appendChild(document.createTextNode("(" + entry[2] + ")"));
+		labelElem.appendChild(smallElem);
+		spanElem.appendChild(labelElem);
+		elements.appendChild(spanElem);
+		elements.appendChild(document.createElement("br"));
+	});
+	var containerElem = document.getElementById("charset-checkboxes");
+	containerElem.insertBefore(elements, containerElem.firstChild);
+}
+
+init();
 
 
 // The one and only function called from the HTML code
 function generate() {
-	var charset = "";
-	if (document.getElementById("numbers"  ).checked) charset += "0123456789";
-	if (document.getElementById("lowercase").checked) charset += "abcdefghijklmnopqrstuvwxyz";
-	if (document.getElementById("uppercase").checked) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	if (document.getElementById("symbols"  ).checked) charset += "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
-	if (document.getElementById("space"    ).checked) charset += " ";
-	if (document.getElementById("custom"   ).checked) charset += document.getElementById("customchars").value;
-	charset = removeDuplicates(charset);
-	charset = charset.replace(/ /, "\u00A0");  // Replace space with non-breaking space
+	// Gather the character set
+	var charsetStr = "";
+	CHARACTER_SETS.forEach(function(entry, i) {
+		if (document.getElementById("charset-" + i).checked)
+			charsetStr += entry[2];
+	});
+	if (document.getElementById("custom").checked)
+		charsetStr += document.getElementById("customchars").value;
+	charsetStr = charsetStr.replace(/ /, "\u00A0");  // Replace space with non-breaking space
+	
+	// Convert to array and remove duplicate characters
+	var charset = [];
+	for (var i = 0; i < charsetStr.length; i++) {
+		var c = charsetStr.charCodeAt(i);
+		var s = null;
+		if (c < 0xD800 || c >= 0xE000)  // Regular UTF-16 character
+			s = charsetStr.charAt(i);
+		else if (0xD800 <= c && c < 0xDC00) {  // High surrogate
+			if (i + 1 < charsetStr.length) {
+				var d = charsetStr.charCodeAt(i + 1);
+				if (0xDC00 <= d && d < 0xE000) {
+					// Valid character in supplementary plane
+					s = charsetStr.substr(i, 2);
+					i++;
+				}
+				// Else discard unpaired surrogate
+			}
+		} else if (0xDC00 <= d && d < 0xE000)  // Low surrogate
+			i++;  // Discard unpaired surrogate
+		else
+			throw "Assertion error";
+		if (s != null && charset.indexOf(s) == -1)
+			charset.push(s);
+	}
 	
 	var password = "";
 	var statistics = "";
-	if (charset == "")
+	if (charset.length == 0)
 		alert("Error: Character set is empty");
 	else if (document.getElementById("by-entropy").checked && charset.length == 1)
 		alert("Error: Need at least 2 distinct characters in set");
@@ -48,7 +107,7 @@ function generate() {
 			alert("Password length too large");
 		else {
 			for (var i = 0; i < length; i++)
-				password += charset.charAt(randomInt(charset.length));
+				password += charset[randomInt(charset.length)];
 			
 			var entropy = Math.log(charset.length) * length / Math.log(2);
 			var entropystr;
@@ -63,18 +122,6 @@ function generate() {
 	}
 	passwordText.data = password;
 	statisticsText.data = statistics;
-}
-
-
-// e.g. "daabcccd" -> "dabc"
-function removeDuplicates(s) {
-	var result = "";
-	for (var i = 0; i < s.length; i++) {
-		var c = s.charAt(i);
-		if (result.indexOf(c) == -1)
-			result += c;
-	}
-	return result;
 }
 
 

@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Triangle solver (JavaScript)</title>
-		<!-- Copyright (c) 2015 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
+		<!-- Copyright (c) 2017 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
 		<style type="text/css">
 		html {
 			background-color: #FFFFFF;
@@ -54,6 +54,8 @@
 		}
 		hr {
 			margin: 1.5em 0em;
+			border: none;
+			border-top: 0.1em solid #808080;
 		}
 		input {
 			font-size: inherit;
@@ -184,7 +186,7 @@
 			<li><a href="http://en.wikipedia.org/wiki/Law_of_sines">Wikipedia: Law of sines</a></li>
 		</ul>
 		<hr>
-		<p id="footer">Copyright © 2015 Project Nayuki – <a href="https://www.nayuki.io/page/triangle-solver-javascript">https://www.nayuki.io/page/triangle-solver-javascript</a></p>
+		<p id="footer">Copyright © 2017 Project Nayuki – <a href="https://www.nayuki.io/page/triangle-solver-javascript">https://www.nayuki.io/page/triangle-solver-javascript</a></p>
 		
 		
 		<script type="text/javascript">
@@ -250,7 +252,7 @@
 				
 				else if (sides == 3) {
 					status = "Side side side (SSS) case";
-					if (lessEqual(a + b, c) || lessEqual(b + c, a) || lessEqual(c + a, b))
+					if (c >= a + b || a >= b + c || b >= c + a)
 						throw status + " - No solution";
 					A = solveAngle(b, c, a);
 					B = solveAngle(c, a, b);
@@ -265,7 +267,7 @@
 					if (A == null) A = 180 - B - C;
 					if (B == null) B = 180 - C - A;
 					if (C == null) C = 180 - A - B;
-					if (lessEqual(A, 0) || lessEqual(B, 0) || lessEqual(C, 0))
+					if (0 >= A || 0 >= B || 0 >= C)
 						throw status + " - No solution";
 					var sinA = Math.sin(degToRad(A));
 					var sinB = Math.sin(degToRad(B));
@@ -307,7 +309,7 @@
 					var ratio = knownSide / Math.sin(degToRad(knownAngle));
 					var temp = partialSide / ratio;  // sin(partialAngle)
 					var partialAngle, unknownSide, unknownAngle;
-					if (temp > 1 || and(knownAngle >= 90, lessEqual(knownSide, partialSide)))
+					if (temp > 1 || and(knownAngle >= 90, partialSide >= knownSide))
 						throw status + "No solution";
 					else if (temp == 1 || knownSide >= partialSide) {
 						status += "Unique solution";
@@ -354,9 +356,9 @@
 			// Returns angle C using law of cosines.
 			function solveAngle(a, b, c) {
 				var temp = (a * a + b * b - c * c) / (2 * a * b);
-				if (and(lessEqual(-1, temp), lessEqual(temp, 0.9999999)))
+				if (and(temp >= -1, 0.9999999 >= temp))
 					return radToDeg(Math.acos(temp));
-				else if (lessEqual(temp, 1))  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
+				else if (1 >= temp)  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
 					return radToDeg(Math.sqrt((c * c - (a - b) * (a - b)) / (a * b)));
 				else
 					throw "No solution";
@@ -383,7 +385,7 @@
 				var result = parseFloat(str);
 				if (!isFinite(result))
 					throw "Invalid number";
-				if (lessEqual(result, 0))
+				if (0 >= result)
 					throw "All inputs must be positive";
 				return result;
 			}
@@ -499,11 +501,7 @@
 				return x / Math.PI * 180;
 			}
 			
-			// Workarounds to avoid HTML parsing issues
-			function lessEqual(x, y) {
-				return y >= x;
-			}
-			
+			// Workaround to avoid HTML parsing issues
 			function and(x, y) {
 				return x ? y : false;
 			}
