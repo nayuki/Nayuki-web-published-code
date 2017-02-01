@@ -1,7 +1,7 @@
 /* 
  * Binary array set (C++)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/binary-array-set
  * 
  * (MIT License)
@@ -30,7 +30,7 @@
 
 
 template <typename E>
-class BinaryArraySet {
+class BinaryArraySet final {
 	
 public:
 	

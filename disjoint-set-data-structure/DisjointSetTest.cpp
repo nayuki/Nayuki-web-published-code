@@ -31,7 +31,7 @@
 
 /*---- Helper definitions ----*/
 
-class NaiveDisjointSet {
+class NaiveDisjointSet final {
 private:
 	std::vector<size_t> representatives;
 	

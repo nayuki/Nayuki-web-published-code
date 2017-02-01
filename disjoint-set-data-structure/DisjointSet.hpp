@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library header (C++)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * (MIT License)
@@ -33,12 +33,12 @@
  * Main operations are querying if two elements are in the same set, and merging two sets together.
  * Useful for testing graph connectivity, and is used in Kruskal's algorithm.
  */
-class DisjointSet {
+class DisjointSet final {
 	
 	/*---- Helper structure ----*/
 	
 private:
-	struct Node {
+	struct Node final {
 		// The index of the parent element. An element is a representative iff its parent is itself. Mutable due to path compression.
 		mutable size_t parent;
 		// Always in the range [0, floor(log2(numElems))]. For practical computers, this has a maximum value of 64.

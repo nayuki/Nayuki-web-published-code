@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (C++)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * (MIT License)
@@ -33,7 +33,7 @@
 
 
 template <typename E>
-class AvlTreeList {
+class AvlTreeList final {
 	
 private:
 	class Node;  // Forward declaration
@@ -114,7 +114,7 @@ public:
 	
 	
 private:
-	class Node {
+	class Node final {
 		
 	public:
 		// A bit of a hack, but more elegant than using nullptr values as leaf nodes.

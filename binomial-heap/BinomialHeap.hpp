@@ -1,7 +1,7 @@
 /* 
  * Binomial heap (C++)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/binomial-heap
  * 
  * (MIT License)
@@ -30,7 +30,7 @@
 
 
 template <typename E>
-class BinomialHeap {
+class BinomialHeap final {
 	
 private:
 	class Node;  // Forward declaration
@@ -191,7 +191,7 @@ public:
 	
 	
 private:
-	class Node {
+	class Node final {
 		
 	public:
 		E value;
