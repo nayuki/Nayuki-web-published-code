@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -143,8 +143,8 @@ final class Board {
 	
 	
 	public Object[] solve(int moves) {
-		Set<Board> visited = new HashSet<Board>();
-		Queue<Board> queue = new LinkedList<Board>();
+		Set<Board> visited = new HashSet<>();
+		Queue<Board> queue = new LinkedList<>();
 		queue.add(this);
 		visited.add(this);
 		
@@ -152,7 +152,7 @@ final class Board {
 		while (!queue.isEmpty()) {
 			Board board = queue.remove();
 			if (board.isEmpty()) {  // Solution found
-				List<SwapMove> solution = new ArrayList<SwapMove>();
+				List<SwapMove> solution = new ArrayList<>();
 				while (board.prevBoard != null) {
 					solution.add(0, board.prevMove);
 					board = board.prevBoard;
@@ -174,7 +174,7 @@ final class Board {
 	
 	
 	private Collection<Board> getNextBoards() {
-		Collection<Board> result = new ArrayList<Board>();
+		Collection<Board> result = new ArrayList<>();
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x + 1 < width; x++) {
 				Board next = swap(x, y);

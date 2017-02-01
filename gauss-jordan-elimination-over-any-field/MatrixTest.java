@@ -101,7 +101,7 @@ public final class MatrixTest {
 	
 	
 	private static void testReduceMatrix(int[][] in, int[][] out) {
-		Matrix<Integer> mat = new Matrix<Integer>(in.length, in[0].length, field);
+		Matrix<Integer> mat = new Matrix<>(in.length, in[0].length, field);
 		for (int i = 0; i < in.length; i++) {
 			for (int j = 0; j < in[i].length; j++)
 				mat.set(i, j, in[i][j]);
@@ -118,7 +118,7 @@ public final class MatrixTest {
 	
 	@Test public void testDeterminant1() {
 		for (int i = 0; i < field.size; i++) {
-			Matrix<Integer> mat = new Matrix<Integer>(1, 1, field);
+			Matrix<Integer> mat = new Matrix<>(1, 1, field);
 			mat.set(0, 0, i);
 			assertEquals(i, (int)mat.determinantAndRef());
 		}
@@ -127,7 +127,7 @@ public final class MatrixTest {
 	
 	@Test public void testDeterminant2() {
 		for (int i = 0; i < 1000; i++) {
-			Matrix<Integer> mat = new Matrix<Integer>(2, 2, field);
+			Matrix<Integer> mat = new Matrix<>(2, 2, field);
 			mat.set(0, 0, random.nextInt(field.size));
 			mat.set(0, 1, random.nextInt(field.size));
 			mat.set(1, 0, random.nextInt(field.size));
@@ -143,7 +143,7 @@ public final class MatrixTest {
 			int size = (int)(Math.sqrt(random.nextDouble()) * 5) + 2;
 			size = Math.max(Math.min(size, 6), 1);
 			
-			Matrix<Integer> mat = new Matrix<Integer>(size, size, field);
+			Matrix<Integer> mat = new Matrix<>(size, size, field);
 			for (int j = 0; j < size; j++) {
 				for (int k = 0; k < size; k++)
 					mat.set(j, k, random.nextInt(field.size));
@@ -181,7 +181,7 @@ public final class MatrixTest {
 			int size = (int)(Math.sqrt(random.nextDouble()) * 9) + 2;
 			size = Math.max(Math.min(size, 10), 1);
 			
-			Matrix<Integer> mat = new Matrix<Integer>(size, size, field);
+			Matrix<Integer> mat = new Matrix<>(size, size, field);
 			for (int j = 0; j < size; j++) {
 				for (int k = 0; k < size; k++)
 					mat.set(j, k, random.nextInt(field.size));

@@ -1,7 +1,7 @@
 /* 
  * Compact hash set test
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/compact-hash-map-java
  * 
  * (MIT License)
@@ -38,7 +38,7 @@ public final class CompactHashSetTest {
 	/* Test cases */
 	
 	@Test public void testAdd() {
-		CompactHashSet<String> set = new CompactHashSet<String>(TRANSLATOR);
+		CompactHashSet<String> set = new CompactHashSet<>(TRANSLATOR);
 		assertTrue(set.add("a"));
 		assertTrue(set.add("b"));
 		assertTrue(set.add("c"));
@@ -58,7 +58,7 @@ public final class CompactHashSetTest {
 	
 	
 	@Test public void testSize() {
-		CompactHashSet<String> set = new CompactHashSet<String>(TRANSLATOR);
+		CompactHashSet<String> set = new CompactHashSet<>(TRANSLATOR);
 		set.checkStructure();
 		assertEquals(0, set.size());
 		set.add("xy");
@@ -76,7 +76,7 @@ public final class CompactHashSetTest {
 	
 	
 	@Test public void testMediumSimple() {
-		Set<String> set = new CompactHashSet<String>(TRANSLATOR);
+		Set<String> set = new CompactHashSet<>(TRANSLATOR);
 		for (int i = 0; i < 10000; i++) {
 			assertTrue(set.add(Integer.toString(i, 2)));
 			assertEquals(i + 1, set.size());
@@ -87,8 +87,8 @@ public final class CompactHashSetTest {
 	
 	
 	@Test public void testMediumSeesaw() {
-		Set<String> set0 = new HashSet<String>();
-		CompactHashSet<String> set1 = new CompactHashSet<String>(TRANSLATOR);
+		Set<String> set0 = new HashSet<>();
+		CompactHashSet<String> set1 = new CompactHashSet<>(TRANSLATOR);
 		for (int i = 0; i < 30; i++) {
 			// Generate random data
 			String[] objs = new String[rand.nextInt(30000)];
@@ -120,8 +120,8 @@ public final class CompactHashSetTest {
 	
 	
 	@Test public void testLargeRandomly() {
-		Set<String> set0 = new HashSet<String>();
-		CompactHashSet<String> set1 = new CompactHashSet<String>(TRANSLATOR);
+		Set<String> set0 = new HashSet<>();
+		CompactHashSet<String> set1 = new CompactHashSet<>(TRANSLATOR);
 		for (int i = 0; i < 1000000; i++) {
 			String obj = Integer.toString(rand.nextInt(100000), 36);
 			int op = rand.nextInt(10);
@@ -147,8 +147,8 @@ public final class CompactHashSetTest {
 				objs[j] = Integer.toString(rand.nextInt(100000), 36);  // Can produce duplicates
 			
 			// Do insertions and removals
-			Set<String> set0 = new HashSet<String>();
-			CompactHashSet<String> set1 = new CompactHashSet<String>(TRANSLATOR);
+			Set<String> set0 = new HashSet<>();
+			CompactHashSet<String> set1 = new CompactHashSet<>(TRANSLATOR);
 			for (int j = 0; j < n / 2; j++) {
 				set0.add(objs[j]);
 				set1.add(objs[j]);
@@ -176,8 +176,8 @@ public final class CompactHashSetTest {
 				objs[j] = Integer.toString(rand.nextInt(100000), 36);  // Can produce duplicates
 			
 			// Do insertions and removals
-			Set<String> set0 = new HashSet<String>();
-			CompactHashSet<String> set1 = new CompactHashSet<String>(TRANSLATOR);
+			Set<String> set0 = new HashSet<>();
+			CompactHashSet<String> set1 = new CompactHashSet<>(TRANSLATOR);
 			for (int j = 0; j < n / 2; j++) {
 				set0.add(objs[j]);
 				set1.add(objs[j]);

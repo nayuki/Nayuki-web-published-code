@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (Java)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * (MIT License)
@@ -359,7 +359,7 @@ public final class AvlTreeListTest {
 	// Comprehensively tests all the defined methods.
 	@Test public void testAgainstJavaListRandomly() {
 		Random rand = new Random();
-		List<Integer> list0 = new ArrayList<Integer>();
+		List<Integer> list0 = new ArrayList<>();
 		List<Integer> list1 = newList();
 		int size = 0;
 		for (int i = 0; i < 100000; i++) {
@@ -450,7 +450,7 @@ public final class AvlTreeListTest {
 	// This test suite is valid for any java.util.List, not only AvlTreeList.
 	// You could substitute other classes in this instantiation here.
 	private static <E> List<E> newList() {
-		return new AvlTreeList<E>();
+		return new AvlTreeList<>();
 	}
 	
 	

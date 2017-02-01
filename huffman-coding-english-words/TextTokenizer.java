@@ -1,7 +1,7 @@
 /* 
  * Text tokenizer
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/huffman-coding-english-words
  */
@@ -40,7 +40,7 @@ final class TextTokenizer {
 		
 	
 	public static List<TextToken> tokenize(String text) {
-		List<TextToken> result = new ArrayList<TextToken>();
+		List<TextToken> result = new ArrayList<>();
 		TextTokenizer toker = new TextTokenizer(text);
 		while (true) {
 			TextToken tok = toker.next();

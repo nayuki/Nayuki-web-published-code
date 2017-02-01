@@ -46,7 +46,7 @@ public final class ReedSolomon<E> {
 	/**
 	 * Constructs a Reed-Solomon encoder-decoder with the specified field, lengths, and other parameters.
 	 * <p>Note: The class argument is used like this:
-	 * {@code ReedSolomon<Integer> rs = new ReedSolomon<Integer>(f, gen, Integer.class, msgLen, eccLen);}</p>
+	 * {@code ReedSolomon<Integer> rs = new ReedSolomon<>(f, gen, Integer.class, msgLen, eccLen);}</p>
 	 * @param f the field for all values and operations (not {@code null})
 	 * @param gen a generator of the field {@code f} (not {@code null})
 	 * @param elemType the class object for the type parameter {@code E} (not {@code null})
@@ -254,7 +254,7 @@ public final class ReedSolomon<E> {
 			throw new IllegalArgumentException();
 		
 		// Copy syndrome values into augmented matrix
-		Matrix<E> matrix = new Matrix<E>(numErrorsToCorrect, numErrorsToCorrect + 1, f);
+		Matrix<E> matrix = new Matrix<>(numErrorsToCorrect, numErrorsToCorrect + 1, f);
 		for (int r = 0; r < matrix.rowCount(); r++) {
 			for (int c = 0; c < matrix.columnCount(); c++) {
 				E val = syndromes[r + c];
@@ -341,7 +341,7 @@ public final class ReedSolomon<E> {
 			throw new IllegalArgumentException();
 		
 		// Calculate and copy values into matrix
-		Matrix<E> matrix = new Matrix<E>(syndromes.length, errLocs.length + 1, f);
+		Matrix<E> matrix = new Matrix<>(syndromes.length, errLocs.length + 1, f);
 		for (int c = 0; c < matrix.columnCount() - 1; c++) {
 			E genPow = pow(generator, errLocs[c]);
 			E genPowPow = f.one();

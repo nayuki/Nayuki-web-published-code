@@ -1,7 +1,7 @@
 /* 
  * Binomial heap test (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/binomial-heap
  * 
  * (MIT License)
@@ -79,8 +79,8 @@ public final class BinomialHeapTest {
 	// Comprehensively tests all the defined methods
 	@Test public void testAgainstJavaPriorityQueueRandomly() {
 		Random rand = new Random();
-		BinomialHeap<Integer> heap = new BinomialHeap<Integer>();
-		PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
+		BinomialHeap<Integer> heap = new BinomialHeap<>();
+		PriorityQueue<Integer> queue = new PriorityQueue<>();
 		int size = 0;
 		for (int i = 0; i < 100000; i++) {
 			int op = rand.nextInt(100);
@@ -107,7 +107,7 @@ public final class BinomialHeapTest {
 				
 			} else if (op < 70) {  // Merge
 				int n = rand.nextInt(100) + 1;
-				BinomialHeap<Integer> temp = new BinomialHeap<Integer>();
+				BinomialHeap<Integer> temp = new BinomialHeap<>();
 				for (int j = 0; j < n; j++) {
 					int val = rand.nextInt(10000);
 					queue.add(val);

@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Java)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * (MIT License)
@@ -178,7 +178,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 			assert 0 <= index && index <= size;
 			if (this == emptyLeafNode) {
 				if (index == 0)
-					return new Node<E>(obj);
+					return new Node<>(obj);
 				else
 					throw new IndexOutOfBoundsException();
 			}
@@ -341,7 +341,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		
 		public Iter() {
-			stack = new Stack<Node<E>>();
+			stack = new Stack<>();
 			Node<E> node = root;
 			while (node != Node.emptyLeafNode) {
 				stack.push(node);

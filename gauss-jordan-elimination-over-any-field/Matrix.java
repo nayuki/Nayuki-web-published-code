@@ -122,7 +122,7 @@ public final class Matrix<E> implements Cloneable {
 	public Matrix<E> transpose() {
 		int rows = rowCount();
 		int cols = columnCount();
-		Matrix<E> result = new Matrix<E>(cols, rows, f);
+		Matrix<E> result = new Matrix<>(cols, rows, f);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++)
 				result.values[j][i] = values[i][j];
@@ -222,7 +222,7 @@ public final class Matrix<E> implements Cloneable {
 		int rows = rowCount();
 		int cols = other.columnCount();
 		int cells = columnCount();
-		Matrix<E> result = new Matrix<E>(rows, cols, f);
+		Matrix<E> result = new Matrix<>(rows, cols, f);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				E sum = f.zero();
@@ -300,7 +300,7 @@ public final class Matrix<E> implements Cloneable {
 			throw new IllegalStateException("Matrix dimensions are not square");
 		
 		// Build augmented matrix: [this | identity]
-		Matrix<E> temp = new Matrix<E>(rows, cols * 2, f);
+		Matrix<E> temp = new Matrix<>(rows, cols * 2, f);
 		for (int i = 0; i < rows; i++) {
 			for (int j = 0; j < cols; j++) {
 				temp.set(i, j, get(i, j));

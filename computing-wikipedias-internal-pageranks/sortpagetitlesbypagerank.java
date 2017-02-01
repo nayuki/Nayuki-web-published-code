@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -48,7 +48,7 @@ public final class sortpagetitlesbypagerank {
 		Map<String,Integer> titleToId = PageIdTitleMap.readRawFile(PAGE_ID_TITLE_RAW_FILE);
 		
 		// Read page titles to sort
-		Set<String> titles = new HashSet<String>();
+		Set<String> titles = new HashSet<>();
 		BufferedReader in0 = new BufferedReader(new InputStreamReader(new FileInputStream(PAGE_TITLES_INPUT_FILE), "UTF-8"));
 		try {
 			while (true) {
@@ -77,7 +77,7 @@ public final class sortpagetitlesbypagerank {
 		}
 		
 		// Sort and write output
-		List<Entry> entries = new ArrayList<Entry>();
+		List<Entry> entries = new ArrayList<>();
 		for (String title : titles)
 			entries.add(new Entry(pageranks[titleToId.get(title)], title));
 		Collections.sort(entries);

@@ -1,7 +1,7 @@
 /* 
  * Word-based sort coding encoder
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/huffman-coding-english-words
  */
@@ -46,7 +46,7 @@ public final class SortTextEncoder {
 		// Group words by frequency
 		// e.g. {256:[the], 137:[a], 89:[in], 50:[if,is,on], ..., 2:[garden,little,sends,trolling,...]}
 		// Frequency keys are in descending order; word list values are in ascending order
-		TreeMap<Integer,List<String>> freqWord = new TreeMap<Integer,List<String>>(Collections.reverseOrder());
+		TreeMap<Integer,List<String>> freqWord = new TreeMap<>(Collections.reverseOrder());
 		for (String word : wordFreq.keySet()) {
 			Integer freq = wordFreq.get(word);
 			if (freq > 1) {  // Don't give codewords to hapax legomena (freq=1) for space efficiency reasons

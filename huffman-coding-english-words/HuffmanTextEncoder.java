@@ -1,7 +1,7 @@
 /* 
  * Word-based Huffman coding encoder
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/huffman-coding-english-words
  */
@@ -156,7 +156,7 @@ public final class HuffmanTextEncoder {
 		Map<String,String> wordToCodeword = new HashMap<String,String>();
 		if (!wordFreq.isEmpty()) {
 			// Build Huffman tree
-			Queue<HuffmanNode> queue = new PriorityQueue<HuffmanNode>();
+			Queue<HuffmanNode> queue = new PriorityQueue<>();
 			for (String word : wordFreq.keySet())
 				queue.add(new LeafNode(word, wordFreq.get(word)));
 			
@@ -166,7 +166,7 @@ public final class HuffmanTextEncoder {
 				int take = queue.size() % 51;
 				if (take <= 1 && queue.size() >= 51)
 					take += 51;
-				List<HuffmanNode> children = new ArrayList<HuffmanNode>();
+				List<HuffmanNode> children = new ArrayList<>();
 				for (int i = 0; i < take; i++)
 					children.add(queue.remove());
 				Collections.reverse(children);

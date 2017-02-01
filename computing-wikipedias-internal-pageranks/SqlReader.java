@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -61,11 +61,11 @@ final class SqlReader {
 	
 	
 	private static List<List<Object>> parseTuples(String text) {
-		List<List<Object>> result = new ArrayList<List<Object>>();
+		List<List<Object>> result = new ArrayList<>();
 		
 		// Finite-state machine (ugly)
 		int state = 0;
-		List<Object> tuple = new ArrayList<Object>();
+		List<Object> tuple = new ArrayList<>();
 		int tokenStart = -1;
 		for (int i = 0; i < text.length(); i++) {
 			char c = text.charAt(i);

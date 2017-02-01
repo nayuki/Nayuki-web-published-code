@@ -1,7 +1,7 @@
 /* 
  * Binary array set test (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/binary-array-set
  * 
  * (MIT License)
@@ -45,12 +45,12 @@ public final class BinaryArraySetTest {
 	
 	
 	@Test public void testConstructFromExisting() {
-		List<Integer> list = new ArrayList<Integer>();
+		List<Integer> list = new ArrayList<>();
 		list.add(1);
 		list.add(5);
 		list.add(5);
 		list.add(8);
-		Set<Integer> set = new BinaryArraySet<Integer>(list);
+		Set<Integer> set = new BinaryArraySet<>(list);
 		assertEquals(3, set.size());
 		assertTrue(set.contains(1));
 		assertTrue(set.contains(5));
@@ -92,7 +92,7 @@ public final class BinaryArraySetTest {
 		for (int i = 1; i <= 100; i++) {
 			set.add((i - 1) * (i - 1));
 			
-			List<Integer> list = new ArrayList<Integer>(set);
+			List<Integer> list = new ArrayList<>(set);
 			Collections.sort(list);
 			assertEquals(i, list.size());
 			
@@ -105,7 +105,7 @@ public final class BinaryArraySetTest {
 	// Comprehensively tests all the defined methods
 	@Test public void testAgainstJavaListRandomly() {
 		Random rand = new Random();
-		Set<Integer> set0 = new HashSet<Integer>();
+		Set<Integer> set0 = new HashSet<>();
 		Set<Integer> set1 = newSet();
 		int size = 0;
 		for (int i = 0; i < 10000; i++) {
@@ -124,8 +124,8 @@ public final class BinaryArraySetTest {
 				size = 0;
 				
 			} else if (op < 3) {  // Check iterator fully
-				List<Integer> list0 = new ArrayList<Integer>(set0);
-				List<Integer> list1 = new ArrayList<Integer>(set1);
+				List<Integer> list0 = new ArrayList<>(set0);
+				List<Integer> list1 = new ArrayList<>(set1);
 				Collections.sort(list0);
 				Collections.sort(list1);
 				assertEquals(list0, list1);
