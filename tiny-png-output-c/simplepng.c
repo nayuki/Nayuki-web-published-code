@@ -1,7 +1,7 @@
 /* 
  * Simple sample image using Tiny PNG Output (C)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #include "TinyPngOut.h"
 
 
-int main(int argc, char **argv) {
+int main(void) {
 	// Sample image data:
 	//   [red    , green , blue]
 	//   [magenta, yellow, cyan]

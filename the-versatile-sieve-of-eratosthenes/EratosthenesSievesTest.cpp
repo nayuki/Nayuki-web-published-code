@@ -98,7 +98,7 @@ void testPrefixConsistency() {
 }
 
 
-int main(int argc, char **argv) {
+int main() {
 	testValues();
 	testPrefixConsistency();
 	return EXIT_SUCCESS;

@@ -1,7 +1,7 @@
 /* 
  * RC4 stream cipher in C and x86 assembly
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/rc4-cipher-in-x86-assembly
  * 
  * (MIT License)
@@ -46,7 +46,7 @@ static bool self_check(void);
 
 /* Main program */
 
-int main(int argc, char **argv) {
+int main(void) {
 	if (!self_check()) {
 		printf("Self-check failed\n");
 		return EXIT_FAILURE;

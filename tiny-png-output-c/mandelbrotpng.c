@@ -1,7 +1,7 @@
 /* 
  * Mandlebrot image using Tiny PNG Output (C)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -48,7 +48,7 @@ static uint32_t mandelbrot(double x, double y);
 
 /* Function implementations */
 
-int main(int argc, char **argv) {
+int main(void) {
 	// Initialize
 	FILE *fout = fopen("demo-mandelbrot.png", "wb");
 	struct TinyPngOut pngout;

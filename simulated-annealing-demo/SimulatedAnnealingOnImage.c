@@ -1,7 +1,7 @@
 /* 
  * Simulated annealing on image demo (C)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/simulated-annealing-demo
  */
@@ -46,7 +46,7 @@ int abs(int x);
 
 /*---- Main program ----*/
 
-int main(int argc, char **argv) {
+int main(void) {
 	// Create initial image state deterministically
 	struct MtRandom mt;
 	uint32_t raw_pixels[WIDTH * (HEIGHT + 2)];

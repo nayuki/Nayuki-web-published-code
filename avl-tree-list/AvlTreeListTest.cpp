@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (C++)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * (MIT License)
@@ -30,7 +30,7 @@
 
 
 // Comprehensively tests all the defined methods against std::vector
-int main(int argc, char *argv[]) {
+int main() {
 	try {
 		srand(time(nullptr));
 		std::vector<int> list0;

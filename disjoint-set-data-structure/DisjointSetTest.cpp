@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (C++)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * (MIT License)
@@ -183,7 +183,7 @@ static void testAgainstNaiveRandomly() {
 
 /*---- Main runner ----*/
 
-int main(int argc, char **argv) {
+int main() {
 	try {
 		srand(time(nullptr));
 		testNew();

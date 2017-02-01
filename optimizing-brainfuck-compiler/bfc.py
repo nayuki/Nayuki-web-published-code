@@ -235,7 +235,7 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 		result += indent("return (uint8_t)(temp != EOF ? temp : 0);", 1)
 		result += indent("}", 0)
 		result += indent("", 0)
-		result += indent("int main(int argc, char **argv) {", 0)
+		result += indent("int main(void) {", 0)
 		result += indent("uint8_t mem[1000000] = {0};")
 		result += indent("uint8_t *p = &mem[1000];")
 		result += indent("")

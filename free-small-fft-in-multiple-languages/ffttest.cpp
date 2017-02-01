@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C++)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -49,7 +49,7 @@ static double maxLogError = -INFINITY;
 
 /* Main and test functions */
 
-int main(int argc, char **argv) {
+int main() {
 	srand(time(nullptr));
 	
 	// Test power-of-2 size FFTs

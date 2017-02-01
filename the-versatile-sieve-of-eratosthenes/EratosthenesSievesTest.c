@@ -104,7 +104,7 @@ void test_prefix_consistency(void) {
 }
 
 
-int main(int argc, char **argv) {
+int main(void) {
 	test_values();
 	test_prefix_consistency();
 	return EXIT_SUCCESS;

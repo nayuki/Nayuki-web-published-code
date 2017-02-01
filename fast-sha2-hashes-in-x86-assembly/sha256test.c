@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in C and x86 assembly
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * (MIT License)
@@ -42,7 +42,7 @@ extern void sha256_compress(uint32_t state[8], const uint8_t block[64]);
 
 /* Main program */
 
-int main(int argc, char **argv) {
+int main(void) {
 	if (!self_check()) {
 		printf("Self-check failed\n");
 		return EXIT_FAILURE;

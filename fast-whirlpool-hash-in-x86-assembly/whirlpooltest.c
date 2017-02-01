@@ -1,7 +1,7 @@
 /* 
  * Whirlpool hash in C and x86 assembly
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/fast-whirlpool-hash-in-x86-assembly
  * 
  * (MIT License)
@@ -41,7 +41,7 @@ extern void whirlpool_compress(uint8_t state[64], const uint8_t block[64]);
 
 /* Main program */
 
-int main(int argc, char **argv) {
+int main(void) {
 	if (!self_check()) {
 		printf("Self-check failed\n");
 		return EXIT_FAILURE;

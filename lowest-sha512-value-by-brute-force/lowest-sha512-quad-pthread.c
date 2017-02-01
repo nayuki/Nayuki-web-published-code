@@ -65,7 +65,7 @@ static int finished_threads = 0;
 
 /* Main program */
 
-int main(int argc, char **argv) {
+int main(void) {
 	// Sanity test
 	if (!self_check()) {
 		fprintf(stderr, "Self-check failed\n");
