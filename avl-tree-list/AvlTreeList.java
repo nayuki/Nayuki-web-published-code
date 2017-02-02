@@ -33,9 +33,13 @@ import java.util.Stack;
 
 public final class AvlTreeList<E> extends AbstractList<E> {
 	
+	/*---- Fields ----*/
+	
 	private Node<E> root;  // Never null
 	
 	
+	
+	/*---- Constructors ----*/
 	
 	public AvlTreeList() {
 		clear();
@@ -48,6 +52,8 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	// Must not exceed Integer.MAX_VALUE.
 	public int size() {
@@ -111,11 +117,15 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	
 	
+	/*---- Helper class: AVL tree node ----*/
+	
 	private static final class Node<E> {
 		
 		// A bit of a hack, but more elegant than using null values as leaf nodes.
 		public static final Node<?> emptyLeafNode = new Node<Object>();
 		
+		
+		/*-- Fields --*/
 		
 		// The object stored at this node. Can be null.
 		public E value;
@@ -135,6 +145,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		public Node<E> right;
 		
 		
+		/*-- Constructors --*/
 		
 		// For the singleton empty leaf node.
 		private Node() {
@@ -157,6 +168,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		}
 		
 		
+		/*-- Methods --*/
 		
 		public Node<E> getNodeAt(int index) {
 			assert 0 <= index && index < size;
@@ -333,11 +345,17 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	
 	
+	/*---- Helper class: Binary search tree iterator ----*/
+	
 	// Note: Not fail-fast on concurrent modification.
 	private final class Iter implements Iterator<E> {
 		
+		/*-- Fields --*/
+		
 		private Stack<Node<E>> stack;
 		
+		
+		/*-- Constructors --*/
 		
 		public Iter() {
 			stack = new Stack<>();
@@ -348,6 +366,8 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 			}
 		}
 		
+		
+		/*-- Methods --*/
 		
 		public boolean hasNext() {
 			return !stack.isEmpty();

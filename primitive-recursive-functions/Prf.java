@@ -1,7 +1,7 @@
 /* 
  * Primitive recursive functions (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/primitive-recursive-functions
  */
@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 public abstract class Prf {
 	
-	/* ---- Instance methods ---- */
+	/*---- Instance methods ----*/
 	
 	public Prf() {}
 	
@@ -23,7 +23,7 @@ public abstract class Prf {
 	
 	
 	
-	/* ---- Constants/factories for primitive recursive functions ---- */
+	/*---- Constants/factories for primitive recursive functions ----*/
 	
 	// Zero function: Z(x) = 0
 	public static final Prf Z = new Prf() {
@@ -146,11 +146,11 @@ public abstract class Prf {
 	
 	
 	
-	/* ---- Library of primitive recursive functions ---- */
+	/*---- Library of primitive recursive functions ----*/
 	
 	// The ordering is unnatural (especially compared to the Haskell version) because some functions depend on others, and the dependency must be at the top.
 	
-	// -- Early functions --
+	/*-- Early functions --*/
 	
 	// Constant: konst_{n}(x) = n
 	// This is actually a PRF generator
@@ -170,7 +170,7 @@ public abstract class Prf {
 	public static final Prf mux = R(I(2,1), I(4,2));
 	
 	
-	// -- Boolean functions --
+	/*-- Boolean functions --*/
 	// 0 means false, 1 means true, and all other input values yield arbitrary output values
 	
 	// Negation (NOT): not(x)
@@ -186,7 +186,7 @@ public abstract class Prf {
 	public static final Prf xor = R(I(1,0), C(not, I(3,2)));
 	
 	
-	// -- Arithmetic functions --
+	/*-- Arithmetic functions --*/
 	
 	// Predecessor: pred(0) = 0; pred(x) = x - 1
 	public static final Prf pred = C(R(Z, I(3,1)), I(1,0), Z);
@@ -219,7 +219,7 @@ public abstract class Prf {
 	public static final Prf factorial = C(R(konst(1), C(mul, C(S, I(3,1)), I(3,0))), I(1,0), Z);
 	
 	
-	// -- Comparison functions --
+	/*-- Comparison functions --*/
 	// Every function returns only Boolean values, i.e. 0 or 1
 	
 	// Is nonzero: nz(x) = if x == 0 then 0 else 1
@@ -244,7 +244,7 @@ public abstract class Prf {
 	public static final Prf ge = C(z, subrev);
 	
 	
-	// -- Late functions --
+	/*-- Late functions --*/
 	
 	// Is even: even(x) = if x mod 2 == 0 then 1 else 0
 	public static final Prf even = C(R(konst(1), C(not, I(3,0))), I(1,0), Z);
@@ -291,7 +291,7 @@ public abstract class Prf {
 	public static final Prf fibonacci = C(mod, C(fib2, I(1,0), Z), C(pow, konst(2), I(1,0)));
 	
 	
-	// -- Bitwise functions --
+	/*-- Bitwise functions --*/
 	
 	// Left shift: shl(x, y) = x << y
 	public static final Prf shl = C(mul, I(2,0), C(pow, C(konst(2), I(2,0)), I(2,1)));

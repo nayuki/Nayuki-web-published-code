@@ -32,12 +32,16 @@ import java.util.NoSuchElementException;
 
 public final class BinaryArraySet<E extends Comparable<? super E>> extends AbstractSet<E> {
 	
+	/*---- Fields ----*/
+	
 	// For each i, values[i] is either null or it's an ascending-sorted array of length 2^i
 	private E[][] values;
 	
 	private int size;
 	
 	
+	
+	/*---- Constructors ----*/
 	
 	// Runs in O(1) time
 	public BinaryArraySet() {
@@ -63,6 +67,8 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	// Runs in O(1) time
 	public int size() {
@@ -168,12 +174,18 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	
 	
+	/*---- Helper class: Binary array set iterator ----*/
+	
 	// Note: Not fail-fast on concurrent modification
 	private final class Iter implements Iterator<E> {
+		
+		/*-- Fields --*/
 		
 		private int index;
 		private int subIndex;
 		
+		
+		/*-- Constructors --*/
 		
 		// Constructor runs in O(log n) time
 		public Iter() {
@@ -183,6 +195,8 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 			subIndex = 0;
 		}
 		
+		
+		/*-- Methods --*/
 		
 		// Runs in O(1) time
 		public boolean hasNext() {

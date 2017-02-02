@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Simple library (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * (MIT License)
@@ -100,7 +100,8 @@ public final class SimpleDisjointSet {
 	}
 	
 	
-	/*---- Helper class ----*/
+	
+	/*---- Helper class: Simple node ----*/
 	
 	private static final class Node {
 		

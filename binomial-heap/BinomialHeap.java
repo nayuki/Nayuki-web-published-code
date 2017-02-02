@@ -1,7 +1,7 @@
 /* 
  * Binomial heap (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/binomial-heap
  * 
  * (MIT License)
@@ -28,15 +28,21 @@ import java.util.Iterator;
 
 public final class BinomialHeap<E extends Comparable<? super E>> extends AbstractQueue<E> {
 	
+	/*---- Fields ----*/
+	
 	private Node<E> head;
 	
 	
+	
+	/*---- Constructors ----*/
 	
 	public BinomialHeap() {
 		head = new Node<E>();  // Dummy node
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	public int size() {
 		int result = 0;
@@ -168,7 +174,11 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	
 	
 	
+	/*---- Helper class: Binomial heap node ----*/
+	
 	private static final class Node<E> {
+		
+		/*-- Fields --*/
 		
 		public E value;
 		public int rank;
@@ -177,6 +187,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		public Node<E> next;
 		
 		
+		/*-- Constructors --*/
 		
 		// Dummy sentinel node at head of list
 		public Node() {
@@ -194,6 +205,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		}
 		
 		
+		/*-- Methods --*/
 		
 		public Node<E> removeRoot() {
 			assert next == null;

@@ -34,7 +34,7 @@ import java.util.NoSuchElementException;
  */
 public final class CompactHashSet<E> extends AbstractSet<E> {
 	
-	/* Fields */
+	/*---- Fields ----*/
 	
 	private byte[][] table;  // Length is always a power of 2. Each element is either null, tombstone, or data. At least one element must be null.
 	private int lengthBits;  // Equal to log2(table.length)
@@ -46,7 +46,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	
 	
 	
-	/* Constructors */
+	/*---- Constructors ----*/
 	
 	public CompactHashSet(CompactSetTranslator<E> trans) {
 		if (trans == null)
@@ -58,7 +58,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	
 	
 	
-	/* Basic methods */
+	/*---- Basic methods ----*/
 	
 	public void clear() {
 		size = 0;
@@ -120,7 +120,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	}
 	
 	
-	/* Helper methods */
+	/*---- Helper methods ----*/
 	
 	// Returns either a match index (non-negative) or the bitwise complement of the first empty slot index (negative).
 	private int probe(E obj) {
@@ -201,7 +201,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	}
 	
 	
-	/* Advanced methods */
+	/*---- Advanced methods ----*/
 	
 	public Iterator<E> iterator() {
 		return new Iter();
@@ -246,7 +246,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	
 	
 	
-	/* Helper classes */
+	/*---- Helper classes ----*/
 	
 	private final class Iter implements Iterator<E> {
 		

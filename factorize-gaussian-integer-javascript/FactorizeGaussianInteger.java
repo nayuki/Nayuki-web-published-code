@@ -11,7 +11,7 @@
  * - Command line: java FactorizeGaussianInteger "5 + 9i"
  *   Output: (1 + 1i)(7 + 2i)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
@@ -41,14 +41,14 @@ public final class FactorizeGaussianInteger {
 // Immutable complex number where real and imag are integers, and (0 <= abs(real), abs(imag) < 2^31).
 final class GaussianInteger {
 	
-	/* Fields */
+	/*---- Fields ----*/
 	
 	public final int real;
 	public final int imag;
 	
 	
 	
-	/* Constructors */
+	/*---- Constructors ----*/
 	
 	public GaussianInteger(int real, int imag) {
 		if (real == Integer.MIN_VALUE || imag == Integer.MIN_VALUE)
@@ -96,7 +96,7 @@ final class GaussianInteger {
 	
 	
 	
-	/* Methods */
+	/*---- Methods ----*/
 	
 	public long norm() {
 		return (long)real * real + (long)imag * imag;  // Does not overflow

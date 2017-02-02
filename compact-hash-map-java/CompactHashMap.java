@@ -37,7 +37,7 @@ import java.util.Set;
  */
 public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	
-	/* Fields */
+	/*---- Fields ----*/
 	
 	private byte[][] table;  // Length is always a power of 2. Each element is either null, tombstone, or data. At least one element must be null.
 	private int lengthBits;  // Equal to log2(table.length)
@@ -49,7 +49,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	
 	
 	
-	/* Constructors */
+	/*---- Constructors ----*/
 	
 	public CompactHashMap(CompactMapTranslator<K,V> trans) {
 		if (trans == null)
@@ -61,7 +61,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	
 	
 	
-	/* Basic methods */
+	/*---- Basic methods ----*/
 	
 	public void clear() {
 		size = 0;
@@ -143,7 +143,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	}
 	
 	
-	/* Helper methods */
+	/*---- Helper methods ----*/
 	
 	// Returns either a match index (non-negative) or the bitwise complement of the first empty slot index (negative).
 	private int probe(K key) {
@@ -224,7 +224,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	}
 	
 	
-	/* Advanced methods */
+	/*---- Advanced methods ----*/
 	
 	// Note: The returned entry set's iterator does not support {@code remove()},
 	// and the returned map entries do not support {@code setValue()}.
@@ -272,7 +272,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	
 	
 	
-	/* Helper classes */
+	/*---- Helper classes ----*/
 	
 	// For the entrySet() method.
 	private final class EntrySet extends AbstractSet<Map.Entry<K,V>> {
