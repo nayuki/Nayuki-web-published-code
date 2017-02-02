@@ -23,8 +23,8 @@
  */
 
 #include <cstdlib>
-#include <ctime>
 #include <iostream>
+#include <random>
 #include <vector>
 #include "DisjointSet.hpp"
 
@@ -75,6 +75,11 @@ public:
 		return repr0 != repr1;
 	}
 };
+
+
+// Random number generation global variables
+std::default_random_engine randGen((std::random_device())());
+std::uniform_real_distribution<double> realDist(0.0, 1.0);
 
 
 static void assertEquals(bool expected, bool actual) {
@@ -148,8 +153,8 @@ static void testBigMerge() {
 		// Do random tests
 		int mask = -incrStep;  // 0b11...100...00
 		for (int i = 0; i < trials; i++) {
-			int j = rand() % numElems;
-			int k = rand() % numElems;
+			int j = (std::uniform_int_distribution<int>(0, numElems - 1))(randGen);
+			int k = (std::uniform_int_distribution<int>(0, numElems - 1))(randGen);
 			bool expect = (j & mask) == (k & mask);
 			assertEquals(true, ds.areInSameSet(j, k) == expect);
 		}
@@ -166,14 +171,14 @@ static void testAgainstNaiveRandomly() {
 		NaiveDisjointSet nds(numElems);
 		DisjointSet ds(numElems);
 		for (int j = 0; j < iterations; j++) {
-			int k = rand() % numElems;
-			int l = rand() % numElems;
+			int k = (std::uniform_int_distribution<int>(0, numElems - 1))(randGen);
+			int l = (std::uniform_int_distribution<int>(0, numElems - 1))(randGen);
 			assertEquals(true, ds.getSizeOfSet(k) == nds.getSizeOfSet(k));
 			assertEquals(true, ds.areInSameSet(k, l) == nds.areInSameSet(k, l));
-			if ((double)rand() / RAND_MAX < 0.1)
+			if (realDist(randGen) < 0.1)
 				assertEquals(true, ds.mergeSets(k, l) == nds.mergeSets(k, l));
 			assertEquals(nds.getNumberOfSets(), ds.getNumberOfSets());
-			if ((double)rand() / RAND_MAX < 0.001)
+			if (realDist(randGen) < 0.001)
 				ds.checkStructure();
 		}
 		ds.checkStructure();

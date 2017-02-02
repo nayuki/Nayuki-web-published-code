@@ -24,21 +24,27 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <ctime>
 #include <iostream>
+#include <random>
 #include <queue>
 #include "BinomialHeap.hpp"
+
+
+// Random number generation global variables
+std::default_random_engine randGen((std::random_device())());
+std::uniform_int_distribution<int> operationDist(0, 99);
+std::uniform_int_distribution<int> opCountDist(1, 100);
+std::uniform_int_distribution<int> valueDist(0, 9999);
 
 
 // Comprehensively tests all the defined methods against std::priority_queue
 int main() {
 	try {
-		srand(time(nullptr));
 		std::priority_queue<int,std::vector<int>,std::greater<int> > queue;  // std::greater effects a min-queue
 		BinomialHeap<int> heap;
 		size_t size = 0;
 		for (int i = 0; i < 300000; i++) {
-			int op = rand() % 100;
+			int op = operationDist(randGen);
 			
 			if (op < 1) {  // Clear
 				heap.checkStructure();
@@ -52,16 +58,16 @@ int main() {
 					throw "Peek mismatch";
 				
 			} else if (op < 70) {  // Push
-				int n = rand() % 100 + 1;
+				int n = opCountDist(randGen);
 				for (int j = 0; j < n; j++) {
-					int val = rand() % 10000;
+					int val = valueDist(randGen);
 					queue.push(val);
 					heap.push(val);
 				}
 				size += n;
 				
 			} else if (op < 100) {  // Pop
-				int n = std::min(rand() % 100 + 1, (int)size);
+				int n = std::min(opCountDist(randGen), (int)size);
 				for (int j = 0; j < n; j++) {
 					if (queue.top() != heap.pop())
 						throw "Dequeue mismatch";
@@ -75,9 +81,9 @@ int main() {
 			if (queue.size() != size || heap.size() != size)
 				throw "Heap size mismatch";
 		}
+		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-		
 	} catch (const char *msg) {
 		std::cerr << msg << std::endl;
 		return EXIT_FAILURE;

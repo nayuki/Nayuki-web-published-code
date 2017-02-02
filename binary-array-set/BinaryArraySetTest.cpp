@@ -23,10 +23,17 @@
  */
 
 #include <cstdlib>
-#include <ctime>
 #include <iostream>
+#include <random>
 #include <set>
 #include "BinaryArraySet.hpp"
+
+
+// Random number generation global variables
+std::default_random_engine randGen((std::random_device())());
+std::uniform_int_distribution<int> operationDist(0, 99);
+std::uniform_int_distribution<int> opCountDist(1, 100);
+std::uniform_int_distribution<int> valueDist(0, 9999);
 
 
 // Comprehensively tests all the defined methods against std::set
@@ -37,7 +44,7 @@ int main() {
 		BinaryArraySet<int> set1;
 		size_t size = 0;
 		for (int i = 0; i < 100000; i++) {
-			int op = rand() % 100;
+			int op = operationDist(randGen);
 			
 			if (op < 1) {  // Clear
 				set1.checkStructure();
@@ -46,9 +53,9 @@ int main() {
 				size = 0;
 				
 			} else if (op < 70) {  // Insert
-				int n = rand() % 100 + 1;
+				int n = opCountDist(randGen);
 				for (int j = 0; j < n; j++) {
-					int val = rand() % 10000;
+					int val = valueDist(randGen);
 					if (!set1.contains(val)) {
 						set1.insert(val);
 						set0.insert(val);
@@ -57,9 +64,9 @@ int main() {
 				}
 				
 			} else if (op < 100) {  // Contains
-				int n = rand() % 100 + 1;
+				int n = opCountDist(randGen);
 				for (int j = 0; j < n; j++) {
-					int val = rand() % 10000;
+					int val = valueDist(randGen);
 					if (set1.contains(val) != (set0.find(val) != set0.end()))
 						throw "Contain test mismatch";
 				}
@@ -70,9 +77,9 @@ int main() {
 			if (set0.size() != size || set1.size() != size)
 				throw "Set size mismatch";
 		}
+		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-		
 	} catch (const char *msg) {
 		std::cerr << msg << std::endl;
 		return EXIT_FAILURE;
