@@ -44,8 +44,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	public AvlTreeList(Collection<? extends E> coll) {
 		this();
-		for (E obj : coll)
-			add(obj);
+		addAll(coll);
 	}
 	
 	
@@ -334,7 +333,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	
 	
-	// Not fail-fast on concurrent modification.
+	// Note: Not fail-fast on concurrent modification.
 	private final class Iter implements Iterator<E> {
 		
 		private Stack<Node<E>> stack;

@@ -1,7 +1,7 @@
 # 
 # Binary array set (Python)
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2017 Project Nayuki
 # https://www.nayuki.io/page/binary-array-set
 # 
 # (MIT License)
@@ -46,8 +46,12 @@ class BinaryArraySet(object):
 		self.length = 0
 	
 	
+	# Note: Not fail-fast on concurrent modification
 	def __iter__(self):
-		return BinaryArraySet.Iter(self)
+		for vals in self.values:
+			if vals is not None:
+				for val in vals:
+					yield val
 	
 	
 	# Runs in O((log n)^2) time
@@ -124,33 +128,3 @@ class BinaryArraySet(object):
 						raise AssertionError()
 		if sum != self.length:
 			raise AssertionError()
-	
-	
-	
-	# Not fail-fast on concurrent modification
-	class Iter(object):
-		
-		# Constructor runs in O(log n) time
-		def __init__(self, outer):
-			self.values = outer.values
-			self.index = 0
-			while self.index < len(self.values) and self.values[self.index] is None:
-				self.index += 1
-			self.subindex = 0
-		
-		
-		# Runs in amortized O(1) time, worst-case O(log n) time
-		def __next__(self):  # Python 3
-			if self.index >= len(self.values):
-				raise StopIteration
-			else:
-				result = self.values[self.index][self.subindex]
-				self.subindex += 1
-				if self.subindex == len(self.values[self.index]):
-					self.subindex = 0
-					self.index += 1
-					while self.index < len(self.values) and self.values[self.index] is None:
-						self.index += 1
-				return result
-		
-		next = __next__  # Python 2

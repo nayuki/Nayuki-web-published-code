@@ -162,7 +162,7 @@ class BTreeSet(object):
 					index = node.search(obj)
 	
 	
-	# Note: This iterator is not fail-fast on concurrent modification.
+	# Note: Not fail-fast on concurrent modification.
 	def __iter__(self):
 		if self.size == 0:
 			return

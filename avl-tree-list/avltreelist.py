@@ -1,7 +1,7 @@
 #  
 # AVL tree list (Python)
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2017 Project Nayuki
 # https://www.nayuki.io/page/avl-tree-list
 # 
 # (MIT License)
@@ -72,7 +72,7 @@ class AvlTreeList(object):
 		self.root = AvlTreeList.Node.EMPTY_LEAF_NODE
 	
 	
-	# Note: An iterator is not fail-fast on concurrent modification.
+	# Note: Not fail-fast on concurrent modification.
 	def __iter__(self):
 		stack = []
 		node = self.root

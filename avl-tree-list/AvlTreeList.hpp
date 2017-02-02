@@ -51,6 +51,11 @@ public:
 	}
 	
 	
+	bool empty() const {
+		return root->size == 0;
+	}
+	
+	
 	size_t size() const {
 		return root->size;
 	}

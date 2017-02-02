@@ -1,7 +1,7 @@
 /* 
  * Binary array set (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/binary-array-set
  * 
  * (MIT License)
@@ -168,7 +168,7 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	
 	
-	// Not fail-fast on concurrent modification
+	// Note: Not fail-fast on concurrent modification
 	private final class Iter implements Iterator<E> {
 		
 		private int index;

@@ -228,6 +228,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 	}
 	
 	
+	// Note: Not fail-fast on concurrent modification.
 	public Iterator<E> iterator() {
 		return new Iter();
 	}
