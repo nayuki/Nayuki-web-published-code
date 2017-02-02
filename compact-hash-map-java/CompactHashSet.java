@@ -1,7 +1,7 @@
 /* 
  * Compact hash set
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/compact-hash-map-java
  * 
  * (MIT License)
@@ -248,7 +248,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	
 	/* Helper classes */
 	
-	private class Iter implements Iterator<E> {
+	private final class Iter implements Iterator<E> {
 		
 		private final int myVersion;
 		private int currentIndex;

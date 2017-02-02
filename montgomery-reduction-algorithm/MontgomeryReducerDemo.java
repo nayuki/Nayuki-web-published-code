@@ -1,7 +1,7 @@
 /* 
  * Montgomery reduction algorithm demo (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/montgomery-reduction-algorithm
  */
@@ -12,7 +12,7 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 
 
-public class MontgomeryReducerDemo {
+public final class MontgomeryReducerDemo {
 	
 	public static void main(String[] args) throws IOException {
 		// Prompt user on standard output, parse standard input

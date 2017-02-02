@@ -1,7 +1,7 @@
 /* 
  * Windows timestamp accessor datetime test (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
@@ -12,7 +12,7 @@ import java.util.Random;
 import org.junit.Test;
 
 
-public class WindowsTimestampAccessorDatetimeTest {
+public final class WindowsTimestampAccessorDatetimeTest {
 	
 	/* Test suite */
 	

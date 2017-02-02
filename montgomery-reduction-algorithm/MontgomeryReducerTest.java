@@ -1,7 +1,7 @@
 /* 
  * Montgomery reduction algorithm test (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/montgomery-reduction-algorithm
  */
@@ -13,7 +13,7 @@ import java.util.Random;
 import org.junit.Test;
 
 
-public class MontgomeryReducerTest {
+public final class MontgomeryReducerTest {
 	
 	/* Test suite functions */
 	

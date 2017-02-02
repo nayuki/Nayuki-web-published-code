@@ -6,7 +6,7 @@
  * 
  * Usage: java CompactHashSetDemo regular|compact
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/compact-hash-map-java
  * 
  * (MIT License)
@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-public class CompactHashSetDemo {
+public final class CompactHashSetDemo {
 	
 	public static void main(String[] args) {
 		// Handle arguments

@@ -5,7 +5,7 @@
  * This program uses simulated annealing to permute the columns of the input image to generate an output image,
  * trying to minimize the difference between adjacent columns in an attempt to unscramble the image.
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -17,7 +17,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 
-public class AnnealImageColumns {
+public final class AnnealImageColumns {
 	
 	public static void main(String[] args) throws IOException {
 		// Handle filename arguments

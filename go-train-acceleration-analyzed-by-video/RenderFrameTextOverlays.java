@@ -1,7 +1,7 @@
 /* 
  * Render frame text overlays
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/go-train-acceleration-analyzed-by-video
  */
@@ -148,7 +148,7 @@ public final class RenderFrameTextOverlays {
 	
 	
 	// Based on https://www.nayuki.io/page/sinc-based-image-resampler
-	private static class FastSincImageResampler {
+	private static final class FastSincImageResampler {
 		
 		/* Convenience methods */
 		

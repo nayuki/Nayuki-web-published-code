@@ -4,7 +4,7 @@
  * Usage: java ShuffleImageColumns InFile.{png,bmp} OutFile.png
  * This program randomly permutes the columns of the input image to generate an output image.
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -16,7 +16,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 
-public class ShuffleImageColumns {
+public final class ShuffleImageColumns {
 	
 	public static void main(String[] args) throws IOException {
 		// Handle arguments

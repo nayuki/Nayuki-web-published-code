@@ -1,7 +1,7 @@
 /* 
  * Linear congruential generator (LCG) with fast skipping and backward iteration (Java)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
  */
@@ -9,7 +9,7 @@
 import java.math.BigInteger;
 
 
-public class LcgRandom {
+public final class LcgRandom {
 	
 	/* Demo main program, which runs a correctness check */
 	

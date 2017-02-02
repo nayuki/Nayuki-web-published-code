@@ -26,7 +26,7 @@ import java.util.Random;
 import org.junit.Test;
 
 
-public class smallestenclosingcircletest {
+public final class smallestenclosingcircletest {
 	
 	/*---- Test suite functions ----*/
 	

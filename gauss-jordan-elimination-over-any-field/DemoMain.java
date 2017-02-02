@@ -10,7 +10,7 @@
 /* 
  * Run with no command line arguments.
  */
-public class DemoMain {
+public final class DemoMain {
 	
 	public static void main(String[] args) {
 		// Set up the matrix

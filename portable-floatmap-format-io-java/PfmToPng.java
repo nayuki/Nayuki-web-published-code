@@ -1,7 +1,7 @@
 /* 
  * Portable FloatMap to PNG
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/portable-floatmap-format-io-java
  * 
  * (MIT License)
@@ -34,7 +34,7 @@ import javax.imageio.ImageIO;
  * 
  * Usage: java PfmToPng Input.pfm Output.png
  */
-public class PfmToPng {
+public final class PfmToPng {
 	
 	public static void main(String[] args) throws IOException {
 		// Handle arguments

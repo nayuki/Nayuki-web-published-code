@@ -1,7 +1,7 @@
 /* 
  * Gamma-aware image dithering
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gamma-aware-image-dithering
  */
@@ -12,7 +12,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 
-public class GammaAwareImageDithering {
+public final class GammaAwareImageDithering {
 	
 	public static void main(String[] args) throws IOException {
 		if (args.length != 3 || !(args[1].equals("naive") || args[1].equals("srgb"))) {

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Random;
 
 
-public class smallestenclosingcircle {
+public final class smallestenclosingcircle {
 	
 	/* 
 	 * Returns the smallest circle that encloses all the given points. Runs in expected O(n) time, randomized.
@@ -122,7 +122,7 @@ public class smallestenclosingcircle {
 
 
 
-class Circle {
+final class Circle {
 	
 	private static double MULTIPLICATIVE_EPSILON = 1 + 1e-14;
 	
@@ -159,7 +159,7 @@ class Circle {
 
 
 
-class Point {
+final class Point {
 	
 	public final double x;
 	public final double y;

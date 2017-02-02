@@ -1,7 +1,7 @@
 /* 
  * Compact hash map
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/compact-hash-map-java
  * 
  * (MIT License)
@@ -275,7 +275,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	/* Helper classes */
 	
 	// For the entrySet() method.
-	private class EntrySet extends AbstractSet<Map.Entry<K,V>> {
+	private final class EntrySet extends AbstractSet<Map.Entry<K,V>> {
 		
 		public int size() {
 			return size;
@@ -303,7 +303,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 		}
 		
 		
-		private class Iter implements Iterator<Map.Entry<K,V>>, Map.Entry<K,V> {
+		private final class Iter implements Iterator<Map.Entry<K,V>>, Map.Entry<K,V> {
 			
 			private final int myVersion;
 			private int currentIndex;

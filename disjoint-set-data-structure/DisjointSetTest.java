@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (Java)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * (MIT License)
@@ -29,7 +29,7 @@ import java.util.Random;
 import org.junit.Test;
 
 
-public class DisjointSetTest {
+public final class DisjointSetTest {
 	
 	/*---- Test suite ----*/
 	

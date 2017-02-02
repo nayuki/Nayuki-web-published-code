@@ -1,7 +1,7 @@
 /* 
  * Iterated popcount demo
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/iterated-popcount-results-in-0-or-1
  */
@@ -10,7 +10,7 @@ import java.math.BigInteger;
 import java.util.Scanner;
 
 
-public class iteratedpopcount {
+public final class iteratedpopcount {
 	
 	public static void main(String[] args) {
 		Scanner scan = new Scanner(System.in);

@@ -16,7 +16,7 @@
  *     (Prints to standard output)
  * 
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/notepadcrypt-format-decryptor-java
  * 
@@ -33,7 +33,7 @@ import java.util.Arrays;
 import static java.lang.Integer.rotateRight;
 
 
-public class decryptnotepadcrypt {
+public final class decryptnotepadcrypt {
 	
 	/* Main functions */
 	
@@ -214,7 +214,7 @@ public class decryptnotepadcrypt {
 
 
 
-class Aes {
+final class Aes {
 	
 	private static final int BLOCK_LEN = 16;  // Do not modify
 	

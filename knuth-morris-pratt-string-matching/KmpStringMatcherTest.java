@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher test (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * (MIT License)
@@ -27,7 +27,7 @@ import java.util.Random;
 import org.junit.Test;
 
 
-public class KmpStringMatcherTest {
+public final class KmpStringMatcherTest {
 	
 	/* Test suite */
 	

@@ -330,7 +330,7 @@ final class Board {
 
 
 
-class SwapMove {
+final class SwapMove {
 	
 	// Immutable
 	public final int x;

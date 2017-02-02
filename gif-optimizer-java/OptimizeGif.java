@@ -47,7 +47,7 @@
  *   the partial output file will be deleted.
  * 
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
@@ -63,7 +63,7 @@ import java.io.OutputStream;
 import java.util.zip.DataFormatException;
 
 
-public class OptimizeGif {
+public final class OptimizeGif {
 	
 	// Main program wrapper for conveniently handling error messages.
 	public static void main(String[] args) throws IOException, DataFormatException {

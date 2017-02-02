@@ -1,7 +1,7 @@
 /* 
  * Library classes for GIF optimizer (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 // Provides different methods for performing GIF's dialect of LZW compression.
 // The result from each method will decompress to the same data, of course.
-class GifLzwCompressor {
+final class GifLzwCompressor {
 	
 	/*---- Simple encoders ----*/
 	
@@ -225,7 +225,7 @@ class GifLzwCompressor {
 		
 		
 		
-		private static class Node {
+		private static final class Node {
 			
 			public int symbol;
 			public Node[] children;

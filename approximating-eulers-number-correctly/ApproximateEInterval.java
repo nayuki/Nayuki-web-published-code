@@ -1,7 +1,7 @@
 /* 
  * Approximating Euler's number correctly (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/approximating-eulers-number-correctly
  */
@@ -9,7 +9,7 @@
 import java.math.BigInteger;
 
 
-public class ApproximateEInterval {
+public final class ApproximateEInterval {
 	
 	// Runs a demo that prints out some numbers
 	public static void main(String[] args) {

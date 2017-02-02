@@ -1,7 +1,7 @@
 /* 
  * Simulated annealing on image demo (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/simulated-annealing-demo
  */
@@ -14,7 +14,7 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 
-public class SimulatedAnnealingOnImage {
+public final class SimulatedAnnealingOnImage {
 	
 	/* Configurable parameters */
 	

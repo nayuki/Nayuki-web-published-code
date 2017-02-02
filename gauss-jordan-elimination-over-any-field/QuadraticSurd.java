@@ -11,7 +11,7 @@ import java.math.BigInteger;
 
 // Represents the numerical value (a + b * sqrt(d)) / c.
 // d must not be divisible by k^2 for some k > 1. d can be negative.
-public class QuadraticSurd {
+public final class QuadraticSurd {
 	
 	// Invariants: gcd(a, b, c) = 1, and c > 0.
 	public final BigInteger a, b, c, d;

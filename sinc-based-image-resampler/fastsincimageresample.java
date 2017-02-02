@@ -1,7 +1,7 @@
 /* 
  * Sinc-based image resampler (fast version)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/sinc-based-image-resampler
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -141,7 +141,7 @@ public final class fastsincimageresample {
 
 
 
-class FastSincImageResampler {
+final class FastSincImageResampler {
 	
 	/* Convenience methods */
 	

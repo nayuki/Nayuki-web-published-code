@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -25,7 +25,7 @@
 import java.util.Random;
 
 
-public class FftTest {
+public final class FftTest {
 	
 	/* Main and test functions */
 	

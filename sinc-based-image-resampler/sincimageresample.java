@@ -1,7 +1,7 @@
 /* 
  * Sinc-based image resampler
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/sinc-based-image-resampler
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -137,7 +137,7 @@ public final class sincimageresample {
 
 
 
-class SincImageResampler {
+final class SincImageResampler {
 	
 	/* Convenience methods */
 	

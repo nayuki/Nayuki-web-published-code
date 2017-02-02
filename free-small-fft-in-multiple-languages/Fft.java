@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -23,7 +23,7 @@
  */
 
 
-public class Fft {
+public final class Fft {
 	
 	/* 
 	 * Computes the discrete Fourier transform (DFT) of the given complex vector, storing the result back into the vector.

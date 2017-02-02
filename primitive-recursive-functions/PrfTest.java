@@ -2,13 +2,13 @@
  * Test suite for Prf (Java).
  * Runnable as a main program, which should print "All N tests passed".
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/primitive-recursive-functions
  */
 
 
-public abstract class PrfTest {
+public final class PrfTest {
 	
 	public static void main(String[] args) {
 		System.out.println("Running tests...");
@@ -778,7 +778,7 @@ public abstract class PrfTest {
 	
 	// Test declaration data structures
 	
-	private static class TestSuite {
+	private static final class TestSuite {
 		public Prf func;
 		public TestCase[] cases;
 		
@@ -788,7 +788,7 @@ public abstract class PrfTest {
 		}
 	}
 	
-	private static class TestCase {
+	private static final class TestCase {
 		public long expected;
 		public long[] arguments;
 		

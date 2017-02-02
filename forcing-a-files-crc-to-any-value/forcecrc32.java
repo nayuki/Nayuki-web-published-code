@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 
-public class forcecrc32 {
+public final class forcecrc32 {
 	
 	/*---- Main application ----*/
 	
