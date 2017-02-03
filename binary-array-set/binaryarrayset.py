@@ -29,10 +29,12 @@ if sys.version_info.major == 2:
 
 class BinaryArraySet(object):
 	
-	# Runs in O(1) time
-	# For each i, self.values[i] is either None or it's an ascending-sorted array of length 2^i
-	def __init__(self):
+	# Runs in O(n * (log n)^2) time
+	def __init__(self, coll=None):
 		self.clear()
+		if coll is not None:
+			for val in coll:
+				self.add(val)
 	
 	
 	# Runs in O(1) time
@@ -42,6 +44,7 @@ class BinaryArraySet(object):
 	
 	# Runs in O(1) time
 	def clear(self):
+		# For each i, self.values[i] is either None or an ascending list of length 2^i
 		self.values = []
 		self.length = 0
 	

@@ -28,13 +28,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 
 public final class BinaryArraySet<E extends Comparable<? super E>> extends AbstractSet<E> {
 	
 	/*---- Fields ----*/
 	
-	// For each i, values[i] is either null or it's an ascending-sorted array of length 2^i
+	// For each i, values[i] is either null or an ascending array of length 2^i
 	private E[][] values;
 	
 	private int size;
@@ -50,19 +51,17 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	
 	// Runs in O(n (log n)^2) time
-	public BinaryArraySet(Collection<? extends E> col) {
+	public BinaryArraySet(Collection<? extends E> coll) {
 		this();
-		if (col == null)
-			throw new NullPointerException();
-		addAll(col);
+		Objects.requireNonNull(coll);
+		addAll(coll);
 	}
 	
 	
-	// Runs in O(n (log n)^2) time
+	// Runs in O(n * (log n)^2) time
 	public BinaryArraySet(E... vals) {
 		this();
-		if (vals == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(vals);
 		Collections.addAll(this, vals);
 	}
 	
@@ -78,6 +77,7 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	// Runs in O((log n)^2) time
 	public boolean contains(E val) {
+		Objects.requireNonNull(val);
 		for (E[] vals : values) {
 			if (vals != null && Arrays.binarySearch(vals, val) >= 0)
 				return true;
@@ -89,8 +89,7 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	// Runs in average-case O((log n)^2) time, worst-case O(n) time
 	@SuppressWarnings("unchecked")
 	public boolean add(E val) {
-		if (val == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(val);
 		if (size == Integer.MAX_VALUE)
 			throw new IllegalStateException("Maximum size reached");
 		

@@ -139,11 +139,18 @@ public:
 				if (child->keys.size() == maxKeys) {  // Split child node
 					Node *rightNode = nullptr;
 					E middleKey(child->split(&rightNode));
+					int cmp;
+					if (val < middleKey)
+						cmp = -1;
+					else if (val > middleKey)
+						cmp = 1;
+					else
+						cmp = 0;
 					node->keys.insert(node->keys.begin() + index, std::move(middleKey));
 					node->children.insert(node->children.begin() + index + 1, rightNode);
-					if (val == middleKey)
+					if (cmp == 0)
 						return;  // Key already exists in tree
-					else if (val > middleKey)
+					else if (cmp > 0)
 						child = rightNode;
 				}
 				node = child;
@@ -281,7 +288,7 @@ private:
 		/*-- Methods --*/
 		
 		bool isLeaf() const {
-            return children.size() == 0;
+			return children.size() == 0;
 		}
 		
 		

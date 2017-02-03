@@ -32,6 +32,15 @@
 template <typename E>
 class BinaryArraySet final {
 	
+	/*---- Fields ----*/
+private:
+	
+	std::vector<E*> values;  // Element i is either nullptr or a malloc()'d array of length (1 << i) ascending elements of E
+	size_t length;
+	
+	
+	
+	/*---- Constructors, etc. ----*/
 public:
 	
 	// Runs in O(1) time
@@ -40,9 +49,57 @@ public:
 		length(0) {}
 	
 	
-	// Runs in O(n) time due to destructors
+	// Copy constructor, runs in O(n) time
+	BinaryArraySet(const BinaryArraySet &other) :
+			BinaryArraySet() {
+		*this = other;
+	}
+	
+	
+	// Move constructor, runs in O(1) time
+	BinaryArraySet(BinaryArraySet &&other) :
+			values(std::move(other.values)),
+			length(other.length) {}
+	
+	
+	// Copy assignment, runs in O(n) time
+	BinaryArraySet &operator=(const BinaryArraySet &other) {
+		clear();
+		for (size_t i = 0; i < other.values.size(); i++) {
+			E *oldVals = values.at(i);
+			if (oldVals == nullptr)
+				continue;
+			size_t len = (size_t)1 << i;
+			E *newVals = static_cast<E*>(malloc(len * sizeof(E)));
+			for (size_t j = 0; j < len; j++)
+				new (&newVals[j]) E(oldVals[j]);  // Placement move constructor
+			values.push_back(newVals);
+		}
+		length = other.length;
+		return *this;
+	}
+	
+	
+	// Move assignment, runs in O(1) time
+	BinaryArraySet &operator=(BinaryArraySet &&other) {
+		values = std::move(other.values);
+		length = other.length;
+		return *this;
+	}
+	
+	
+	// Runs in O(log n) time for simple types (e.g. E = int),
+	// otherwise O(n) time due to element destructors
 	~BinaryArraySet() {
 		clear();
+	}
+	
+	
+	
+	/*---- Methods ----*/
+	
+	bool empty() const {
+		return length == 0;
 	}
 	
 	
@@ -179,11 +236,5 @@ public:
 		if (sum != length)
 			throw "Size mismatch between counter and arrays";
 	}
-	
-	
-private:
-	
-	std::vector<E*> values;  // Element i is either nullptr or a malloc()'d array of length (1 << i) elements of E
-	size_t length;
 	
 };
