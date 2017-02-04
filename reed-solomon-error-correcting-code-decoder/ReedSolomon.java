@@ -119,7 +119,7 @@ public final class ReedSolomon<E> {
 	
 	
 	// Computes the generator polynomial by multiplying powers of the generator value:
-	// genPoly(x) = (1 - gen^0) * (1 - gen^1) * ... * (1 - gen^(eccLen-1)).
+	// genPoly(x) = (x - gen^0) * (x - gen^1) * ... * (x - gen^(eccLen-1)).
 	// The resulting array of coefficients is in little endian, i.e. from lowest to highest power, except
 	// that the very highest power (the coefficient for the x^eccLen term) is omitted because it's always 1.
 	// The result of this method can be pre-computed because it doesn't depend on the message to be encoded.

@@ -70,7 +70,7 @@ class ReedSolomon(object):
 	
 	
 	# Computes the generator polynomial by multiplying powers of the generator value:
-	# genpoly(x) = (1 - gen^0) * (1 - gen^1) * ... * (1 - gen^(ecclen-1)).
+	# genpoly(x) = (x - gen^0) * (x - gen^1) * ... * (x - gen^(ecclen-1)).
 	# The resulting array of coefficients is in little endian, i.e. from lowest to highest power, except
 	# that the very highest power (the coefficient for the x^ecclen term) is omitted because it's always 1.
 	# The result of this method can be pre-computed because it doesn't depend on the message to be encoded.
