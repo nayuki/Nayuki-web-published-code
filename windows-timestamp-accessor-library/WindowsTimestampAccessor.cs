@@ -1,7 +1,7 @@
 /* 
  * Windows timestamp accessor (C#)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
@@ -10,7 +10,7 @@ using System;
 using System.IO;
 
 
-public class WindowsTimestampAccessor {
+public sealed class WindowsTimestampAccessor {
 	
 	private delegate DateTime GetSomeTimeUtc(string path);
 	private delegate void SetSomeTimeUtc(string path, DateTime time);

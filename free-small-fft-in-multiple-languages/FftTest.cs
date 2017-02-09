@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C#)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -25,7 +25,7 @@
 using System;
 
 
-public class FftTest {
+public sealed class FftTest {
 	
 	/* Main and test functions */
 	
