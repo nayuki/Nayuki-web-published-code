@@ -1,13 +1,15 @@
 /* 
  * Dumb PNG Output
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/dumb-png-output-java
  */
 
 import java.io.*;
-import java.util.zip.*;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.Adler32;
+import java.util.zip.CRC32;
 
 
 public final class DumbPngOutput {
@@ -23,16 +25,18 @@ public final class DumbPngOutput {
 			{0xFF0000, 0x00FF00, 0x0000FF},
 			{0x000000, 0x808080, 0xFFFFFF},
 		};
-		OutputStream out = new FileOutputStream("DumbPngOutDemo.png");
-		write(image, out);
-		out.close();
+		try (OutputStream out = new FileOutputStream("DumbPngOutDemo.png")) {
+			write(image, out);
+		}
 	}
 	
 	
 	/**
 	 * Writes the specified RGB24 image to the specified output stream as a PNG file.
-	 * <p>The array has this format: {@code image[y][x] = 0xRRGGBB} (where each color channel uses 8 bits). The array must be rectangular and each dimension must be at least 1.</p>
-	 * <p>This implementation runs out of memory if the number of pixels in the image exceeds about 700 million (but this is not a PNG limitation).</p>
+	 * <p>The array has this format: {@code image[y][x] = 0xRRGGBB} (where each color channel
+	 * uses 8 bits). The array must be rectangular and each dimension must be at least 1.</p>
+	 * <p>This implementation runs out of memory if the number of pixels in the
+	 * image exceeds about 700 million (but this is not a PNG limitation).</p>
 	 * @param image the image, represented as an array of rows of pixel values
 	 * @param out the output stream to write the PNG file to
 	 * @throws IOException if an I/O exception occurred
@@ -64,8 +68,8 @@ public final class DumbPngOutput {
 		// Note: One additional byte at the beginning of each row specifies the filtering method
 		if ((Integer.MAX_VALUE / height - 1) / width < 3)
 			throw new IllegalArgumentException("Dimensions too large");
-		byte[] idat = new byte[(width * 3 + 1) * height];
 		int rowSize = width * 3 + 1;
+		byte[] idat = new byte[rowSize * height];
 		for (int y = 0; y < height; y++) {
 			idat[y * rowSize + 0] = 0;  // Filter type: None
 			for (int x = 0; x < width; x++) {
@@ -122,13 +126,13 @@ public final class DumbPngOutput {
 	// This takes care of also writing the length and CRC.
 	private static void writeChunk(String type, byte[] data, OutputStream out) throws IOException {
 		CRC32 c = new CRC32();
-		c.update(type.getBytes("US-ASCII"));
+		c.update(type.getBytes(StandardCharsets.US_ASCII));
 		c.update(data);
 		
-		writeInt32(data.length, out);          // Length
-		out.write(type.getBytes("US-ASCII"));  // Type
-		out.write(data);                       // Data
-		writeInt32((int)c.getValue(), out);    // CRC-32
+		writeInt32(data.length, out);  // Length
+		out.write(type.getBytes(StandardCharsets.US_ASCII));  // Type
+		out.write(data);  // Data
+		writeInt32((int)c.getValue(), out);  // CRC-32
 	}
 	
 	
