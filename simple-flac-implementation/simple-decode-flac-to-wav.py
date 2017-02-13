@@ -1,5 +1,5 @@
 # 
-# Simple FLAC implementation (Python)
+# Simple FLAC decoder (Python)
 # 
 # Copyright (c) 2017 Project Nayuki. All rights reserved.
 # https://www.nayuki.io/page/simple-flac-implementation
@@ -114,9 +114,10 @@ def decode_frame(inp, numchannels, sampledepth, out):
 	else:
 		def write_little_int(val):
 			out.write("".join(chr((val >> (i * 8)) & 0xFF) for i in range(numbytes)))
+	addend = 128 if sampledepth == 8 else 0
 	for i in range(blocksize):
 		for j in range(numchannels):
-			write_little_int(samples[j][i])
+			write_little_int(samples[j][i] + addend)
 	return True
 
 
@@ -202,17 +203,16 @@ def decode_residuals(inp, blocksize, result):
 	if blocksize % numpartitions != 0:
 		raise ValueError("Block size not divisible by number of Rice partitions")
 	
-	inc = blocksize >> partitionorder
-	partstart = len(result)
-	for partend in range(inc, blocksize + 1, inc):
-		
+	for i in range(numpartitions):
+		count = blocksize >> partitionorder
+		if i == 0:
+			count -= len(result)
 		param = inp.read_uint(parambits)
 		if param < escapeparam:
-			result.extend(inp.read_rice_signed_int(param) for _ in range(partstart, partend))
+			result.extend(inp.read_rice_signed_int(param) for _ in range(count))
 		else:
 			numbits = inp.read_uint(5)
-			result.extend(inp.read_signed_int(numbits) for _ in range(partstart, partend))
-		partstart = partend
+			result.extend(inp.read_signed_int(numbits) for _ in range(count))
 
 
 def restore_linear_prediction(result, coefs, shift):
@@ -252,7 +252,9 @@ class BitInputStream(object):
 			self.bitbuffer = (self.bitbuffer << 8) | temp
 			self.bitbufferlen += 8
 		self.bitbufferlen -= n
-		return (self.bitbuffer >> self.bitbufferlen) & ((1 << n) - 1)
+		result = (self.bitbuffer >> self.bitbufferlen) & ((1 << n) - 1)
+		self.bitbuffer &= (1 << self.bitbufferlen) - 1
+		return result
 	
 	
 	def read_signed_int(self, n):
@@ -279,6 +281,7 @@ class BitInputStream(object):
 	
 	def __exit__(self, type, value, traceback):
 		self.close()
+
 
 
 if __name__ == "__main__":

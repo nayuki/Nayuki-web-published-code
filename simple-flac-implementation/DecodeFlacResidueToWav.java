@@ -1,5 +1,5 @@
 /* 
- * Simple FLAC decoder (Java)
+ * FLAC residue decoder (Java)
  * 
  * Copyright (c) 2017 Project Nayuki. All rights reserved.
  * https://www.nayuki.io/page/simple-flac-implementation
@@ -7,15 +7,14 @@
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.zip.DataFormatException;
 
 
-public final class SimpleDecodeFlacToWav {
+public final class DecodeFlacResidueToWav {
 	
 	public static void main(String[] args) throws IOException, DataFormatException {
 		if (args.length != 2) {
-			System.err.println("Usage: java SimpleDecodeFlacToWav InFile.flac OutFile.wav");
+			System.err.println("Usage: java DecodeFlacResidueToWav InFile.flac OutFile.wav");
 			System.exit(1);
 			return;
 		}
@@ -161,21 +160,6 @@ public final class SimpleDecodeFlacToWav {
 		} else if (8 <= chanAsgn && chanAsgn <= 10) {
 			decodeSubframe(in, sampleDepth + (chanAsgn == 9 ? 1 : 0), subframes[0]);
 			decodeSubframe(in, sampleDepth + (chanAsgn == 9 ? 0 : 1), subframes[1]);
-			if (chanAsgn == 8) {
-				for (int i = 0; i < blockSize; i++)
-					subframes[1][i] = subframes[0][i] - subframes[1][i];
-			} else if (chanAsgn == 9) {
-				for (int i = 0; i < blockSize; i++)
-					subframes[0][i] += subframes[1][i];
-			} else if (chanAsgn == 10) {
-				for (int i = 0; i < blockSize; i++) {
-					long side = subframes[1][i];
-					long mid = (subframes[0][i] << 1) | (side & 1);
-					subframes[0][i] = (mid + side) >> 1;
-					subframes[1][i] = (mid - side) >> 1;
-				}
-			}
-			
 		} else
 			throw new DataFormatException("Reserved channel assignment");
 		for (int ch = 0; ch < result.length; ch++) {
@@ -196,10 +180,10 @@ public final class SimpleDecodeFlacToWav {
 		sampleDepth -= shift;
 		
 		if (type == 0)  // Constant coding
-			Arrays.fill(result, 0, result.length, in.readSignedInt(sampleDepth));
+			in.readSignedInt(sampleDepth);
 		else if (type == 1) {  // Verbatim coding
 			for (int i = 0; i < result.length; i++)
-				result[i] = in.readSignedInt(sampleDepth);
+				in.readSignedInt(sampleDepth);
 		} else if (8 <= type && type <= 12)
 			decodeFixedPredictionSubframe(in, type - 8, sampleDepth, result);
 		else if (32 <= type && type <= 63)
@@ -214,30 +198,19 @@ public final class SimpleDecodeFlacToWav {
 	
 	private static void decodeFixedPredictionSubframe(BitInputStream in, int predOrder, int sampleDepth, long[] result) throws IOException, DataFormatException {
 		for (int i = 0; i < predOrder; i++)
-			result[i] = in.readSignedInt(sampleDepth);
+			in.readSignedInt(sampleDepth);
 		decodeResiduals(in, predOrder, result);
-		restoreLinearPrediction(result, FIXED_PREDICTION_COEFFICIENTS[predOrder], 0);
 	}
-	
-	private static final int[][] FIXED_PREDICTION_COEFFICIENTS = {
-		{},
-		{1},
-		{2, -1},
-		{3, -3, 1},
-		{4, -6, 4, -1},
-	};
 	
 	
 	private static void decodeLinearPredictiveCodingSubframe(BitInputStream in, int lpcOrder, int sampleDepth, long[] result) throws IOException, DataFormatException {
 		for (int i = 0; i < lpcOrder; i++)
-			result[i] = in.readSignedInt(sampleDepth);
+			in.readSignedInt(sampleDepth);
 		int precision = in.readUint(4) + 1;
-		int shift = in.readSignedInt(5);
-		int[] coefs = new int[lpcOrder];
-		for (int i = 0; i < coefs.length; i++)
-			coefs[i] = in.readSignedInt(precision);
+		in.readSignedInt(5);
+		for (int i = 0; i < lpcOrder; i++)
+			in.readSignedInt(precision);
 		decodeResiduals(in, lpcOrder, result);
-		restoreLinearPrediction(result, coefs, shift);
 	}
 	
 	
@@ -267,16 +240,6 @@ public final class SimpleDecodeFlacToWav {
 				for (int j = start; j < end; j++)
 					result[j] = in.readSignedInt(numBits);
 			}
-		}
-	}
-	
-	
-	private static void restoreLinearPrediction(long[] result, int[] coefs, int shift) {
-		for (int i = coefs.length; i < result.length; i++) {
-			long sum = 0;
-			for (int j = 0; j < coefs.length; j++)
-				sum += result[i - 1 - j] * coefs[j];
-			result[i] += sum >> shift;
 		}
 	}
 	
