@@ -1,7 +1,7 @@
 /* 
  * Tax-free savings account simulator
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/canada-tax-free-savings-account-simulator-javascript
  */
@@ -125,7 +125,7 @@ function nextMonth() {
 			amount = 500000;  // Known amount
 		else if (year == 2015)
 			amount = 1000000;
-		else if (year <= 2016)
+		else if (year <= 2017)
 			amount = 550000;  // Known amount
 		else  // Estimate based on 2% annual inflation
 			amount = Math.round(5000 * Math.pow(1.02, year - 2009) / 500) * 50000;

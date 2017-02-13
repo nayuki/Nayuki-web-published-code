@@ -1,8 +1,9 @@
 # -*- coding: UTF-8 -*-
 # 
 # Windows timestamp accessor demo (Python)
+# For Python 2 and 3.3+
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2017 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/windows-timestamp-accessor-library
 # 

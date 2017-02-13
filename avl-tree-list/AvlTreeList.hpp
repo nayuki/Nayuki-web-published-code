@@ -98,8 +98,7 @@ public:
 			throw "Index out of bounds";
 		Node *toDelete = nullptr;
 		root = root->removeAt(index, &toDelete);
-		if (toDelete != nullptr)
-			delete toDelete;
+		delete toDelete;
 	}
 	
 	

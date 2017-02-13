@@ -1,12 +1,12 @@
 # 
 # Windows timestamp accessor (Python)
+# For Python 2 and 3.3+
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2017 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/windows-timestamp-accessor-library
 # 
 
-# For Python 2, not 3
 
 import datetime, os, subprocess
 
@@ -54,7 +54,7 @@ class WindowsTimestampAccessor(object):
 	def _get_some_time(self, type, path):
 		self.query.write(u"Get{}Time\t{}\n".format(type, os.path.abspath(path)).encode("UTF-8"))
 		self.query.flush()
-		tokens = self.response.readline().rstrip("\r\n").split("\t")
+		tokens = self.response.readline().decode("UTF-8").rstrip("\r\n").split("\t")
 		if len(tokens) != 2 or tokens[0] != "ok":
 			raise Exception("Invalid data")
 		return int(tokens[1])
@@ -74,7 +74,7 @@ class WindowsTimestampAccessor(object):
 	def _set_some_time(self, type, path, ticks):
 		self.query.write(u"Set{}Time\t{}\t{}\n".format(type, os.path.abspath(path), ticks).encode("UTF-8"))
 		self.query.flush()
-		line = self.response.readline().rstrip("\r\n")
+		line = self.response.readline().decode("UTF-8").rstrip("\r\n")
 		if line != "ok":
 			raise Exception("Invalid data")
 

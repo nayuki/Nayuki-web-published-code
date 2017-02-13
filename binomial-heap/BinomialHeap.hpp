@@ -227,10 +227,8 @@ private:
 		
 		
 		~Node() {
-			if (down != nullptr)
-				delete down;
-			if (next != nullptr)
-				delete next;
+			delete down;
+			delete next;
 		}
 		
 		
