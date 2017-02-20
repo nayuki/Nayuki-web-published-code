@@ -108,12 +108,17 @@ public final class smallestenclosingcircle {
 	
 	static Circle makeCircumcircle(Point a, Point b, Point c) {
 		// Mathematical algorithm from Wikipedia: Circumscribed circle
-		double d = (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) * 2;
+		double ox = (Math.min(Math.min(a.x, b.x), c.x) + Math.max(Math.min(a.x, b.x), c.x)) / 2;
+		double oy = (Math.min(Math.min(a.y, b.y), c.y) + Math.max(Math.min(a.y, b.y), c.y)) / 2;
+		double ax = a.x - ox, ay = a.y - oy;
+		double bx = b.x - ox, by = b.y - oy;
+		double cx = c.x - ox, cy = c.y - oy;
+		double d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 		if (d == 0)
 			return null;
-		double x = (a.norm() * (b.y - c.y) + b.norm() * (c.y - a.y) + c.norm() * (a.y - b.y)) / d;
-		double y = (a.norm() * (c.x - b.x) + b.norm() * (a.x - c.x) + c.norm() * (b.x - a.x)) / d;
-		Point p = new Point(x, y);
+		double x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
+		double y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+		Point p = new Point(ox + x, oy + y);
 		double r = Math.max(Math.max(p.distance(a), p.distance(b)), p.distance(c));
 		return new Circle(p, r);
 	}
@@ -184,12 +189,6 @@ final class Point {
 	// Signed area / determinant thing
 	public double cross(Point p) {
 		return x * p.y - y * p.x;
-	}
-	
-	
-	// Magnitude squared
-	public double norm() {
-		return x * x + y * y;
 	}
 	
 	

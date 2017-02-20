@@ -106,14 +106,19 @@ function makeCircumcircle(p0, p1, p2) {
 	var ax = p0.x, ay = p0.y;
 	var bx = p1.x, by = p1.y;
 	var cx = p2.x, cy = p2.y;
+	var ox = (Math.min(ax, bx, cx) + Math.max(ax, bx, cx)) / 2;
+	var oy = (Math.min(ay, by, cy) + Math.max(ay, by, cy)) / 2;
+	ax -= ox; ay -= oy;
+	bx -= ox; by -= oy;
+	cx -= ox; cy -= oy;
 	var d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 	if (d == 0)
 		return null;
-	var x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
-	var y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
-	var ra = distance(x, y, ax, ay);
-	var rb = distance(x, y, bx, by);
-	var rc = distance(x, y, cx, cy);
+	var x = ox + ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
+	var y = oy + ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+	var ra = distance(x, y, p0.x, p0.y);
+	var rb = distance(x, y, p1.x, p1.y);
+	var rc = distance(x, y, p2.x, p2.y);
 	return {x: x, y: y, r: Math.max(ra, rb, rc)};
 }
 

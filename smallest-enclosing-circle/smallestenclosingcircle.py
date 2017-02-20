@@ -93,14 +93,19 @@ def make_circumcircle(p0, p1, p2):
 	ax = p0[0]; ay = p0[1]
 	bx = p1[0]; by = p1[1]
 	cx = p2[0]; cy = p2[1]
+	ox = (min(ax, bx, cx) + max(ax, bx, cx)) / 2.0
+	oy = (min(ay, by, cy) + max(ay, by, cy)) / 2.0
+	ax -= ox; ay -= oy
+	bx -= ox; by -= oy
+	cx -= ox; cy -= oy
 	d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2.0
 	if d == 0.0:
 		return None
-	x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
-	y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
-	ra = math.hypot(x - ax, y - ay)
-	rb = math.hypot(x - bx, y - by)
-	rc = math.hypot(x - cx, y - cy)
+	x = ox + ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
+	y = oy + ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
+	ra = math.hypot(x - p0[0], y - p0[1])
+	rb = math.hypot(x - p1[0], y - p1[1])
+	rc = math.hypot(x - p2[0], y - p2[1])
 	return (x, y, max(ra, rb, rc))
 
 

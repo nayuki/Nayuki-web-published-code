@@ -111,12 +111,17 @@ public sealed class smallestenclosingcircle {
 	
 	private static Circle makeCircumcircle(Point a, Point b, Point c) {
 		// Mathematical algorithm from Wikipedia: Circumscribed circle
-		double d = (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) * 2;
+		double ox = (Math.Min(Math.Min(a.x, b.x), c.x) + Math.Max(Math.Min(a.x, b.x), c.x)) / 2;
+		double oy = (Math.Min(Math.Min(a.y, b.y), c.y) + Math.Max(Math.Min(a.y, b.y), c.y)) / 2;
+		double ax = a.x - ox, ay = a.y - oy;
+		double bx = b.x - ox, by = b.y - oy;
+		double cx = c.x - ox, cy = c.y - oy;
+		double d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 		if (d == 0)
 			return new Circle(new Point(0, 0), -1);
-		double x = (a.Norm() * (b.y - c.y) + b.Norm() * (c.y - a.y) + c.Norm() * (a.y - b.y)) / d;
-		double y = (a.Norm() * (c.x - b.x) + b.Norm() * (a.x - c.x) + c.Norm() * (b.x - a.x)) / d;
-		Point p = new Point(x, y);
+		double x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
+		double y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+		Point p = new Point(ox + x, oy + y);
 		double r = Math.Max(Math.Max(p.Distance(a), p.Distance(b)), p.Distance(c));
 		return new Circle(p, r);
 	}
@@ -184,12 +189,6 @@ public struct Point {
 	// Signed area / determinant thing
 	public double Cross(Point p) {
 		return x * p.y - y * p.x;
-	}
-	
-	
-	// Magnitude squared
-	public double Norm() {
-		return x * x + y * y;
 	}
 	
 }
