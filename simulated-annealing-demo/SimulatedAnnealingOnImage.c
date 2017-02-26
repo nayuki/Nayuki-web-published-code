@@ -49,19 +49,16 @@ int abs(int x);
 int main(void) {
 	// Create initial image state deterministically
 	struct MtRandom mt;
-	uint32_t raw_pixels[WIDTH * (HEIGHT + 2)];
+	uint32_t raw_pixels[WIDTH * (HEIGHT + 2)] = {0};
 	uint32_t *pixels = &raw_pixels[WIDTH];  // Has one row of padding above and below
-	int64_t i;
 	MtRandom_init(&mt, 0);
-	for (i = 0; i < WIDTH * HEIGHT; i++)
+	for (size_t i = 0; i < WIDTH * HEIGHT; i++)
 		pixels[i] = MtRandom_next_int(&mt) & UINT32_C(0xFFFFFF);
 	
 	// Calculate energy level
 	int energy = 0;
-	int y;
-	for (y = 0; y < HEIGHT; y++) {
-		int x;
-		for (x = 0; x < WIDTH; x++) {
+	for (int y = 0; y < HEIGHT; y++) {
+		for (int x = 0; x < WIDTH; x++) {
 			if (x > 0)  // Horizontal pixel differences
 				energy += pixel_diff(pixels[y * WIDTH + x], pixels[y * WIDTH + (x - 1)]);
 			if (y > 0)  // Vertical pixel differences
@@ -71,7 +68,7 @@ int main(void) {
 	
 	// Perform simulated annealing
 	fprintf(stderr, "    Done       Iterations      Energy  SwapDiff  Temperature  AcceptProb\n");
-	for (i = 0; i < ITERATIONS; i++) {
+	for (int64_t i = 0; i < ITERATIONS; i++) {
 		// Re-seed periodically for excellent random distribution on long sequences
 		if ((i & INT64_C(0xFFFFFFF)) == 0)
 			MtRandom_reseed(&mt);
@@ -97,8 +94,10 @@ int main(void) {
 		}
 		
 		// Probabilistic conditional acceptance
-		if ((i & INT64_C(0xFFFFFF)) == 0)
-			fprintf(stderr, "%7.3f%%  %15"PRId64"  %10d  %8d  %11.3f  %10.8f\n", t * 100, i, energy, energydiff, temperature, fmin(fast_2_pow(-energydiff / temperature), 1.0));
+		if ((i & INT64_C(0xFFFFFF)) == 0) {
+			fprintf(stderr, "%7.3f%%  %15" PRId64 "  %10d  %8d  %11.3f  %10.8f\n",
+				t * 100, i, energy, energydiff, temperature, fmin(fast_2_pow(-energydiff / temperature), 1.0));
+		}
 		if (energydiff < 0 || MtRandom_next_double(&mt) < fast_2_pow(-energydiff / temperature)) {
 			// Accept new image state
 			int index0 = y0 * WIDTH + x0;
@@ -112,7 +111,9 @@ int main(void) {
 	
 	// Write image to file
 	char filename[100] = {0};
-	int code = snprintf(filename, sizeof(filename), "simulated-annealing-time%"PRId64"-iters%"PRId64"-starttemp%.1f.bmp", (int64_t)time(NULL) * 1000, ITERATIONS, START_TEMPERATURE);
+	int code = snprintf(filename, sizeof(filename),
+		"simulated-annealing-time%" PRId64 "-iters%" PRId64 "-starttemp%.1f.bmp",
+		(int64_t)time(NULL) * 1000, ITERATIONS, START_TEMPERATURE);
 	if (code < 0 || code + 1 > sizeof(filename))
 		strncpy(filename, "simulated-annealing.bmp", sizeof(filename));
 	write_bmp_image(pixels, WIDTH, HEIGHT, filename);
@@ -161,10 +162,8 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 	}
 	
 	// Write image rows
-	int y;
-	for (y = height - 1; y >= 0; y--) {
-		int x;
-		for (x = 0; x < width; x++) {
+	for (int y = height - 1; y >= 0; y--) {
+		for (int x = 0; x < width; x++) {
 			uint32_t p = pixels[y * width + x];
 			row[x * 3 + 0] = (p >>  0) & 0xFF;
 			row[x * 3 + 1] = (p >>  8) & 0xFF;
@@ -256,15 +255,14 @@ int abs(int x) {
  *
  * Any feedback is very welcome.
  * http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
- * email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
+ * email: m-mat@math.sci.hiroshima-u.ac.jp
  */
 
 void MtRandom_next_state(struct MtRandom *mt);
 
 
 void MtRandom_init(struct MtRandom *mt, uint32_t seed) {
-	unsigned int i;
-	for (i = 0; i < 624; i++) {
+	for (unsigned int i = 0; i < 624; i++) {
 		mt->state[i] = seed;
 		seed = UINT32_C(1812433253) * (seed ^ (seed >> 30)) + i + 1;
 	}
@@ -281,7 +279,7 @@ uint32_t MtRandom_next_int(struct MtRandom *mt) {
 	
 	// Tempering
 	x ^= x >> 11;
-	x ^= (x << 7) & UINT32_C(0x9D2C5680);
+	x ^= (x <<  7) & UINT32_C(0x9D2C5680);
 	x ^= (x << 15) & UINT32_C(0xEFC60000);
 	return x ^ (x >> 18);
 }
@@ -337,11 +335,12 @@ void MtRandom_next_state(struct MtRandom *mt) {
 
 void MtRandom_reseed(struct MtRandom *mt) {
 	FILE *f = fopen("/dev/urandom", "rb");
-	if (f == NULL)
+	if (f == NULL) {
 		fprintf(stderr, "Reseed failed\n");
+		return;
+	}
 	
-	int i;
-	for (i = 0; i < 624 * 4; i++) {
+	for (int i = 0; i < 624 * 4; i++) {
 		int c = fgetc(f);
 		if (c == EOF) {
 			if (ferror(f)) {

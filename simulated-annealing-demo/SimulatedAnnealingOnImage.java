@@ -126,8 +126,10 @@ public final class SimulatedAnnealingOnImage {
 			}
 			
 			// Probabilistic conditional acceptance
-			if ((i & 0xFFFFFF) == 0)
-				System.err.printf("%7.3f%%  %15d  %10d  %8d  %11.3f  %10.8f%n", t * 100, i, energy, energyDiff, temperature, Math.min(fast2Pow(-energyDiff / temperature), 1));
+			if ((i & 0xFFFFFF) == 0) {
+				System.err.printf("%7.3f%%  %15d  %10d  %8d  %11.3f  %10.8f%n",
+					t * 100, i, energy, energyDiff, temperature, Math.min(fast2Pow(-energyDiff / temperature), 1));
+			}
 			if (energyDiff < 0 || rand.nextDouble() < fast2Pow(-energyDiff / temperature)) {
 				// Accept new image state
 				pixels[index0] = pix1;
@@ -139,7 +141,8 @@ public final class SimulatedAnnealingOnImage {
 		// Write image to file
 		BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		image.setRGB(0, 0, WIDTH, HEIGHT, pixels, 0, WIDTH);
-		String filename = String.format("simulated-annealing-time%d-iters%d-starttemp%.1f.bmp", System.currentTimeMillis(), ITERATIONS, START_TEMPERATURE);
+		String filename = String.format("simulated-annealing-time%d-iters%d-starttemp%.1f.bmp",
+			System.currentTimeMillis(), ITERATIONS, START_TEMPERATURE);
 		ImageIO.write(image, "bmp", new File(filename));
 	}
 	
@@ -168,6 +171,8 @@ public final class SimulatedAnnealingOnImage {
 }
 
 
+
+/*---- Mersenne Twister random number generator library ----*/
 
 /*
  * The C code was ported to Java by Project Nayuki. The numerical output is identical.
@@ -209,7 +214,7 @@ public final class SimulatedAnnealingOnImage {
  *
  * Any feedback is very welcome.
  * http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
- * email: m-mat @ math.sci.hiroshima-u.ac.jp (remove space)
+ * email: m-mat@math.sci.hiroshima-u.ac.jp
  */
 final class MersenneTwister extends Random {
 	
@@ -248,7 +253,7 @@ final class MersenneTwister extends Random {
 		
 		// Tempering
 		x ^= x >>> 11;
-		x ^= (x << 7) & 0x9D2C5680;
+		x ^= (x <<  7) & 0x9D2C5680;
 		x ^= (x << 15) & 0xEFC60000;
 		return x ^ (x >>> 18);
 	}
