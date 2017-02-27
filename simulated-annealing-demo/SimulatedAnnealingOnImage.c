@@ -19,8 +19,9 @@
 
 #define WIDTH  256
 #define HEIGHT 256
+#define REPLICATE_JAVA true
 const int64_t ITERATIONS = INT64_C(1000000000);
-const double START_TEMPERATURE = 300.0;
+const double START_TEMPERATURE = 100.0;
 
 
 /*---- Early declarations ----*/
@@ -49,11 +50,11 @@ int abs(int x);
 int main(void) {
 	// Create initial image state deterministically
 	struct MtRandom mt;
+	MtRandom_init(&mt, 0);
 	uint32_t raw_pixels[WIDTH * (HEIGHT + 2)] = {0};
 	uint32_t *pixels = &raw_pixels[WIDTH];  // Has one row of padding above and below
-	MtRandom_init(&mt, 0);
 	for (size_t i = 0; i < WIDTH * HEIGHT; i++)
-		pixels[i] = MtRandom_next_int(&mt) & UINT32_C(0xFFFFFF);
+		pixels[i] = MtRandom_next_int(&mt) & UINT32_C(0xFFFFFF);  // 24-bit RGB only, no alpha
 	
 	// Calculate energy level
 	int energy = 0;
@@ -70,7 +71,7 @@ int main(void) {
 	fprintf(stderr, "    Done       Iterations      Energy  SwapDiff  Temperature  AcceptProb\n");
 	for (int64_t i = 0; i < ITERATIONS; i++) {
 		// Re-seed periodically for excellent random distribution on long sequences
-		if ((i & INT64_C(0xFFFFFFF)) == 0)
+		if (!REPLICATE_JAVA && (i & INT64_C(0xFFFFFFF)) == 0)  // Once every 268 million iterations
 			MtRandom_reseed(&mt);
 		
 		double t = (double)i / ITERATIONS;  // Normalized time from 0.0 to 1.0
@@ -93,11 +94,13 @@ int main(void) {
 			energydiff = vertical_energy_diff_if_swapped(pixels, WIDTH, HEIGHT, x0, y0);
 		}
 		
-		// Probabilistic conditional acceptance
+		// Print a sample once every 17 million iterations
 		if ((i & INT64_C(0xFFFFFF)) == 0) {
 			fprintf(stderr, "%7.3f%%  %15" PRId64 "  %10d  %8d  %11.3f  %10.8f\n",
 				t * 100, i, energy, energydiff, temperature, fmin(fast_2_pow(-energydiff / temperature), 1.0));
 		}
+		
+		// Probabilistic conditional acceptance
 		if (energydiff < 0 || MtRandom_next_double(&mt) < fast_2_pow(-energydiff / temperature)) {
 			// Accept new image state
 			int index0 = y0 * WIDTH + x0;
@@ -124,12 +127,12 @@ int main(void) {
 void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, const char *filepath) {
 	// Allocate objects
 	FILE *f = fopen(filepath, "wb");
-	int rowsize = (width * 3 + 3) / 4 * 4;
-	uint8_t *row = calloc(rowsize, sizeof(uint8_t));
 	if (f == NULL) {
 		perror("fopen");
 		exit(EXIT_FAILURE);
 	}
+	int rowsize = (width * 3 + 3) / 4 * 4;
+	uint8_t *row = calloc(rowsize, sizeof(uint8_t));
 	if (row == NULL) {
 		perror("calloc");
 		exit(EXIT_FAILURE);
@@ -184,7 +187,8 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 }
 
 
-// Computes 2^x in a fast manner. Maximum relative error of 0.019% over the input range [-1020, 1020], guaranteed.
+// Computes an approximation to 2^x in a fast manner. On the input range
+// [-1020, 1020], the relative error is guaranteed to be less than 0.02%.
 double fast_2_pow(double x) {
 	if (x < -1022)  // Underflow
 		return 0;
@@ -220,7 +224,7 @@ int abs(int x) {
  */
 
 /* 
- * A C-program for MT19937, with initialization improved 2002/1/26.
+ * A C-program for MT19937, with initialization improved 2002-01-26.
  * Coded by Takuji Nishimura and Makoto Matsumoto.
  * 
  * Copyright (C) 1997 - 2002, Makoto Matsumoto and Takuji Nishimura,
@@ -287,24 +291,23 @@ uint32_t MtRandom_next_int(struct MtRandom *mt) {
 
 // Unbiased generator of integers in the range [0, bound).
 uint32_t MtRandom_next_int_bounded(struct MtRandom *mt, uint32_t bound) {
-	while (true) {
-		uint32_t raw = MtRandom_next_int(mt);
-		uint32_t val = raw % bound;
-		if (UINT32_MAX - (raw - val) >= bound - 1)
-			return val;
+	if (!REPLICATE_JAVA) {
+		while (true) {
+			uint32_t raw = MtRandom_next_int(mt);
+			uint32_t val = raw % bound;
+			if (UINT32_MAX - (raw - val) >= bound - 1)
+				return val;
+		}
+	} else {  // Match the behavior of java.util.Random.nextInt(int bound)
+		if ((bound & (bound - 1)) == 0)  // Is power of 2
+			return (uint32_t)(((uint64_t)bound * MtRandom_next_int(mt)) >> 32);
+		while (true) {
+			uint32_t raw = MtRandom_next_int(mt) >> 1;
+			uint32_t val = raw % bound;
+			if ((UINT32_MAX >> 1) - (raw - val) >= bound - 1)
+				return val;
+		}
 	}
-	
-	/*
-	// Alternate version to match java.util.Random.nextInt(int bound):
-	if ((bound & (bound - 1)) == 0)  // Is power of 2
-		return (uint32_t)(((uint64_t)bound * MtRandom_next_int(mt)) >> 32);
-	while (true) {
-		uint32_t raw = MtRandom_next_int(mt) >> 1;
-		uint32_t val = raw % bound;
-		if ((UINT32_MAX >> 1) - (raw - val) >= bound - 1)
-			return val;
-	}
-	*/
 }
 
 
