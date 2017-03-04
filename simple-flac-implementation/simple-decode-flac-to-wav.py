@@ -140,7 +140,7 @@ def decode_frame(inp, numchannels, sampledepth, out):
 
 def decode_subframes(inp, blocksize, sampledepth, chanasgn):
 	if 0 <= chanasgn <= 7:
-		return [decode_subframe(inp, blocksize, sampledepth) for i in range(chanasgn + 1)]
+		return [decode_subframe(inp, blocksize, sampledepth) for _ in range(chanasgn + 1)]
 	elif 8 <= chanasgn <= 10:
 		temp0 = decode_subframe(inp, blocksize, sampledepth + (1 if (chanasgn == 9) else 0))
 		temp1 = decode_subframe(inp, blocksize, sampledepth + (0 if (chanasgn == 9) else 1))

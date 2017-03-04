@@ -52,7 +52,7 @@ def encode_file(inp, out):
 	read_little_int(inp, 4)
 	read_little_int(inp, 2)
 	sampledepth = read_little_int(inp, 2)
-	fail_if(sampledepth == 0 or sampledepth > 32 or sampledepth % 8 != 0, "Unsupported sample depth")
+	fail_if(sampledepth not in (8,16,24,32), "Unsupported sample depth")
 	fail_if(read_fully(inp, 4) != b"data", "Unrecognized WAV file chunk")
 	sampledatalen = read_little_int(inp, 4)
 	fail_if(sampledatalen <= 0 or sampledatalen % (numchannels * (sampledepth // 8)) != 0, "Invalid length of audio sample data")
@@ -139,6 +139,7 @@ def encode_subframe(samples, sampledepth, out):
 	out.write_int(1, 0)
 	for x in samples:
 		out.write_int(sampledepth, x)
+
 
 
 class BitOutputStream(object):

@@ -108,7 +108,8 @@ public final class SimpleDecodeFlacToWav {
 	}
 	
 	
-	private static boolean decodeFrame(BitInputStream in, int numChannels, int sampleDepth, OutputStream out) throws IOException, DataFormatException {
+	private static boolean decodeFrame(BitInputStream in, int numChannels, int sampleDepth, OutputStream out)
+			throws IOException, DataFormatException {
 		// Read a ton of header fields, and ignore most of them
 		int temp = in.readByte();
 		if (temp == -1)
@@ -169,7 +170,8 @@ public final class SimpleDecodeFlacToWav {
 	}
 	
 	
-	private static void decodeSubframes(BitInputStream in, int sampleDepth, int chanAsgn, int[][] result) throws IOException, DataFormatException {
+	private static void decodeSubframes(BitInputStream in, int sampleDepth, int chanAsgn, int[][] result)
+			throws IOException, DataFormatException {
 		int blockSize = result[0].length;
 		long[][] subframes = new long[result.length][blockSize];
 		if (0 <= chanAsgn && chanAsgn <= 7) {
@@ -192,7 +194,6 @@ public final class SimpleDecodeFlacToWav {
 					subframes[0][i] = right + side;
 				}
 			}
-			
 		} else
 			throw new DataFormatException("Reserved channel assignment");
 		for (int ch = 0; ch < result.length; ch++) {
@@ -202,7 +203,8 @@ public final class SimpleDecodeFlacToWav {
 	}
 	
 	
-	private static void decodeSubframe(BitInputStream in, int sampleDepth, long[] result) throws IOException, DataFormatException {
+	private static void decodeSubframe(BitInputStream in, int sampleDepth, long[] result)
+			throws IOException, DataFormatException {
 		in.readUint(1);
 		int type = in.readUint(6);
 		int shift = in.readUint(1);
@@ -229,7 +231,8 @@ public final class SimpleDecodeFlacToWav {
 	}
 	
 	
-	private static void decodeFixedPredictionSubframe(BitInputStream in, int predOrder, int sampleDepth, long[] result) throws IOException, DataFormatException {
+	private static void decodeFixedPredictionSubframe(BitInputStream in, int predOrder, int sampleDepth, long[] result)
+			throws IOException, DataFormatException {
 		for (int i = 0; i < predOrder; i++)
 			result[i] = in.readSignedInt(sampleDepth);
 		decodeResiduals(in, predOrder, result);
@@ -245,7 +248,8 @@ public final class SimpleDecodeFlacToWav {
 	};
 	
 	
-	private static void decodeLinearPredictiveCodingSubframe(BitInputStream in, int lpcOrder, int sampleDepth, long[] result) throws IOException, DataFormatException {
+	private static void decodeLinearPredictiveCodingSubframe(BitInputStream in, int lpcOrder, int sampleDepth, long[] result)
+			throws IOException, DataFormatException {
 		for (int i = 0; i < lpcOrder; i++)
 			result[i] = in.readSignedInt(sampleDepth);
 		int precision = in.readUint(4) + 1;
