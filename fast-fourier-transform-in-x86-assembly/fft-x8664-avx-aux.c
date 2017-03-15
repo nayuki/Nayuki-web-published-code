@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform for x86-64 AVX (C)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
@@ -40,7 +40,7 @@ struct FftTables {
 // Private function prototypes
 static double accurate_sine(uint64_t i, uint64_t n);
 static int floor_log2(uint64_t n);
-static uint64_t reverse_bits(uint64_t x, unsigned int n);
+static uint64_t reverse_bits(uint64_t x, int n);
 
 
 /*---- Function implementations ----*/
@@ -71,19 +71,16 @@ void *fft_init(size_t n) {
 	
 	// Precompute bit reversal table
 	int levels = floor_log2(n);
-	uint64_t i;
-	for (i = 0; i < n; i++)
+	for (uint64_t i = 0; i < n; i++)
 		tables->bit_reversed[i] = reverse_bits(i, levels);
 	
 	// Precompute the packed trigonometric table for each FFT internal level
-	uint64_t size;
 	uint64_t k = 0;
-	for (size = 8; size <= n; size *= 2) {
-		for (i = 0; i < size / 2; i += 4) {
-			uint64_t j;
-			for (j = 0; j < 4; j++, k++)
+	for (uint64_t size = 8; size <= n; size *= 2) {
+		for (uint64_t i = 0; i < size / 2; i += 4) {
+			for (uint64_t j = 0; j < 4; j++, k++)
 				tables->trig_tables[k] = accurate_sine(i + j + size / 4, size);  // Cosine
-			for (j = 0; j < 4; j++, k++)
+			for (uint64_t j = 0; j < 4; j++, k++)
 				tables->trig_tables[k] = accurate_sine(i + j, size);  // Sine
 		}
 		if (size == n)
@@ -143,10 +140,9 @@ static int floor_log2(uint64_t n) {
 
 
 // Returns the bit reversal of the n-bit unsigned integer x.
-static uint64_t reverse_bits(uint64_t x, unsigned int n) {
+static uint64_t reverse_bits(uint64_t x, int n) {
 	uint64_t result = 0;
-	unsigned int i;
-	for (i = 0; i < n; i++, x >>= 1)
+	for (int i = 0; i < n; i++, x >>= 1)
 		result = (result << 1) | (x & 1);
 	return result;
 }

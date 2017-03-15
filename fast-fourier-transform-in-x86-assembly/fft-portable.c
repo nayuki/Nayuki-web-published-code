@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform (C)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
@@ -40,7 +40,7 @@ struct FftTables {
 
 // Private function prototypes
 static int floor_log2(size_t n);
-static size_t reverse_bits(size_t x, unsigned int n);
+static size_t reverse_bits(size_t x, int n);
 
 
 /*---- Function implementations ----*/
@@ -72,11 +72,10 @@ void *fft_init(size_t n) {
 	}
 	
 	// Precompute values and store to tables
-	size_t i;
 	int levels = floor_log2(n);
-	for (i = 0; i < n; i++)
+	for (size_t i = 0; i < n; i++)
 		tables->bit_reversed[i] = reverse_bits(i, levels);
-	for (i = 0; i < n / 2; i++) {
+	for (size_t i = 0; i < n / 2; i++) {
 		double angle = 2 * M_PI * i / n;
 		tables->cos_table[i] = cos(angle);
 		tables->sin_table[i] = sin(angle);
@@ -92,8 +91,7 @@ void fft_transform(const void *tables, double *real, double *imag) {
 	
 	// Bit-reversed addressing permutation
 	size_t *bitreversed = tbl->bit_reversed;
-	size_t i;
-	for (i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		size_t j = bitreversed[i];
 		if (i < j) {
 			double tp0re = real[i];
@@ -110,13 +108,11 @@ void fft_transform(const void *tables, double *real, double *imag) {
 	// Cooley-Tukey decimation-in-time radix-2 FFT
 	double *costable = tbl->cos_table;
 	double *sintable = tbl->sin_table;
-	size_t size;
-	for (size = 2; size <= n; size *= 2) {
+	for (size_t size = 2; size <= n; size *= 2) {
 		size_t halfsize = size / 2;
 		size_t tablestep = n / size;
-		for (i = 0; i < n; i += size) {
-			size_t j, k;
-			for (j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
+		for (size_t i = 0; i < n; i += size) {
+			for (size_t j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
 				double tpre =  real[j+halfsize] * costable[k] + imag[j+halfsize] * sintable[k];
 				double tpim = -real[j+halfsize] * sintable[k] + imag[j+halfsize] * costable[k];
 				real[j + halfsize] = real[j] - tpre;
@@ -154,10 +150,9 @@ static int floor_log2(size_t n) {
 
 
 // Returns the bit reversal of the n-bit unsigned integer x.
-static size_t reverse_bits(size_t x, unsigned int n) {
+static size_t reverse_bits(size_t x, int n) {
 	size_t result = 0;
-	unsigned int i;
-	for (i = 0; i < n; i++, x >>= 1)
+	for (int i = 0; i < n; i++, x >>= 1)
 		result = (result << 1) | (x & 1);
 	return result;
 }

@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform for x86-64 AVX (C)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
@@ -43,9 +43,8 @@ void fft_transform(const void *tables, double *real, double *imag) {
 	uint64_t n = tbl->n;
 	
 	// Bit-reversed addressing permutation
-	uint64_t i;
 	uint64_t *bitreversed = tbl->bit_reversed;
-	for (i = 0; i < n; i++) {
+	for (uint64_t i = 0; i < n; i++) {
 		uint64_t j = bitreversed[i];
 		if (i < j) {
 			double tp0re = real[i];
@@ -61,7 +60,7 @@ void fft_transform(const void *tables, double *real, double *imag) {
 	
 	// Size 2 merge (special)
 	if (n >= 2) {
-		for (i = 0; i < n; i += 2) {
+		for (uint64_t i = 0; i < n; i += 2) {
 			double tpre = real[i];
 			double tpim = imag[i];
 			real[i] += real[i + 1];
@@ -73,7 +72,7 @@ void fft_transform(const void *tables, double *real, double *imag) {
 	
 	// Size 4 merge (special)
 	if (n >= 4) {
-		for (i = 0; i < n; i += 4) {
+		for (uint64_t i = 0; i < n; i += 4) {
 			// Even indices
 			double tpre, tpim;
 			tpre = real[i];
@@ -96,15 +95,11 @@ void fft_transform(const void *tables, double *real, double *imag) {
 	
 	// Size 8 and larger merges (general)
 	double *trigtables = tbl->trig_tables;
-	uint64_t size;
-	for (size = 8; size <= n; size <<= 1) {
+	for (uint64_t size = 8; size <= n; size <<= 1) {
 		uint64_t halfsize = size >> 1;
-		uint64_t i;
-		for (i = 0; i < n; i += size) {
-			uint64_t j, off;
-			for (j = 0, off = 0; j < halfsize; j += 4, off += 8) {
-				uint64_t k;
-				for (k = 0; k < 4; k++) {  // To simulate x86 AVX 4-vectors
+		for (uint64_t i = 0; i < n; i += size) {
+			for (uint64_t j = 0, off = 0; j < halfsize; j += 4, off += 8) {
+				for (int k = 0; k < 4; k++) {  // To simulate x86 AVX 4-vectors
 					uint64_t vi = i + j + k;  // Vector index
 					uint64_t ti = off + k;    // Table index
 					double re = real[vi + halfsize];
