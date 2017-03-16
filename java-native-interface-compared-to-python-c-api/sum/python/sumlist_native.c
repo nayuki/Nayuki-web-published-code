@@ -1,7 +1,7 @@
 /* 
  * Sum list (Python version)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/java-native-interface-compared-to-python-c-api
  */
@@ -19,8 +19,7 @@
 static PyObject *get_sum32(PyObject *self, PyObject *seq) {
 	uint32_t result = 0;
 	Py_ssize_t len = PySequence_Length(seq);
-	Py_ssize_t i;
-	for (i = 0; i < len; i++) {  // Sum every element
+	for (Py_ssize_t i = 0; i < len; i++) {  // Sum every element
 		PyObject *item = PySequence_GetItem(seq, i);
 		result += (uint32_t)PyLong_AsUnsignedLongMask(item);
 		Py_DECREF(item);

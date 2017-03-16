@@ -54,8 +54,7 @@ int main(void) {
 		struct timespec ts;
 		clock_gettime(CLOCK_REALTIME, &ts);
 		uint64_t temp = ts.tv_sec * UINT64_C(1000000000) + ts.tv_nsec;
-		int i;
-		for (i = 0; i < MSG_LEN; i++, temp /= 26)
+		for (int i = 0; i < MSG_LEN; i++, temp /= 26)
 			block[i] = 'a' + temp % 26;
 		block[MSG_LEN] = 0x80;
 		block[126] = (uint8_t)(MSG_LEN >> 5);
@@ -71,8 +70,7 @@ int main(void) {
 	uint64_t totaliters = 0;
 	int prevprinttype = 0;  // 0 = hash, 1 = status
 	
-	int i;
-	for (i = 0; ; i++) {
+	for (int i = 0; ; i++) {
 		if (i >= ITERS_PER_PRINT) {
 			totaliters += i;
 			i = 0;
@@ -99,8 +97,7 @@ int main(void) {
 			fprintf(stderr, "%016" PRIx64 "%016" PRIx64 "... %s\n", hash[0], hash[1], message);
 			fflush(stdout);
 			fflush(stderr);
-			int j;
-			for (j = 0; j < 8; j++)
+			for (int j = 0; j < 8; j++)
 				lowesthash[j] = hash[j];
 			prevprinttype = 0;
 		}
@@ -145,16 +142,14 @@ static void benchmark(void) {
 	uint8_t block[128] = {0};
 	uint64_t state[8] = {0};
 	clock_t start_time = clock();
-	int i;
-	for (i = 0; i < N; i++)
+	for (int i = 0; i < N; i++)
 		sha512_compress(state, block);
 	fprintf(stderr, "Speed: %.3f million iterations per second\n", (double)N / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 }
 
 
 static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]) {
-	int i;
-	for (i = 0; i < 8; i++) {
+	for (int i = 0; i < 8; i++) {
 		uint64_t x = hash0[i];
 		uint64_t y = hash1[i];
 		if (x < y)

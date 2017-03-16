@@ -46,21 +46,19 @@ static double max_log_error = -INFINITY;
 /* Main and test functions */
 
 int main(void) {
-	int i;
-	int prev;
 	srand(time(NULL));
 	
 	// Test power-of-2 size FFTs
-	for (i = 0; i <= 12; i++)
+	for (int i = 0; i <= 12; i++)
 		test_fft(1 << i);
 	
 	// Test small size FFTs
-	for (i = 0; i < 30; i++)
+	for (int i = 0; i < 30; i++)
 		test_fft(i);
 	
 	// Test diverse size FFTs
-	prev = 0;
-	for (i = 0; i <= 100; i++) {
+	int prev = 0;
+	for (int i = 0; i <= 100; i++) {
 		int n = (int)lround(pow(1500, i / 100.0));
 		if (n > prev) {
 			test_fft(n);
@@ -69,12 +67,12 @@ int main(void) {
 	}
 	
 	// Test power-of-2 size convolutions
-	for (i = 0; i <= 12; i++)
+	for (int i = 0; i <= 12; i++)
 		test_convolution(1 << i);
 	
 	// Test diverse size convolutions
 	prev = 0;
-	for (i = 0; i <= 100; i++) {
+	for (int i = 0; i <= 100; i++) {
 		int n = (int)lround(pow(1500, i / 100.0));
 		if (n > prev) {
 			test_convolution(n);
@@ -90,19 +88,15 @@ int main(void) {
 
 
 static void test_fft(int n) {
-	double *inputreal, *inputimag;
-	double *refoutreal, *refoutimag;
-	double *actualoutreal, *actualoutimag;
+	double *inputreal = random_reals(n);
+	double *inputimag = random_reals(n);
 	
-	inputreal = random_reals(n);
-	inputimag = random_reals(n);
-	
-	refoutreal = malloc(n * sizeof(double));
-	refoutimag = malloc(n * sizeof(double));
+	double *refoutreal = malloc(n * sizeof(double));
+	double *refoutimag = malloc(n * sizeof(double));
 	naive_dft(inputreal, inputimag, refoutreal, refoutimag, false, n);
 	
-	actualoutreal = memdup(inputreal, n * sizeof(double));
-	actualoutimag = memdup(inputimag, n * sizeof(double));
+	double *actualoutreal = memdup(inputreal, n * sizeof(double));
+	double *actualoutimag = memdup(inputimag, n * sizeof(double));
 	transform(actualoutreal, actualoutimag, n);
 	
 	printf("fftsize=%4d  logerr=%5.1f\n", n, log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
@@ -117,22 +111,17 @@ static void test_fft(int n) {
 
 
 static void test_convolution(int n) {
-	double *input0real, *input0imag;
-	double *input1real, *input1imag;
-	double *refoutreal, *refoutimag;
-	double *actualoutreal, *actualoutimag;
+	double *input0real = random_reals(n);
+	double *input0imag = random_reals(n);
+	double *input1real = random_reals(n);
+	double *input1imag = random_reals(n);
 	
-	input0real = random_reals(n);
-	input0imag = random_reals(n);
-	input1real = random_reals(n);
-	input1imag = random_reals(n);
-	
-	refoutreal = malloc(n * sizeof(double));
-	refoutimag = malloc(n * sizeof(double));
+	double *refoutreal = malloc(n * sizeof(double));
+	double *refoutimag = malloc(n * sizeof(double));
 	naive_convolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag, n);
 	
-	actualoutreal = malloc(n * sizeof(double));
-	actualoutimag = malloc(n * sizeof(double));
+	double *actualoutreal = malloc(n * sizeof(double));
+	double *actualoutimag = malloc(n * sizeof(double));
 	convolve_complex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag, n);
 	
 	printf("convsize=%4d  logerr=%5.1f\n", n, log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
@@ -152,12 +141,10 @@ static void test_convolution(int n) {
 
 static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n) {
 	double coef = (inverse ? 2 : -2) * M_PI;
-	int k;
-	for (k = 0; k < n; k++) {  // For each output element
+	for (int k = 0; k < n; k++) {  // For each output element
 		double sumreal = 0;
 		double sumimag = 0;
-		int t;
-		for (t = 0; t < n; t++) {  // For each input element
+		for (int t = 0; t < n; t++) {  // For each input element
 			double angle = coef * ((long long)t * k % n) / n;
 			sumreal += inreal[t]*cos(angle) - inimag[t]*sin(angle);
 			sumimag += inreal[t]*sin(angle) + inimag[t]*cos(angle);
@@ -169,12 +156,10 @@ static void naive_dft(const double *inreal, const double *inimag, double *outrea
 
 
 static void naive_convolve(const double *xreal, const double *ximag, const double *yreal, const double *yimag, double *outreal, double *outimag, int n) {
-	int i;
-	for (i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) {
 		double sumreal = 0;
 		double sumimag = 0;
-		int j;
-		for (j = 0; j < n; j++) {
+		for (int j = 0; j < n; j++) {
 			int k = (i - j + n) % n;
 			sumreal += xreal[k] * yreal[j] - ximag[k] * yimag[j];
 			sumimag += xreal[k] * yimag[j] + ximag[k] * yreal[j];
@@ -189,8 +174,7 @@ static void naive_convolve(const double *xreal, const double *ximag, const doubl
 
 static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n) {
 	double err = 0;
-	int i;
-	for (i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
 	
 	err /= n > 0 ? n : 1;
@@ -204,8 +188,7 @@ static double log10_rms_err(const double *xreal, const double *ximag, const doub
 
 static double *random_reals(int n) {
 	double *result = malloc(n * sizeof(double));
-	int i;
-	for (i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 		result[i] = (rand() / (RAND_MAX + 1.0)) * 2 - 1;
 	return result;
 }

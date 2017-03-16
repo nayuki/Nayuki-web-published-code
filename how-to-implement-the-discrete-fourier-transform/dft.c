@@ -1,6 +1,6 @@
 /* 
  * Discrete Fourier transform
- * by Project Nayuki, 2015. Public domain.
+ * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
 
@@ -12,12 +12,10 @@
  * All the array arguments must have the same length.
  */
 void compute_dft(const double inreal[], const double inimag[], double outreal[], double outimag[], int n) {
-	int k;
-	for (k = 0; k < n; k++) {  /* For each output element */
+	for (int k = 0; k < n; k++) {  /* For each output element */
 		double sumreal = 0;
 		double sumimag = 0;
-		int t;
-		for (t = 0; t < n; t++) {  /* For each input element */
+		for (int t = 0; t < n; t++) {  /* For each input element */
 			double angle = 2 * M_PI * t * k / n;
 			sumreal +=  inreal[t] * cos(angle) + inimag[t] * sin(angle);
 			sumimag += -inreal[t] * sin(angle) + inimag[t] * cos(angle);

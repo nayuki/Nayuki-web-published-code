@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * (MIT License)
@@ -54,9 +54,6 @@ bool transform_radix2(double real[], double imag[], size_t n) {
 	// Variables
 	bool status = false;
 	unsigned int levels;
-	double *cos_table, *sin_table;
-	size_t size;
-	size_t i;
 	
 	// Compute levels = floor(log2(n))
 	{
@@ -73,18 +70,18 @@ bool transform_radix2(double real[], double imag[], size_t n) {
 	// Trignometric tables
 	if (SIZE_MAX / sizeof(double) < n / 2)
 		return false;
-	size = (n / 2) * sizeof(double);
-	cos_table = malloc(size);
-	sin_table = malloc(size);
+	size_t size = (n / 2) * sizeof(double);
+	double *cos_table = malloc(size);
+	double *sin_table = malloc(size);
 	if (cos_table == NULL || sin_table == NULL)
 		goto cleanup;
-	for (i = 0; i < n / 2; i++) {
+	for (size_t i = 0; i < n / 2; i++) {
 		cos_table[i] = cos(2 * M_PI * i / n);
 		sin_table[i] = sin(2 * M_PI * i / n);
 	}
 	
 	// Bit-reversed addressing permutation
-	for (i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		size_t j = reverse_bits(i, levels);
 		if (j > i) {
 			double temp = real[i];
@@ -97,13 +94,11 @@ bool transform_radix2(double real[], double imag[], size_t n) {
 	}
 	
 	// Cooley-Tukey decimation-in-time radix-2 FFT
-	for (size = 2; size <= n; size *= 2) {
+	for (size_t size = 2; size <= n; size *= 2) {
 		size_t halfsize = size / 2;
 		size_t tablestep = n / size;
-		for (i = 0; i < n; i += size) {
-			size_t j;
-			size_t k;
-			for (j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
+		for (size_t i = 0; i < n; i += size) {
+			for (size_t j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
 				double tpre =  real[j+halfsize] * cos_table[k] + imag[j+halfsize] * sin_table[k];
 				double tpim = -real[j+halfsize] * sin_table[k] + imag[j+halfsize] * cos_table[k];
 				real[j + halfsize] = real[j] - tpre;
@@ -127,13 +122,7 @@ cleanup:
 bool transform_bluestein(double real[], double imag[], size_t n) {
 	// Variables
 	bool status = false;
-	double *cos_table, *sin_table;
-	double *areal, *aimag;
-	double *breal, *bimag;
-	double *creal, *cimag;
 	size_t m;
-	size_t size_n, size_m;
-	size_t i;
 	
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
 	{
@@ -150,16 +139,16 @@ bool transform_bluestein(double real[], double imag[], size_t n) {
 	// Allocate memory
 	if (SIZE_MAX / sizeof(double) < n || SIZE_MAX / sizeof(double) < m)
 		return false;
-	size_n = n * sizeof(double);
-	size_m = m * sizeof(double);
-	cos_table = malloc(size_n);
-	sin_table = malloc(size_n);
-	areal = calloc(m, sizeof(double));
-	aimag = calloc(m, sizeof(double));
-	breal = calloc(m, sizeof(double));
-	bimag = calloc(m, sizeof(double));
-	creal = malloc(size_m);
-	cimag = malloc(size_m);
+	size_t size_n = n * sizeof(double);
+	size_t size_m = m * sizeof(double);
+	double *cos_table = malloc(size_n);
+	double *sin_table = malloc(size_n);
+	double *areal = calloc(m, sizeof(double));
+	double *aimag = calloc(m, sizeof(double));
+	double *breal = calloc(m, sizeof(double));
+	double *bimag = calloc(m, sizeof(double));
+	double *creal = malloc(size_m);
+	double *cimag = malloc(size_m);
 	if (cos_table == NULL || sin_table == NULL
 			|| areal == NULL || aimag == NULL
 			|| breal == NULL || bimag == NULL
@@ -167,7 +156,7 @@ bool transform_bluestein(double real[], double imag[], size_t n) {
 		goto cleanup;
 	
 	// Trignometric tables
-	for (i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		double temp = M_PI * (size_t)((unsigned long long)i * i % ((unsigned long long)n * 2)) / n;
 		// Less accurate version if long long is unavailable: double temp = M_PI * i * i / n;
 		cos_table[i] = cos(temp);
@@ -175,13 +164,13 @@ bool transform_bluestein(double real[], double imag[], size_t n) {
 	}
 	
 	// Temporary vectors and preprocessing
-	for (i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		areal[i] =  real[i] * cos_table[i] + imag[i] * sin_table[i];
 		aimag[i] = -real[i] * sin_table[i] + imag[i] * cos_table[i];
 	}
 	breal[0] = cos_table[0];
 	bimag[0] = sin_table[0];
-	for (i = 1; i < n; i++) {
+	for (size_t i = 1; i < n; i++) {
 		breal[i] = breal[m - i] = cos_table[i];
 		bimag[i] = bimag[m - i] = sin_table[i];
 	}
@@ -191,7 +180,7 @@ bool transform_bluestein(double real[], double imag[], size_t n) {
 		goto cleanup;
 	
 	// Postprocessing
-	for (i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		real[i] =  creal[i] * cos_table[i] + cimag[i] * sin_table[i];
 		imag[i] = -creal[i] * sin_table[i] + cimag[i] * cos_table[i];
 	}
@@ -212,11 +201,10 @@ cleanup:
 
 
 bool convolve_real(const double x[], const double y[], double out[], size_t n) {
-	double *ximag, *yimag, *zimag;
 	bool status = false;
-	ximag = calloc(n, sizeof(double));
-	yimag = calloc(n, sizeof(double));
-	zimag = calloc(n, sizeof(double));
+	double *ximag = calloc(n, sizeof(double));
+	double *yimag = calloc(n, sizeof(double));
+	double *zimag = calloc(n, sizeof(double));
 	if (ximag == NULL || yimag == NULL || zimag == NULL)
 		goto cleanup;
 	
@@ -231,16 +219,13 @@ cleanup:
 
 bool convolve_complex(const double xreal[], const double ximag[], const double yreal[], const double yimag[], double outreal[], double outimag[], size_t n) {
 	bool status = false;
-	size_t size;
-	size_t i;
-	double *xr, *xi, *yr, *yi;
 	if (SIZE_MAX / sizeof(double) < n)
 		return false;
-	size = n * sizeof(double);
-	xr = memdup(xreal, size);
-	xi = memdup(ximag, size);
-	yr = memdup(yreal, size);
-	yi = memdup(yimag, size);
+	size_t size = n * sizeof(double);
+	double *xr = memdup(xreal, size);
+	double *xi = memdup(ximag, size);
+	double *yr = memdup(yreal, size);
+	double *yi = memdup(yimag, size);
 	if (xr == NULL || xi == NULL || yr == NULL || yi == NULL)
 		goto cleanup;
 	
@@ -248,14 +233,14 @@ bool convolve_complex(const double xreal[], const double ximag[], const double y
 		goto cleanup;
 	if (!transform(yr, yi, n))
 		goto cleanup;
-	for (i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		double temp = xr[i] * yr[i] - xi[i] * yi[i];
 		xi[i] = xi[i] * yr[i] + xr[i] * yi[i];
 		xr[i] = temp;
 	}
 	if (!inverse_transform(xr, xi, n))
 		goto cleanup;
-	for (i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
+	for (size_t i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
 		outreal[i] = xr[i] / n;
 		outimag[i] = xi[i] / n;
 	}
@@ -272,8 +257,7 @@ cleanup:
 
 static size_t reverse_bits(size_t x, unsigned int n) {
 	size_t result = 0;
-	unsigned int i;
-	for (i = 0; i < n; i++, x >>= 1)
+	for (unsigned int i = 0; i < n; i++, x >>= 1)
 		result = (result << 1) | (x & 1);
 	return result;
 }

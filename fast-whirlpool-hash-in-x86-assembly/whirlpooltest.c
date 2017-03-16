@@ -53,8 +53,7 @@ int main(void) {
 	uint8_t block[64] = {0};
 	const int N = 1000000;
 	clock_t start_time = clock();
-	int i;
-	for (i = 0; i < N; i++)
+	for (int i = 0; i < N; i++)
 		whirlpool_compress(state, block);
 	printf("Speed: %.2f MiB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1048576);
 	
@@ -87,8 +86,7 @@ static struct testcase testCases[] = {
 };
 
 static bool self_check(void) {
-	unsigned int i;
-	for (i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
+	for (unsigned int i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint8_t hash[64];
 		whirlpool_hash(tc->message, strlen((const char *)tc->message), hash);

@@ -54,8 +54,7 @@ int main(void) {
 	uint8_t block[64] = {0};
 	const int N = 10000000;
 	clock_t start_time = clock();
-	int i;
-	for (i = 0; i < N; i++)
+	for (int i = 0; i < N; i++)
 		md5_compress(state, block);
 	printf("Speed: %.1f MB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 	
@@ -84,8 +83,7 @@ static struct testcase testCases[] = {
 };
 
 static bool self_check(void) {
-	unsigned int i;
-	for (i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
+	for (unsigned int i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint32_t hash[4];
 		md5_hash(tc->message, strlen((const char *)tc->message), hash);

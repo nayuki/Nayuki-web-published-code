@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (C)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * (MIT License)
@@ -46,8 +46,7 @@ const char *kmp_search(const char *pattern, const char *text) {
 	
 	// Compute longest suffix-prefix table
 	lsp[0] = 0;  // Base case
-	size_t i;
-	for (i = 1; i < pattern_len; i++) {
+	for (size_t i = 1; i < pattern_len; i++) {
 		size_t j = lsp[i - 1];  // Start by assuming we're extending the previous LSP
 		while (j > 0 && pattern[i] != pattern[j])
 			j = lsp[j - 1];
@@ -57,8 +56,7 @@ const char *kmp_search(const char *pattern, const char *text) {
 	}
 	
 	// Walk through text string
-	size_t j = 0;  // Number of chars matched in pattern
-	for (; *text != '\0'; text++) {
+	for (size_t j = 0; *text != '\0'; text++) {  // j is the number of chars matched in pattern
 		while (j > 0 && *text != pattern[j])
 			j = lsp[j - 1];  // Fall back in the pattern
 		if (*text == pattern[j]) {

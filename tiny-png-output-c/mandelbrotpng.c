@@ -57,10 +57,8 @@ int main(void) {
 	
 	// Compute and write Mandelbrot one line at a time
 	uint8_t *line = malloc(width * 3 * sizeof(uint8_t));
-	int y;
-	for (y = 0; y < height; y++) {
-		int x;
-		for (x = 0; x < width; x++) {
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
 			uint32_t pix = mandelbrot(xMin + (x + 0.5) / width * (xMax - xMin), yMax - (y + 0.5) / height * (yMax - yMin));
 			line[x * 3 + 0] = (uint8_t)(pix >> 16);
 			line[x * 3 + 1] = (uint8_t)(pix >>  8);

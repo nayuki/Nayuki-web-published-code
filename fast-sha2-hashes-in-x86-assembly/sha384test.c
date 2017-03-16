@@ -54,8 +54,7 @@ int main(void) {
 	uint64_t block[16] = {0};
 	const int N = 3000000;
 	clock_t start_time = clock();
-	int i;
-	for (i = 0; i < N; i++)
+	for (int i = 0; i < N; i++)
 		sha512_compress(state, (uint8_t *)block);  // Type-punning
 	printf("Speed: %.1f MB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 	
@@ -82,8 +81,7 @@ static struct testcase testCases[] = {
 };
 
 static bool self_check(void) {
-	unsigned int i;
-	for (i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
+	for (unsigned int i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint64_t hash[6];
 		sha384_hash(tc->message, strlen((const char *)tc->message), hash);

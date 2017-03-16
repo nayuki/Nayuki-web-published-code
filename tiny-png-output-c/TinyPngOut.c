@@ -1,7 +1,7 @@
 /* 
  * Tiny PNG Output (C)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -206,10 +206,8 @@ static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout) {
 
 static uint32_t crc32(uint32_t state, const uint8_t *data, size_t len) {
 	state = ~state;
-	size_t i;
-	for (i = 0; i < len; i++) {
-		unsigned int j;
-		for (j = 0; j < 8; j++) {  // Inefficient bitwise implementation, instead of table-based
+	for (size_t i = 0; i < len; i++) {
+		for (unsigned int j = 0; j < 8; j++) {  // Inefficient bitwise implementation, instead of table-based
 			uint32_t bit = (state ^ (data[i] >> j)) & 1;
 			state = (state >> 1) ^ ((-bit) & 0xEDB88320);
 		}
@@ -221,8 +219,7 @@ static uint32_t crc32(uint32_t state, const uint8_t *data, size_t len) {
 static uint32_t adler32(uint32_t state, const uint8_t *data, size_t len) {
 	uint16_t s1 = state >>  0;
 	uint16_t s2 = state >> 16;
-	size_t i;
-	for (i = 0; i < len; i++) {
+	for (size_t i = 0; i < len; i++) {
 		s1 = (s1 + data[i]) % 65521;
 		s2 = (s2 + s1) % 65521;
 	}

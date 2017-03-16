@@ -1,7 +1,7 @@
 /* 
  * Whirlpool hash in C
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/fast-whirlpool-hash-in-x86-assembly
  * 
  * (MIT License)
@@ -54,26 +54,24 @@ void whirlpool_compress(uint8_t state[64], const uint8_t block[64]) {
 	const int NUM_ROUNDS = 10;  // Any number from 0 to 32 is allowed
 	uint8_t tempState[64];
 	uint8_t tempBlock[64];
-	int i;
 	
 	// Initialization
 	memcpy(tempState, state, 64);
-	for (i = 0; i < 64; i++)
+	for (int i = 0; i < 64; i++)
 		tempBlock[i] = block[i] ^ state[i];
 	
 	// Hashing rounds
 	uint8_t rcon[64];
 	memset(rcon + 8, 0, 56);
-	for (i = 0; i < NUM_ROUNDS; i++) {
-		int j;
-		for (j = 0; j < 8; j++)
+	for (int i = 0; i < NUM_ROUNDS; i++) {
+		for (int j = 0; j < 8; j++)
 			rcon[j] = SBOX[(i << 3) | j];
 		whirlpool_round(tempState, rcon);
 		whirlpool_round(tempBlock, tempState);
 	}
 	
 	// Final combining
-	for (i = 0; i < 64; i++)
+	for (int i = 0; i < 64; i++)
 		state[i] ^= block[i] ^ tempBlock[i];
 }
 
@@ -93,32 +91,28 @@ static uint8_t MULTIPLY[8][256] = {
 
 static void whirlpool_round(uint8_t block[64], const uint8_t key[64]) {
 	uint8_t temp[64];
-	int i;
 	
 	// Non-linear layer (gamma, SubBytes)
-	for (i = 0; i < 64; i++)
+	for (int i = 0; i < 64; i++)
 		block[i] = SBOX[block[i]];
 	
 	// Cyclical permutation (pi, ShiftColumns)
-	for (i = 0; i < 8; i++) {
-		int j;
-		for (j = 0; j < 8; j++)
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++)
 			temp[((i + j) & 7) << 3 | i] = block[j << 3 | i];
 	}
 	
 	// Linear diffusion layer (theta, MixRows)
-	for (i = 0; i < 8; i++) {
-		int j;
-		for (j = 0; j < 8; j++) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
 			int sum = 0;
-			int k;
-			for (k = 0; k < 8; k++)
+			for (int k = 0; k < 8; k++)
 				sum ^= MULTIPLY[k][temp[i << 3 | ((j + k) & 7)]];
 			block[i << 3 | j] = sum;
 		}
 	}
 	
 	// Key addition (sigma, AddRoundKey)
-	for (i = 0; i < 64; i++)
+	for (int i = 0; i < 64; i++)
 		block[i] ^= key[i];
 }
