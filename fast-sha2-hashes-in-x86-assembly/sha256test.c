@@ -81,7 +81,7 @@ static struct testcase testCases[] = {
 };
 
 static bool self_check(void) {
-	for (unsigned int i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
+	for (size_t i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint32_t hash[8];
 		sha256_hash(tc->message, strlen((const char *)tc->message), hash);
@@ -104,27 +104,27 @@ void sha256_hash(const uint8_t *message, size_t len, uint32_t hash[8]) {
 	hash[6] = UINT32_C(0x1F83D9AB);
 	hash[7] = UINT32_C(0x5BE0CD19);
 	
-	size_t i;
-	for (i = 0; len - i >= 64; i += 64)
-		sha256_compress(hash, &message[i]);
+	#define BLOCK_SIZE 64  // In bytes
+	#define LENGTH_SIZE 8  // In bytes
 	
-	uint8_t block[64];
-	size_t rem = len - i;
-	memcpy(block, &message[i], rem);
+	size_t off;
+	for (off = 0; len - off >= BLOCK_SIZE; off += BLOCK_SIZE)
+		sha256_compress(hash, &message[off]);
+	
+	uint8_t block[BLOCK_SIZE] = {0};
+	size_t rem = len - off;
+	memcpy(block, &message[off], rem);
 	
 	block[rem] = 0x80;
 	rem++;
-	if (64 - rem >= 8)
-		memset(&block[rem], 0, 56 - rem);
-	else {
-		memset(&block[rem], 0, 64 - rem);
+	if (BLOCK_SIZE - rem < LENGTH_SIZE) {
 		sha256_compress(hash, block);
-		memset(block, 0, 56);
+		memset(block, 0, sizeof(block));
 	}
 	
-	block[64 - 1] = (uint8_t)((len & 0x1FU) << 3);
+	block[BLOCK_SIZE - 1] = (uint8_t)((len & 0x1FU) << 3);
 	len >>= 5;
-	for (i = 1; i < 8; i++, len >>= 8)
-		block[64 - 1 - i] = (uint8_t)len;
+	for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
+		block[BLOCK_SIZE - 1 - i] = (uint8_t)(len & 0xFFU);
 	sha256_compress(hash, block);
 }

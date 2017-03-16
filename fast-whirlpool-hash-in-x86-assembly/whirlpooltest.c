@@ -33,7 +33,7 @@
 /* Function prototypes */
 
 static bool self_check(void);
-void whirlpool_hash(const uint8_t *message, uint32_t len, uint8_t hash[64]);
+void whirlpool_hash(const uint8_t *message, size_t len, uint8_t hash[64]);
 
 // Link this program with an external C or x86 compression function
 extern void whirlpool_compress(uint8_t state[64], const uint8_t block[64]);
@@ -86,7 +86,7 @@ static struct testcase testCases[] = {
 };
 
 static bool self_check(void) {
-	for (unsigned int i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
+	for (size_t i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint8_t hash[64];
 		whirlpool_hash(tc->message, strlen((const char *)tc->message), hash);
@@ -99,29 +99,30 @@ static bool self_check(void) {
 
 /* Full message hasher */
 
-void whirlpool_hash(const uint8_t *message, uint32_t len, uint8_t hash[64]) {
+void whirlpool_hash(const uint8_t *message, size_t len, uint8_t hash[64]) {
 	memset(hash, 0, 64);
 	
-	uint32_t i;
-	for (i = 0; len - i >= 64; i += 64)
-		whirlpool_compress(hash, message + i);
+	#define BLOCK_SIZE 64  // In bytes
+	#define LENGTH_SIZE 32  // In bytes
 	
-	uint8_t block[64];
-	uint32_t rem = len - i;
-	memcpy(block, message + i, rem);
+	size_t off;
+	for (off = 0; len - off >= BLOCK_SIZE; off += BLOCK_SIZE)
+		whirlpool_compress(hash, &message[off]);
+	
+	uint8_t block[BLOCK_SIZE] = {0};
+	size_t rem = len - off;
+	memcpy(block, &message[off], rem);
 	
 	block[rem] = 0x80;
 	rem++;
-	if (64 - rem >= 32)
-		memset(block + rem, 0, 56 - rem);
-	else {
-		memset(block + rem, 0, 64 - rem);
+	if (BLOCK_SIZE - rem < LENGTH_SIZE) {
 		whirlpool_compress(hash, block);
-		memset(block, 0, 56);
+		memset(block, 0, sizeof(block));
 	}
 	
-	uint64_t longLen = ((uint64_t)len) << 3;
-	for (i = 0; i < 8; i++)
-		block[64 - 1 - i] = (uint8_t)(longLen >> (i * 8));
+	block[BLOCK_SIZE - 1] = (uint8_t)((len & 0x1FU) << 3);
+	len >>= 5;
+	for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
+		block[BLOCK_SIZE - 1 - i] = (uint8_t)(len & 0xFFU);
 	whirlpool_compress(hash, block);
 }

@@ -106,14 +106,13 @@ static bool self_check(void) {
 /* RC4 functions in C */
 
 void rc4_init(Rc4State *state, const uint8_t *key, size_t len) {
-	size_t i;
-	for (i = 0; i < 256; i++)
+	for (int i = 0; i < 256; i++)
 		state->s[i] = (uint8_t)i;
 	state->i = 0;
 	state->j = 0;
 	
-	uint8_t j;
-	for (i = 0, j = 0; i < 256; i++) {
+	uint8_t j = 0;
+	for (int i = 0; i < 256; i++) {
 		j += state->s[i] + key[i % len];
 		
 		// Swap

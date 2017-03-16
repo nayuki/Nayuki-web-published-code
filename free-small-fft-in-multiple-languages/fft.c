@@ -29,7 +29,7 @@
 
 
 // Private function prototypes
-static size_t reverse_bits(size_t x, unsigned int n);
+static size_t reverse_bits(size_t x, int n);
 static void *memdup(const void *src, size_t n);
 
 #define SIZE_MAX ((size_t)-1)
@@ -53,7 +53,7 @@ bool inverse_transform(double real[], double imag[], size_t n) {
 bool transform_radix2(double real[], double imag[], size_t n) {
 	// Variables
 	bool status = false;
-	unsigned int levels;
+	int levels;
 	
 	// Compute levels = floor(log2(n))
 	{
@@ -255,9 +255,9 @@ cleanup:
 }
 
 
-static size_t reverse_bits(size_t x, unsigned int n) {
+static size_t reverse_bits(size_t x, int n) {
 	size_t result = 0;
-	for (unsigned int i = 0; i < n; i++, x >>= 1)
+	for (int i = 0; i < n; i++, x >>= 1)
 		result = (result << 1) | (x & 1);
 	return result;
 }

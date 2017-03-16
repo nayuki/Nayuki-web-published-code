@@ -81,7 +81,7 @@ static struct testcase testCases[] = {
 };
 
 static bool self_check(void) {
-	for (unsigned int i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
+	for (size_t i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
 		struct testcase *tc = &testCases[i];
 		uint64_t hash[6];
 		sha384_hash(tc->message, strlen((const char *)tc->message), hash);
@@ -106,28 +106,28 @@ void sha384_hash(const uint8_t *message, size_t len, uint64_t hash[6]) {
 		UINT64_C(0x47B5481DBEFA4FA4),
 	};
 	
-	size_t i;
-	for (i = 0; len - i >= 128; i += 128)
-		sha512_compress(state, &message[i]);
+	#define BLOCK_SIZE 128  // In bytes
+	#define LENGTH_SIZE 16  // In bytes
 	
-	uint8_t block[128];
-	size_t rem = len - i;
-	memcpy(block, &message[i], rem);
+	size_t off;
+	for (off = 0; len - off >= BLOCK_SIZE; off += BLOCK_SIZE)
+		sha512_compress(state, &message[off]);
+	
+	uint8_t block[BLOCK_SIZE] = {0};
+	size_t rem = len - off;
+	memcpy(block, &message[off], rem);
 	
 	block[rem] = 0x80;
 	rem++;
-	if (128 - rem >= 16)
-		memset(&block[rem], 0, 120 - rem);
-	else {
-		memset(&block[rem], 0, 128 - rem);
+	if (BLOCK_SIZE - rem < LENGTH_SIZE) {
 		sha512_compress(state, block);
-		memset(block, 0, 120);
+		memset(block, 0, sizeof(block));
 	}
 	
-	block[128 - 1] = (uint8_t)((len & 0x1FU) << 3);
+	block[BLOCK_SIZE - 1] = (uint8_t)((len & 0x1FU) << 3);
 	len >>= 5;
-	for (i = 1; i < 16; i++, len >>= 8)
-		block[128 - 1 - i] = (uint8_t)len;
+	for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
+		block[BLOCK_SIZE - 1 - i] = (uint8_t)(len & 0xFFU);
 	sha512_compress(state, block);
 	
 	memcpy(hash, state, 6 * sizeof(uint64_t));

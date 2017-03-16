@@ -57,7 +57,7 @@ int main(void) {
 		pixels[i] = MtRandom_next_int(&mt) & UINT32_C(0xFFFFFF);  // 24-bit RGB only, no alpha
 	
 	// Calculate energy level
-	int energy = 0;
+	uint32_t energy = 0;
 	for (int y = 0; y < HEIGHT; y++) {
 		for (int x = 0; x < WIDTH; x++) {
 			if (x > 0)  // Horizontal pixel differences
@@ -77,7 +77,7 @@ int main(void) {
 		double t = (double)i / ITERATIONS;  // Normalized time from 0.0 to 1.0
 		double temperature = (1 - t) * START_TEMPERATURE;  // Cooling schedule function
 		
-		int energydiff;
+		int32_t energydiff;
 		int x0, y0, x1, y1;
 		int dir = MtRandom_next_int(&mt) >> 31;
 		if (dir != 0) {  // Horizontal swap with (x + 1, y)
@@ -103,8 +103,8 @@ int main(void) {
 		// Probabilistic conditional acceptance
 		if (energydiff < 0 || MtRandom_next_double(&mt) < fast_2_pow(-energydiff / temperature)) {
 			// Accept new image state
-			int index0 = y0 * WIDTH + x0;
-			int index1 = y1 * WIDTH + x1;
+			size_t index0 = (size_t)y0 * WIDTH + x0;
+			size_t index1 = (size_t)y1 * WIDTH + x1;
 			uint32_t temp = pixels[index0];
 			pixels[index0] = pixels[index1];
 			pixels[index1] = temp;
@@ -117,7 +117,7 @@ int main(void) {
 	int code = snprintf(filename, sizeof(filename),
 		"simulated-annealing-time%" PRId64 "-iters%" PRId64 "-starttemp%.1f.bmp",
 		(int64_t)time(NULL) * 1000, ITERATIONS, START_TEMPERATURE);
-	if (code < 0 || code + 1 > sizeof(filename))
+	if (code < 0 || (unsigned int)code + 1 > sizeof(filename))
 		strncpy(filename, "simulated-annealing.bmp", sizeof(filename));
 	write_bmp_image(pixels, WIDTH, HEIGHT, filename);
 	return EXIT_SUCCESS;
@@ -131,7 +131,7 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 		perror("fopen");
 		exit(EXIT_FAILURE);
 	}
-	int rowsize = (width * 3 + 3) / 4 * 4;
+	uint32_t rowsize = (width * 3 + 3) / 4 * 4;
 	uint8_t *row = calloc(rowsize, sizeof(uint8_t));
 	if (row == NULL) {
 		perror("calloc");
@@ -165,8 +165,8 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 	}
 	
 	// Write image rows
-	for (int y = height - 1; y >= 0; y--) {
-		for (int x = 0; x < width; x++) {
+	for (int32_t y = height - 1; y >= 0; y--) {
+		for (uint32_t x = 0; x < width; x++) {
 			uint32_t p = pixels[y * width + x];
 			row[x * 3 + 0] = (p >>  0) & 0xFF;
 			row[x * 3 + 1] = (p >>  8) & 0xFF;
