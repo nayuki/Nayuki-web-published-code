@@ -1,7 +1,7 @@
 /*
  * Whirlpool hash in x86-64 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/fast-whirlpool-hash-in-x86-assembly
  * 
  * (MIT License)
@@ -31,12 +31,12 @@ whirlpool_compress:
 	 * Storage usage:
 	 *   Bytes  Location    Description
 	 *       8  rax         Temporary 16-bit value for each pair of bytes processed during a round
-	 *       8  rbx         Unused (retains caller's value)
-	 *       8  rcx         Upward loop counter for 10 rounds
 	 *       8  rdx         Temporary byte value
+	 *       8  rcx         Upward loop counter for 10 rounds
 	 *       8  rsi         Base address of block array argument (read-only)
 	 *       8  rdi         Base address of state array argument (read-only)
-	 *       8  rbp         Unused (retains caller's value)
+	 *       8  rbx         Base address of magictable0 array (read-only)
+	 *       8  rbp         Base address of magictable1 array (read-only)
 	 *       8  rsp         x86-64 stack pointer
 	 *      64  r8..r15     Output rows for current round being computed, in little endian (8 bytes per register)
 	 *      64  xmm0..xmm3  All contents of current state array, in little endian (16 bytes per register)
@@ -48,23 +48,25 @@ whirlpool_compress:
 	 *       8  [rsp+32]    Caller's value of r12
 	 *       8  [rsp+40]    Caller's value of r11
 	 *       8  [rsp+48]    Caller's value of r10
+	 *       8  [rsp+56]    Caller's value of rbp
+	 *       8  [rsp+64]    Caller's value of rbx
 	 */
 	
 	#define NUM_ROUNDS 10  /* Any number from 1 to 32 is allowed */
 	
 	#define DOBYTEPAIRFIRST(inreg,offset,outreg0,outreg1)  \
-		pextrw  $(offset), %inreg, %eax;          \
-		movzbl  %ah, %edx;                        \
-		andl    $0xFF, %eax;                      \
-		movq    .magictable0(,%rax,8), %outreg0;  \
-		movq    .magictable1(,%rdx,8), %outreg1;
+		pextrw  $(offset), %inreg, %eax;  \
+		movzbl  %ah, %edx;                \
+		andl    $0xFF, %eax;              \
+		movq    (%rbx,%rax,8), %outreg0;  \
+		movq    (%rbp,%rdx,8), %outreg1;
 	
 	#define DOBYTEPAIR(inreg,offset,outreg0,outreg1)  \
-		pextrw  $(offset), %inreg, %eax;          \
-		movzbl  %ah, %edx;                        \
-		andl    $0xFF, %eax;                      \
-		xorq    .magictable0(,%rax,8), %outreg0;  \
-		xorq    .magictable1(,%rdx,8), %outreg1;
+		pextrw  $(offset), %inreg, %eax;  \
+		movzbl  %ah, %edx;                \
+		andl    $0xFF, %eax;              \
+		xorq    (%rbx,%rax,8), %outreg0;  \
+		xorq    (%rbp,%rdx,8), %outreg1;
 	
 	#define ROTATERIGHT()  \
 		rorq    $16, %r8 ;  \
@@ -84,6 +86,8 @@ whirlpool_compress:
 		pxor    %xmm3, %xmm7;
 	
 	/* Save registers */
+	pushq   %rbx
+	pushq   %rbp
 	pushq   %r10
 	pushq   %r11
 	pushq   %r12
@@ -106,6 +110,10 @@ whirlpool_compress:
 	
 	/* XOR block with state */
 	XOR_XMM0_3_TO_XMM4_7()
+	
+	/* Load table addresses */
+	leaq    .magictable0(%rip), %rbx
+	leaq    .magictable1(%rip), %rbp
 	
 	/* Do 10 rounds */
 	movl    $0, %ecx
@@ -148,7 +156,8 @@ whirlpool_compress:
 	DOBYTEPAIR(xmm3, 7, r13, r14)
 	DOBYTEPAIR(xmm0, 7, r15, r8 )
 	ROTATERIGHT()
-	xorq    .roundconstants(,%rcx,8), %r8  /* Add round constant */
+	leaq    .roundconstants(%rip), %rax
+	xorq    (%rax,%rcx,8), %r8  /* Add round constant */
 	
 	/* Copy state back to XMM */
 	movq  %r15, (%rsp)
@@ -234,6 +243,8 @@ whirlpool_compress:
 	popq    %r12
 	popq    %r11
 	popq    %r10
+	popq    %rbp
+	popq    %rbx
 	retq
 
 

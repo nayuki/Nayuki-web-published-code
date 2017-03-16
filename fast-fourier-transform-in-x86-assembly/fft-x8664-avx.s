@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform (x86-64 AVX)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * (MIT License)
@@ -104,8 +104,8 @@ size2loop:
 	jb          size2loop
 	
 	/* Size 4 merge (special) */
-	vmovapd     size4negation0, %ymm14
-	vmovapd     size4negation1, %ymm15
+	vmovapd     .size4negation0(%rip), %ymm14
+	vmovapd     .size4negation1(%rip), %ymm15
 	movq        $0, %rcx  /* Loop counter: Range [0, rdx), step size 4 */
 size4loop:
 	vmovupd     (%rdi,%rcx,8), %ymm0
@@ -184,5 +184,5 @@ end:
 
 /* Constants for YMM */
 .balign 32
-size4negation0: .double +1.0, +1.0, -1.0, -1.0
-size4negation1: .double +1.0, -1.0, -1.0, +1.0
+.size4negation0: .double +1.0, +1.0, -1.0, -1.0
+.size4negation1: .double +1.0, -1.0, -1.0, +1.0

@@ -1,7 +1,7 @@
 /* 
  * Dual SHA-512 hash in x86-64 AVX assembly
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
@@ -101,7 +101,7 @@ sha512_compress_dual:
 		/* h += xmm8 */                       \
 		vpaddq  %h, %xmm8, %h;                \
 		/* h += roundconstants[i] */          \
-		vpaddq  roundconstants+i*16, %h, %h;  \
+		vpaddq  (.roundconstants+i*16)(%rip), %h, %h;  \
 		/* xmm8 = g ^ (e & (f ^ g)) */        \
 		vpxor   %f, %g, %xmm8;                \
 		vpand   %xmm8, %e, %xmm8;             \
@@ -140,7 +140,7 @@ sha512_compress_dual:
 	movq     %rsp, %rcx
 	subq     $256, %rsp
 	andq     $~15, %rsp  /* Align to 128 bits */
-	vmovdqa  bswap64dual, %xmm15
+	vmovdqa  .bswap64dual(%rip), %xmm15
 	
 	/* Load state */
 	vmovdqu    0(%rdi), %xmm0
@@ -260,11 +260,11 @@ sha512_compress_dual:
 /* Constants */
 
 .balign 16
-bswap64dual:
+.bswap64dual:
 	.quad 0x0001020304050607, 0x08090A0B0C0D0E0F
 
 #define DUAL(x)  x, x
-roundconstants:
+.roundconstants:
 	.quad DUAL(0x428A2F98D728AE22), DUAL(0x7137449123EF65CD), DUAL(0xB5C0FBCFEC4D3B2F), DUAL(0xE9B5DBA58189DBBC)
 	.quad DUAL(0x3956C25BF348B538), DUAL(0x59F111F1B605D019), DUAL(0x923F82A4AF194F9B), DUAL(0xAB1C5ED5DA6D8118)
 	.quad DUAL(0xD807AA98A3030242), DUAL(0x12835B0145706FBE), DUAL(0x243185BE4EE4B28C), DUAL(0x550C7DC3D5FFB4E2)

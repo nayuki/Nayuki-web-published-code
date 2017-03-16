@@ -1,7 +1,7 @@
 /* 
  * Quad SHA-512 hash in x86-64 AVX2 assembly
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
@@ -101,7 +101,7 @@ sha512_compress_quad:
 		/* h += ymm8 */                       \
 		vpaddq  %h, %ymm8, %h;                \
 		/* h += roundconstants[i] */          \
-		vpaddq  roundconstants+i*32, %h, %h;  \
+		vpaddq  (.roundconstants+i*32)(%rip), %h, %h;  \
 		/* ymm8 = g ^ (e & (f ^ g)) */        \
 		vpxor   %f, %g, %ymm8;                \
 		vpand   %ymm8, %e, %ymm8;             \
@@ -140,7 +140,7 @@ sha512_compress_quad:
 	movq     %rsp, %rcx
 	subq     $512, %rsp
 	andq     $~31, %rsp  /* Align to 256 bits */
-	vmovdqa  bswap64quad, %ymm15
+	vmovdqa  .bswap64quad(%rip), %ymm15
 	
 	/* Load state */
 	vmovdqu    0(%rdi), %ymm0
@@ -260,11 +260,11 @@ sha512_compress_quad:
 /* Constants */
 
 .balign 32
-bswap64quad:
+.bswap64quad:
 	.quad 0x0001020304050607, 0x08090A0B0C0D0E0F, 0x0001020304050607, 0x08090A0B0C0D0E0F
 
 #define QUAD(x)  x, x, x, x
-roundconstants:
+.roundconstants:
 	.quad QUAD(0x428A2F98D728AE22), QUAD(0x7137449123EF65CD), QUAD(0xB5C0FBCFEC4D3B2F), QUAD(0xE9B5DBA58189DBBC)
 	.quad QUAD(0x3956C25BF348B538), QUAD(0x59F111F1B605D019), QUAD(0x923F82A4AF194F9B), QUAD(0xAB1C5ED5DA6D8118)
 	.quad QUAD(0xD807AA98A3030242), QUAD(0x12835B0145706FBE), QUAD(0x243185BE4EE4B28C), QUAD(0x550C7DC3D5FFB4E2)

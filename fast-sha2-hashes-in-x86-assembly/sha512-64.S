@@ -1,7 +1,7 @@
 /* 
  * SHA-512 hash in x86-64 assembly
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * (MIT License)
@@ -102,7 +102,7 @@ sha512_compress:
 		andq  %e, %rcx;    \
 		xorq  %g, %rcx;    \
 		addq  %rax, %h;    \
-		movq  $k, %rax;    \
+		movabs $k, %rax;   \
 		addq  %rcx, %h;    \
 		addq  %rax, %h;    \
 		/* Part 1 */       \
