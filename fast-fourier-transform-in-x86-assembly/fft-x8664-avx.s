@@ -38,8 +38,7 @@
  *        8  r12       Temporary
  *        8  r13       Temporary
  *        8  rsp       x86-64 stack pointer
- *      320  ymm0-9    Temporary (64-bit float vectors)
- *       64  ymm14-15  Multiplication constants (64-bit float vectors)
+ *      320  ymm0-7    Temporary (64-bit float vectors)
  *        8  [rsp+ 0]  Caller's value of r13
  *        8  [rsp+ 8]  Caller's value of r12
  *        8  [rsp+16]  Caller's value of r11
@@ -104,8 +103,8 @@ size2loop:
 	jb          size2loop
 	
 	/* Size 4 merge (special) */
-	vmovapd     .size4negation0(%rip), %ymm14
-	vmovapd     .size4negation1(%rip), %ymm15
+	vmovapd     .size4negation0(%rip), %ymm6
+	vmovapd     .size4negation1(%rip), %ymm7
 	movq        $0, %rcx  /* Loop counter: Range [0, rdx), step size 4 */
 size4loop:
 	vmovupd     (%rdi,%rcx,8), %ymm0
@@ -116,21 +115,19 @@ size4loop:
 	vshufpd     $10, %ymm0, %ymm1, %ymm5
 	vperm2f128  $17, %ymm4, %ymm4, %ymm4
 	vperm2f128  $17, %ymm5, %ymm5, %ymm5
-	vmulpd      %ymm4, %ymm14, %ymm4
-	vmulpd      %ymm5, %ymm15, %ymm5
-	vaddpd      %ymm2, %ymm4, %ymm0
-	vaddpd      %ymm3, %ymm5, %ymm1
-	vmovupd     %ymm0, (%rdi,%rcx,8)
-	vmovupd     %ymm1, (%rsi,%rcx,8)
+	vfmadd231pd %ymm4, %ymm6, %ymm2
+	vfmadd231pd %ymm5, %ymm7, %ymm3
+	vmovupd     %ymm2, (%rdi,%rcx,8)
+	vmovupd     %ymm3, (%rsi,%rcx,8)
 	addq        $4, %rcx
 	cmpq        %rdx, %rcx
 	jb          size4loop
 	
 	/* Size 8 and larger merges (general) */
 	movq        $4, %rcx  /* rcx: halfsize */
+outerloop:   /* For each merge size: From 8, 16, 32, ..., to rdx (inclusive). rcx is half the merge size. */
 	cmpq        %rdx, %rcx
 	jae         end
-outerloop:   /* For each merge size: From 8, 16, 32, ..., to rdx (inclusive). rcx is half the merge size. */
 	movq        $0, %rax
 middleloop:  /* For each block of the current size: From 0, 2*rcx, 4*rcx, 6*rcx, ..., to rdx (exclusive). rax is the block start. */
 	movq        $0, %r9
@@ -146,19 +143,17 @@ innerloop:   /* For each 4 elements up to halfsize. r9 is the vector start. */
 	vmovupd      0(%r12), %ymm4  /* Cosine table values */
 	vmovupd     32(%r12), %ymm5  /* Sine table values */
 	vmulpd      %ymm2, %ymm4, %ymm6
-	vmulpd      %ymm3, %ymm5, %ymm7
-	vmulpd      %ymm3, %ymm4, %ymm8
-	vmulpd      %ymm2, %ymm5, %ymm9
-	vaddpd      %ymm6, %ymm7, %ymm2
-	vsubpd      %ymm9, %ymm8, %ymm3
-	vaddpd      %ymm0, %ymm2, %ymm4
-	vaddpd      %ymm1, %ymm3, %ymm5
-	vsubpd      %ymm2, %ymm0, %ymm6
-	vsubpd      %ymm3, %ymm1, %ymm7
-	vmovupd     %ymm4, (%rdi,%r10,8)
-	vmovupd     %ymm5, (%rsi,%r10,8)
-	vmovupd     %ymm6, (%rdi,%r11,8)
-	vmovupd     %ymm7, (%rsi,%r11,8)
+	vmulpd      %ymm2, %ymm5, %ymm7
+	vfmadd231pd %ymm3, %ymm5, %ymm6
+	vfmsub231pd %ymm3, %ymm4, %ymm7
+	vaddpd      %ymm0, %ymm6, %ymm2
+	vaddpd      %ymm1, %ymm7, %ymm3
+	vsubpd      %ymm6, %ymm0, %ymm4
+	vsubpd      %ymm7, %ymm1, %ymm5
+	vmovupd     %ymm2, (%rdi,%r10,8)
+	vmovupd     %ymm3, (%rsi,%r10,8)
+	vmovupd     %ymm4, (%rdi,%r11,8)
+	vmovupd     %ymm5, (%rsi,%r11,8)
 	addq        $4, %r9
 	cmpq        %rcx, %r9
 	jb          innerloop
@@ -169,8 +164,7 @@ innerloop:   /* For each 4 elements up to halfsize. r9 is the vector start. */
 	/* End middle loop */
 	shlq        $1, %rcx
 	leaq        (%r8,%rcx,8), %r8  /* Advance the trigonometric tables */
-	cmpq        %rdx, %rcx
-	jb          outerloop
+	jmp         outerloop
 	
 	/* Restore registers */
 end:

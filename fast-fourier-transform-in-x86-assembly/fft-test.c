@@ -36,7 +36,7 @@
 // Private function prototypes
 static double test_fft_log_error(int n);
 static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n);
-static int64_t benchmark_time(const void *fttTables, double *real, double *imag, uint64_t iterations);
+static int64_t benchmark_time(const void *fttTables, double *real, double *imag, size_t n, uint64_t iterations);
 static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n);
 static double *random_reals(int n);
 static void *memdup(const void *src, size_t n);
@@ -72,7 +72,7 @@ int main(void) {
 		// Determine number of iterations to run to spend TARGET_TIME
 		uint64_t iterations = 1;
 		while (true) {
-			int64_t time = benchmark_time(fftTables, real, imag, iterations);
+			int64_t time = benchmark_time(fftTables, real, imag, n, iterations);
 			if (time >= TARGET_TIME) {
 				iterations = (uint64_t)((double)TARGET_TIME / time * iterations + 0.5);
 				if (iterations == 0)
@@ -85,7 +85,7 @@ int main(void) {
 		// Run trials and store timing
 		double *runtimes = malloc(TRIALS * sizeof(double));
 		for (int i = 0; i < TRIALS; i++)
-			runtimes[i] = (double)benchmark_time(fftTables, real, imag, iterations) / iterations;
+			runtimes[i] = (double)benchmark_time(fftTables, real, imag, n, iterations) / iterations;
 		fft_destroy(fftTables);
 		free(real);
 		free(imag);
@@ -107,7 +107,7 @@ int main(void) {
 		}
 		double stddev = sqrt(sqrdiffsum / TRIALS);
 		free(runtimes);
-		printf("%9zu    min=%"PRIu64"  mean=%"PRIu64"  sd=%.2f%%\n",
+		printf("%9zu    min=%" PRIu64 "  mean=%" PRIu64 "  sd=%.2f%%\n",
 			n, (uint64_t)(min + 0.5), (uint64_t)(mean + 0.5), stddev / mean * 100);
 	}
 	return EXIT_SUCCESS;
@@ -164,15 +164,24 @@ static void naive_dft(const double *inreal, const double *inimag, double *outrea
 
 
 // Returns the number of nanoseconds to run the given number of iterations of the given FFT size.
-static int64_t benchmark_time(const void *fftTables, double *real, double *imag, uint64_t iterations) {
-	struct timespec ts;
-	clock_gettime(CLOCK_REALTIME, &ts);
-	int64_t starttime = ts.tv_sec * INT64_C(1000000000) + ts.tv_nsec;
-	for (uint64_t i = 0; i < iterations; i++)
+static int64_t benchmark_time(const void *fftTables, double *real, double *imag, size_t n, uint64_t iterations) {
+	int64_t elapsedtime = 0;
+	for (uint64_t i = 0; i < iterations; i++) {
+		struct timespec ts;
+		clock_gettime(CLOCK_REALTIME, &ts);
+		elapsedtime -= ts.tv_sec * INT64_C(1000000000) + ts.tv_nsec;
 		fft_transform(fftTables, real, imag);
-	clock_gettime(CLOCK_REALTIME, &ts);
-	int64_t endtime = ts.tv_sec * INT64_C(1000000000) + ts.tv_nsec;
-	return endtime - starttime;
+		clock_gettime(CLOCK_REALTIME, &ts);
+		elapsedtime += ts.tv_sec * INT64_C(1000000000) + ts.tv_nsec;
+		if ((i & 1) == 1) {
+			double scaler = 1.0 / n;
+			for (size_t i = 0; i < n; i++) {
+				real[i] *= scaler;
+				imag[i] *= scaler;
+			}
+		}
+	}
+	return elapsedtime;
 }
 
 
