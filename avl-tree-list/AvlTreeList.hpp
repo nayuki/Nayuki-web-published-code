@@ -35,47 +35,44 @@
 template <typename E>
 class AvlTreeList final {
 	
-private:
-	class Node;  // Forward declaration
-	Node *root;  // Never nullptr
+	private: class Node;  // Forward declaration
+	private: Node *root;  // Never nullptr
 	
 	
-public:
-	
-	AvlTreeList() :
+	public: AvlTreeList() :
 		root(&Node::emptyLeafNode) {}
 	
 	
-	~AvlTreeList() {
+	public: ~AvlTreeList() {
 		clear();
 	}
 	
 	
-	bool empty() const {
+	public: bool empty() const {
 		return root->size == 0;
 	}
 	
 	
-	size_t size() const {
+	public: size_t size() const {
 		return root->size;
 	}
 	
 	
-	E &at(size_t index) {
+	public: E &at(size_t index) {
 		if (index >= size())
 			throw "Index out of bounds";
 		return root->getNodeAt(index)->value;
 	}
 	
 	
-	const E &at(size_t index) const {
+	public: const E &at(size_t index) const {
 		if (index >= size())
 			throw "Index out of bounds";
 		return root->getNodeAt(index)->value;
 	}
 	
 	
-	void insert(size_t index, const E &val) {
+	public: void insert(size_t index, const E &val) {
 		if (index > size())  // Different constraint than the other methods
 			throw "Index out of bounds";
 		if (size() == SIZE_MAX)
@@ -84,7 +81,7 @@ public:
 	}
 	
 	
-	void insert(size_t index, E &&val) {
+	public: void insert(size_t index, E &&val) {
 		if (index > size())  // Different constraint than the other methods
 			throw "Index out of bounds";
 		if (size() == SIZE_MAX)
@@ -93,7 +90,7 @@ public:
 	}
 	
 	
-	void erase(size_t index) {
+	public: void erase(size_t index) {
 		if (index >= size())
 			throw "Index out of bounds";
 		Node *toDelete = nullptr;
@@ -102,7 +99,7 @@ public:
 	}
 	
 	
-	void clear() {
+	public: void clear() {
 		if (root != &Node::emptyLeafNode) {
 			delete root;
 			root = &Node::emptyLeafNode;
@@ -111,42 +108,38 @@ public:
 	
 	
 	// For unit tests.
-	void checkStructure() const {
+	public: void checkStructure() const {
 		std::set<const Node*> visited;
 		root->checkStructure(visited);
 	}
 	
 	
-private:
-	class Node final {
+	private: class Node final {
 		
-	public:
 		// A bit of a hack, but more elegant than using nullptr values as leaf nodes.
-		static Node emptyLeafNode;
+		public: static Node emptyLeafNode;
 		
 		
 		// The object stored at this node.
-		E value;
+		public: E value;
 		
 		// The height of the tree rooted at this node. Empty nodes have height 0.
 		// This node has height equal to max(left->height, right->height) + 1.
-		int height;
+		public: int height;
 		
 		// The number of nodes in the tree rooted at this node, including this node.
 		// Empty nodes have size 0. This node has size equal to left->size + right->size + 1.
-		size_t size;
+		public: size_t size;
 		
 		// The root node of the left subtree.
-		Node *left;
+		public: Node *left;
 		
 		// The root node of the right subtree.
-		Node *right;
+		public: Node *right;
 		
-		
-	private:
 		
 		// For the singleton empty leaf node.
-		Node() :
+		private: Node() :
 			value(),  // Default constructor on type E
 			height(0),
 			size  (0),
@@ -155,7 +148,7 @@ private:
 		
 		
 		// Normal non-leaf nodes.
-		Node(const E &val) :
+		private: Node(const E &val) :
 			value(val),  // Copy constructor on type E
 			height(1),
 			size  (1),
@@ -164,7 +157,7 @@ private:
 		
 		
 		// Normal non-leaf nodes.
-		Node(E &&val) :
+		private: Node(E &&val) :
 			value(std::move(val)),  // Move constructor on type E
 			height(1),
 			size  (1),
@@ -172,8 +165,7 @@ private:
 			right(&emptyLeafNode) {}
 		
 		
-	public:
-		~Node() {
+		public: ~Node() {
 			if (left != &emptyLeafNode)
 				delete left;
 			if (right != &emptyLeafNode)
@@ -181,7 +173,7 @@ private:
 		}
 		
 		
-		Node *getNodeAt(size_t index) {
+		public: Node *getNodeAt(size_t index) {
 			assert(index < size);
 			if (this == &emptyLeafNode)
 				throw "Illegal argument";
@@ -196,7 +188,7 @@ private:
 		}
 		
 		
-		Node *insertAt(size_t index, const E &obj) {
+		public: Node *insertAt(size_t index, const E &obj) {
 			assert(index <= size);
 			if (this == &emptyLeafNode) {
 				if (index == 0)
@@ -215,7 +207,7 @@ private:
 		}
 		
 		
-		Node *insertAt(size_t index, E &&obj) {
+		public: Node *insertAt(size_t index, E &&obj) {
 			assert(index <= size);
 			if (this == &emptyLeafNode) {
 				if (index == 0)
@@ -234,7 +226,7 @@ private:
 		}
 		
 		
-		Node *removeAt(size_t index, Node **toDelete) {
+		public: Node *removeAt(size_t index, Node **toDelete) {
 			assert(index < size);
 			if (this == &emptyLeafNode)
 				throw "Illegal argument";
@@ -270,10 +262,8 @@ private:
 		}
 		
 		
-	private:
-		
 		// Note: This returns a mutable value.
-		E &getSuccessor() {
+		private: E &getSuccessor() {
 			if (this == &emptyLeafNode || right == &emptyLeafNode)
 				throw "Illegal state";
 			Node *node = right;
@@ -284,7 +274,7 @@ private:
 		
 		
 		// Balances the subtree rooted at this node and returns the new root.
-		Node *balance() {
+		private: Node *balance() {
 			int bal = getBalance();
 			assert(std::abs(bal) <= 2);
 			Node *result = this;
@@ -311,7 +301,7 @@ private:
 		 *    / \      / \
 		 *   1   2    0   1
 		 */
-		Node *rotateLeft() {
+		private: Node *rotateLeft() {
 			if (right == &emptyLeafNode)
 				throw "Illegal state";
 			Node *root = this->right;
@@ -330,7 +320,7 @@ private:
 		 *  / \            / \
 		 * 0   1          1   2
 		 */
-		Node *rotateRight() {
+		private: Node *rotateRight() {
 			if (left == &emptyLeafNode)
 				throw "Illegal state";
 			Node *root = this->left;
@@ -344,7 +334,7 @@ private:
 		
 		// Needs to be called every time the left or right subtree is changed.
 		// Assumes the left and right subtrees have the correct values computed already.
-		void recalculate() {
+		private: void recalculate() {
 			assert(this != &emptyLeafNode);
 			assert(left->height >= 0 && right->height >= 0);
 			assert(left->size >= 0 && right->size >= 0);
@@ -354,14 +344,13 @@ private:
 		}
 		
 		
-		int getBalance() const {
+		private: int getBalance() const {
 			return right->height - left->height;
 		}
 		
 		
 		// For unit tests, invokable by the outer class.
-	public:
-		void checkStructure(std::set<const Node*> &visitedNodes) const {
+		public: void checkStructure(std::set<const Node*> &visitedNodes) const {
 			if (this == &emptyLeafNode)
 				return;
 			

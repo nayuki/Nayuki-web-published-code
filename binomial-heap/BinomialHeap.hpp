@@ -32,18 +32,15 @@
 template <typename E>
 class BinomialHeap final {
 	
-private:
-	class Node;  // Forward declaration
-	Node head;   // The head node is an immovable dummy node
+	private: class Node;  // Forward declaration
+	private: Node head;   // The head node is an immovable dummy node
 	
 	
-public:
-	
-	BinomialHeap()
+	public: BinomialHeap()
 		: head() {}  // Dummy node
 	
 	
-	size_t size() const {
+	public: size_t size() const {
 		size_t result = 0;
 		for (Node *node = head.next; node != nullptr; node = node->next) {
 			size_t temp = safeLeftShift(1, node->rank);
@@ -55,23 +52,23 @@ public:
 	}
 	
 	
-	void clear() {
+	public: void clear() {
 		delete head.next;
 		head.next = nullptr;
 	}
 	
 	
-	void push(const E &val) {
+	public: void push(const E &val) {
 		merge(new Node(val));
 	}
 	
 	
-	void push(E &&val) {
+	public: void push(E &&val) {
 		merge(new Node(std::move(val)));
 	}
 	
 	
-	const E &top() const {
+	public: const E &top() const {
 		if (head.next == nullptr)
 			throw "Empty heap";
 		E *result = nullptr;
@@ -83,7 +80,7 @@ public:
 	}
 	
 	
-	E pop() {
+	public: E pop() {
 		if (head.next == nullptr)
 			throw "Empty heap";
 		E *min = nullptr;
@@ -108,7 +105,7 @@ public:
 	
 	
 	// Moves all the values in the given heap into this heap
-	void merge(BinomialHeap<E> &other) {
+	public: void merge(BinomialHeap<E> &other) {
 		if (&other == this)
 			throw "Merging with self";
 		merge(other.head.next);
@@ -116,10 +113,8 @@ public:
 	}
 	
 	
-private:
-	
 	// 'other' must not start with a dummy node
-	void merge(Node *other) {
+	private: void merge(Node *other) {
 		assert(head.rank == -1);
 		Node *self = head.next;
 		head.next = nullptr;
@@ -167,7 +162,7 @@ private:
 	}
 	
 	
-	static size_t safeLeftShift(size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
+	private: static size_t safeLeftShift(size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
 		if (shift < 0)
 			throw "Negative shift";
 		for (int i = 0; i < shift && val != 0; i++)
@@ -176,9 +171,8 @@ private:
 	}
 	
 	
-public:
 	// For unit tests
-	void checkStructure() const {
+	public: void checkStructure() const {
 		if (head.rank != -1)
 			throw "Assertion error";
 		if (head.next != nullptr) {
@@ -190,20 +184,18 @@ public:
 	
 	
 	
-private:
-	class Node final {
+	private: class Node final {
 		
-	public:
-		E value;
-		int rank;
+		public: E value;
+		public: int rank;
 		
-		Node *down;
-		Node *next;
+		public: Node *down;
+		public: Node *next;
 		
 		
 		
 		// Dummy sentinel node at head of list
-		Node() :
+		public: Node() :
 			value(),  // Type E needs to have a default constructor
 			rank(-1),
 			down(nullptr),
@@ -211,7 +203,7 @@ private:
 		
 		
 		// Regular node
-		Node(const E &val) :
+		public: Node(const E &val) :
 			value(val),  // Copy constructor
 			rank(0),
 			down(nullptr),
@@ -219,21 +211,21 @@ private:
 		
 		
 		// Regular node
-		Node(E &&val) :
+		public: Node(E &&val) :
 			value(std::move(val)),  // Move constructor
 			rank(0),
 			down(nullptr),
 			next(nullptr) {}
 		
 		
-		~Node() {
+		public: ~Node() {
 			delete down;
 			delete next;
 		}
 		
 		
 		
-		Node *removeRoot() {
+		public: Node *removeRoot() {
 			assert(next == nullptr);
 			Node *node = down;
 			down = nullptr;
@@ -249,7 +241,7 @@ private:
 		
 		
 		// For unit tests
-		void checkStructure(bool isMain) const {
+		public: void checkStructure(bool isMain) const {
 			if (rank < 0)
 				throw "Assertion error";
 			if (rank >= 1) {

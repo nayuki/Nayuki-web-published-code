@@ -37,21 +37,19 @@ template <typename E>
 class BTreeSet final {
 	
 	/*---- Fields ----*/
-private:
 	
-	class Node;  // Forward declaration
-	Node *root;  // Never nullptr
-	size_t count;
-	const uint32_t minKeys;  // At least 1, equal to degree-1
-	const uint32_t maxKeys;  // At least 3, odd number, equal to minKeys*2+1
+	private: class Node;  // Forward declaration
+	private: Node *root;  // Never nullptr
+	private: size_t count;
+	private: const uint32_t minKeys;  // At least 1, equal to degree-1
+	private: const uint32_t maxKeys;  // At least 3, odd number, equal to minKeys*2+1
 	
 	
 	
 	/*---- Constructors ----*/
-public:
 	
 	// The degree is the minimum number of children each non-root internal node must have.
-	BTreeSet(uint32_t deg) :
+	public: BTreeSet(uint32_t deg) :
 			count(0),
 			minKeys(deg - 1),
 			maxKeys(deg * 2 - 1) {
@@ -63,7 +61,7 @@ public:
 	}
 	
 	
-	~BTreeSet() {
+	public: ~BTreeSet() {
 		assert(root != nullptr);
 		delete root;
 	}
@@ -71,26 +69,25 @@ public:
 	
 	
 	/*---- Methods ----*/
-public:
 	
-	bool empty() const {
+	public: bool empty() const {
 		return count == 0;
 	}
 	
 	
-	size_t size() const {
+	public: size_t size() const {
 		return count;
 	}
 	
 	
-	void clear() {
+	public: void clear() {
 		assert(root != nullptr);
 		delete root;
 		root = new Node(maxKeys, true);
 	}
 	
 	
-	bool contains(const E &val) const {
+	public: bool contains(const E &val) const {
 		// Walk down the tree
 		const Node *node = root;
 		while (true) {
@@ -105,7 +102,7 @@ public:
 	}
 	
 	
-	void insert(const E &val) {
+	public: void insert(const E &val) {
 		// Special preprocessing to split root node
 		if (root->keys.size() == maxKeys) {
 			Node *rightNode = nullptr;
@@ -159,7 +156,7 @@ public:
 	}
 	
 	
-	size_t erase(const E &val) {
+	public: size_t erase(const E &val) {
 		// Walk down the tree
 		uint32_t index = root->search(val);
 		Node *node = root;
@@ -231,7 +228,7 @@ public:
 	
 	
 	// For unit tests
-	void checkStructure() const {
+	public: void checkStructure() const {
 		// Check size and root node properties
 		if (root == nullptr || (count > maxKeys && root->isLeaf())
 				|| (count <= minKeys * 2 && (!root->isLeaf() || root->keys.size() != count)))
@@ -254,22 +251,19 @@ public:
 	
 	/*---- Helper class: B-tree node ----*/
 	
-private:
-	class Node final {
+	private: class Node final {
 		
 		/*-- Fields --*/
-	public:
 		
-		std::vector<E> keys;  // Size is in [0, maxKeys] for root node, [minKeys, maxKeys] for all other nodes
-		std::vector<Node*> children;  // If leaf then size is 0, otherwise if internal node then size always equals keys.size()+1
-		const uint32_t maxKeys;
+		public: std::vector<E> keys;  // Size is in [0, maxKeys] for root node, [minKeys, maxKeys] for all other nodes
+		public: std::vector<Node*> children;  // If leaf then size is 0, otherwise if internal node then size always equals keys.size()+1
+		public: const uint32_t maxKeys;
 		
 		
 		/*-- Constructors --*/
-	public:
 		
 		// Note: Once created, a node's structure never changes between a leaf and internal node.
-		Node(uint32_t mxKeys, bool leaf) :
+		public: Node(uint32_t mxKeys, bool leaf) :
 				maxKeys(mxKeys) {
 			assert(maxKeys >= 3 && maxKeys % 2 == 1);
 			keys.reserve(maxKeys);
@@ -278,7 +272,7 @@ private:
 		}
 		
 		
-		~Node() {
+		public: ~Node() {
 			for (typename std::vector<Node*>::iterator it(children.begin());
 					it != children.end(); ++it)
 				delete *it;
@@ -287,7 +281,7 @@ private:
 		
 		/*-- Methods --*/
 		
-		bool isLeaf() const {
+		public: bool isLeaf() const {
 			return children.size() == 0;
 		}
 		
@@ -295,7 +289,7 @@ private:
 		// Searches this node's keys array and returns i (with top bit clear) if obj equals keys[i],
 		// otherwise returns ~i (with top bit set) if children[i] should be explored. For simplicity,
 		// the implementation uses linear search. It's possible to replace it with binary search for speed.
-		uint32_t search(const E &val) const {
+		public: uint32_t search(const E &val) const {
 			assert(keys.size() <= UINT32_MAX / 2);
 			uint32_t i = 0;
 			while (i < keys.size()) {
@@ -313,7 +307,7 @@ private:
 		
 		
 		// Removes and returns the minimum key among the whole subtree rooted at this node.
-		E removeMin() {
+		public: E removeMin() {
 			uint32_t minKeys = maxKeys / 2;
 			Node *node = this;
 			while (!node->isLeaf()) {
@@ -326,7 +320,7 @@ private:
 		
 		
 		// Removes and returns the maximum key among the whole subtree rooted at this node.
-		E removeMax() {
+		public: E removeMax() {
 			uint32_t minKeys = maxKeys / 2;
 			Node *node = this;
 			while (!node->isLeaf()) {
@@ -339,7 +333,7 @@ private:
 		
 		
 		// Removes and returns this node's key at the given index.
-		E removeKey(uint32_t index) {
+		public: E removeKey(uint32_t index) {
 			E result(std::move(keys.at(index)));
 			keys.erase(keys.begin() + index);
 			return result;
@@ -348,7 +342,7 @@ private:
 		
 		// Moves the right half of keys and children to a new node, yielding the pair of values
 		// (new node, promoted key). The left half of data is still retained in this node.
-		E split(Node **rightNode) {
+		public: E split(Node **rightNode) {
 			// Manipulate numbers
 			assert(keys.size() == maxKeys);
 			uint32_t minKeys = maxKeys / 2;
@@ -372,7 +366,7 @@ private:
 		// minKeys+1 keys in preparation for a single removal. The child may gain a key and subchild
 		// from its sibling, or it may be merged with a sibling, or nothing needs to be done.
 		// A reference to the appropriate child is returned, which is helpful if the old child no longer exists.
-		Node *ensureChildRemove(uint32_t index) {
+		public: Node *ensureChildRemove(uint32_t index) {
 			// Preliminaries
 			assert(!isLeaf());
 			uint32_t minKeys = maxKeys / 2;
@@ -435,7 +429,7 @@ private:
 		
 		
 		// Checks the structure recursively and returns the total number of keys in the subtree rooted at this node. For unit tests
-		size_t checkStructure(bool isRoot, int leafDepth, const E *min, const E *max) const {
+		public: size_t checkStructure(bool isRoot, int leafDepth, const E *min, const E *max) const {
 			// Check basic fields
 			if (keys.size() > maxKeys || (!isRoot && keys.size() < maxKeys / 2))
 				throw "Invalid number of keys";

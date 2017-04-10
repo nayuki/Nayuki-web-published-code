@@ -33,37 +33,35 @@ template <typename E>
 class BinaryArraySet final {
 	
 	/*---- Fields ----*/
-private:
 	
-	std::vector<E*> values;  // Element i is either nullptr or a malloc()'d array of length (1 << i) ascending elements of E
-	size_t length;
+	private: std::vector<E*> values;  // Element i is either nullptr or a malloc()'d array of length (1 << i) ascending elements of E
+	private: size_t length;
 	
 	
 	
 	/*---- Constructors, etc. ----*/
-public:
 	
 	// Runs in O(1) time
-	BinaryArraySet() :
+	public: BinaryArraySet() :
 		values(),
 		length(0) {}
 	
 	
 	// Copy constructor, runs in O(n) time
-	BinaryArraySet(const BinaryArraySet &other) :
+	public: BinaryArraySet(const BinaryArraySet &other) :
 			BinaryArraySet() {
 		*this = other;
 	}
 	
 	
 	// Move constructor, runs in O(1) time
-	BinaryArraySet(BinaryArraySet &&other) :
+	public: BinaryArraySet(BinaryArraySet &&other) :
 			values(std::move(other.values)),
 			length(other.length) {}
 	
 	
 	// Copy assignment, runs in O(n) time
-	BinaryArraySet &operator=(const BinaryArraySet &other) {
+	public: BinaryArraySet &operator=(const BinaryArraySet &other) {
 		clear();
 		for (size_t i = 0; i < other.values.size(); i++) {
 			E *oldVals = values.at(i);
@@ -81,7 +79,7 @@ public:
 	
 	
 	// Move assignment, runs in O(1) time
-	BinaryArraySet &operator=(BinaryArraySet &&other) {
+	public: BinaryArraySet &operator=(BinaryArraySet &&other) {
 		values = std::move(other.values);
 		length = other.length;
 		return *this;
@@ -90,7 +88,7 @@ public:
 	
 	// Runs in O(log n) time for simple types (e.g. E = int),
 	// otherwise O(n) time due to element destructors
-	~BinaryArraySet() {
+	public: ~BinaryArraySet() {
 		clear();
 	}
 	
@@ -98,19 +96,19 @@ public:
 	
 	/*---- Methods ----*/
 	
-	bool empty() const {
+	public: bool empty() const {
 		return length == 0;
 	}
 	
 	
 	// Runs in O(1) time
-	size_t size() const {
+	public: size_t size() const {
 		return length;
 	}
 	
 	
 	// Runs in O(n) time due to destructors
-	void clear() {
+	public: void clear() {
 		for (size_t i = 0; i < values.size(); i++) {
 			E *vals = values.at(i);
 			if (vals != nullptr) {
@@ -126,7 +124,7 @@ public:
 	
 	
 	// Runs in O((log n)^2) time
-	bool contains(const E &val) const {
+	public: bool contains(const E &val) const {
 		for (size_t i = 0; i < values.size(); i++) {
 			const E *vals = values.at(i);
 			if (vals != nullptr) {
@@ -150,7 +148,7 @@ public:
 	
 	
 	// Runs in average-case O((log n)^2) time, worst-case O(n) time
-	void insert(const E &val) {
+	public: void insert(const E &val) {
 		// Checking for duplicates is expensive, taking O((log n)^2) time
 		if (contains(val))
 			return;
@@ -162,7 +160,7 @@ public:
 	
 	
 	// Move version
-	void insert(E &&val) {
+	public: void insert(E &&val) {
 		if (contains(val))
 			return;
 		E *toPut = static_cast<E*>(malloc(sizeof(E)));  // To avoid constructing blank elements of type E, we don't use the 'new' operator
@@ -172,8 +170,7 @@ public:
 	
 	
 	// This pure insert method runs in amortized O(1) time
-private:
-	void insertHelper(E *toPut) {
+	private: void insertHelper(E *toPut) {
 		for (size_t i = 0; i < values.size(); i++) {
 			E *vals = values.at(i);
 			if (vals == nullptr) {
@@ -219,8 +216,7 @@ private:
 	
 	
 	// For unit tests
-public:
-	void checkStructure() const {
+	public: void checkStructure() const {
 		size_t sum = 0;
 		for (size_t i = 0; i < values.size(); i++) {
 			const E *vals = values.at(i);
