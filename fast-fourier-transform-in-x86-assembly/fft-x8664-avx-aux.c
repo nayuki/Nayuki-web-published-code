@@ -1,10 +1,9 @@
 /* 
  * Fast Fourier transform for x86-64 AVX (C)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
- * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to

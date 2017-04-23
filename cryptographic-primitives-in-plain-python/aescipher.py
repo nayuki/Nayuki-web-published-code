@@ -2,10 +2,9 @@
 # The AES (Advanced Encryption Standard) block cipher. It is described in FIPS Publication 197.
 # All three key lengths (128, 192, 256 bits) are supported.
 # 
-# Copyright (c) 2015 Project Nayuki
+# Copyright (c) 2015 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
-# (MIT License)
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to

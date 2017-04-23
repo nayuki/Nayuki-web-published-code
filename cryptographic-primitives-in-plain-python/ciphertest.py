@@ -2,10 +2,9 @@
 # This program tests the implementations of all the known cryptographic ciphers.
 # Run with no arguments. For Python 2 and 3.
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2016 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
-# (MIT License)
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
 # this software and associated documentation files (the "Software"), to deal in
 # the Software without restriction, including without limitation the rights to

@@ -1,10 +1,9 @@
 /* 
  * Tiny Encryption Algorithm (TEA) in x86 assembly
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2014 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/tiny-encryption-algorithm-in-x86-assembly
  * 
- * (MIT License)
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
