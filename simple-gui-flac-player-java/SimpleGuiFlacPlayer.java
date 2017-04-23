@@ -109,6 +109,12 @@ public final class SimpleGuiFlacPlayer {
 	}
 	
 	
+	// Called internally within the GUI.
+	private static void moveSlider(MouseEvent ev) {
+		if (slider.isEnabled())
+			slider.setValue(sliderUi.valueForXPosition(ev.getX()));
+	}
+	
 	// Called by the audio worker.
 	private static void setSliderPosition(final double t) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -117,12 +123,6 @@ public final class SimpleGuiFlacPlayer {
 					slider.setValue((int)Math.round(t * slider.getMaximum()));
 			}
 		});
-	}
-	
-	// Called internally within the GUI.
-	private static void moveSlider(MouseEvent ev) {
-		if (slider.isEnabled())
-			slider.setValue(sliderUi.valueForXPosition(ev.getX()));
 	}
 	
 	
@@ -396,7 +396,7 @@ public final class SimpleGuiFlacPlayer {
 				throw new FormatException("Sync code expected");
 			if (input.readUint(1) != 0)
 				throw new FormatException("Reserved bit");
-			int blockStrategy = input.readUint(1);;
+			int blockStrategy = input.readUint(1);
 			
 			// Read numerous header fields, and ignore some of them
 			int blockSizeCode = input.readUint(4);
