@@ -84,6 +84,6 @@ public final class SrgbTransformTest {
 	
 	
 	
-	private static final double DELTA = 1e-6;
+	private static final double DELTA = 1e-7;
 	
 }

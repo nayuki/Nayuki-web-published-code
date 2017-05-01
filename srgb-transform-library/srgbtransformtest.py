@@ -56,7 +56,7 @@ class SrgbTransformTest(unittest.TestCase):
 			self.assertTrue(abs(srgbtransform.linear_to_srgb(srgbtransform.srgb_8bit_to_linear(i)) * 255 - i) < 1);
 
 
-DELTA = 1e-6
+DELTA = 1e-7
 
 
 if __name__ == "__main__":

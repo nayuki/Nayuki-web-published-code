@@ -29,7 +29,7 @@
 #include "srgbtransform.h"
 
 
-static const double DELTA = 1e-6;
+static const double DELTA = 1e-7;
 
 
 static void test_forward_inverse(void) {

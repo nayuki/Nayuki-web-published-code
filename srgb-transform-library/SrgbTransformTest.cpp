@@ -29,7 +29,7 @@
 #include "SrgbTransform.hpp"
 
 
-static const double DELTA = 1e-6;
+static const double DELTA = 1e-7;
 
 std::default_random_engine randGen((std::random_device())());
 
