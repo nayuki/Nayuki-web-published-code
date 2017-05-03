@@ -1,15 +1,9 @@
 # 
 # Discrete Fourier transform
-# by Project Nayuki, 2014. Public domain.
+# by Project Nayuki, 2017. Public domain.
 # https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
 # 
 
-# 
-# This file contains multiple implementations.
-# Before running the code, choose one and delete the rest.
-# 
-
-# --------------------------------------------------------------------------------
 
 # 
 # Computes the discrete Fourier transform (DFT) of the given input vector.
@@ -17,8 +11,7 @@
 # Returns a list of complex numbers as output, having the same length.
 # 
 import cmath
-
-def compute_dft(input):
+def compute_dft_complex(input):
     n = len(input)
     output = [complex(0)] * n
     for k in range(n):  # For each output element
@@ -28,7 +21,6 @@ def compute_dft(input):
         output[k] = s
     return output
 
-# --------------------------------------------------------------------------------
 
 # 
 # (Alternate implementation using only real numbers.)
@@ -37,8 +29,7 @@ def compute_dft(input):
 # Returns a tuple of two lists of floats - outreal and outimag, each of length n.
 # 
 import math
-
-def compute_dft(inreal, inimag):
+def compute_dft_real_pair(inreal, inimag):
     assert len(inreal) == len(inimag)
     n = len(inreal)
     outreal = [0.0] * n

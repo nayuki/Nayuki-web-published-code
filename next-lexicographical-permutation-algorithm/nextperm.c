@@ -13,7 +13,7 @@
  * returning a Boolean to indicate whether a next permutation existed.
  * (Returns false when the argument is already the last possible permutation.)
  */
-bool next_permutation(int *array, size_t length) {
+bool next_permutation(int array[], size_t length) {
 	// Find non-increasing suffix
 	if (length == 0)
 		return false;

@@ -1,6 +1,6 @@
 /* 
  * Next lexicographical permutation algorithm (C++)
- * by Project Nayuki, 2014. Public domain.
+ * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
 
@@ -15,7 +15,7 @@
  * returning whether a next permutation existed. (Returns false when the argument
  * is already the last possible permutation.)
  */
-bool next_permutation(int *array, size_t length) {
+bool next_permutation(int array[], size_t length) {
 	// Find non-increasing suffix
 	if (length == 0)
 		return false;
@@ -48,7 +48,7 @@ bool next_permutation(int *array, size_t length) {
 
 /* Template array version */
 template <typename T>
-bool next_permutation(T *array, size_t length) {
+bool next_permutation(T array[], size_t length) {
 	// Find non-increasing suffix
 	if (length == 0)
 		return false;

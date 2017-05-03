@@ -1,6 +1,6 @@
 /* 
  * Discrete Fourier transform
- * by Project Nayuki, 2015. Public domain.
+ * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
 
@@ -15,11 +15,11 @@
 void computeDft(const std::vector<double> &inreal, const std::vector<double> &inimag,
 		std::vector<double> &outreal, std::vector<double> &outimag) {
 	
-	unsigned int n = inreal.size();
-	for (unsigned int k = 0; k < n; k++) {  /* For each output element */
+	size_t n = inreal.size();
+	for (size_t k = 0; k < n; k++) {  // For each output element
 		double sumreal = 0;
 		double sumimag = 0;
-		for (unsigned int t = 0; t < n; t++) {  /* For each input element */
+		for (size_t t = 0; t < n; t++) {  // For each input element
 			double angle = 2 * M_PI * t * k / n;
 			sumreal +=  inreal[t] * cos(angle) + inimag[t] * sin(angle);
 			sumimag += -inreal[t] * sin(angle) + inimag[t] * cos(angle);
