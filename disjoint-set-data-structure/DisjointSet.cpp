@@ -23,6 +23,8 @@
 
 #include "DisjointSet.hpp"
 
+using std::size_t;
+
 
 DisjointSet::DisjointSet(size_t numElems) {
 	if (numElems == 0)

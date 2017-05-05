@@ -27,6 +27,8 @@
 #include <vector>
 #include "AvlTreeList.hpp"
 
+using std::size_t;
+
 
 // Random number generation global variables
 std::default_random_engine randGen((std::random_device())());

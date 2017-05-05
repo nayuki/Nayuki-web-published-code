@@ -6,6 +6,8 @@
 
 #include "EratosthenesSieves.hpp"
 
+using std::uint32_t;
+
 
 // Function prototypes
 static uint32_t floorSqrt(uint32_t x);

@@ -27,6 +27,8 @@
 #include <vector>
 #include "DisjointSet.hpp"
 
+using std::size_t;
+
 
 /*---- Helper definitions ----*/
 

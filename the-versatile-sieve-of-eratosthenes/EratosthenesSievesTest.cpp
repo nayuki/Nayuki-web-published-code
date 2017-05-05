@@ -11,6 +11,8 @@
 #include <vector>
 #include "EratosthenesSieves.hpp"
 
+using std::uint32_t;
+
 
 void testValues() {
 	{

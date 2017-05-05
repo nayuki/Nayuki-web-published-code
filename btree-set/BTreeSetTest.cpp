@@ -29,6 +29,8 @@
 #include <set>
 #include "BTreeSet.hpp"
 
+using std::size_t;
+
 
 // Forward declarations
 static void testSmallRandomly();
