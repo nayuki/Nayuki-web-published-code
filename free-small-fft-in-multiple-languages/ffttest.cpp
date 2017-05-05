@@ -64,7 +64,7 @@ int main() {
 	
 	// Test diverse size FFTs
 	for (int i = 0, prev = 0; i <= 100; i++) {
-		int n = static_cast<int>(lround(pow(1500.0, i / 100.0)));
+		int n = static_cast<int>(std::lround(std::pow(1500.0, i / 100.0)));
 		if (n > prev) {
 			testFft(n);
 			prev = n;
@@ -77,7 +77,7 @@ int main() {
 	
 	// Test diverse size convolutions
 	for (int i = 0, prev = 0; i <= 100; i++) {
-		int n = static_cast<int>(lround(pow(1500.0, i / 100.0)));
+		int n = static_cast<int>(std::lround(std::pow(1500.0, i / 100.0)));
 		if (n > prev) {
 			testConvolution(n);
 			prev = n;
@@ -143,8 +143,8 @@ static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
 		double sumimag = 0;
 		for (int t = 0; t < n; t++) {  // For each input element
 			double angle = coef * (static_cast<long long>(t) * k % n) / n;
-			sumreal += inreal[t]*cos(angle) - inimag[t]*sin(angle);
-			sumimag += inreal[t]*sin(angle) + inimag[t]*cos(angle);
+			sumreal += inreal[t]*std::cos(angle) - inimag[t]*std::sin(angle);
+			sumimag += inreal[t]*std::sin(angle) + inimag[t]*std::cos(angle);
 		}
 		outreal[k] = sumreal;
 		outimag[k] = sumimag;
@@ -178,7 +178,7 @@ static double log10RmsErr(const vector<double> &xreal, const vector<double> &xim
 	
 	err /= n > 0 ? n : 1;
 	err = sqrt(err);  // Now this is a root mean square (RMS) error
-	err = err > 0 ? log10(err) : -99.0;
+	err = err > 0 ? std::log10(err) : -99.0;
 	maxLogError = std::max(err, maxLogError);
 	return err;
 }
