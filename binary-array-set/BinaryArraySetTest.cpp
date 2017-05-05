@@ -38,7 +38,6 @@ std::uniform_int_distribution<int> valueDist(0, 9999);
 // Comprehensively tests all the defined methods against std::set
 int main() {
 	try {
-		srand(time(nullptr));
 		std::set<int> set0;
 		BinaryArraySet<int> set1;
 		size_t size = 0;

@@ -24,9 +24,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <random>
 #include <vector>
 #include "fft.hpp"
 
@@ -45,12 +45,14 @@ static void randomReals(vector<double> &vec);
 
 static double maxLogError = -INFINITY;
 
+// Random number generation
+std::default_random_engine randGen((std::random_device())());
+std::uniform_real_distribution<double> valueDist(-1.0, 1.0);
+
 
 /* Main and test functions */
 
 int main() {
-	srand(time(nullptr));
-	
 	// Test power-of-2 size FFTs
 	for (int i = 0; i <= 12; i++)
 		testFft(1 << i);
@@ -185,5 +187,5 @@ static double log10RmsErr(const vector<double> &xreal, const vector<double> &xim
 
 static void randomReals(vector<double> &vec) {
 	for (vector<double>::iterator it = vec.begin(); it != vec.end(); ++it)
-		*it = (rand() / (RAND_MAX + 1.0)) * 2 - 1;
+		*it = valueDist(randGen);
 }

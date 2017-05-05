@@ -189,7 +189,6 @@ static void testAgainstNaiveRandomly() {
 
 int main() {
 	try {
-		srand(time(nullptr));
 		testNew();
 		testMerge();
 		testBigMerge();
