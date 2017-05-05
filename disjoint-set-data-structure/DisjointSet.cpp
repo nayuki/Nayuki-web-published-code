@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library implementation (C++)
  * 
- * Copyright (c) 2015 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -113,7 +113,7 @@ void DisjointSet::checkStructure() const {
 		bool ok = true;
 		ok &= node.parent < nodes.size();
 		ok &= 0 <= node.rank && (isRepr || node.rank < nodes[node.parent].rank);
-		ok &= (!isRepr && node.size == 0) || (isRepr && node.size >= ((size_t)1 << node.rank));
+		ok &= (!isRepr && node.size == 0) || (isRepr && node.size >= (static_cast<size_t>(1) << node.rank));
 		if (!ok)
 			throw "Assertion error";
 	}

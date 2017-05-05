@@ -62,7 +62,7 @@ int main() {
 	// Test diverse size FFTs
 	int prev = 0;
 	for (int i = 0; i <= 100; i++) {
-		int n = (int)lround(pow(1500.0, i / 100.0));
+		int n = static_cast<int>(lround(pow(1500.0, i / 100.0)));
 		if (n > prev) {
 			testFft(n);
 			prev = n;
@@ -76,7 +76,7 @@ int main() {
 	// Test diverse size convolutions
 	prev = 0;
 	for (int i = 0; i <= 100; i++) {
-		int n = (int)lround(pow(1500.0, i / 100.0));
+		int n = static_cast<int>(lround(pow(1500.0, i / 100.0)));
 		if (n > prev) {
 			testConvolution(n);
 			prev = n;
@@ -141,7 +141,7 @@ static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
 		double sumreal = 0;
 		double sumimag = 0;
 		for (int t = 0; t < n; t++) {  // For each input element
-			double angle = coef * ((long long)t * k % n) / n;
+			double angle = coef * (static_cast<long long>(t) * k % n) / n;
 			sumreal += inreal[t]*cos(angle) - inimag[t]*sin(angle);
 			sumimag += inreal[t]*sin(angle) + inimag[t]*cos(angle);
 		}
