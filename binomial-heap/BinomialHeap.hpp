@@ -39,10 +39,10 @@ class BinomialHeap final {
 		: head() {}  // Dummy node
 	
 	
-	public: size_t size() const {
-		size_t result = 0;
+	public: std::size_t size() const {
+		std::size_t result = 0;
 		for (Node *node = head.next; node != nullptr; node = node->next) {
-			size_t temp = safeLeftShift(1, node->rank);
+			std::size_t temp = safeLeftShift(1, node->rank);
 			if (temp == 0)
 				throw "Size overflow";  // The result cannot be returned, however the data structure is still valid
 			result |= temp;
@@ -161,7 +161,7 @@ class BinomialHeap final {
 	}
 	
 	
-	private: static size_t safeLeftShift(size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
+	private: static std::size_t safeLeftShift(std::size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
 		if (shift < 0)
 			throw "Negative shift";
 		for (int i = 0; i < shift && val != 0; i++)

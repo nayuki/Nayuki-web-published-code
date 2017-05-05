@@ -39,7 +39,7 @@ class BTreeSet final {
 	
 	private: class Node;  // Forward declaration
 	private: Node *root;  // Never nullptr
-	private: size_t count;
+	private: std::size_t count;
 	private: const uint32_t minKeys;  // At least 1, equal to degree-1
 	private: const uint32_t maxKeys;  // At least 3, odd number, equal to minKeys*2+1
 	
@@ -74,7 +74,7 @@ class BTreeSet final {
 	}
 	
 	
-	public: size_t size() const {
+	public: std::size_t size() const {
 		return count;
 	}
 	
@@ -155,7 +155,7 @@ class BTreeSet final {
 	}
 	
 	
-	public: size_t erase(const E &val) {
+	public: std::size_t erase(const E &val) {
 		// Walk down the tree
 		uint32_t index = root->search(val);
 		Node *node = root;
@@ -428,7 +428,7 @@ class BTreeSet final {
 		
 		
 		// Checks the structure recursively and returns the total number of keys in the subtree rooted at this node. For unit tests
-		public: size_t checkStructure(bool isRoot, int leafDepth, const E *min, const E *max) const {
+		public: std::size_t checkStructure(bool isRoot, int leafDepth, const E *min, const E *max) const {
 			// Check basic fields
 			if (keys.size() > maxKeys || (!isRoot && keys.size() < maxKeys / 2))
 				throw "Invalid number of keys";
@@ -436,7 +436,7 @@ class BTreeSet final {
 				throw "Incorrect leaf/internal node type";
 			
 			// Check keys
-			for (size_t i = 0; i < keys.size(); i++) {
+			for (std::size_t i = 0; i < keys.size(); i++) {
 				const E &key(keys.at(i));
 				bool fail = i == 0 && min != nullptr && key <= *min;
 				fail |= i >= 1 && key <= keys.at(i - 1);
@@ -446,13 +446,13 @@ class BTreeSet final {
 			}
 			
 			// Count keys in this subtree
-			size_t count = keys.size();
+			std::size_t count = keys.size();
 			if (!isLeaf()) {
 				if (children.size() != keys.size() + 1)
 					throw "Invalid number of children";
 				// Check children pointers and recurse
-				for (size_t i = 0; i < children.size(); i++) {
-					size_t temp = children.at(i)->checkStructure(false, leafDepth - 1,
+				for (std::size_t i = 0; i < children.size(); i++) {
+					std::size_t temp = children.at(i)->checkStructure(false, leafDepth - 1,
 						(i == 0 ? min : &keys.at(i - 1)), (i == keys.size() ? max : &keys.at(i)));
 					if (SIZE_MAX - temp < count)
 						throw "Size overflow";

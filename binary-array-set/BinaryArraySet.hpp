@@ -34,7 +34,7 @@ class BinaryArraySet final {
 	/*---- Fields ----*/
 	
 	private: std::vector<E*> values;  // Element i is either nullptr or a malloc()'d array of length (1 << i) ascending elements of E
-	private: size_t length;
+	private: std::size_t length;
 	
 	
 	
@@ -62,13 +62,13 @@ class BinaryArraySet final {
 	// Copy assignment, runs in O(n) time
 	public: BinaryArraySet &operator=(const BinaryArraySet &other) {
 		clear();
-		for (size_t i = 0; i < other.values.size(); i++) {
+		for (std::size_t i = 0; i < other.values.size(); i++) {
 			E *oldVals = values.at(i);
 			if (oldVals == nullptr)
 				continue;
-			size_t len = (size_t)1 << i;
+			std::size_t len = (std::size_t)1 << i;
 			E *newVals = static_cast<E*>(malloc(len * sizeof(E)));
-			for (size_t j = 0; j < len; j++)
+			for (std::size_t j = 0; j < len; j++)
 				new (&newVals[j]) E(oldVals[j]);  // Placement move constructor
 			values.push_back(newVals);
 		}
@@ -101,18 +101,18 @@ class BinaryArraySet final {
 	
 	
 	// Runs in O(1) time
-	public: size_t size() const {
+	public: std::size_t size() const {
 		return length;
 	}
 	
 	
 	// Runs in O(n) time due to destructors
 	public: void clear() {
-		for (size_t i = 0; i < values.size(); i++) {
+		for (std::size_t i = 0; i < values.size(); i++) {
 			E *vals = values.at(i);
 			if (vals != nullptr) {
-				size_t len = (size_t)1 << i;
-				for (size_t j = 0; j < len; j++)
+				std::size_t len = (std::size_t)1 << i;
+				for (std::size_t j = 0; j < len; j++)
 					vals[j].~E();
 			}
 			free(vals);
@@ -124,14 +124,14 @@ class BinaryArraySet final {
 	
 	// Runs in O((log n)^2) time
 	public: bool contains(const E &val) const {
-		for (size_t i = 0; i < values.size(); i++) {
+		for (std::size_t i = 0; i < values.size(); i++) {
 			const E *vals = values.at(i);
 			if (vals != nullptr) {
 				// Binary search
-				size_t start = 0;
-				size_t end = (size_t)1 << i;
+				std::size_t start = 0;
+				std::size_t end = (std::size_t)1 << i;
 				while (start < end) {
-					size_t mid = start + (end - start) / 2;
+					std::size_t mid = start + (end - start) / 2;
 					const E &midval = vals[mid];
 					if (val < midval)
 						end = mid;
@@ -170,7 +170,7 @@ class BinaryArraySet final {
 	
 	// This pure insert method runs in amortized O(1) time
 	private: void insertHelper(E *toPut) {
-		for (size_t i = 0; i < values.size(); i++) {
+		for (std::size_t i = 0; i < values.size(); i++) {
 			E *vals = values.at(i);
 			if (vals == nullptr) {
 				values.at(i) = toPut;
@@ -178,13 +178,13 @@ class BinaryArraySet final {
 				break;
 			} else {
 				// Merge two sorted arrays
-				size_t len = (size_t)1 << i;
+				std::size_t len = (std::size_t)1 << i;
 				if (SIZE_MAX / len / 2 / sizeof(E) < 1)
 					throw "Maximum size reached";
 				E *next = static_cast<E*>(malloc(len * 2 * sizeof(E)));
-				size_t j = 0;
-				size_t k = 0;
-				size_t l = 0;
+				std::size_t j = 0;
+				std::size_t k = 0;
+				std::size_t l = 0;
 				for (; j < len && k < len; l++) {
 					if (vals[j] < toPut[k]) {
 						new (&next[l]) E(std::move(vals[j]));  // Placement move constructor
@@ -216,13 +216,13 @@ class BinaryArraySet final {
 	
 	// For unit tests
 	public: void checkStructure() const {
-		size_t sum = 0;
-		for (size_t i = 0; i < values.size(); i++) {
+		std::size_t sum = 0;
+		for (std::size_t i = 0; i < values.size(); i++) {
 			const E *vals = values.at(i);
 			if (vals != nullptr) {
-				size_t len = (size_t)1 << i;
+				std::size_t len = (std::size_t)1 << i;
 				sum += len;
-				for (size_t j = 1; j < len; j++) {
+				for (std::size_t j = 1; j < len; j++) {
 					if (vals[j - 1] >= vals[j])
 						throw "Invalid ordering of elements in array";
 				}

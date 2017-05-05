@@ -52,26 +52,26 @@ class AvlTreeList final {
 	}
 	
 	
-	public: size_t size() const {
+	public: std::size_t size() const {
 		return root->size;
 	}
 	
 	
-	public: E &at(size_t index) {
+	public: E &at(std::size_t index) {
 		if (index >= size())
 			throw "Index out of bounds";
 		return root->getNodeAt(index)->value;
 	}
 	
 	
-	public: const E &at(size_t index) const {
+	public: const E &at(std::size_t index) const {
 		if (index >= size())
 			throw "Index out of bounds";
 		return root->getNodeAt(index)->value;
 	}
 	
 	
-	public: void insert(size_t index, const E &val) {
+	public: void insert(std::size_t index, const E &val) {
 		if (index > size())  // Different constraint than the other methods
 			throw "Index out of bounds";
 		if (size() == SIZE_MAX)
@@ -80,7 +80,7 @@ class AvlTreeList final {
 	}
 	
 	
-	public: void insert(size_t index, E &&val) {
+	public: void insert(std::size_t index, E &&val) {
 		if (index > size())  // Different constraint than the other methods
 			throw "Index out of bounds";
 		if (size() == SIZE_MAX)
@@ -89,7 +89,7 @@ class AvlTreeList final {
 	}
 	
 	
-	public: void erase(size_t index) {
+	public: void erase(std::size_t index) {
 		if (index >= size())
 			throw "Index out of bounds";
 		Node *toDelete = nullptr;
@@ -128,7 +128,7 @@ class AvlTreeList final {
 		
 		// The number of nodes in the tree rooted at this node, including this node.
 		// Empty nodes have size 0. This node has size equal to left->size + right->size + 1.
-		public: size_t size;
+		public: std::size_t size;
 		
 		// The root node of the left subtree.
 		public: Node *left;
@@ -172,12 +172,12 @@ class AvlTreeList final {
 		}
 		
 		
-		public: Node *getNodeAt(size_t index) {
+		public: Node *getNodeAt(std::size_t index) {
 			assert(index < size);
 			if (this == &emptyLeafNode)
 				throw "Illegal argument";
 			
-			size_t leftSize = left->size;
+			std::size_t leftSize = left->size;
 			if (index < leftSize)
 				return left->getNodeAt(index);
 			else if (index > leftSize)
@@ -187,7 +187,7 @@ class AvlTreeList final {
 		}
 		
 		
-		public: Node *insertAt(size_t index, const E &obj) {
+		public: Node *insertAt(std::size_t index, const E &obj) {
 			assert(index <= size);
 			if (this == &emptyLeafNode) {
 				if (index == 0)
@@ -196,7 +196,7 @@ class AvlTreeList final {
 					throw "Index out of bounds";
 			}
 			
-			size_t leftSize = left->size;
+			std::size_t leftSize = left->size;
 			if (index <= leftSize)
 				left = left->insertAt(index, obj);
 			else
@@ -206,7 +206,7 @@ class AvlTreeList final {
 		}
 		
 		
-		public: Node *insertAt(size_t index, E &&obj) {
+		public: Node *insertAt(std::size_t index, E &&obj) {
 			assert(index <= size);
 			if (this == &emptyLeafNode) {
 				if (index == 0)
@@ -215,7 +215,7 @@ class AvlTreeList final {
 					throw "Index out of bounds";
 			}
 			
-			size_t leftSize = left->size;
+			std::size_t leftSize = left->size;
 			if (index <= leftSize)
 				left = left->insertAt(index, std::move(obj));
 			else
@@ -225,12 +225,12 @@ class AvlTreeList final {
 		}
 		
 		
-		public: Node *removeAt(size_t index, Node **toDelete) {
+		public: Node *removeAt(std::size_t index, Node **toDelete) {
 			assert(index < size);
 			if (this == &emptyLeafNode)
 				throw "Illegal argument";
 			
-			size_t leftSize = left->size;
+			std::size_t leftSize = left->size;
 			if (index < leftSize)
 				left = left->removeAt(index, toDelete);
 			else if (index > leftSize)
