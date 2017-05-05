@@ -51,19 +51,11 @@ bool inverse_transform(double real[], double imag[], size_t n) {
 bool transform_radix2(double real[], double imag[], size_t n) {
 	// Variables
 	bool status = false;
-	int levels;
-	
-	// Compute levels = floor(log2(n))
-	{
-		size_t temp = n;
-		levels = 0;
-		while (temp > 1) {
-			levels++;
-			temp >>= 1;
-		}
-		if (1u << levels != n)
-			return false;  // n is not a power of 2
-	}
+	int levels = 0;  // Compute levels = floor(log2(n))
+	for (size_t temp = n; temp > 1U; temp >>= 1)
+		levels++;
+	if ((size_t)1U << levels != n)
+		return false;  // n is not a power of 2
 	
 	// Trignometric tables
 	if (SIZE_MAX / sizeof(double) < n / 2)
@@ -155,10 +147,12 @@ bool transform_bluestein(double real[], double imag[], size_t n) {
 	
 	// Trignometric tables
 	for (size_t i = 0; i < n; i++) {
-		double temp = M_PI * (size_t)((unsigned long long)i * i % ((unsigned long long)n * 2)) / n;
-		// Less accurate version if long long is unavailable: double temp = M_PI * i * i / n;
-		cos_table[i] = cos(temp);
-		sin_table[i] = sin(temp);
+		unsigned long long temp = (unsigned long long)i * i;
+		temp %= (unsigned long long)n * 2;
+		double angle = M_PI * temp / n;
+		// Less accurate version if long long is unavailable: double angle = M_PI * i * i / n;
+		cos_table[i] = cos(angle);
+		sin_table[i] = sin(angle);
 	}
 	
 	// Temporary vectors and preprocessing

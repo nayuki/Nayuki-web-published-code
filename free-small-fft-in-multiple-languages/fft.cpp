@@ -31,7 +31,7 @@ using std::vector;
 
 
 // Private function prototypes
-static size_t reverseBits(size_t x, unsigned int n);
+static size_t reverseBits(size_t x, int n);
 
 
 void Fft::transform(vector<double> &real, vector<double> &imag) {
@@ -58,17 +58,11 @@ void Fft::transformRadix2(vector<double> &real, vector<double> &imag) {
 	if (real.size() != imag.size())
 		throw "Mismatched lengths";
 	size_t n = real.size();
-	unsigned int levels;
-	{
-		size_t temp = n;
-		levels = 0;
-		while (temp > 1) {
-			levels++;
-			temp >>= 1;
-		}
-		if (1u << levels != n)
-			throw "Length is not a power of 2";
-	}
+	int levels = 0;  // Compute levels = floor(log2(n))
+	for (size_t temp = n; temp > 1U; temp >>= 1)
+		levels++;
+	if (static_cast<size_t>(1U) << levels != n)
+		throw "Length is not a power of 2";
 	
 	// Trignometric tables
 	vector<double> cosTable(n / 2);
@@ -131,10 +125,12 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 	// Trignometric tables
 	vector<double> cosTable(n), sinTable(n);
 	for (size_t i = 0; i < n; i++) {
-		double temp = M_PI * (size_t)((unsigned long long)i * i % ((unsigned long long)n * 2)) / n;
-		// Less accurate version if long long is unavailable: double temp = M_PI * i * i / n;
-		cosTable[i] = std::cos(temp);
-		sinTable[i] = std::sin(temp);
+		unsigned long long temp = static_cast<unsigned long long>(i) * i;
+		temp %= static_cast<unsigned long long>(n) * 2;
+		double angle = M_PI * temp / n;
+		// Less accurate version if long long is unavailable: double angle = M_PI * i * i / n;
+		cosTable[i] = std::cos(angle);
+		sinTable[i] = std::sin(angle);
 	}
 	
 	// Temporary vectors and preprocessing
@@ -197,10 +193,9 @@ void Fft::convolve(const vector<double> &xreal, const vector<double> &ximag, con
 }
 
 
-static size_t reverseBits(size_t x, unsigned int n) {
+static size_t reverseBits(size_t x, int n) {
 	size_t result = 0;
-	unsigned int i;
-	for (i = 0; i < n; i++, x >>= 1)
+	for (int i = 0; i < n; i++, x >>= 1)
 		result = (result << 1) | (x & 1U);
 	return result;
 }

@@ -41,7 +41,7 @@ static void testConvolution(int n);
 static void naiveDft(const vector<double> &inreal, const vector<double> &inimag, vector<double> &outreal, vector<double> &outimag, bool inverse);
 static void naiveConvolve(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag, vector<double> &outreal, vector<double> &outimag);
 static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag);
-static void randomReals(vector<double> &vec);
+static vector<double> randomReals(int n);
 
 // Mutable global variable
 static double maxLogError = -INFINITY;
@@ -92,10 +92,8 @@ int main() {
 
 
 static void testFft(int n) {
-	vector<double> inputreal(n);
-	vector<double> inputimag(n);
-	randomReals(inputreal);
-	randomReals(inputimag);
+	vector<double> inputreal(randomReals(n));
+	vector<double> inputimag(randomReals(n));
 	
 	vector<double> refoutreal(n);
 	vector<double> refoutimag(n);
@@ -111,14 +109,10 @@ static void testFft(int n) {
 
 
 static void testConvolution(int n) {
-	vector<double> input0real(n);
-	vector<double> input0imag(n);
-	vector<double> input1real(n);
-	vector<double> input1imag(n);
-	randomReals(input0real);
-	randomReals(input0imag);
-	randomReals(input1real);
-	randomReals(input1imag);
+	vector<double> input0real(randomReals(n));
+	vector<double> input0imag(randomReals(n));
+	vector<double> input1real(randomReals(n));
+	vector<double> input1imag(randomReals(n));
 	
 	vector<double> refoutreal(n);
 	vector<double> refoutimag(n);
@@ -184,7 +178,9 @@ static double log10RmsErr(const vector<double> &xreal, const vector<double> &xim
 }
 
 
-static void randomReals(vector<double> &vec) {
-	for (vector<double>::iterator it = vec.begin(); it != vec.end(); ++it)
-		*it = valueDist(randGen);
+static vector<double> randomReals(int n) {
+	vector<double> result;
+	for (int i = 0; i < n; i++)
+		result.push_back(valueDist(randGen));
+	return result;
 }
