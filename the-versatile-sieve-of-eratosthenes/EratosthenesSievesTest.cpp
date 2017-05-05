@@ -11,15 +11,16 @@
 #include <vector>
 #include "EratosthenesSieves.hpp"
 
+using std::size_t;
 using std::uint32_t;
 
 
-void testValues() {
+static void testValues() {
 	{
 		bool expected[] = {false, false, true, true, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, false};
 		std::vector<bool> actual = sievePrimeness(30);
 		// Note: vector<bool> is a specialized template, so actual.data() isn't a pointer to bool
-		for (unsigned int i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
+		for (size_t i = 0; i < sizeof(expected) / sizeof(expected[0]); i++) {
 			if (actual.at(i) != expected[i]) {
 				std::cout << "Mismatch" << std::endl;
 				std::exit(1);
@@ -61,7 +62,7 @@ void testValues() {
 }
 
 
-void testPrefixConsistency() {
+static void testPrefixConsistency() {
 	const uint32_t N = 10000;
 	{
 		std::vector<bool> prev(0);
@@ -83,7 +84,7 @@ void testPrefixConsistency() {
 			sieveOmega,
 			sieveRadical,
 		};
-		for (unsigned int k = 0; k < sizeof(FUNCS) / sizeof(FUNCS[0]); k++) {
+		for (size_t k = 0; k < sizeof(FUNCS) / sizeof(FUNCS[0]); k++) {
 			std::vector<uint32_t> prev(0);
 			for (uint32_t i = 0; i < N; i++) {
 				std::vector<uint32_t> cur = FUNCS[k](i);

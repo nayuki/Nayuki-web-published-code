@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C++)
  * 
- * Copyright (c) 2014 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -201,6 +201,6 @@ static size_t reverseBits(size_t x, unsigned int n) {
 	size_t result = 0;
 	unsigned int i;
 	for (i = 0; i < n; i++, x >>= 1)
-		result = (result << 1) | (x & 1);
+		result = (result << 1) | (x & 1U);
 	return result;
 }

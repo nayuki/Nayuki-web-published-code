@@ -43,6 +43,7 @@ static void naiveConvolve(const vector<double> &xreal, const vector<double> &xim
 static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag);
 static void randomReals(vector<double> &vec);
 
+// Mutable global variable
 static double maxLogError = -INFINITY;
 
 // Random number generation
@@ -62,8 +63,7 @@ int main() {
 		testFft(i);
 	
 	// Test diverse size FFTs
-	int prev = 0;
-	for (int i = 0; i <= 100; i++) {
+	for (int i = 0, prev = 0; i <= 100; i++) {
 		int n = static_cast<int>(lround(pow(1500.0, i / 100.0)));
 		if (n > prev) {
 			testFft(n);
@@ -76,8 +76,7 @@ int main() {
 		testConvolution(1 << i);
 	
 	// Test diverse size convolutions
-	prev = 0;
-	for (int i = 0; i <= 100; i++) {
+	for (int i = 0, prev = 0; i <= 100; i++) {
 		int n = static_cast<int>(lround(pow(1500.0, i / 100.0)));
 		if (n > prev) {
 			testConvolution(n);
@@ -137,7 +136,7 @@ static void testConvolution(int n) {
 /* Naive reference computation functions */
 
 static void naiveDft(const vector<double> &inreal, const vector<double> &inimag, vector<double> &outreal, vector<double> &outimag, bool inverse) {
-	int n = inreal.size();
+	int n = static_cast<int>(inreal.size());
 	double coef = (inverse ? 2 : -2) * M_PI;
 	for (int k = 0; k < n; k++) {  // For each output element
 		double sumreal = 0;
@@ -154,7 +153,7 @@ static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
 
 
 static void naiveConvolve(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag, vector<double> &outreal, vector<double> &outimag) {
-	int n = xreal.size();
+	int n = static_cast<int>(xreal.size());
 	for (int i = 0; i < n; i++) {
 		double sumreal = 0;
 		double sumimag = 0;
@@ -172,7 +171,7 @@ static void naiveConvolve(const vector<double> &xreal, const vector<double> &xim
 /* Utility functions */
 
 static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag) {
-	int n = xreal.size();
+	int n = static_cast<int>(xreal.size());
 	double err = 0;
 	for (int i = 0; i < n; i++)
 		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);

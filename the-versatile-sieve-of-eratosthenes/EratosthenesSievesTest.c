@@ -12,7 +12,7 @@
 #include "EratosthenesSieves.h"
 
 
-void test_values(void) {
+static void test_values(void) {
 	{
 		bool expected[] = {false, false, true, true, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, false};
 		bool *actual = sieve_primeness(30);
@@ -61,7 +61,7 @@ void test_values(void) {
 }
 
 
-void test_prefix_consistency(void) {
+static void test_prefix_consistency(void) {
 	const uint32_t N = 10000;
 	{
 		bool *prev = NULL;
@@ -85,7 +85,7 @@ void test_prefix_consistency(void) {
 			sieve_omega,
 			sieve_radical,
 		};
-		for (unsigned int k = 0; k < sizeof(FUNCS) / sizeof(FUNCS[0]); k++) {
+		for (size_t k = 0; k < sizeof(FUNCS) / sizeof(FUNCS[0]); k++) {
 			uint32_t *prev = NULL;
 			for (uint32_t i = 0; i < N; i++) {
 				uint32_t *cur = FUNCS[k](i);

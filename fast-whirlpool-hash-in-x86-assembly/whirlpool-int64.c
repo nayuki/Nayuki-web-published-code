@@ -69,8 +69,7 @@ void whirlpool_compress(uint8_t state[64], const uint8_t block[64]) {
 	}
 	
 	// Hashing rounds
-	uint64_t rcon[8];
-	memset(rcon + 1, 0, sizeof(rcon[0]) * 7);
+	uint64_t rcon[8] = {0};
 	for (int i = 0; i < NUM_ROUNDS; i++) {
 		rcon[0] = ROUND_CONSTANTS[i];
 		whirlpool_round(tempState, rcon);

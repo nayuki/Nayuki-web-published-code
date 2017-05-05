@@ -56,8 +56,7 @@ int main(void) {
 		test_fft(i);
 	
 	// Test diverse size FFTs
-	int prev = 0;
-	for (int i = 0; i <= 100; i++) {
+	for (int i = 0, prev = 0; i <= 100; i++) {
 		int n = (int)lround(pow(1500, i / 100.0));
 		if (n > prev) {
 			test_fft(n);
@@ -70,8 +69,7 @@ int main(void) {
 		test_convolution(1 << i);
 	
 	// Test diverse size convolutions
-	prev = 0;
-	for (int i = 0; i <= 100; i++) {
+	for (int i = 0, prev = 0; i <= 100; i++) {
 		int n = (int)lround(pow(1500, i / 100.0));
 		if (n > prev) {
 			test_convolution(n);

@@ -256,7 +256,7 @@ cleanup:
 static size_t reverse_bits(size_t x, int n) {
 	size_t result = 0;
 	for (int i = 0; i < n; i++, x >>= 1)
-		result = (result << 1) | (x & 1);
+		result = (result << 1) | (x & 1U);
 	return result;
 }
 
