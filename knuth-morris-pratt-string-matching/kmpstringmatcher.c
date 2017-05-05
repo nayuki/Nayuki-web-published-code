@@ -22,10 +22,9 @@
  */
 
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define SIZE_MAX ((size_t)-1)
 
 
 // Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.

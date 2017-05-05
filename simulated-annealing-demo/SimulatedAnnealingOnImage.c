@@ -42,7 +42,6 @@ int32_t horizontal_energy_diff_if_swapped(const uint32_t *pixels, uint32_t width
 int32_t vertical_energy_diff_if_swapped  (const uint32_t *pixels, uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
 uint32_t pixel_diff(uint32_t p0, uint32_t p1);
 double fast_2_pow(double x);
-int abs(int x);
 
 
 /*---- Main program ----*/
@@ -209,11 +208,6 @@ uint32_t pixel_diff(uint32_t p0, uint32_t p1) {
 	int r0 = p0 >> 16, g0 = (p0 >> 8) & 0xFF, b0 = p0 & 0xFF;
 	int r1 = p1 >> 16, g1 = (p1 >> 8) & 0xFF, b1 = p1 & 0xFF;
 	return (uint32_t)(abs(r0 - r1) + abs(g0 - g1) + abs(b0 - b1));
-}
-
-
-int abs(int x) {
-	return x >= 0 ? x : -x;
 }
 
 

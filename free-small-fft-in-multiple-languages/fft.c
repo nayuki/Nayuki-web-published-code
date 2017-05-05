@@ -22,6 +22,7 @@
  */
 
 #include <math.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "fft.h"
@@ -30,8 +31,6 @@
 // Private function prototypes
 static size_t reverse_bits(size_t x, int n);
 static void *memdup(const void *src, size_t n);
-
-#define SIZE_MAX ((size_t)-1)
 
 
 bool transform(double real[], double imag[], size_t n) {
