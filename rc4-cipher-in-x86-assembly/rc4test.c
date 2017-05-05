@@ -28,18 +28,19 @@
 #include <string.h>
 #include <time.h>
 
-typedef struct {
+
+struct Rc4State {
 	uint8_t i;
 	uint8_t j;
 	uint8_t s[256];
-} Rc4State;
+};
 
 
 /* Function prototypes */
 
-extern void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, size_t len);
-void rc4_init(Rc4State *state, const uint8_t *key, size_t len);
-void rc4_encrypt_c(Rc4State *state, uint8_t *msg, size_t len);
+extern void rc4_encrypt_x86(struct Rc4State *state, uint8_t *msg, size_t len);
+void rc4_init(struct Rc4State *state, const uint8_t *key, size_t len);
+void rc4_encrypt_c(struct Rc4State *state, uint8_t *msg, size_t len);
 static bool self_check(void);
 
 
@@ -58,7 +59,7 @@ int main(void) {
 	
 	uint8_t key[3] = {'a', 'b', 'c'};
 	uint8_t msg[MSG_LEN] = {0};
-	Rc4State state;
+	struct Rc4State state;
 	rc4_init(&state, key, sizeof(key));
 	
 	time_t start;
@@ -85,8 +86,8 @@ static bool self_check(void) {
 	uint8_t key[3] = {'K', 'e', 'y'};
 	uint8_t msg0[MSG_LEN] = {0};
 	uint8_t msg1[MSG_LEN] = {0};
-	Rc4State state0;
-	Rc4State state1;
+	struct Rc4State state0;
+	struct Rc4State state1;
 	rc4_init(&state0, key, sizeof(key));
 	rc4_init(&state1, key, sizeof(key));
 	
@@ -94,7 +95,7 @@ static bool self_check(void) {
 	for(i = 0; i < TRIALS; i++){
 		rc4_encrypt_c  (&state0, msg0, MSG_LEN);
 		rc4_encrypt_x86(&state1, msg1, MSG_LEN);
-		if (memcmp(msg0, msg1, MSG_LEN) != 0 || memcmp(&state0, &state1, sizeof(Rc4State)) != 0)
+		if (memcmp(msg0, msg1, MSG_LEN) != 0 || memcmp(&state0, &state1, sizeof(struct Rc4State)) != 0)
 			return false;
 	}
 	return true;
@@ -104,7 +105,7 @@ static bool self_check(void) {
 
 /* RC4 functions in C */
 
-void rc4_init(Rc4State *state, const uint8_t *key, size_t len) {
+void rc4_init(struct Rc4State *state, const uint8_t *key, size_t len) {
 	for (int i = 0; i < 256; i++)
 		state->s[i] = (uint8_t)i;
 	state->i = 0;
@@ -122,7 +123,7 @@ void rc4_init(Rc4State *state, const uint8_t *key, size_t len) {
 }
 
 
-void rc4_encrypt_c(Rc4State *state, uint8_t *msg, size_t len) {
+void rc4_encrypt_c(struct Rc4State *state, uint8_t *msg, size_t len) {
 	uint8_t i = state->i;
 	uint8_t j = state->j;
 	uint8_t *s = state->s;

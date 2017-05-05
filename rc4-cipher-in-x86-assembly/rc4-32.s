@@ -1,7 +1,7 @@
 /* 
  * RC4 stream cipher in x86 assembly
  * 
- * Copyright (c) 2014 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/rc4-cipher-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void rc4_encrypt_x86(Rc4State *state, uint8_t *msg, size_t len) */
+/* void rc4_encrypt_x86(struct Rc4State *state, uint8_t *msg, size_t len) */
 .globl rc4_encrypt_x86
 rc4_encrypt_x86:
 	/* 
