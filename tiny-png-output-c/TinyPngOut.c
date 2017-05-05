@@ -31,11 +31,10 @@
 /* Local declarations */
 
 #define DEFLATE_MAX_BLOCK_SIZE 65535
-#define MIN(x, y) ((x) < (y) ? (x) : (y))
 
 static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout);
-static uint32_t crc32  (uint32_t state, const uint8_t *data, size_t len);
-static uint32_t adler32(uint32_t state, const uint8_t *data, size_t len);
+static uint32_t crc32  (uint32_t state, const uint8_t data[], size_t len);
+static uint32_t adler32(uint32_t state, const uint8_t data[], size_t len);
 
 
 /* Public function implementations */
@@ -46,20 +45,20 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 		return TINYPNGOUT_INVALID_ARGUMENT;
 	
 	// Calculate data sizes
-	if (width > (UINT32_MAX - 1) / 3)
+	if (width > (INT32_MAX - 1) / 3)
 		return TINYPNGOUT_IMAGE_TOO_LARGE;
-	uint32_t lineSize = width * 3 + 1;
+	int32_t lineSize = width * 3 + 1;
 	
-	if (lineSize > UINT32_MAX / height)
+	if (lineSize > INT32_MAX / height)
 		return TINYPNGOUT_IMAGE_TOO_LARGE;
-	uint32_t size = lineSize * height;  // Size of DEFLATE input
+	int32_t size = lineSize * height;  // Size of DEFLATE input
 	pngout->deflateRemain = size;
 	
-	uint32_t overhead = size / DEFLATE_MAX_BLOCK_SIZE;
+	int32_t overhead = size / DEFLATE_MAX_BLOCK_SIZE;
 	if (overhead * DEFLATE_MAX_BLOCK_SIZE < size)
 		overhead++;  // Round up to next block
 	overhead = overhead * 5 + 6;
-	if (size > UINT32_MAX - overhead)
+	if (size > INT32_MAX - overhead)
 		return TINYPNGOUT_IMAGE_TOO_LARGE;
 	size += overhead;  // Size of zlib+DEFLATE output
 	
@@ -95,7 +94,7 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 	header[30] = crc >> 16;
 	header[31] = crc >>  8;
 	header[32] = crc >>  0;
-	if (fwrite(header, 1, HEADER_SIZE, fout) != HEADER_SIZE)
+	if (fwrite(header, sizeof(header[0]), HEADER_SIZE, fout) != HEADER_SIZE)
 		return TINYPNGOUT_IO_ERROR;
 	
 	pngout->crc = crc32(0, &header[37], 6);
@@ -103,7 +102,7 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 }
 
 
-enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t *pixels, int count) {
+enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t pixels[], int count) {
 	int32_t width  = pngout->width;
 	int32_t height = pngout->height;
 	if (pngout->positionY == height)
@@ -117,23 +116,32 @@ enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t 
 		// Start DEFLATE block
 		if (pngout->deflateFilled == 0) {
 			#define BLOCK_HEADER_SIZE 5
-			uint16_t size = (uint16_t)MIN(pngout->deflateRemain, DEFLATE_MAX_BLOCK_SIZE);
+			uint16_t size = DEFLATE_MAX_BLOCK_SIZE;
+			if (pngout->deflateRemain < (int32_t)size)
+				size = (uint16_t)pngout->deflateRemain;
 			uint8_t blockheader[BLOCK_HEADER_SIZE] = {
 				pngout->deflateRemain <= DEFLATE_MAX_BLOCK_SIZE ? 1 : 0,
 				size >> 0,
 				size >> 8,
-				(size ^ UINT16_C(0xFFFF)) >> 0,
-				(size ^ UINT16_C(0xFFFF)) >> 8,
+				(size >> 0) ^ 0xFF,
+				(size >> 8) ^ 0xFF,
 			};
-			if (fwrite(blockheader, 1, BLOCK_HEADER_SIZE, f) != BLOCK_HEADER_SIZE)
+			if (fwrite(blockheader, sizeof(blockheader[0]), BLOCK_HEADER_SIZE, f) != BLOCK_HEADER_SIZE)
 				return TINYPNGOUT_IO_ERROR;
 			pngout->crc = crc32(pngout->crc, blockheader, BLOCK_HEADER_SIZE);
 		}
 		
 		// Calculate number of bytes to write in this loop iteration
-		int n = MIN(count, width - pngout->positionX);
-		n = MIN(DEFLATE_MAX_BLOCK_SIZE - pngout->deflateFilled, n);
-		if (n <= 0)  // Impossible
+		size_t n = SIZE_MAX;
+		if ((unsigned int)count < n)
+			n = (size_t)count;
+		if ((uint32_t)(width - pngout->positionX) < n)
+			n = (size_t)(width - pngout->positionX);
+		if (pngout->deflateFilled >= DEFLATE_MAX_BLOCK_SIZE)  // Impossible
+			exit(EXIT_FAILURE);
+		if ((uint32_t)(DEFLATE_MAX_BLOCK_SIZE - pngout->deflateFilled) < n)
+			n = DEFLATE_MAX_BLOCK_SIZE - pngout->deflateFilled;
+		if (n == 0)  // Impossible
 			exit(EXIT_FAILURE);
 		
 		// Beginning of row - write filter method
@@ -150,7 +158,7 @@ enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t 
 		}
 		
 		// Write bytes and update checksums
-		if (fwrite(pixels, 1, n, f) != n)
+		if (fwrite(pixels, sizeof(pixels[0]), n, f) != n)
 			return TINYPNGOUT_IO_ERROR;
 		pngout->crc = crc32(pngout->crc, pixels, n);
 		pngout->adler = adler32(pngout->adler, pixels, n);
@@ -198,13 +206,13 @@ static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout) {
 	footer[6] = crc >>  8;
 	footer[7] = crc >>  0;
 	
-	if (fwrite(footer, 1, FOOTER_SIZE, pngout->outStream) != FOOTER_SIZE)
+	if (fwrite(footer, sizeof(footer[0]), FOOTER_SIZE, pngout->outStream) != FOOTER_SIZE)
 		return TINYPNGOUT_IO_ERROR;
 	return TINYPNGOUT_OK;
 }
 
 
-static uint32_t crc32(uint32_t state, const uint8_t *data, size_t len) {
+static uint32_t crc32(uint32_t state, const uint8_t data[], size_t len) {
 	state = ~state;
 	for (size_t i = 0; i < len; i++) {
 		for (unsigned int j = 0; j < 8; j++) {  // Inefficient bitwise implementation, instead of table-based
@@ -216,7 +224,7 @@ static uint32_t crc32(uint32_t state, const uint8_t *data, size_t len) {
 }
 
 
-static uint32_t adler32(uint32_t state, const uint8_t *data, size_t len) {
+static uint32_t adler32(uint32_t state, const uint8_t data[], size_t len) {
 	uint16_t s1 = state >>  0;
 	uint16_t s2 = state >> 16;
 	for (size_t i = 0; i < len; i++) {

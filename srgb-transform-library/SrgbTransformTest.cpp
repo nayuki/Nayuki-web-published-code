@@ -35,27 +35,27 @@ std::default_random_engine randGen((std::random_device())());
 
 
 static void testForwardInverse() {
-	int trials = 1000000;
+	const long trials = 1000000;
 	std::uniform_real_distribution<double> dist(0.0, 1.0);
-	for (int i = 0; i < trials; i++) {
+	for (long i = 0; i < trials; i++) {
 		double xd = dist(randGen);
 		float xf = (float)xd;
 		double yd = SrgbTransform::srgbToLinear(xd);
 		float yf = SrgbTransform::srgbToLinear(xf);
 		double zd = SrgbTransform::linearToSrgb(xd);
 		float zf = SrgbTransform::linearToSrgb(xf);
-		assert(fabs(xd - SrgbTransform::linearToSrgb(yd)) < DELTA);
-		assert(fabs(xf - SrgbTransform::linearToSrgb(yf)) < DELTA);
-		assert(fabs(xd - SrgbTransform::srgbToLinear(zd)) < DELTA);
-		assert(fabs(xf - SrgbTransform::srgbToLinear(zf)) < DELTA);
+		assert(std::fabs(xd - SrgbTransform::linearToSrgb(yd)) < DELTA);
+		assert(std::fabs(xf - SrgbTransform::linearToSrgb(yf)) < DELTA);
+		assert(std::fabs(xd - SrgbTransform::srgbToLinear(zd)) < DELTA);
+		assert(std::fabs(xf - SrgbTransform::srgbToLinear(zf)) < DELTA);
 	}
 }
 
 
 static void testMonotonicity() {
-	int trials = 1000000;
+	const long trials = 1000000;
 	std::uniform_real_distribution<double> dist(-0.5, 1.5);
-	for (int i = 0; i < trials; i++) {
+	for (long i = 0; i < trials; i++) {
 		double xd = dist(randGen);
 		double yd = dist(randGen);
 		if (yd < xd) {
@@ -82,7 +82,7 @@ static void test8Bit() {
 	for (int i = 0; i < (1 << 8); i++) {
 		assert(SrgbTransform::linearToSrgb8bit(SrgbTransform::SRGB_8BIT_TO_LINEAR_DOUBLE[i]) == i);
 		assert(SrgbTransform::linearToSrgb8bit(SrgbTransform::SRGB_8BIT_TO_LINEAR_FLOAT [i]) == i);
-		assert(fabs(SrgbTransform::linearToSrgb(SrgbTransform::SRGB_8BIT_TO_LINEAR_DOUBLE[i]) * 255.0 - i) < 1.0);
+		assert(std::fabs(SrgbTransform::linearToSrgb(SrgbTransform::SRGB_8BIT_TO_LINEAR_DOUBLE[i]) * 255.0 - i) < 1.0);
 	}
 }
 

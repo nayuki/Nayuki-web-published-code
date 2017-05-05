@@ -37,7 +37,7 @@ float srgbToLinear(float x) {
 	else if (x < 0.04045f)
 		return x / 12.92f;
 	else
-		return pow((x + 0.055f) / 1.055f, 2.4f);
+		return std::pow((x + 0.055f) / 1.055f, 2.4f);
 }
 
 
@@ -49,7 +49,7 @@ double srgbToLinear(double x) {
 	else if (x < 0.04045)
 		return x / 12.92;
 	else
-		return pow((x + 0.055) / 1.055, 2.4);
+		return std::pow((x + 0.055) / 1.055, 2.4);
 }
 
 
@@ -200,7 +200,7 @@ float linearToSrgb(float x) {
 	else if (x < 0.0031308f)
 		return x * 12.92f;
 	else
-		return pow(x, 1.0f / 2.4f) * 1.055f - 0.055f;
+		return std::pow(x, 1.0f / 2.4f) * 1.055f - 0.055f;
 }
 
 
@@ -212,7 +212,7 @@ double linearToSrgb(double x) {
 	else if (x < 0.0031308)
 		return x * 12.92;
 	else
-		return pow(x, 1.0 / 2.4) * 1.055 - 0.055;
+		return std::pow(x, 1.0 / 2.4) * 1.055 - 0.055;
 }
 
 
