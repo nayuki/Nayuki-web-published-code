@@ -37,9 +37,9 @@ uint32_t MtRandom_next_int_bounded(struct MtRandom *mt, uint32_t bound);
 double   MtRandom_next_double(struct MtRandom *mt);
 void     MtRandom_reseed(struct MtRandom *mt);
 
-void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, const char *filepath);
-int32_t horizontal_energy_diff_if_swapped(const uint32_t *pixels, uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
-int32_t vertical_energy_diff_if_swapped  (const uint32_t *pixels, uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
+void write_bmp_image(const uint32_t pixels[], uint32_t width, uint32_t height, const char *filepath);
+int32_t horizontal_energy_diff_if_swapped(const uint32_t pixels[], uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
+int32_t vertical_energy_diff_if_swapped  (const uint32_t pixels[], uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
 uint32_t pixel_diff(uint32_t p0, uint32_t p1);
 double fast_2_pow(double x);
 
@@ -123,7 +123,7 @@ int main(void) {
 }
 
 
-void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, const char *filepath) {
+void write_bmp_image(const uint32_t pixels[], uint32_t width, uint32_t height, const char *filepath) {
 	// Allocate objects
 	FILE *f = fopen(filepath, "wb");
 	if (f == NULL) {
@@ -140,7 +140,8 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 	// Write header
 	uint32_t imagesize = rowsize * height;
 	uint32_t filesize = imagesize + 54;
-	uint8_t header[54] = {
+	#define HEADER_LEN 54
+	uint8_t header[HEADER_LEN] = {
 		'B', 'M',
 		filesize >> 0, filesize >> 8, filesize >> 16, filesize >> 24,
 		0, 0,
@@ -158,7 +159,7 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 		0, 0, 0, 0,
 		0, 0, 0, 0,
 	};
-	if (fwrite(header, sizeof(uint8_t), sizeof(header) / sizeof(uint8_t), f) != sizeof(header) / sizeof(uint8_t)) {
+	if (fwrite(header, sizeof(header[0]), HEADER_LEN, f) != HEADER_LEN) {
 		perror("fwrite");
 		exit(EXIT_FAILURE);
 	}
@@ -171,7 +172,7 @@ void write_bmp_image(const uint32_t *pixels, uint32_t width, uint32_t height, co
 			row[x * 3 + 1] = (p >>  8) & 0xFF;
 			row[x * 3 + 2] = (p >> 16) & 0xFF;
 		}
-		if (fwrite(row, sizeof(uint8_t), rowsize, f) != rowsize) {
+		if (fwrite(row, sizeof(row[0]), rowsize, f) != rowsize) {
 			perror("fwrite");
 			exit(EXIT_FAILURE);
 		}
