@@ -2,7 +2,7 @@
 # CRC-32 forcer (Python)
 # Compatible with Python 2 and 3.
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2017 Project Nayuki
 # https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -131,7 +131,7 @@ def multiply_mod(x, y):
 		z ^= x * (y & 1)
 		y >>= 1
 		x <<= 1
-		if x & (1 << 32) != 0:
+		if (x >> 32) & 1 != 0:
 			x ^= POLYNOMIAL
 	return z
 
@@ -158,7 +158,7 @@ def divide_and_remainder(x, y):
 	ydeg = get_degree(y)
 	z = 0
 	for i in range(get_degree(x) - ydeg, -1, -1):
-		if (x & (1 << (i + ydeg)) != 0):
+		if (x >> (i + ydeg)) & 1 != 0:
 			x ^= y << i
 			z |= 1 << i
 	return (z, x)
@@ -171,11 +171,11 @@ def reciprocal_mod(x):
 	x = POLYNOMIAL
 	a = 0
 	b = 1
-	while (y != 0):
-		divrem = divide_and_remainder(x, y)
-		c = a ^ multiply_mod(divrem[0], b)
+	while y != 0:
+		q, r = divide_and_remainder(x, y)
+		c = a ^ multiply_mod(q, b)
 		x = y
-		y = divrem[1]
+		y = r
 		a = b
 		b = c
 	if x == 1:
@@ -185,13 +185,7 @@ def reciprocal_mod(x):
 
 
 def get_degree(x):
-	if x == 0:
-		return -1
-	i = 0
-	while True:
-		if x >> i == 1:
-			return i
-		i += 1
+	return x.bit_length() - 1
 
 
 # ---- Miscellaneous ----

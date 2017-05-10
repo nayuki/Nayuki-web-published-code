@@ -136,7 +136,7 @@ public final class forcecrc32 {
 			for (int i = 0; i < n; i++) {
 				for (int j = 0; j < 8; j++) {
 					crc ^= (buffer[i] >>> j) << 31;
-					if ((crc & (1 << 31)) != 0)
+					if (crc < 0)
 						crc = (crc << 1) ^ (int)POLYNOMIAL;
 					else
 						crc <<= 1;
@@ -156,7 +156,7 @@ public final class forcecrc32 {
 			z ^= x * (y & 1);
 			y >>>= 1;
 			x <<= 1;
-			if ((x & (1L << 32)) != 0)
+			if (((x >>> 32) & 1) != 0)
 				x ^= POLYNOMIAL;
 		}
 		return z;
@@ -187,7 +187,7 @@ public final class forcecrc32 {
 		int ydeg = getDegree(y);
 		long z = 0;
 		for (int i = getDegree(x) - ydeg; i >= 0; i--) {
-			if ((x & (1 << (i + ydeg))) != 0) {
+			if (((x >>> (i + ydeg)) & 1) != 0) {
 				x ^= y << i;
 				z |= 1 << i;
 			}

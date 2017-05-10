@@ -196,7 +196,7 @@ static void fseek64(FILE *f, uint64_t offset) {
 static uint32_t reverse_bits(uint32_t x) {
 	uint32_t result = 0;
 	for (int i = 0; i < 32; i++)
-		result = (result << 1) | ((x >> i) & 1);
+		result = (result << 1) | ((x >> i) & 1U);
 	return result;
 }
 
@@ -211,7 +211,7 @@ static uint64_t multiply_mod(uint64_t x, uint64_t y) {
 		z ^= x * (y & 1);
 		y >>= 1;
 		x <<= 1;
-		if ((x & UINT64_C(0x100000000)) != 0)
+		if (((x >> 32) & 1) != 0)
 			x ^= POLYNOMIAL;
 	}
 	return z;
@@ -247,7 +247,7 @@ static void divide_and_remainder(uint64_t x, uint64_t y, uint64_t *q, uint64_t *
 	int ydeg = get_degree(y);
 	uint64_t z = 0;
 	for (int i = get_degree(x) - ydeg; i >= 0; i--) {
-		if ((x & ((uint64_t)1 << (i + ydeg))) != 0) {
+		if (((x >> (i + ydeg)) & 1) != 0) {
 			x ^= y << i;
 			z |= (uint64_t)1 << i;
 		}
