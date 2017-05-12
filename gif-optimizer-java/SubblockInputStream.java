@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-/*
+/* 
  * Input stream parser for GIF's subblock format. This continues to return data
  * until a 0-length subblock is encountered; afterwards it returns -1 to signify EOF.
  */

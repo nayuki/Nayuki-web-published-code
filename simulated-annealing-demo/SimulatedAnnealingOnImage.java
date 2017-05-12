@@ -185,7 +185,7 @@ public final class SimulatedAnnealingOnImage {
 
 /*---- Mersenne Twister random number generator library ----*/
 
-/*
+/* 
  * The C code was ported to Java by Project Nayuki. The numerical output is identical.
  */
 

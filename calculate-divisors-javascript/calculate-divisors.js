@@ -15,7 +15,7 @@ document.getElementById("output").appendChild(outputText);
 var lastInput = "";
 
 
-/*
+/* 
  * Handles the HTML input/output for calculating the divisors of an integer.
  * This is the one and only entry point function called from the HTML code.
  */
@@ -45,7 +45,7 @@ function divisors() {
 }
 
 
-/*
+/* 
  * Returns the list of divisors (in ascending order) of the given integer.
  * Examples:
  *   divisorList(1) = [1]

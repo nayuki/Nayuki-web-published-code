@@ -214,7 +214,7 @@ uint32_t pixel_diff(uint32_t p0, uint32_t p1) {
 
 /*---- Mersenne Twister random number generator library ----*/
 
-/*
+/* 
  * The C code was cleaned up by Project Nayuki. The numerical output is identical.
  */
 

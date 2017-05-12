@@ -9,7 +9,7 @@
 "use strict";
 
 
-/*
+/* 
  * Handles the HTML input/output for Caesar cipher encryption/decryption.
  * This is the one and only entry point function called from the HTML code.
  */
@@ -31,7 +31,7 @@ function doCrypt(isDecrypt) {
 }
 
 
-/*
+/* 
  * Returns the result of having each alphabetic letter of the given text string shifted forward
  * by the given amount, with wraparound. Case is preserved, and non-letters are unchanged.
  * Examples:
