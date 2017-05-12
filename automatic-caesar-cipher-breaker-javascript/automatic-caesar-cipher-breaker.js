@@ -19,10 +19,10 @@ function doBreak() {
 	entropies = getAllEntropies(text);
 	entropies.sort(function(x, y) {
 		// Compare by lowest entropy, break ties by lowest shift
-		if (x[1] < y[1]) return -1;
-		else if (x[1] > y[1]) return 1;
+		if      (x[1] < y[1]) return -1;
+		else if (x[1] > y[1]) return +1;
 		else if (x[0] < y[0]) return -1;
-		else if (x[0] > y[0]) return 1;
+		else if (x[0] > y[0]) return +1;
 		else return 0;
 	});
 	
@@ -133,7 +133,7 @@ function decrypt(str, key) {
 /* Utilities */
 
 function clearChildren(node) {
-	while (node.childNodes.length > 0)
+	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }
 

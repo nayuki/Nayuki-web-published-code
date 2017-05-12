@@ -124,7 +124,7 @@ function nextMonth() {
 		if (year <= 2012)
 			amount = 500000;  // Known amount
 		else if (year == 2015)
-			amount = 1000000;
+			amount = 1000000;  // Known amount
 		else if (year <= 2017)
 			amount = 550000;  // Known amount
 		else  // Estimate based on 2% annual inflation
@@ -163,9 +163,7 @@ function display() {
 		if (typeof content == "string")
 			content = [document.createTextNode(content)];
 		var td = document.createElement("td");
-		content.forEach(function(item) {
-			td.appendChild(item);
-		});
+		content.forEach(td.appendChild, td);
 		tr.appendChild(td);
 	}
 	
@@ -248,7 +246,7 @@ function setText(elementName, text) {
 
 
 function clearChildren(node) {
-	while (node.childNodes.length > 0)
+	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }
 

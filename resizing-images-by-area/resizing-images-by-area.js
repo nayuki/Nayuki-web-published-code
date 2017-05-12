@@ -13,7 +13,7 @@ var TIMES = "\u00D7";  // Times sign
 
 function calc() {
 	function clearChildren(node) {
-		while (node.childNodes.length > 0)
+		while (node.firstChild != null)
 			node.removeChild(node.firstChild);
 	}
 	

@@ -1,5 +1,5 @@
 /* 
- * Divisors calculator
+ * Calculate divisors
  * 
  * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
@@ -31,15 +31,12 @@ function divisors() {
 		s = "Not an integer";
 	} else {
 		var n = parseInt(numberText, 10);
-		if (n < 1) {
+		if (n < 1)
 			s = "Number out of range (< 1)";
-		} else if (n >= 9007199254740992) {
+		else if (n >= 9007199254740992)
 			s = "Number too large";
-		} else {
-			// Main case
-			var divs = listDivisors(n);
-			s = divs.join(", ");
-		}
+		else  // Main case
+			s = listDivisors(n).join(", ");
 	}
 	outputText.data = s;
 }
@@ -48,14 +45,13 @@ function divisors() {
 /* 
  * Returns the list of divisors (in ascending order) of the given integer.
  * Examples:
- * - divisorList(1) = [1].
- * - divisorList(5) = [1, 5].
- * - divisorList(12) = [1, 2, 3, 4, 6, 12].
+ * - listDivisors(1) = [1].
+ * - listDivisors(5) = [1, 5].
+ * - listDivisors(12) = [1, 2, 3, 4, 6, 12].
  */
 function listDivisors(n) {
 	if (n < 1)
 		throw "Argument error";
-	
 	var small = [];
 	var large = [];
 	var end = Math.floor(Math.sqrt(n));

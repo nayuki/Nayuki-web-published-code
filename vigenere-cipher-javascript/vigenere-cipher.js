@@ -54,7 +54,8 @@ function crypt(input, key) {
 
 
 /* 
- * Returns an array of numbers, each in the range [0, 26), representing the given key. The key is case-insensitive, and non-letters are ignored.
+ * Returns an array of numbers, each in the range [0, 26), representing the given key.
+ * The key is case-insensitive, and non-letters are ignored.
  * Examples:
  * - filterKey("AAA") = [0, 0, 0].
  * - filterKey("abc") = [0, 1, 2].
@@ -78,10 +79,10 @@ function isLetter(c) {
 
 // Tests whether the specified character code is an uppercase letter.
 function isUppercase(c) {
-	return 65 <= c && c <= 90;  // 65 is the character code for 'A'. 90 is for 'Z'.
+	return 65 <= c && c <= 90;  // 65 is character code for 'A'. 90 is 'Z'.
 }
 
 // Tests whether the specified character code is a lowercase letter.
 function isLowercase(c) {
-	return 97 <= c && c <= 122;  // 97 is the character code for 'a'. 122 is for 'z'.
+	return 97 <= c && c <= 122;  // 97 is character code for 'a'. 122 is 'z'.
 }

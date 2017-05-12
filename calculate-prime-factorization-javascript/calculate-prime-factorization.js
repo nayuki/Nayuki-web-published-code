@@ -1,5 +1,5 @@
 /* 
- * Prime factorization calculator
+ * Calculate prime factorization
  * 
  * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
@@ -90,7 +90,6 @@ function factor() {
 function primeFactorList(n) {
 	if (n < 1)
 		throw "Argument error";
-	
 	var result = [];
 	while (n != 1) {
 		var factor = smallestFactor(n);
@@ -110,7 +109,6 @@ function primeFactorList(n) {
 function smallestFactor(n) {
 	if (n < 2)
 		throw "Argument error";
-	
 	if (n % 2 == 0)
 		return 2;
 	var end = Math.floor(Math.sqrt(n));
@@ -123,8 +121,8 @@ function smallestFactor(n) {
 
 
 /* 
- * Returns the prime factorization as a list of factor-power pairs, from the given factor list. The given list must be in ascending order.
- * Examples:
+ * Returns the prime factorization as a list of factor-power pairs, from the
+ * given factor list. The given list must be in ascending order. Examples:
  * - toFactorPowerList([2, 2, 2]) = [[2, 3]].
  * - toFactorPowerList([3, 5]) = [[3, 1], [5, 1]].
  */
