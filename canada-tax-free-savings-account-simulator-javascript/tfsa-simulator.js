@@ -201,7 +201,7 @@ function display() {
 	}
 	
 	var cheqElem = document.getElementById("chequing-transactions");
-	removeAllChildren(cheqElem);
+	clearChildren(cheqElem);
 	for (var i = showAllTransactions ? 0 : chequingTransactions.length - TRANSACTION_ROWS; i < chequingTransactions.length; i++) {
 		tr = document.createElement("tr");
 		if (i < 0) {
@@ -218,7 +218,7 @@ function display() {
 	}
 	
 	var tfsaElem = document.getElementById("tfsa-transactions");
-	removeAllChildren(tfsaElem);
+	clearChildren(tfsaElem);
 	for (var i = showAllTransactions ? 0 : tfsaTransactions.length - TRANSACTION_ROWS; i < tfsaTransactions.length; i++) {
 		tr = document.createElement("tr");
 		if (i < 0) {
@@ -242,12 +242,12 @@ function display() {
 
 function setText(elementName, text) {
 	var elem = document.getElementById(elementName);
-	removeAllChildren(elem);
+	clearChildren(elem);
 	elem.appendChild(document.createTextNode(text));
 }
 
 
-function removeAllChildren(node) {
+function clearChildren(node) {
 	while (node.childNodes.length > 0)
 		node.removeChild(node.firstChild);
 }

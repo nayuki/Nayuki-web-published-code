@@ -1,7 +1,7 @@
 /* 
  * Propositional sequent calculus prover
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
@@ -15,9 +15,9 @@ function doProve(inputSequent) {
 	var msgElem     = document.getElementById("message");
 	var codeOutElem = document.getElementById("codeOutput");
 	var proofElem   = document.getElementById("proof");
-	removeAllChildren(msgElem);
-	removeAllChildren(codeOutElem);
-	removeAllChildren(proofElem);
+	clearChildren(msgElem);
+	clearChildren(codeOutElem);
+	clearChildren(proofElem);
 	
 	var proof;
 	try {
@@ -545,7 +545,7 @@ var OR        = "\u2228";
 
 
 // Removes all the children of the given DOM node.
-function removeAllChildren(node) {
+function clearChildren(node) {
 	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }

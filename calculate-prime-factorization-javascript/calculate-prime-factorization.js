@@ -31,7 +31,7 @@ function factor() {
 	
 	// Reset output line 1 with blank filler to prevent the page layout from bobbing up and down
 	var outElem1 = document.getElementById("factorization1");
-	removeAllChildren(outElem1);
+	clearChildren(outElem1);
 	outElem1.appendChild(document.createTextNode(NBSP));
 	var temp = document.createElement("sup");
 	temp.appendChild(document.createTextNode(NBSP));
@@ -61,7 +61,7 @@ function factor() {
 		
 		// Build prime factor list with powers in superscripts
 		if (factorPowers.length < factors.length) {
-			removeAllChildren(outElem1);
+			clearChildren(outElem1);
 			
 			appendText(n + " = ");
 			factorPowers.forEach(function(factPow, i) {
@@ -146,7 +146,7 @@ function toFactorPowerList(factors) {
 }
 
 
-function removeAllChildren(node) {
+function clearChildren(node) {
 	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }

@@ -1,7 +1,7 @@
 /* 
  * Resizing images by area
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/resizing-images-by-area
  */
@@ -12,7 +12,7 @@
 var TIMES = "\u00D7";  // Times sign
 
 function calc() {
-	function removeAllChildren(node) {
+	function clearChildren(node) {
 		while (node.childNodes.length > 0)
 			node.removeChild(node.firstChild);
 	}
@@ -33,9 +33,9 @@ function calc() {
 	var resizedDimensions = document.getElementById("resized-dimensions");
 	var resizedAreaOutput = document.getElementById("resized-area-output");
 	var aspectRatio       = document.getElementById("aspect-ratio");
-	removeAllChildren(resizedDimensions);
-	removeAllChildren(resizedAreaOutput);
-	removeAllChildren(aspectRatio);
+	clearChildren(resizedDimensions);
+	clearChildren(resizedAreaOutput);
+	clearChildren(aspectRatio);
 	
 	try {
 		// Get inputs
