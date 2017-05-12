@@ -1,7 +1,7 @@
 /* 
  * Prime factorization calculator
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-prime-factorization-javascript
  */
@@ -83,9 +83,9 @@ function factor() {
 /* 
  * Returns the list of prime factors (in ascending order) of the given integer.
  * Examples:
- *   primeFactorList(1) = []
- *   primeFactorList(7) = [7]
- *   primeFactorList(60) = [2, 2, 3, 5]
+ * - primeFactorList(1) = [].
+ * - primeFactorList(7) = [7].
+ * - primeFactorList(60) = [2, 2, 3, 5].
  */
 function primeFactorList(n) {
 	if (n < 1)
@@ -104,8 +104,8 @@ function primeFactorList(n) {
 /* 
  * Returns the smallest prime factor of the given integer.
  * Examples:
- *   smallestFactor(2) = 2
- *   smallestFactor(15) = 3
+ * - smallestFactor(2) = 2.
+ * - smallestFactor(15) = 3.
  */
 function smallestFactor(n) {
 	if (n < 2)
@@ -125,8 +125,8 @@ function smallestFactor(n) {
 /* 
  * Returns the prime factorization as a list of factor-power pairs, from the given factor list. The given list must be in ascending order.
  * Examples:
- *   toFactorPowerList([2, 2, 2]) = [[2, 3]]
- *   toFactorPowerList([3, 5]) = [[3, 1], [5, 1]]
+ * - toFactorPowerList([2, 2, 2]) = [[2, 3]].
+ * - toFactorPowerList([3, 5]) = [[3, 1], [5, 1]].
  */
 function toFactorPowerList(factors) {
 	var result = [];

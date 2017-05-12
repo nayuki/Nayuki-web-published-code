@@ -1,7 +1,7 @@
 /* 
  * Vigenère cipher
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/vigenere-cipher-javascript
  */
@@ -56,9 +56,9 @@ function crypt(input, key) {
 /* 
  * Returns an array of numbers, each in the range [0, 26), representing the given key. The key is case-insensitive, and non-letters are ignored.
  * Examples:
- *   filterKey("AAA") = [0, 0, 0]
- *   filterKey("abc") = [0, 1, 2]
- *   filterKey("the $123# EHT") = [19, 7, 4, 4, 7, 19]
+ * - filterKey("AAA") = [0, 0, 0].
+ * - filterKey("abc") = [0, 1, 2].
+ * - filterKey("the $123# EHT") = [19, 7, 4, 4, 7, 19].
  */
 function filterKey(key) {
 	var result = [];

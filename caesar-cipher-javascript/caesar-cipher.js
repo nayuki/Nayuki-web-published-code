@@ -1,7 +1,7 @@
 /* 
  * Caesar cipher
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/caesar-cipher-javascript
  */
@@ -35,10 +35,10 @@ function doCrypt(isDecrypt) {
  * Returns the result of having each alphabetic letter of the given text string shifted forward
  * by the given amount, with wraparound. Case is preserved, and non-letters are unchanged.
  * Examples:
- *   caesarShift("abz",  0) = "abz"
- *   caesarShift("abz",  1) = "bca"
- *   caesarShift("abz", 25) = "zay"
- *   caesarShift("THe 123 !@#$", 13) = "GUr 123 !@#$"
+ * - caesarShift("abz",  0) = "abz".
+ * - caesarShift("abz",  1) = "bca".
+ * - caesarShift("abz", 25) = "zay".
+ * - caesarShift("THe 123 !@#$", 13) = "GUr 123 !@#$".
  */
 function caesarShift(text, shift) {
 	var result = "";

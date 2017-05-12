@@ -1,7 +1,7 @@
 /* 
  * Divisors calculator
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-divisors-javascript
  */
@@ -48,9 +48,9 @@ function divisors() {
 /* 
  * Returns the list of divisors (in ascending order) of the given integer.
  * Examples:
- *   divisorList(1) = [1]
- *   divisorList(5) = [1, 5]
- *   divisorList(12) = [1, 2, 3, 4, 6, 12]
+ * - divisorList(1) = [1].
+ * - divisorList(5) = [1, 5].
+ * - divisorList(12) = [1, 2, 3, 4, 6, 12].
  */
 function listDivisors(n) {
 	if (n < 1)
