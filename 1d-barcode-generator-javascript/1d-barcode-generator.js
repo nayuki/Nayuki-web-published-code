@@ -1,7 +1,7 @@
 /* 
  * 1D barcode generator
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/1d-barcode-generator-javascript
  */
@@ -144,7 +144,7 @@ function makeCode93Barcode(s) {
 		var c = s.charCodeAt(i);
 		if (c >= 128)
 			throw "Text must only contain ASCII characters";
-		else if (c == 32 || c == 45 || c == 46 || c >= 48 && c <= 57 || c >= 65 && c <= 90)
+		else if (c == 32 || c == 45 || c == 46 || 48 <= c && c <= 57 || 65 <= c && c <= 90)
 			t += String.fromCharCode(c);
 		else if (c ==   0) t += "bU";
 		else if (c ==  64) t += "bV";

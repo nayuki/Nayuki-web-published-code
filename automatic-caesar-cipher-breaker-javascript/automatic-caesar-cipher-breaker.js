@@ -108,8 +108,8 @@ function getEntropy(str) {
 	var ignored = 0;
 	for (var i = 0; i < str.length; i++) {
 		var c = str.charCodeAt(i);
-		if      (c >= 65 && c <=  90) sum += Math.log(ENGLISH_FREQS[c - 65]);  // Uppercase
-		else if (c >= 97 && c <= 122) sum += Math.log(ENGLISH_FREQS[c - 97]);  // Lowercase
+		if      (65 <= c && c <=  90) sum += Math.log(ENGLISH_FREQS[c - 65]);  // Uppercase
+		else if (97 <= c && c <= 122) sum += Math.log(ENGLISH_FREQS[c - 97]);  // Lowercase
 		else ignored++;
 	}
 	return -sum / Math.log(2) / (str.length - ignored);
@@ -122,8 +122,8 @@ function decrypt(str, key) {
 	var result = "";
 	for (var i = 0; i < str.length; i++) {
 		var c = str.charCodeAt(i);
-		if      (c >= 65 && c <=  90) result += String.fromCharCode(mod(c - 65 - key, 26) + 65);  // Uppercase
-		else if (c >= 97 && c <= 122) result += String.fromCharCode(mod(c - 97 - key, 26) + 97);  // Lowercase
+		if      (65 <= c && c <=  90) result += String.fromCharCode(mod(c - 65 - key, 26) + 65);  // Uppercase
+		else if (97 <= c && c <= 122) result += String.fromCharCode(mod(c - 97 - key, 26) + 97);  // Lowercase
 		else result += str.charAt(i);  // Copy
 	}
 	return result;

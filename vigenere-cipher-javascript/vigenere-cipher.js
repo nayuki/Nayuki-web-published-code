@@ -78,10 +78,10 @@ function isLetter(c) {
 
 // Tests whether the specified character code is an uppercase letter.
 function isUppercase(c) {
-	return c >= 65 && c <= 90;  // 65 is the character code for 'A'. 90 is for 'Z'.
+	return 65 <= c && c <= 90;  // 65 is the character code for 'A'. 90 is for 'Z'.
 }
 
 // Tests whether the specified character code is a lowercase letter.
 function isLowercase(c) {
-	return c >= 97 && c <= 122;  // 97 is the character code for 'a'. 122 is for 'z'.
+	return 97 <= c && c <= 122;  // 97 is the character code for 'a'. 122 is for 'z'.
 }
