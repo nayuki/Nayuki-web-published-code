@@ -1,7 +1,7 @@
 /* 
  * Triangle solver
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/triangle-solver-javascript
  */
@@ -44,7 +44,10 @@ function solve() {
 		doOutput("angleBout", answer[4], DEGREE);
 		doOutput("angleCout", answer[5], DEGREE);
 		doOutput("areaout"  , answer[6], "");
-		document.getElementById("formtable").className = twosoln ? "noborder" : "noborder onesoln";
+		if (twosoln)
+			document.getElementById("formtable").classList.remove("onesoln");
+		else
+			document.getElementById("formtable").classList.add("onesoln");
 		
 	} catch (e) {
 		clearOutputs();
@@ -209,7 +212,7 @@ function getInputNumber(elemId) {
 
 function clearOutputs() {
 	solution = null;
-	document.getElementById("formtable").className = "noborder onesoln";
+	document.getElementById("formtable").classList.add("onesoln");
 	ioNames.forEach(function(name) {
 		setElementText(name + "out" , "");
 		setElementText(name + "out2", "");
@@ -235,7 +238,7 @@ function initImageMap() {
 	rectangles.forEach(function(rect, i) {
 		var elem = document.createElement("a");
 		elem.href = "#";
-		elem.className = "letterhover";
+		elem.classList.add("letterhover");
 		rect[0] -= Math.round((RECT_PADDED_SIZE - rect[2]) / 2);
 		rect[1] -= Math.round((RECT_PADDED_SIZE - rect[3]) / 2);
 		elem.style.left   = rect[0] + "px";

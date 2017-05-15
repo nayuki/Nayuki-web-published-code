@@ -38,7 +38,7 @@ function doBreak() {
 	for (var i = 0; i < entropies.length; i++) {
 		var tr = document.createElement("tr");
 		if (i == 0)
-			tr.className = "active";
+			tr.classList.add("active");
 		
 		var td = document.createElement("td");
 		td.appendChild(document.createTextNode(entropies[i][0].toString()));
@@ -50,7 +50,7 @@ function doBreak() {
 		
 		td = document.createElement("td");
 		var div = document.createElement("div");
-		div.className = "bar";
+		div.classList.add("bar");
 		div.style.width = (entropies[i][1] / maxEntropy * 30).toFixed(6) + "em";
 		td.appendChild(div);
 		tr.appendChild(td);
@@ -71,8 +71,12 @@ function setShift(newShift) {
 	document.getElementById("shift").value = newShift.toString();
 	
 	var guessesElem = document.getElementById("guesses");
-	for (var i = 0; i < 26; i++)
-		guessesElem.childNodes[i].className = entropies[i][0] == newShift ? "active" : "";
+	for (var i = 0; i < 26; i++) {
+		if (entropies[i][0] == newShift)
+			guessesElem.childNodes[i].classList.add("active");
+		else
+			guessesElem.childNodes[i].classList.remove("active");
+	}
 }
 
 

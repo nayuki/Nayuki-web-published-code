@@ -183,7 +183,7 @@ function display() {
 				var i = Math.max(s.length - 3, 0);
 				var span = document.createElement("span");
 				span.appendChild(document.createTextNode(s.substring(i)));
-				span.className = "digitgrouper";
+				span.classList.add("digitgrouper");
 				result.push(span);
 				s = s.substring(0, i);
 			}
