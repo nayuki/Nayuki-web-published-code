@@ -29,7 +29,9 @@ import java.util.List;
 import java.util.Objects;
 
 
-public final class SlidingWindowMinMax {
+public final class SlidingWindowMinMax<E extends Comparable<? super E>> {
+	
+	/*---- Static functions for one-shot computation ----*/
 	
 	/* 
 	 * Returns a new array such that each result[i] =
@@ -37,7 +39,7 @@ public final class SlidingWindowMinMax {
 	 * max(array[i], array[i+1], ..., array[i+windowSize-1]),
 	 * depending on the maximize argument.
 	 */
-	public static int[] calcWindowMinOrMaxDeque(int[] array, int window, boolean maximize) {
+	public static int[] compute(int[] array, int window, boolean maximize) {
 		Objects.requireNonNull(array);
 		if (window <= 0)
 			throw new IllegalArgumentException("Window size must be positive");
@@ -69,7 +71,7 @@ public final class SlidingWindowMinMax {
 	 * max(list[i], list[i+1], ..., list[i+windowSize-1]),
 	 * depending on the maximize argument.
 	 */
-	public static <E extends Comparable<? super E>> List<E> calcWindowMinOrMaxDeque(List<E> list, int window, boolean maximize) {
+	public static <E extends Comparable<? super E>> List<E> compute(List<E> list, int window, boolean maximize) {
 		Objects.requireNonNull(list);
 		if (window <= 0)
 			throw new IllegalArgumentException("Window size must be positive");
@@ -100,56 +102,50 @@ public final class SlidingWindowMinMax {
 	}
 	
 	
-	/* 
-	 * Returns a new array such that each result[i] =
-	 * min(array[i], array[i+1], ..., array[i+windowSize-1]) or
-	 * max(array[i], array[i+1], ..., array[i+windowSize-1]),
-	 * depending on the maximize argument.
-	 */
-	public static int[] calcWindowMinOrMaxNaive(int[] array, int window, boolean maximize) {
-		Objects.requireNonNull(array);
-		if (window <= 0)
-			throw new IllegalArgumentException("Window size must be positive");
-		if (array.length < window)
-			return new int[0];
-		
-		int[] result = new int[array.length - window + 1];
-		for (int i = 0; i < result.length; i++) {
-			int temp = array[i];
-			for (int j = 1; j < window; j++) {
-				int val = array[i + j];
-				if (!maximize && val < temp || maximize && val > temp)
-					temp = val;
-			}
-			result[i] = temp;
-		}
-		return result;
+	
+	/*---- Stateful instance for incremental computation ----*/
+	
+	/*-- Fields --*/
+	
+	private Deque<E> minDeque;
+	private Deque<E> maxDeque;
+	
+	
+	/*-- Constructor --*/
+	
+	public SlidingWindowMinMax() {
+		minDeque = new ArrayDeque<>();
+		maxDeque = new ArrayDeque<>();
 	}
 	
 	
-	/*
-	 * Returns a new array such that each result[i] =
-	 * min(list[i], list[i+1], ..., list[i+windowSize-1]) or
-	 * max(list[i], list[i+1], ..., list[i+windowSize-1]),
-	 * depending on the maximize argument.
-	 */
-	public static <E extends Comparable<? super E>> List<E> calcWindowMinOrMaxNaive(List<E> list, int window, boolean maximize) {
-		Objects.requireNonNull(list);
-		if (window <= 0)
-			throw new IllegalArgumentException("Window size must be positive");
-		
-		List<E> result = new ArrayList<>();
-		for (int i = 0; i < list.size() - window + 1; i++) {
-			E temp = list.get(i);
-			for (int j = 1; j < window; j++) {
-				E val = list.get(i + j);
-				int cmp = val.compareTo(temp);
-				if (!maximize && cmp < 0 || maximize && cmp > 0)
-					temp = val;
-			}
-			result.add(temp);
-		}
-		return result;
+	/*-- Methods --*/
+	
+	public E getMinimum() {
+		return minDeque.getFirst();
+	}
+	
+	
+	public E getMaximum() {
+		return maxDeque.getFirst();
+	}
+	
+	
+	public void addTail(E val) {
+		while (!minDeque.isEmpty() && val.compareTo(minDeque.getLast()) < 0)
+			minDeque.removeLast();
+		minDeque.addLast(val);
+		while (!maxDeque.isEmpty() && val.compareTo(maxDeque.getLast()) > 0)
+			maxDeque.removeLast();
+		maxDeque.addLast(val);
+	}
+	
+	
+	public void removeHead(E val) {
+		if (val.compareTo(minDeque.getFirst()) == 0)
+			minDeque.removeFirst();
+		if (val.compareTo(maxDeque.getFirst()) == 0)
+			maxDeque.removeFirst();
 	}
 	
 }

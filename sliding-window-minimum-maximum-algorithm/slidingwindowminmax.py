@@ -24,7 +24,9 @@
 import collections, numbers
 
 
-def calc_window_min_or_max_deque(array, window, maximize):
+# ---- Function for one-shot computation ----
+
+def compute(array, window, maximize):
 	if not isinstance(window, numbers.Integral):
 		raise TypeError()
 	if not isinstance(maximize, bool):
@@ -48,12 +50,35 @@ def calc_window_min_or_max_deque(array, window, maximize):
 	return result
 
 
-def calc_window_min_or_max_naive(array, window, maximize):
-	if not isinstance(window, numbers.Integral):
-		raise TypeError()
-	if not isinstance(maximize, bool):
-		raise TypeError()
-	if window <= 0:
-		raise ValueError("Window size must be positive")
-	func = max if maximize else min
-	return [func(array[i : i + window]) for i in range(len(array) - window + 1)]
+
+# ---- Stateful instance for incremental computation ----
+
+class SlidingWindowMinMax(object):
+	
+	def __init__(self):
+		self.mindeque = collections.deque()
+		self.maxdeque = collections.deque()
+	
+	
+	def get_minimum(self):
+		return self.mindeque[0]
+	
+	
+	def get_maximum(self):
+		return self.maxdeque[0]
+	
+	
+	def add_tail(self, val):
+		while len(self.mindeque) > 0 and val < self.mindeque[-1]:
+			self.mindeque.pop()
+		self.mindeque.append(val)
+		while len(self.maxdeque) > 0 and val > self.maxdeque[-1]:
+			self.maxdeque.pop()
+		self.maxdeque.append(val)
+	
+	
+	def remove_head(self, val):
+		if val == self.mindeque[0]:
+			self.mindeque.popleft()
+		if val == self.maxdeque[0]:
+			self.maxdeque.popleft()

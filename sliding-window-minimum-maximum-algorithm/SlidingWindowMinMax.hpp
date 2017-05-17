@@ -26,8 +26,10 @@
 #include <vector>
 
 
+/*---- Function for one-shot computation ----*/
+
 template <typename E>
-std::vector<E> calcWindowMinOrMaxDeque(const std::vector<E> &array, std::size_t window, bool maximize) {
+std::vector<E> computeSlidingWindowMinOrMax(const std::vector<E> &array, std::size_t window, bool maximize) {
 	if (window == 0)
 		throw "Window size must be positive";
 	
@@ -56,22 +58,45 @@ std::vector<E> calcWindowMinOrMaxDeque(const std::vector<E> &array, std::size_t 
 }
 
 
+
+/*---- Stateful instance for incremental computation ----*/
+
 template <typename E>
-std::vector<E> calcWindowMinOrMaxNaive(const std::vector<E> &array, std::size_t window, bool maximize) {
-	if (window == 0)
-		throw "Window size must be positive";
-	std::vector<E> result;
-	if (array.size() < window)
-		return result;
+class SlidingWindowMinMax final {
 	
-	for (std::size_t i = 0; i < array.size() - window + 1; i++) {
-		const E *temp = &array.at(i);
-		for (std::size_t j = 1; j < window; j++) {
-			const E &val = array.at(i + j);
-			if ((!maximize && val < *temp) || (maximize && val > *temp))
-				temp = &val;
-		}
-		result.push_back(*temp);
+	/*-- Fields --*/
+	
+	private: std::deque<E> minDeque;
+	private: std::deque<E> maxDeque;
+	
+	
+	/*-- Methods --*/
+	
+	public: E getMinimum() {
+		return minDeque.front();
 	}
-	return result;
-}
+	
+	
+	public: E getMaximum() {
+		return maxDeque.front();
+	}
+	
+	
+	public: void addTail(const E &val) {
+		while (!minDeque.empty() && val < minDeque.back())
+			minDeque.pop_back();
+		minDeque.push_back(val);
+		while (!maxDeque.empty() && val > maxDeque.back())
+			maxDeque.pop_back();
+		maxDeque.push_back(val);
+	}
+	
+	
+	public: void removeHead(const E &val) {
+		if (val == minDeque.front())
+			minDeque.pop_front();
+		if (val == maxDeque.front())
+			maxDeque.pop_front();
+	}
+	
+};

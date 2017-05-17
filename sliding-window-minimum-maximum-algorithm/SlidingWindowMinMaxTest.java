@@ -30,6 +30,8 @@ import org.junit.Test;
 
 public final class SlidingWindowMinMaxTest {
 	
+	/*---- Test suite ----*/
+	
 	@Test public void testIntArray() {
 		final int trials = 30000;
 		for (int i = 0; i < trials; i++) {
@@ -40,8 +42,8 @@ public final class SlidingWindowMinMaxTest {
 			int window = rand.nextInt(30) + 1;
 			boolean maximize = rand.nextBoolean();
 			
-			int[] expect = SlidingWindowMinMax.calcWindowMinOrMaxNaive(array, window, maximize);
-			int[] actual = SlidingWindowMinMax.calcWindowMinOrMaxDeque(array, window, maximize);
+			int[] expect = computeNaive(array, window, maximize);
+			int[] actual = SlidingWindowMinMax.compute(array, window, maximize);
 			Assert.assertArrayEquals(expect, actual);
 		}
 	}
@@ -58,12 +60,104 @@ public final class SlidingWindowMinMaxTest {
 			int window = rand.nextInt(10) + 1;
 			boolean maximize = rand.nextBoolean();
 			
-			List<Long> expect = SlidingWindowMinMax.calcWindowMinOrMaxNaive(list, window, maximize);
-			List<Long> actual = SlidingWindowMinMax.calcWindowMinOrMaxDeque(list, window, maximize);
+			List<Long> expect = computeNaive(list, window, maximize);
+			List<Long> actual = SlidingWindowMinMax.compute(list, window, maximize);
 			Assert.assertEquals(expect, actual);
 		}
 	}
 	
+	
+	@Test public void testIncremental() {
+		final int trials = 10000;
+		for (int i = 0; i < trials; i++) {
+			
+			int[] array = new int[1000];
+			for (int j = 0; j < array.length; j++)
+				array[j] = rand.nextInt(100);
+			
+			SlidingWindowMinMax<Integer> swm = new SlidingWindowMinMax<>();
+			for (int start = 0, end = 0; start < array.length; ) {
+				if (start == end || end < array.length && rand.nextBoolean()) {
+					swm.addTail(array[end]);
+					end++;
+				} else {
+					swm.removeHead(array[start]);
+					start++;
+				}
+				
+				if (start > end)
+					throw new AssertionError();
+				if (start < end) {
+					Assert.assertEquals(min(array, start, end), (int)swm.getMinimum());
+					Assert.assertEquals(max(array, start, end), (int)swm.getMaximum());
+				}
+			}
+		}
+	}
+	
+	
+	
+	/*---- Naive/simple computation functions ----*/
+	
+	private static int[] computeNaive(int[] array, int window, boolean maximize) {
+		if (window <= 0)
+			throw new IllegalArgumentException();
+		if (array.length < window)
+			return new int[0];
+		int[] result = new int[array.length - window + 1];
+		for (int i = 0; i < result.length; i++) {
+			int temp = array[i];
+			for (int j = 1; j < window; j++) {
+				int val = array[i + j];
+				if (!maximize && val < temp || maximize && val > temp)
+					temp = val;
+			}
+			result[i] = temp;
+		}
+		return result;
+	}
+	
+	
+	private static <E extends Comparable<? super E>> List<E> computeNaive(List<E> list, int window, boolean maximize) {
+		if (window <= 0)
+			throw new IllegalArgumentException();
+		List<E> result = new ArrayList<>();
+		for (int i = 0; i < list.size() - window + 1; i++) {
+			E temp = list.get(i);
+			for (int j = 1; j < window; j++) {
+				E val = list.get(i + j);
+				int cmp = val.compareTo(temp);
+				if (!maximize && cmp < 0 || maximize && cmp > 0)
+					temp = val;
+			}
+			result.add(temp);
+		}
+		return result;
+	}
+	
+	
+	private static int min(int[] array, int start, int end) {
+		if (end <= start)
+			throw new IllegalArgumentException();
+		int result = array[start];
+		for (int i = start + 1; i < end; i++)
+			result = Math.min(array[i], result);
+		return result;
+	}
+	
+	
+	private static int max(int[] array, int start, int end) {
+		if (end <= start)
+			throw new IllegalArgumentException();
+		int result = array[start];
+		for (int i = start + 1; i < end; i++)
+			result = Math.max(array[i], result);
+		return result;
+	}
+	
+	
+	
+	/*---- Miscellaneous ----*/
 	
 	private static Random rand = new Random();
 	
