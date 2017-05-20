@@ -160,16 +160,15 @@ static void naiveConvolve(
 		vector<double> &outreal, vector<double> &outimag) {
 	
 	int n = static_cast<int>(xreal.size());
+	std::fill(outreal.begin(), outreal.end(), 0.0);
+	std::fill(outimag.begin(), outimag.end(), 0.0);
+	
 	for (int i = 0; i < n; i++) {
-		double sumreal = 0;
-		double sumimag = 0;
 		for (int j = 0; j < n; j++) {
-			int k = (i - j + n) % n;
-			sumreal += xreal[k] * yreal[j] - ximag[k] * yimag[j];
-			sumimag += xreal[k] * yimag[j] + ximag[k] * yreal[j];
+			int k = (i + j) % n;
+			outreal[k] += xreal[i] * yreal[j] - ximag[i] * yimag[j];
+			outimag[k] += xreal[i] * yimag[j] + ximag[i] * yreal[j];
 		}
-		outreal[i] = sumreal;
-		outimag[i] = sumimag;
 	}
 }
 

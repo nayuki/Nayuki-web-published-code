@@ -165,15 +165,15 @@ static void naive_convolve(const double *xreal, const double *ximag,
 		double *outreal, double *outimag, int n) {
 	
 	for (int i = 0; i < n; i++) {
-		double sumreal = 0;
-		double sumimag = 0;
+		outreal[i] = 0;
+		outimag[i] = 0;
+	}
+	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			int k = (i - j + n) % n;
-			sumreal += xreal[k] * yreal[j] - ximag[k] * yimag[j];
-			sumimag += xreal[k] * yimag[j] + ximag[k] * yreal[j];
+			int k = (i + j) % n;
+			outreal[k] += xreal[i] * yreal[j] - ximag[i] * yimag[j];
+			outimag[k] += xreal[i] * yimag[j] + ximag[i] * yreal[j];
 		}
-		outreal[i] = sumreal;
-		outimag[i] = sumimag;
 	}
 }
 

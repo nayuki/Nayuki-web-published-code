@@ -115,11 +115,11 @@ public sealed class FftTest {
 			throw new ArgumentException("Mismatched lengths");
 		
 		int n = xvector.Length;
+		for (int i = 0; i < n; i++)
+			outvector[i] = new Complex(0, 0);
 		for (int i = 0; i < n; i++) {
-			Complex sum = new Complex(0, 0);
 			for (int j = 0; j < n; j++)
-				sum += xvector[(i - j + n) % n] * yvector[j];
-			outvector[i] = sum;
+				outvector[(i + j) % n] += xvector[i] * yvector[j];
 		}
 	}
 	

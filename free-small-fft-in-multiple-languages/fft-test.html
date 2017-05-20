@@ -136,15 +136,15 @@ function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
 	
 	var n = xreal.length;
 	for (var i = 0; i < n; i++) {
-		var sumreal = 0;
-		var sumimag = 0;
+		outreal[i] = 0;
+		outimag[i] = 0;
+	}
+	for (var i = 0; i < n; i++) {
 		for (var j = 0; j < n; j++) {
-			var k = (i - j + n) % n;
-			sumreal += xreal[k] * yreal[j] - ximag[k] * yimag[j];
-			sumimag += xreal[k] * yimag[j] + ximag[k] * yreal[j];
+			var k = (i + j) % n;
+			outreal[k] += xreal[i] * yreal[j] - ximag[i] * yimag[j];
+			outimag[k] += xreal[i] * yimag[j] + ximag[i] * yreal[j];
 		}
-		outreal[i] = sumreal;
-		outimag[i] = sumimag;
 	}
 }
 
