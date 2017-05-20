@@ -118,8 +118,8 @@ public final class FftTest {
 			double sumimag = 0;
 			for (int t = 0; t < n; t++) {  // For each input element
 				double angle = coef * (int)((long)t * k % n) / n;  // This is more accurate than t * k
-				sumreal += inreal[t]*Math.cos(angle) - inimag[t]*Math.sin(angle);
-				sumimag += inreal[t]*Math.sin(angle) + inimag[t]*Math.cos(angle);
+				sumreal += inreal[t] * Math.cos(angle) - inimag[t] * Math.sin(angle);
+				sumimag += inreal[t] * Math.sin(angle) + inimag[t] * Math.cos(angle);
 			}
 			outreal[k] = sumreal;
 			outimag[k] = sumimag;

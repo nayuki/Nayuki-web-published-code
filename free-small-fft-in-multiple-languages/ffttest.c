@@ -151,8 +151,8 @@ static void naive_dft(const double *inreal, const double *inimag,
 		double sumimag = 0;
 		for (int t = 0; t < n; t++) {  // For each input element
 			double angle = coef * ((long long)t * k % n) / n;
-			sumreal += inreal[t]*cos(angle) - inimag[t]*sin(angle);
-			sumimag += inreal[t]*sin(angle) + inimag[t]*cos(angle);
+			sumreal += inreal[t] * cos(angle) - inimag[t] * sin(angle);
+			sumimag += inreal[t] * sin(angle) + inimag[t] * cos(angle);
 		}
 		outreal[k] = sumreal;
 		outimag[k] = sumimag;

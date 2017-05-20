@@ -145,8 +145,8 @@ static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
 		double sumimag = 0;
 		for (int t = 0; t < n; t++) {  // For each input element
 			double angle = coef * (static_cast<long long>(t) * k % n) / n;
-			sumreal += inreal[t]*std::cos(angle) - inimag[t]*std::sin(angle);
-			sumimag += inreal[t]*std::sin(angle) + inimag[t]*std::cos(angle);
+			sumreal += inreal[t] * std::cos(angle) - inimag[t] * std::sin(angle);
+			sumimag += inreal[t] * std::sin(angle) + inimag[t] * std::cos(angle);
 		}
 		outreal[k] = sumreal;
 		outimag[k] = sumimag;
