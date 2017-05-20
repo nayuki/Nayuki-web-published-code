@@ -1,7 +1,7 @@
 # 
 # Free FFT and convolution (Python)
 # 
-# Copyright (c) 2014 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/free-small-fft-in-multiple-languages
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,19 +21,16 @@
 #   Software.
 # 
 
-import cmath
-
-import sys
+import cmath, sys
 if sys.version_info.major == 2:
     range = xrange
 
 
 # 
-# Computes the discrete Fourier transform (DFT) of the given complex vector, returning the result as a new vector.
-# Set 'inverse' to True if computing the inverse transform. This DFT does not perform scaling, so the inverse is not a true inverse.
-# The vector can have any length. This is a wrapper function.
+# Computes the discrete Fourier transform (DFT) or inverse transform of the given complex vector, returning the result as a new vector.
+# The vector can have any length. This is a wrapper function. The inverse transform does not perform scaling, so it is not a true inverse.
 # 
-def transform(vector, inverse=False):
+def transform(vector, inverse):
     n = len(vector)
     if n > 0 and n & (n - 1) == 0:  # Is power of 2
         return transform_radix2(vector, inverse)
@@ -56,16 +53,12 @@ def transform_radix2(vector, inverse):
     
     # Initialization
     n = len(vector)
-    levels = 0
-    while True:
-        if 1 << levels == n:
-            break
-        elif 1 << levels > n:
-            raise ValueError("Length is not a power of 2")
-        else:
-            levels += 1
+    levels = n.bit_length() - 1
+    if 1 << levels != n:
+        raise ValueError("Length is not a power of 2")
     # Now, levels = log2(n)
-    exptable = [cmath.exp((2j if inverse else -2j) * cmath.pi * i / n) for i in range(n // 2)]
+    coef = (2j if inverse else -2j) * cmath.pi / n
+    exptable = [cmath.exp(i * coef) for i in range(n // 2)]
     vector = [vector[reverse(i, levels)] for i in range(n)]  # Copy with bit-reversed permutation
     
     # Radix-2 decimation-in-time FFT
@@ -92,17 +85,16 @@ def transform_radix2(vector, inverse):
 def transform_bluestein(vector, inverse):
     # Find a power-of-2 convolution length m such that m >= n * 2 + 1
     n = len(vector)
-    m = 1
-    while m < n * 2 + 1:
-        m *= 2
+    if n == 0:
+        return []
+    m = 1 << (n * 2).bit_length()
     
-    exptable = [cmath.exp((1j if inverse else -1j) * cmath.pi * (i * i % (n * 2)) / n) for i in range(n)]  # Trigonometric table
+    coef = (1j if inverse else -1j) * cmath.pi / n
+    exptable = [cmath.exp((i * i % (n * 2)) * coef) for i in range(n)]  # Trigonometric table
     a = [x * y for (x, y) in zip(vector, exptable)] + [0] * (m - n)  # Temporary vectors and preprocessing
     b = [(exptable[min(i, m - i)].conjugate() if (i < n or m - i < n) else 0) for i in range(m)]
-    c = convolve(a, b, False)[:n]  # Convolution
-    for i in range(n):  # Postprocessing
-        c[i] *= exptable[i]
-    return c
+    c = convolve(a, b, False)[ : n]  # Convolution
+    return [x * y for (x, y) in zip(c, exptable)]  # Postprocessing
 
 
 # 
@@ -113,17 +105,14 @@ def transform_bluestein(vector, inverse):
 def convolve(x, y, realoutput=True):
     assert len(x) == len(y)
     n = len(x)
-    x = transform(x)
-    y = transform(y)
+    x = transform(x, False)
+    y = transform(y, False)
     for i in range(n):
         x[i] *= y[i]
-    x = transform(x, inverse=True)
+    x = transform(x, True)
     
     # Scaling (because this FFT implementation omits it) and postprocessing
     if realoutput:
-        for i in range(n):
-            x[i] = x[i].real / n
+        return [(val.real / n) for val in x]
     else:
-        for i in range(n):
-            x[i] /= n
-    return x
+        return [(val / n) for val in x]

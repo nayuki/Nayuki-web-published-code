@@ -1,7 +1,7 @@
 # 
 # FFT and convolution test (Python)
 # 
-# Copyright (c) 2014 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/free-small-fft-in-multiple-languages
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,10 +21,8 @@
 #   Software.
 # 
 
-import cmath, math, random
+import cmath, math, random, sys
 import fft
-
-import sys
 if sys.version_info.major == 2:
     range = xrange
 
@@ -69,8 +67,8 @@ def main():
 
 def _test_fft(size):
     input = _random_vector(size)
-    refout = _naive_dft(input)
-    actualout = fft.transform(input)
+    refout = _naive_dft(input, False)
+    actualout = fft.transform(input, False)
     print("fftsize={:4d}  logerr={:5.1f}".format(size, _log10_rms_err(refout, actualout)))
 
 
@@ -84,14 +82,17 @@ def _test_convolution(size):
 
 # ---- Naive reference computation functions ----
 
-def _naive_dft(input, inverse=False):
+def _naive_dft(input, inverse):
     n = len(input)
-    output = [0] * n
+    output = []
+    if n == 0:
+        return output
+    coef = (2j if inverse else -2j) * math.pi / n
     for k in range(n):  # For each output element
         s = 0
         for t in range(n):  # For each input element
-            s += input[t] * cmath.exp((2j if inverse else -2j) * math.pi * (t * k % n) / n)
-        output[k] = s
+            s += input[t] * cmath.exp((t * k % n) * coef)
+        output.append(s)
     return output
 
 
@@ -100,10 +101,8 @@ def _naive_convolution(x, y):
     n = len(x)
     z = [0] * n
     for i in range(n):
-        s = 0
         for j in range(n):
-            s += x[(i - j) % n] * y[j]
-        z[i] = s
+            z[(i + j) % n] += x[i] * y[j]
     return z
 
 
@@ -124,7 +123,7 @@ def _log10_rms_err(x, y):
 
 
 def _random_vector(n):
-    return [complex(random.random() * 2 - 1, random.random() * 2 - 1) for i in range(n)]
+    return [complex(random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0)) for _ in range(n)]
 
 
 if __name__ == "__main__":

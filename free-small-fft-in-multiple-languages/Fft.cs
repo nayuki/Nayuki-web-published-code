@@ -22,34 +22,23 @@
  */
 
 using System;
+using System.Numerics;
 
 
 public sealed class Fft {
 	
 	/* 
-	 * Computes the discrete Fourier transform (DFT) of the given complex vector, storing the result back into the vector.
-	 * The vector can have any length. This is a wrapper function.
+	 * Computes the discrete Fourier transform (DFT) or inverse transform of the given complex vector, storing the result back into the vector.
+	 * The vector can have any length. This is a wrapper function. The inverse transform does not perform scaling, so it is not a true inverse.
 	 */
-	public static void Transform(double[] real, double[] imag) {
-		if (real.Length != imag.Length)
-			throw new ArgumentException("Mismatched lengths");
-		
-		int n = real.Length;
+	public static void Transform(Complex[] vector, bool inverse) {
+		int n = vector.Length;
 		if (n == 0)
 			return;
 		else if ((n & (n - 1)) == 0)  // Is power of 2
-			TransformRadix2(real, imag);
+			TransformRadix2(vector, inverse);
 		else  // More complicated algorithm for arbitrary sizes
-			TransformBluestein(real, imag);
-	}
-	
-	
-	/* 
-	 * Computes the inverse discrete Fourier transform (IDFT) of the given complex vector, storing the result back into the vector.
-	 * The vector can have any length. This is a wrapper function. This transform does not perform scaling, so the inverse is not a true inverse.
-	 */
-	public static void InverseTransform(double[] real, double[] imag) {
-		Transform(imag, real);
+			TransformBluestein(vector, inverse);
 	}
 	
 	
@@ -57,31 +46,24 @@ public sealed class Fft {
 	 * Computes the discrete Fourier transform (DFT) of the given complex vector, storing the result back into the vector.
 	 * The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
 	 */
-	public static void TransformRadix2(double[] real, double[] imag) {
+	public static void TransformRadix2(Complex[] vector, bool inverse) {
 		// Initialization
-		if (real.Length != imag.Length)
-			throw new ArgumentException("Mismatched lengths");
-		int n = real.Length;
+		int n = vector.Length;
 		int levels = 31 - NumberOfLeadingZeros(n);  // Equal to floor(log2(n))
 		if (1 << levels != n)
 			throw new ArgumentException("Length is not a power of 2");
-		double[] cosTable = new double[n / 2];
-		double[] sinTable = new double[n / 2];
-		for (int i = 0; i < n / 2; i++) {
-			cosTable[i] = Math.Cos(2 * Math.PI * i / n);
-			sinTable[i] = Math.Sin(2 * Math.PI * i / n);
-		}
+		Complex[] expTable = new Complex[n / 2];
+		double coef = 2 * Math.PI / n * (inverse ? 1 : -1);
+		for (int i = 0; i < n / 2; i++)
+			expTable[i] = Complex.Exp(new Complex(0, i * coef));
 		
 		// Bit-reversed addressing permutation
 		for (int i = 0; i < n; i++) {
 			int j = (int)((uint)ReverseBits(i) >> (32 - levels));
 			if (j > i) {
-				double temp = real[i];
-				real[i] = real[j];
-				real[j] = temp;
-				temp = imag[i];
-				imag[i] = imag[j];
-				imag[j] = temp;
+				Complex temp = vector[i];
+				vector[i] = vector[j];
+				vector[j] = temp;
 			}
 		}
 		
@@ -91,12 +73,9 @@ public sealed class Fft {
 			int tablestep = n / size;
 			for (int i = 0; i < n; i += size) {
 				for (int j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
-					double tpre =  real[j+halfsize] * cosTable[k] + imag[j+halfsize] * sinTable[k];
-					double tpim = -real[j+halfsize] * sinTable[k] + imag[j+halfsize] * cosTable[k];
-					real[j + halfsize] = real[j] - tpre;
-					imag[j + halfsize] = imag[j] - tpim;
-					real[j] += tpre;
-					imag[j] += tpim;
+					Complex temp = vector[j + halfsize] * expTable[k];
+					vector[j + halfsize] = vector[j] - temp;
+					vector[j] += temp;
 				}
 			}
 			if (size == n)  // Prevent overflow in 'size *= 2'
@@ -110,89 +89,60 @@ public sealed class Fft {
 	 * The vector can have any length. This requires the convolution function, which in turn requires the radix-2 FFT function.
 	 * Uses Bluestein's chirp z-transform algorithm.
 	 */
-	public static void TransformBluestein(double[] real, double[] imag) {
+	public static void TransformBluestein(Complex[] vector, bool inverse) {
 		// Find a power-of-2 convolution length m such that m >= n * 2 + 1
-		if (real.Length != imag.Length)
-			throw new ArgumentException("Mismatched lengths");
-		int n = real.Length;
+		int n = vector.Length;
 		if (n >= 0x20000000)
 			throw new ArgumentException("Array too large");
-		int m = HighestOneBit(n * 2 + 1) << 1;
+		int m = 1;
+		while (m < n * 2 + 1)
+			m *= 2;
 		
-		// Trignometric tables
-		double[] cosTable = new double[n];
-		double[] sinTable = new double[n];
+		// Trignometric table
+		Complex[] expTable = new Complex[n];
+		double coef = Math.PI / n * (inverse ? 1 : -1);
 		for (int i = 0; i < n; i++) {
 			int j = (int)((long)i * i % (n * 2));  // This is more accurate than j = i * i
-			cosTable[i] = Math.Cos(Math.PI * j / n);
-			sinTable[i] = Math.Sin(Math.PI * j / n);
+			expTable[i] = Complex.Exp(new Complex(0, j * coef));
 		}
 		
 		// Temporary vectors and preprocessing
-		double[] areal = new double[m];
-		double[] aimag = new double[m];
-		for (int i = 0; i < n; i++) {
-			areal[i] =  real[i] * cosTable[i] + imag[i] * sinTable[i];
-			aimag[i] = -real[i] * sinTable[i] + imag[i] * cosTable[i];
-		}
-		double[] breal = new double[m];
-		double[] bimag = new double[m];
-		breal[0] = cosTable[0];
-		bimag[0] = sinTable[0];
-		for (int i = 1; i < n; i++) {
-			breal[i] = breal[m - i] = cosTable[i];
-			bimag[i] = bimag[m - i] = sinTable[i];
-		}
+		Complex[] avector = new Complex[m];
+		for (int i = 0; i < n; i++)
+			avector[i] = vector[i] * expTable[i];
+		Complex[] bvector = new Complex[m];
+		bvector[0] = expTable[0];
+		for (int i = 1; i < n; i++)
+			bvector[i] = bvector[m - i] = Complex.Conjugate(expTable[i]);
 		
 		// Convolution
-		double[] creal = new double[m];
-		double[] cimag = new double[m];
-		Convolve(areal, aimag, breal, bimag, creal, cimag);
+		Complex[] cvector = new Complex[m];
+		Convolve(avector, bvector, cvector);
 		
 		// Postprocessing
-		for (int i = 0; i < n; i++) {
-			real[i] =  creal[i] * cosTable[i] + cimag[i] * sinTable[i];
-			imag[i] = -creal[i] * sinTable[i] + cimag[i] * cosTable[i];
-		}
-	}
-	
-	
-	/* 
-	 * Computes the circular convolution of the given real vectors. Each vector's length must be the same.
-	 */
-	public static void Convolve(double[] x, double[] y, double[] outreal) {
-		if (x.Length != y.Length || x.Length != outreal.Length)
-			throw new ArgumentException("Mismatched lengths");
-		int n = x.Length;
-		Convolve(x, new double[n], y, new double[n], outreal, new double[n]);
+		for (int i = 0; i < n; i++)
+			vector[i] = cvector[i] * expTable[i];
 	}
 	
 	
 	/* 
 	 * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
 	 */
-	public static void Convolve(double[] xreal, double[] ximag, double[] yreal, double[] yimag, double[] outreal, double[] outimag) {
-		if (xreal.Length != ximag.Length || xreal.Length != yreal.Length || yreal.Length != yimag.Length || xreal.Length != outreal.Length || outreal.Length != outimag.Length)
+	public static void Convolve(Complex[] xvector, Complex[] yvector, Complex[] outvector) {
+		if (xvector.Length != yvector.Length || xvector.Length != outvector.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
-		int n = xreal.Length;
-		xreal = (double[])xreal.Clone();
-		ximag = (double[])ximag.Clone();
-		yreal = (double[])yreal.Clone();
-		yimag = (double[])yimag.Clone();
+		int n = xvector.Length;
+		xvector = (Complex[])xvector.Clone();
+		yvector = (Complex[])yvector.Clone();
 		
-		Transform(xreal, ximag);
-		Transform(yreal, yimag);
-		for (int i = 0; i < n; i++) {
-			double temp = xreal[i] * yreal[i] - ximag[i] * yimag[i];
-			ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
-			xreal[i] = temp;
-		}
-		InverseTransform(xreal, ximag);
-		for (int i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
-			outreal[i] = xreal[i] / n;
-			outimag[i] = ximag[i] / n;
-		}
+		Transform(xvector, false);
+		Transform(yvector, false);
+		for (int i = 0; i < n; i++)
+			xvector[i] *= yvector[i];
+		Transform(xvector, true);
+		for (int i = 0; i < n; i++)  // Scaling (because this FFT implementation omits it)
+			outvector[i] = xvector[i] / new Complex(n, 0);
 	}
 	
 	
@@ -203,15 +153,6 @@ public sealed class Fft {
 		for (; val >= 0; val <<= 1)
 			result++;
 		return result;
-	}
-	
-	
-	private static int HighestOneBit(int val) {
-		for (int i = 1 << 31; i != 0; i = (int)((uint)i >> 1)) {
-			if ((val & i) != 0)
-				return i;
-		}
-		return 0;
 	}
 	
 	

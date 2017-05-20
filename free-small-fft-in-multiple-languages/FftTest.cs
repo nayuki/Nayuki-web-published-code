@@ -22,6 +22,7 @@
  */
 
 using System;
+using System.Numerics;
 
 
 public sealed class FftTest {
@@ -68,77 +69,57 @@ public sealed class FftTest {
 	
 	
 	private static void TestFft(int size) {
-		double[] inputreal = RandomReals(size);
-		double[] inputimag = RandomReals(size);
+		Complex[] inputvector = RandomComplexes(size);
+		Complex[] refoutvector = new Complex[size];
+		NaiveDft(inputvector, refoutvector, false);
 		
-		double[] refoutreal = new double[size];
-		double[] refoutimag = new double[size];
-		NaiveDft(inputreal, inputimag, refoutreal, refoutimag, false);
-		
-		double[] actualoutreal = (double[])inputreal.Clone();
-		double[] actualoutimag = (double[])inputimag.Clone();
-		Fft.Transform(actualoutreal, actualoutimag);
-		
-		Console.WriteLine("fftsize={0,4}  logerr={1,5:F1}", size, Log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag));
+		Complex[] actualoutvector = (Complex[])inputvector.Clone();
+		Fft.Transform(actualoutvector, false);
+		Console.WriteLine("fftsize={0,4}  logerr={1,5:F1}", size, Log10RmsErr(refoutvector, actualoutvector));
 	}
 	
 	
 	private static void TestConvolution(int size) {
-		double[] input0real = RandomReals(size);
-		double[] input0imag = RandomReals(size);
+		Complex[] input0vector = RandomComplexes(size);
+		Complex[] input1vector = RandomComplexes(size);
+		Complex[] refoutvector = new Complex[size];
+		NaiveConvolve(input0vector, input1vector, refoutvector);
 		
-		double[] input1real = RandomReals(size);
-		double[] input1imag = RandomReals(size);
-		
-		double[] refoutreal = new double[size];
-		double[] refoutimag = new double[size];
-		NaiveConvolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag);
-		
-		double[] actualoutreal = new double[size];
-		double[] actualoutimag = new double[size];
-		Fft.Convolve(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
-		
-		Console.WriteLine("convsize={0,4}  logerr={1,5:F1}", size, Log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag));
+		Complex[] actualoutvector = new Complex[size];
+		Fft.Convolve(input0vector, input1vector, actualoutvector);
+		Console.WriteLine("convsize={0,4}  logerr={1,5:F1}", size, Log10RmsErr(refoutvector, actualoutvector));
 	}
 	
 	
 	/* Naive reference computation functions */
 	
-	private static void NaiveDft(double[] inreal, double[] inimag, double[] outreal, double[] outimag, bool inverse) {
-		if (inreal.Length != inimag.Length || inreal.Length != outreal.Length || outreal.Length != outimag.Length)
+	private static void NaiveDft(Complex[] invector, Complex[] outvector, bool inverse) {
+		if (invector.Length != outvector.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
-		int n = inreal.Length;
+		int n = invector.Length;
 		double coef = (inverse ? 2 : -2) * Math.PI;
 		for (int k = 0; k < n; k++) {  // For each output element
-			double sumreal = 0;
-			double sumimag = 0;
+			Complex sum = new Complex(0, 0);
 			for (int t = 0; t < n; t++) {  // For each input element
 				double angle = coef * (int)((long)t * k % n) / n;  // This is more accurate than t * k
-				sumreal += inreal[t]*Math.Cos(angle) - inimag[t]*Math.Sin(angle);
-				sumimag += inreal[t]*Math.Sin(angle) + inimag[t]*Math.Cos(angle);
+				sum += invector[t] * Complex.Exp(new Complex(0, angle));
 			}
-			outreal[k] = sumreal;
-			outimag[k] = sumimag;
+			outvector[k] = sum;
 		}
 	}
 	
 	
-	private static void NaiveConvolve(double[] xreal, double[] ximag, double[] yreal, double[] yimag, double[] outreal, double[] outimag) {
-		if (xreal.Length != ximag.Length || xreal.Length != yreal.Length || yreal.Length != yimag.Length || xreal.Length != outreal.Length || outreal.Length != outimag.Length)
+	private static void NaiveConvolve(Complex[] xvector, Complex[] yvector, Complex[] outvector) {
+		if (xvector.Length != yvector.Length || xvector.Length != outvector.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
-		int n = xreal.Length;
+		int n = xvector.Length;
 		for (int i = 0; i < n; i++) {
-			double sumreal = 0;
-			double sumimag = 0;
-			for (int j = 0; j < n; j++) {
-				int k = (i - j + n) % n;
-				sumreal += xreal[k] * yreal[j] - ximag[k] * yimag[j];
-				sumimag += xreal[k] * yimag[j] + ximag[k] * yreal[j];
-			}
-			outreal[i] = sumreal;
-			outimag[i] = sumimag;
+			Complex sum = new Complex(0, 0);
+			for (int j = 0; j < n; j++)
+				sum += xvector[(i - j + n) % n] * yvector[j];
+			outvector[i] = sum;
 		}
 	}
 	
@@ -147,14 +128,16 @@ public sealed class FftTest {
 	
 	private static double maxLogError = Double.NegativeInfinity;
 	
-	private static double Log10RmsErr(double[] xreal, double[] ximag, double[] yreal, double[] yimag) {
-		if (xreal.Length != ximag.Length || xreal.Length != yreal.Length || yreal.Length != yimag.Length)
+	private static double Log10RmsErr(Complex[] xvector, Complex[] yvector) {
+		if (xvector.Length != yvector.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
 		double err = 0;
-		for (int i = 0; i < xreal.Length; i++)
-			err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
-		err = Math.Sqrt(err / Math.Max(xreal.Length, 1));  // Now this is a root mean square (RMS) error
+		for (int i = 0; i < xvector.Length; i++) {
+			Complex temp = xvector[i] - yvector[i];
+			err += temp.Real * temp.Real + temp.Imaginary * temp.Imaginary;
+		}
+		err = Math.Sqrt(err / Math.Max(xvector.Length, 1));  // Now this is a root mean square (RMS) error
 		err = err > 0 ? Math.Log10(err) : -99;
 		maxLogError = Math.Max(err, maxLogError);
 		return err;
@@ -163,10 +146,13 @@ public sealed class FftTest {
 	
 	private static Random random = new Random();
 	
-	private static double[] RandomReals(int size) {
-		double[] result = new double[size];
-		for (int i = 0; i < result.Length; i++)
-			result[i] = random.NextDouble() * 2 - 1;
+	private static Complex[] RandomComplexes(int size) {
+		Complex[] result = new Complex[size];
+		for (int i = 0; i < result.Length; i++) {
+			double real = random.NextDouble() * 2 - 1;
+			double imag = random.NextDouble() * 2 - 1;
+			result[i] = new Complex(real, imag);
+		}
 		return result;
 	}
 	

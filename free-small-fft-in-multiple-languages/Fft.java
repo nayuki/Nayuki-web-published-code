@@ -115,7 +115,7 @@ public final class Fft {
 		int n = real.length;
 		if (n >= 0x20000000)
 			throw new IllegalArgumentException("Array too large");
-		int m = Integer.highestOneBit(n * 2 + 1) << 1;
+		int m = Integer.highestOneBit(n * 2) << 1;
 		
 		// Trignometric tables
 		double[] cosTable = new double[n];
