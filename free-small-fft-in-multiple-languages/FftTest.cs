@@ -27,7 +27,7 @@ using System.Numerics;
 
 public sealed class FftTest {
 	
-	/* Main and test functions */
+	/*---- Main and test functions ----*/
 	
 	public static void Main(string[] args) {
 		// Test power-of-2 size FFTs
@@ -91,7 +91,7 @@ public sealed class FftTest {
 	}
 	
 	
-	/* Naive reference computation functions */
+	/*---- Naive reference computation functions ----*/
 	
 	private static void NaiveDft(Complex[] invector, Complex[] outvector, bool inverse) {
 		if (invector.Length != outvector.Length)
@@ -124,7 +124,7 @@ public sealed class FftTest {
 	}
 	
 	
-	/* Utility functions */
+	/*---- Utility functions ----*/
 	
 	private static double maxLogError = Double.NegativeInfinity;
 	

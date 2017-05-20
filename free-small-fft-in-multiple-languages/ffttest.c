@@ -42,7 +42,7 @@ static void *memdup(const void *src, size_t n);
 static double max_log_error = -INFINITY;
 
 
-/* Main and test functions */
+/*---- Main and test functions ----*/
 
 int main(void) {
 	srand(time(NULL));
@@ -134,7 +134,7 @@ static void test_convolution(int n) {
 }
 
 
-/* Naive reference computation functions */
+/*---- Naive reference computation functions ----*/
 
 static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n) {
 	double coef = (inverse ? 2 : -2) * M_PI;
@@ -167,7 +167,7 @@ static void naive_convolve(const double *xreal, const double *ximag, const doubl
 }
 
 
-/* Utility functions */
+/*---- Utility functions ----*/
 
 static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n) {
 	double err = 0;

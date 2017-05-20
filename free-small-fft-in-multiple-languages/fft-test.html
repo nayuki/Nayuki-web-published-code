@@ -1,7 +1,7 @@
 <!--
   - FFT and convolution test (JavaScript)
   - 
-  - Copyright (c) 2014 Project Nayuki. (MIT License)
+  - Copyright (c) 2017 Project Nayuki. (MIT License)
   - https://www.nayuki.io/page/free-small-fft-in-multiple-languages
   - 
   - Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,7 +30,7 @@
 <script src="fft.js" type="application/javascript"></script>
 <pre>
 <script>
-/* Main and test functions */
+/*---- Main and test functions ----*/
 
 function main() {
 	// Test power-of-2 size FFTs
@@ -105,7 +105,7 @@ function testConvolution(size) {
 }
 
 
-/* Naive reference computation functions */
+/*---- Naive reference computation functions ----*/
 
 function naiveDft(inreal, inimag, outreal, outimag, inverse) {
 	if (inreal.length != inimag.length || inreal.length != outreal.length || outreal.length != outimag.length)
@@ -146,7 +146,7 @@ function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
 }
 
 
-/* Utility functions */
+/*---- Utility functions ----*/
 
 var maxLogError = Number.NEGATIVE_INFINITY;
 

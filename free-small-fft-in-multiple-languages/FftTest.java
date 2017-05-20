@@ -26,7 +26,7 @@ import java.util.Random;
 
 public final class FftTest {
 	
-	/* Main and test functions */
+	/*---- Main and test functions ----*/
 	
 	public static void main(String[] args) {
 		// Test power-of-2 size FFTs
@@ -102,7 +102,7 @@ public final class FftTest {
 	}
 	
 	
-	/* Naive reference computation functions */
+	/*---- Naive reference computation functions ----*/
 	
 	private static void naiveDft(double[] inreal, double[] inimag, double[] outreal, double[] outimag, boolean inverse) {
 		if (inreal.length != inimag.length || inreal.length != outreal.length || outreal.length != outimag.length)
@@ -143,7 +143,7 @@ public final class FftTest {
 	}
 	
 	
-	/* Utility functions */
+	/*---- Utility functions ----*/
 	
 	private static double maxLogError = Double.NEGATIVE_INFINITY;
 	

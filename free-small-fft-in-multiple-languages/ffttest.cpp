@@ -51,7 +51,7 @@ std::default_random_engine randGen((std::random_device())());
 std::uniform_real_distribution<double> valueDist(-1.0, 1.0);
 
 
-/* Main and test functions */
+/*---- Main and test functions ----*/
 
 int main() {
 	// Test power-of-2 size FFTs
@@ -127,7 +127,7 @@ static void testConvolution(int n) {
 }
 
 
-/* Naive reference computation functions */
+/*---- Naive reference computation functions ----*/
 
 static void naiveDft(const vector<double> &inreal, const vector<double> &inimag, vector<double> &outreal, vector<double> &outimag, bool inverse) {
 	int n = static_cast<int>(inreal.size());
@@ -162,7 +162,7 @@ static void naiveConvolve(const vector<double> &xreal, const vector<double> &xim
 }
 
 
-/* Utility functions */
+/*---- Utility functions ----*/
 
 static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag) {
 	int n = static_cast<int>(xreal.size());
