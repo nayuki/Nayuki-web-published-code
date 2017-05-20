@@ -72,10 +72,16 @@ public sealed class FftTest {
 		Complex[] inputvector = RandomComplexes(size);
 		Complex[] refoutvector = new Complex[size];
 		NaiveDft(inputvector, refoutvector, false);
-		
 		Complex[] actualoutvector = (Complex[])inputvector.Clone();
 		Fft.Transform(actualoutvector, false);
-		Console.WriteLine("fftsize={0,4}  logerr={1,5:F1}", size, Log10RmsErr(refoutvector, actualoutvector));
+		double err = Log10RmsErr(refoutvector, actualoutvector);
+		
+		Complex[] actualinvector = new Complex[size];
+		for (int i = 0; i < size; i++)
+			actualinvector[i] = refoutvector[i] / size;
+		Fft.Transform(actualinvector, true);
+		err = Math.Max(Log10RmsErr(inputvector, actualinvector), err);
+		Console.WriteLine("fftsize={0,4}  logerr={1,5:F1}", size, err);
 	}
 	
 	

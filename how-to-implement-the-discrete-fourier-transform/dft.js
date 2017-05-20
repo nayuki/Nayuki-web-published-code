@@ -1,12 +1,12 @@
 /* 
  * Discrete Fourier transform
- * by Project Nayuki, 2014. Public domain.
+ * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
 
 
 /* 
- * Computes the discrete Fourier transform (DFT) of the given input vector.
+ * Computes the discrete Fourier transform (DFT) of the given complex vector.
  * 'inreal' and 'inimag' are each an array of n floating-point numbers.
  * Returns an array of two arrays - outreal and outimag, each of length n.
  */

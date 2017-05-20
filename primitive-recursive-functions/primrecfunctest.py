@@ -1,5 +1,5 @@
 # 
-# Test suite for primrecfunc (Haskell).
+# Test suite for primrecfunc (Python).
 # Runnable as a main program, which should print "All N tests passed".
 # 
 # Copyright (c) 2014 Project Nayuki

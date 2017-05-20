@@ -7,13 +7,18 @@
 #include <cmath>
 #include <vector>
 
+using std::size_t;
+using std::vector;
+using std::cos;
+using std::sin;
+
 
 /* 
- * Computes the discrete Fourier transform (DFT) of the given vector.
+ * Computes the discrete Fourier transform (DFT) of the given complex vector.
  * All the array arguments must have the same length.
  */
-void computeDft(const std::vector<double> &inreal, const std::vector<double> &inimag,
-		std::vector<double> &outreal, std::vector<double> &outimag) {
+void computeDft(const vector<double> &inreal, const vector<double> &inimag,
+		vector<double> &outreal, vector<double> &outimag) {
 	
 	size_t n = inreal.size();
 	for (size_t k = 0; k < n; k++) {  // For each output element

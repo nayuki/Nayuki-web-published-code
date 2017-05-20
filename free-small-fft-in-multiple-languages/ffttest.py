@@ -69,7 +69,13 @@ def _test_fft(size):
 	input = _random_vector(size)
 	refout = _naive_dft(input, False)
 	actualout = fft.transform(input, False)
-	print("fftsize={:4d}  logerr={:5.1f}".format(size, _log10_rms_err(refout, actualout)))
+	err = _log10_rms_err(refout, actualout)
+	
+	actualin = fft.transform(refout, True)
+	if size > 0:
+		actualin = [(x / size) for x in actualin]
+		err = max(_log10_rms_err(input, actualin), err)
+	print("fftsize={:4d}  logerr={:5.1f}".format(size, err))
 
 
 def _test_convolution(size):

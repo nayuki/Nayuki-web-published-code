@@ -1,6 +1,6 @@
 /* 
  * Discrete Fourier transform
- * by Project Nayuki, 2014. Public domain.
+ * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
 
@@ -8,8 +8,8 @@
 public final class Dft {
 	
 	/* 
-	 * Computes the discrete Fourier transform (DFT) of the given vector.
-	 * All the array arguments must have the same length.
+	 * Computes the discrete Fourier transform (DFT) of the given complex vector.
+	 * All the array arguments must be non-null and have the same length.
 	 */
 	public static void computeDft(double[] inreal, double[] inimag, double[] outreal, double[] outimag) {
 		int n = inreal.length;

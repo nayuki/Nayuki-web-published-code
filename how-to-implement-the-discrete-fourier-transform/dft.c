@@ -8,10 +8,12 @@
 
 
 /* 
- * Computes the discrete Fourier transform (DFT) of the given vector.
- * All the array arguments must have a length equal to n.
+ * Computes the discrete Fourier transform (DFT) of the given complex vector.
+ * All the array arguments must be non-NULL and have a length equal to n.
  */
-void compute_dft(const double inreal[], const double inimag[], double outreal[], double outimag[], int n) {
+void compute_dft(const double inreal[], const double inimag[],
+		double outreal[], double outimag[], int n) {
+	
 	for (int k = 0; k < n; k++) {  // For each output element
 		double sumreal = 0;
 		double sumimag = 0;
