@@ -169,8 +169,11 @@ public final class Fft {
 	/* 
 	 * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
 	 */
-	public static void convolve(double[] xreal, double[] ximag, double[] yreal, double[] yimag, double[] outreal, double[] outimag) {
-		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length || xreal.length != outreal.length || outreal.length != outimag.length)
+	public static void convolve(double[] xreal, double[] ximag,
+			double[] yreal, double[] yimag, double[] outreal, double[] outimag) {
+		
+		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length
+				|| xreal.length != outreal.length || outreal.length != outimag.length)
 			throw new IllegalArgumentException("Mismatched lengths");
 		
 		int n = xreal.length;

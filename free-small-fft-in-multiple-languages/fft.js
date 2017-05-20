@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (JavaScript)
  * 
- * Copyright (c) 2014 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -190,7 +190,8 @@ function convolveReal(x, y, out) {
  * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
  */
 function convolveComplex(xreal, ximag, yreal, yimag, outreal, outimag) {
-	if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length || xreal.length != outreal.length || outreal.length != outimag.length)
+	if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length
+			|| xreal.length != outreal.length || outreal.length != outimag.length)
 		throw "Mismatched lengths";
 	
 	var n = xreal.length;

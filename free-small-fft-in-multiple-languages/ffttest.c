@@ -33,9 +33,13 @@
 // Private function prototypes
 static void test_fft(int n);
 static void test_convolution(int n);
-static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n);
-static void naive_convolve(const double *xreal, const double *ximag, const double *yreal, const double *yimag, double *outreal, double *outimag, int n);
-static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n);
+static void naive_dft(const double *inreal, const double *inimag,
+	double *outreal, double *outimag, bool inverse, int n);
+static void naive_convolve(const double *xreal, const double *ximag,
+	const double *yreal, const double *yimag,
+	double *outreal, double *outimag, int n);
+static double log10_rms_err(const double *xreal, const double *ximag,
+	const double *yreal, const double *yimag, int n);
 static double *random_reals(int n);
 static void *memdup(const void *src, size_t n);
 
@@ -96,7 +100,8 @@ static void test_fft(int n) {
 	double *actualoutimag = memdup(inputimag, n * sizeof(double));
 	transform(actualoutreal, actualoutimag, n);
 	
-	printf("fftsize=%4d  logerr=%5.1f\n", n, log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
+	printf("fftsize=%4d  logerr=%5.1f\n", n,
+		log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
 	
 	free(inputreal);
 	free(inputimag);
@@ -121,7 +126,8 @@ static void test_convolution(int n) {
 	double *actualoutimag = malloc(n * sizeof(double));
 	convolve_complex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag, n);
 	
-	printf("convsize=%4d  logerr=%5.1f\n", n, log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
+	printf("convsize=%4d  logerr=%5.1f\n", n,
+		log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
 	
 	free(input0real);
 	free(input0imag);
@@ -136,7 +142,9 @@ static void test_convolution(int n) {
 
 /*---- Naive reference computation functions ----*/
 
-static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n) {
+static void naive_dft(const double *inreal, const double *inimag,
+		double *outreal, double *outimag, bool inverse, int n) {
+	
 	double coef = (inverse ? 2 : -2) * M_PI;
 	for (int k = 0; k < n; k++) {  // For each output element
 		double sumreal = 0;
@@ -152,7 +160,10 @@ static void naive_dft(const double *inreal, const double *inimag, double *outrea
 }
 
 
-static void naive_convolve(const double *xreal, const double *ximag, const double *yreal, const double *yimag, double *outreal, double *outimag, int n) {
+static void naive_convolve(const double *xreal, const double *ximag,
+		const double *yreal, const double *yimag,
+		double *outreal, double *outimag, int n) {
+	
 	for (int i = 0; i < n; i++) {
 		double sumreal = 0;
 		double sumimag = 0;
@@ -169,7 +180,9 @@ static void naive_convolve(const double *xreal, const double *ximag, const doubl
 
 /*---- Utility functions ----*/
 
-static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n) {
+static double log10_rms_err(const double *xreal, const double *ximag,
+		const double *yreal, const double *yimag, int n) {
+	
 	double err = 0;
 	for (int i = 0; i < n; i++)
 		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);

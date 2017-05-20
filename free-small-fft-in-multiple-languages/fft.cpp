@@ -168,8 +168,13 @@ void Fft::convolve(const vector<double> &x, const vector<double> &y, vector<doub
 }
 
 
-void Fft::convolve(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag, vector<double> &outreal, vector<double> &outimag) {
-	if (xreal.size() != ximag.size() || xreal.size() != yreal.size() || yreal.size() != yimag.size() || xreal.size() != outreal.size() || outreal.size() != outimag.size())
+void Fft::convolve(
+		const vector<double> &xreal, const vector<double> &ximag,
+		const vector<double> &yreal, const vector<double> &yimag,
+		vector<double> &outreal, vector<double> &outimag) {
+	
+	if (xreal.size() != ximag.size() || xreal.size() != yreal.size() || yreal.size() != yimag.size()
+			|| xreal.size() != outreal.size() || outreal.size() != outimag.size())
 		throw "Mismatched lengths";
 	
 	size_t n = xreal.size();

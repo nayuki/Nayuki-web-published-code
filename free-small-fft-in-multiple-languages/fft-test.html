@@ -82,7 +82,8 @@ function testFft(size) {
 	var actualoutimag = inputimag.slice();
 	transform(actualoutreal, actualoutimag);
 	
-	document.write("fftsize=" + size + "  logerr=" + log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
+	document.write("fftsize=" + size + "  logerr=" +
+		log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
 }
 
 
@@ -101,7 +102,8 @@ function testConvolution(size) {
 	var actualoutimag = new Array(size);
 	convolveComplex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
 	
-	document.write("convsize=" + size + "  logerr=" + log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
+	document.write("convsize=" + size + "  logerr=" +
+		log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
 }
 
 
@@ -128,7 +130,8 @@ function naiveDft(inreal, inimag, outreal, outimag, inverse) {
 
 
 function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
-	if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length || xreal.length != outreal.length || outreal.length != outimag.length)
+	if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length
+			|| xreal.length != outreal.length || outreal.length != outimag.length)
 		throw "Mismatched lengths";
 	
 	var n = xreal.length;

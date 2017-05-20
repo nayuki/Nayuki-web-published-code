@@ -38,9 +38,13 @@ using std::vector;
 // Private function prototypes
 static void testFft(int n);
 static void testConvolution(int n);
-static void naiveDft(const vector<double> &inreal, const vector<double> &inimag, vector<double> &outreal, vector<double> &outimag, bool inverse);
-static void naiveConvolve(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag, vector<double> &outreal, vector<double> &outimag);
-static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag);
+static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
+	vector<double> &outreal, vector<double> &outimag, bool inverse);
+static void naiveConvolve(const vector<double> &xreal, const vector<double> &ximag,
+	const vector<double> &yreal, const vector<double> &yimag,
+	vector<double> &outreal, vector<double> &outimag);
+static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag,
+	const vector<double> &yreal, const vector<double> &yimag);
 static vector<double> randomReals(int n);
 
 // Mutable global variable
@@ -104,7 +108,8 @@ static void testFft(int n) {
 	Fft::transform(actualoutreal, actualoutimag);
 	
 	cout << "fftsize=" << std::setw(4) << std::setfill(' ') << n << "  "
-	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint) << log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag) << endl;
+	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
+	     << log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag) << endl;
 }
 
 
@@ -123,13 +128,16 @@ static void testConvolution(int n) {
 	Fft::convolve(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
 	
 	cout << "convsize=" << std::setw(4) << std::setfill(' ') << n << "  "
-	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint) << log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag) << endl;
+	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
+	     << log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag) << endl;
 }
 
 
 /*---- Naive reference computation functions ----*/
 
-static void naiveDft(const vector<double> &inreal, const vector<double> &inimag, vector<double> &outreal, vector<double> &outimag, bool inverse) {
+static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
+		vector<double> &outreal, vector<double> &outimag, bool inverse) {
+	
 	int n = static_cast<int>(inreal.size());
 	double coef = (inverse ? 2 : -2) * M_PI;
 	for (int k = 0; k < n; k++) {  // For each output element
@@ -146,7 +154,11 @@ static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
 }
 
 
-static void naiveConvolve(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag, vector<double> &outreal, vector<double> &outimag) {
+static void naiveConvolve(
+		const vector<double> &xreal, const vector<double> &ximag,
+		const vector<double> &yreal, const vector<double> &yimag,
+		vector<double> &outreal, vector<double> &outimag) {
+	
 	int n = static_cast<int>(xreal.size());
 	for (int i = 0; i < n; i++) {
 		double sumreal = 0;
@@ -164,7 +176,9 @@ static void naiveConvolve(const vector<double> &xreal, const vector<double> &xim
 
 /*---- Utility functions ----*/
 
-static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag, const vector<double> &yreal, const vector<double> &yimag) {
+static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag,
+		const vector<double> &yreal, const vector<double> &yimag) {
+	
 	int n = static_cast<int>(xreal.size());
 	double err = 0;
 	for (int i = 0; i < n; i++)

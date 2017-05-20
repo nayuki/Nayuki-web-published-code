@@ -79,7 +79,8 @@ public final class FftTest {
 		double[] actualoutimag = inputimag.clone();
 		Fft.transform(actualoutreal, actualoutimag);
 		
-		System.out.printf("fftsize=%4d  logerr=%5.1f%n", size, log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag));
+		System.out.printf("fftsize=%4d  logerr=%5.1f%n", size,
+			log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag));
 	}
 	
 	
@@ -98,7 +99,8 @@ public final class FftTest {
 		double[] actualoutimag = new double[size];
 		Fft.convolve(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
 		
-		System.out.printf("convsize=%4d  logerr=%5.1f%n", size, log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag));
+		System.out.printf("convsize=%4d  logerr=%5.1f%n", size,
+			log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag));
 	}
 	
 	
@@ -125,7 +127,8 @@ public final class FftTest {
 	
 	
 	private static void naiveConvolve(double[] xreal, double[] ximag, double[] yreal, double[] yimag, double[] outreal, double[] outimag) {
-		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length || xreal.length != outreal.length || outreal.length != outimag.length)
+		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length
+				|| xreal.length != outreal.length || outreal.length != outimag.length)
 			throw new IllegalArgumentException("Mismatched lengths");
 		
 		int n = xreal.length;
