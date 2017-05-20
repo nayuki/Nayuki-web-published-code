@@ -117,7 +117,7 @@ def _log10_rms_err(x, y):
 	for (u, v) in zip(x, y):
 		err += abs(u - v) ** 2
 	err = math.sqrt(err / max(len(x), 1))  # Now this is a root mean square (RMS) error
-	err = math.log10(err) if err > 0 else -99.0
+	err = math.log10(err) if (err > 0) else -99.0
 	_maxlogerr = max(err, _maxlogerr)
 	return err
 

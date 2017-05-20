@@ -88,7 +88,6 @@ public final class FftTest {
 	private static void testConvolution(int size) {
 		double[] input0real = randomReals(size);
 		double[] input0imag = randomReals(size);
-		
 		double[] input1real = randomReals(size);
 		double[] input1imag = randomReals(size);
 		
@@ -154,8 +153,11 @@ public final class FftTest {
 			throw new IllegalArgumentException("Mismatched lengths");
 		
 		double err = 0;
-		for (int i = 0; i < xreal.length; i++)
-			err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
+		for (int i = 0; i < xreal.length; i++) {
+			double real = xreal[i] - yreal[i];
+			double imag = ximag[i] - yimag[i];
+			err += real * real + imag * imag;
+		}
 		err = Math.sqrt(err / Math.max(xreal.length, 1));  // Now this is a root mean square (RMS) error
 		err = err > 0 ? Math.log10(err) : -99;
 		maxLogError = Math.max(err, maxLogError);
@@ -163,13 +165,13 @@ public final class FftTest {
 	}
 	
 	
-	private static Random random = new Random();
-	
 	private static double[] randomReals(int size) {
 		double[] result = new double[size];
 		for (int i = 0; i < result.length; i++)
 			result[i] = random.nextDouble() * 2 - 1;
 		return result;
 	}
+	
+	private static Random random = new Random();
 	
 }

@@ -144,8 +144,6 @@ public sealed class FftTest {
 	}
 	
 	
-	private static Random random = new Random();
-	
 	private static Complex[] RandomComplexes(int size) {
 		Complex[] result = new Complex[size];
 		for (int i = 0; i < result.Length; i++) {
@@ -155,5 +153,7 @@ public sealed class FftTest {
 		}
 		return result;
 	}
+	
+	private static Random random = new Random();
 	
 }

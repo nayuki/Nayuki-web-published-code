@@ -128,7 +128,7 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 		unsigned long long temp = static_cast<unsigned long long>(i) * i;
 		temp %= static_cast<unsigned long long>(n) * 2;
 		double angle = M_PI * temp / n;
-		// Less accurate version if long long is unavailable: double angle = M_PI * i * i / n;
+		// Less accurate alternative if long long is unavailable: double angle = M_PI * i * i / n;
 		cosTable[i] = std::cos(angle);
 		sinTable[i] = std::sin(angle);
 	}

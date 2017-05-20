@@ -52,7 +52,6 @@ static double maxLogError = -INFINITY;
 
 // Random number generation
 std::default_random_engine randGen((std::random_device())());
-std::uniform_real_distribution<double> valueDist(-1.0, 1.0);
 
 
 /*---- Main and test functions ----*/
@@ -192,6 +191,7 @@ static double log10RmsErr(const vector<double> &xreal, const vector<double> &xim
 
 
 static vector<double> randomReals(int n) {
+	std::uniform_real_distribution<double> valueDist(-1.0, 1.0);
 	vector<double> result;
 	for (int i = 0; i < n; i++)
 		result.push_back(valueDist(randGen));

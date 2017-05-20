@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,11 +26,17 @@
 #include <stdbool.h>
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 /* 
  * Computes the discrete Fourier transform (DFT) of the given complex vector, storing the result back into the vector.
  * The vector can have any length. This is a wrapper function. Returns true if successful, false otherwise (out of memory).
  */
 bool transform(double real[], double imag[], size_t n);
+
 
 /* 
  * Computes the inverse discrete Fourier transform (IDFT) of the given complex vector, storing the result back into the vector.
@@ -39,12 +45,14 @@ bool transform(double real[], double imag[], size_t n);
  */
 bool inverse_transform(double real[], double imag[], size_t n);
 
+
 /* 
  * Computes the discrete Fourier transform (DFT) of the given complex vector, storing the result back into the vector.
  * The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
  * Returns true if successful, false otherwise (n is not a power of 2, or out of memory).
  */
 bool transform_radix2(double real[], double imag[], size_t n);
+
 
 /* 
  * Computes the discrete Fourier transform (DFT) of the given complex vector, storing the result back into the vector.
@@ -53,14 +61,21 @@ bool transform_radix2(double real[], double imag[], size_t n);
  */
 bool transform_bluestein(double real[], double imag[], size_t n);
 
+
 /* 
  * Computes the circular convolution of the given real vectors. Each vector's length must be the same.
  * Returns true if successful, false otherwise (out of memory).
  */
 bool convolve_real(const double x[], const double y[], double out[], size_t n);
 
+
 /* 
  * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
  * Returns true if successful, false otherwise (out of memory).
  */
 bool convolve_complex(const double xreal[], const double ximag[], const double yreal[], const double yimag[], double outreal[], double outimag[], size_t n);
+
+
+#ifdef __cplusplus
+}
+#endif

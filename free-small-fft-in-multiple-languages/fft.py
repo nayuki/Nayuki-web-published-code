@@ -91,10 +91,10 @@ def transform_bluestein(vector, inverse):
 	
 	coef = (1j if inverse else -1j) * cmath.pi / n
 	exptable = [cmath.exp((i * i % (n * 2)) * coef) for i in range(n)]  # Trigonometric table
-	a = [x * y for (x, y) in zip(vector, exptable)] + [0] * (m - n)  # Temporary vectors and preprocessing
+	a = [(x * y) for (x, y) in zip(vector, exptable)] + [0] * (m - n)  # Temporary vectors and preprocessing
 	b = [(exptable[min(i, m - i)].conjugate() if (i < n or m - i < n) else 0) for i in range(m)]
 	c = convolve(a, b, False)[ : n]  # Convolution
-	return [x * y for (x, y) in zip(c, exptable)]  # Postprocessing
+	return [(x * y) for (x, y) in zip(c, exptable)]  # Postprocessing
 
 
 # 
