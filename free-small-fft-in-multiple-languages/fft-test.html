@@ -33,116 +33,116 @@
 /* Main and test functions */
 
 function main() {
-    // Test power-of-2 size FFTs
-    for (var i = 0; i <= 12; i++)
-        testFft(1 << i);
-    
-    // Test small size FFTs
-    for (var i = 0; i < 30; i++)
-        testFft(i);
-    
-    // Test diverse size FFTs
-    var prev = 0;
-    for (var i = 0; i <= 100; i++) {
-        var n = Math.round(Math.pow(1500, i / 100.0));
-        if (n > prev) {
-            testFft(n);
-            prev = n;
-        }
-    }
-    
-    // Test power-of-2 size convolutions
-    for (var i = 0; i <= 12; i++)
-        testConvolution(1 << i);
-    
-    // Test diverse size convolutions
-    prev = 0;
-    for (var i = 0; i <= 100; i++) {
-        var n = Math.round(Math.pow(1500, i / 100.0));
-        if (n > prev) {
-            testConvolution(n);
-            prev = n;
-        }
-    }
-    
-    document.write("\nMax log err = " + maxLogError.toFixed(1));
-    document.write("\nTest " + (maxLogError < -10 ? "passed" : "failed"));
+	// Test power-of-2 size FFTs
+	for (var i = 0; i <= 12; i++)
+		testFft(1 << i);
+	
+	// Test small size FFTs
+	for (var i = 0; i < 30; i++)
+		testFft(i);
+	
+	// Test diverse size FFTs
+	var prev = 0;
+	for (var i = 0; i <= 100; i++) {
+		var n = Math.round(Math.pow(1500, i / 100.0));
+		if (n > prev) {
+			testFft(n);
+			prev = n;
+		}
+	}
+	
+	// Test power-of-2 size convolutions
+	for (var i = 0; i <= 12; i++)
+		testConvolution(1 << i);
+	
+	// Test diverse size convolutions
+	prev = 0;
+	for (var i = 0; i <= 100; i++) {
+		var n = Math.round(Math.pow(1500, i / 100.0));
+		if (n > prev) {
+			testConvolution(n);
+			prev = n;
+		}
+	}
+	
+	document.write("\nMax log err = " + maxLogError.toFixed(1));
+	document.write("\nTest " + (maxLogError < -10 ? "passed" : "failed"));
 }
 
 
 function testFft(size) {
-    var inputreal = randomReals(size);
-    var inputimag = randomReals(size);
-    
-    var refoutreal = new Array(size);
-    var refoutimag = new Array(size);
-    naiveDft(inputreal, inputimag, refoutreal, refoutimag, false);
-    
-    var actualoutreal = inputreal.slice();
-    var actualoutimag = inputimag.slice();
-    transform(actualoutreal, actualoutimag);
-    
-    document.write("fftsize=" + size + "  logerr=" + log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
+	var inputreal = randomReals(size);
+	var inputimag = randomReals(size);
+	
+	var refoutreal = new Array(size);
+	var refoutimag = new Array(size);
+	naiveDft(inputreal, inputimag, refoutreal, refoutimag, false);
+	
+	var actualoutreal = inputreal.slice();
+	var actualoutimag = inputimag.slice();
+	transform(actualoutreal, actualoutimag);
+	
+	document.write("fftsize=" + size + "  logerr=" + log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
 }
 
 
 function testConvolution(size) {
-    var input0real = randomReals(size);
-    var input0imag = randomReals(size);
-    
-    var input1real = randomReals(size);
-    var input1imag = randomReals(size);
-    
-    var refoutreal = new Array(size);
-    var refoutimag = new Array(size);
-    naiveConvolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag);
-    
-    var actualoutreal = new Array(size);
-    var actualoutimag = new Array(size);
-    convolveComplex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
-    
-    document.write("convsize=" + size + "  logerr=" + log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
+	var input0real = randomReals(size);
+	var input0imag = randomReals(size);
+	
+	var input1real = randomReals(size);
+	var input1imag = randomReals(size);
+	
+	var refoutreal = new Array(size);
+	var refoutimag = new Array(size);
+	naiveConvolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag);
+	
+	var actualoutreal = new Array(size);
+	var actualoutimag = new Array(size);
+	convolveComplex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
+	
+	document.write("convsize=" + size + "  logerr=" + log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
 }
 
 
 /* Naive reference computation functions */
 
 function naiveDft(inreal, inimag, outreal, outimag, inverse) {
-    if (inreal.length != inimag.length || inreal.length != outreal.length || outreal.length != outimag.length)
-        throw "Mismatched lengths";
-    
-    var n = inreal.length;
-    var coef = (inverse ? 2 : -2) * Math.PI;
-    for (var k = 0; k < n; k++) {  // For each output element
-        var sumreal = 0;
-        var sumimag = 0;
-        for (var t = 0; t < n; t++) {  // For each input element
-            var angle = coef * (t * k % n) / n;  // This is more accurate than t * k
-            sumreal += inreal[t]*Math.cos(angle) - inimag[t]*Math.sin(angle);
-            sumimag += inreal[t]*Math.sin(angle) + inimag[t]*Math.cos(angle);
-        }
-        outreal[k] = sumreal;
-        outimag[k] = sumimag;
-    }
+	if (inreal.length != inimag.length || inreal.length != outreal.length || outreal.length != outimag.length)
+		throw "Mismatched lengths";
+	
+	var n = inreal.length;
+	var coef = (inverse ? 2 : -2) * Math.PI;
+	for (var k = 0; k < n; k++) {  // For each output element
+		var sumreal = 0;
+		var sumimag = 0;
+		for (var t = 0; t < n; t++) {  // For each input element
+			var angle = coef * (t * k % n) / n;  // This is more accurate than t * k
+			sumreal += inreal[t]*Math.cos(angle) - inimag[t]*Math.sin(angle);
+			sumimag += inreal[t]*Math.sin(angle) + inimag[t]*Math.cos(angle);
+		}
+		outreal[k] = sumreal;
+		outimag[k] = sumimag;
+	}
 }
 
 
 function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
-    if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length || xreal.length != outreal.length || outreal.length != outimag.length)
-        throw "Mismatched lengths";
-    
-    var n = xreal.length;
-    for (var i = 0; i < n; i++) {
-        var sumreal = 0;
-        var sumimag = 0;
-        for (var j = 0; j < n; j++) {
-            var k = (i - j + n) % n;
-            sumreal += xreal[k] * yreal[j] - ximag[k] * yimag[j];
-            sumimag += xreal[k] * yimag[j] + ximag[k] * yreal[j];
-        }
-        outreal[i] = sumreal;
-        outimag[i] = sumimag;
-    }
+	if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length || xreal.length != outreal.length || outreal.length != outimag.length)
+		throw "Mismatched lengths";
+	
+	var n = xreal.length;
+	for (var i = 0; i < n; i++) {
+		var sumreal = 0;
+		var sumimag = 0;
+		for (var j = 0; j < n; j++) {
+			var k = (i - j + n) % n;
+			sumreal += xreal[k] * yreal[j] - ximag[k] * yimag[j];
+			sumimag += xreal[k] * yimag[j] + ximag[k] * yreal[j];
+		}
+		outreal[i] = sumreal;
+		outimag[i] = sumimag;
+	}
 }
 
 
@@ -151,24 +151,24 @@ function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
 var maxLogError = Number.NEGATIVE_INFINITY;
 
 function log10RmsErr(xreal, ximag, yreal, yimag) {
-    if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length)
-        throw "Mismatched lengths";
-    
-    var err = 0;
-    for (var i = 0; i < xreal.length; i++)
-        err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
-    err = Math.sqrt(err / Math.max(xreal.length, 1));  // Now this is a root mean square (RMS) error
-    err = err > 0 ? Math.log(err) / Math.log(10) : -99;
-    maxLogError = Math.max(err, maxLogError);
-    return err;
+	if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length)
+		throw "Mismatched lengths";
+	
+	var err = 0;
+	for (var i = 0; i < xreal.length; i++)
+		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
+	err = Math.sqrt(err / Math.max(xreal.length, 1));  // Now this is a root mean square (RMS) error
+	err = err > 0 ? Math.log(err) / Math.log(10) : -99;
+	maxLogError = Math.max(err, maxLogError);
+	return err;
 }
 
 
 function randomReals(size) {
-    var result = new Array(size);
-    for (var i = 0; i < result.length; i++)
-        result[i] = Math.random() * 2 - 1;
-    return result;
+	var result = new Array(size);
+	for (var i = 0; i < result.length; i++)
+		result[i] = Math.random() * 2 - 1;
+	return result;
 }
 
 

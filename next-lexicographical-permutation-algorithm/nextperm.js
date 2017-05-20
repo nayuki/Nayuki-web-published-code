@@ -12,31 +12,31 @@
  * is already the last possible permutation.)
  */
 function nextPermutation(array) {
-    // Find non-increasing suffix
-    var i = array.length - 1;
-    while (i > 0 && array[i - 1] >= array[i])
-        i--;
-    if (i <= 0)
-        return false;
-    
-    // Find successor to pivot
-    var j = array.length - 1;
-    while (array[j] <= array[i - 1])
-        j--;
-    var temp = array[i - 1];
-    array[i - 1] = array[j];
-    array[j] = temp;
-    
-    // Reverse suffix
-    j = array.length - 1;
-    while (i < j) {
-        temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-        i++;
-        j--;
-    }
-    return true;
+	// Find non-increasing suffix
+	var i = array.length - 1;
+	while (i > 0 && array[i - 1] >= array[i])
+		i--;
+	if (i <= 0)
+		return false;
+	
+	// Find successor to pivot
+	var j = array.length - 1;
+	while (array[j] <= array[i - 1])
+		j--;
+	var temp = array[i - 1];
+	array[i - 1] = array[j];
+	array[j] = temp;
+	
+	// Reverse suffix
+	j = array.length - 1;
+	while (i < j) {
+		temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+		i++;
+		j--;
+	}
+	return true;
 }
 
 // Example:
@@ -54,29 +54,29 @@ function nextPermutation(array) {
  * a positive number if x is considered to be greater than y, or 0 if x is considered to be equal to y.
  */
 function nextPermutation(array, comp) {
-    // Find non-increasing suffix
-    var i = array.length - 1;
-    while (i > 0 && comp(array[i - 1], array[i]) >= 0)
-        i--;
-    if (i <= 0)
-        return false;
-    
-    // Find successor to pivot
-    var j = array.length - 1;
-    while (comp(array[j], array[i - 1]) <= 0)
-        j--;
-    var temp = array[i - 1];
-    array[i - 1] = array[j];
-    array[j] = temp;
-    
-    // Reverse suffix
-    j = array.length - 1;
-    while (i < j) {
-        temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-        i++;
-        j--;
-    }
-    return true;
+	// Find non-increasing suffix
+	var i = array.length - 1;
+	while (i > 0 && comp(array[i - 1], array[i]) >= 0)
+		i--;
+	if (i <= 0)
+		return false;
+	
+	// Find successor to pivot
+	var j = array.length - 1;
+	while (comp(array[j], array[i - 1]) <= 0)
+		j--;
+	var temp = array[i - 1];
+	array[i - 1] = array[j];
+	array[j] = temp;
+	
+	// Reverse suffix
+	j = array.length - 1;
+	while (i < j) {
+		temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+		i++;
+		j--;
+	}
+	return true;
 }

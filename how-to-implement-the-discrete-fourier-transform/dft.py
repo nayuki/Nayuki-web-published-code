@@ -12,14 +12,14 @@
 # 
 import cmath
 def compute_dft_complex(input):
-    n = len(input)
-    output = [complex(0)] * n
-    for k in range(n):  # For each output element
-        s = complex(0)
-        for t in range(n):  # For each input element
-            s += input[t] * cmath.exp(-2j * cmath.pi * t * k / n)
-        output[k] = s
-    return output
+	n = len(input)
+	output = [complex(0)] * n
+	for k in range(n):  # For each output element
+		s = complex(0)
+		for t in range(n):  # For each input element
+			s += input[t] * cmath.exp(-2j * cmath.pi * t * k / n)
+		output[k] = s
+	return output
 
 
 # 
@@ -30,17 +30,17 @@ def compute_dft_complex(input):
 # 
 import math
 def compute_dft_real_pair(inreal, inimag):
-    assert len(inreal) == len(inimag)
-    n = len(inreal)
-    outreal = [0.0] * n
-    outimag = [0.0] * n
-    for k in range(n):  # For each output element
-        sumreal = 0.0
-        sumimag = 0.0
-        for t in range(n):  # For each input element
-            angle = 2 * math.pi * t * k / n
-            sumreal +=  inreal[t] * math.cos(angle) + inimag[t] * math.sin(angle)
-            sumimag += -inreal[t] * math.sin(angle) + inimag[t] * math.cos(angle)
-        outreal[k] = sumreal
-        outimag[k] = sumimag
-    return (outreal, outimag)
+	assert len(inreal) == len(inimag)
+	n = len(inreal)
+	outreal = [0.0] * n
+	outimag = [0.0] * n
+	for k in range(n):  # For each output element
+		sumreal = 0.0
+		sumimag = 0.0
+		for t in range(n):  # For each input element
+			angle = 2 * math.pi * t * k / n
+			sumreal +=  inreal[t] * math.cos(angle) + inimag[t] * math.sin(angle)
+			sumimag += -inreal[t] * math.sin(angle) + inimag[t] * math.cos(angle)
+		outreal[k] = sumreal
+		outimag[k] = sumimag
+	return (outreal, outimag)
