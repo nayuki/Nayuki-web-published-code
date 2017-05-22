@@ -1,7 +1,7 @@
 # 
 # Linear congruential generator (LCG) with fast skipping and backward iteration (Python)
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2017 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
 # 
@@ -12,7 +12,51 @@ if sys.version_info.major == 2:
 	range = xrange
 
 
-# Random number generator class (implements most functionality of random.Random)
+# ---- Demo main program, which runs a correctness check ----
+
+def main():
+	# Use the parameters from Java's LCG RNG
+	A = 25214903917
+	B = 11
+	M = 2**48
+	
+	# Choose seed and create LCG RNG
+	seed = int(time.time() * 1000)
+	randslow = LcgRandom(A, B, M, seed)
+	
+	# Start testing
+	N = 10000
+	
+	# Check that skipping forward is correct
+	for i in range(N):
+		randfast = LcgRandom(A, B, M, seed)
+		randfast.skip(i)
+		if randslow.get_state() != randfast.get_state():
+			raise AssertionError()
+		randslow.next()
+	
+	# Check that backward iteration is correct
+	for i in reversed(range(N)):
+		randslow.previous()
+		randfast = LcgRandom(A, B, M, seed)
+		randfast.skip(i)
+		if randslow.get_state() != randfast.get_state():
+			raise AssertionError()
+	
+	# Check that backward skipping is correct
+	for i in range(N):
+		randfast = LcgRandom(A, B, M, seed)
+		randfast.skip(-i)
+		if randslow.get_state() != randfast.get_state():
+			raise AssertionError()
+		randslow.previous()
+	
+	print("Test passed (n={})".format(N))
+
+
+
+# ---- Random number generator class (implements most functionality of random.Random) ----
+
 class LcgRandom(random.Random):
 	
 	def __new__(cls, *args, **kwargs):  # Magic because the superclass doesn't cooperate
@@ -45,7 +89,8 @@ class LcgRandom(random.Random):
 	
 	# Rewinds the state by one iteration.
 	def previous(self):
-		# The intermediate result after subtracting 'b' may be negative, but the modular arithmetic is correct
+		# The intermediate result after subtracting 'b' may be
+		# negative, but the modular arithmetic is correct
 		self.x = (self.x - self.b) * self.ainv % self.m
 	
 	
@@ -65,7 +110,8 @@ class LcgRandom(random.Random):
 		self.x = (y + z) % self.m
 	
 	
-	# Quite inefficient, but accommodates arbitrarily small or big moduli, and moduli that are not powers of 2
+	# Quite inefficient, but accommodates arbitrarily small
+	# or big moduli, and moduli that are not powers of 2
 	def randbit(self):
 		self.next()
 		return self.x >= (self.m >> 1)
@@ -88,10 +134,8 @@ class LcgRandom(random.Random):
 	def reciprocal_mod(x, mod):
 		# Based on a simplification of the extended Euclidean algorithm
 		assert mod > 0 and 0 <= x < mod
-		y = x
-		x = mod
-		a = 0
-		b = 1
+		x, y = mod, x
+		a, b = 0, 1
 		while y != 0:
 			a, b = b, a - x // y * b
 			x, y = y, x % y
@@ -102,42 +146,5 @@ class LcgRandom(random.Random):
 
 
 
-# Demo main program, which runs a correctness check
 if __name__ == "__main__":
-	# Use the parameters from Java's LCG RNG
-	A = 25214903917
-	B = 11
-	M = 1 << 48
-	
-	# Choose seed and create LCG RNG
-	seed = int(time.time() * 1000)
-	randslow = LcgRandom(A, B, M, seed)
-	
-	# Start testing
-	N = 1000
-	
-	# Check that skipping forward is correct
-	for i in range(N):
-		randfast = LcgRandom(A, B, M, seed)
-		randfast.skip(i)
-		if randslow.get_state() != randfast.get_state():
-			raise AssertionError()
-		randslow.next()
-	
-	# Check that backward iteration is correct
-	for i in reversed(range(N)):
-		randslow.previous()
-		randfast = LcgRandom(A, B, M, seed)
-		randfast.skip(i)
-		if randslow.get_state() != randfast.get_state():
-			raise AssertionError()
-	
-	# Check that backward skipping is correct
-	for i in range(N):
-		randfast = LcgRandom(A, B, M, seed)
-		randfast.skip(-i)
-		if randslow.get_state() != randfast.get_state():
-			raise AssertionError()
-		randslow.previous()
-	
-	print("Test passed (n={})".format(N))
+	main()
