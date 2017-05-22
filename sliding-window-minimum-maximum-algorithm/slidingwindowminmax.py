@@ -72,13 +72,19 @@ class SlidingWindowMinMax(object):
 		while len(self.mindeque) > 0 and val < self.mindeque[-1]:
 			self.mindeque.pop()
 		self.mindeque.append(val)
+		
 		while len(self.maxdeque) > 0 and val > self.maxdeque[-1]:
 			self.maxdeque.pop()
 		self.maxdeque.append(val)
 	
 	
 	def remove_head(self, val):
-		if val == self.mindeque[0]:
+		if val < self.mindeque[0]:
+			raise ValueError("Wrong value")
+		elif val == self.mindeque[0]:
 			self.mindeque.popleft()
-		if val == self.maxdeque[0]:
+		
+		if val > self.maxdeque[0]:
+			raise ValueError("Wrong value")
+		elif val == self.maxdeque[0]:
 			self.maxdeque.popleft()

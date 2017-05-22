@@ -86,6 +86,7 @@ class SlidingWindowMinMax final {
 		while (!minDeque.empty() && val < minDeque.back())
 			minDeque.pop_back();
 		minDeque.push_back(val);
+		
 		while (!maxDeque.empty() && val > maxDeque.back())
 			maxDeque.pop_back();
 		maxDeque.push_back(val);
@@ -93,8 +94,13 @@ class SlidingWindowMinMax final {
 	
 	
 	public: void removeHead(const E &val) {
-		if (val == minDeque.front())
+		if (val < minDeque.front())
+			throw "Wrong value";
+		else if (val == minDeque.front())
 			minDeque.pop_front();
+		
+		if (val > maxDeque.front())
+			throw "Wrong value";
 		if (val == maxDeque.front())
 			maxDeque.pop_front();
 	}

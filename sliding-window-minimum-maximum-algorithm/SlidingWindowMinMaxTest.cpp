@@ -30,6 +30,7 @@
 #include "SlidingWindowMinMax.hpp"
 
 using std::size_t;
+using std::vector;
 
 
 // Forward declarations
@@ -58,21 +59,18 @@ int main() {
 
 
 template <typename E>
-std::vector<E> computeSlidingWindowMinOrMaxNaive(const std::vector<E> &array, std::size_t window, bool maximize) {
+vector<E> computeSlidingWindowMinOrMaxNaive(const vector<E> &array, size_t window, bool maximize) {
 	if (window == 0)
 		throw "Window size must be positive";
-	std::vector<E> result;
+	vector<E> result;
 	if (array.size() < window)
 		return result;
 	
-	for (std::size_t i = 0; i < array.size() - window + 1; i++) {
-		const E *temp = &array.at(i);
-		for (std::size_t j = 1; j < window; j++) {
-			const E &val = array.at(i + j);
-			if ((!maximize && val < *temp) || (maximize && val > *temp))
-				temp = &val;
-		}
-		result.push_back(*temp);
+	for (size_t i = 0; i < array.size() - window + 1; i++) {
+		if (!maximize)
+			result.push_back(*std::min_element(array.cbegin() + i, array.cbegin() + i + window));
+		else
+			result.push_back(*std::max_element(array.cbegin() + i, array.cbegin() + i + window));
 	}
 	return result;
 }
@@ -84,15 +82,15 @@ static void testRandomly() {
 	std::uniform_int_distribution<size_t> windowDist(1, 30);
 	for (long i = 0; i < trials; i++) {
 		
-		std::vector<int> array;
+		vector<int> array;
 		size_t arrayLen = arrayLenDist(randGen);
 		for (size_t i = 0; i < arrayLen; i++)
 			array.push_back(valueDist(randGen));
 		size_t window = windowDist(randGen);
 		bool maximize = boolDist(randGen);
 		
-		std::vector<int> expect(computeSlidingWindowMinOrMaxNaive(array, window, maximize));
-		std::vector<int> actual(computeSlidingWindowMinOrMax(array, window, maximize));
+		vector<int> expect(computeSlidingWindowMinOrMaxNaive(array, window, maximize));
+		vector<int> actual(computeSlidingWindowMinOrMax     (array, window, maximize));
 		if (expect.size() != actual.size())
 			throw "Size mismatch";
 		for (size_t i = 0; i < expect.size(); i++) {
@@ -107,14 +105,14 @@ static void testIncremental() {
 	const long trials = 10000;
 	for (long i = 0; i < trials; i++) {
 		
-		std::vector<int> array;
+		vector<int> array;
 		size_t arrayLen = 1000;
 		for (size_t i = 0; i < arrayLen; i++)
 			array.push_back(valueDist(randGen));
 		
 		SlidingWindowMinMax<int> swm;
-		std::vector<int>::const_iterator start(array.cbegin());
-		std::vector<int>::const_iterator end(array.cbegin());
+		vector<int>::const_iterator start(array.cbegin());
+		vector<int>::const_iterator end(array.cbegin());
 		while (start < array.end()) {
 			if (start == end || (end < array.end() && boolDist(randGen))) {
 				swm.addTail(*end);

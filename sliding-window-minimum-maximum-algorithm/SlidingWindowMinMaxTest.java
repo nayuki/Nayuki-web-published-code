@@ -22,6 +22,7 @@
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import org.junit.Assert;
@@ -102,18 +103,9 @@ public final class SlidingWindowMinMaxTest {
 	private static int[] computeNaive(int[] array, int window, boolean maximize) {
 		if (window <= 0)
 			throw new IllegalArgumentException();
-		if (array.length < window)
-			return new int[0];
-		int[] result = new int[array.length - window + 1];
-		for (int i = 0; i < result.length; i++) {
-			int temp = array[i];
-			for (int j = 1; j < window; j++) {
-				int val = array[i + j];
-				if (!maximize && val < temp || maximize && val > temp)
-					temp = val;
-			}
-			result[i] = temp;
-		}
+		int[] result = new int[Math.max(array.length - window + 1, 0)];
+		for (int i = 0; i < result.length; i++)
+			result[i] = maximize ? max(array, i, i + window) : min(array, i, i + window);
 		return result;
 	}
 	
@@ -123,13 +115,8 @@ public final class SlidingWindowMinMaxTest {
 			throw new IllegalArgumentException();
 		List<E> result = new ArrayList<>();
 		for (int i = 0; i < list.size() - window + 1; i++) {
-			E temp = list.get(i);
-			for (int j = 1; j < window; j++) {
-				E val = list.get(i + j);
-				int cmp = val.compareTo(temp);
-				if (!maximize && cmp < 0 || maximize && cmp > 0)
-					temp = val;
-			}
+			List<E> range = list.subList(i, i + window);
+			E temp = maximize ? Collections.max(range) : Collections.min(range);
 			result.add(temp);
 		}
 		return result;

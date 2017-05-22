@@ -28,7 +28,7 @@ import slidingwindowminmax
 class SlidingWindowMinMaxTest(unittest.TestCase):
 	
 	def test_randomly(self):
-		trials = 10000
+		trials = 3000
 		for _ in range(trials):
 			
 			arraylen = random.randrange(300)
@@ -42,7 +42,7 @@ class SlidingWindowMinMaxTest(unittest.TestCase):
 	
 	
 	def test_incremental(self):
-		trials = 300
+		trials = 100
 		for _ in range(trials):
 			
 			array = [random.randrange(100) for _ in range(1000)]

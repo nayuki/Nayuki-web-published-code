@@ -48,16 +48,16 @@ public final class SlidingWindowMinMax<E extends Comparable<? super E>> {
 		
 		int[] result = new int[array.length - window + 1];
 		Deque<Integer> deque = new ArrayDeque<>();
-		for (int i = 0; i < array.length; i++) {
+		for (int i = 0; i < array.length; i++) {  // Range end index (inclusive)
 			int val = array[i];
 			while (!deque.isEmpty() && (!maximize && val < deque.getLast() || maximize && val > deque.getLast()))
 				deque.removeLast();
 			deque.addLast(val);
 			
-			int j = i + 1 - window;
+			int j = i + 1 - window;  // Range start index, does not overflow
 			if (j >= 0) {
 				result[j] = deque.getFirst();
-				if (array[j] == deque.getFirst())
+				if (array[j] == result[j])
 					deque.removeFirst();
 			}
 		}
@@ -135,6 +135,7 @@ public final class SlidingWindowMinMax<E extends Comparable<? super E>> {
 		while (!minDeque.isEmpty() && val.compareTo(minDeque.getLast()) < 0)
 			minDeque.removeLast();
 		minDeque.addLast(val);
+		
 		while (!maxDeque.isEmpty() && val.compareTo(maxDeque.getLast()) > 0)
 			maxDeque.removeLast();
 		maxDeque.addLast(val);
@@ -142,9 +143,16 @@ public final class SlidingWindowMinMax<E extends Comparable<? super E>> {
 	
 	
 	public void removeHead(E val) {
-		if (val.compareTo(minDeque.getFirst()) == 0)
+		int cmp = val.compareTo(minDeque.getFirst());
+		if (cmp < 0)
+			throw new IllegalArgumentException("Wrong value");
+		else if (cmp == 0)
 			minDeque.removeFirst();
-		if (val.compareTo(maxDeque.getFirst()) == 0)
+		
+		cmp = val.compareTo(maxDeque.getFirst());
+		if (cmp > 0)
+			throw new IllegalArgumentException("Wrong value");
+		else if (cmp == 0)
 			maxDeque.removeFirst();
 	}
 	
