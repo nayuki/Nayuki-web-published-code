@@ -158,11 +158,11 @@ function log10RmsErr(xreal, ximag, yreal, yimag) {
 	if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length)
 		throw "Mismatched lengths";
 	
-	var err = 0;
+	var err = Math.pow(10, -99 * 2);
 	for (var i = 0; i < xreal.length; i++)
 		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
 	err = Math.sqrt(err / Math.max(xreal.length, 1));  // Now this is a root mean square (RMS) error
-	err = err > 0 ? Math.log(err) / Math.log(10) : -99;
+	err = Math.log(err) / Math.log(10);
 	maxLogError = Math.max(err, maxLogError);
 	return err;
 }

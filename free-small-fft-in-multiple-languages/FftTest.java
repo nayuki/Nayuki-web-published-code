@@ -152,14 +152,14 @@ public final class FftTest {
 		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length)
 			throw new IllegalArgumentException("Mismatched lengths");
 		
-		double err = 0;
+		double err = Math.pow(10, -99 * 2);
 		for (int i = 0; i < xreal.length; i++) {
 			double real = xreal[i] - yreal[i];
 			double imag = ximag[i] - yimag[i];
 			err += real * real + imag * imag;
 		}
 		err = Math.sqrt(err / Math.max(xreal.length, 1));  // Now this is a root mean square (RMS) error
-		err = err > 0 ? Math.log10(err) : -99;
+		err = Math.log10(err);
 		maxLogError = Math.max(err, maxLogError);
 		return err;
 	}

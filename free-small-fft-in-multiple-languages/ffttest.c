@@ -183,13 +183,13 @@ static void naive_convolve(const double *xreal, const double *ximag,
 static double log10_rms_err(const double *xreal, const double *ximag,
 		const double *yreal, const double *yimag, int n) {
 	
-	double err = 0;
+	double err = pow(10, -99 * 2);
 	for (int i = 0; i < n; i++)
 		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
 	
 	err /= n > 0 ? n : 1;
 	err = sqrt(err);  // Now this is a root mean square (RMS) error
-	err = err > 0 ? log10(err) : -99.0;
+	err = log10(err);
 	if (err > max_log_error)
 		max_log_error = err;
 	return err;

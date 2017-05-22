@@ -72,9 +72,8 @@ def _test_fft(size):
 	err = _log10_rms_err(refout, actualout)
 	
 	actualin = fft.transform(refout, True)
-	if size > 0:
-		actualin = [(x / size) for x in actualin]
-		err = max(_log10_rms_err(input, actualin), err)
+	actualin = [(x / size) for x in actualin]
+	err = max(_log10_rms_err(input, actualin), err)
 	print("fftsize={:4d}  logerr={:5.1f}".format(size, err))
 
 
@@ -119,11 +118,11 @@ _maxlogerr = float("-inf")
 def _log10_rms_err(x, y):
 	global _maxlogerr
 	assert len(x) == len(y)
-	err = 0.0
+	err = 10.0**(-99 * 2)
 	for (u, v) in zip(x, y):
 		err += abs(u - v) ** 2
 	err = math.sqrt(err / max(len(x), 1))  # Now this is a root mean square (RMS) error
-	err = math.log10(err) if (err > 0) else -99.0
+	err = math.log10(err)
 	_maxlogerr = max(err, _maxlogerr)
 	return err
 

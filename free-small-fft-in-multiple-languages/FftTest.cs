@@ -138,13 +138,13 @@ public sealed class FftTest {
 		if (xvector.Length != yvector.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
-		double err = 0;
+		double err = Math.Pow(10, -99 * 2);
 		for (int i = 0; i < xvector.Length; i++) {
 			Complex temp = xvector[i] - yvector[i];
 			err += temp.Real * temp.Real + temp.Imaginary * temp.Imaginary;
 		}
 		err = Math.Sqrt(err / Math.Max(xvector.Length, 1));  // Now this is a root mean square (RMS) error
-		err = err > 0 ? Math.Log10(err) : -99;
+		err = Math.Log10(err);
 		maxLogError = Math.Max(err, maxLogError);
 		return err;
 	}
