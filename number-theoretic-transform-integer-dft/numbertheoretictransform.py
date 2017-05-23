@@ -43,6 +43,56 @@ def transform(invec, root, mod):
 	return outvec
 
 
+# Returns the inverse number-theoretic transform of the given vector with
+# respect to the given primitive nth root of unity under the given modulus.
+def inverse_transform(invec, root, mod):
+	outvec = transform(invec, reciprocal(root, mod), mod)
+	scaler = reciprocal(len(invec), mod)
+	return [(val * scaler % mod) for val in outvec]
+
+
+# Computes the forward number-theoretic transform of the given vector in place,
+# with respect to the given primitive nth root of unity under the given modulus.
+# The length of the vector must be a power of 2.
+def transform_radix_2(vector, root, mod):
+	n = len(vector)
+	levels = n.bit_length() - 1
+	if 1 << levels != n:
+		raise ValueError("Length is not a power of 2")
+	
+	powtable = []
+	temp = 1
+	for i in range(n // 2):
+		powtable.append(temp)
+		temp = temp * root % mod
+	
+	def reverse(x, bits):
+		y = 0
+		for i in range(bits):
+			y = (y << 1) | (x & 1)
+			x >>= 1
+		return y
+	for i in range(n):
+		j = reverse(i, levels)
+		if j > i:
+			vector[i], vector[j] = vector[j], vector[i]
+	
+	size = 2
+	while size <= n:
+		halfsize = size // 2
+		tablestep = n // size
+		for i in range(0, n, size):
+			k = 0
+			for j in range(i, i + halfsize):
+				l = j + halfsize
+				left = vector[j]
+				right = vector[l] * powtable[k]
+				vector[j] = (left + right) % mod
+				vector[l] = (left - right) % mod
+				k += tablestep
+		size *= 2
+
+
 # Returns the circular convolution of the given vectors of integers.
 # All values must be non-negative. Internally, a sufficiently large modulus
 # is chosen so that the convolved result can be represented without overflow.
@@ -57,14 +107,6 @@ def circular_convolve(vec0, vec1):
 	temp1 = transform(vec1, root, mod)
 	temp2 = [(x * y % mod) for (x, y) in zip(temp0, temp1)]
 	return inverse_transform(temp2, root, mod)
-
-
-# Returns the inverse number-theoretic transform of the given vector with
-# respect to the given primitive nth root of unity under the given modulus.
-def inverse_transform(invec, root, mod):
-	outvec = transform(invec, reciprocal(root, mod), mod)
-	scaler = reciprocal(len(invec), mod)
-	return [(val * scaler % mod) for val in outvec]
 
 
 

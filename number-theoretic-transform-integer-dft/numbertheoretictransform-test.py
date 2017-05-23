@@ -37,7 +37,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	def test_automatic_convolution(self):
 		actual = ntt.circular_convolve(
-			[4, 1, 4, 2, 1, 3, 5, 6], [6, 1, 8, 0, 3, 3, 9, 8])
+			[4, 1, 4, 2, 1, 3, 5, 6],
+			[6, 1, 8, 0, 3, 3, 9, 8])
 		expect = [123, 120, 106, 92, 139, 144, 140, 124]
 		self.assertEqual(expect, actual)
 	
@@ -51,6 +52,21 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 			temp, root, mod = ntt.find_params_and_transform(vec, maxval + 1)
 			inv = ntt.inverse_transform(temp, root, mod)
 			self.assertEqual(vec, inv)
+	
+	
+	def test_transform_linearity_randomly(self):
+		trials = 100
+		for _ in range(trials):
+			veclen = random.randrange(100) + 1
+			maxval = random.randrange(100) + 1
+			vec0 = [random.randrange(maxval + 1) for _ in range(veclen)]
+			vec1 = [random.randrange(maxval + 1) for _ in range(veclen)]
+			out0, root, mod = ntt.find_params_and_transform(vec0, maxval + 1)
+			out1 = ntt.transform(vec1, root, mod)
+			out01 = [(x + y) % mod for (x, y) in zip(out0, out1)]
+			vec2 = [(x + y) % mod for (x, y) in zip(vec0, vec1)]
+			out2 = ntt.transform(vec2, root, mod)
+			self.assertEqual(out2, out01)
 	
 	
 	def test_convolution_randomly(self):
@@ -73,6 +89,35 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 			for (j, val1) in enumerate(vec1):
 				result[(i + j) % len(vec0)] += val0 * val1
 		return result
+	
+	
+	def test_transform_radix2_vs_naive(self):
+		trials = 300
+		for _ in range(trials):
+			veclen = 2**random.randrange(8)
+			maxval = random.randrange(100) + 1
+			vec = [random.randrange(maxval + 1) for _ in range(veclen)]
+			temp, root, mod = ntt.find_params_and_transform(vec, maxval + 1)
+			ntt.transform_radix_2(vec, root, mod)
+			self.assertEqual(temp, vec)
+	
+	
+	def test_transform_radix2_roundtrip_randomly(self):
+		trials = 0
+		for _ in range(trials):
+			veclen = 2**random.randint(0, 16)
+			vallimit = 2**random.randint(1, 16)
+			invec = [random.randrange(vallimit) for _ in range(veclen)]
+			
+			mod = ntt.find_modulus(len(invec), vallimit)
+			root = ntt.find_primitive_root(len(invec), mod - 1, mod)
+			vec = list(invec)
+			ntt.transform_radix_2(vec, root, mod)
+			
+			ntt.transform_radix_2(vec, ntt.reciprocal(root, mod), mod)
+			scaler = ntt.reciprocal(veclen, mod)
+			vec = [(x * scaler % mod) for x in vec]
+			self.assertEqual(invec, vec)
 
 
 

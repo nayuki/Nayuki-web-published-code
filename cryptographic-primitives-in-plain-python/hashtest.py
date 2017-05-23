@@ -2,7 +2,7 @@
 # This program tests the implementations of all the known cryptographic hash functions.
 # Run with no arguments. For Python 2 and 3.
 # 
-# Copyright (c) 2016 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 #   Software.
 # 
 
-import unittest
+import hashlib, random, sys, unittest
 from cryptocommon import asciistr_to_bytelist, hexstr_to_bytelist
 
 
@@ -67,6 +67,7 @@ class HashTest(unittest.TestCase):
 			("D174AB98D277D9F5A5611C2C9F419D9F", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"),
 			("57EDF4A22BE3C955AC49DA2E2107B67A", "12345678901234567890123456789012345678901234567890123456789012345678901234567890"),
 		])
+		self._check_vs_stdlib(md5hash.hash, hashlib.md5)
 	
 	
 	def test_sha1_hash(self):
@@ -80,6 +81,7 @@ class HashTest(unittest.TestCase):
 			("84983E441C3BD26EBAAE4AA1F95129E5E54670F1", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
 			("A49B2446A02C645BF419F995B67091253A04A259", "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
 		])
+		self._check_vs_stdlib(sha1hash.hash, hashlib.sha1)
 	
 	
 	def test_sha256_hash(self):
@@ -93,6 +95,7 @@ class HashTest(unittest.TestCase):
 			("248D6A61D20638B8E5C026930C3E6039A33CE45964FF2167F6ECEDD419DB06C1", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
 			("CF5B16A778AF8380036CE59E7B0492370B249B11E8F07A51AFAC45037AFEE9D1", "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
 		])
+		self._check_vs_stdlib(sha256hash.hash, hashlib.sha256)
 	
 	
 	def test_sha512_hash(self):
@@ -106,6 +109,7 @@ class HashTest(unittest.TestCase):
 			("204A8FC6DDA82F0A0CED7BEB8E08A41657C16EF468B228A8279BE331A703C33596FD15C13B1B07F9AA1D3BEA57789CA031AD85C7A71DD70354EC631238CA3445", "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
 			("8E959B75DAE313DA8CF4F72814FC143F8F7779C6EB9F7FA17299AEADB6889018501D289E4900F7E4331B99DEC4B5433AC7D329EEB6DD26545E96E55B874BE909", "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
 		])
+		self._check_vs_stdlib(sha512hash.hash, hashlib.sha512)
 	
 	
 	def test_whirlpool_hash(self):
@@ -133,6 +137,21 @@ class HashTest(unittest.TestCase):
 			
 			assert type(actualhashbytelist) == list
 			self.assertEqual(actualhashbytelist, expectedhashbytelist)
+			num_test_cases += 1
+	
+	
+	def _check_vs_stdlib(self, ourfunc, stdfunc):
+		global num_test_cases
+		trials = 1000
+		py3 = sys.version_info.major >= 3
+		for _ in range(trials):
+			msglen = random.randrange(1000)
+			msglist = [random.randrange(256) for _ in range(msglen)]
+			msgstr = bytes(msglist) if py3 else b"".join(map(chr, msglist))
+			actualhash = ourfunc(msglist)
+			expecthash = stdfunc(msgstr).digest()
+			expecthash = list(expecthash) if py3 else map(ord, expecthash)
+			self.assertEqual(actualhash, expecthash)
 			num_test_cases += 1
 
 

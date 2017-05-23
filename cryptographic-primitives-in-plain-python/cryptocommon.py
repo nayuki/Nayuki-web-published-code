@@ -1,7 +1,7 @@
 # 
 # Common utility functions and constants for cryptography use.
 # 
-# Copyright (c) 2015 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,22 +59,16 @@ def asciistr_to_bytelist(asciistr):
 # For example: hexstr_to_bytelist("FF00C0") -> [255, 0, 192].
 def hexstr_to_bytelist(hexstr):
 	assert len(hexstr) % 2 == 0
-	result = []
-	for i in range(0, len(hexstr), 2):
-		result.append(int(hexstr[i : i + 2], 16))
-	return result
+	return [int(hexstr[i : i + 2], 16) for i in range(0, len(hexstr), 2)]
 
 
 # For example: bytelist_to_hexstr([255, 0, 192]) -> "FF00C0".
 def bytelist_to_hexstr(bytelist):
 	assert type(bytelist) in (list, tuple)
-	result = ""
-	for b in bytelist:
-		result += "{:02X}".format(b)
-	return result
+	return "".join("{:02X}".format(b) for b in bytelist)
 
 
 # For example: bytelist_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
 def bytelist_to_debugstr(bytelist):
 	assert type(bytelist) in (list, tuple)
-	return "[" + (" ".join(map(lambda b: "{:02X}".format(b), bytelist))) + "]"
+	return "[" + " ".join("{:02X}".format(b) for b in bytelist) + "]"
