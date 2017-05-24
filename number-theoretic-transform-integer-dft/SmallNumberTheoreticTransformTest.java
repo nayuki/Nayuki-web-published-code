@@ -1,5 +1,5 @@
 /* 
- * Number-theoretic transform library (Java)
+ * Number-theoretic transform test (Java)
  * 
  * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
