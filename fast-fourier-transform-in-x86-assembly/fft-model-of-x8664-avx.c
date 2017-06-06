@@ -37,12 +37,12 @@ struct FftTables {
 /*---- Function implementations ----*/
 
 // This is a C implementation that models the x86-64 AVX implementation.
-void fft_transform(const void *tables, double *real, double *imag) {
-	struct FftTables *tbl = (struct FftTables *)tables;
+void fft_transform(const void *tables, double real[], double imag[]) {
+	const struct FftTables *tbl = (const struct FftTables *)tables;
 	uint64_t n = tbl->n;
 	
 	// Bit-reversed addressing permutation
-	uint64_t *bitreversed = tbl->bit_reversed;
+	const uint64_t *bitreversed = tbl->bit_reversed;
 	for (uint64_t i = 0; i < n; i++) {
 		uint64_t j = bitreversed[i];
 		if (i < j) {
@@ -93,7 +93,7 @@ void fft_transform(const void *tables, double *real, double *imag) {
 	}
 	
 	// Size 8 and larger merges (general)
-	double *trigtables = tbl->trig_tables;
+	const double *trigtables = tbl->trig_tables;
 	for (uint64_t size = 8; size <= n; size <<= 1) {
 		uint64_t halfsize = size >> 1;
 		for (uint64_t i = 0; i < n; i += size) {

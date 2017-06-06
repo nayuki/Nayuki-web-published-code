@@ -41,8 +41,7 @@ var randomClicked = 0;
 
 function random() {
 	randomClicked++;
-	var limit = Math.sqrt(randomClicked);
-	console.log(limit);
+	var limit = randomClicked / 10;
 	var len = Math.floor(Math.random() * limit) + 1;
 	function genRandom() {
 		var result = "";

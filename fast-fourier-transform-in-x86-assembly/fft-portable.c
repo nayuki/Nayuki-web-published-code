@@ -84,12 +84,12 @@ void *fft_init(size_t n) {
 
 
 // Performs a forward FFT in place on the given arrays. The length is given by the tables struct.
-void fft_transform(const void *tables, double *real, double *imag) {
-	struct FftTables *tbl = (struct FftTables *)tables;
+void fft_transform(const void *tables, double real[], double imag[]) {
+	const struct FftTables *tbl = (const struct FftTables *)tables;
 	size_t n = tbl->n;
 	
 	// Bit-reversed addressing permutation
-	size_t *bitreversed = tbl->bit_reversed;
+	const size_t *bitreversed = tbl->bit_reversed;
 	for (size_t i = 0; i < n; i++) {
 		size_t j = bitreversed[i];
 		if (i < j) {
@@ -105,8 +105,8 @@ void fft_transform(const void *tables, double *real, double *imag) {
 	}
 	
 	// Cooley-Tukey decimation-in-time radix-2 FFT
-	double *costable = tbl->cos_table;
-	double *sintable = tbl->sin_table;
+	const double *costable = tbl->cos_table;
+	const double *sintable = tbl->sin_table;
 	for (size_t size = 2; size <= n; size *= 2) {
 		size_t halfsize = size / 2;
 		size_t tablestep = n / size;

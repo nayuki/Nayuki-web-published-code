@@ -34,9 +34,9 @@
 
 // Private function prototypes
 static double test_fft_log_error(int n);
-static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n);
-static int64_t benchmark_time(const void *fttTables, double *real, double *imag, size_t n, uint64_t iterations);
-static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n);
+static void naive_dft(const double inreal[], const double inimag[], double outreal[], double outimag[], bool inverse, int n);
+static int64_t benchmark_time(const void *fttTables, double real[], double imag[], size_t n, uint64_t iterations);
+static double log10_rms_err(const double xreal[], const double ximag[], const double yreal[], const double yimag[], int n);
 static double *random_reals(int n);
 static void *memdup(const void *src, size_t n);
 
@@ -146,7 +146,7 @@ static double test_fft_log_error(int n) {
 
 
 // Computes the discrete Fourier transform using the naive O(n^2) time algorithm.
-static void naive_dft(const double *inreal, const double *inimag, double *outreal, double *outimag, bool inverse, int n) {
+static void naive_dft(const double inreal[], const double inimag[], double outreal[], double outimag[], bool inverse, int n) {
 	double coef = (inverse ? 2 : -2) * M_PI;
 	for (int k = 0; k < n; k++) {  // For each output element
 		double sumreal = 0;
@@ -163,7 +163,7 @@ static void naive_dft(const double *inreal, const double *inimag, double *outrea
 
 
 // Returns the number of nanoseconds to run the given number of iterations of the given FFT size.
-static int64_t benchmark_time(const void *fftTables, double *real, double *imag, size_t n, uint64_t iterations) {
+static int64_t benchmark_time(const void *fftTables, double real[], double imag[], size_t n, uint64_t iterations) {
 	int64_t elapsedtime = 0;
 	for (uint64_t i = 0; i < iterations; i++) {
 		struct timespec ts;
@@ -185,7 +185,7 @@ static int64_t benchmark_time(const void *fftTables, double *real, double *imag,
 
 
 // Returns log10(sqrt(sum(|x[i] - y[i]|^2) / n)).
-static double log10_rms_err(const double *xreal, const double *ximag, const double *yreal, const double *yimag, int n) {
+static double log10_rms_err(const double xreal[], const double ximag[], const double yreal[], const double yimag[], int n) {
 	double err = 0;
 	for (int i = 0; i < n; i++)
 		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);

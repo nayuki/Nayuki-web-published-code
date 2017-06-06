@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,6 +26,6 @@
 
 void *fft_init(size_t n);
 
-void fft_transform(const void *tables, double *real, double *imag);
+void fft_transform(const void *tables, double real[], double imag[]);
 
 void fft_destroy(void *tables);

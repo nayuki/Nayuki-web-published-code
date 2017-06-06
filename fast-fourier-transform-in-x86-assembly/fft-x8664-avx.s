@@ -37,14 +37,14 @@
  *        8  r12       Temporary
  *        8  r13       Temporary
  *        8  rsp       x86-64 stack pointer
- *      320  ymm0-7    Temporary (64-bit float vectors)
+ *      256  ymm0-7    Temporary (64-bit float vectors)
  *        8  [rsp+ 0]  Caller's value of r13
  *        8  [rsp+ 8]  Caller's value of r12
  *        8  [rsp+16]  Caller's value of r11
  *        8  [rsp+24]  Caller's value of r10
  */
 
-/* void fft_transform(const void *tables, double *real, double *imag) */
+/* void fft_transform(const void *tables, double real[], double imag[]) */
 .globl fft_transform
 fft_transform:
 	/* Save registers */
