@@ -103,7 +103,7 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_transform_radix2_roundtrip_randomly(self):
-		trials = 0
+		trials = 10
 		for _ in range(trials):
 			veclen = 2**random.randint(0, 16)
 			vallimit = 2**random.randint(1, 16)

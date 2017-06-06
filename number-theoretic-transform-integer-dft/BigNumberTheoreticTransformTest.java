@@ -126,6 +126,42 @@ public class BigNumberTheoreticTransformTest {
 	}
 	
 	
+	@Test public void testTransformRadix2VsNaive() {
+		final int trials = 1000;
+		for (int i = 0; i < trials; i++) {
+			int vecLen = 1 << rand.nextInt(8);
+			BigInteger maxVal = bi(rand.nextInt(100) + 1);
+			BigInteger[] vec = randomVector(vecLen, maxVal.add(BigInteger.ONE));
+			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, maxVal.add(BigInteger.ONE));
+			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(BigInteger.ONE), mod);
+			BigInteger[] temp = BigNumberTheoreticTransform.transform(vec, root, mod);
+			BigNumberTheoreticTransform.transformRadix2(vec, root, mod);
+			assertArrayEquals(temp, vec);
+		}
+	}
+	
+	
+	@Test public void testTransformRadix2RoundtripRandomly() {
+		final int trials = 30;
+		for (int i = 0; i < trials; i++) {
+			int vecLen = 1 << rand.nextInt(17);
+			BigInteger valLimit = bi(1 << (rand.nextInt(16) + 1));
+			BigInteger[] invec = randomVector(vecLen, valLimit.add(BigInteger.ONE));
+			
+			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, valLimit.add(BigInteger.ONE));
+			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(BigInteger.ONE), mod);
+			BigInteger[] vec = invec.clone();
+			BigNumberTheoreticTransform.transformRadix2(vec, root, mod);
+			
+			BigNumberTheoreticTransform.transformRadix2(vec, root.modInverse(mod), mod);
+			BigInteger scaler = bi(vecLen).modInverse(mod);
+			for (int j = 0; j < vec.length; j++)
+				vec[j] = vec[j].multiply(scaler).mod(mod);
+			assertArrayEquals(invec, vec);
+		}
+	}
+	
+	
 	
 	/*---- Utilities ----*/
 	

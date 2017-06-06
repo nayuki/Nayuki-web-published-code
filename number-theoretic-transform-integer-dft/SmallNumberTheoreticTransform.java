@@ -40,6 +40,48 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	public static void transformRadix2(int[] vector, int root, int mod) {
+		int n = vector.length;
+		int levels = 31 - Integer.numberOfLeadingZeros(n);
+		if (1 << levels != n)
+			throw new IllegalArgumentException("Length is not a power of 2");
+		
+		int[] powTable = new int[n / 2];
+		{
+			int temp = 1;
+			for (int i = 0; i < powTable.length; i++) {
+				powTable[i] = temp;
+				temp = (int)((long)temp * root % mod);
+			}
+		}
+		
+		for (int i = 0; i < n; i++) {
+			int j = Integer.reverse(i) >>> (32 - levels);
+			if (j > i) {
+				int temp = vector[i];
+				vector[i] = vector[j];
+				vector[j] = temp;
+			}
+		}
+		
+		for (int size = 2; size <= n; size *= 2) {
+			int halfsize = size / 2;
+			int tablestep = n / size;
+			for (int i = 0; i < n; i += size) {
+				for (int j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
+					int l = j + halfsize;
+					long left = vector[j];
+					long right = (long)vector[j + halfsize] * powTable[k] % mod;
+					vector[j] = (int)((left + right) % mod);
+					vector[l] = (int)((left - right + mod) % mod);
+				}
+			}
+			if (size == n)
+				break;
+		}
+	}
+	
+	
 	public static int[] circularConvolve(int[] vec0, int[] vec1) {
 		if (vec0.length == 0 || vec0.length != vec1.length)
 			throw new IllegalArgumentException();

@@ -41,6 +41,48 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	public static void transformRadix2(BigInteger[] vector, BigInteger root, BigInteger mod) {
+		int n = vector.length;
+		int levels = 31 - Integer.numberOfLeadingZeros(n);
+		if (1 << levels != n)
+			throw new IllegalArgumentException("Length is not a power of 2");
+		
+		BigInteger[] powTable = new BigInteger[n / 2];
+		{
+			BigInteger temp = BigInteger.ONE;
+			for (int i = 0; i < powTable.length; i++) {
+				powTable[i] = temp;
+				temp = temp.multiply(root).mod(mod);
+			}
+		}
+		
+		for (int i = 0; i < n; i++) {
+			int j = Integer.reverse(i) >>> (32 - levels);
+			if (j > i) {
+				BigInteger temp = vector[i];
+				vector[i] = vector[j];
+				vector[j] = temp;
+			}
+		}
+		
+		for (int size = 2; size <= n; size *= 2) {
+			int halfsize = size / 2;
+			int tablestep = n / size;
+			for (int i = 0; i < n; i += size) {
+				for (int j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
+					int l = j + halfsize;
+					BigInteger left = vector[j];
+					BigInteger right = vector[j + halfsize].multiply(powTable[k]);
+					vector[j] = left.add(right).mod(mod);
+					vector[l] = left.subtract(right).mod(mod);
+				}
+			}
+			if (size == n)
+				break;
+		}
+	}
+	
+	
 	public static BigInteger[] circularConvolve(BigInteger[] vec0, BigInteger[] vec1) {
 		if (vec0.length == 0 || vec0.length != vec1.length)
 			throw new IllegalArgumentException();

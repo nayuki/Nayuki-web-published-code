@@ -121,6 +121,42 @@ public class SmallNumberTheoreticTransformTest {
 	}
 	
 	
+	@Test public void testTransformRadix2VsNaive() {
+		final int trials = 10000;
+		for (int i = 0; i < trials; i++) {
+			int vecLen = 1 << rand.nextInt(8);
+			int maxVal = rand.nextInt(100) + 1;
+			int[] vec = randomVector(vecLen, maxVal + 1);
+			int mod = SmallNumberTheoreticTransform.findModulus(vecLen, maxVal + 1);
+			int root = SmallNumberTheoreticTransform.findPrimitiveRoot(vecLen, mod - 1, mod);
+			int[] temp = SmallNumberTheoreticTransform.transform(vec, root, mod);
+			SmallNumberTheoreticTransform.transformRadix2(vec, root, mod);
+			assertArrayEquals(temp, vec);
+		}
+	}
+	
+	
+	@Test public void testTransformRadix2RoundtripRandomly() {
+		final int trials = 300;
+		for (int i = 0; i < trials; i++) {
+			int vecLen = 1 << rand.nextInt(17);
+			int valLimit = 1 << (rand.nextInt(16) + 1);
+			int[] invec = randomVector(vecLen, valLimit + 1);
+			
+			int mod = SmallNumberTheoreticTransform.findModulus(vecLen, valLimit + 1);
+			int root = SmallNumberTheoreticTransform.findPrimitiveRoot(vecLen, mod - 1, mod);
+			int[] vec = invec.clone();
+			SmallNumberTheoreticTransform.transformRadix2(vec, root, mod);
+			
+			SmallNumberTheoreticTransform.transformRadix2(vec, SmallNumberTheoreticTransform.reciprocal(root, mod), mod);
+			int scaler = SmallNumberTheoreticTransform.reciprocal(vecLen, mod);
+			for (int j = 0; j < vec.length; j++)
+				vec[j] = (int)((long)vec[j] * scaler % mod);
+			assertArrayEquals(invec, vec);
+		}
+	}
+	
+	
 	
 	/*---- Utilities ----*/
 	
