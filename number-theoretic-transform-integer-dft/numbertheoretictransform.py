@@ -240,7 +240,7 @@ def is_prime(n):
 	return all((n % i != 0) for i in range(2, sqrt(n) + 1))
 
 
-# Returns floor(sqrt(n)) for an integer n >= 0.
+# Returns floor(sqrt(n)) for the given integer n >= 0.
 def sqrt(n):
 	check_int(n)
 	if n < 0:

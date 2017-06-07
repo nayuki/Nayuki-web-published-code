@@ -15,6 +15,8 @@ public final class SmallNumberTheoreticTransform {
 	
 	/*---- High-level NTT functions ----*/
 	
+	// Returns the forward number-theoretic transform of the given vector with
+	// respect to the given primitive nth root of unity under the given modulus.
 	public static int[] transform(int[] invec, int root, int mod) {
 		int n = invec.length;
 		int[] outvec = new int[n];
@@ -31,6 +33,8 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Returns the inverse number-theoretic transform of the given vector with
+	// respect to the given primitive nth root of unity under the given modulus.
 	public static int[] inverseTransform(int[] invec, int root, int mod) {
 		int[] outvec = transform(invec, reciprocal(root, mod), mod);
 		int scaler = reciprocal(invec.length, mod);
@@ -40,6 +44,9 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Computes the forward number-theoretic transform of the given vector in place,
+	// with respect to the given primitive nth root of unity under the given modulus.
+	// The length of the vector must be a power of 2.
 	public static void transformRadix2(int[] vector, int root, int mod) {
 		int n = vector.length;
 		int levels = 31 - Integer.numberOfLeadingZeros(n);
@@ -82,6 +89,9 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Returns the circular convolution of the given vectors of integers.
+	// All values must be non-negative. Internally, a sufficiently large modulus
+	// is chosen so that the convolved result can be represented without overflow.
 	public static int[] circularConvolve(int[] vec0, int[] vec1) {
 		if (vec0.length == 0 || vec0.length != vec1.length)
 			throw new IllegalArgumentException();
@@ -115,6 +125,10 @@ public final class SmallNumberTheoreticTransform {
 	
 	/*---- Mid-level number theory functions for NTT ----*/
 	
+	// Returns the smallest modulus mod such that mod = i * veclen + 1
+	// for some integer i >= 1, mod > veclen, and mod is prime.
+	// Although the loop might run for a long time and create arbitrarily large numbers,
+	// Dirichlet's theorem guarantees that such a prime number must exist.
 	public static int findModulus(int vecLen, int minimum) {
 		if (vecLen < 1 || minimum < 1)
 			throw new IllegalArgumentException();
@@ -128,6 +142,8 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Returns an arbitrary generator of the multiplicative group of integers modulo mod.
+	// totient must equal the Euler phi function of mod. If mod is prime, an answer must exist.
 	public static int findGenerator(int totient, int mod) {
 		if (totient < 1 || totient >= mod)
 			throw new IllegalArgumentException();
@@ -139,6 +155,8 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Returns an arbitrary primitive degree-th root of unity modulo mod.
+	// totient must be a multiple of degree. If mod is prime, an answer must exist.
 	public static int findPrimitiveRoot(int degree, int totient, int mod) {
 		if (degree < 1 || degree > totient || totient >= mod || totient % degree != 0)
 			throw new IllegalArgumentException();
@@ -147,6 +165,11 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Tests whether val generates the multiplicative group of integers modulo mod. totient
+	// must equal the Euler phi function of mod. In other words, the set of numbers
+	// {val^0 % mod, val^1 % mod, ..., val^(totient-1) % mod} is equal to the set of all
+	// numbers in the range [0, mod) that are coprime to mod. If mod is prime, then
+	// totient = mod - 1, and powers of a generator produces all integers in the range [1, mod).
 	public static boolean isGenerator(int val, int totient, int mod) {
 		if (val < 0 || val >= mod)
 			throw new IllegalArgumentException();
@@ -163,6 +186,8 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Tests whether val is a primitive degree-th root of unity modulo mod.
+	// In other words, val^degree % mod = 1, and for each 1 <= k < degree, val^k % mod != 1.
 	public static boolean isPrimitiveRoot(int val, int degree, int mod) {
 		if (val < 0 || val >= mod)
 			throw new IllegalArgumentException();
@@ -182,6 +207,8 @@ public final class SmallNumberTheoreticTransform {
 	
 	/*---- Low-level common number theory functions ----*/
 	
+	// Returns the multiplicative inverse of n modulo mod. The inverse x has the property that
+	// 0 <= x < mod and (x * n) % mod = 1. The inverse exists if and only if gcd(n, mod) = 1.
 	public static int reciprocal(int n, int mod) {
 		if (n < 0 || n >= mod)
 			throw new IllegalArgumentException();
@@ -204,6 +231,8 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Returns a list of unique prime factors of the given integer in
+	// ascending order. For example, unique_prime_factors(60) = [2, 3, 5].
 	public static List<Integer> uniquePrimeFactors(int n) {
 		if (n < 1)
 			throw new IllegalArgumentException();
@@ -223,6 +252,7 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Tests whether the given integer n >= 2 is a prime number.
 	public static boolean isPrime(int n) {
 		if (n <= 1)
 			throw new IllegalArgumentException();
@@ -234,6 +264,7 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Returns (x^y) % mod for the given integers 0 <= x < mod, y >= 0, mod > 0.
 	public static int pow(int x, int y, int mod) {
 		if (x < 0 || x >= mod || y < 0)
 			throw new IllegalArgumentException();
@@ -247,6 +278,7 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
+	// Returns floor(sqrt(x)) for the given integer x >= 0.
 	public static int sqrt(int x) {
 		if (x < 0)
 			throw new IllegalArgumentException();

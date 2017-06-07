@@ -6,6 +6,7 @@
  * https://www.nayuki.io/page/number-theoretic-transform-integer-dft
  */
 
+import static java.math.BigInteger.ONE;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +18,8 @@ public final class BigNumberTheoreticTransform {
 	
 	/*---- High-level NTT functions ----*/
 	
+	// Returns the forward number-theoretic transform of the given vector with
+	// respect to the given primitive nth root of unity under the given modulus.
 	public static BigInteger[] transform(BigInteger[] invec, BigInteger root, BigInteger mod) {
 		int n = invec.length;
 		BigInteger[] outvec = new BigInteger[n];
@@ -32,6 +35,8 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	// Returns the inverse number-theoretic transform of the given vector with
+	// respect to the given primitive nth root of unity under the given modulus.
 	public static BigInteger[] inverseTransform(BigInteger[] invec, BigInteger root, BigInteger mod) {
 		BigInteger[] outvec = transform(invec, root.modInverse(mod), mod);
 		BigInteger scaler = BigInteger.valueOf(invec.length).modInverse(mod);
@@ -41,6 +46,9 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	// Computes the forward number-theoretic transform of the given vector in place,
+	// with respect to the given primitive nth root of unity under the given modulus.
+	// The length of the vector must be a power of 2.
 	public static void transformRadix2(BigInteger[] vector, BigInteger root, BigInteger mod) {
 		int n = vector.length;
 		int levels = 31 - Integer.numberOfLeadingZeros(n);
@@ -83,6 +91,9 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	// Returns the circular convolution of the given vectors of integers.
+	// All values must be non-negative. Internally, a sufficiently large modulus
+	// is chosen so that the convolved result can be represented without overflow.
 	public static BigInteger[] circularConvolve(BigInteger[] vec0, BigInteger[] vec1) {
 		if (vec0.length == 0 || vec0.length != vec1.length)
 			throw new IllegalArgumentException();
@@ -104,6 +115,10 @@ public final class BigNumberTheoreticTransform {
 	
 	/*---- Mid-level number theory functions for NTT ----*/
 	
+	// Returns the smallest modulus mod such that mod = i * veclen + 1
+	// for some integer i >= 1, mod > veclen, and mod is prime.
+	// Although the loop might run for a long time and create arbitrarily large numbers,
+	// Dirichlet's theorem guarantees that such a prime number must exist.
 	public static BigInteger findModulus(int vecLen, BigInteger minimum) {
 		if (vecLen < 1 || minimum.compareTo(ONE) < 0)
 			throw new IllegalArgumentException();
@@ -117,6 +132,8 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	// Returns an arbitrary generator of the multiplicative group of integers modulo mod.
+	// totient must equal the Euler phi function of mod. If mod is prime, an answer must exist.
 	public static BigInteger findGenerator(BigInteger totient, BigInteger mod) {
 		if (totient.compareTo(ONE) < 0 || totient.compareTo(mod) >= 0)
 			throw new IllegalArgumentException();
@@ -128,6 +145,8 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	// Returns an arbitrary primitive degree-th root of unity modulo mod.
+	// totient must be a multiple of degree. If mod is prime, an answer must exist.
 	public static BigInteger findPrimitiveRoot(BigInteger degree, BigInteger totient, BigInteger mod) {
 		if (degree.compareTo(ONE) < 0 || degree.compareTo(totient) > 0
 				|| totient.compareTo(mod) >= 0 || totient.mod(degree).signum() != 0)
@@ -137,6 +156,11 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	// Tests whether val generates the multiplicative group of integers modulo mod. totient
+	// must equal the Euler phi function of mod. In other words, the set of numbers
+	// {val^0 % mod, val^1 % mod, ..., val^(totient-1) % mod} is equal to the set of all
+	// numbers in the range [0, mod) that are coprime to mod. If mod is prime, then
+	// totient = mod - 1, and powers of a generator produces all integers in the range [1, mod).
 	public static boolean isGenerator(BigInteger val, BigInteger totient, BigInteger mod) {
 		if (val.signum() == -1 || val.compareTo(mod) >= 0)
 			throw new IllegalArgumentException();
@@ -153,6 +177,8 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	// Tests whether val is a primitive degree-th root of unity modulo mod.
+	// In other words, val^degree % mod = 1, and for each 1 <= k < degree, val^k % mod != 1.
 	public static boolean isPrimitiveRoot(BigInteger val, BigInteger degree, BigInteger mod) {
 		if (val.signum() == -1 || val.compareTo(mod) >= 0)
 			throw new IllegalArgumentException();
@@ -172,6 +198,8 @@ public final class BigNumberTheoreticTransform {
 	
 	/*---- Low-level common number theory functions ----*/
 	
+	// Returns a list of unique prime factors of the given integer in
+	// ascending order. For example, unique_prime_factors(60) = [2, 3, 5].
 	public static List<BigInteger> uniquePrimeFactors(BigInteger n) {
 		if (n.compareTo(ONE) < 0)
 			throw new IllegalArgumentException();
@@ -191,6 +219,7 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	// Tests whether the given integer n >= 2 is a prime number.
 	public static boolean isPrime(BigInteger n) {
 		if (n.compareTo(ONE) <= 0)
 			throw new IllegalArgumentException();
@@ -207,6 +236,7 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
+	// Returns floor(sqrt(x)) for the given integer x >= 0.
 	public static BigInteger sqrt(BigInteger x) {
 		if (x.signum() == -1)
 			throw new IllegalArgumentException();
@@ -220,7 +250,6 @@ public final class BigNumberTheoreticTransform {
 	}
 	
 	
-	private static final BigInteger ONE = BigInteger.valueOf(1);
 	private static final BigInteger TWO = BigInteger.valueOf(2);
 	
 }
