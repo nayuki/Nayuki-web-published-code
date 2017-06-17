@@ -27,13 +27,28 @@ var FRAME_INTERVAL = 20;  // In milliseconds
 initialize();  // Note: This line must come after all top-level global variables are declared
 
 
-// Performs one-time initialization of the canvas, the graph, and miscellaneous matters.
+// Performs one-time initialization of the SVG image, the graph, and miscellaneous matters.
 // Also responsible for holding the "global" state in the closure of the function,
-// which are the 4 variables {nodes, edges, canvasElem, graphics}.
+// which are the 3 variables {nodes, edges, svgElem}.
 function initialize() {
-	// Initialize canvas and inputs
-	var canvasElem = document.getElementById("canvas");
-	var graphics = canvasElem.getContext("2d");
+	var svgElem = document.querySelector("article svg");
+	var boundRect = svgElem.getBoundingClientRect();
+	var relWidth  = boundRect.width  / Math.max(boundRect.width, boundRect.height);
+	var relHeight = boundRect.height / Math.max(boundRect.width, boundRect.height);
+	svgElem.setAttribute("viewBox", "0 0 " + relWidth + " " + relHeight);
+	svgElem.querySelector("rect").setAttribute("x", (relWidth  - 1) / 2);
+	svgElem.querySelector("rect").setAttribute("y", (relHeight - 1) / 2);
+	
+	var gradElem = svgElem.querySelector("radialGradient");
+	var stopElem = document.createElementNS(svgElem.namespaceURI, "stop");
+	stopElem.setAttribute("offset", "0.0");
+	stopElem.setAttribute("stop-color", "#575E85");
+	gradElem.appendChild(stopElem);
+	var stopElem = document.createElementNS(svgElem.namespaceURI, "stop");
+	stopElem.setAttribute("offset", "1.0");
+	stopElem.setAttribute("stop-color", "#2E3145");
+	gradElem.appendChild(stopElem);
+	
 	initInputHandlers();
 	
 	// Polyfill
@@ -57,12 +72,12 @@ function initialize() {
 	// - opacity: A number in the range [0.0, 1.0] representing the strength of the edge
 	var edges = [];
 	
-	// This important top-level function updates the arrays of nodes and edges, then redraws the canvas.
+	// This important top-level function updates the arrays of nodes and edges, then redraws the SVG image.
 	// We define it within the closure to give it access to key variables that persist across iterations.
 	function stepFrame() {
-		nodes = updateNodes(canvasElem.width, canvasElem.height, nodes);
+		nodes = updateNodes(relWidth, relHeight, nodes);
 		edges = updateEdges(nodes, edges);
-		redrawCanvas(canvasElem, graphics, nodes, edges);
+		redrawOutput(svgElem, nodes, edges);
 	}
 	
 	// Populate initial nodes and edges, then improve on them
@@ -76,7 +91,7 @@ function initialize() {
 	nodes.concat(edges).forEach(function(item) {  // Duck typing
 		item.opacity = 1;
 	});
-	redrawCanvas(canvasElem, graphics, nodes, edges);
+	redrawOutput(svgElem, nodes, edges);
 	
 	// Periodically execute stepFrame() to create animation
 	setInterval(stepFrame, FRAME_INTERVAL);
@@ -124,10 +139,8 @@ function initInputHandlers() {
 
 // Returns a new array of nodes by updating/adding/removing nodes based on the given array. Although the
 // argument array is not modified, the node objects themselves are modified. No other side effects.
-function updateNodes(pixWidth, pixHeight, nodes) {
-	// At least one of relWidth or relHeight is exactly 1. The aspect ratio relWidth:relHeight is equal to w:h.
-	var relWidth  = pixWidth  / Math.max(pixWidth, pixHeight);
-	var relHeight = pixHeight / Math.max(pixWidth, pixHeight);
+// At least one of relWidth or relHeight is exactly 1. The aspect ratio relWidth:relHeight is equal to w:h.
+function updateNodes(relWidth, relHeight, nodes) {
 	
 	// Update position, velocity, opacity; prune faded nodes
 	var newNodes = [];
@@ -237,30 +250,24 @@ function updateEdges(nodes, edges) {
 }
 
 
-// Redraws the canvas based on the given values. No other side effects.
-function redrawCanvas(canvasElem, graphics, nodes, edges) {
-	// Get pixel dimensions
-	var width  = canvasElem.width;
-	var height = canvasElem.height;
-	var size = Math.max(width, height);
-	
-	// Draw background gradient to overwrite everything
-	var gradient = graphics.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, size / 2);
-	gradient.addColorStop(0.0, "#575E85");
-	gradient.addColorStop(1.0, "#2E3145");
-	graphics.fillStyle = gradient;
-	graphics.fillRect(0, 0, width, height);
+// Redraws the SVG image based on the given values. No other side effects.
+function redrawOutput(svgElem, nodes, edges) {
+	// Clear movable objects
+	var gElem = svgElem.querySelector("g");
+	while (gElem.firstChild != null)
+		gElem.removeChild(gElem.firstChild);
 	
 	// Draw every node
 	nodes.forEach(function(node) {
-		graphics.fillStyle = "rgba(129,139,197," + node.opacity.toFixed(3) + ")";
-		graphics.beginPath();
-		graphics.arc(node.posX * size, node.posY * size, node.radius * size, 0, Math.PI * 2);
-		graphics.fill();
+		var circElem = document.createElementNS(svgElem.namespaceURI, "circle");
+		circElem.setAttribute("cx", node.posX);
+		circElem.setAttribute("cy", node.posY);
+		circElem.setAttribute("r", node.radius);
+		circElem.setAttribute("fill", "rgba(129,139,197," + node.opacity.toFixed(3) + ")");
+		gElem.appendChild(circElem);
 	});
 	
 	// Draw every edge
-	graphics.lineWidth = size / 800;
 	edges.forEach(function(edge) {
 		var nodeA = edge.nodeA;
 		var nodeB = edge.nodeB;
@@ -271,12 +278,14 @@ function redrawCanvas(canvasElem, graphics, nodes, edges) {
 			dx /= mag;  // Make (dx, dy) a unit vector, pointing from B to A
 			dy /= mag;
 			var opacity = Math.min(Math.min(nodeA.opacity, nodeB.opacity), edge.opacity);
-			graphics.strokeStyle = "rgba(129,139,197," + opacity.toFixed(3) + ")";
-			graphics.beginPath();
+			var lineElem = document.createElementNS(svgElem.namespaceURI, "line");
 			// Shorten the edge so that it only touches the circumference of each circle
-			graphics.moveTo((nodeA.posX - dx * nodeA.radius) * size, (nodeA.posY - dy * nodeA.radius) * size);
-			graphics.lineTo((nodeB.posX + dx * nodeB.radius) * size, (nodeB.posY + dy * nodeB.radius) * size);
-			graphics.stroke();
+			lineElem.setAttribute("x1", nodeA.posX - dx * nodeA.radius);
+			lineElem.setAttribute("y1", nodeA.posY - dy * nodeA.radius);
+			lineElem.setAttribute("x2", nodeB.posX + dx * nodeB.radius);
+			lineElem.setAttribute("y2", nodeB.posY + dy * nodeB.radius);
+			lineElem.setAttribute("stroke", "rgba(129,139,197," + opacity.toFixed(3) + ")");
+			gElem.appendChild(lineElem);
 		}
 	});
 }
