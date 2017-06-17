@@ -28,29 +28,103 @@ var gElem0 = svgElem.querySelectorAll("g")[0];
 var gElem1 = svgElem.querySelectorAll("g")[1];
 var pathElem = svgElem.querySelector("path");
 
-// Constants
-var HEIGHT_RATIO = 0.6;
+var staticRadio = document.getElementById("random-static");
+var movingRadio = document.getElementById("random-moving");
+
+var heightRatio;
 var POINT_RADIUS = 0.008;
 
 
 function initialize() {
-	svgElem.setAttribute("viewBox", "0 0 1 " + HEIGHT_RATIO);
-	setInterval(doRandomDemo, 3000);
-	doRandomDemo();
+	var boundRect = svgElem.getBoundingClientRect();
+	heightRatio = boundRect.height / boundRect.width;
+	svgElem.setAttribute("viewBox", "0 0 1 " + heightRatio);
+	handleRadioButtons();
 }
 
 
-function doRandomDemo() {
-	var numPoints = Math.round(Math.pow(30, Math.random()) * 3);
-	var points = [];
-	for (var i = 0; i < numPoints; i++) {
-		points.push({
-			x: Math.random(),
-			y: Math.random() * HEIGHT_RATIO,
-		});
+function handleRadioButtons() {
+	staticDemo.stop();
+	movingDemo.stop();
+	if (staticRadio.checked)
+		staticDemo.start();
+	if (movingRadio.checked)
+		movingDemo.start();
+}
+
+
+var staticDemo = new function() {
+	var timeout = null;
+	
+	this.start = function() {
+		var numPoints = Math.round(Math.pow(30, Math.random()) * 3);
+		var points = [];
+		for (var i = 0; i < numPoints; i++) {
+			points.push({
+				x: randomGaussian() * 0.08 + 0.5,
+				y: randomGaussian() * 0.08 + heightRatio / 2,
+			});
+		}
+		showPointsAndHull(points, convexhull.makeHull(points));
+		timeout = setTimeout(staticDemo.start, 3000);
+	};
+	
+	this.stop = function() {
+		if (timeout != null) {
+			clearTimeout(timeout);
+			timeout = null;
+		}
+	};
+};
+
+
+var movingDemo = new function() {
+	var points = null;
+	var prevTime = null;
+	var timeout = null;
+	
+	this.start = function() {
+		points = [];
+		for (var i = 0; i < 15; i++) {
+			points.push({
+				x: randomGaussian() * 0.05 + 0.5,
+				y: randomGaussian() * 0.05 + heightRatio / 2,
+				vx: randomGaussian() * 0.05,
+				vy: randomGaussian() * 0.05,
+			});
+		}
+		update(performance.now());
+	};
+	
+	function update(time) {
+		showPointsAndHull(points, convexhull.makeHull(points));
+		var dt = Math.min(time - prevTime, 1000) / 1000;
+		for (var i = 0; i < points.length; i++) {
+			var p = points[i];
+			p.x += p.vx * dt;
+			p.y += p.vy * dt;
+			if (p.x < 0 || p.x > 1 || p.y < 0 || p.y > heightRatio) {
+				points[i] = {
+					x: randomGaussian() * 0.1 + 0.5,
+					y: randomGaussian() * 0.1 + heightRatio / 2,
+					vx: randomGaussian() * 0.05,
+					vy: randomGaussian() * 0.05,
+				};
+			}
+		}
+		prevTime = time;
+		timeout = requestAnimationFrame(update);
 	}
-	showPointsAndHull(points, convexhull.makeHull(points));
-}
+	
+	this.stop = function() {
+		points = [];
+		prevTime = null;
+		if (timeout != null) {
+			cancelAnimationFrame(timeout);
+			timeout = null;
+		}
+	};
+};
 
 
 function showPointsAndHull(points, hull) {
@@ -78,4 +152,9 @@ function showPointsAndHull(points, hull) {
 }
 
 
-initialize();
+function randomGaussian() {
+	return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(Math.random() * Math.PI * 2);
+}
+
+
+window.addEventListener("DOMContentLoaded", initialize);

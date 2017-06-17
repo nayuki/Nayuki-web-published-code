@@ -84,7 +84,7 @@ public final class ConvexHullTest {
 	@Test public void testTwoVertical1() {
 		List<Point> points = Arrays.asList(new Point(-1, 2), new Point(-1, -3));
 		List<Point> actual = ConvexHull.makeHull(points);
-		List<Point> expect = Arrays.asList(new Point(-1, 2), new Point(-1, -3));
+		List<Point> expect = points;
 		assertEquals(expect, actual);
 	}
 	
@@ -92,7 +92,7 @@ public final class ConvexHullTest {
 	@Test public void testTwoDiagonal0() {
 		List<Point> points = Arrays.asList(new Point(-2, -3), new Point(2, 0));
 		List<Point> actual = ConvexHull.makeHull(points);
-		List<Point> expect = Arrays.asList(new Point(-2, -3), new Point(2, 0));
+		List<Point> expect = points;
 		assertEquals(expect, actual);
 	}
 	
@@ -100,7 +100,7 @@ public final class ConvexHullTest {
 	@Test public void testTwoDiagonal1() {
 		List<Point> points = Arrays.asList(new Point(-2, 3), new Point(2, 0));
 		List<Point> actual = ConvexHull.makeHull(points);
-		List<Point> expect = Arrays.asList(new Point(-2, 3), new Point(2, 0));
+		List<Point> expect = points;
 		assertEquals(expect, actual);
 	}
 	
@@ -117,8 +117,8 @@ public final class ConvexHullTest {
 	/*---- Randomized testing ----*/
 	
 	@Test public void testVsNaiveRandomly() {
-		final int trials = 100000;
-		for (int i = 0; i < trials; i++) {
+		final int TRIALS = 100000;
+		for (int i = 0; i < TRIALS; i++) {
 			int len = rand.nextInt(100);
 			List<Point> points = new ArrayList<>();
 			if (rand.nextBoolean()) {
@@ -136,8 +136,8 @@ public final class ConvexHullTest {
 	
 	
 	@Test public void testHullPropertiesRandomly() {
-		final int trials = 100000;
-		for (int i = 0; i < trials; i++) {
+		final int TRIALS = 100000;
+		for (int i = 0; i < TRIALS; i++) {
 			
 			// Generate random points
 			int len = rand.nextInt(100);
@@ -173,9 +173,9 @@ public final class ConvexHullTest {
 			return new ArrayList<>(points);
 		List<Point> result = new ArrayList<>();
 		Point point = null;
-		for (Point q : points) {
-			if (point == null || q.x < point.x || q.x == point.x && q.y > point.y)
-				point = q;
+		for (Point p : points) {
+			if (point == null || p.x < point.x || p.x == point.x && p.y > point.y)
+				point = p;
 		}
 		
 		// Jarvis march / gift wrapping algorithm

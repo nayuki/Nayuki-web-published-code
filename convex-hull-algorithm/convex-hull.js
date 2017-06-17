@@ -54,9 +54,7 @@ var convexhull = new function() {
 			while (upperHull.length >= 2) {
 				var q = upperHull[upperHull.length - 1];
 				var r = upperHull[upperHull.length - 2];
-				var tangent = (p.y - r.y) / (p.x - r.x);
-				var prevTangent = (q.y - r.y) / (q.x - r.x);
-				if (tangent < prevTangent)
+				if ((q.x - p.x) * (r.y - p.y) > (q.y - p.y) * (r.x - p.x))
 					break;
 				else
 					upperHull.pop();
@@ -75,9 +73,7 @@ var convexhull = new function() {
 			while (lowerHull.length >= 2) {
 				var q = lowerHull[lowerHull.length - 1];
 				var r = lowerHull[lowerHull.length - 2];
-				var tangent = (p.y - r.y) / (p.x - r.x);
-				var prevTangent = (q.y - r.y) / (q.x - r.x);
-				if (tangent < prevTangent)
+				if ((q.x - p.x) * (r.y - p.y) > (q.y - p.y) * (r.x - p.x))
 					break;
 				else
 					lowerHull.pop();
