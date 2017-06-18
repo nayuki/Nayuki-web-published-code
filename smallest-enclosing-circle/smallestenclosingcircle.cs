@@ -45,23 +45,23 @@ public sealed class smallestenclosingcircle {
 		Circle c = new Circle(new Point(0, 0), -1);
 		for (int i = 0; i < shuffled.Count; i++) {
 			Point p = shuffled[i];
-			if (c.r == -1 || !c.Contains(p))
-				c = makeCircleOnePoint(shuffled.GetRange(0, i + 1), p);
+			if (c.r < 0 || !c.Contains(p))
+				c = MakeCircleOnePoint(shuffled.GetRange(0, i + 1), p);
 		}
 		return c;
 	}
 	
 	
 	// One boundary point known
-	private static Circle makeCircleOnePoint(List<Point> points, Point p) {
+	private static Circle MakeCircleOnePoint(List<Point> points, Point p) {
 		Circle c = new Circle(p, 0);
 		for (int i = 0; i < points.Count; i++) {
 			Point q = points[i];
 			if (!c.Contains(q)) {
 				if (c.r == 0)
-					c = makeDiameter(p, q);
+					c = MakeDiameter(p, q);
 				else
-					c = makeCircleTwoPoints(points.GetRange(0, i + 1), p, q);
+					c = MakeCircleTwoPoints(points.GetRange(0, i + 1), p, q);
 			}
 		}
 		return c;
@@ -69,8 +69,8 @@ public sealed class smallestenclosingcircle {
 	
 	
 	// Two boundary points known
-	private static Circle makeCircleTwoPoints(List<Point> points, Point p, Point q) {
-		Circle circ = makeDiameter(p, q);
+	private static Circle MakeCircleTwoPoints(List<Point> points, Point p, Point q) {
+		Circle circ = MakeDiameter(p, q);
 		Circle left = new Circle(new Point(0, 0), -1);
 		Circle right = new Circle(new Point(0, 0), -1);
 		
@@ -82,34 +82,34 @@ public sealed class smallestenclosingcircle {
 			
 			// Form a circumcircle and classify it on left or right side
 			double cross = pq.Cross(r.Subtract(p));
-			Circle c = makeCircumcircle(p, q, r);
-			if (c.r == -1)
+			Circle c = MakeCircumcircle(p, q, r);
+			if (c.r < 0)
 				continue;
-			else if (cross > 0 && (left.r == -1 || pq.Cross(c.c.Subtract(p)) > pq.Cross(left.c.Subtract(p))))
+			else if (cross > 0 && (left.r < 0 || pq.Cross(c.c.Subtract(p)) > pq.Cross(left.c.Subtract(p))))
 				left = c;
-			else if (cross < 0 && (right.r == -1 || pq.Cross(c.c.Subtract(p)) < pq.Cross(right.c.Subtract(p))))
+			else if (cross < 0 && (right.r < 0 || pq.Cross(c.c.Subtract(p)) < pq.Cross(right.c.Subtract(p))))
 				right = c;
 		}
 		
 		// Select which circle to return
-		if (left.r == -1 && right.r == -1)
+		if (left.r < 0 && right.r < 0)
 			return circ;
-		else if (left.r == -1)
+		else if (left.r < 0)
 			return right;
-		else if (right.r == -1)
+		else if (right.r < 0)
 			return left;
 		else
 			return left.r <= right.r ? left : right;
 	}
 	
 	
-	private static Circle makeDiameter(Point a, Point b) {
+	public static Circle MakeDiameter(Point a, Point b) {
 		Point c = new Point((a.x + b.x) / 2, (a.y + b.y) / 2);
 		return new Circle(c, Math.Max(c.Distance(a), c.Distance(b)));
 	}
 	
 	
-	private static Circle makeCircumcircle(Point a, Point b, Point c) {
+	public static Circle MakeCircumcircle(Point a, Point b, Point c) {
 		// Mathematical algorithm from Wikipedia: Circumscribed circle
 		double ox = (Math.Min(Math.Min(a.x, b.x), c.x) + Math.Max(Math.Min(a.x, b.x), c.x)) / 2;
 		double oy = (Math.Min(Math.Min(a.y, b.y), c.y) + Math.Max(Math.Min(a.y, b.y), c.y)) / 2;
@@ -132,7 +132,7 @@ public sealed class smallestenclosingcircle {
 
 public struct Circle {
 	
-	private static double MULTIPLICATIVE_EPSILON = 1 + 1e-14;
+	private const double MULTIPLICATIVE_EPSILON = 1 + 1e-14;
 	
 	
 	public Point c;   // Center

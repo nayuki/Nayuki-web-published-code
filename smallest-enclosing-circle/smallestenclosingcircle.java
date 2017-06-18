@@ -129,7 +129,7 @@ public final class smallestenclosingcircle {
 
 final class Circle {
 	
-	private static double MULTIPLICATIVE_EPSILON = 1 + 1e-14;
+	private static final double MULTIPLICATIVE_EPSILON = 1 + 1e-14;
 	
 	
 	public final Point c;   // Center

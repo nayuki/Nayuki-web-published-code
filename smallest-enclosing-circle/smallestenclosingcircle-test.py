@@ -28,7 +28,8 @@ import smallestenclosingcircle
 class SmallestEnclosingCircleTest(unittest.TestCase):
 	
 	def test_matching_naive_algorithm(self):
-		for _ in range(1000):
+		TRIALS = 1000
+		for _ in range(TRIALS):
 			points = _make_random_points(random.randint(1, 30))
 			reference = _smallest_enclosing_circle_naive(points)
 			actual = smallestenclosingcircle.make_circle(points)
@@ -38,14 +39,16 @@ class SmallestEnclosingCircleTest(unittest.TestCase):
 	
 	
 	def test_translation(self):
-		for _ in range(100):
+		TRIALS = 100
+		CHECKS = 10
+		for _ in range(TRIALS):
 			points = _make_random_points(random.randint(1, 300))
 			reference = smallestenclosingcircle.make_circle(points)
 			
-			for _ in range(10):
+			for _ in range(CHECKS):
 				dx = random.gauss(0, 1)
 				dy = random.gauss(0, 1)
-				newpoints = [(p[0] + dx, p[1] + dy) for p in points]
+				newpoints = [(x + dx, y + dy) for (x, y) in points]
 				
 				translated = smallestenclosingcircle.make_circle(newpoints)
 				self.assertAlmostEqual(translated[0], reference[0] + dx, delta=_EPSILON)
@@ -54,13 +57,15 @@ class SmallestEnclosingCircleTest(unittest.TestCase):
 	
 	
 	def test_scaling(self):
-		for _ in range(100):
+		TRIALS = 100
+		CHECKS = 10
+		for _ in range(TRIALS):
 			points = _make_random_points(random.randint(1, 300))
 			reference = smallestenclosingcircle.make_circle(points)
 			
-			for _ in range(10):
+			for _ in range(CHECKS):
 				scale = random.gauss(0, 1)
-				newpoints = [(p[0] * scale, p[1] * scale) for p in points]
+				newpoints = [(x * scale, y * scale) for (x, y) in points]
 				
 				scaled = smallestenclosingcircle.make_circle(newpoints)
 				self.assertAlmostEqual(scaled[0], reference[0] * scale     , delta=_EPSILON)

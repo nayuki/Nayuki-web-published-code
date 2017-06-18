@@ -33,14 +33,14 @@ import math, random
 # Initially: No boundary points known
 def make_circle(points):
 	# Convert to float and randomize order
-	shuffled = [(float(p[0]), float(p[1])) for p in points]
+	shuffled = [(float(x), float(y)) for (x, y) in points]
 	random.shuffle(shuffled)
 	
 	# Progressively add points to circle or recompute circle
 	c = None
 	for (i, p) in enumerate(shuffled):
 		if c is None or not is_in_circle(c, p):
-			c = _make_circle_one_point(shuffled[0 : i + 1], p)
+			c = _make_circle_one_point(shuffled[ : i + 1], p)
 	return c
 
 
@@ -52,7 +52,7 @@ def _make_circle_one_point(points, p):
 			if c[2] == 0.0:
 				c = make_diameter(p, q)
 			else:
-				c = _make_circle_two_points(points[0 : i + 1], p, q)
+				c = _make_circle_two_points(points[ : i + 1], p, q)
 	return c
 
 
@@ -61,6 +61,8 @@ def _make_circle_two_points(points, p, q):
 	circ = make_diameter(p, q)
 	left = None
 	right = None
+	px, py = p
+	qx, qy = q
 	
 	# For each point not in the two-point circle
 	for r in points:
@@ -68,13 +70,13 @@ def _make_circle_two_points(points, p, q):
 			continue
 		
 		# Form a circumcircle and classify it on left or right side
-		cross = _cross_product(p[0], p[1], q[0], q[1], r[0], r[1])
+		cross = _cross_product(px, py, qx, qy, r[0], r[1])
 		c = make_circumcircle(p, q, r)
 		if c is None:
 			continue
-		elif cross > 0.0 and (left is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) > _cross_product(p[0], p[1], q[0], q[1], left[0], left[1])):
+		elif cross > 0.0 and (left is None or _cross_product(px, py, qx, qy, c[0], c[1]) > _cross_product(px, py, qx, qy, left[0], left[1])):
 			left = c
-		elif cross < 0.0 and (right is None or _cross_product(p[0], p[1], q[0], q[1], c[0], c[1]) < _cross_product(p[0], p[1], q[0], q[1], right[0], right[1])):
+		elif cross < 0.0 and (right is None or _cross_product(px, py, qx, qy, c[0], c[1]) < _cross_product(px, py, qx, qy, right[0], right[1])):
 			right = c
 	
 	# Select which circle to return
@@ -90,9 +92,9 @@ def _make_circle_two_points(points, p, q):
 
 def make_circumcircle(p0, p1, p2):
 	# Mathematical algorithm from Wikipedia: Circumscribed circle
-	ax = p0[0]; ay = p0[1]
-	bx = p1[0]; by = p1[1]
-	cx = p2[0]; cy = p2[1]
+	ax, ay = p0
+	bx, by = p1
+	cx, cy = p2
 	ox = (min(ax, bx, cx) + max(ax, bx, cx)) / 2.0
 	oy = (min(ay, by, cy) + max(ay, by, cy)) / 2.0
 	ax -= ox; ay -= oy

@@ -31,8 +31,9 @@ public final class smallestenclosingcircletest {
 	/*---- Test suite functions ----*/
 	
 	@Test public void testMatchingNaiveAlgorithm() {
-		for (int i = 0; i < 1000; i++) {
-			List<Point> points = makeRandomPoints(random.nextInt(30) + 1);
+		final int TRIALS = 1000;
+		for (int i = 0; i < TRIALS; i++) {
+			List<Point> points = makeRandomPoints(rand.nextInt(30) + 1);
 			Circle reference = smallestEnclosingCircleNaive(points);
 			Circle actual = smallestenclosingcircle.makeCircle(points);
 			assertEquals(reference.c.x, actual.c.x, EPSILON);
@@ -43,13 +44,15 @@ public final class smallestenclosingcircletest {
 	
 	
 	@Test public void testTranslation() {
-		for (int i = 0; i < 100; i++) {
-			List<Point> points = makeRandomPoints(random.nextInt(300) + 1);
+		final int TRIALS = 100;
+		final int CHECKS = 10;
+		for (int i = 0; i < TRIALS; i++) {
+			List<Point> points = makeRandomPoints(rand.nextInt(300) + 1);
 			Circle reference = smallestenclosingcircle.makeCircle(points);
 			
-			for (int j = 0; j < 10; j++) {
-				double dx = random.nextGaussian();
-				double dy = random.nextGaussian();
+			for (int j = 0; j < CHECKS; j++) {
+				double dx = rand.nextGaussian();
+				double dy = rand.nextGaussian();
 				List<Point> newPoints = new ArrayList<>();
 				for (Point p : points)
 					newPoints.add(new Point(p.x + dx, p.y + dy));
@@ -64,12 +67,14 @@ public final class smallestenclosingcircletest {
 	
 	
 	@Test public void testScaling() {
-		for (int i = 0; i < 100; i++) {
-			List<Point> points = makeRandomPoints(random.nextInt(300) + 1);
+		final int TRIALS = 100;
+		final int CHECKS = 10;
+		for (int i = 0; i < TRIALS; i++) {
+			List<Point> points = makeRandomPoints(rand.nextInt(300) + 1);
 			Circle reference = smallestenclosingcircle.makeCircle(points);
 			
-			for (int j = 0; j < 10; j++) {
-				double scale = random.nextGaussian();
+			for (int j = 0; j < CHECKS; j++) {
+				double scale = rand.nextGaussian();
 				List<Point> newPoints = new ArrayList<>();
 				for (Point p : points)
 					newPoints.add(new Point(p.x * scale, p.y * scale));
@@ -87,12 +92,12 @@ public final class smallestenclosingcircletest {
 	
 	private static List<Point> makeRandomPoints(int n) {
 		List<Point> result = new ArrayList<>();
-		if (random.nextDouble() < 0.2) {  // Discrete lattice (to have a chance of duplicated points)
+		if (rand.nextDouble() < 0.2) {  // Discrete lattice (to have a chance of duplicated points)
 			for (int i = 0; i < n; i++)
-				result.add(new Point(random.nextInt(10), random.nextInt(10)));
+				result.add(new Point(rand.nextInt(10), rand.nextInt(10)));
 		} else {  // Gaussian distribution
 			for (int i = 0; i < n; i++)
-				result.add(new Point(random.nextGaussian(), random.nextGaussian()));
+				result.add(new Point(rand.nextGaussian(), rand.nextGaussian()));
 		}
 		return result;
 	}
@@ -136,6 +141,6 @@ public final class smallestenclosingcircletest {
 	
 	private static final double EPSILON = 1e-12;
 	
-	private static Random random = new Random();
+	private static final Random rand = new Random();
 	
 }
