@@ -52,6 +52,8 @@ double Point::cross(const Point &p) const {
 
 /*---- Members of struct Circle ----*/
 
+const Circle Circle::INVALID(Point(0, 0), -1);
+
 const double Circle::MULTIPLICATIVE_EPSILON = 1 + 1e-14;
 
 
@@ -88,7 +90,7 @@ Circle makeSmallestEnclosingCircle(const vector<Point> &points) {
 	std::shuffle(shuffled.begin(), shuffled.end(), randGen);
 	
 	// Progressively add points to circle or recompute circle
-	Circle c(Point(0, 0), -1);
+	Circle c(Circle::INVALID);
 	for (size_t i = 0; i < shuffled.size(); i++) {
 		const Point &p(shuffled.at(i));
 		if (c.r < 0 || !c.contains(p))
@@ -117,8 +119,8 @@ static Circle makeSmallestEnclosingCircleOnePoint(const vector<Point> &points, s
 // Two boundary points known
 static Circle makeSmallestEnclosingCircleTwoPoints(const vector<Point> &points, size_t end, const Point &p, const Point &q) {
 	Circle circ = makeDiameter(p, q);
-	Circle left(Point(0, 0), -1);
-	Circle right(Point(0, 0), -1);
+	Circle left(Circle::INVALID);
+	Circle right(Circle::INVALID);
 	
 	// For each point not in the two-point circle
 	Point pq = q.subtract(p);
@@ -165,7 +167,7 @@ Circle makeCircumcircle(const Point &a, const Point &b, const Point &c) {
 	double cx = c.x - ox, cy = c.y - oy;
 	double d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 	if (d == 0)
-		return Circle(Point(0, 0), -1);
+		return Circle::INVALID;
 	double x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
 	double y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
 	Point p(ox + x, oy + y);

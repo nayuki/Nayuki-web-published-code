@@ -141,12 +141,12 @@ static vector<Point> makeRandomPoints(size_t n) {
 static Circle smallestEnclosingCircleNaive(const vector<Point> &points) {
 	// Degenerate cases
 	if (points.empty())
-		return Circle(Point(0, 0), -1);
+		return Circle::INVALID;
 	else if (points.size() == 1)
 		return Circle(points.at(0), 0);
 	
 	// Try all unique pairs
-	Circle result = Circle(Point(0, 0), -1);
+	Circle result(Circle::INVALID);
 	for (size_t i = 0; i < points.size(); i++) {
 		for (size_t j = i + 1; j < points.size(); j++) {
 			Circle c = makeDiameter(points.at(i), points.at(j));

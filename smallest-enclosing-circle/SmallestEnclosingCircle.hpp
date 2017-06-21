@@ -42,6 +42,8 @@ struct Point final {
 
 struct Circle final {
 	
+	public: static const Circle INVALID;
+	
 	private: static const double MULTIPLICATIVE_EPSILON;
 	
 	

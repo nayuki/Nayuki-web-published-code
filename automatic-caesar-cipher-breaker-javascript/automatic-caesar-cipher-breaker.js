@@ -9,7 +9,7 @@
 "use strict";
 
 
-/* User interaction functions */
+/*---- User interaction functions ----*/
 
 // Array of pairs (int shift, float entropy), sorted in ascending order of entropy
 var entropies;
@@ -19,11 +19,10 @@ function doBreak() {
 	entropies = getAllEntropies(text);
 	entropies.sort(function(x, y) {
 		// Compare by lowest entropy, break ties by lowest shift
-		if      (x[1] < y[1]) return -1;
-		else if (x[1] > y[1]) return +1;
-		else if (x[0] < y[0]) return -1;
-		else if (x[0] > y[0]) return +1;
-		else return 0;
+		if (x[1] != y[1])
+			return x[1] - y[1];
+		else
+			return x[0] - y[0];
 	});
 	
 	// Decrypt using lowest entropy shift
@@ -35,33 +34,31 @@ function doBreak() {
 	var guessesElem = document.getElementById("guesses");
 	clearChildren(guessesElem);
 	var maxEntropy = entropies[entropies.length - 1][1];
-	for (var i = 0; i < entropies.length; i++) {
+	entropies.forEach(function(item, index) {
 		var tr = document.createElement("tr");
-		if (i == 0)
+		if (index == 0)
 			tr.classList.add("active");
 		
 		var td = document.createElement("td");
-		td.appendChild(document.createTextNode(entropies[i][0].toString()));
+		td.appendChild(document.createTextNode(item[0].toString()));
 		tr.appendChild(td);
 		
 		td = document.createElement("td");
-		td.appendChild(document.createTextNode(entropies[i][1].toFixed(3)));
+		td.appendChild(document.createTextNode(item[1].toFixed(3)));
 		tr.appendChild(td);
 		
 		td = document.createElement("td");
 		var div = document.createElement("div");
 		div.classList.add("bar");
-		div.style.width = (entropies[i][1] / maxEntropy * 30).toFixed(6) + "em";
+		div.style.width = (item[1] / maxEntropy * 30).toFixed(6) + "em";
 		td.appendChild(div);
 		tr.appendChild(td);
 		
-		tr.onclick = (function(shift) {
-			return function() {
-				setShift(shift);
-			};
-		})(entropies[i][0]);
+		tr.onclick = function() {
+			setShift(item[0]);
+		};
 		guessesElem.appendChild(tr);
-	}
+	});
 }
 
 
@@ -71,12 +68,13 @@ function setShift(newShift) {
 	document.getElementById("shift").value = newShift.toString();
 	
 	var guessesElem = document.getElementById("guesses");
-	for (var i = 0; i < 26; i++) {
-		if (entropies[i][0] == newShift)
-			guessesElem.childNodes[i].classList.add("active");
+	entropies.forEach(function(item, index) {
+		var cl = guessesElem.childNodes[index].classList;
+		if (item[0] == newShift)
+			cl.add("active");
 		else
-			guessesElem.childNodes[i].classList.remove("active");
-	}
+			cl.remove("active");
+	});
 }
 
 
@@ -89,14 +87,14 @@ function getShift() {  // Error-resilient
 }
 
 
-/* Core functions */
+/*---- Core functions ----*/
 
 // Returns the entropies when the given string is decrypted with all 26 possible shifts,
 // where the result is an array of pairs (int shift, float enptroy) - e.g. [[0, 2.01], [1, 4.95], ..., [25, 3.73]].
 function getAllEntropies(str) {
-	var result = new Array(26);
+	var result = [];
 	for (var i = 0; i < 26; i++)
-		result[i] = [i, getEntropy(decrypt(str, i))];
+		result.push([i, getEntropy(decrypt(str, i))]);
 	return result;
 }
 
@@ -104,7 +102,8 @@ function getAllEntropies(str) {
 // Unigram model frequencies for letters A, B, ..., Z
 var ENGLISH_FREQS = [
 	0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015, 0.06094, 0.06966, 0.00153, 0.00772, 0.04025, 0.02406,
-	0.06749, 0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758, 0.00978, 0.02360, 0.00150, 0.01974, 0.00074];
+	0.06749, 0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758, 0.00978, 0.02360, 0.00150, 0.01974, 0.00074,
+];
 
 // Returns the cross-entropy of the given string with respect to the English unigram frequencies, which is a positive floating-point number.
 function getEntropy(str) {
