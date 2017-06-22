@@ -36,56 +36,47 @@ var convexhull = new function() {
 	
 	// Returns the convex hull, assuming that each points[i] <= points[i + 1]. Runs in O(n) time.
 	this.makeHullPresorted = function(points) {
-		if (points.length == 0)
-			return [];
+		if (points.length <= 1)
+			return points.slice();
 		
 		// Andrew's monotone chain algorithm. Positive y coordinates correspond to "up"
 		// as per the mathematical convention, instead of "down" as per the computer
 		// graphics convention. This doesn't affect the correctness of the result.
 		
 		var upperHull = [];
-		var i = 0;
-		while (i + 1 < points.length && points[i + 1].x == points[i].x)
-			i++;
-		upperHull.push(points[i]);
-		
-		for (i++; i < points.length; i++) {
+		for (var i = 0; i < points.length; i++) {
 			var p = points[i];
 			while (upperHull.length >= 2) {
 				var q = upperHull[upperHull.length - 1];
 				var r = upperHull[upperHull.length - 2];
-				if ((q.x - p.x) * (r.y - p.y) > (q.y - p.y) * (r.x - p.x))
-					break;
-				else
+				if (p.x == upperHull[0].x || (q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					upperHull.pop();
+				else
+					break;
 			}
 			upperHull.push(p);
 		}
+		upperHull.pop();
 		
 		var lowerHull = [];
-		var i = points.length - 1;
-		while (i > 0 && points[i - 1].x == points[i].x)
-			i--;
-		lowerHull.push(points[i]);
-		
-		for (i--; i >= 0; i--) {
+		for (var i = points.length - 1; i >= 0; i--) {
 			var p = points[i];
 			while (lowerHull.length >= 2) {
 				var q = lowerHull[lowerHull.length - 1];
 				var r = lowerHull[lowerHull.length - 2];
-				if ((q.x - p.x) * (r.y - p.y) > (q.y - p.y) * (r.x - p.x))
-					break;
-				else
+				if (p.x == lowerHull[0].x || (q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					lowerHull.pop();
+				else
+					break;
 			}
 			lowerHull.push(p);
 		}
+		lowerHull.pop();
 		
-		if (this.POINT_COMPARATOR(lowerHull[lowerHull.length - 1], upperHull[0]) == 0)
-			lowerHull.pop();
-		if (lowerHull.length > 0 && this.POINT_COMPARATOR(lowerHull[0], upperHull[upperHull.length - 1]) == 0)
-			lowerHull.shift();
-		return upperHull.concat(lowerHull);
+		if (upperHull.length == 1 && lowerHull.length == 1 && upperHull[0].x == lowerHull[0].x && upperHull[0].y == lowerHull[0].y)
+			return upperHull;
+		else
+			return upperHull.concat(lowerHull);
 	};
 	
 	

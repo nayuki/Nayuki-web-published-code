@@ -37,39 +37,29 @@ def make_hull_presorted(points):
 	# graphics convention. This doesn't affect the correctness of the result.
 	
 	upperhull = []
-	i = 0
-	while i + 1 < len(points) and points[i + 1][0] == points[i][0]:
-		i += 1
-	upperhull.append(points[i])
-	
-	for p in points[i + 1 : ]:
+	for p in points:
 		while len(upperhull) >= 2:
 			qx, qy = upperhull[-1]
 			rx, ry = upperhull[-2]
-			if (qx - p[0]) * (ry - p[1]) > (qy - p[1]) * (rx - p[0]):
-				break
-			else:
+			if p[0] == upperhull[0][0] or (qx - rx) * (p[1] - ry) >= (qy - ry) * (p[0] - rx):
 				del upperhull[-1]
+			else:
+				break
 		upperhull.append(p)
+	del upperhull[-1]
 	
 	lowerhull = []
-	i = len(points) - 1
-	while i > 0 and points[i - 1][0] == points[i][0]:
-		i -= 1
-	lowerhull.append(points[i])
-	
-	for p in reversed(points[ : i]):
+	for p in reversed(points):
 		while len(lowerhull) >= 2:
 			qx, qy = lowerhull[-1]
 			rx, ry = lowerhull[-2]
-			if (qx - p[0]) * (ry - p[1]) > (qy - p[1]) * (rx - p[0]):
-				break
-			else:
+			if p[0] == lowerhull[0][0] or (qx - rx) * (p[1] - ry) >= (qy - ry) * (p[0] - rx):
 				del lowerhull[-1]
+			else:
+				break
 		lowerhull.append(p)
+	del lowerhull[-1]
 	
-	if lowerhull[-1] == upperhull[0]:
-		del lowerhull[-1]
-	if len(lowerhull) > 0 and lowerhull[0] == upperhull[-1]:
-		del lowerhull[0]
-	return upperhull + lowerhull
+	if not (len(upperhull) == 1 and upperhull == lowerhull):
+		upperhull.extend(lowerhull)
+	return upperhull

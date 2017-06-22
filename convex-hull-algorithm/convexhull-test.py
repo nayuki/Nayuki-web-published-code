@@ -65,14 +65,14 @@ class ConvexHullTest(unittest.TestCase):
 	def test_two_vertical0(self):
 		points = [(1, -4), (1, 4)]
 		actual = convexhull.make_hull(points)
-		expect = [(1, 4), (1, -4)]
+		expect = points
 		self.assertEqual(expect, actual)
 	
 	
 	def test_two_vertical1(self):
 		points = [(-1, 2), (-1, -3)]
 		actual = convexhull.make_hull(points)
-		expect = points
+		expect = [(-1, -3), (-1, 2)]
 		self.assertEqual(expect, actual)
 	
 	
@@ -91,14 +91,48 @@ class ConvexHullTest(unittest.TestCase):
 	
 	
 	def test_rectangle(self):
-		points = [(-3, -4), (-3, 2), (1, 2), (1, -4)]
+		points = [(-3, 2), (1, 2), (1, -4), (-3, -4)]
 		actual = convexhull.make_hull(points)
-		expect = [(-3, 2), (1, 2), (1, -4), (-3, -4)]
+		expect = [(-3, -4), (-3, 2), (1, 2), (1, -4)]
 		self.assertEqual(expect, actual)
 	
 	
 	
 	# ---- Randomized testing ----
+	
+	def test_horizontal_randomly(self):
+		TRIALS = 10000
+		for _ in range(TRIALS):
+			numpoints = random.randrange(30) + 1
+			if random.random() < 0.5:
+				y = random.gauss(0, 1)
+				points = [(random.gauss(0, 1), y) for _ in range(numpoints)]
+			else:
+				y = random.randrange(20) - 10
+				points = [(random.randrange(30), y) for _ in range(numpoints)]
+			actual = convexhull.make_hull(points)
+			expected = [min(points)]
+			if max(points) != min(points):
+				expected.append(max(points))
+			self.assertEqual(actual, expected)
+	
+	
+	def test_vertical_randomly(self):
+		TRIALS = 10000
+		for _ in range(TRIALS):
+			numpoints = random.randrange(30) + 1
+			if random.random() < 0.5:
+				x = random.gauss(0, 1)
+				points = [(x, random.gauss(0, 1)) for _ in range(numpoints)]
+			else:
+				x = random.randrange(20) - 10
+				points = [(x, random.randrange(30)) for _ in range(numpoints)]
+			actual = convexhull.make_hull(points)
+			expected = [min(points)]
+			if max(points) != min(points):
+				expected.append(max(points))
+			self.assertEqual(actual, expected)
+	
 	
 	def test_vs_naive_randomly(self):
 		TRIALS = 10000
@@ -146,7 +180,7 @@ class ConvexHullTest(unittest.TestCase):
 		result = []
 		point = None
 		for p in points:
-			if point is None or p[0] < point[0] or p[0] == point[0] and p[1] > point[1]:
+			if point is None or p[0] < point[0] or p[0] == point[0] and p[1] < point[1]:
 				point = p
 		
 		# Jarvis march / gift wrapping algorithm

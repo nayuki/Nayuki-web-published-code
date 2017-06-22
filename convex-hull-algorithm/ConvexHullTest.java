@@ -76,7 +76,7 @@ public final class ConvexHullTest {
 	@Test public void testTwoVertical0() {
 		List<Point> points = Arrays.asList(new Point(1, -4), new Point(1, 4));
 		List<Point> actual = ConvexHull.makeHull(points);
-		List<Point> expect = Arrays.asList(new Point(1, 4), new Point(1, -4));
+		List<Point> expect = points;
 		assertEquals(expect, actual);
 	}
 	
@@ -84,7 +84,7 @@ public final class ConvexHullTest {
 	@Test public void testTwoVertical1() {
 		List<Point> points = Arrays.asList(new Point(-1, 2), new Point(-1, -3));
 		List<Point> actual = ConvexHull.makeHull(points);
-		List<Point> expect = points;
+		List<Point> expect = Arrays.asList(new Point(-1, -3), new Point(-1, 2));
 		assertEquals(expect, actual);
 	}
 	
@@ -106,15 +106,63 @@ public final class ConvexHullTest {
 	
 	
 	@Test public void testRectangle() {
-		List<Point> points = Arrays.asList(new Point(-3, -4), new Point(-3, 2), new Point(1, 2), new Point(1, -4));
+		List<Point> points = Arrays.asList(new Point(-3, 2), new Point(1, 2), new Point(1, -4), new Point(-3, -4));
 		List<Point> actual = ConvexHull.makeHull(points);
-		List<Point> expect = Arrays.asList(new Point(-3, 2), new Point(1, 2), new Point(1, -4), new Point(-3, -4));
+		List<Point> expect = Arrays.asList(new Point(-3, -4), new Point(-3, 2), new Point(1, 2), new Point(1, -4));
 		assertEquals(expect, actual);
 	}
 	
 	
 	
 	/*---- Randomized testing ----*/
+	
+	@Test public void testHorizontalRandomly() {
+		final int TRIALS = 100000;
+		for (int i = 0; i < TRIALS; i++) {
+			int len = rand.nextInt(30) + 1;
+			List<Point> points = new ArrayList<>();
+			if (rand.nextBoolean()) {
+				double y = rand.nextGaussian();
+				for (int j = 0; j < len; j++)
+					points.add(new Point(rand.nextGaussian(), y));
+			} else {
+				int y = rand.nextInt(20) - 10;
+				for (int j = 0; j < len; j++)
+					points.add(new Point(rand.nextInt(30), y));
+			}
+			List<Point> actual = ConvexHull.makeHull(points);
+			List<Point> expected = new ArrayList<>();
+			expected.add(Collections.min(points));
+			if (!Collections.max(points).equals(expected.get(0)))
+				expected.add(Collections.max(points));
+			assertEquals(expected, actual);
+		}
+	}
+	
+	
+	@Test public void testVerticalRandomly() {
+		final int TRIALS = 100000;
+		for (int i = 0; i < TRIALS; i++) {
+			int len = rand.nextInt(30) + 1;
+			List<Point> points = new ArrayList<>();
+			if (rand.nextBoolean()) {
+				double x = rand.nextGaussian();
+				for (int j = 0; j < len; j++)
+					points.add(new Point(x, rand.nextGaussian()));
+			} else {
+				int x = rand.nextInt(20) - 10;
+				for (int j = 0; j < len; j++)
+					points.add(new Point(x, rand.nextInt(30)));
+			}
+			List<Point> actual = ConvexHull.makeHull(points);
+			List<Point> expected = new ArrayList<>();
+			expected.add(Collections.min(points));
+			if (!Collections.max(points).equals(expected.get(0)))
+				expected.add(Collections.max(points));
+			assertEquals(expected, actual);
+		}
+	}
+	
 	
 	@Test public void testVsNaiveRandomly() {
 		final int TRIALS = 100000;
@@ -130,7 +178,7 @@ public final class ConvexHullTest {
 			}
 			List<Point> actual = ConvexHull.makeHull(points);
 			List<Point> expected = makeHullNaive(points);
-			assertEquals(actual, expected);
+			assertEquals(expected, actual);
 		}
 	}
 	
@@ -174,7 +222,7 @@ public final class ConvexHullTest {
 		List<Point> result = new ArrayList<>();
 		Point point = null;
 		for (Point p : points) {
-			if (point == null || p.x < point.x || p.x == point.x && p.y > point.y)
+			if (point == null || p.x < point.x || p.x == point.x && p.y < point.y)
 				point = p;
 		}
 		

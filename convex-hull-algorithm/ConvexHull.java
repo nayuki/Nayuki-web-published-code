@@ -47,48 +47,36 @@ public final class ConvexHull {
 		// graphics convention. This doesn't affect the correctness of the result.
 		
 		List<Point> upperHull = new ArrayList<>();
-		int i = 0;
-		while (i + 1 < points.size() && points.get(i + 1).x == points.get(i).x)
-			i++;
-		upperHull.add(points.get(i));
-		
-		for (i++; i < points.size(); i++) {
-			Point p = points.get(i);
+		for (Point p : points) {
 			while (upperHull.size() >= 2) {
 				Point q = upperHull.get(upperHull.size() - 1);
 				Point r = upperHull.get(upperHull.size() - 2);
-				if ((q.x - p.x) * (r.y - p.y) > (q.y - p.y) * (r.x - p.x))
-					break;
-				else
+				if (p.x == upperHull.get(0).x || (q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					upperHull.remove(upperHull.size() - 1);
+				else
+					break;
 			}
 			upperHull.add(p);
 		}
+		upperHull.remove(upperHull.size() - 1);
 		
 		List<Point> lowerHull = new ArrayList<>();
-		i = points.size() - 1;
-		while (i > 0 && points.get(i - 1).x == points.get(i).x)
-			i--;
-		lowerHull.add(points.get(i));
-		
-		for (i--; i >= 0; i--) {
+		for (int i = points.size() - 1; i >= 0; i--) {
 			Point p = points.get(i);
 			while (lowerHull.size() >= 2) {
 				Point q = lowerHull.get(lowerHull.size() - 1);
 				Point r = lowerHull.get(lowerHull.size() - 2);
-				if ((q.x - p.x) * (r.y - p.y) > (q.y - p.y) * (r.x - p.x))
-					break;
-				else
+				if (p.x == lowerHull.get(0).x || (q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					lowerHull.remove(lowerHull.size() - 1);
+				else
+					break;
 			}
 			lowerHull.add(p);
 		}
+		lowerHull.remove(lowerHull.size() - 1);
 		
-		if (lowerHull.get(lowerHull.size() - 1).equals(upperHull.get(0)))
-			lowerHull.remove(lowerHull.size() - 1);
-		if (!lowerHull.isEmpty() && lowerHull.get(0).equals(upperHull.get(upperHull.size() - 1)))
-			lowerHull.remove(0);
-		upperHull.addAll(lowerHull);
+		if (!(upperHull.size() == 1 && upperHull.equals(lowerHull)))
+			upperHull.addAll(lowerHull);
 		return upperHull;
 	}
 	
