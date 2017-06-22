@@ -41,10 +41,11 @@ std::uniform_int_distribution<int> valueDist(0, 9999);
 // Comprehensively tests all the defined methods against std::priority_queue
 int main() {
 	try {
+		const long TRIALS = 300000;
 		std::priority_queue<int,std::vector<int>,std::greater<int> > queue;  // std::greater effects a min-queue
 		BinomialHeap<int> heap;
 		size_t size = 0;
-		for (int i = 0; i < 300000; i++) {
+		for (int i = 0; i < TRIALS; i++) {
 			int op = operationDist(randGen);
 			
 			if (op < 1) {  // Clear

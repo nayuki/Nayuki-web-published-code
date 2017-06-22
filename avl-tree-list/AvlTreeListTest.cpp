@@ -40,10 +40,11 @@ std::uniform_int_distribution<int> valueDist;  // 0 to INT_MAX
 // Comprehensively tests all the defined methods against std::vector
 int main() {
 	try {
+		const long TRIALS = 100000;
 		std::vector<int> list0;
 		AvlTreeList<int> list1;
 		size_t size = 0;
-		for (int i = 0; i < 100000; i++) {
+		for (long i = 0; i < TRIALS; i++) {
 			int op = operationDist(randGen);
 			
 			if (op < 1) {  // Clear

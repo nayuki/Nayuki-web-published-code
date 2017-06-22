@@ -66,21 +66,23 @@ vector<E> computeSlidingWindowMinOrMaxNaive(const vector<E> &array, size_t windo
 	if (array.size() < window)
 		return result;
 	
-	for (size_t i = 0; i < array.size() - window + 1; i++) {
+	for (vector<int>::const_iterator start(array.cbegin()), end(array.cbegin() + window); ; ++start, ++end) {
 		if (!maximize)
-			result.push_back(*std::min_element(array.cbegin() + i, array.cbegin() + i + window));
+			result.push_back(*std::min_element(start, end));
 		else
-			result.push_back(*std::max_element(array.cbegin() + i, array.cbegin() + i + window));
+			result.push_back(*std::max_element(start, end));
+		if (end == array.cend())
+			break;
 	}
 	return result;
 }
 
 
 static void testRandomly() {
-	const long trials = 100000;
+	const long TRIALS = 100000;
 	std::uniform_int_distribution<size_t> arrayLenDist(0, 999);
 	std::uniform_int_distribution<size_t> windowDist(1, 30);
-	for (long i = 0; i < trials; i++) {
+	for (long i = 0; i < TRIALS; i++) {
 		
 		vector<int> array;
 		size_t arrayLen = arrayLenDist(randGen);
@@ -102,8 +104,8 @@ static void testRandomly() {
 
 
 static void testIncremental() {
-	const long trials = 10000;
-	for (long i = 0; i < trials; i++) {
+	const long TRIALS = 10000;
+	for (long i = 0; i < TRIALS; i++) {
 		
 		vector<int> array;
 		size_t arrayLen = 1000;

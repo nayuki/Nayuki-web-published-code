@@ -40,10 +40,11 @@ std::uniform_int_distribution<int> valueDist(0, 9999);
 // Comprehensively tests all the defined methods against std::set
 int main() {
 	try {
+		const long TRIALS = 100000;
 		std::set<int> set0;
 		BinaryArraySet<int> set1;
 		size_t size = 0;
-		for (int i = 0; i < 100000; i++) {
+		for (long i = 0; i < TRIALS; i++) {
 			int op = operationDist(randGen);
 			
 			if (op < 1) {  // Clear

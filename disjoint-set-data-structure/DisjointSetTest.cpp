@@ -137,25 +137,25 @@ static void testMerge() {
 
 
 static void testBigMerge() {
-	int maxRank = 20;
-	int trials = 10000;
+	const int MAX_RANK = 20;
+	const long TRIALS = 10000;
 	
-	int numElems = 1 << maxRank;  // Grows exponentially
+	const size_t numElems = static_cast<size_t>(1) << MAX_RANK;  // Grows exponentially
 	DisjointSet ds(numElems);
-	for (int level = 0; level < maxRank; level++) {
-		int mergeStep = 1 << level;
-		int incrStep = mergeStep * 2;
-		for (int i = 0; i < numElems; i += incrStep) {
+	for (int level = 0; level < MAX_RANK; level++) {
+		size_t mergeStep = static_cast<size_t>(1) << level;
+		size_t incrStep = mergeStep * 2;
+		for (size_t i = 0; i < numElems; i += incrStep) {
 			assertEquals(false, ds.areInSameSet(i, i + mergeStep));
 			assertEquals(true, ds.mergeSets(i, i + mergeStep));
 		}
 		// Now we have a bunch of sets of size 2^(level+1)
 		
 		// Do random tests
-		int mask = -incrStep;  // 0b11...100...00
-		for (int i = 0; i < trials; i++) {
-			int j = (std::uniform_int_distribution<int>(0, numElems - 1))(randGen);
-			int k = (std::uniform_int_distribution<int>(0, numElems - 1))(randGen);
+		size_t mask = -incrStep;  // 0b11...100...00
+		for (long i = 0; i < TRIALS; i++) {
+			size_t j = (std::uniform_int_distribution<size_t>(0, numElems - 1))(randGen);
+			size_t k = (std::uniform_int_distribution<size_t>(0, numElems - 1))(randGen);
 			bool expect = (j & mask) == (k & mask);
 			assertEquals(true, ds.areInSameSet(j, k) == expect);
 		}
@@ -164,16 +164,16 @@ static void testBigMerge() {
 
 
 static void testAgainstNaiveRandomly() {
-	int trials = 1000;
-	int iterations = 3000;
-	int numElems = 300;
+	const long TRIALS = 1000;
+	const long ITERATIONS = 3000;
+	const size_t NUM_ELEMS = 300;
 	
-	for (int i = 0; i < trials; i++) {
-		NaiveDisjointSet nds(numElems);
-		DisjointSet ds(numElems);
-		for (int j = 0; j < iterations; j++) {
-			int k = (std::uniform_int_distribution<int>(0, numElems - 1))(randGen);
-			int l = (std::uniform_int_distribution<int>(0, numElems - 1))(randGen);
+	for (long i = 0; i < TRIALS; i++) {
+		NaiveDisjointSet nds(NUM_ELEMS);
+		DisjointSet ds(NUM_ELEMS);
+		for (long j = 0; j < ITERATIONS; j++) {
+			size_t k = (std::uniform_int_distribution<size_t>(0, NUM_ELEMS - 1))(randGen);
+			size_t l = (std::uniform_int_distribution<size_t>(0, NUM_ELEMS - 1))(randGen);
 			assertEquals(true, ds.getSizeOfSet(k) == nds.getSizeOfSet(k));
 			assertEquals(true, ds.areInSameSet(k, l) == nds.areInSameSet(k, l));
 			if (realDist(randGen) < 0.1)
@@ -195,6 +195,7 @@ int main() {
 		testMerge();
 		testBigMerge();
 		testAgainstNaiveRandomly();
+		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
 	} catch (const char *msg) {

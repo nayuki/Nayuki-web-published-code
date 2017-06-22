@@ -29,15 +29,15 @@
 #include "SrgbTransform.hpp"
 
 
-static const double DELTA = 1e-7;
+static const double DELTA = 3e-7;
 
 std::default_random_engine randGen((std::random_device())());
 
 
 static void testForwardInverse() {
-	const long trials = 1000000;
+	const long TRIALS = 1000000;
 	std::uniform_real_distribution<double> dist(0.0, 1.0);
-	for (long i = 0; i < trials; i++) {
+	for (long i = 0; i < TRIALS; i++) {
 		double xd = dist(randGen);
 		float xf = (float)xd;
 		double yd = SrgbTransform::srgbToLinear(xd);
@@ -53,9 +53,9 @@ static void testForwardInverse() {
 
 
 static void testMonotonicity() {
-	const long trials = 1000000;
+	const long TRIALS = 1000000;
 	std::uniform_real_distribution<double> dist(-0.5, 1.5);
-	for (long i = 0; i < trials; i++) {
+	for (long i = 0; i < TRIALS; i++) {
 		double xd = dist(randGen);
 		double yd = dist(randGen);
 		if (yd < xd) {

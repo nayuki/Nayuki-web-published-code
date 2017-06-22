@@ -41,7 +41,6 @@ static void assertApproxEqual(double expect, double actual, double epsilon);
 
 // Random number generation global variables
 static std::default_random_engine randGen((std::random_device())());
-static std::uniform_real_distribution<double> realDist(0.0, 1.0);
 static std::normal_distribution<double> normalDist;
 
 static const double EPSILON = 1e-12;

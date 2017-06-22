@@ -41,7 +41,7 @@ static void testRemoveAllRandomly();
 
 // Random number generation global variables
 std::default_random_engine randGen((std::random_device())());
-std::uniform_real_distribution<double> realDist(0.0, 1.0);
+std::uniform_real_distribution<double> realDist;
 
 
 int main() {
@@ -61,15 +61,15 @@ int main() {
 
 
 static void testSmallRandomly() {
-	const int trials = 1000;
-	const int operations = 100;
-	const int range = 1000;
-	std::uniform_int_distribution<int> rangeDist(0, range - 1);
+	const long TRIALS = 1000;
+	const long OPERATIONS = 100;
+	const int RANGE = 1000;
+	std::uniform_int_distribution<int> rangeDist(0, RANGE - 1);
 	std::uniform_int_distribution<int> degreeDist(2, 6);
-	for (int i = 0; i < trials; i++) {
+	for (long i = 0; i < TRIALS; i++) {
 		std::set<int> set0;
 		BTreeSet<int> set1(degreeDist(randGen));
-		for (int j = 0; j < operations; j++) {
+		for (long j = 0; j < OPERATIONS; j++) {
 			// Add/remove a random value
 			int val = rangeDist(randGen);
 			if (realDist(randGen) < 0.5) {
@@ -84,7 +84,7 @@ static void testSmallRandomly() {
 			// Check size and check element membership over entire range
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
-			for (int k = -4; k < range + 4; k++) {
+			for (int k = -4; k < RANGE + 4; k++) {
 				int val = k;
 				if (set1.contains(val) != (set0.find(val) != set0.end()))
 					throw "Contain test mismatch";
@@ -95,15 +95,15 @@ static void testSmallRandomly() {
 
 
 static void testInsertRandomly() {
-	const int trials = 100;
-	const int operations = 10000;
-	const int range = 100000;
-	const int checks = 10;
-	std::uniform_int_distribution<int> rangeDist(0, range - 1);
-	for (int i = 0; i < trials; i++) {
+	const long TRIALS = 100;
+	const long OPERATIONS = 10000;
+	const int RANGE = 100000;
+	const long CHECKS = 10;
+	std::uniform_int_distribution<int> rangeDist(0, RANGE - 1);
+	for (long i = 0; i < TRIALS; i++) {
 		std::set<int> set0;
 		BTreeSet<int> set1(2);
-		for (int j = 0; j < operations; j++) {
+		for (long j = 0; j < OPERATIONS; j++) {
 			// Add a random value
 			int val = rangeDist(randGen);
 			set0.insert(val);
@@ -114,7 +114,7 @@ static void testInsertRandomly() {
 			// Check size and random element membership
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
-			for (int k = 0; k < checks; k++) {
+			for (long k = 0; k < CHECKS; k++) {
 				int val = rangeDist(randGen);
 				if (set1.contains(val) != (set0.find(val) != set0.end()))
 					throw "Contain test mismatch";
@@ -125,16 +125,16 @@ static void testInsertRandomly() {
 
 
 static void testLargeRandomly() {
-	const int trials = 100;
-	const int operations = 30000;
-	const int range = 100000;
-	const int checks = 10;
-	std::uniform_int_distribution<int> rangeDist(0, range - 1);
+	const long TRIALS = 100;
+	const long OPERATIONS = 30000;
+	const int RANGE = 100000;
+	const long CHECKS = 10;
+	std::uniform_int_distribution<int> rangeDist(0, RANGE - 1);
 	std::uniform_int_distribution<int> degreeDist(2, 6);
-	for (int i = 0; i < trials; i++) {
+	for (long i = 0; i < TRIALS; i++) {
 		std::set<int> set0;
 		BTreeSet<int> set1(degreeDist(randGen));
-		for (int j = 0; j < operations; j++) {
+		for (long j = 0; j < OPERATIONS; j++) {
 			// Add/remove a random value
 			int val = rangeDist(randGen);
 			if (realDist(randGen) < 0.5) {
@@ -150,7 +150,7 @@ static void testLargeRandomly() {
 			// Check size and random element membership
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
-			for (int k = 0; k < checks; k++) {
+			for (long k = 0; k < CHECKS; k++) {
 				int val = rangeDist(randGen);
 				if (set1.contains(val) != (set0.find(val) != set0.end()))
 					throw "Contain test mismatch";
@@ -161,16 +161,16 @@ static void testLargeRandomly() {
 
 
 static void testRemoveAllRandomly() {
-	const int trials = 100;
-	const int limit = 10000;
-	const int range = 100000;
-	const int checks = 10;
-	std::uniform_int_distribution<int> rangeDist(0, range - 1);
+	const long TRIALS = 100;
+	const long LIMIT = 10000;
+	const int RANGE = 100000;
+	const long CHECKS = 10;
+	std::uniform_int_distribution<int> rangeDist(0, RANGE - 1);
 	std::uniform_int_distribution<int> degreeDist(2, 6);
-	for (int i = 0; i < trials; i++) {
+	for (long i = 0; i < TRIALS; i++) {
 		std::set<int> set0;
 		BTreeSet<int> set1(degreeDist(randGen));
-		for (int j = 0; j < limit; j++) {
+		for (long j = 0; j < LIMIT; j++) {
 			int val = rangeDist(randGen);
 			set0.insert(val);
 			set1.insert(val);
@@ -188,7 +188,7 @@ static void testRemoveAllRandomly() {
 				set1.checkStructure();
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
-			for (int k = 0; k < checks; k++) {
+			for (long k = 0; k < CHECKS; k++) {
 				int val = rangeDist(randGen);
 				if (set1.contains(val) != (set0.find(val) != set0.end()))
 					throw "Contain test mismatch";
