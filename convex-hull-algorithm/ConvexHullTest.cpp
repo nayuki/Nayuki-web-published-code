@@ -97,7 +97,7 @@ static void testEmpty() {
 
 
 static void testOne() {
-	const vector<Point> points{Point(3, 1)};
+	const vector<Point> points{Point{3, 1}};
 	const vector<Point> actual(makeConvexHull(points));
 	const vector<Point> expect(points);
 	if (actual != expect)
@@ -106,16 +106,16 @@ static void testOne() {
 
 
 static void testTwoDuplicate() {
-	const vector<Point> points{Point(0, 0), Point(0, 0)};
+	const vector<Point> points{Point{0, 0}, Point{0, 0}};
 	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect{Point(0, 0)};
+	const vector<Point> expect{Point{0, 0}};
 	if (actual != expect)
 		throw "Value mismatch";
 }
 
 
 static void testTwoHorizontal0() {
-	const vector<Point> points{Point(2, 0), Point(5, 0)};
+	const vector<Point> points{Point{2, 0}, Point{5, 0}};
 	const vector<Point> actual(makeConvexHull(points));
 	const vector<Point> expect(points);
 	if (actual != expect)
@@ -124,16 +124,16 @@ static void testTwoHorizontal0() {
 
 
 static void testTwoHorizontal1() {
-	const vector<Point> points{Point(-6, -3), Point(-8, -3)};
+	const vector<Point> points{Point{-6, -3}, Point{-8, -3}};
 	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect{Point(-8, -3), Point(-6, -3)};
+	const vector<Point> expect{Point{-8, -3}, Point{-6, -3}};
 	if (actual != expect)
 		throw "Value mismatch";
 }
 
 
 static void testTwoVertical0() {
-	const vector<Point> points{Point(1, -4), Point(1, 4)};
+	const vector<Point> points{Point{1, -4}, Point{1, 4}};
 	const vector<Point> actual(makeConvexHull(points));
 	const vector<Point> expect(points);
 	if (actual != expect)
@@ -142,16 +142,16 @@ static void testTwoVertical0() {
 
 
 static void testTwoVertical1() {
-	const vector<Point> points{Point(-1, 2), Point(-1, -3)};
+	const vector<Point> points{Point{-1, 2}, Point{-1, -3}};
 	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect{Point(-1, -3), Point(-1, 2)};
+	const vector<Point> expect{Point{-1, -3}, Point{-1, 2}};
 	if (actual != expect)
 		throw "Value mismatch";
 }
 
 
 static void testTwoDiagonal0() {
-	const vector<Point> points{Point(-2, -3), Point(2, 0)};
+	const vector<Point> points{Point{-2, -3}, Point{2, 0}};
 	const vector<Point> actual(makeConvexHull(points));
 	const vector<Point> expect(points);
 	if (actual != expect)
@@ -160,7 +160,7 @@ static void testTwoDiagonal0() {
 
 
 static void testTwoDiagonal1() {
-	const vector<Point> points{Point(-2, 3), Point(2, 0)};
+	const vector<Point> points{Point{-2, 3}, Point{2, 0}};
 	const vector<Point> actual(makeConvexHull(points));
 	const vector<Point> expect(points);
 	if (actual != expect)
@@ -169,9 +169,9 @@ static void testTwoDiagonal1() {
 
 
 static void testRectangle() {
-	const vector<Point> points{Point(-3, 2), Point(1, 2), Point(1, -4), Point(-3, -4)};
+	const vector<Point> points{Point{-3, 2}, Point{1, 2}, Point{1, -4}, Point{-3, -4}};
 	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect{Point(-3, -4), Point(-3, 2), Point(1, 2), Point(1, -4)};
+	const vector<Point> expect{Point{-3, -4}, Point{-3, 2}, Point{1, 2}, Point{1, -4}};
 	if (actual != expect)
 		throw "Value mismatch";
 }
@@ -189,12 +189,12 @@ static void testHorizontalRandomly() {
 		if (boolDist(randGen)) {
 			double y = normalDist(randGen);
 			for (size_t j = 0; j < len; j++)
-				points.push_back(Point(normalDist(randGen), y));
+				points.push_back(Point{normalDist(randGen), y});
 		} else {
 			std::uniform_int_distribution<int> valDist(-10, 9);
-			int y = valDist(randGen);
+			double y = valDist(randGen);
 			for (size_t j = 0; j < len; j++)
-				points.push_back(Point(valDist(randGen), y));
+				points.push_back(Point{static_cast<double>(valDist(randGen)), y});
 		}
 		
 		const vector<Point> actual(makeConvexHull(points));
@@ -217,12 +217,12 @@ static void testVerticalRandomly() {
 		if (boolDist(randGen)) {
 			double x = normalDist(randGen);
 			for (size_t j = 0; j < len; j++)
-				points.push_back(Point(x, normalDist(randGen)));
+				points.push_back(Point{x, normalDist(randGen)});
 		} else {
 			std::uniform_int_distribution<int> valDist(-10, 9);
-			int x = valDist(randGen);
+			double x = valDist(randGen);
 			for (size_t j = 0; j < len; j++)
-				points.push_back(Point(x, valDist(randGen)));
+				points.push_back(Point{x, static_cast<double>(valDist(randGen))});
 		}
 		
 		const vector<Point> actual(makeConvexHull(points));
@@ -244,11 +244,11 @@ static void testVsNaiveRandomly() {
 		vector<Point> points;
 		if (boolDist(randGen)) {
 			for (size_t j = 0; j < len; j++)
-				points.push_back(Point(normalDist(randGen), normalDist(randGen)));
+				points.push_back(Point{normalDist(randGen), normalDist(randGen)});
 		} else {
 			std::uniform_int_distribution<int> valDist(0, 9);
 			for (size_t j = 0; j < len; j++)
-				points.push_back(Point(valDist(randGen), valDist(randGen)));
+				points.push_back(Point{static_cast<double>(valDist(randGen)), static_cast<double>(valDist(randGen))});
 		}
 		
 		const vector<Point> actual(makeConvexHull(points));
@@ -270,11 +270,11 @@ static void testHullPropertiesRandomly() {
 		vector<Point> points;
 		if (boolDist(randGen)) {
 			for (size_t j = 0; j < len; j++)
-				points.push_back(Point(normalDist(randGen), normalDist(randGen)));
+				points.push_back(Point{normalDist(randGen), normalDist(randGen)});
 		} else {
 			std::uniform_int_distribution<int> valDist(0, 9);
 			for (size_t j = 0; j < len; j++)
-				points.push_back(Point(valDist(randGen), valDist(randGen)));
+				points.push_back(Point{static_cast<double>(valDist(randGen)), static_cast<double>(valDist(randGen))});
 		}
 		
 		// Compute hull and check properties

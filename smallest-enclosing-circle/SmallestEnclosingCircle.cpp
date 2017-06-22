@@ -31,12 +31,8 @@ using std::vector;
 
 /*---- Members of struct Point ----*/
 
-Point::Point(double x_, double y_) :
-	x(x_), y(y_) {}
-
-
 Point Point::subtract(const Point &p) const {
-	return Point(x - p.x, y - p.y);
+	return Point{x - p.x, y - p.y};
 }
 
 
@@ -52,13 +48,9 @@ double Point::cross(const Point &p) const {
 
 /*---- Members of struct Circle ----*/
 
-const Circle Circle::INVALID(Point(0, 0), -1);
+const Circle Circle::INVALID{Point{0, 0}, -1};
 
 const double Circle::MULTIPLICATIVE_EPSILON = 1 + 1e-14;
-
-
-Circle::Circle(const Point &c_, double r_) :
-	c(c_), r(r_) {}
 
 
 bool Circle::contains(const Point &p) const {
@@ -102,7 +94,7 @@ Circle makeSmallestEnclosingCircle(const vector<Point> &points) {
 
 // One boundary point known
 static Circle makeSmallestEnclosingCircleOnePoint(const vector<Point> &points, size_t end, const Point &p) {
-	Circle c(p, 0);
+	Circle c{p, 0};
 	for (size_t i = 0; i < end; i++) {
 		const Point &q(points.at(i));
 		if (!c.contains(q)) {
@@ -153,8 +145,8 @@ static Circle makeSmallestEnclosingCircleTwoPoints(const vector<Point> &points, 
 
 
 Circle makeDiameter(const Point &a, const Point &b) {
-	Point c((a.x + b.x) / 2, (a.y + b.y) / 2);
-	return Circle(c, std::max(c.distance(a), c.distance(b)));
+	Point c{(a.x + b.x) / 2, (a.y + b.y) / 2};
+	return Circle{c, std::max(c.distance(a), c.distance(b))};
 }
 
 
@@ -170,7 +162,7 @@ Circle makeCircumcircle(const Point &a, const Point &b, const Point &c) {
 		return Circle::INVALID;
 	double x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
 	double y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
-	Point p(ox + x, oy + y);
+	Point p{ox + x, oy + y};
 	double r = std::max(std::max(p.distance(a), p.distance(b)), p.distance(c));
-	return Circle(p, r);
+	return Circle{p, r};
 }

@@ -89,7 +89,7 @@ static void testTranslation() {
 			double dy = normalDist(randGen);
 			vector<Point> newPoints;
 			for (const Point &p : points)
-				newPoints.push_back(Point(p.x + dx, p.y + dy));
+				newPoints.push_back(Point{p.x + dx, p.y + dy});
 			
 			Circle translated = makeSmallestEnclosingCircle(newPoints);
 			assertApproxEqual(reference.c.x + dx, translated.c.x, EPSILON);
@@ -112,7 +112,7 @@ static void testScaling() {
 			double scale = normalDist(randGen);
 			vector<Point> newPoints;
 			for (const Point &p : points)
-				newPoints.push_back(Point(p.x * scale, p.y * scale));
+				newPoints.push_back(Point{p.x * scale, p.y * scale});
 			
 			Circle scaled = makeSmallestEnclosingCircle(newPoints);
 			assertApproxEqual(reference.c.x * scale, scaled.c.x, EPSILON);
@@ -128,10 +128,10 @@ static vector<Point> makeRandomPoints(size_t n) {
 	if (std::uniform_real_distribution<double>()(randGen) < 0.2) {  // Discrete lattice (to have a chance of duplicated points)
 		std::uniform_int_distribution<int> dist(0, 9);
 		for (size_t i = 0; i < n; i++)
-			result.push_back(Point(dist(randGen), dist(randGen)));
+			result.push_back(Point{static_cast<double>(dist(randGen)), static_cast<double>(dist(randGen))});
 	} else {  // Gaussian distribution
 		for (size_t i = 0; i < n; i++)
-			result.push_back(Point(normalDist(randGen), normalDist(randGen)));
+			result.push_back(Point{normalDist(randGen), normalDist(randGen)});
 	}
 	return result;
 }
@@ -143,7 +143,7 @@ static Circle smallestEnclosingCircleNaive(const vector<Point> &points) {
 	if (points.empty())
 		return Circle::INVALID;
 	else if (points.size() == 1)
-		return Circle(points.at(0), 0);
+		return Circle{points.at(0), 0};
 	
 	// Try all unique pairs
 	Circle result(Circle::INVALID);

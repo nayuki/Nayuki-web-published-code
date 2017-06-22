@@ -28,8 +28,6 @@ struct Point final {
 	public: double y;
 	
 	
-	public: Point(double x_, double y_);
-	
 	public: bool operator==(const Point &other) const;
 	public: bool operator!=(const Point &other) const;
 	public: bool operator< (const Point &other) const;

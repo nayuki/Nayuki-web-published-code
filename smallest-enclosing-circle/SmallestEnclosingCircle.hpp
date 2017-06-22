@@ -28,8 +28,6 @@ struct Point final {
 	public: double y;
 	
 	
-	public: Point(double x_, double y_);
-	
 	public: Point subtract(const Point &p) const;
 	
 	public: double distance(const Point &p) const;
@@ -50,8 +48,6 @@ struct Circle final {
 	public: Point c;   // Center
 	public: double r;  // Radius
 	
-	
-	public: Circle(const Point &c, double r);
 	
 	public: bool contains(const Point &p) const;
 	

@@ -30,10 +30,8 @@ DisjointSet::DisjointSet(size_t numElems) {
 	if (numElems == 0)
 		throw "Number of elements must be positive";
 	nodes.reserve(numElems);
-	for (size_t i = 0; i < numElems; i++) {
-		Node node = {i, 0, 1};
-		nodes.push_back(node);
-	}
+	for (size_t i = 0; i < numElems; i++)
+		nodes.push_back(Node{i, 0, 1});
 	numSets = numElems;
 }
 

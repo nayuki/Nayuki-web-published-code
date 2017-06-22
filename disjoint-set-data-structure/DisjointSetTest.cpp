@@ -80,7 +80,7 @@ public:
 
 // Random number generation global variables
 std::default_random_engine randGen((std::random_device())());
-std::uniform_real_distribution<double> realDist(0.0, 1.0);
+std::uniform_real_distribution<double> realDist;
 
 
 static void assertEquals(bool expected, bool actual) {

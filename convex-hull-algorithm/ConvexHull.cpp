@@ -25,10 +25,6 @@
 using std::vector;
 
 
-Point::Point(double x_, double y_) :
-	x(x_), y(y_) {}
-
-
 bool Point::operator==(const Point &other) const {
 	return x == other.x && y == other.y;
 }
