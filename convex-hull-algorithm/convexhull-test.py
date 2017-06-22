@@ -177,26 +177,20 @@ class ConvexHullTest(unittest.TestCase):
 	def make_hull_naive(points):
 		if len(points) <= 1:
 			return list(points)
-		result = []
-		point = None
-		for p in points:
-			if point is None or p[0] < point[0] or p[0] == point[0] and p[1] < point[1]:
-				point = p
 		
 		# Jarvis march / gift wrapping algorithm
+		result = []
+		point = min(points)
 		while True:
 			result.append(point)
 			next = points[0]
 			for p in points:
-				accept = next == point
-				if not accept:
-					ax = next[0] - point[0]
-					ay = next[1] - point[1]
-					bx = p[0] - point[0]
-					by = p[1] - point[1]
-					cross = ax * by - ay * bx
-					accept = cross > 0 or (cross == 0 and bx * bx + by * by > ax * ax + ay * ay)
-				if accept:
+				ax = next[0] - point[0]
+				ay = next[1] - point[1]
+				bx = p[0] - point[0]
+				by = p[1] - point[1]
+				cross = ax * by - ay * bx
+				if cross > 0 or (cross == 0 and bx * bx + by * by > ax * ax + ay * ay):
 					next = p
 			point = next
 			if point == result[0]:

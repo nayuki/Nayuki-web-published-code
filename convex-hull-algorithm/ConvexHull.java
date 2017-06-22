@@ -51,7 +51,7 @@ public final class ConvexHull {
 			while (upperHull.size() >= 2) {
 				Point q = upperHull.get(upperHull.size() - 1);
 				Point r = upperHull.get(upperHull.size() - 2);
-				if (p.x == upperHull.get(0).x || (q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
+				if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					upperHull.remove(upperHull.size() - 1);
 				else
 					break;
@@ -66,7 +66,7 @@ public final class ConvexHull {
 			while (lowerHull.size() >= 2) {
 				Point q = lowerHull.get(lowerHull.size() - 1);
 				Point r = lowerHull.get(lowerHull.size() - 2);
-				if (p.x == lowerHull.get(0).x || (q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
+				if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					lowerHull.remove(lowerHull.size() - 1);
 				else
 					break;

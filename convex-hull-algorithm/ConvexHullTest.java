@@ -220,27 +220,19 @@ public final class ConvexHullTest {
 		if (points.size() <= 1)
 			return new ArrayList<>(points);
 		List<Point> result = new ArrayList<>();
-		Point point = null;
-		for (Point p : points) {
-			if (point == null || p.x < point.x || p.x == point.x && p.y < point.y)
-				point = p;
-		}
 		
 		// Jarvis march / gift wrapping algorithm
+		Point point = Collections.min(points);
 		do {
 			result.add(point);
 			Point next = points.get(0);
 			for (Point p : points) {
-				boolean accept = next.equals(point);
-				if (!accept) {
-					double ax = next.x - point.x;
-					double ay = next.y - point.y;
-					double bx = p.x - point.x;
-					double by = p.y - point.y;
-					double cross = ax * by - ay * bx;
-					accept = cross > 0 || cross == 0 && bx * bx + by * by > ax * ax + ay * ay;
-				}
-				if (accept)
+				double ax = next.x - point.x;
+				double ay = next.y - point.y;
+				double bx = p.x - point.x;
+				double by = p.y - point.y;
+				double cross = ax * by - ay * bx;
+				if (cross > 0 || cross == 0 && bx * bx + by * by > ax * ax + ay * ay)
 					next = p;
 			}
 			point = next;

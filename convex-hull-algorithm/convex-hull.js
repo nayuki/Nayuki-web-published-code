@@ -49,7 +49,7 @@ var convexhull = new function() {
 			while (upperHull.length >= 2) {
 				var q = upperHull[upperHull.length - 1];
 				var r = upperHull[upperHull.length - 2];
-				if (p.x == upperHull[0].x || (q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
+				if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					upperHull.pop();
 				else
 					break;
@@ -64,7 +64,7 @@ var convexhull = new function() {
 			while (lowerHull.length >= 2) {
 				var q = lowerHull[lowerHull.length - 1];
 				var r = lowerHull[lowerHull.length - 2];
-				if (p.x == lowerHull[0].x || (q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
+				if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					lowerHull.pop();
 				else
 					break;

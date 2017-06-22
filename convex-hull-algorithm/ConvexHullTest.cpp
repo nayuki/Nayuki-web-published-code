@@ -304,28 +304,20 @@ static void testHullPropertiesRandomly() {
 static vector<Point> makeHullNaive(const vector<Point> &points) {
 	if (points.size() <= 1)
 		return vector<Point>(points);
-	vector<Point> result;
-	const Point *point = nullptr;
-	for (const Point &p : points) {
-		if (point == nullptr || p.x < point->x || (p.x == point->x && p.y < point->y))
-			point = &p;
-	}
 	
 	// Jarvis march / gift wrapping algorithm
+	vector<Point> result;
+	const Point *point = &*std::min_element(points.cbegin(), points.cend());
 	do {
 		result.push_back(*point);
 		const Point *next = &points.front();
 		for (const Point &p : points) {
-			bool accept = next == point;
-			if (!accept) {
-				double ax = next->x - point->x;
-				double ay = next->y - point->y;
-				double bx = p.x - point->x;
-				double by = p.y - point->y;
-				double cross = ax * by - ay * bx;
-				accept = cross > 0 || (cross == 0 && bx * bx + by * by > ax * ax + ay * ay);
-			}
-			if (accept)
+			double ax = next->x - point->x;
+			double ay = next->y - point->y;
+			double bx = p.x - point->x;
+			double by = p.y - point->y;
+			double cross = ax * by - ay * bx;
+			if (cross > 0 || (cross == 0 && bx * bx + by * by > ax * ax + ay * ay))
 				next = &p;
 		}
 		point = next;
