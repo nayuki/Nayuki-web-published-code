@@ -1,7 +1,7 @@
 /* 
  * Portable FloatMap reader/writer
  * 
- * Copyright (c) 2014 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/portable-floatmap-format-io-java
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,7 +23,6 @@
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.DataOutput;
@@ -36,6 +35,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 
 /**
@@ -43,6 +44,8 @@ import java.io.PrintWriter;
  * <p>Based on the file format specification at: http://www.pauldebevec.com/Research/HDR/PFM/</p>
  */
 public final class PortableFloatMap {
+	
+	/*---- Fields ----*/
 	
 	/** The width of the image. Must be positive. */
 	public int width;
@@ -62,10 +65,13 @@ public final class PortableFloatMap {
 	 */
 	public float[] pixels;
 	
-	/** Indicates whether the image read was in big endian, or indicates whether to write the image in big endian. Big endian is preferred for Java, while little endian is preferred for C/C++. */
+	/** Indicates whether the image read was in big endian, or indicates whether to write the image
+	 * in big endian. Big endian is preferred for Java, while little endian is preferred for C/C++. */
 	public boolean bigEndian;
 	
 	
+	
+	/*---- Constructors ----*/
 	
 	/**
 	 * Constructs a blank Portable FloatMap image.
@@ -83,13 +89,9 @@ public final class PortableFloatMap {
 	 * @throws IOException if an I/O exception occurred
 	 */
 	public PortableFloatMap(File file) throws IOException {
-		if (file == null)
-			throw new NullPointerException();
-		InputStream in = new BufferedInputStream(new FileInputStream(file));
-		try {
+		Objects.requireNonNull(file);
+		try (InputStream in = new BufferedInputStream(new FileInputStream(file))) {
 			read(in);
-		} finally {
-			in.close();
 		}
 	}
 	
@@ -105,12 +107,13 @@ public final class PortableFloatMap {
 	 * @throws IOException if an I/O exception occurred
 	 */
 	public PortableFloatMap(InputStream in) throws IOException {
-		if (in == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(in);
 		read(in);
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	private void read(InputStream in) throws IOException {
 		// Parse file magic header line
@@ -133,7 +136,7 @@ public final class PortableFloatMap {
 		
 		// Parse endianness line
 		double temp = Double.parseDouble(readLine(in));
-		if (temp == 1.0)
+		if (temp == 1)
 			bigEndian = true;
 		else if (temp == -1)
 			bigEndian = false;
@@ -162,15 +165,10 @@ public final class PortableFloatMap {
 	 * @throws IOException if an I/O exception occurred
 	 */
 	public void write(File file) throws IOException {
-		if (file == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(file);
 		checkData();  // Check before opening file
-		
-		OutputStream out = new BufferedOutputStream(new FileOutputStream(file));
-		try {
+		try (OutputStream out = new BufferedOutputStream(new FileOutputStream(file))) {
 			write(out);
-		} finally {
-			out.close();
 		}
 	}
 	
@@ -184,12 +182,11 @@ public final class PortableFloatMap {
 	 * @throws IOException if an I/O exception occurred
 	 */
 	public void write(OutputStream out) throws IOException {
-		if (out == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(out);
 		checkData();
 		
 		// Write header text data. Must use Unix newlines, not universal style
-		PrintWriter pout = new PrintWriter(new OutputStreamWriter(out, "US-ASCII"));
+		PrintWriter pout = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.US_ASCII));
 		switch (mode) {
 			case COLOR:
 				pout.print("PF\n");
@@ -203,6 +200,7 @@ public final class PortableFloatMap {
 		pout.print(width + " " + height + "\n");
 		pout.print((bigEndian ? "1.0" : "-1.0") + "\n");
 		pout.flush();
+		// Detach the PrintWriter stream
 		
 		// Write float32 image pixel data
 		DataOutput dout = new DataOutputStream(out);
@@ -221,10 +219,8 @@ public final class PortableFloatMap {
 			throw new IllegalStateException("Width must be positive");
 		if (height <= 0)
 			throw new IllegalStateException("Height must be positive");
-		if (mode == null)
-			throw new NullPointerException("Mode not set");
-		if (pixels == null)
-			throw new NullPointerException("Pixel array not set");
+		Objects.requireNonNull(mode, "Mode not set");
+		Objects.requireNonNull(pixels, "Pixel array not set");
 		if (pixels.length != calcPixelArrayLength())
 			throw new IllegalStateException("Pixel array length does not match width and height");
 	}
@@ -233,35 +229,27 @@ public final class PortableFloatMap {
 	private int calcPixelArrayLength() {
 		int channels;
 		switch (mode) {
-			case COLOR:
-				channels = 3;
-				break;
-			case GRAYSCALE:
-				channels = 1;
-				break;
-			default:
-				throw new AssertionError();
+			case COLOR    :  channels = 3;  break;
+			case GRAYSCALE:  channels = 1;  break;
+			default:  throw new AssertionError();
 		}
-		
-		int result = width * height * channels;
-		if (result / width / height / channels != 1)  // Check arithmetic overflow
-			throw new IllegalArgumentException("Dimensions are too large to make a pixel array");  // Due to Java's maximum array length of Integer.MAX_VALUE
-		return result;
+		if (Integer.MAX_VALUE / width / height / channels == 0)
+			throw new IllegalArgumentException("Dimensions are too large to make a pixel array");
+		else
+			return width * height * channels;  // Guaranteed to not overflow
 	}
 	
 	
 	private static String readLine(InputStream in) throws IOException {
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		for (int i = 0; ; i++) {
+		byte[] buf = new byte[100];
+		for (int i = 0; i < buf.length; i++) {
 			int b = in.read();
 			if (b == '\n' || b == -1)
-				break;
-			else if (i == 100)
-				throw new IllegalArgumentException("Line too long");
+				return new String(buf, 0, i, StandardCharsets.US_ASCII);
 			else
-				bout.write(b);
+				buf[i] = (byte)b;
 		}
-		return new String(bout.toByteArray(), "US-ASCII");
+		throw new IllegalArgumentException("Line too long");
 	}
 	
 	

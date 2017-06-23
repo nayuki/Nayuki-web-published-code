@@ -30,8 +30,6 @@ import javax.imageio.ImageIO;
 /* 
  * Converts a Portable FloatMap (PFM) image file to a PNG file.
  * Applies a tone curve and sRGB gamma correction. (Can be customized by editing the code.)
- * 
- * Usage: java PfmToPng Input.pfm Output.png
  */
 public final class PfmToPng {
 	
@@ -42,16 +40,16 @@ public final class PfmToPng {
 			System.exit(1);
 			return;
 		}
-		File infile = new File(args[0]);
-		File outfile = new File(args[1]);
-		if (!infile.isFile()) {
+		File inFile = new File(args[0]);
+		File outFile = new File(args[1]);
+		if (!inFile.isFile()) {
 			System.err.println("Error: Input file does not exist");
 			System.exit(1);
 			return;
 		}
 		
 		// Read input image file
-		PortableFloatMap pfm = new PortableFloatMap(infile);
+		PortableFloatMap pfm = new PortableFloatMap(inFile);
 		int width = pfm.width;
 		int height = pfm.height;
 		float[] inpix = pfm.pixels;
@@ -61,7 +59,10 @@ public final class PfmToPng {
 		if (pfm.mode == PortableFloatMap.Mode.COLOR) {
 			for (int y = height - 1, i = 0; y >= 0; y--) {
 				for (int x = 0; x < width; x++, i += 3) {
-					outpix[y * width + x] = floatToByte(inpix[i]) << 16 | floatToByte(inpix[i + 1]) << 8 | floatToByte(inpix[i + 2]);
+					outpix[y * width + x] =
+						floatToByte(inpix[i + 0]) << 16 |
+						floatToByte(inpix[i + 1]) <<  8 |
+						floatToByte(inpix[i + 2]) <<  0;
 				}
 			}
 		} else if (pfm.mode == PortableFloatMap.Mode.GRAYSCALE) {
@@ -75,35 +76,35 @@ public final class PfmToPng {
 		// Write output image file
 		BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		img.setRGB(0, 0, width, height, outpix, 0, width);
-		ImageIO.write(img, "png", outfile);
+		ImageIO.write(img, "png", outFile);
 	}
 	
 	
 	@SuppressWarnings("unused")  // To persuade Eclipse to show fewer squiggly underlines for sketchy coding practices
 	private static int floatToByte(float x) {
-		final int MODE = 3;  // Try me!
+		final int MODE = 3;  // Try changing me!
 		
 		if (MODE == 0)  // Simple mapping of [0.0, 1.0] to [0, 255]
-			return mapTo8Bits(x);
+			return to8Bit(x);
 		
 		else if (MODE == 1)  // Mapping [0.0, 1.0] to [0, 255] with standard gamma correction of 2.2
-			return mapTo8Bits(gammaCorrection(x, 2.2));
+			return to8Bit(linearToGamma(x, 2.2));
 		
 		else if (MODE == 2)  // Mapping [0.0, 1.0] to [0, 255] with sRGB gamma correction
-			return mapTo8Bits(gammaCorrection(x, 2.2));
+			return to8Bit(linearToSrgb(x));
 		
 		else if (MODE == 3) {  // Film-like exposure curve output as sRGB
 			final double GAIN = Math.log(2);  // By default, GAIN=log(2) maps 0 to 0, 1 to 1/2, 2 to 3/4, 3 to 7/8, etc.
-			return mapTo8Bits(srgbCorrection(1 - Math.exp(-x * GAIN)));
+			return to8Bit(linearToSrgb(1 - Math.exp(-x * GAIN)));
 			
 		} else
 			throw new AssertionError();
 	}
 	
 	
-	/* Utility functions */
+	/*---- Utility functions ----*/
 	
-	private static int mapTo8Bits(double val) {
+	private static int to8Bit(double val) {
 		if (val > 1)
 			val = 1;
 		else if (val < 0)
@@ -112,12 +113,12 @@ public final class PfmToPng {
 	}
 	
 	
-	private static double gammaCorrection(double val, double gamma) {
+	private static double linearToGamma(double val, double gamma) {
 		return Math.pow(val, 1 / gamma);
 	}
 	
 	
-	private static double srgbCorrection(double val) {
+	private static double linearToSrgb(double val) {
 		if (val <= 0.0031308)
 			return val * 12.92;
 		else
