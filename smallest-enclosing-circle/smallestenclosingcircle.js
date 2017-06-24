@@ -148,5 +148,12 @@ function crossProduct(x0, y0, x1, y1, x2, y2) {
 
 
 function distance(x0, y0, x1, y1) {
-	return Math.sqrt((x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1));
+	return Math.hypot(x0 - x1, y0 - y1);
+}
+
+
+if (!("hypot" in Math)) {  // Polyfill
+	Math.hypot = function(x, y) {
+		return Math.sqrt(x * x + y * y);
+	};
 }
