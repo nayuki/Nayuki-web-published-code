@@ -26,11 +26,11 @@ import javax.imageio.ImageIO;
 
 
 /* Command-line main program */
-public final class sincimageresample {
+public final class SincImageResample {
 	
 	/**
 	 * The program main entry point.
-	 * <p>Usage: <code>java sincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]</code></p>
+	 * <p>Usage: <code>java SincImageResample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]</code></p>
 	 * @param args the command-line arguments
 	 */
 	public static void main(String[] args) {
@@ -40,7 +40,7 @@ public final class sincimageresample {
 			System.err.println("Copyright (c) 2014 Project Nayuki");
 			System.err.println("https://www.nayuki.io/");
 			System.err.println("");
-			System.err.println("Usage: java sincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]");
+			System.err.println("Usage: java SincImageResample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]");
 			System.exit(1);
 			return;
 		}

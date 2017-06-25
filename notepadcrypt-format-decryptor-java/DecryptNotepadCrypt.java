@@ -7,7 +7,7 @@
  * The intent of this program is to provide an independent, robust implementation for handling the file format,
  * in case NotepadCrypt (or that author's own small standalone decrypter) is inaccessible or has errors.
  * 
- * Usage: java decryptnotepadcrypt InputFile [-m] Passphrase
+ * Usage: java DecryptNotepadCrypt InputFile [-m] Passphrase
  * Options:
  *     -m: Use master key (only applicable for files with master key)
  * Examples:
@@ -33,7 +33,7 @@ import java.util.Arrays;
 import static java.lang.Integer.rotateRight;
 
 
-public final class decryptnotepadcrypt {
+public final class DecryptNotepadCrypt {
 	
 	/* Main functions */
 	
@@ -49,7 +49,7 @@ public final class decryptnotepadcrypt {
 			useMasterKey = true;
 			passphrase = args[2];
 		} else {
-			System.err.println("Usage: java decryptnotepadcrypt InputFile [-m] Passphrase");
+			System.err.println("Usage: java DecryptNotepadCrypt InputFile [-m] Passphrase");
 			System.err.println("    -m: Use master key (only applicable for files with master key)");
 			System.exit(1);
 			return;
@@ -247,7 +247,7 @@ final class Aes {
 		int rounds = Math.max(nk, 4) + 6;
 		int[] w = new int[(rounds + 1) * 4];  // Key schedule
 		for (int i = 0; i < nk; i++)
-			w[i] = decryptnotepadcrypt.toInt32(key, i * 4);
+			w[i] = DecryptNotepadCrypt.toInt32(key, i * 4);
 		byte rcon = 1;
 		for (int i = nk; i < w.length; i++) {  // rcon = 2^(i/nk) mod 0x11B
 			int tp = w[i - 1];

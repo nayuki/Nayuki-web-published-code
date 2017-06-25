@@ -30,11 +30,11 @@ import javax.imageio.ImageIO;
 
 
 /* Command-line main program */
-public final class fastsincimageresample {
+public final class FastSincImageResample {
 	
 	/**
 	 * The program main entry point.
-	 * <p>Usage: <code>java fastsincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]</code></p>
+	 * <p>Usage: <code>java FastSincImageResample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]</code></p>
 	 * @param args the command-line arguments
 	 */
 	public static void main(String[] args) {
@@ -44,7 +44,7 @@ public final class fastsincimageresample {
 			System.err.println("Copyright (c) 2014 Project Nayuki");
 			System.err.println("https://www.nayuki.io/");
 			System.err.println("");
-			System.err.println("Usage: java fastsincimageresample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]");
+			System.err.println("Usage: java FastSincImageResample InFile.{png,bmp} OutWidth OutHeight OutFile.{png,bmp} [HorzFilterLen [VertFilterLen]]");
 			System.exit(1);
 			return;
 		}

@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 
 
-public sealed class smallestenclosingcircletest {
+public sealed class SmallestEnclosingCircleTest {
 	
 	public static void Main(string[] args) {
 		TestMatchingNaiveAlgorithm();
@@ -39,7 +39,7 @@ public sealed class smallestenclosingcircletest {
 		for (int i = 0; i < TRIALS; i++) {
 			IList<Point> points = MakeRandomPoints(rand.Next(30) + 1);
 			Circle reference = SmallestEnclosingCircleNaive(points);
-			Circle actual = smallestenclosingcircle.MakeCircle(points);
+			Circle actual = SmallestEnclosingCircle.MakeCircle(points);
 			AssertApproxEqual(reference.c.x, actual.c.x, EPSILON);
 			AssertApproxEqual(reference.c.y, actual.c.y, EPSILON);
 			AssertApproxEqual(reference.r  , actual.r  , EPSILON);
@@ -52,7 +52,7 @@ public sealed class smallestenclosingcircletest {
 		int CHECKS = 10;
 		for (int i = 0; i < TRIALS; i++) {
 			IList<Point> points = MakeRandomPoints(rand.Next(300) + 1);
-			Circle reference = smallestenclosingcircle.MakeCircle(points);
+			Circle reference = SmallestEnclosingCircle.MakeCircle(points);
 			
 			for (int j = 0; j < CHECKS; j++) {
 				double dx = NextGaussian();
@@ -61,7 +61,7 @@ public sealed class smallestenclosingcircletest {
 				foreach (Point p in points)
 					newPoints.Add(new Point(p.x + dx, p.y + dy));
 				
-				Circle translated = smallestenclosingcircle.MakeCircle(newPoints);
+				Circle translated = SmallestEnclosingCircle.MakeCircle(newPoints);
 				AssertApproxEqual(reference.c.x + dx, translated.c.x, EPSILON);
 				AssertApproxEqual(reference.c.y + dy, translated.c.y, EPSILON);
 				AssertApproxEqual(reference.r       , translated.r  , EPSILON);
@@ -75,7 +75,7 @@ public sealed class smallestenclosingcircletest {
 		int CHECKS = 10;
 		for (int i = 0; i < TRIALS; i++) {
 			IList<Point> points = MakeRandomPoints(rand.Next(300) + 1);
-			Circle reference = smallestenclosingcircle.MakeCircle(points);
+			Circle reference = SmallestEnclosingCircle.MakeCircle(points);
 			
 			for (int j = 0; j < CHECKS; j++) {
 				double scale = NextGaussian();
@@ -83,7 +83,7 @@ public sealed class smallestenclosingcircletest {
 				foreach (Point p in points)
 					newPoints.Add(new Point(p.x * scale, p.y * scale));
 				
-				Circle scaled = smallestenclosingcircle.MakeCircle(newPoints);
+				Circle scaled = SmallestEnclosingCircle.MakeCircle(newPoints);
 				AssertApproxEqual(reference.c.x * scale, scaled.c.x, EPSILON);
 				AssertApproxEqual(reference.c.y * scale, scaled.c.y, EPSILON);
 				AssertApproxEqual(reference.r * Math.Abs(scale), scaled.r, EPSILON);
@@ -119,7 +119,7 @@ public sealed class smallestenclosingcircletest {
 		Circle result = new Circle(new Point(0, 0), -1);
 		for (int i = 0; i < points.Count; i++) {
 			for (int j = i + 1; j < points.Count; j++) {
-				Circle c = smallestenclosingcircle.MakeDiameter(points[i], points[j]);
+				Circle c = SmallestEnclosingCircle.MakeDiameter(points[i], points[j]);
 				if ((result.r < 0 || c.r < result.r) && c.Contains(points))
 					result = c;
 			}
@@ -131,7 +131,7 @@ public sealed class smallestenclosingcircletest {
 		for (int i = 0; i < points.Count; i++) {
 			for (int j = i + 1; j < points.Count; j++) {
 				for (int k = j + 1; k < points.Count; k++) {
-					Circle c = smallestenclosingcircle.MakeCircumcircle(points[i], points[j], points[k]);
+					Circle c = SmallestEnclosingCircle.MakeCircumcircle(points[i], points[j], points[k]);
 					if (c.r >= 0 && (result.r < 0 || c.r < result.r) && c.Contains(points))
 						result = c;
 				}

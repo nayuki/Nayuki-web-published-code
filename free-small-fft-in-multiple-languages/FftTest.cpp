@@ -28,7 +28,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
-#include "fft.hpp"
+#include "Fft.hpp"
 
 using std::cout;
 using std::endl;

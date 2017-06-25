@@ -5,7 +5,7 @@
  */
 
 #include <stdlib.h>
-#include "EratosthenesSieves.h"
+#include "eratosthenes-sieves.h"
 
 
 // Function prototypes

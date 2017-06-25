@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "EratosthenesSieves.h"
+#include "eratosthenes-sieves.h"
 
 
 static void test_values(void) {

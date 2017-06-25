@@ -28,7 +28,7 @@ import java.util.Set;
  * Reads a text file with one page title per line, sorts the titles by descending PageRank, and writes
  * to a new text file. Requires raw data files already computed by the program "wikipediapagerank".
  */
-public final class sortpagetitlesbypagerank {
+public final class SortPageTitlesByPagerank {
 	
 	/*---- Input/output files configuration ----*/
 	
@@ -118,6 +118,6 @@ public final class sortpagetitlesbypagerank {
 	
 	
 	
-	private sortpagetitlesbypagerank() {}  // Not instantiable
+	private SortPageTitlesByPagerank() {}  // Not instantiable
 	
 }

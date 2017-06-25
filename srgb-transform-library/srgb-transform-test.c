@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "srgbtransform.h"
+#include "srgb-transform.h"
 
 
 static const double DELTA = 1e-3;

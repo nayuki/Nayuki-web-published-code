@@ -22,7 +22,7 @@
  */
 
 #include <math.h>
-#include "srgbtransform.h"
+#include "srgb-transform.h"
 
 
 /*---- sRGB values to linear intensities ----*/

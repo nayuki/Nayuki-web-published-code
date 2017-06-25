@@ -15,7 +15,7 @@ using System.Numerics;
  *   Command: fastfibonacci.exe 7
  *   Output: "fibonacci(7) = 13"
  */
-public sealed class fastfibonacci {
+public sealed class FastFibonacci {
 	
 	public static int Main(string[] args) {
 		if (args.Length != 1) {

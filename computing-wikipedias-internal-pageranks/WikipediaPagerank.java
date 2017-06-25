@@ -23,7 +23,7 @@ import java.util.Map;
  * Run the program on the command line with no arguments. You may need to modify the file names below.
  * The program prints a bunch of statistics and progress messages on standard output.
  */
-public final class wikipediapagerank {
+public final class WikipediaPagerank {
 	
 	/*---- Input/output files configuration ----*/
 	
@@ -117,6 +117,6 @@ public final class wikipediapagerank {
 	}
 	
 	
-	private wikipediapagerank() {}  // Not instantiable
+	private WikipediaPagerank() {}  // Not instantiable
 	
 }

@@ -10,7 +10,7 @@ import java.math.BigInteger;
 import java.util.Scanner;
 
 
-public final class iteratedpopcount {
+public final class IteratedPopcount {
 	
 	public static void main(String[] args) {
 		Scanner scan = new Scanner(System.in);

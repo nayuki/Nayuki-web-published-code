@@ -9,7 +9,7 @@
 import java.math.BigInteger;
 
 
-public final class fastfibonacci {
+public final class FastFibonacci {
 	
 	// Tests the speed of the 3 Fibonacci algorithms
 	public static void main(String[] args) {

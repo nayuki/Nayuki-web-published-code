@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 
 
-public sealed class smallestenclosingcircle {
+public sealed class SmallestEnclosingCircle {
 	
 	/* 
 	 * Returns the smallest circle that encloses all the given points. Runs in expected O(n) time, randomized.
