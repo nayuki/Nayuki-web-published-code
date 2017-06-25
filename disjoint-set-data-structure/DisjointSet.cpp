@@ -21,6 +21,7 @@
  *   Software.
  */
 
+#include <utility>
 #include "DisjointSet.hpp"
 
 using std::size_t;
@@ -87,11 +88,8 @@ bool DisjointSet::mergeSets(size_t elemIndex0, size_t elemIndex1) {
 	// The result actually fits in a signed char, and with sizeof(char) <= sizeof(int), the promotion to int still guarantees the result fits.
 	if (cmp == 0)  // Increment repr0's rank if both nodes have same rank
 		nodes[repr0].rank++;
-	else if (cmp < 0) {  // Swap to ensure that repr0's rank >= repr1's rank
-		size_t temp = repr0;
-		repr0 = repr1;
-		repr1 = temp;
-	}
+	else if (cmp < 0)  // Swap to ensure that repr0's rank >= repr1's rank
+		std::swap(repr0, repr1);
 	
 	// Graft repr1's subtree onto node repr0
 	nodes[repr1].parent = repr0;

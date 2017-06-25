@@ -209,7 +209,7 @@ function showPointsAndCircle() {
 		circElem.setAttribute("cy", point.y);
 		circElem.setAttribute("r", POINT_RADIUS);
 		var dist = Math.hypot(point.x - circle.x, point.y - circle.y) / circle.r;
-		if (1 / MULTIPLICATIVE_EPSILON < dist && dist < MULTIPLICATIVE_EPSILON)
+		if (circle.r == 0 || 1 / MULTIPLICATIVE_EPSILON < dist && dist < MULTIPLICATIVE_EPSILON)
 			onCircleGroupElem.appendChild(circElem);
 		else
 			offCircleGroupElem.appendChild(circElem);
