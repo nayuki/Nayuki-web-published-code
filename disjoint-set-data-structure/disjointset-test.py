@@ -1,7 +1,7 @@
 # 
 # Disjoint-set data structure - Test suite (Python)
 # 
-# Copyright (c) 2016 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/disjoint-set-data-structure
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -128,9 +128,7 @@ class NaiveDisjointSet(object):
 	def merge_sets(self, elemIndex0, elemIndex1):
 		repr0 = self.representatives[elemIndex0]
 		repr1 = self.representatives[elemIndex1]
-		for i in range(len(self.representatives)):
-			if self.representatives[i] == repr1:
-				self.representatives[i] = repr0
+		self.representatives = [(repr0 if (rp == repr1) else rp) for rp in self.representatives]
 		return repr0 != repr1
 
 

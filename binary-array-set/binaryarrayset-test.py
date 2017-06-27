@@ -1,7 +1,7 @@
 # 
 # Binary array set test (Python)
 # 
-# Copyright (c) 2014 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-array-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@ def main():
 	for i in range(ITERATIONS):
 		if i % 300 == 0:
 			print("Progress: {:.0%}".format(float(i) / ITERATIONS))
-		op = random.randint(0, 99)
+		op = random.randrange(100)
 		
 		if op < 1:  # Fast clear
 			set1.check_structure()
@@ -56,7 +56,7 @@ def main():
 		elif op < 70:  # Add
 			n = random.randint(1, 100)
 			for j in range(n):
-				val = random.randint(0, 9999)
+				val = random.randrange(10000)
 				if val not in set0:
 					length += 1
 				set0.add(val)
@@ -65,14 +65,14 @@ def main():
 		elif op < 100:  # Contains
 			n = random.randint(1, 100)
 			for j in range(n):
-				val = random.randint(0, 9999)
+				val = random.randrange(10000)
 				if (val in set1) != (val in set0):
 					raise AssertionError()
 			
 		else:
 			raise AssertionError()
 		
-		if len(set0) != length or len(set1) != length:
+		if not (len(set0) == len(set1) == length):
 			raise AssertionError()
 	
 	print("Test passed")

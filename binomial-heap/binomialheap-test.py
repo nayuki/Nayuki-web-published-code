@@ -1,7 +1,7 @@
 # 
 # Binomial heap test (Python)
 # 
-# Copyright (c) 2014 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binomial-heap
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,7 +38,7 @@ def main():
 	for i in range(ITERATIONS):
 		if i % 300 == 0:
 			print("Progress: {:.0%}".format(float(i) / ITERATIONS))
-		op = random.randint(0, 99)
+		op = random.randrange(100)
 		
 		if op < 1:  # Clear
 			heap.check_structure()
@@ -60,7 +60,7 @@ def main():
 		elif op < 60:  # Add
 			n = random.randint(1, 100)
 			for j in range(n):
-				val = random.randint(0, 9999)
+				val = random.randrange(10000)
 				que.put(val)
 				heap.enqueue(val)
 			length += n
@@ -69,7 +69,7 @@ def main():
 			n = random.randint(1, 100)
 			temp = binomialheap.BinomialHeap()
 			for j in range(n):
-				val = random.randint(0, 9999)
+				val = random.randrange(10000)
 				que.put(val)
 				temp.enqueue(val)
 			heap.merge(temp)

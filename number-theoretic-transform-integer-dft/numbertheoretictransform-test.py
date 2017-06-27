@@ -44,8 +44,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_transform_roundtrip_randomly(self):
-		trials = 300
-		for _ in range(trials):
+		TRIALS = 300
+		for _ in range(TRIALS):
 			veclen = random.randrange(100) + 1
 			maxval = random.randrange(100) + 1
 			vec = [random.randrange(maxval + 1) for _ in range(veclen)]
@@ -55,8 +55,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_transform_linearity_randomly(self):
-		trials = 100
-		for _ in range(trials):
+		TRIALS = 100
+		for _ in range(TRIALS):
 			veclen = random.randrange(100) + 1
 			maxval = random.randrange(100) + 1
 			vec0 = [random.randrange(maxval + 1) for _ in range(veclen)]
@@ -70,8 +70,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_convolution_randomly(self):
-		trials = 100
-		for _ in range(trials):
+		TRIALS = 100
+		for _ in range(TRIALS):
 			veclen = random.randrange(100) + 1
 			maxval = random.randrange(100) + 1
 			vec0 = [random.randrange(maxval + 1) for _ in range(veclen)]
@@ -92,8 +92,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_transform_radix2_vs_naive(self):
-		trials = 300
-		for _ in range(trials):
+		TRIALS = 300
+		for _ in range(TRIALS):
 			veclen = 2**random.randrange(8)
 			maxval = random.randrange(100) + 1
 			vec = [random.randrange(maxval + 1) for _ in range(veclen)]
@@ -103,8 +103,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_transform_radix2_roundtrip_randomly(self):
-		trials = 10
-		for _ in range(trials):
+		TRIALS = 10
+		for _ in range(TRIALS):
 			veclen = 2**random.randint(0, 16)
 			vallimit = 2**random.randint(1, 16)
 			invec = [random.randrange(vallimit) for _ in range(veclen)]

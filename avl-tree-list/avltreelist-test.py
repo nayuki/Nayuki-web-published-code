@@ -1,7 +1,7 @@
 # 
 # AVL tree list test (Python)
 # 
-# Copyright (c) 2014 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/avl-tree-list
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@ def main():
 	for i in range(ITERATIONS):
 		if i % 300 == 0:
 			print("Progress: {:.0%}".format(float(i) / ITERATIONS))
-		op = random.randint(0, 99)
+		op = random.randrange(100)
 		
 		if op < 1:  # Clear
 			list1.check_structure()
@@ -45,7 +45,7 @@ def main():
 		elif op < 2:  # Set
 			if length > 0:
 				index = random.randint(0, length - 1)
-				val = random.randint(0, 99999)
+				val = random.randrange(100000)
 				list0[index] = val
 				list1[index] = val
 			
@@ -53,7 +53,7 @@ def main():
 			n = random.randint(1, 100)
 			for j in range(n):
 				index = random.randint(0, length)
-				val = random.randint(0, 99999)
+				val = random.randrange(100000)
 				list0.insert(index, val)
 				list1.insert(index, val)
 				length += 1
@@ -62,7 +62,7 @@ def main():
 			n = random.randint(1, 100)
 			offset = random.randint(0, length)
 			for j in range(n):
-				val = random.randint(0, 99999)
+				val = random.randrange(100000)
 				list0.insert(offset + j, val)
 				list1.insert(offset + j, val)
 			length += n
@@ -71,7 +71,7 @@ def main():
 			n = random.randint(1, 100)
 			offset = random.randint(0, length)
 			for j in range(n):
-				val = random.randint(0, 99999)
+				val = random.randrange(100000)
 				list0.insert(offset, val)
 				list1.insert(offset, val)
 			length += n
