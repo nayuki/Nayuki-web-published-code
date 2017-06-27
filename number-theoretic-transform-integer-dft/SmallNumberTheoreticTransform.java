@@ -239,10 +239,9 @@ public final class SmallNumberTheoreticTransform {
 		List<Integer> result = new ArrayList<>();
 		for (int i = 2, end = sqrt(n); i <= end; i++) {
 			if (n % i == 0) {
-				n /= i;
 				result.add(i);
-				while (n % i == 0)
-					n /= i;
+				do n /= i;
+				while (n % i == 0);
 				end = sqrt(n);
 			}
 		}

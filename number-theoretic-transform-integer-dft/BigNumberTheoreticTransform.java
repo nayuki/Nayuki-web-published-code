@@ -206,10 +206,9 @@ public final class BigNumberTheoreticTransform {
 		List<BigInteger> result = new ArrayList<>();
 		for (BigInteger i = TWO, end = sqrt(n); i.compareTo(end) <= 0; i = i.add(ONE)) {
 			if (n.mod(i).signum() == 0) {
-				n = n.divide(i);
 				result.add(i);
-				while (n.mod(i).signum() == 0)
-					n = n.divide(i);
+				do n = n.divide(i);
+				while (n.mod(i).signum() == 0);
 				end = sqrt(n);
 			}
 		}
