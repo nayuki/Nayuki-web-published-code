@@ -39,8 +39,7 @@ public final class FftTest {
 			testFft(i);
 		
 		// Test diverse size FFTs
-		int prev = 0;
-		for (int i = 0; i <= 100; i++) {
+		for (int i = 0, prev = 0; i <= 100; i++) {
 			int n = (int)Math.round(Math.pow(1500, i / 100.0));
 			if (n > prev) {
 				testFft(n);
@@ -53,8 +52,7 @@ public final class FftTest {
 			testConvolution(1 << i);
 		
 		// Test diverse size convolutions
-		prev = 0;
-		for (int i = 0; i <= 100; i++) {
+		for (int i = 0, prev = 0; i <= 100; i++) {
 			int n = (int)Math.round(Math.pow(1500, i / 100.0));
 			if (n > prev) {
 				testConvolution(n);

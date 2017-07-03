@@ -39,8 +39,7 @@ public sealed class FftTest {
 			TestFft(i);
 		
 		// Test diverse size FFTs
-		int prev = 0;
-		for (int i = 0; i <= 100; i++) {
+		for (int i = 0, prev = 0; i <= 100; i++) {
 			int n = (int)Math.Round(Math.Pow(1500, i / 100.0));
 			if (n > prev) {
 				TestFft(n);
@@ -53,8 +52,7 @@ public sealed class FftTest {
 			TestConvolution(1 << i);
 		
 		// Test diverse size convolutions
-		prev = 0;
-		for (int i = 0; i <= 100; i++) {
+		for (int i = 0, prev = 0; i <= 100; i++) {
 			int n = (int)Math.Round(Math.Pow(1500, i / 100.0));
 			if (n > prev) {
 				TestConvolution(n);

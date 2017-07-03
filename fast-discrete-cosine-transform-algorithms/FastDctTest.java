@@ -28,6 +28,8 @@ import org.junit.Test;
 
 public final class FastDctTest {
 	
+	/*---- Test suite ----*/
+	
 	@Test public void testFastDctLeeVsNaive() {
 		for (int len = 1; len <= (1 << 13); len *= 2) {
 			double[] vector = randomVector(len);
@@ -77,6 +79,30 @@ public final class FastDctTest {
 		Assert.assertArrayEquals(expect, actual, EPSILON);
 	}
 	
+	
+	@Test public void testFastDctFftVsNaive() {
+		for (int i = 0, prev = 0; i <= 100; i++) {
+			int len = (int)Math.round(Math.pow(3000, i / 100.0));
+			if (len <= prev)
+				continue;
+			prev = len;
+			double[] vector = randomVector(len);
+			
+			double[] expect = NaiveDct.transform(vector);
+			double[] actual = vector.clone();
+			FastDctFft.transform(actual);
+			Assert.assertArrayEquals(expect, actual, EPSILON);
+			
+			expect = NaiveDct.inverseTransform(vector);
+			actual = vector.clone();
+			FastDctFft.inverseTransform(actual);
+			Assert.assertArrayEquals(expect, actual, EPSILON);
+		}
+	}
+	
+	
+	
+	/*---- Utilities ----*/
 	
 	private static double[] randomVector(int len) {
 		double[] result = new double[len];

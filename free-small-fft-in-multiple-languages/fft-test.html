@@ -43,8 +43,7 @@ function main() {
 		testFft(i);
 	
 	// Test diverse size FFTs
-	var prev = 0;
-	for (var i = 0; i <= 100; i++) {
+	for (var i = 0, prev = 0; i <= 100; i++) {
 		var n = Math.round(Math.pow(1500, i / 100.0));
 		if (n > prev) {
 			testFft(n);
@@ -57,8 +56,7 @@ function main() {
 		testConvolution(1 << i);
 	
 	// Test diverse size convolutions
-	prev = 0;
-	for (var i = 0; i <= 100; i++) {
+	for (var i = 0, prev = 0; i <= 100; i++) {
 		var n = Math.round(Math.pow(1500, i / 100.0));
 		if (n > prev) {
 			testConvolution(n);
