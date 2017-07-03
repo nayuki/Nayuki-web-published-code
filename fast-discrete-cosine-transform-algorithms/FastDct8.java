@@ -24,9 +24,15 @@
 
 public final class FastDct8 {
 	
-	// DCT type II, scaled. Algorithm by Arai, Agui, Nakajima, 1988.
-	// See: https://web.stanford.edu/class/ee398a/handouts/lectures/07-TransformCoding.pdf#page=30
+	/**
+	 * Computes the scaled DCT type II on the specified length-8 array in place.
+	 * <p>The inverse of this function is {@link #inverseTransform}, except for rounding errors.</p>
+	 * @param vector the vector of numbers to transform
+	 * @throws NullPointerException if the array is {@code null}
+	 */
 	public static void transform(double[] vector) {
+		// Algorithm by Arai, Agui, Nakajima, 1988. For details, see:
+		// https://web.stanford.edu/class/ee398a/handouts/lectures/07-TransformCoding.pdf#page=30
 		final double v0, v1, v2, v3, v4, v5, v6, v7, v8, v9,
 			v10, v11, v12, v13, v14, v15, v16, v17, v18, v19,
 			v20, v21, v22, v23, v24, v25, v26, v27, v28;
@@ -77,8 +83,14 @@ public final class FastDct8 {
 	}
 	
 	
-	// DCT type III, scaled. A straightforward inverse of the forward algorithm.
+	/**
+	 * Computes the scaled DCT type III on the specified length-8 array in place.
+	 * <p>The inverse of this function is {@link #transform}, except for rounding errors.</p>
+	 * @param vector the vector of numbers to transform
+	 * @throws NullPointerException if the array is {@code null}
+	 */
 	public static void inverseTransform(double[] vector) {
+		// A straightforward inverse of the forward algorithm
 		final double v0, v1, v2, v3, v4, v5, v6, v7, v8, v9,
 			v10, v11, v12, v13, v14, v15, v16, v17, v18, v19,
 			v20, v21, v22, v23, v24, v25, v26, v27, v28;

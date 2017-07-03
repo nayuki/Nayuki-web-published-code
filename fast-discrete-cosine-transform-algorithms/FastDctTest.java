@@ -30,9 +30,7 @@ public final class FastDctTest {
 	
 	@Test public void testFastDctLeeVsNaive() {
 		for (int len = 1; len <= (1 << 13); len *= 2) {
-			double[] vector = new double[len];
-			for (int i = 0; i < vector.length; i++)
-				vector[i] = rand.nextDouble() * 2 - 1;
+			double[] vector = randomVector(len);
 			
 			double[] expect = NaiveDct.transform(vector);
 			double[] actual = vector.clone();
@@ -49,9 +47,7 @@ public final class FastDctTest {
 	
 	@Test public void testFastDctLeeInvertibility() {
 		for (int len = 1; len <= (1 << 22); len *= 2) {
-			double[] vector = new double[len];
-			for (int i = 0; i < vector.length; i++)
-				vector[i] = rand.nextDouble() * 2 - 1;
+			double[] vector = randomVector(len);
 			double[] temp = vector.clone();
 			FastDctLee.transform(temp);
 			FastDctLee.inverseTransform(temp);
@@ -63,9 +59,7 @@ public final class FastDctTest {
 	
 	
 	@Test public void testFastDct8VsNaive() {
-		double[] vector = new double[8];
-		for (int i = 0; i < vector.length; i++)
-			vector[i] = rand.nextDouble() * 2 - 1;
+		double[] vector = randomVector(8);
 		
 		double[] expect = NaiveDct.transform(vector);
 		for (int i = 0; i < expect.length; i++)
@@ -81,6 +75,14 @@ public final class FastDctTest {
 		actual = vector.clone();
 		FastDct8.inverseTransform(actual);
 		Assert.assertArrayEquals(expect, actual, EPSILON);
+	}
+	
+	
+	private static double[] randomVector(int len) {
+		double[] result = new double[len];
+		for (int i = 0; i < result.length; i++)
+			result[i] = rand.nextDouble() * 2 - 1;
+		return result;
 	}
 	
 	

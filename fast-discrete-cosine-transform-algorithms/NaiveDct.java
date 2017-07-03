@@ -21,12 +21,22 @@
  *   Software.
  */
 
+import java.util.Objects;
+
 
 public final class NaiveDct {
 	
-	// DCT type II, unscaled.
-	// See: https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-II
+	/**
+	 * Computes the unscaled DCT type II on the specified array, returning a new array.
+	 * The array length can be any value, starting from zero. The returned array has the same length.
+	 * <p>For the formula, see <a href="https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-II">
+	 * Wikipedia: Discrete cosine transform - DCT-II</a>.</p>
+	 * @param vector the vector of numbers to transform
+	 * @return an array representing the DCT of the given vector
+	 * @throws NullPointerException if the array is {@code null}
+	 */
 	public static double[] transform(double[] vector) {
+		Objects.requireNonNull(vector);
 		double[] result = new double[vector.length];
 		double factor = Math.PI / vector.length;
 		for (int i = 0; i < vector.length; i++) {
@@ -39,9 +49,17 @@ public final class NaiveDct {
 	}
 	
 	
-	// DCT type III, unscaled.
-	// See: https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-III
+	/**
+	 * Computes the unscaled DCT type III on the specified array, returning a new array.
+	 * The array length can be any value, starting from zero. The returned array has the same length.
+	 * <p>For the formula, see <a href="https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-III">
+	 * Wikipedia: Discrete cosine transform - DCT-III</a>.</p>
+	 * @param vector the vector of numbers to transform
+	 * @return an array representing the DCT of the given vector
+	 * @throws NullPointerException if the array is {@code null}
+	 */
 	public static double[] inverseTransform(double[] vector) {
+		Objects.requireNonNull(vector);
 		double[] result = new double[vector.length];
 		double factor = Math.PI / vector.length;
 		for (int i = 0; i < vector.length; i++) {

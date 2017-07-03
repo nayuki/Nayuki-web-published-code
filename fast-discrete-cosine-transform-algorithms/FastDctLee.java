@@ -21,12 +21,21 @@
  *   Software.
  */
 
+import java.util.Objects;
+
 
 public final class FastDctLee {
 	
-	// DCT type II, unscaled. Algorithm by Byeong Gi Lee, 1984.
-	// See: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.3056&rep=rep1&type=pdf#page=34
+	/**
+	 * Computes the unscaled DCT type II on the specified array in place.
+	 * The array length must be a power of 2 or zero.
+	 * <p>For the formula, see <a href="https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-II">
+	 * Wikipedia: Discrete cosine transform - DCT-II</a>.</p>
+	 * @param vector the vector of numbers to transform
+	 * @throws NullPointerException if the array is {@code null}
+	 */
 	public static void transform(double[] vector) {
+		Objects.requireNonNull(vector);
 		int n = vector.length;
 		if (Integer.bitCount(n) != 1)
 			throw new IllegalArgumentException();
@@ -35,6 +44,8 @@ public final class FastDctLee {
 	
 	
 	private static void transform(double[] vector, int off, int len, double[] temp) {
+		// Algorithm by Byeong Gi Lee, 1984. For details, see:
+		// See: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.3056&rep=rep1&type=pdf#page=34
 		if (len == 1)
 			return;
 		int halfLen = len / 2;
@@ -55,9 +66,16 @@ public final class FastDctLee {
 	}
 	
 	
-	// DCT type III, unscaled. Algorithm by Byeong Gi Lee, 1984.
-	// See: http://tsp7.snu.ac.kr/int_jour/IJ_2.pdf
+	/**
+	 * Computes the unscaled DCT type III on the specified array in place.
+	 * The array length must be a power of 2 or zero.
+	 * <p>For the formula, see <a href="https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-III">
+	 * Wikipedia: Discrete cosine transform - DCT-III</a>.</p>
+	 * @param vector the vector of numbers to transform
+	 * @throws NullPointerException if the array is {@code null}
+	 */
 	public static void inverseTransform(double[] vector) {
+		Objects.requireNonNull(vector);
 		int n = vector.length;
 		if (Integer.bitCount(n) != 1)
 			throw new IllegalArgumentException();
@@ -67,6 +85,8 @@ public final class FastDctLee {
 	
 	
 	private static void inverseTransform(double[] vector, int off, int len, double[] temp) {
+		// Algorithm by Byeong Gi Lee, 1984. For details, see:
+		// http://tsp7.snu.ac.kr/int_jour/IJ_2.pdf
 		if (len == 1)
 			return;
 		int halfLen = len / 2;

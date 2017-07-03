@@ -30,7 +30,7 @@ class FastDctTest(unittest.TestCase):
 	def test_fast_dct_lee_vs_naive(self):
 		for i in range(1, 12):
 			n = 2**i
-			vector = [random.uniform(-1.0, 1.0) for _ in range(n)]
+			vector = FastDctTest.random_vector(n)
 			expect = naivedct.transform(vector)
 			actual = fastdctlee.transform(vector)
 			self.assertListAlmostEqual(actual, expect)
@@ -42,7 +42,7 @@ class FastDctTest(unittest.TestCase):
 	def test_fast_dct_lee_invertibility(self):
 		for i in range(1, 18):
 			n = 2**i
-			vector = [random.uniform(-1.0, 1.0) for _ in range(n)]
+			vector = FastDctTest.random_vector(n)
 			temp = fastdctlee.transform(vector)
 			temp = fastdctlee.inverse_transform(temp)
 			temp = [(val * 2.0 / n) for val in temp]
@@ -52,7 +52,7 @@ class FastDctTest(unittest.TestCase):
 	
 	def test_fast_dct8_vs_naive(self):
 		n = 8
-		vector = [random.uniform(-1.0, 1.0) for _ in range(n)]
+		vector = FastDctTest.random_vector(n)
 		
 		expect = naivedct.transform(vector)
 		for i in range(n):
@@ -71,6 +71,11 @@ class FastDctTest(unittest.TestCase):
 		self.assertEqual(len(actual), len(expect))
 		for (x, y) in zip(actual, expect):
 			self.assertAlmostEqual(x, y, delta=FastDctTest._EPSILON)
+	
+	
+	@staticmethod
+	def random_vector(n):
+		return [random.uniform(-1.0, 1.0) for _ in range(n)]
 	
 	
 	_EPSILON = 1e-9
