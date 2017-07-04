@@ -101,6 +101,23 @@ public final class FastDctTest {
 	}
 	
 	
+	@Test public void testFastDctFftInvertibility() {
+		for (int i = 0, prev = 0; i <= 30; i++) {
+			int len = (int)Math.round(Math.pow(1000000, i / 30.0));
+			if (len <= prev)
+				continue;
+			prev = len;
+			double[] vector = randomVector(len);
+			double[] temp = vector.clone();
+			FastDctFft.transform(temp);
+			FastDctFft.inverseTransform(temp);
+			for (int j = 0; j < temp.length; j++)
+				temp[j] /= len / 2.0;
+			Assert.assertArrayEquals(vector, temp, EPSILON);
+		}
+	}
+	
+	
 	
 	/*---- Utilities ----*/
 	

@@ -27,6 +27,7 @@
 #include <random>
 #include <vector>
 #include "FastDct8.hpp"
+#include "FastDctFft.hpp"
 #include "FastDctLee.hpp"
 #include "NaiveDct.hpp"
 
@@ -42,6 +43,8 @@ static std::default_random_engine randGen((std::random_device())());
 static void testFastDctLeeVsNaive();
 static void testFastDctLeeInvertibility();
 static void testFastDct8VsNaive();
+static void testFastDctFftVsNaive();
+static void testFastDctFftInvertibility();
 static void assertArrayEquals(const vector<double> &expect, const vector<double> &actual, double epsilon);
 static vector<double> randomVector(size_t len);
 
@@ -51,6 +54,9 @@ int main() {
 		testFastDctLeeVsNaive();
 		testFastDctLeeInvertibility();
 		testFastDct8VsNaive();
+		testFastDctFftVsNaive();
+		testFastDctFftInvertibility();
+		
 		return EXIT_SUCCESS;
 	} catch (const char *msg) {
 		std::cerr << msg << std::endl;
@@ -108,6 +114,47 @@ static void testFastDct8VsNaive() {
 		vector<double> actual(vec);
 		FastDct8::inverseTransform(actual.data());
 		assertArrayEquals(expect, actual, EPSILON);
+	}
+}
+
+
+static void testFastDctFftVsNaive() {
+	size_t prev = 0;
+	for (int i = 0; i <= 100; i++) {
+		size_t len = static_cast<size_t>(std::round(std::pow(3000.0, i / 100.0)));
+		if (len <= prev)
+			continue;
+		prev = len;
+		vector<double> vec(randomVector(len));
+		{
+			vector<double> expect(NaiveDct::transform(vec));
+			vector<double> actual(vec);
+			FastDctFft::transform(actual);
+			assertArrayEquals(expect, actual, EPSILON);
+		} {
+			vector<double> expect(NaiveDct::inverseTransform(vec));
+			vector<double> actual(vec);
+			FastDctFft::inverseTransform(actual);
+			assertArrayEquals(expect, actual, EPSILON);
+		}
+	}
+}
+
+
+static void testFastDctFftInvertibility() {
+	size_t prev = 0;
+	for (int i = 0; i <= 30; i++) {
+		size_t len = static_cast<size_t>(std::round(std::pow(1000000.0, i / 30.0)));
+		if (len <= prev)
+			continue;
+		prev = len;
+		vector<double> vec(randomVector(len));
+		vector<double> temp(vec);
+		FastDctFft::transform(temp);
+		FastDctFft::inverseTransform(temp);
+		for (size_t i = 0; i < len; i++)
+			temp.at(i) /= len / 2.0;
+		assertArrayEquals(vec, temp, EPSILON);
 	}
 }
 

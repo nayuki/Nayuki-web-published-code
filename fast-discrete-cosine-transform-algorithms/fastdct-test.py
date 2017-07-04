@@ -22,7 +22,7 @@
 # 
 
 import math, random, unittest
-import fastdct8, fastdctlee, naivedct
+import fastdct8, fastdctfft, fastdctlee, naivedct
 
 
 class FastDctTest(unittest.TestCase):
@@ -65,6 +65,38 @@ class FastDctTest(unittest.TestCase):
 		expect = naivedct.inverse_transform(expect)
 		actual = fastdct8.inverse_transform(vector)
 		self.assertListAlmostEqual(actual, expect)
+	
+	
+	def test_fast_dct_fft_vs_naive(self):
+		prev = 0
+		for i in range(100 + 1):
+			n = round(1000**(i / 100.0))
+			if n <= prev:
+				continue
+			prev = n
+			vector = FastDctTest.random_vector(n)
+			
+			expect = naivedct.transform(vector)
+			actual = fastdctfft.transform(vector)
+			self.assertListAlmostEqual(actual, expect)
+			
+			expect = naivedct.inverse_transform(vector)
+			actual = fastdctfft.inverse_transform(vector)
+			self.assertListAlmostEqual(actual, expect)
+	
+	
+	def test_fast_dct_fft_invertibility(self):
+		prev = 0
+		for i in range(30 + 1):
+			n = round(10000**(i / 30.0))
+			if n <= prev:
+				continue
+			prev = n
+			vector = FastDctTest.random_vector(n)
+			temp = fastdctfft.transform(vector)
+			temp = fastdctfft.inverse_transform(temp)
+			temp = [(val * 2.0 / n) for val in temp]
+			self.assertListAlmostEqual(vector, temp)
 	
 	
 	def assertListAlmostEqual(self, actual, expect):

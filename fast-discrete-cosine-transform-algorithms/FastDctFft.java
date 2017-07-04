@@ -37,15 +37,20 @@ public final class FastDctFft {
 	 */
 	public static void transform(double[] vector) {
 		Objects.requireNonNull(vector);
-		final int len = vector.length;
-		if (Integer.MAX_VALUE / 2 < len)
-			throw new IllegalArgumentException();
-		double[] real = Arrays.copyOf(vector, len * 2);
-		double[] imag = new double[real.length];
-		Fft.transform(real, imag);
+		int len = vector.length;
+		int halfLen = len / 2;
+		double[] real = new double[len];
+		for (int i = 0; i < halfLen; i++) {
+			real[i] = vector[i * 2];
+			real[len - 1 - i] = vector[i * 2 + 1];
+		}
+		if (len % 2 == 1)
+			real[halfLen] = vector[len - 1];
+		Arrays.fill(vector, 0.0);
+		Fft.transform(real, vector);
 		for (int i = 0; i < len; i++) {
 			double temp = i * Math.PI / (len * 2);
-			vector[i] = real[i] * Math.cos(temp) + imag[i] * Math.sin(temp);
+			vector[i] = real[i] * Math.cos(temp) + vector[i] * Math.sin(temp);
 		}
 	}
 	
@@ -60,19 +65,24 @@ public final class FastDctFft {
 	 */
 	public static void inverseTransform(double[] vector) {
 		Objects.requireNonNull(vector);
-		final int len = vector.length;
-		if (Integer.MAX_VALUE / 2 < len)
-			throw new IllegalArgumentException();
-		vector[0] /= 2;
-		double[] real = new double[len * 2];
-		double[] imag = new double[real.length];
+		int len = vector.length;
+		if (len > 0)
+			vector[0] /= 2;
+		double[] real = new double[len];
 		for (int i = 0; i < len; i++) {
-			double temp = -i * Math.PI / (len * 2);
+			double temp = i * Math.PI / (len * 2);
 			real[i] = vector[i] * Math.cos(temp);
-			imag[i] = vector[i] * Math.sin(temp);
+			vector[i] *= -Math.sin(temp);
 		}
-		Fft.transform(real, imag);
-		System.arraycopy(real, 0, vector, 0, len);
+		Fft.transform(real, vector);
+		
+		int halfLen = len / 2;
+		for (int i = 0; i < halfLen; i++) {
+			vector[i * 2] = real[i];
+			vector[i * 2 + 1] = real[len - 1 - i];
+		}
+		if (len % 2 == 1)
+			vector[len - 1] = real[halfLen];
 	}
 	
 }

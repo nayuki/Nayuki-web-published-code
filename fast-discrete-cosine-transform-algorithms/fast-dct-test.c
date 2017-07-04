@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "fast-dct-8.h"
+#include "fast-dct-fft.h"
 #include "fast-dct-lee.h"
 #include "naive-dct.h"
 
@@ -39,6 +40,8 @@ static const double EPSILON = 1e-9;
 static void testFastDctLeeVsNaive(void);
 static void testFastDctLeeInvertibility(void);
 static void testFastDct8VsNaive(void);
+static void testFastDctFftVsNaive(void);
+static void testFastDctFftInvertibility(void);
 static void assertArrayEquals(double expect[], double actual[], size_t len, double epsilon);
 static double *randomVector(size_t len);
 
@@ -47,6 +50,8 @@ int main(void) {
 	testFastDctLeeVsNaive();
 	testFastDctLeeInvertibility();
 	testFastDct8VsNaive();
+	testFastDctFftVsNaive();
+	testFastDctFftInvertibility();
 	fprintf(stderr, "Test passed\n");
 	return EXIT_SUCCESS;
 }
@@ -118,6 +123,56 @@ static void testFastDct8VsNaive(void) {
 	free(vector);
 	free(expect);
 	free(actual);
+}
+
+
+static void testFastDctFftVsNaive(void) {
+	size_t prev = 0;
+	for (int i = 0; i <= 100; i++) {
+		size_t len = (size_t)round(pow(3000.0, i / 100.0));
+		if (len <= prev)
+			continue;
+		prev = len;
+		double *vector = randomVector(len);
+		
+		double *expect = NaiveDct_transform(vector, len);
+		double *actual = calloc(len, sizeof(double));
+		memcpy(actual, vector, len * sizeof(double));
+		FastDctFft_transform(actual, len);
+		assertArrayEquals(expect, actual, len, EPSILON);
+		free(expect);
+		free(actual);
+		
+		expect = NaiveDct_inverseTransform(vector, len);
+		actual = calloc(len, sizeof(double));
+		memcpy(actual, vector, len * sizeof(double));
+		FastDctFft_inverseTransform(actual, len);
+		assertArrayEquals(expect, actual, len, EPSILON);
+		free(vector);
+		free(expect);
+		free(actual);
+	}
+}
+
+
+static void testFastDctFftInvertibility(void) {
+	size_t prev = 0;
+	for (int i = 0; i <= 30; i++) {
+		size_t len = (size_t)round(pow(1000000.0, i / 30.0));
+		if (len <= prev)
+			continue;
+		prev = len;
+		double *vector = randomVector(len);
+		double *temp = calloc(len, sizeof(double));
+		memcpy(temp, vector, len * sizeof(double));
+		FastDctFft_transform(temp, len);
+		FastDctFft_inverseTransform(temp, len);
+		for (size_t i = 0; i < len; i++)
+			temp[i] /= len / 2.0;
+		assertArrayEquals(vector, temp, len, EPSILON);
+		free(vector);
+		free(temp);
+	}
 }
 
 
