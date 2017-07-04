@@ -21,6 +21,8 @@
  *   Software.
  */
 
+#pragma once
+
 
 void FastDct8_transform(double vector[8]);
 

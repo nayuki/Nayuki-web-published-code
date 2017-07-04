@@ -21,6 +21,8 @@
  *   Software.
  */
 
+#pragma once
+
 
 namespace FastDct8 {
 	

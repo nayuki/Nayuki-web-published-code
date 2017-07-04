@@ -21,6 +21,8 @@
  *   Software.
  */
 
+#pragma once
+
 #include <vector>
 
 

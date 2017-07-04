@@ -21,6 +21,8 @@
  *   Software.
  */
 
+#pragma once
+
 
 float srgb_to_linear_float(float x);
 double srgb_to_linear_double(double x);
