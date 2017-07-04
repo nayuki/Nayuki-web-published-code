@@ -34,14 +34,14 @@ static void inverseTransform(double vector[], double temp[], size_t len);
 
 // DCT type II, unscaled. Algorithm by Byeong Gi Lee, 1984.
 // See: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.3056&rep=rep1&type=pdf#page=34
-void FastDctLee::transform(std::vector<double> &vec) {
+void FastDctLee::transform(vector<double> &vec) {
 	transform(vec.data(), vec.size());
 }
 
 
 void FastDctLee::transform(double vec[], size_t len) {
-	if ((len & (len - 1)) != 0)  // Check if length is 0 or a power of 2
-		throw "Invalid length";
+	if (len > 0 && (len & (len - 1)) != 0)
+		throw "Invalid length";  // Length is not power of 2
 	vector<double> temp(len);
 	forwardTransform(vec, temp.data(), len);
 }
@@ -70,14 +70,14 @@ static void forwardTransform(double vec[], double temp[], size_t len) {
 
 // DCT type III, unscaled. Algorithm by Byeong Gi Lee, 1984.
 // See: http://tsp7.snu.ac.kr/int_jour/IJ_2.pdf
-void FastDctLee::inverseTransform(std::vector<double> &vec) {
+void FastDctLee::inverseTransform(vector<double> &vec) {
 	inverseTransform(vec.data(), vec.size());
 }
 
 
 void FastDctLee::inverseTransform(double vec[], size_t len) {
-	if ((len & (len - 1)) != 0)  // Check if length is 0 or a power of 2
-		throw "Invalid length";
+	if (len > 0 && (len & (len - 1)) != 0)
+		throw "Invalid length";  // Length is not power of 2
 	vec[0] /= 2;
 	vector<double> temp(len);
 	::inverseTransform(vec, temp.data(), len);

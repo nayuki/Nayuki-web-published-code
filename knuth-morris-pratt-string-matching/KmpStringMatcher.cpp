@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (C++)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,6 +26,8 @@
 #include <cstring>
 #include <vector>
 
+using std::size_t;
+
 
 // Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
 // If the pattern is found, a pointer to the start of the earliest match in 'text' is returned. Otherwise nullptr is returned.
@@ -34,7 +36,7 @@ const char *kmpSearch(const char *pattern, const char *text) {
 		return text;  // Immediate match
 	
 	// Compute longest suffix-prefix table
-	std::vector<size_t> lsp(strlen(pattern));
+	std::vector<size_t> lsp(std::strlen(pattern));
 	lsp.at(0) = 0;  // Base case
 	for (size_t i = 1; i < lsp.size(); i++) {
 		size_t j = lsp.at(i - 1);  // Start by assuming we're extending the previous LSP

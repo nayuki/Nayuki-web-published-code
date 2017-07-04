@@ -33,8 +33,8 @@ class SrgbTransformTest(unittest.TestCase):
 			x = random.random()
 			y = srgbtransform.srgb_to_linear(x)
 			z = srgbtransform.linear_to_srgb(x)
-			self.assertAlmostEqual(x, srgbtransform.linear_to_srgb(y), delta=DELTA)
-			self.assertAlmostEqual(x, srgbtransform.srgb_to_linear(z), delta=DELTA)
+			self.assertAlmostEqual(x, srgbtransform.linear_to_srgb(y), delta=SrgbTransformTest._DELTA)
+			self.assertAlmostEqual(x, srgbtransform.srgb_to_linear(z), delta=SrgbTransformTest._DELTA)
 	
 	
 	def test_monotonicity(self):
@@ -44,7 +44,7 @@ class SrgbTransformTest(unittest.TestCase):
 			y = random.random() * 2 - 0.5
 			if y < x:
 				x, y = y, x
-			if y - x > DELTA:
+			if y - x > SrgbTransformTest._DELTA:
 				self.assertTrue(srgbtransform.srgb_to_linear(x) <= srgbtransform.srgb_to_linear(y))
 				self.assertTrue(srgbtransform.linear_to_srgb(x) <= srgbtransform.linear_to_srgb(y))
 				self.assertTrue(srgbtransform.linear_to_srgb_8bit(x) <= srgbtransform.linear_to_srgb_8bit(y))
@@ -54,9 +54,9 @@ class SrgbTransformTest(unittest.TestCase):
 		for i in range(256):
 			self.assertTrue(srgbtransform.linear_to_srgb_8bit(srgbtransform.srgb_8bit_to_linear(i)) == i);
 			self.assertTrue(abs(srgbtransform.linear_to_srgb(srgbtransform.srgb_8bit_to_linear(i)) * 255 - i) < 1);
-
-
-DELTA = 1e-7
+	
+	
+	_DELTA = 1e-7
 
 
 if __name__ == "__main__":

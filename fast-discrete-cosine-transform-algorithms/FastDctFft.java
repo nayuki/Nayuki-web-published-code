@@ -78,7 +78,7 @@ public final class FastDctFft {
 		
 		int halfLen = len / 2;
 		for (int i = 0; i < halfLen; i++) {
-			vector[i * 2] = real[i];
+			vector[i * 2 + 0] = real[i];
 			vector[i * 2 + 1] = real[len - 1 - i];
 		}
 		if (len % 2 == 1)

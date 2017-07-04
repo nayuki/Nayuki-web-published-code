@@ -257,7 +257,7 @@ static size_t reverse_bits(size_t x, int n) {
 
 static void *memdup(const void *src, size_t n) {
 	void *dest = malloc(n);
-	if (dest != NULL)
+	if (n > 0 && dest != NULL)
 		memcpy(dest, src, n);
 	return dest;
 }

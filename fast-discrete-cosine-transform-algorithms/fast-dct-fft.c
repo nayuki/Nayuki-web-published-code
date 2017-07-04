@@ -87,7 +87,7 @@ bool FastDctFft_inverseTransform(double vector[], size_t len) {
 	// Postprocess the vectors
 	size_t halfLen = len / 2;
 	for (size_t i = 0; i < halfLen; i++) {
-		vector[i * 2] = real[i];
+		vector[i * 2 + 0] = real[i];
 		vector[i * 2 + 1] = real[len - 1 - i];
 	}
 	if (len % 2 == 1)

@@ -23,6 +23,8 @@
 
 #pragma once
 
+#include <vector>
+
 
 namespace Fft {
 	

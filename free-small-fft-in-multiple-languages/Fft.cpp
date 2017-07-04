@@ -22,8 +22,8 @@
  */
 
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
-#include <vector>
 #include "Fft.hpp"
 
 using std::size_t;

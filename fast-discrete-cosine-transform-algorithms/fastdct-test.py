@@ -47,7 +47,6 @@ class FastDctTest(unittest.TestCase):
 			temp = fastdctlee.inverse_transform(temp)
 			temp = [(val * 2.0 / n) for val in temp]
 			self.assertListAlmostEqual(vector, temp)
-			n *= 2
 	
 	
 	def test_fast_dct8_vs_naive(self):

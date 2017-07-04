@@ -65,7 +65,7 @@ void FastDctFft::inverseTransform(vector<double> &vec) {
 	
 	size_t halfLen = len / 2;
 	for (size_t i = 0; i < halfLen; i++) {
-		vec.at(i * 2) = real.at(i);
+		vec.at(i * 2 + 0) = real.at(i);
 		vec.at(i * 2 + 1) = real.at(len - 1 - i);
 	}
 	if (len % 2 == 1)

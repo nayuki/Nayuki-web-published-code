@@ -30,7 +30,7 @@ def transform(vector):
 	n = len(vector)
 	if n == 1:
 		return list(vector)
-	elif n % 2 != 0:
+	elif n == 0 or n % 2 != 0:
 		raise ValueError()
 	else:
 		half = n // 2
@@ -57,7 +57,7 @@ def inverse_transform(vector, root=True):
 	n = len(vector)
 	if n == 1:
 		return vector
-	elif n % 2 != 0:
+	elif n == 0 or n % 2 != 0:
 		raise ValueError()
 	else:
 		half = n // 2

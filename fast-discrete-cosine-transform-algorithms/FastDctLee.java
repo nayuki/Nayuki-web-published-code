@@ -28,7 +28,7 @@ public final class FastDctLee {
 	
 	/**
 	 * Computes the unscaled DCT type II on the specified array in place.
-	 * The array length must be a power of 2 or zero.
+	 * The array length must be a power of 2.
 	 * <p>For the formula, see <a href="https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-II">
 	 * Wikipedia: Discrete cosine transform - DCT-II</a>.</p>
 	 * @param vector the vector of numbers to transform
@@ -38,7 +38,7 @@ public final class FastDctLee {
 		Objects.requireNonNull(vector);
 		int n = vector.length;
 		if (Integer.bitCount(n) != 1)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Length must be power of 2");
 		transform(vector, 0, n, new double[n]);
 	}
 	
@@ -68,7 +68,7 @@ public final class FastDctLee {
 	
 	/**
 	 * Computes the unscaled DCT type III on the specified array in place.
-	 * The array length must be a power of 2 or zero.
+	 * The array length must be a power of 2.
 	 * <p>For the formula, see <a href="https://en.wikipedia.org/wiki/Discrete_cosine_transform#DCT-III">
 	 * Wikipedia: Discrete cosine transform - DCT-III</a>.</p>
 	 * @param vector the vector of numbers to transform
@@ -78,7 +78,7 @@ public final class FastDctLee {
 		Objects.requireNonNull(vector);
 		int n = vector.length;
 		if (Integer.bitCount(n) != 1)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Length must be power of 2");
 		vector[0] /= 2;
 		inverseTransform(vector, 0, n, new double[n]);
 	}
