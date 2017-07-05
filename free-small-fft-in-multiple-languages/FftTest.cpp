@@ -179,11 +179,14 @@ static double log10RmsErr(const vector<double> &xreal, const vector<double> &xim
 	
 	int n = static_cast<int>(xreal.size());
 	double err = std::pow(10, -99 * 2);
-	for (int i = 0; i < n; i++)
-		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
+	for (int i = 0; i < n; i++) {
+		double real = xreal.at(i) - yreal.at(i);
+		double imag = ximag.at(i) - yimag.at(i);
+		err += real * real + imag * imag;
+	}
 	
 	err /= n > 0 ? n : 1;
-	err = sqrt(err);  // Now this is a root mean square (RMS) error
+	err = std::sqrt(err);  // Now this is a root mean square (RMS) error
 	err = std::log10(err);
 	maxLogError = std::max(err, maxLogError);
 	return err;

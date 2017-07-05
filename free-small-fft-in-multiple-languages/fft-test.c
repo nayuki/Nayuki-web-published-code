@@ -23,6 +23,7 @@
 
 #include <math.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,7 +99,7 @@ static void test_fft(int n) {
 	
 	double *actualoutreal = memdup(inputreal, n * sizeof(double));
 	double *actualoutimag = memdup(inputimag, n * sizeof(double));
-	transform(actualoutreal, actualoutimag, n);
+	Fft_transform(actualoutreal, actualoutimag, n);
 	
 	printf("fftsize=%4d  logerr=%5.1f\n", n,
 		log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
@@ -124,7 +125,7 @@ static void test_convolution(int n) {
 	
 	double *actualoutreal = malloc(n * sizeof(double));
 	double *actualoutimag = malloc(n * sizeof(double));
-	convolve_complex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag, n);
+	Fft_convolveComplex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag, n);
 	
 	printf("convsize=%4d  logerr=%5.1f\n", n,
 		log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
@@ -184,8 +185,11 @@ static double log10_rms_err(const double *xreal, const double *ximag,
 		const double *yreal, const double *yimag, int n) {
 	
 	double err = pow(10, -99 * 2);
-	for (int i = 0; i < n; i++)
-		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
+	for (int i = 0; i < n; i++) {
+		double real = xreal[i] - yreal[i];
+		double imag = ximag[i] - yimag[i];
+		err += real * real + imag * imag;
+	}
 	
 	err /= n > 0 ? n : 1;
 	err = sqrt(err);  // Now this is a root mean square (RMS) error

@@ -49,7 +49,7 @@ bool FastDctFft_transform(double vector[], size_t len) {
 		vector[i] = 0;
 	
 	// Transform and postprocess
-	if (!transform(real, vector, len)) {
+	if (!Fft_transform(real, vector, len)) {
 		free(real);
 		return false;
 	}
@@ -79,7 +79,7 @@ bool FastDctFft_inverseTransform(double vector[], size_t len) {
 		real[i] = vector[i] * cos(temp);
 		vector[i] *= -sin(temp);
 	}
-	if (!transform(real, vector, len)) {
+	if (!Fft_transform(real, vector, len)) {
 		free(real);
 		return false;
 	}
