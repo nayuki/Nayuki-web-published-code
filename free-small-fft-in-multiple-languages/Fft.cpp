@@ -21,6 +21,7 @@
  *   Software.
  */
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -76,12 +77,8 @@ void Fft::transformRadix2(vector<double> &real, vector<double> &imag) {
 	for (size_t i = 0; i < n; i++) {
 		size_t j = reverseBits(i, levels);
 		if (j > i) {
-			double temp = real[i];
-			real[i] = real[j];
-			real[j] = temp;
-			temp = imag[i];
-			imag[i] = imag[j];
-			imag[j] = temp;
+			std::swap(real[i], real[j]);
+			std::swap(imag[i], imag[j]);
 		}
 	}
 	
