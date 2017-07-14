@@ -7,14 +7,14 @@
  */
 
 #include <inttypes.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 
-/* Function prototypes */
-
+// Function prototypes
 static int self_check(void);
 static void benchmark(void);
 static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]);
@@ -38,7 +38,7 @@ static const uint64_t initial_state[8] = {
 };
 
 
-/* Main program */
+/*---- Main program ----*/
 
 int main(void) {
 	// Sanity test
@@ -76,7 +76,7 @@ int main(void) {
 			i = 0;
 			char message[MSG_LEN + 1] = {0};
 			memcpy(message, block, MSG_LEN);
-			fprintf(stderr, "\rHash trials: %.3f billion (%s)", totaliters / 1000000000.0, message);
+			fprintf(stderr, "\rHash trials: %.3f billion (%s)", totaliters / 1.0e9, message);
 			fflush(stderr);
 			prevprinttype = 1;
 		}
@@ -90,8 +90,10 @@ int main(void) {
 		if (hash[0] <= lowesthash[0] && compare_hashes(hash, lowesthash) < 0) {
 			char message[MSG_LEN + 1] = {0};
 			memcpy(message, block, MSG_LEN);
-			fprintf(stdout, "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 " %s\n",
-					hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7], message);
+			fprintf(stdout,
+				"%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64
+				"%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 " %s\n",
+				hash[0], hash[1], hash[2], hash[3], hash[4], hash[5], hash[6], hash[7], message);
 			if (prevprinttype == 1)
 				fprintf(stderr, "    ");
 			fprintf(stderr, "%016" PRIx64 "%016" PRIx64 "... %s\n", hash[0], hash[1], message);
@@ -116,6 +118,9 @@ int main(void) {
 }
 
 
+
+/*---- Helper functions ----*/
+
 static int self_check(void) {
 	uint8_t block[128] = {'m','e','s','s','a','g','e',' ','d','i','g','e','s','t',0x80};
 	block[127] = 112;
@@ -123,7 +128,7 @@ static int self_check(void) {
 	memcpy(state, initial_state, sizeof(state));
 	sha512_compress(state, block);
 	
-	uint64_t answer[8] = {
+	static const uint64_t answer[8] = {
 		UINT64_C(0x107DBF389D9E9F71),
 		UINT64_C(0xA3A95F6C055B9251),
 		UINT64_C(0xBC5268C2BE16D6C1),
@@ -138,13 +143,14 @@ static int self_check(void) {
 
 
 static void benchmark(void) {
-	const int N = 3000000;
+	const long N = 3000000;
 	uint8_t block[128] = {0};
 	uint64_t state[8] = {0};
 	clock_t start_time = clock();
-	for (int i = 0; i < N; i++)
+	for (long i = 0; i < N; i++)
 		sha512_compress(state, block);
-	fprintf(stderr, "Speed: %.3f million iterations per second\n", (double)N / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
+	fprintf(stderr, "Speed: %.3f million iterations per second\n",
+		(double)N / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 }
 
 
@@ -161,32 +167,34 @@ static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]) {
 }
 
 
-/* SHA-512 compression function */
+
+/*---- SHA-512 compression function ----*/
 
 static void sha512_compress(uint64_t state[8], const uint8_t block[128]) {
 	// 64-bit right rotation
-	#define ROR(x, i)  \
+	#define ROTR64(x, i)  \
 		(((x) << (64 - (i))) | ((x) >> (i)))
 	
 	#define LOADSCHEDULE(i)  \
-		schedule[i] = (uint64_t)block[i * 8 + 0] << 56  \
-		            | (uint64_t)block[i * 8 + 1] << 48  \
-		            | (uint64_t)block[i * 8 + 2] << 40  \
-		            | (uint64_t)block[i * 8 + 3] << 32  \
-		            | (uint64_t)block[i * 8 + 4] << 24  \
-		            | (uint64_t)block[i * 8 + 5] << 16  \
-		            | (uint64_t)block[i * 8 + 6] <<  8  \
-		            | (uint64_t)block[i * 8 + 7];
+		schedule[i] =  \
+			  (uint64_t)block[i * 8 + 0] << 56  \
+		    | (uint64_t)block[i * 8 + 1] << 48  \
+		    | (uint64_t)block[i * 8 + 2] << 40  \
+		    | (uint64_t)block[i * 8 + 3] << 32  \
+		    | (uint64_t)block[i * 8 + 4] << 24  \
+		    | (uint64_t)block[i * 8 + 5] << 16  \
+		    | (uint64_t)block[i * 8 + 6] <<  8  \
+		    | (uint64_t)block[i * 8 + 7] <<  0;
 	
 	#define SCHEDULE(i)  \
 		schedule[i] = schedule[i - 16] + schedule[i - 7]  \
-			+ (ROR(schedule[i - 15], 1) ^ ROR(schedule[i - 15], 8) ^ (schedule[i - 15] >> 7))  \
-			+ (ROR(schedule[i - 2], 19) ^ ROR(schedule[i - 2], 61) ^ (schedule[i - 2] >> 6));
+			+ (ROTR64(schedule[i - 15], 1) ^ ROTR64(schedule[i - 15], 8) ^ (schedule[i - 15] >> 7))  \
+			+ (ROTR64(schedule[i - 2], 19) ^ ROTR64(schedule[i - 2], 61) ^ (schedule[i - 2] >> 6));
 	
-	#define ROUND(a, b, c, d, e, f, g, h, i, k) \
-		h += (ROR(e, 14) ^ ROR(e, 18) ^ ROR(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
+	#define ROUND(a, b, c, d, e, f, g, h, i, k)  \
+		h += (ROTR64(e, 14) ^ ROTR64(e, 18) ^ ROTR64(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
 		d += h;  \
-		h += (ROR(a, 28) ^ ROR(a, 34) ^ ROR(a, 39)) + ((a & (b | c)) | (b & c));
+		h += (ROTR64(a, 28) ^ ROTR64(a, 34) ^ ROTR64(a, 39)) + ((a & (b | c)) | (b & c));
 	
 	uint64_t schedule[80];
 	LOADSCHEDULE( 0)

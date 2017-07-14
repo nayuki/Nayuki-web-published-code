@@ -22,11 +22,8 @@
  */
 
 #include <cstddef>
-#include <cstdlib>
 #include <cstring>
 #include <vector>
-
-using std::size_t;
 
 
 // Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
@@ -36,19 +33,20 @@ const char *kmpSearch(const char *pattern, const char *text) {
 		return text;  // Immediate match
 	
 	// Compute longest suffix-prefix table
-	std::vector<size_t> lsp(std::strlen(pattern));
-	lsp.at(0) = 0;  // Base case
-	for (size_t i = 1; i < lsp.size(); i++) {
-		size_t j = lsp.at(i - 1);  // Start by assuming we're extending the previous LSP
+	std::vector<std::size_t> lsp;
+	lsp.reserve(std::strlen(pattern));
+	lsp.push_back(0);  // Base case
+	for (std::size_t i = 1; i < lsp.size(); i++) {
+		std::size_t j = lsp.at(i - 1);  // Start by assuming we're extending the previous LSP
 		while (j > 0 && pattern[i] != pattern[j])
 			j = lsp.at(j - 1);
 		if (pattern[i] == pattern[j])
 			j++;
-		lsp.at(i) = j;
+		lsp.push_back(j);
 	}
 	
 	// Walk through text string
-	for (size_t j = 0; *text != '\0'; text++) {  // j is the number of chars matched in pattern
+	for (std::size_t j = 0; *text != '\0'; text++) {  // j is the number of chars matched in pattern
 		while (j > 0 && *text != pattern[j])
 			j = lsp.at(j - 1);  // Fall back in the pattern
 		if (*text == pattern[j]) {

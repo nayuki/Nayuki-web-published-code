@@ -42,7 +42,7 @@ extern void sha512_compress_dual(uint64_t states[8 * NUM_CH], const uint8_t bloc
 
 
 #define DUAL(x)  x, x
-static const uint64_t initial_states[8 * NUM_CH] = {
+static const uint64_t INITIAL_STATES[8 * NUM_CH] = {
 	DUAL(UINT64_C(0x6A09E667F3BCC908)),
 	DUAL(UINT64_C(0xBB67AE8584CAA73B)),
 	DUAL(UINT64_C(0x3C6EF372FE94F82B)),
@@ -122,7 +122,7 @@ int main(void) {
 		
 		char message[MSG_LEN + 1];
 		get_message(blocks, 0, message);  // Only print thread 0, channel 0
-		fprintf(stderr, "\rHash trials: %.3f billion (%s)", total_iterations * NUM_CH / 1000000000.0, message);
+		fprintf(stderr, "\rHash trials: %.3f billion (%s)", total_iterations * NUM_CH / 1.0e9, message);
 		fflush(stderr);
 		prev_print_type = 1;
 		
@@ -161,7 +161,7 @@ static void *worker(void *blks) {
 		
 		// Do hashing
 		uint64_t hashes[8 * NUM_CH];
-		memcpy(hashes, initial_states, sizeof(hashes));
+		memcpy(hashes, INITIAL_STATES, sizeof(hashes));
 		sha512_compress_dual(hashes, blocks);
 		
 		// Compare with lowest hash
@@ -209,7 +209,7 @@ static void *worker(void *blks) {
 
 // Assumes NUM_CH = 2
 static int self_check(void) {
-	uint8_t blocks[128 * NUM_CH] = {
+	static const uint8_t blocks[128 * NUM_CH] = {
 		'm','e','s','s','a','g','e',' ',  'a','b','c','d','e','f','g','h',
 		'd','i','g','e','s','t',0x80,0,   'b','c','d','e','f','g','h','i',
 		0,0,0,0,0,0,0,0,                  'c','d','e','f','g','h','i','j',
@@ -228,7 +228,7 @@ static int self_check(void) {
 		0,0,0,0,0,0,0,112,                0,0,0,0,0,0,3,120,
 	};
 	uint64_t states[8 * NUM_CH];
-	memcpy(states, initial_states, sizeof(states));
+	memcpy(states, INITIAL_STATES, sizeof(states));
 	sha512_compress_dual(states, blocks);
 	
 	uint64_t answers[8 * NUM_CH] = {
@@ -246,13 +246,14 @@ static int self_check(void) {
 
 
 static void benchmark(void) {
-	const int N = 3000000;
+	const long N = 3000000;
 	uint8_t blocks[128 * NUM_CH] = {0};
 	uint64_t states[8 * NUM_CH] = {0};
 	clock_t start_time = clock();
-	for (int i = 0; i < N; i++)
+	for (long i = 0; i < N; i++)
 		sha512_compress_dual(states, blocks);
-	fprintf(stderr, "Speed: %.3f million iterations per second\n", (double)N / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
+	fprintf(stderr, "Speed: %.3f million iterations per second\n",
+		(double)N / (clock() - start_time) * CLOCKS_PER_SEC / 1.0e6);
 }
 
 
