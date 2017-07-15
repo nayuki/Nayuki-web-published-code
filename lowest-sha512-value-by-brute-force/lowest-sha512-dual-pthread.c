@@ -29,20 +29,20 @@ static const int num_threads = 4;
 
 /* Function prototypes */
 
-static int self_check(void);
+static bool self_check(void);
 static void benchmark(void);
 static void *worker(void *data);
-static int compare_hashes(const uint64_t dualhash[8 * NUM_CH], int channel, const uint64_t hash[8]);
-static uint8_t get_byte(const uint8_t blocks[128 * NUM_CH], int index, int channel);
-static void    set_byte(uint8_t blocks[128 * NUM_CH], int index, int channel, uint8_t val);
-static void get_message(const uint8_t blocks[128 * NUM_CH], int channel, char *message);
+static int compare_hashes(uint64_t dualhash[8][NUM_CH], int channel, const uint64_t hash[8]);
+static uint8_t get_byte(uint8_t blocks[16][NUM_CH][8], int index, int channel);
+static void    set_byte(uint8_t blocks[16][NUM_CH][8], int index, int channel, uint8_t val);
+static void get_message(uint8_t blocks[16][NUM_CH][8], int channel, char message[MSG_LEN+1]);
 
 // Link this program with an external C or x86 compression function
-extern void sha512_compress_dual(uint64_t states[8 * NUM_CH], const uint8_t blocks[128 * NUM_CH]);
+extern void sha512_compress_dual(uint64_t states[8][NUM_CH], uint8_t blocks[16][NUM_CH][8]);
 
 
-#define DUAL(x)  x, x
-static const uint64_t INITIAL_STATES[8 * NUM_CH] = {
+#define DUAL(x)  {x, x}  // Assumes NUM_CH = 2
+static const uint64_t INITIAL_STATES[8][NUM_CH] = {
 	DUAL(UINT64_C(0x6A09E667F3BCC908)),
 	DUAL(UINT64_C(0xBB67AE8584CAA73B)),
 	DUAL(UINT64_C(0x3C6EF372FE94F82B)),
@@ -74,7 +74,7 @@ int main(void) {
 	benchmark();
 	
 	// Set up the SHA-512 processed blocks: Message (28 bytes), terminator and padding (96 bytes), length (16 bytes)
-	uint8_t *blocks = calloc(128 * NUM_CH * num_threads, sizeof(uint8_t));
+	uint8_t (*blocks)[16][NUM_CH][8] = calloc(num_threads * 16 * NUM_CH * 8, sizeof(uint8_t));
 	if (blocks == NULL) {
 		perror("calloc");
 		return EXIT_FAILURE;
@@ -86,7 +86,7 @@ int main(void) {
 		
 		for (int i = 0; i < num_threads; i++) {
 			for (int ch = 0; ch < NUM_CH; ch++) {
-				uint8_t *blks = &blocks[128 * NUM_CH * i];
+				uint8_t (*blks)[NUM_CH][8] = blocks[i];
 				uint64_t temp = time + i * NUM_CH + ch;
 				for (int j = 0; j < MSG_LEN / 2; j++, temp /= 26)
 					set_byte(blks, j, ch, 'a' + temp % 26);
@@ -104,13 +104,13 @@ int main(void) {
 	global_lowest_hash[0] >>= 24;  // Exclude trivial matches
 	
 	// Launch threads
-	pthread_t *threads = malloc(num_threads * sizeof(pthread_t));
+	pthread_t *threads = calloc(num_threads, sizeof(pthread_t));
 	if (threads == NULL) {
-		perror("malloc");
+		perror("calloc");
 		return EXIT_FAILURE;
 	}
 	for (int i = 0; i < num_threads; i++)
-		pthread_create(&threads[i], NULL, worker, &blocks[128 * NUM_CH * i]);
+		pthread_create(&threads[i], NULL, worker, blocks[i]);
 	
 	// Print status until threads finish
 	while (true) {
@@ -121,7 +121,7 @@ int main(void) {
 		}
 		
 		char message[MSG_LEN + 1];
-		get_message(blocks, 0, message);  // Only print thread 0, channel 0
+		get_message(blocks[0], 0, message);  // Only print thread 0, channel 0
 		fprintf(stderr, "\rHash trials: %.3f billion (%s)", total_iterations * NUM_CH / 1.0e9, message);
 		fflush(stderr);
 		prev_print_type = 1;
@@ -140,7 +140,7 @@ int main(void) {
 }
 
 
-#define ITERS_PER_ACCUMULATE 3000000
+static const long iters_per_accumulate = 3000000L;
 
 static void *worker(void *blks) {
 	// State variables
@@ -148,11 +148,11 @@ static void *worker(void *blks) {
 	pthread_mutex_lock(&mutex);
 	memcpy(lowesthash, global_lowest_hash, sizeof(lowesthash));
 	pthread_mutex_unlock(&mutex);
-	uint8_t *blocks = (uint8_t *)blks;
+	uint8_t (*blocks)[NUM_CH][8] = (uint8_t (*)[NUM_CH][8])blks;
 	
-	for (int i = 0; ; i++) {
+	for (long i = 0; ; i++) {
 		// Accumulate status
-		if (i >= ITERS_PER_ACCUMULATE) {
+		if (i >= iters_per_accumulate) {
 			pthread_mutex_lock(&mutex);
 			total_iterations += i;
 			pthread_mutex_unlock(&mutex);
@@ -160,27 +160,26 @@ static void *worker(void *blks) {
 		}
 		
 		// Do hashing
-		uint64_t hashes[8 * NUM_CH];
+		uint64_t hashes[8][NUM_CH];
 		memcpy(hashes, INITIAL_STATES, sizeof(hashes));
 		sha512_compress_dual(hashes, blocks);
 		
 		// Compare with lowest hash
-		if (hashes[0] <= lowesthash[0] || hashes[1] <= lowesthash[0]) {  // Assumes NUM_CH = 2
+		if (hashes[0][0] <= lowesthash[0] || hashes[0][1] <= lowesthash[0]) {  // Assumes NUM_CH = 2
 			pthread_mutex_lock(&mutex);
 			for (int ch = 0; ch < NUM_CH; ch++) {
 				if (compare_hashes(hashes, ch, global_lowest_hash) < 0) {
 					char message[MSG_LEN + 1];
 					get_message(blocks, ch, message);
 					fprintf(stdout, "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 "%016" PRIx64 " %s\n",
-					        hashes[0 * NUM_CH + ch], hashes[1 * NUM_CH + ch], hashes[2 * NUM_CH + ch], hashes[3 * NUM_CH + ch],
-					        hashes[4 * NUM_CH + ch], hashes[5 * NUM_CH + ch], hashes[6 * NUM_CH + ch], hashes[7 * NUM_CH + ch], message);
+						hashes[0][ch], hashes[1][ch], hashes[2][ch], hashes[3][ch], hashes[4][ch], hashes[5][ch], hashes[6][ch], hashes[7][ch], message);
 					if (prev_print_type == 1)
 						fprintf(stderr, "    ");
-					fprintf(stderr, "%016" PRIx64 "%016" PRIx64 "... %s\n", hashes[0 * NUM_CH + ch], hashes[1 * NUM_CH + ch], message);
+					fprintf(stderr, "%016" PRIx64 "%016" PRIx64 "... %s\n", hashes[0][ch], hashes[1][ch], message);
 					fflush(stdout);
 					fflush(stderr);
 					for (int j = 0; j < 8; j++)
-						global_lowest_hash[j] = hashes[j * NUM_CH + ch];
+						global_lowest_hash[j] = hashes[j][ch];
 					prev_print_type = 0;
 				}
 			}
@@ -208,47 +207,47 @@ static void *worker(void *blks) {
 
 
 // Assumes NUM_CH = 2
-static int self_check(void) {
-	static const uint8_t blocks[128 * NUM_CH] = {
-		'm','e','s','s','a','g','e',' ',  'a','b','c','d','e','f','g','h',
-		'd','i','g','e','s','t',0x80,0,   'b','c','d','e','f','g','h','i',
-		0,0,0,0,0,0,0,0,                  'c','d','e','f','g','h','i','j',
-		0,0,0,0,0,0,0,0,                  'd','e','f','g','h','i','j','k',
-		0,0,0,0,0,0,0,0,                  'e','f','g','h','i','j','k','l',
-		0,0,0,0,0,0,0,0,                  'f','g','h','i','j','k','l','m',
-		0,0,0,0,0,0,0,0,                  'g','h','i','j','k','l','m','n',
-		0,0,0,0,0,0,0,0,                  'h','i','j','k','l','m','n','o',
-		0,0,0,0,0,0,0,0,                  'i','j','k','l','m','n','o','p',
-		0,0,0,0,0,0,0,0,                  'j','k','l','m','n','o','p','q',
-		0,0,0,0,0,0,0,0,                  'k','l','m','n','o','p','q','r',
-		0,0,0,0,0,0,0,0,                  'l','m','n','o','p','q','r','s',
-		0,0,0,0,0,0,0,0,                  'm','n','o','p','q','r','s','t',
-		0,0,0,0,0,0,0,0,                  'n','o','p','q','r','s','t',0x80,
-		0,0,0,0,0,0,0,0,                  0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,112,                0,0,0,0,0,0,3,120,
+static bool self_check(void) {
+	static uint8_t blocks[16][NUM_CH][8] = {
+		{{'m','e','s','s','a','g','e',' '},  {'a','b','c','d','e','f','g','h'}},
+		{{'d','i','g','e','s','t',0x80,0},   {'b','c','d','e','f','g','h','i'}},
+		{{0,0,0,0,0,0,0,0},                  {'c','d','e','f','g','h','i','j'}},
+		{{0,0,0,0,0,0,0,0},                  {'d','e','f','g','h','i','j','k'}},
+		{{0,0,0,0,0,0,0,0},                  {'e','f','g','h','i','j','k','l'}},
+		{{0,0,0,0,0,0,0,0},                  {'f','g','h','i','j','k','l','m'}},
+		{{0,0,0,0,0,0,0,0},                  {'g','h','i','j','k','l','m','n'}},
+		{{0,0,0,0,0,0,0,0},                  {'h','i','j','k','l','m','n','o'}},
+		{{0,0,0,0,0,0,0,0},                  {'i','j','k','l','m','n','o','p'}},
+		{{0,0,0,0,0,0,0,0},                  {'j','k','l','m','n','o','p','q'}},
+		{{0,0,0,0,0,0,0,0},                  {'k','l','m','n','o','p','q','r'}},
+		{{0,0,0,0,0,0,0,0},                  {'l','m','n','o','p','q','r','s'}},
+		{{0,0,0,0,0,0,0,0},                  {'m','n','o','p','q','r','s','t'}},
+		{{0,0,0,0,0,0,0,0},                  {'n','o','p','q','r','s','t',0x80}},
+		{{0,0,0,0,0,0,0,0},                  {0,0,0,0,0,0,0,0}},
+		{{0,0,0,0,0,0,0,112},                {0,0,0,0,0,0,3,120}},
 	};
-	uint64_t states[8 * NUM_CH];
+	static uint64_t answers[8][NUM_CH] = {
+		{UINT64_C(0x107DBF389D9E9F71), UINT64_C(0x0988DB6EE79AA0B4)},
+		{UINT64_C(0xA3A95F6C055B9251), UINT64_C(0xB28B0B3D2D9D50A0)},
+		{UINT64_C(0xBC5268C2BE16D6C1), UINT64_C(0xC2782144BA51A040)},
+		{UINT64_C(0x3492EA45B0199F33), UINT64_C(0x5BDF82F04E895FB6)},
+		{UINT64_C(0x09E16455AB1E9611), UINT64_C(0xA4848953A0028D33)},
+		{UINT64_C(0x8E8A905D5597B720), UINT64_C(0xDD6FCE20C3994D07)},
+		{UINT64_C(0x38DDB372A8982604), UINT64_C(0x8F8382DFC4890352)},
+		{UINT64_C(0x6DE66687BB420E7C), UINT64_C(0x1C7AA744DDEBF6C6)},
+	};
+	
+	uint64_t states[8][NUM_CH];
 	memcpy(states, INITIAL_STATES, sizeof(states));
 	sha512_compress_dual(states, blocks);
-	
-	uint64_t answers[8 * NUM_CH] = {
-		UINT64_C(0x107DBF389D9E9F71), UINT64_C(0x0988DB6EE79AA0B4),
-		UINT64_C(0xA3A95F6C055B9251), UINT64_C(0xB28B0B3D2D9D50A0),
-		UINT64_C(0xBC5268C2BE16D6C1), UINT64_C(0xC2782144BA51A040),
-		UINT64_C(0x3492EA45B0199F33), UINT64_C(0x5BDF82F04E895FB6),
-		UINT64_C(0x09E16455AB1E9611), UINT64_C(0xA4848953A0028D33),
-		UINT64_C(0x8E8A905D5597B720), UINT64_C(0xDD6FCE20C3994D07),
-		UINT64_C(0x38DDB372A8982604), UINT64_C(0x8F8382DFC4890352),
-		UINT64_C(0x6DE66687BB420E7C), UINT64_C(0x1C7AA744DDEBF6C6),
-	};
 	return memcmp(states, answers, sizeof(answers)) == 0;
 }
 
 
 static void benchmark(void) {
 	const long N = 3000000;
-	uint8_t blocks[128 * NUM_CH] = {0};
-	uint64_t states[8 * NUM_CH] = {0};
+	uint8_t blocks[16][NUM_CH][8] = {0};
+	uint64_t states[8][NUM_CH] = {0};
 	clock_t start_time = clock();
 	for (long i = 0; i < N; i++)
 		sha512_compress_dual(states, blocks);
@@ -257,9 +256,9 @@ static void benchmark(void) {
 }
 
 
-static int compare_hashes(const uint64_t dualhash[8 * NUM_CH], int channel, const uint64_t hash[8]) {
+static int compare_hashes(uint64_t dualhash[8][NUM_CH], int channel, const uint64_t hash[8]) {
 	for (int i = 0; i < 8; i++) {
-		uint64_t x = dualhash[i * NUM_CH + channel];
+		uint64_t x = dualhash[i][channel];
 		uint64_t y = hash[i];
 		if (x < y)
 			return -1;
@@ -270,17 +269,17 @@ static int compare_hashes(const uint64_t dualhash[8 * NUM_CH], int channel, cons
 }
 
 
-static uint8_t get_byte(const uint8_t blocks[128 * NUM_CH], int index, int channel) {
-	return blocks[((index & ~7) << 1) | (channel << 3) | (index & 7)];  // Assumes NUM_CH = 2
+static uint8_t get_byte(uint8_t blocks[16][NUM_CH][8], int index, int channel) {
+	return blocks[index >> 3][channel][index & 7];
 }
 
 
-static void set_byte(uint8_t blocks[128 * NUM_CH], int index, int channel, uint8_t val) {
-	blocks[((index & ~7) << 1) | (channel << 3) | (index & 7)] = val;  // Assumes NUM_CH = 2
+static void set_byte(uint8_t blocks[16][NUM_CH][8], int index, int channel, uint8_t val) {
+	blocks[index >> 3][channel][index & 7] = val;
 }
 
 
-static void get_message(const uint8_t blocks[128 * NUM_CH], int channel, char *message) {
+static void get_message(uint8_t blocks[16][NUM_CH][8], int channel, char message[MSG_LEN+1]) {
 	for (int i = 0; i < MSG_LEN; i++)
 		message[i] = get_byte(blocks, i, channel);
 	message[MSG_LEN] = '\0';

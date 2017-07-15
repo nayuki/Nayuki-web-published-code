@@ -7,7 +7,7 @@
  */
 
 
-/* void sha512_compress_dual(uint64_t states[16], const uint8_t blocks[256]) */
+/* void sha512_compress_dual(uint64_t states[8][2], uint8_t blocks[16][2][8]) */
 .globl sha512_compress_dual
 sha512_compress_dual:
 	/* 

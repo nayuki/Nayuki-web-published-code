@@ -7,7 +7,7 @@
  */
 
 
-/* void sha512_compress_quad(uint64_t states[32], const uint8_t blocks[512]) */
+/* void sha512_compress_quad(uint64_t states[8][4], uint8_t blocks[16][4][8]) */
 .globl sha512_compress_quad
 sha512_compress_quad:
 	/* 

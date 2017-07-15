@@ -7,6 +7,7 @@
  */
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,7 +16,7 @@
 
 
 // Function prototypes
-static int self_check(void);
+static bool self_check(void);
 static void benchmark(void);
 static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]);
 static void sha512_compress(uint64_t state[8], const uint8_t block[128]);
@@ -24,7 +25,7 @@ static void sha512_compress(uint64_t state[8], const uint8_t block[128]);
 // For an alphabet of lowercase letters, 16 characters already provides about 2^75 possibilities to explore, which is much more than enough.
 #define MSG_LEN 16
 
-#define ITERS_PER_PRINT 3000000
+static const long iters_per_print = 3000000L;
 
 static const uint64_t initial_state[8] = {
 	UINT64_C(0x6A09E667F3BCC908),
@@ -70,8 +71,8 @@ int main(void) {
 	uint64_t totaliters = 0;
 	int prevprinttype = 0;  // 0 = hash, 1 = status
 	
-	for (int i = 0; ; i++) {
-		if (i >= ITERS_PER_PRINT) {
+	for (long i = 0; ; i++) {
+		if (i >= iters_per_print) {
 			totaliters += i;
 			i = 0;
 			char message[MSG_LEN + 1] = {0};
@@ -121,13 +122,9 @@ int main(void) {
 
 /*---- Helper functions ----*/
 
-static int self_check(void) {
+static bool self_check(void) {
 	uint8_t block[128] = {'m','e','s','s','a','g','e',' ','d','i','g','e','s','t',0x80};
 	block[127] = 112;
-	uint64_t state[8];
-	memcpy(state, initial_state, sizeof(state));
-	sha512_compress(state, block);
-	
 	static const uint64_t answer[8] = {
 		UINT64_C(0x107DBF389D9E9F71),
 		UINT64_C(0xA3A95F6C055B9251),
@@ -138,6 +135,10 @@ static int self_check(void) {
 		UINT64_C(0x38DDB372A8982604),
 		UINT64_C(0x6DE66687BB420E7C),
 	};
+	
+	uint64_t state[8];
+	memcpy(state, initial_state, sizeof(state));
+	sha512_compress(state, block);
 	return memcmp(state, answer, sizeof(answer)) == 0;
 }
 
