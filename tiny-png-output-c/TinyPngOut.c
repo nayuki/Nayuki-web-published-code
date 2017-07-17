@@ -20,11 +20,8 @@
  */
 
 #include <limits.h>
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
-
 #include "TinyPngOut.h"
 
 
@@ -215,7 +212,7 @@ static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout) {
 static uint32_t crc32(uint32_t state, const uint8_t data[], size_t len) {
 	state = ~state;
 	for (size_t i = 0; i < len; i++) {
-		for (unsigned int j = 0; j < 8; j++) {  // Inefficient bitwise implementation, instead of table-based
+		for (int j = 0; j < 8; j++) {  // Inefficient bitwise implementation, instead of table-based
 			uint32_t bit = (state ^ (data[i] >> j)) & 1;
 			state = (state >> 1) ^ ((-bit) & 0xEDB88320);
 		}

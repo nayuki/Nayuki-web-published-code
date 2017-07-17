@@ -54,9 +54,14 @@ int main(void) {
 	struct TinyPngOut pngout;
 	if (fout == NULL || TinyPngOut_init(&pngout, fout, width, height) != TINYPNGOUT_OK)
 		goto error;
+	uint8_t *line = calloc(width * 3, sizeof(uint8_t));
+	if (line == NULL) {
+		perror("Error: calloc");
+		fclose(fout);
+		return EXIT_FAILURE;
+	}
 	
 	// Compute and write Mandelbrot one line at a time
-	uint8_t *line = malloc(width * 3 * sizeof(uint8_t));
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			uint32_t pix = mandelbrot(xMin + (x + 0.5) / width * (xMax - xMin), yMax - (y + 0.5) / height * (yMax - yMin));

@@ -32,13 +32,18 @@ extern void tea_encrypt_x86(uint32_t msg[2], const uint32_t key[4]);
 
 /* C version */
 void tea_encrypt_c(uint32_t msg[2], const uint32_t key[4]) {
-	uint32_t y = msg[0], z = msg[1];
-	uint32_t k0 = key[0], k1 = key[1], k2 = key[2], k3 = key[3];
-	int i;
-	uint32_t sum;
-	for (i = 0, sum = UINT32_C(0x9E3779B9); i < 32; i++, sum = 0U + sum + UINT32_C(0x9E3779B9)) {
+	uint32_t
+		y = msg[0],
+		z = msg[1],
+		k0 = key[0],
+		k1 = key[1],
+		k2 = key[2],
+		k3 = key[3];
+	uint32_t sum = UINT32_C(0x9E3779B9);
+	for (int i = 0; i < 32; i++) {
 		y += (((0U + z) << 4) + k0) ^ (0U + z + sum) ^ (0U + (z >> 5) + k1);
 		z += (((0U + y) << 4) + k2) ^ (0U + y + sum) ^ (0U + (y >> 5) + k3);
+		sum = 0U + sum + UINT32_C(0x9E3779B9);
 	}
 	msg[0] = y;
 	msg[1] = z;
@@ -46,8 +51,8 @@ void tea_encrypt_c(uint32_t msg[2], const uint32_t key[4]) {
 
 
 int main(void) {
-	uint32_t msg[2] = {0, 0};
-	uint32_t key[4] = {0, 0, 0, 0};
+	uint32_t msg[2] = {0};
+	uint32_t key[4] = {0};
 	
 	// Self-check
 	tea_encrypt_x86(msg, key);
@@ -58,10 +63,10 @@ int main(void) {
 	printf("Self-check passed\n");
 	
 	// Benchmark speed
-	const int N = 10000000;
-	for (int i = 0; i < N; i++)
+	const long ITERS = 10000000;
+	for (long i = 0; i < ITERS; i++)
 		tea_encrypt_x86(msg, key);
-	printf("Speed: %.1f MB/s\n", (double)N * sizeof(msg) / clock() * CLOCKS_PER_SEC / 1000000);
+	printf("Speed: %.1f MB/s\n", (double)ITERS * sizeof(msg) / clock() * CLOCKS_PER_SEC / 1000000);
 	
 	return EXIT_SUCCESS;
 }

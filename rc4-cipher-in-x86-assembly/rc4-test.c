@@ -22,6 +22,7 @@
  */
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,15 +39,16 @@ struct Rc4State {
 
 /* Function prototypes */
 
-extern void rc4_encrypt_x86(struct Rc4State *state, uint8_t *msg, size_t len);
-void rc4_init(struct Rc4State *state, const uint8_t *key, size_t len);
-void rc4_encrypt_c(struct Rc4State *state, uint8_t *msg, size_t len);
+extern void rc4_encrypt_x86(struct Rc4State *state, uint8_t msg[], size_t len);
+void rc4_init(struct Rc4State *state, const uint8_t key[], size_t len);
+void rc4_encrypt_c(struct Rc4State *state, uint8_t msg[], size_t len);
 static bool self_check(void);
 
 
 /* Main program */
 
 int main(void) {
+	// Self-check
 	if (!self_check()) {
 		printf("Self-check failed\n");
 		return EXIT_FAILURE;
@@ -54,7 +56,7 @@ int main(void) {
 	printf("Self-check passed\n");
 	
 	// Benchmark speed
-	const int TRIALS = 300000;
+	const long TRIALS = 300000;
 	#define MSG_LEN 1024
 	
 	uint8_t key[3] = {'a', 'b', 'c'};
@@ -65,12 +67,12 @@ int main(void) {
 	time_t start;
 	
 	start = clock();
-	for (int i = 0; i < TRIALS; i++)
+	for (long i = 0; i < TRIALS; i++)
 		rc4_encrypt_c(&state, msg, MSG_LEN);
 	printf("Speed (C)  : %.1f MB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1000000);
 	
 	start = clock();
-	for (int i = 0; i < TRIALS; i++)
+	for (long i = 0; i < TRIALS; i++)
 		rc4_encrypt_x86(&state, msg, MSG_LEN);
 	printf("Speed (x86): %.1f MB/s\n", (double)MSG_LEN * TRIALS / (clock() - start) * CLOCKS_PER_SEC / 1000000);
 	
@@ -80,7 +82,7 @@ int main(void) {
 
 
 static bool self_check(void) {
-	const int TRIALS = 1000;
+	const long TRIALS = 1000;
 	#define MSG_LEN 127
 	
 	uint8_t key[3] = {'K', 'e', 'y'};
@@ -91,8 +93,7 @@ static bool self_check(void) {
 	rc4_init(&state0, key, sizeof(key));
 	rc4_init(&state1, key, sizeof(key));
 	
-	int i;
-	for(i = 0; i < TRIALS; i++){
+	for (long i = 0; i < TRIALS; i++){
 		rc4_encrypt_c  (&state0, msg0, MSG_LEN);
 		rc4_encrypt_x86(&state1, msg1, MSG_LEN);
 		if (memcmp(msg0, msg1, MSG_LEN) != 0 || memcmp(&state0, &state1, sizeof(struct Rc4State)) != 0)
@@ -105,7 +106,7 @@ static bool self_check(void) {
 
 /* RC4 functions in C */
 
-void rc4_init(struct Rc4State *state, const uint8_t *key, size_t len) {
+void rc4_init(struct Rc4State *state, const uint8_t key[], size_t len) {
 	for (int i = 0; i < 256; i++)
 		state->s[i] = (uint8_t)i;
 	state->i = 0;
@@ -123,7 +124,7 @@ void rc4_init(struct Rc4State *state, const uint8_t *key, size_t len) {
 }
 
 
-void rc4_encrypt_c(struct Rc4State *state, uint8_t *msg, size_t len) {
+void rc4_encrypt_c(struct Rc4State *state, uint8_t msg[], size_t len) {
 	uint8_t i = state->i;
 	uint8_t j = state->j;
 	uint8_t *s = state->s;

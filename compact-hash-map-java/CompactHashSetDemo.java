@@ -54,7 +54,7 @@ public final class CompactHashSetDemo {
 			String val = Integer.toString(set.size(), 36);
 			set.add(val);
 			if (System.currentTimeMillis() - lastPrint > 100) {
-				System.out.printf("\rCount = %d, Memory = %.2f MiB", set.size(), (rt.totalMemory() - rt.freeMemory()) / 1048576.0);
+				System.out.printf("\rCount = %d, Memory = %.2f MB", set.size(), (rt.totalMemory() - rt.freeMemory()) / 1.0e6);
 				lastPrint = System.currentTimeMillis();
 			}
 		}

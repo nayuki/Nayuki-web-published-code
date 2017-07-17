@@ -61,7 +61,7 @@ public final class CompactHashMapDemo {
 			Integer value = r.nextInt();
 			map.put(key, value);
 			if (System.currentTimeMillis() - lastPrint > 100) {
-				System.out.printf("\rCount = %d, Memory = %.2f MiB", map.size(), (rt.totalMemory() - rt.freeMemory()) / 1048576.0);
+				System.out.printf("\rCount = %d, Memory = %.2f MB", map.size(), (rt.totalMemory() - rt.freeMemory()) / 1.0e6);
 				lastPrint = System.currentTimeMillis();
 			}
 		}

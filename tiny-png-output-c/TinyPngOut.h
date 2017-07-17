@@ -21,6 +21,9 @@
 
 #pragma once
 
+#include <stdint.h>
+#include <stdio.h>
+
 
 /* 
  * TinyPngOut data structure. Treat this as opaque; do not read or write any fields directly.

@@ -21,8 +21,9 @@ static void benchmark(void);
 static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]);
 static void sha512_compress(uint64_t state[8], const uint8_t block[128]);
 
-// The message length can be anywhere from 1 to 111 (so that the message plus footer fits in a block).
-// For an alphabet of lowercase letters, 16 characters already provides about 2^75 possibilities to explore, which is much more than enough.
+// The message length can be anywhere from 1 to 111 (so that the message plus footer
+// fits in a block). For an alphabet of lowercase letters, 16 characters already
+// provides about 2^75 possibilities to explore, which is much more than enough.
 #define MSG_LEN 16
 
 static const long iters_per_print = 3000000L;
@@ -76,7 +77,9 @@ int main(void) {
 			totaliters += i;
 			i = 0;
 			char message[MSG_LEN + 1] = {0};
-			memcpy(message, block, MSG_LEN);
+			for (int j = 0; j < MSG_LEN; j++)
+				message[j] = (char)block[j];
+			
 			fprintf(stderr, "\rHash trials: %.3f billion (%s)", totaliters / 1.0e9, message);
 			fflush(stderr);
 			prevprinttype = 1;
@@ -144,14 +147,14 @@ static bool self_check(void) {
 
 
 static void benchmark(void) {
-	const long N = 3000000;
+	const long ITERS = 3000000;
 	uint8_t block[128] = {0};
 	uint64_t state[8] = {0};
 	clock_t start_time = clock();
-	for (long i = 0; i < N; i++)
+	for (long i = 0; i < ITERS; i++)
 		sha512_compress(state, block);
 	fprintf(stderr, "Speed: %.3f million iterations per second\n",
-		(double)N / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
+		(double)ITERS / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 }
 
 
@@ -178,7 +181,7 @@ static void sha512_compress(uint64_t state[8], const uint8_t block[128]) {
 	
 	#define LOADSCHEDULE(i)  \
 		schedule[i] =  \
-			  (uint64_t)block[i * 8 + 0] << 56  \
+		      (uint64_t)block[i * 8 + 0] << 56  \
 		    | (uint64_t)block[i * 8 + 1] << 48  \
 		    | (uint64_t)block[i * 8 + 2] << 40  \
 		    | (uint64_t)block[i * 8 + 3] << 32  \
