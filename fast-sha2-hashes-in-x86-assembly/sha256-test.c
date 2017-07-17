@@ -32,16 +32,20 @@
 
 /* Function prototypes */
 
+#define BLOCK_LEN 64  // In bytes
+#define STATE_LEN 8  // In words
+
 static bool self_check(void);
-void sha256_hash(const uint8_t *message, size_t len, uint32_t hash[8]);
+void sha256_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LEN]);
 
 // Link this program with an external C or x86 compression function
-extern void sha256_compress(uint32_t state[8], const uint8_t block[64]);
+extern void sha256_compress(uint32_t state[STATE_LEN], const uint8_t block[BLOCK_LEN]);
 
 
 /* Main program */
 
 int main(void) {
+	// Self-check
 	if (!self_check()) {
 		printf("Self-check failed\n");
 		return EXIT_FAILURE;
@@ -49,43 +53,55 @@ int main(void) {
 	printf("Self-check passed\n");
 	
 	// Benchmark speed
-	uint32_t state[8] = {0};
-	uint32_t block[16] = {0};
-	const int N = 3000000;
+	uint32_t state[STATE_LEN] = {0};
+	uint8_t block[BLOCK_LEN] = {0};
+	const long ITERS = 3000000;
 	clock_t start_time = clock();
-	for (int i = 0; i < N; i++)
-		sha256_compress(state, (uint8_t *)block);  // Type-punning
-	printf("Speed: %.1f MB/s\n", (double)N * sizeof(block) / (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
+	for (long i = 0; i < ITERS; i++)
+		sha256_compress(state, block);
+	printf("Speed: %.1f MB/s\n", (double)ITERS * (sizeof(block) / sizeof(block[0]))
+		/ (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 	
 	return EXIT_SUCCESS;
 }
 
 
-/* Self-check */
-
-struct testcase {
-	uint32_t answer[8];
-	const uint8_t *message;
-};
-
-#define TESTCASE(a,b,c,d,e,f,g,h,msg) {{UINT32_C(a),UINT32_C(b),UINT32_C(c),UINT32_C(d),UINT32_C(e),UINT32_C(f),UINT32_C(g),UINT32_C(h)}, (const uint8_t *)msg}
-
-static struct testcase testCases[] = {
-	TESTCASE(0xE3B0C442,0x98FC1C14,0x9AFBF4C8,0x996FB924,0x27AE41E4,0x649B934C,0xA495991B,0x7852B855, ""),
-	TESTCASE(0xCA978112,0xCA1BBDCA,0xFAC231B3,0x9A23DC4D,0xA786EFF8,0x147C4E72,0xB9807785,0xAFEE48BB, "a"),
-	TESTCASE(0xBA7816BF,0x8F01CFEA,0x414140DE,0x5DAE2223,0xB00361A3,0x96177A9C,0xB410FF61,0xF20015AD, "abc"),
-	TESTCASE(0xF7846F55,0xCF23E14E,0xEBEAB5B4,0xE1550CAD,0x5B509E33,0x48FBC4EF,0xA3A1413D,0x393CB650, "message digest"),
-	TESTCASE(0x71C480DF,0x93D6AE2F,0x1EFAD144,0x7C66C952,0x5E316218,0xCF51FC8D,0x9ED832F2,0xDAF18B73, "abcdefghijklmnopqrstuvwxyz"),
-	TESTCASE(0x248D6A61,0xD20638B8,0xE5C02693,0x0C3E6039,0xA33CE459,0x64FF2167,0xF6ECEDD4,0x19DB06C1, "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
-};
+/* Test vectors and checker */
 
 static bool self_check(void) {
-	for (size_t i = 0; i < sizeof(testCases) / sizeof(testCases[i]); i++) {
-		struct testcase *tc = &testCases[i];
-		uint32_t hash[8];
-		sha256_hash(tc->message, strlen((const char *)tc->message), hash);
+	struct TestCase {
+		uint32_t answer[STATE_LEN];
+		const char *message;
+	};
+	
+	static const struct TestCase cases[] = {
+		#define TESTCASE(a,b,c,d,e,f,g,h,msg) {{UINT32_C(a),UINT32_C(b),UINT32_C(c),UINT32_C(d),UINT32_C(e),UINT32_C(f),UINT32_C(g),UINT32_C(h)}, msg}
+		TESTCASE(0xE3B0C442,0x98FC1C14,0x9AFBF4C8,0x996FB924,0x27AE41E4,0x649B934C,0xA495991B,0x7852B855, ""),
+		TESTCASE(0xCA978112,0xCA1BBDCA,0xFAC231B3,0x9A23DC4D,0xA786EFF8,0x147C4E72,0xB9807785,0xAFEE48BB, "a"),
+		TESTCASE(0xBA7816BF,0x8F01CFEA,0x414140DE,0x5DAE2223,0xB00361A3,0x96177A9C,0xB410FF61,0xF20015AD, "abc"),
+		TESTCASE(0xF7846F55,0xCF23E14E,0xEBEAB5B4,0xE1550CAD,0x5B509E33,0x48FBC4EF,0xA3A1413D,0x393CB650, "message digest"),
+		TESTCASE(0x71C480DF,0x93D6AE2F,0x1EFAD144,0x7C66C952,0x5E316218,0xCF51FC8D,0x9ED832F2,0xDAF18B73, "abcdefghijklmnopqrstuvwxyz"),
+		TESTCASE(0x248D6A61,0xD20638B8,0xE5C02693,0x0C3E6039,0xA33CE459,0x64FF2167,0xF6ECEDD4,0x19DB06C1, "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+		#undef TESTCASE
+	};
+	
+	size_t numCases = sizeof(cases) / sizeof(cases[0]);
+	for (size_t i = 0; i < numCases; i++) {
+		const struct TestCase *tc = &cases[i];
+		size_t len = strlen(tc->message);
+		uint8_t *msg = calloc(len, sizeof(uint8_t));
+		if (msg == NULL) {
+			perror("calloc");
+			exit(1);
+		}
+		for (size_t j = 0; j < len; j++)
+			msg[j] = (uint8_t)tc->message[j];
+		
+		uint32_t hash[STATE_LEN];
+		sha256_hash(msg, len, hash);
 		if (memcmp(hash, tc->answer, sizeof(tc->answer)) != 0)
 			return false;
+		free(msg);
 	}
 	return true;
 }
@@ -93,7 +109,7 @@ static bool self_check(void) {
 
 /* Full message hasher */
 
-void sha256_hash(const uint8_t *message, size_t len, uint32_t hash[8]) {
+void sha256_hash(const uint8_t message[], size_t len, uint32_t hash[STATE_LEN]) {
 	hash[0] = UINT32_C(0x6A09E667);
 	hash[1] = UINT32_C(0xBB67AE85);
 	hash[2] = UINT32_C(0x3C6EF372);
@@ -103,27 +119,26 @@ void sha256_hash(const uint8_t *message, size_t len, uint32_t hash[8]) {
 	hash[6] = UINT32_C(0x1F83D9AB);
 	hash[7] = UINT32_C(0x5BE0CD19);
 	
-	#define BLOCK_SIZE 64  // In bytes
 	#define LENGTH_SIZE 8  // In bytes
 	
 	size_t off;
-	for (off = 0; len - off >= BLOCK_SIZE; off += BLOCK_SIZE)
+	for (off = 0; len - off >= BLOCK_LEN; off += BLOCK_LEN)
 		sha256_compress(hash, &message[off]);
 	
-	uint8_t block[BLOCK_SIZE] = {0};
+	uint8_t block[BLOCK_LEN] = {0};
 	size_t rem = len - off;
 	memcpy(block, &message[off], rem);
 	
 	block[rem] = 0x80;
 	rem++;
-	if (BLOCK_SIZE - rem < LENGTH_SIZE) {
+	if (BLOCK_LEN - rem < LENGTH_SIZE) {
 		sha256_compress(hash, block);
 		memset(block, 0, sizeof(block));
 	}
 	
-	block[BLOCK_SIZE - 1] = (uint8_t)((len & 0x1FU) << 3);
+	block[BLOCK_LEN - 1] = (uint8_t)((len & 0x1FU) << 3);
 	len >>= 5;
 	for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
-		block[BLOCK_SIZE - 1 - i] = (uint8_t)(len & 0xFFU);
+		block[BLOCK_LEN - 1 - i] = (uint8_t)(len & 0xFFU);
 	sha256_compress(hash, block);
 }
