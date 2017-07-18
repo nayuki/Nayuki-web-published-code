@@ -5,7 +5,7 @@
 # Usage: python bfc.py BrainfuckFile OutputFile.c/java/py
 # For Python 2 and 3.
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2017 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/optimizing-brainfuck-compiler
 # 
@@ -54,32 +54,32 @@ def main(args):
 # Parses the given raw code string, returning a list of Command objects.
 def parse(codestr):
 	codestr = re.sub(r"[^+\-<>.,\[\]]", "", codestr)  # Keep only the 8 Brainfuck characters
-	def chargen():
-		for c in codestr:
-			yield c
-		while True:  # At end of stream
-			yield ""
-	return _parse(chargen(), True)
+	return _parse(iter(codestr), True)
 
 
 def _parse(chargen, maincall):
 	result = []
 	for c in chargen:
-		if   c == "+": result.append(Add(0, +1))
-		elif c == "-": result.append(Add(0, -1))
-		elif c == "<": result.append(Right(-1))
-		elif c == ">": result.append(Right(+1))
-		elif c == ",": result.append(Input (0))
-		elif c == ".": result.append(Output(0))
-		elif c == "[": result.append(Loop(_parse(chargen, False)))
+		if   c == "+": item = Add(0, +1)
+		elif c == "-": item = Add(0, -1)
+		elif c == "<": item = Right(-1)
+		elif c == ">": item = Right(+1)
+		elif c == ",": item = Input (0)
+		elif c == ".": item = Output(0)
+		elif c == "[": item = Loop(_parse(chargen, False))
 		elif c == "]":
-			if maincall: raise ValueError("Extra loop closing")
-			else: return result
-		elif c == "":
-			if maincall: return result
-			else: raise ValueError("Unclosed loop")
+			if maincall:
+				raise ValueError("Extra loop closing")
+			else:
+				return result
 		else:
 			raise AssertionError("Illegal code character")
+		result.append(item)
+	
+	if maincall:
+		return result
+	else:
+		raise ValueError("Unclosed loop")
 
 
 # ---- Optimizers ----
@@ -250,7 +250,7 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 			elif cmd.value == -1:
 				s += "--;"
 			else:
-				s += " {}= {};".format("+" if cmd.value >= 0 else "-", abs(cmd.value))
+				s += " {}= {};".format(plusminus(cmd.value), abs(cmd.value))
 			result += indent(s)
 		elif isinstance(cmd, MultAssign):
 			if cmd.value == 1:
@@ -259,16 +259,16 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 				result += indent("p[{}] = p[{}] * {};".format(cmd.destOff, cmd.srcOff, cmd.value))
 		elif isinstance(cmd, MultAdd):
 			if abs(cmd.value) == 1:
-				result += indent("p[{}] {}= p[{}];".format(cmd.destOff, "+" if cmd.value >= 0 else "-", cmd.srcOff))
+				result += indent("p[{}] {}= p[{}];".format(cmd.destOff, plusminus(cmd.value), cmd.srcOff))
 			else:
-				result += indent("p[{}] {}= p[{}] * {};".format(cmd.destOff, "+" if cmd.value >= 0 else "-", cmd.srcOff, abs(cmd.value)))
+				result += indent("p[{}] {}= p[{}] * {};".format(cmd.destOff, plusminus(cmd.value), cmd.srcOff, abs(cmd.value)))
 		elif isinstance(cmd, Right):
 			if cmd.offset == 1:
 				result += indent("p++;")
 			elif cmd.offset == -1:
 				result += indent("p--;")
 			else:
-				result += indent("p {}= {};".format("+" if cmd.offset >= 0 else "-", abs(cmd.offset)))
+				result += indent("p {}= {};".format(plusminus(cmd.offset), abs(cmd.offset)))
 		elif isinstance(cmd, Input):
 			result += indent("p[{}] = read();".format(cmd.offset))
 		elif isinstance(cmd, Output):
@@ -281,7 +281,8 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 			result += indent("while (*p != 0) {")
 			result += commands_to_c(cmd.commands, name, False, indentlevel + 1)
 			result += indent("}")
-		else: raise AssertionError("Unknown command")
+		else:
+			raise AssertionError("Unknown command")
 	
 	if maincall:
 		result += indent("")
@@ -308,7 +309,7 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 		if off == 0:
 			return "mem[i]"
 		else:
-			return "mem[i {} {}]".format("+" if off >= 0 else "-", abs(off))
+			return "mem[i {} {}]".format(plusminus(off), abs(off))
 	
 	for cmd in commands:
 		if isinstance(cmd, Assign):
@@ -319,7 +320,7 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 			elif cmd.value == -1:
 				result += indent("{}--;".format(format_memory(cmd.offset)))
 			else:
-				result += indent("{} {}= {};".format(format_memory(cmd.offset), "+" if cmd.value >= 0 else "-", abs(cmd.value)))
+				result += indent("{} {}= {};".format(format_memory(cmd.offset), plusminus(cmd.value), abs(cmd.value)))
 		elif isinstance(cmd, MultAssign):
 			if cmd.value == 1:
 				result += indent("{} = {};".format(format_memory(cmd.destOff), format_memory(cmd.srcOff)))
@@ -327,16 +328,16 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 				result += indent("{} = (byte)({} * {});".format(format_memory(cmd.destOff), format_memory(cmd.srcOff), cmd.value))
 		elif isinstance(cmd, MultAdd):
 			if abs(cmd.value) == 1:
-				result += indent("{} {}= {};".format(format_memory(cmd.destOff), "+" if cmd.value >= 0 else "-", format_memory(cmd.srcOff)))
+				result += indent("{} {}= {};".format(format_memory(cmd.destOff), plusminus(cmd.value), format_memory(cmd.srcOff)))
 			else:
-				result += indent("{} {}= {} * {};".format(format_memory(cmd.destOff), "+" if cmd.value >= 0 else "-", format_memory(cmd.srcOff), abs(cmd.value)))
+				result += indent("{} {}= {} * {};".format(format_memory(cmd.destOff), plusminus(cmd.value), format_memory(cmd.srcOff), abs(cmd.value)))
 		elif isinstance(cmd, Right):
 			if cmd.offset == 1:
 				result += indent("i++;")
 			elif cmd.offset == -1:
 				result += indent("i--;")
 			else:
-				result += indent("i {}= {};".format("+" if cmd.offset >= 0 else "-", abs(cmd.offset)))
+				result += indent("i {}= {};".format(plusminus(cmd.offset), abs(cmd.offset)))
 		elif isinstance(cmd, Input):
 			result += indent("{} = (byte)Math.max(System.in.read(), 0);".format(format_memory(cmd.offset)))
 		elif isinstance(cmd, Output):
@@ -349,7 +350,8 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 			result += indent("while (mem[i] != 0) {")
 			result += commands_to_java(cmd.commands, name, False, indentlevel + 1)
 			result += indent("}")
-		else: raise AssertionError("Unknown command")
+		else:
+			raise AssertionError("Unknown command")
 	
 	if maincall:
 		result += indent("}", 1)
@@ -373,14 +375,14 @@ def commands_to_python(commands, name, maincall=True, indentlevel=0):
 		if off == 0:
 			return "mem[i]"
 		else:
-			return "mem[i {} {}]".format("+" if off >= 0 else "-", abs(off))
+			return "mem[i {} {}]".format(plusminus(off), abs(off))
 	
 	for cmd in commands:
 		if isinstance(cmd, Assign):
 			result += indent("{} = {}".format(format_memory(cmd.offset), cmd.value))
 		elif isinstance(cmd, Add):
 			result += indent("{} = ({} {} {}) & 0xFF".format(format_memory(cmd.offset),
-				format_memory(cmd.offset), "+" if cmd.value >= 0 else "-", abs(cmd.value)))
+				format_memory(cmd.offset), plusminus(cmd.value), abs(cmd.value)))
 		elif isinstance(cmd, MultAssign):
 			if cmd.value == 1:
 				result += indent("{} = {}".format(format_memory(cmd.destOff), format_memory(cmd.srcOff)))
@@ -389,7 +391,7 @@ def commands_to_python(commands, name, maincall=True, indentlevel=0):
 		elif isinstance(cmd, MultAdd):
 			result += indent("{} = ({} + {} * {}) & 0xFF".format(format_memory(cmd.destOff), format_memory(cmd.destOff), format_memory(cmd.srcOff), cmd.value))
 		elif isinstance(cmd, Right):
-			result += indent("i {}= {}".format("+" if cmd.offset >= 0 else "-", abs(cmd.offset)))
+			result += indent("i {}= {}".format(plusminus(cmd.offset), abs(cmd.offset)))
 		elif isinstance(cmd, Input):
 			result += indent("{} = ord((sys.stdin.read(1) + chr(0))[0])".format(format_memory(cmd.offset)))
 		elif isinstance(cmd, Output):
@@ -400,8 +402,16 @@ def commands_to_python(commands, name, maincall=True, indentlevel=0):
 		elif isinstance(cmd, Loop):
 			result += indent("while mem[i] != 0:")
 			result += commands_to_python(cmd.commands, name, False, indentlevel + 1)
-		else: raise AssertionError("Unknown command")
+		else:
+			raise AssertionError("Unknown command")
 	return result
+
+
+def plusminus(val):
+	if val >= 0:
+		return "+"
+	else:
+		return "-"
 
 
 # ---- Intermediate representation (IR) ----
