@@ -1,7 +1,7 @@
 /* 
  * QR Code generator library (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/qr-code-generator-library
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@
  * Module "qrcodegen", public members:
  * - Class QrCode:
  *   - Function encodeText(str text, QrCode.Ecc ecl) -> QrCode
- *   - Function encodeBinary(list<int> data, QrCode.Ecc ecl) -> QrCode
+ *   - Function encodeBinary(list<byte> data, QrCode.Ecc ecl) -> QrCode
  *   - Function encodeSegments(list<QrSegment> segs, QrCode.Ecc ecl,
  *         int minVersion=1, int maxVersion=40, mask=-1, boostEcl=true) -> QrCode
  *   - Constructor QrCode(QrCode qr, int mask)
@@ -46,13 +46,14 @@
  *   - Function makeNumeric(str data) -> QrSegment
  *   - Function makeAlphanumeric(str data) -> QrSegment
  *   - Function makeSegments(str text) -> list<QrSegment>
+ *   - Function makeEci(int assignVal) -> QrSegment
  *   - Constructor QrSegment(QrSegment.Mode mode, int numChars, list<int> bitData)
  *   - Field QrSegment.Mode mode
  *   - Field int numChars
  *   - Method getBits() -> list<int>
  *   - Constants RegExp NUMERIC_REGEX, ALPHANUMERIC_REGEX
  *   - Enum Mode:
- *     - Constants NUMERIC, ALPHANUMERIC, BYTE, KANJI
+ *     - Constants NUMERIC, ALPHANUMERIC, BYTE, KANJI, ECI
  */
 var qrcodegen = new function() {
 	
@@ -152,7 +153,6 @@ var qrcodegen = new function() {
 		Object.defineProperty(this, "size", {value:size});
 		
 		// The error correction level used in this QR Code symbol.
-		
 		Object.defineProperty(this, "errorCorrectionLevel", {value:errCorLvl});
 		
 		// The mask pattern used in this QR Code symbol, in the range 0 to 7 (i.e. unsigned 3-bit integer).
@@ -234,7 +234,7 @@ var qrcodegen = new function() {
 		/*---- Private helper methods for constructor: Drawing function modules ----*/
 		
 		function drawFunctionPatterns() {
-			// Draw the horizontal and vertical timing patterns
+			// Draw horizontal and vertical timing patterns
 			for (var i = 0; i < size; i++) {
 				setFunctionModule(6, i, i % 2 == 0);
 				setFunctionModule(i, 6, i % 2 == 0);
@@ -245,7 +245,7 @@ var qrcodegen = new function() {
 			drawFinderPattern(size - 4, 3);
 			drawFinderPattern(3, size - 4);
 			
-			// Draw the numerous alignment patterns
+			// Draw numerous alignment patterns
 			var alignPatPos = QrCode.getAlignmentPatternPositions(version);
 			var numAlign = alignPatPos.length;
 			for (var i = 0; i < numAlign; i++) {
@@ -358,12 +358,10 @@ var qrcodegen = new function() {
 			
 			// Calculate parameter numbers
 			var numBlocks = QrCode.NUM_ERROR_CORRECTION_BLOCKS[errCorLvl.ordinal][version];
-			var totalEcc = QrCode.NUM_ERROR_CORRECTION_CODEWORDS[errCorLvl.ordinal][version];
-			if (totalEcc % numBlocks != 0)
-				throw "Assertion error";
-			var blockEccLen = Math.floor(totalEcc / numBlocks);
-			var numShortBlocks = numBlocks - Math.floor(QrCode.getNumRawDataModules(version) / 8) % numBlocks;
-			var shortBlockLen = Math.floor(QrCode.getNumRawDataModules(version) / (numBlocks * 8));
+			var blockEccLen = QrCode.ECC_CODEWORDS_PER_BLOCK[errCorLvl.ordinal][version];
+			var rawCodewords = Math.floor(QrCode.getNumRawDataModules(version) / 8);
+			var numShortBlocks = numBlocks - rawCodewords % numBlocks;
+			var shortBlockLen = Math.floor(rawCodewords / numBlocks);
 			
 			// Split data into blocks and append ECC to each block
 			var blocks = [];
@@ -389,7 +387,7 @@ var qrcodegen = new function() {
 						result.push(blocks[j][i]);
 				}
 			}
-			if (result.length != Math.floor(QrCode.getNumRawDataModules(version) / 8))
+			if (result.length != rawCodewords)
 				throw "Assertion error";
 			return result;
 		}
@@ -408,8 +406,8 @@ var qrcodegen = new function() {
 				for (var vert = 0; vert < size; vert++) {  // Vertical counter
 					for (var j = 0; j < 2; j++) {
 						var x = right - j;  // Actual x coordinate
-						var upwards = ((right & 2) == 0) ^ (x < 6);
-						var y = upwards ? size - 1 - vert : vert;  // Actual y coordinate
+						var upward = ((right + 1) & 2) == 0;
+						var y = upward ? size - 1 - vert : vert;  // Actual y coordinate
 						if (!isFunction[y][x] && i < data.length * 8) {
 							modules[y][x] = ((data[i >>> 3] >>> (7 - (i & 7))) & 1) != 0;
 							i++;
@@ -458,9 +456,8 @@ var qrcodegen = new function() {
 			
 			// Adjacent modules in row having same color
 			for (var y = 0; y < size; y++) {
-				var colorX = modules[y][0];
-				for (var x = 1, runX = 1; x < size; x++) {
-					if (modules[y][x] != colorX) {
+				for (var x = 0, runX, colorX; x < size; x++) {
+					if (x == 0 || modules[y][x] != colorX) {
 						colorX = modules[y][x];
 						runX = 1;
 					} else {
@@ -474,9 +471,8 @@ var qrcodegen = new function() {
 			}
 			// Adjacent modules in column having same color
 			for (var x = 0; x < size; x++) {
-				var colorY = modules[0][x];
-				for (var y = 1, runY = 1; y < size; y++) {
-					if (modules[y][x] != colorY) {
+				for (var y = 0, runY, colorY; y < size; y++) {
+					if (y == 0 || modules[y][x] != colorY) {
 						colorY = modules[y][x];
 						runY = 1;
 					} else {
@@ -561,8 +557,8 @@ var qrcodegen = new function() {
 	
 	
 	/* 
-	 * Returns a QR Code symbol representing the specified data segments with the specified encoding parameters.
-	 * The smallest possible QR Code version within the specified range is automatically chosen for the output.
+	 * Returns a QR Code symbol representing the given data segments with the given encoding parameters.
+	 * The smallest possible QR Code version within the given range is automatically chosen for the output.
 	 * This function allows the user to create a custom sequence of segments that switches
 	 * between modes (such as alphanumeric and binary) to encode text more efficiently.
 	 * This function is considered to be lower level than simply encoding text or binary data.
@@ -646,9 +642,9 @@ var qrcodegen = new function() {
 	};
 	
 	
-	// Returns the number of raw data modules (bits) available at the given version number.
-	// These data modules are used for both user data codewords and error correction codewords.
-	// This stateless pure function could be implemented as a 40-entry lookup table.
+	// Returns the number of data bits that can be stored in a QR Code of the given version number, after
+	// all function modules are excluded. This includes remainder bits, so it might not be a multiple of 8.
+	// The result is in the range [208, 29648]. This could be implemented as a 40-entry lookup table.
 	QrCode.getNumRawDataModules = function(ver) {
 		if (ver < 1 || ver > 40)
 			throw "Version number out of range";
@@ -669,7 +665,7 @@ var qrcodegen = new function() {
 	QrCode.getNumDataCodewords = function(ver, ecl) {
 		if (ver < 1 || ver > 40)
 			throw "Version number out of range";
-		return Math.floor(QrCode.getNumRawDataModules(ver) / 8) - QrCode.NUM_ERROR_CORRECTION_CODEWORDS[ecl.ordinal][ver];
+		return Math.floor(QrCode.getNumRawDataModules(ver) / 8) - QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] * QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
 	};
 	
 	
@@ -681,13 +677,13 @@ var qrcodegen = new function() {
 	QrCode.PENALTY_N3 = 40;
 	QrCode.PENALTY_N4 = 10;
 	
-	QrCode.NUM_ERROR_CORRECTION_CODEWORDS = [
+	QrCode.ECC_CODEWORDS_PER_BLOCK = [
 		// Version: (note that index 0 is for padding, and is set to an illegal value)
-		//  0,  1,  2,  3,  4,  5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,  20,  21,  22,  23,  24,   25,   26,   27,   28,   29,   30,   31,   32,   33,   34,   35,   36,   37,   38,   39,   40    Error correction level
-		[null,  7, 10, 15, 20, 26,  36,  40,  48,  60,  72,  80,  96, 104, 120, 132, 144, 168, 180, 196, 224, 224, 252, 270, 300,  312,  336,  360,  390,  420,  450,  480,  510,  540,  570,  570,  600,  630,  660,  720,  750],  // Low
-		[null, 10, 16, 26, 36, 48,  64,  72,  88, 110, 130, 150, 176, 198, 216, 240, 280, 308, 338, 364, 416, 442, 476, 504, 560,  588,  644,  700,  728,  784,  812,  868,  924,  980, 1036, 1064, 1120, 1204, 1260, 1316, 1372],  // Medium
-		[null, 13, 22, 36, 52, 72,  96, 108, 132, 160, 192, 224, 260, 288, 320, 360, 408, 448, 504, 546, 600, 644, 690, 750, 810,  870,  952, 1020, 1050, 1140, 1200, 1290, 1350, 1440, 1530, 1590, 1680, 1770, 1860, 1950, 2040],  // Quartile
-		[null, 17, 28, 44, 64, 88, 112, 130, 156, 192, 224, 264, 308, 352, 384, 432, 480, 532, 588, 650, 700, 750, 816, 900, 960, 1050, 1110, 1200, 1260, 1350, 1440, 1530, 1620, 1710, 1800, 1890, 1980, 2100, 2220, 2310, 2430],  // High
+		//  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40    Error correction level
+		[null,  7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],  // Low
+		[null, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],  // Medium
+		[null, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],  // Quartile
+		[null, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],  // High
 	];
 	
 	QrCode.NUM_ERROR_CORRECTION_BLOCKS = [
@@ -793,12 +789,12 @@ var qrcodegen = new function() {
 		var bb = new BitBuffer();
 		var i;
 		for (i = 0; i + 2 <= text.length; i += 2) {  // Process groups of 2
-			var temp = QrSegment.ALPHANUMERIC_ENCODING_TABLE[text.charCodeAt(i) - 32] * 45;
-			temp += QrSegment.ALPHANUMERIC_ENCODING_TABLE[text.charCodeAt(i + 1) - 32];
+			var temp = QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i)) * 45;
+			temp += QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i + 1));
 			bb.appendBits(temp, 11);
 		}
 		if (i < text.length)  // 1 character remaining
-			bb.appendBits(QrSegment.ALPHANUMERIC_ENCODING_TABLE[text.charCodeAt(i) - 32], 6);
+			bb.appendBits(QrSegment.ALPHANUMERIC_CHARSET.indexOf(text.charAt(i)), 6);
 		return new this(this.Mode.ALPHANUMERIC, text.length, bb.getBits());
 	};
 	
@@ -817,6 +813,25 @@ var qrcodegen = new function() {
 			return [this.makeAlphanumeric(text)];
 		else
 			return [this.makeBytes(toUtf8ByteArray(text))];
+	};
+	
+	
+	/* 
+	 * Returns a segment representing an Extended Channel Interpretation (ECI) designator with the given assignment value.
+	 */
+	this.QrSegment.makeEci = function(assignVal) {
+		var bb = new BitBuffer();
+		if (0 <= assignVal && assignVal < (1 << 7))
+			bb.appendBits(assignVal, 8);
+		else if ((1 << 7) <= assignVal && assignVal < (1 << 14)) {
+			bb.appendBits(2, 2);
+			bb.appendBits(assignVal, 14);
+		} else if ((1 << 14) <= assignVal && assignVal < 999999) {
+			bb.appendBits(6, 3);
+			bb.appendBits(assignVal, 21);
+		} else
+			throw "ECI assignment value out of range";
+		return new this(this.Mode.ECI, 0, bb.getBits());
 	};
 	
 	
@@ -847,13 +862,8 @@ var qrcodegen = new function() {
 	// (Public) Can test whether a string is encodable in alphanumeric mode (such as by using QrSegment.makeAlphanumeric()).
 	this.QrSegment.ALPHANUMERIC_REGEX = /^[A-Z0-9 $%*+.\/:-]*$/;
 	
-	// (Private) Maps shifted ASCII codes to alphanumeric mode character codes.
-	QrSegment.ALPHANUMERIC_ENCODING_TABLE = [
-		// SP,  !,  ",  #,  $,  %,  &,  ',  (,  ),  *,  +,  ,,  -,  .,  /,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  :,  ;,  <,  =,  >,  ?,  @,  // ASCII codes 32 to 64
-		   36, -1, -1, -1, 37, 38, -1, -1, -1, -1, 39, 40, -1, 41, 42, 43,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 44, -1, -1, -1, -1, -1, -1,  // Array indices 0 to 32
-		   10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,  // Array indices 33 to 58
-		//  A,  B,  C,  D,  E,  F,  G,  H,  I,  J,  K,  L,  M,  N,  O,  P,  Q,  R,  S,  T,  U,  V,  W,  X,  Y,  Z,  // ASCII codes 65 to 90
-	];
+	// (Private) The set of all legal characters in alphanumeric mode, where each character value maps to the index in the string.
+	QrSegment.ALPHANUMERIC_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
 	
 	
 	/*---- Public helper enumeration ----*/
@@ -866,6 +876,7 @@ var qrcodegen = new function() {
 		ALPHANUMERIC: new Mode(0x2, [ 9, 11, 13]),
 		BYTE        : new Mode(0x4, [ 8, 16, 16]),
 		KANJI       : new Mode(0x8, [ 8, 10, 12]),
+		ECI         : new Mode(0x7, [ 0,  0,  0]),
 	};
 	
 	
@@ -935,7 +946,7 @@ var qrcodegen = new function() {
 				if (j + 1 < coefficients.length)
 					coefficients[j] ^= coefficients[j + 1];
 			}
-			root = (root << 1) ^ ((root >>> 7) * 0x11D);  // Multiply by 0x02 mod GF(2^8/0x11D)
+			root = ReedSolomonGenerator.multiply(root, 0x02);
 		}
 		
 		// Computes and returns the Reed-Solomon error correction codewords for the given sequence of data codewords.
