@@ -209,11 +209,16 @@ cleanup:
 }
 
 
-bool Fft_convolveComplex(const double xreal[], const double ximag[], const double yreal[], const double yimag[], double outreal[], double outimag[], size_t n) {
+bool Fft_convolveComplex(
+		const double xreal[], const double ximag[],
+		const double yreal[], const double yimag[],
+		double outreal[], double outimag[], size_t n) {
+	
 	bool status = false;
 	if (SIZE_MAX / sizeof(double) < n)
 		return false;
 	size_t size = n * sizeof(double);
+	
 	double *xr = memdup(xreal, size);
 	double *xi = memdup(ximag, size);
 	double *yr = memdup(yreal, size);
@@ -225,6 +230,7 @@ bool Fft_convolveComplex(const double xreal[], const double ximag[], const doubl
 		goto cleanup;
 	if (!Fft_transform(yr, yi, n))
 		goto cleanup;
+	
 	for (size_t i = 0; i < n; i++) {
 		double temp = xr[i] * yr[i] - xi[i] * yi[i];
 		xi[i] = xi[i] * yr[i] + xr[i] * yi[i];
@@ -232,6 +238,7 @@ bool Fft_convolveComplex(const double xreal[], const double ximag[], const doubl
 	}
 	if (!Fft_inverseTransform(xr, xi, n))
 		goto cleanup;
+	
 	for (size_t i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
 		outreal[i] = xr[i] / n;
 		outimag[i] = xi[i] / n;

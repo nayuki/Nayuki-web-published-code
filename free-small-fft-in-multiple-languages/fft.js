@@ -69,6 +69,7 @@ function transformRadix2(real, imag) {
 	}
 	if (levels == -1)
 		throw "Length is not a power of 2";
+	
 	var cosTable = new Array(n / 2);
 	var sinTable = new Array(n / 2);
 	for (var i = 0; i < n / 2; i++) {
@@ -200,15 +201,16 @@ function convolveComplex(xreal, ximag, yreal, yimag, outreal, outimag) {
 	ximag = ximag.slice();
 	yreal = yreal.slice();
 	yimag = yimag.slice();
-	
 	transform(xreal, ximag);
 	transform(yreal, yimag);
+	
 	for (var i = 0; i < n; i++) {
 		var temp = xreal[i] * yreal[i] - ximag[i] * yimag[i];
 		ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
 		xreal[i] = temp;
 	}
 	inverseTransform(xreal, ximag);
+	
 	for (var i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
 		outreal[i] = xreal[i] / n;
 		outimag[i] = ximag[i] / n;

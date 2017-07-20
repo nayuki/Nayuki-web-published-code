@@ -52,6 +52,7 @@ public sealed class Fft {
 		int levels = 31 - NumberOfLeadingZeros(n);  // Equal to floor(log2(n))
 		if (1 << levels != n)
 			throw new ArgumentException("Length is not a power of 2");
+		
 		Complex[] expTable = new Complex[n / 2];
 		double coef = 2 * Math.PI / n * (inverse ? 1 : -1);
 		for (int i = 0; i < n / 2; i++)
@@ -129,13 +130,11 @@ public sealed class Fft {
 	 * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
 	 */
 	public static void Convolve(Complex[] xvector, Complex[] yvector, Complex[] outvector) {
-		
 		int n = xvector.Length;
 		if (n != yvector.Length || n != outvector.Length)
 			throw new ArgumentException("Mismatched lengths");
 		xvector = (Complex[])xvector.Clone();
 		yvector = (Complex[])yvector.Clone();
-		
 		Transform(xvector, false);
 		Transform(yvector, false);
 		for (int i = 0; i < n; i++)

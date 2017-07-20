@@ -179,15 +179,16 @@ void Fft::convolve(
 	vector<double> xi(ximag);
 	vector<double> yr(yreal);
 	vector<double> yi(yimag);
-	
 	transform(xr, xi);
 	transform(yr, yi);
+	
 	for (size_t i = 0; i < n; i++) {
 		double temp = xr[i] * yr[i] - xi[i] * yi[i];
 		xi[i] = xi[i] * yr[i] + xr[i] * yi[i];
 		xr[i] = temp;
 	}
 	inverseTransform(xr, xi);
+	
 	for (size_t i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
 		outreal[i] = xr[i] / n;
 		outimag[i] = xi[i] / n;

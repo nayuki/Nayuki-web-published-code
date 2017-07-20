@@ -63,6 +63,7 @@ public final class Fft {
 		int levels = 31 - Integer.numberOfLeadingZeros(n);  // Equal to floor(log2(n))
 		if (1 << levels != n)
 			throw new IllegalArgumentException("Length is not a power of 2");
+		
 		double[] cosTable = new double[n / 2];
 		double[] sinTable = new double[n / 2];
 		for (int i = 0; i < n / 2; i++) {
@@ -181,15 +182,16 @@ public final class Fft {
 		ximag = ximag.clone();
 		yreal = yreal.clone();
 		yimag = yimag.clone();
-		
 		transform(xreal, ximag);
 		transform(yreal, yimag);
+		
 		for (int i = 0; i < n; i++) {
 			double temp = xreal[i] * yreal[i] - ximag[i] * yimag[i];
 			ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
 			xreal[i] = temp;
 		}
 		inverseTransform(xreal, ximag);
+		
 		for (int i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
 			outreal[i] = xreal[i] / n;
 			outimag[i] = ximag[i] / n;
