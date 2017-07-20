@@ -32,7 +32,9 @@ if sys.version_info.major == 2:
 # 
 def transform(vector, inverse):
 	n = len(vector)
-	if n > 0 and n & (n - 1) == 0:  # Is power of 2
+	if n == 0:
+		return []
+	elif n & (n - 1) == 0:  # Is power of 2
 		return transform_radix2(vector, inverse)
 	else:  # More complicated algorithm for arbitrary sizes
 		return transform_bluestein(vector, inverse)
@@ -54,7 +56,7 @@ def transform_radix2(vector, inverse):
 	# Initialization
 	n = len(vector)
 	levels = n.bit_length() - 1
-	if 1 << levels != n:
+	if 2**levels != n:
 		raise ValueError("Length is not a power of 2")
 	# Now, levels = log2(n)
 	coef = (2j if inverse else -2j) * cmath.pi / n
@@ -87,7 +89,7 @@ def transform_bluestein(vector, inverse):
 	n = len(vector)
 	if n == 0:
 		return []
-	m = 1 << (n * 2).bit_length()
+	m = 2**((n * 2).bit_length())
 	
 	coef = (1j if inverse else -1j) * cmath.pi / n
 	exptable = [cmath.exp((i * i % (n * 2)) * coef) for i in range(n)]  # Trigonometric table

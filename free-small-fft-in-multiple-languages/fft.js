@@ -142,24 +142,20 @@ function transformBluestein(real, imag) {
 	}
 	
 	// Temporary vectors and preprocessing
-	var areal = new Array(m);
-	var aimag = new Array(m);
+	var areal = newArrayOfZeros(m);
+	var aimag = newArrayOfZeros(m);
 	for (var i = 0; i < n; i++) {
 		areal[i] =  real[i] * cosTable[i] + imag[i] * sinTable[i];
 		aimag[i] = -real[i] * sinTable[i] + imag[i] * cosTable[i];
 	}
-	for (var i = n; i < m; i++)
-		areal[i] = aimag[i] = 0;
-	var breal = new Array(m);
-	var bimag = new Array(m);
+	var breal = newArrayOfZeros(m);
+	var bimag = newArrayOfZeros(m);
 	breal[0] = cosTable[0];
 	bimag[0] = sinTable[0];
 	for (var i = 1; i < n; i++) {
 		breal[i] = breal[m - i] = cosTable[i];
 		bimag[i] = bimag[m - i] = sinTable[i];
 	}
-	for (var i = n; i <= m - n; i++)
-		breal[i] = bimag[i] = 0;
 	
 	// Convolution
 	var creal = new Array(m);
@@ -181,10 +177,7 @@ function convolveReal(x, y, out) {
 	var n = x.length;
 	if (n != y.length || n != out.length)
 		throw "Mismatched lengths";
-	var zeros = new Array(x.length);
-	for (var i = 0; i < zeros.length; i++)
-		zeros[i] = 0;
-	convolveComplex(x, zeros, y, zeros.slice(), out, zeros.slice());
+	convolveComplex(x, newArrayOfZeros(n), y, newArrayOfZeros(n), out, newArrayOfZeros(n));
 }
 
 
@@ -215,4 +208,12 @@ function convolveComplex(xreal, ximag, yreal, yimag, outreal, outimag) {
 		outreal[i] = xreal[i] / n;
 		outimag[i] = ximag[i] / n;
 	}
+}
+
+
+function newArrayOfZeros(n) {
+	var result = [];
+	for (var i = 0; i < n; i++)
+		result.push(0);
+	return result;
 }

@@ -160,8 +160,8 @@ void Fft::convolve(const vector<double> &x, const vector<double> &y, vector<doub
 	size_t n = x.size();
 	if (n != y.size() || n != out.size())
 		throw "Mismatched lengths";
-	vector<double> ximag(n), yimag(n), zimag(n);
-	convolve(x, ximag, y, yimag, out, zimag);
+	vector<double> outimag(n);
+	convolve(x, vector<double>(n), y, vector<double>(n), out, outimag);
 }
 
 

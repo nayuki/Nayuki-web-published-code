@@ -49,7 +49,9 @@ public sealed class Fft {
 	public static void TransformRadix2(Complex[] vector, bool inverse) {
 		// Initialization
 		int n = vector.Length;
-		int levels = 31 - NumberOfLeadingZeros(n);  // Equal to floor(log2(n))
+		int levels = 0;  // compute levels = floor(log2(n))
+		for (int temp = n; temp > 1; temp >>= 1)
+			levels++;
 		if (1 << levels != n)
 			throw new ArgumentException("Length is not a power of 2");
 		
@@ -142,16 +144,6 @@ public sealed class Fft {
 		Transform(xvector, true);
 		for (int i = 0; i < n; i++)  // Scaling (because this FFT implementation omits it)
 			outvector[i] = xvector[i] / new Complex(n, 0);
-	}
-	
-	
-	private static int NumberOfLeadingZeros(int val) {
-		if (val == 0)
-			return 32;
-		int result = 0;
-		for (; val >= 0; val <<= 1)
-			result++;
-		return result;
 	}
 	
 	
