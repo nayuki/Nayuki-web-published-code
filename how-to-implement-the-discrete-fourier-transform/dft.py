@@ -13,13 +13,13 @@
 import cmath
 def compute_dft_complex(input):
 	n = len(input)
-	output = [None] * n
+	output = []
 	for k in range(n):  # For each output element
 		s = complex(0)
 		for t in range(n):  # For each input element
 			angle = 2j * cmath.pi * t * k / n
 			s += input[t] * cmath.exp(-angle)
-		output[k] = s
+		output.append(s)
 	return output
 
 
@@ -33,8 +33,8 @@ import math
 def compute_dft_real_pair(inreal, inimag):
 	assert len(inreal) == len(inimag)
 	n = len(inreal)
-	outreal = [None] * n
-	outimag = [None] * n
+	outreal = []
+	outimag = []
 	for k in range(n):  # For each output element
 		sumreal = 0.0
 		sumimag = 0.0
@@ -42,6 +42,6 @@ def compute_dft_real_pair(inreal, inimag):
 			angle = 2 * math.pi * t * k / n
 			sumreal +=  inreal[t] * math.cos(angle) + inimag[t] * math.sin(angle)
 			sumimag += -inreal[t] * math.sin(angle) + inimag[t] * math.cos(angle)
-		outreal[k] = sumreal
-		outimag[k] = sumimag
+		outreal.append(sumreal)
+		outimag.append(sumimag)
 	return (outreal, outimag)

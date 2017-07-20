@@ -18,7 +18,7 @@ using std::vector;
 #include <complex>
 using std::complex;
 using std::exp;
-vector<complex<double> > computeDft(const vector<complex<double>> &input) {
+vector<complex<double> > computeDft(const vector<complex<double> > &input) {
 	vector<complex<double> > output;
 	size_t n = input.size();
 	for (size_t k = 0; k < n; k++) {  // For each output element
