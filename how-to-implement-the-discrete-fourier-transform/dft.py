@@ -17,7 +17,8 @@ def compute_dft_complex(input):
 	for k in range(n):  # For each output element
 		s = complex(0)
 		for t in range(n):  # For each input element
-			s += input[t] * cmath.exp(-2j * cmath.pi * t * k / n)
+			angle = 2j * cmath.pi * t * k / n
+			s += input[t] * cmath.exp(-angle)
 		output[k] = s
 	return output
 

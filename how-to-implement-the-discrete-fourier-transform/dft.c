@@ -4,6 +4,7 @@
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
 
+// Shared definitions
 #include <math.h>
 
 
@@ -11,7 +12,25 @@
  * Computes the discrete Fourier transform (DFT) of the given complex vector.
  * All the array arguments must be non-NULL and have a length equal to n.
  */
-void compute_dft(const double inreal[], const double inimag[],
+#include <complex.h>
+void compute_dft_complex(const double complex input[], double complex output[], int n) {
+	for (int k = 0; k < n; k++) {  // For each output element
+		complex double sum = 0.0;
+		for (int t = 0; t < n; t++) {  // For each input element
+			double angle = 2 * M_PI * t * k / n;
+			sum += input[t] * cexp(-angle * I);
+		}
+		output[k] = sum;
+	}
+}
+
+
+/* 
+ * (Alternate implementation using only real numbers.)
+ * Computes the discrete Fourier transform (DFT) of the given complex vector.
+ * All the array arguments must be non-NULL and have a length equal to n.
+ */
+void compute_dft_real_pair(const double inreal[], const double inimag[],
 		double outreal[], double outimag[], int n) {
 	
 	for (int k = 0; k < n; k++) {  // For each output element

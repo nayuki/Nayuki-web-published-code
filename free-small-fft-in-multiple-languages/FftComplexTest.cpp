@@ -23,13 +23,15 @@
 
 #include <algorithm>
 #include <cmath>
+#include <complex>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <random>
 #include <vector>
-#include "Fft.hpp"
+#include "FftComplex.hpp"
 
+using std::complex;
 using std::cout;
 using std::endl;
 using std::vector;
@@ -38,14 +40,10 @@ using std::vector;
 // Private function prototypes
 static void testFft(int n);
 static void testConvolution(int n);
-static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
-	vector<double> &outreal, vector<double> &outimag, bool inverse);
-static void naiveConvolve(const vector<double> &xreal, const vector<double> &ximag,
-	const vector<double> &yreal, const vector<double> &yimag,
-	vector<double> &outreal, vector<double> &outimag);
-static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag,
-	const vector<double> &yreal, const vector<double> &yimag);
-static vector<double> randomReals(int n);
+static vector<complex<double> > naiveDft(const vector<complex<double> > &input, bool inverse);
+static vector<complex<double> > naiveConvolve(const vector<complex<double> > &xvec, const vector<complex<double> > &yvec);
+static double log10RmsErr(const vector<complex<double> > &xvec, const vector<complex<double> > &yvec);
+static vector<complex<double> > randomComplexes(int n);
 
 // Mutable global variable
 static double maxLogError = -INFINITY;
@@ -95,96 +93,68 @@ int main() {
 
 
 static void testFft(int n) {
-	vector<double> inputreal(randomReals(n));
-	vector<double> inputimag(randomReals(n));
-	
-	vector<double> refoutreal(n);
-	vector<double> refoutimag(n);
-	naiveDft(inputreal, inputimag, refoutreal, refoutimag, false);
-	
-	vector<double> actualoutreal(inputreal);
-	vector<double> actualoutimag(inputimag);
-	Fft::transform(actualoutreal, actualoutimag);
-	
+	vector<complex<double> > input(randomComplexes(n));
+	vector<complex<double> > refout(naiveDft(input, false));
+	vector<complex<double> > actualout(input);
+	Fft::transform(actualout);
 	cout << "fftsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
-	     << log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag) << endl;
+	     << log10RmsErr(refout, actualout) << endl;
 }
 
 
 static void testConvolution(int n) {
-	vector<double> input0real(randomReals(n));
-	vector<double> input0imag(randomReals(n));
-	vector<double> input1real(randomReals(n));
-	vector<double> input1imag(randomReals(n));
-	
-	vector<double> refoutreal(n);
-	vector<double> refoutimag(n);
-	naiveConvolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag);
-	
-	vector<double> actualoutreal(n);
-	vector<double> actualoutimag(n);
-	Fft::convolve(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
-	
+	vector<complex<double> > input0(randomComplexes(n));
+	vector<complex<double> > input1(randomComplexes(n));
+	vector<complex<double> > refout(naiveConvolve(input0, input1));
+	vector<complex<double> > actualout(n);
+	Fft::convolve(input0, input1, actualout);
 	cout << "convsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
-	     << log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag) << endl;
+	     << log10RmsErr(refout, actualout) << endl;
 }
 
 
 /*---- Naive reference computation functions ----*/
 
-static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
-		vector<double> &outreal, vector<double> &outimag, bool inverse) {
-	
-	int n = static_cast<int>(inreal.size());
-	double coef = (inverse ? 2 : -2) * M_PI;
+static vector<complex<double> > naiveDft(const vector<complex<double> > &input, bool inverse) {
+	int n = static_cast<int>(input.size());
+	vector<complex<double> > output;
+	double coef = (inverse ? 2 : -2) * M_PI / n;
 	for (int k = 0; k < n; k++) {  // For each output element
-		double sumreal = 0;
-		double sumimag = 0;
+		complex<double> sum(0);
 		for (int t = 0; t < n; t++) {  // For each input element
-			double angle = coef * (static_cast<long long>(t) * k % n) / n;
-			sumreal += inreal[t] * std::cos(angle) - inimag[t] * std::sin(angle);
-			sumimag += inreal[t] * std::sin(angle) + inimag[t] * std::cos(angle);
+			double angle = coef * (static_cast<long long>(t) * k % n);
+			sum += input[t] * std::exp(complex<double>(0, angle));
 		}
-		outreal[k] = sumreal;
-		outimag[k] = sumimag;
+		output.push_back(sum);
 	}
+	return output;
 }
 
 
-static void naiveConvolve(
-		const vector<double> &xreal, const vector<double> &ximag,
-		const vector<double> &yreal, const vector<double> &yimag,
-		vector<double> &outreal, vector<double> &outimag) {
-	
-	int n = static_cast<int>(xreal.size());
-	std::fill(outreal.begin(), outreal.end(), 0.0);
-	std::fill(outimag.begin(), outimag.end(), 0.0);
-	
+static vector<complex<double> > naiveConvolve(
+		const vector<complex<double> > &xvec, const vector<complex<double> > &yvec) {
+	int n = static_cast<int>(xvec.size());
+	vector<complex<double> > outvec(n);
+	std::fill(outvec.begin(), outvec.end(), complex<double>(0, 0));
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			int k = (i + j) % n;
-			outreal[k] += xreal[i] * yreal[j] - ximag[i] * yimag[j];
-			outimag[k] += xreal[i] * yimag[j] + ximag[i] * yreal[j];
+			outvec[k] += xvec[i] * yvec[j];
 		}
 	}
+	return outvec;
 }
 
 
 /*---- Utility functions ----*/
 
-static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag,
-		const vector<double> &yreal, const vector<double> &yimag) {
-	
-	int n = static_cast<int>(xreal.size());
+static double log10RmsErr(const vector<complex<double> > &xvec, const vector<complex<double> > &yvec) {
+	int n = static_cast<int>(xvec.size());
 	double err = std::pow(10, -99 * 2);
-	for (int i = 0; i < n; i++) {
-		double real = xreal.at(i) - yreal.at(i);
-		double imag = ximag.at(i) - yimag.at(i);
-		err += real * real + imag * imag;
-	}
-	
+	for (int i = 0; i < n; i++)
+		err += std::norm(xvec.at(i) - yvec.at(i));
 	err /= n > 0 ? n : 1;
 	err = std::sqrt(err);  // Now this is a root mean square (RMS) error
 	err = std::log10(err);
@@ -193,10 +163,10 @@ static double log10RmsErr(const vector<double> &xreal, const vector<double> &xim
 }
 
 
-static vector<double> randomReals(int n) {
+static vector<complex<double> > randomComplexes(int n) {
 	std::uniform_real_distribution<double> valueDist(-1.0, 1.0);
-	vector<double> result;
+	vector<complex<double> > result;
 	for (int i = 0; i < n; i++)
-		result.push_back(valueDist(randGen));
+		result.push_back(complex<double>(valueDist(randGen), valueDist(randGen)));
 	return result;
 }

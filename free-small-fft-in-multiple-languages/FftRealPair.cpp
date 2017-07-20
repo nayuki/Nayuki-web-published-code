@@ -25,7 +25,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include "Fft.hpp"
+#include "FftRealPair.hpp"
 
 using std::size_t;
 using std::vector;
