@@ -129,10 +129,10 @@ public sealed class Fft {
 	 * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
 	 */
 	public static void Convolve(Complex[] xvector, Complex[] yvector, Complex[] outvector) {
-		if (xvector.Length != yvector.Length || xvector.Length != outvector.Length)
-			throw new ArgumentException("Mismatched lengths");
 		
 		int n = xvector.Length;
+		if (n != yvector.Length || n != outvector.Length)
+			throw new ArgumentException("Mismatched lengths");
 		xvector = (Complex[])xvector.Clone();
 		yvector = (Complex[])yvector.Clone();
 		

@@ -157,9 +157,9 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 
 
 void Fft::convolve(const vector<double> &x, const vector<double> &y, vector<double> &out) {
-	if (x.size() != y.size() || x.size() != out.size())
-		throw "Mismatched lengths";
 	size_t n = x.size();
+	if (n != y.size() || n != out.size())
+		throw "Mismatched lengths";
 	vector<double> ximag(n), yimag(n), zimag(n);
 	convolve(x, ximag, y, yimag, out, zimag);
 }
@@ -170,11 +170,11 @@ void Fft::convolve(
 		const vector<double> &yreal, const vector<double> &yimag,
 		vector<double> &outreal, vector<double> &outimag) {
 	
-	if (xreal.size() != ximag.size() || xreal.size() != yreal.size() || yreal.size() != yimag.size()
-			|| xreal.size() != outreal.size() || outreal.size() != outimag.size())
+	size_t n = xreal.size();
+	if (n != ximag.size() || n != yreal.size() || n != yimag.size()
+			|| n != outreal.size() || n != outimag.size())
 		throw "Mismatched lengths";
 	
-	size_t n = xreal.size();
 	vector<double> xr(xreal);
 	vector<double> xi(ximag);
 	vector<double> yr(yreal);

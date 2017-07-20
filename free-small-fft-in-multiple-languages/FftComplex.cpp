@@ -144,7 +144,7 @@ void Fft::convolve(
 		vector<complex<double> > &outvec) {
 	
 	size_t n = xvec.size();
-	if (yvec.size() != n || outvec.size() != n)
+	if (n != yvec.size() || n != outvec.size())
 		throw "Mismatched lengths";
 	vector<complex<double> > xv(xvec);
 	vector<complex<double> > yv(yvec);
