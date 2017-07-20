@@ -49,7 +49,7 @@ bool Fft_inverseTransform(double real[], double imag[], size_t n) {
 
 
 bool Fft_transformRadix2(double real[], double imag[], size_t n) {
-	// Variables
+	// Length variables
 	bool status = false;
 	int levels = 0;  // Compute levels = floor(log2(n))
 	for (size_t temp = n; temp > 1U; temp >>= 1)

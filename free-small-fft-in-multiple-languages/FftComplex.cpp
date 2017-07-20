@@ -57,7 +57,7 @@ void Fft::inverseTransform(vector<complex<double> > &vec) {
 
 
 void Fft::transformRadix2(vector<complex<double> > &vec) {
-	// Compute levels = floor(log2(n))
+	// Length variables
 	size_t n = vec.size();
 	int levels = 0;  // Compute levels = floor(log2(n))
 	for (size_t temp = n; temp > 1U; temp >>= 1)

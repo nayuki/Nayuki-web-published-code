@@ -47,7 +47,7 @@ public sealed class Fft {
 	 * The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
 	 */
 	public static void TransformRadix2(Complex[] vector, bool inverse) {
-		// Initialization
+		// Length variables
 		int n = vector.Length;
 		int levels = 0;  // compute levels = floor(log2(n))
 		for (int temp = n; temp > 1; temp >>= 1)
@@ -55,6 +55,7 @@ public sealed class Fft {
 		if (1 << levels != n)
 			throw new ArgumentException("Length is not a power of 2");
 		
+		// Trigonometric table
 		Complex[] expTable = new Complex[n / 2];
 		double coef = 2 * Math.PI / n * (inverse ? 1 : -1);
 		for (int i = 0; i < n / 2; i++)

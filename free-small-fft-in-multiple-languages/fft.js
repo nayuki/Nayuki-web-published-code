@@ -56,7 +56,7 @@ function inverseTransform(real, imag) {
  * The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
  */
 function transformRadix2(real, imag) {
-	// Initialization
+	// Length variables
 	if (real.length != imag.length)
 		throw "Mismatched lengths";
 	var n = real.length;
@@ -70,6 +70,7 @@ function transformRadix2(real, imag) {
 	if (levels == -1)
 		throw "Length is not a power of 2";
 	
+	// Trigonometric tables
 	var cosTable = new Array(n / 2);
 	var sinTable = new Array(n / 2);
 	for (var i = 0; i < n / 2; i++) {

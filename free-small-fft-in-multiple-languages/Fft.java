@@ -56,7 +56,7 @@ public final class Fft {
 	 * The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
 	 */
 	public static void transformRadix2(double[] real, double[] imag) {
-		// Initialization
+		// Length variables
 		if (real.length != imag.length)
 			throw new IllegalArgumentException("Mismatched lengths");
 		int n = real.length;
@@ -64,6 +64,7 @@ public final class Fft {
 		if (1 << levels != n)
 			throw new IllegalArgumentException("Length is not a power of 2");
 		
+		// Trigonometric tables
 		double[] cosTable = new double[n / 2];
 		double[] sinTable = new double[n / 2];
 		for (int i = 0; i < n / 2; i++) {

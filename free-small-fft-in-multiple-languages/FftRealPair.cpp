@@ -55,7 +55,7 @@ void Fft::inverseTransform(vector<double> &real, vector<double> &imag) {
 
 
 void Fft::transformRadix2(vector<double> &real, vector<double> &imag) {
-	// Compute levels = floor(log2(n))
+	// Length variables
 	if (real.size() != imag.size())
 		throw "Mismatched lengths";
 	size_t n = real.size();
