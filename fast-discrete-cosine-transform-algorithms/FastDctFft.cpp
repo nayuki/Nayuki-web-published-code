@@ -23,8 +23,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include "FastDctFft.hpp"
-#include "Fft.hpp"
+#include "FftRealPair.hpp"
 
 using std::size_t;
 using std::vector;
