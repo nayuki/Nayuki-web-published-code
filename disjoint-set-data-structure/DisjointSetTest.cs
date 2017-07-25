@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (C#)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,19 +29,19 @@ public sealed class DisjointSetTest {
 	/*---- Main runner ----*/
 	
 	public static void Main(string[] args) {
-		testNew();
-		testMerge();
-		testBigMerge();
-		testAgainstNaiveRandomly();
+		TestNew();
+		TestMerge();
+		TestBigMerge();
+		TestAgainstNaiveRandomly();
 		Console.WriteLine("Test passed");
 	}
 	
 	
 	/*---- Test suite ----*/
 	
-	private static void testNew() {
+	private static void TestNew() {
 		DisjointSet ds = new DisjointSet(10);
-		assert(ds.GetNumberOfSets() == 10);
+		assert(ds.NumberOfSets == 10);
 		assert(ds.GetSizeOfSet(0) == 1);
 		assert(ds.GetSizeOfSet(2) == 1);
 		assert(ds.GetSizeOfSet(9) == 1);
@@ -52,35 +52,35 @@ public sealed class DisjointSetTest {
 	}
 	
 	
-	private static void testMerge() {
+	private static void TestMerge() {
 		DisjointSet ds = new DisjointSet(10);
 		assert(ds.MergeSets(0, 1));
 		ds.CheckStructure();
-		assert(ds.GetNumberOfSets() == 9);
+		assert(ds.NumberOfSets == 9);
 		assert(ds.AreInSameSet(0, 1));
 		
 		assert(ds.MergeSets(2, 3));
 		ds.CheckStructure();
-		assert(ds.GetNumberOfSets() == 8);
+		assert(ds.NumberOfSets == 8);
 		assert(ds.AreInSameSet(2, 3));
 		
 		assert(!ds.MergeSets(2, 3));
 		ds.CheckStructure();
-		assert(ds.GetNumberOfSets() == 8);
+		assert(ds.NumberOfSets == 8);
 		assert(!ds.AreInSameSet(0, 2));
 		
 		assert(ds.MergeSets(0, 3));
 		ds.CheckStructure();
-		assert(ds.GetNumberOfSets() == 7);
+		assert(ds.NumberOfSets == 7);
 		assert(ds.AreInSameSet(0, 2));
 		assert(ds.AreInSameSet(3, 0));
 		assert(ds.AreInSameSet(1, 3));
 	}
 	
 	
-	private static void testBigMerge() {
-		int maxRank = 20;
-		int trials = 10000;
+	private static void TestBigMerge() {
+		const int maxRank = 20;
+		const int trials = 10000;
 		
 		int numElems = 1 << maxRank;  // Grows exponentially
 		DisjointSet ds = new DisjointSet(numElems);
@@ -105,10 +105,10 @@ public sealed class DisjointSetTest {
 	}
 	
 	
-	private static void testAgainstNaiveRandomly() {
-		int trials = 1000;
-		int iterations = 3000;
-		int numElems = 300;
+	private static void TestAgainstNaiveRandomly() {
+		const int trials = 1000;
+		const int iterations = 3000;
+		const int numElems = 300;
 		
 		for (int i = 0; i < trials; i++) {
 			NaiveDisjointSet nds = new NaiveDisjointSet(numElems);
@@ -120,7 +120,7 @@ public sealed class DisjointSetTest {
 				assert(ds.AreInSameSet(k, l) == nds.AreInSameSet(k, l));
 				if (rand.NextDouble() < 0.1)
 					assert(ds.MergeSets(k, l) == nds.MergeSets(k, l));
-				assert(nds.GetNumberOfSets() == ds.GetNumberOfSets());
+				assert(nds.NumberOfSets == ds.NumberOfSets);
 				if (rand.NextDouble() < 0.001)
 					ds.CheckStructure();
 			}
@@ -147,20 +147,25 @@ sealed class NaiveDisjointSet {
 	
 	private int[] representatives;
 	
+	
 	public NaiveDisjointSet(int numElems) {
 		representatives = new int[numElems];
 		for (int i = 0; i < numElems; i++)
 			representatives[i] = i;
 	}
 	
-	public int GetNumberOfSets() {
-		int result = 0;
-		for (int i = 0; i < representatives.Length; i++) {
-			if (representatives[i] == i)
-				result++;
+	
+	public int NumberOfSets {
+		get {
+			int result = 0;
+			for (int i = 0; i < representatives.Length; i++) {
+				if (representatives[i] == i)
+					result++;
+			}
+			return result;
 		}
-		return result;
 	}
+	
 	
 	public int GetSizeOfSet(int elemIndex) {
 		int repr = representatives[elemIndex];
@@ -172,9 +177,11 @@ sealed class NaiveDisjointSet {
 		return result;
 	}
 	
+	
 	public bool AreInSameSet(int elemIndex0, int elemIndex1) {
 		return representatives[elemIndex0] == representatives[elemIndex1];
 	}
+	
 	
 	public bool MergeSets(int elemIndex0, int elemIndex1) {
 		int repr0 = representatives[elemIndex0];

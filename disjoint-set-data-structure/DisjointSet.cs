@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (C#)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,13 +33,14 @@ public sealed class DisjointSet {
 	
 	/*---- Fields ----*/
 	
-	// Global properties
-	private int numSets;
+	// The number of disjoint sets overall. This number decreases monotonically as time progresses;
+	// each call to MergeSets() either decrements the number by one or leaves it unchanged. 1 <= NumberOfSets <= NumberOfElements.
+	public int NumberOfSets {
+		get;
+		private set;
+	}
 	
-	// Per-node properties. This representation is more space-efficient than creating one node object per element.
-	private int[] parents;  // The index of the parent element. An element is a representative iff its parent is itself.
-	private byte[] ranks;   // Always in the range [0, floor(log2(numElems))]. Thus has a maximum value of 30.
-	private int[] sizes;    // Positive number if the element is a representative, otherwise zero.
+	private Node[] nodes;
 	
 	
 	
@@ -50,15 +51,13 @@ public sealed class DisjointSet {
 	public DisjointSet(int numElems) {
 		if (numElems <= 0)
 			throw new ArgumentOutOfRangeException("Number of elements must be positive");
-		parents = new int[numElems];
-		ranks = new byte[numElems];
-		sizes = new int[numElems];
+		nodes = new Node[numElems];
 		for (int i = 0; i < numElems; i++) {
-			parents[i] = i;
-			ranks[i] = 0;
-			sizes[i] = 1;
+			nodes[i].Parent = i;
+			nodes[i].Rank = 0;
+			nodes[i].Size = 1;
 		}
-		numSets = numElems;
+		NumberOfSets = numElems;
 	}
 	
 	
@@ -67,16 +66,11 @@ public sealed class DisjointSet {
 	
 	// Returns the number of elements among the set of disjoint sets; this was the number passed
 	// into the constructor and is constant for the lifetime of the object. All the other methods
-	// require the argument elemIndex to satisfy 0 <= elemIndex < getNumberOfElements().
-	public int GetNumberOfElements() {
-		return parents.Length;
-	}
-	
-	
-	// Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 1 <= result <= getNumberOfElements().
-	public int GetNumberOfSets() {
-		return numSets;
+	// require the argument elemIndex to satisfy 0 <= elemIndex < NumberOfElements.
+	public int NumberOfElements {
+		get {
+			return nodes.Length;
+		}
 	}
 	
 	
@@ -84,26 +78,26 @@ public sealed class DisjointSet {
 	// known as "find" in the literature. Also performs path compression, which alters the internal state to
 	// improve the speed of future queries, but has no externally visible effect on the values returned.
 	private int getRepr(int elemIndex) {
-		if (elemIndex < 0 || elemIndex >= parents.Length)
+		if (elemIndex < 0 || elemIndex >= nodes.Length)
 			throw new IndexOutOfRangeException();
 		// Follow parent pointers until we reach a representative
-		int parent = parents[elemIndex];
+		int parent = nodes[elemIndex].Parent;
 		if (parent == elemIndex)
 			return elemIndex;
 		while (true) {
-			int grandparent = parents[parent];
+			int grandparent = nodes[parent].Parent;
 			if (grandparent == parent)
 				return parent;
-			parents[elemIndex] = grandparent;  // Partial path compression
+			nodes[elemIndex].Parent = grandparent;  // Partial path compression
 			elemIndex = parent;
 			parent = grandparent;
 		}
 	}
 	
 	
-	// Returns the size of the set that the given element is a member of. 1 <= result <= getNumberOfElements().
+	// Returns the size of the set that the given element is a member of. 1 <= result <= NumberOfElements.
 	public int GetSizeOfSet(int elemIndex) {
-		return sizes[getRepr(elemIndex)];
+		return nodes[getRepr(elemIndex)].Size;
 	}
 	
 	
@@ -124,9 +118,9 @@ public sealed class DisjointSet {
 			return false;
 		
 		// Compare ranks
-		int cmp = ranks[repr0] - ranks[repr1];
+		int cmp = nodes[repr0].Rank - nodes[repr1].Rank;
 		if (cmp == 0)  // Increment repr0's rank if both nodes have same rank
-			ranks[repr0]++;
+			nodes[repr0].Rank++;
 		else if (cmp < 0) {  // Swap to ensure that repr0's rank >= repr1's rank
 			int temp = repr0;
 			repr0 = repr1;
@@ -134,35 +128,50 @@ public sealed class DisjointSet {
 		}
 		
 		// Graft repr1's subtree onto node repr0
-		parents[repr1] = repr0;
-		sizes[repr0] += sizes[repr1];
-		sizes[repr1] = 0;
-		numSets--;
+		nodes[repr1].Parent = repr0;
+		nodes[repr0].Size += nodes[repr1].Size;
+		nodes[repr1].Size = 0;
+		NumberOfSets--;
 		return true;
 	}
 	
 	
-	// For unit tests. This detects many but not all invalid data structures, throwing an AssertionError
+	// For unit tests. This detects many but not all invalid data structures, throwing a SystemException
 	// if a structural invariant is known to be violated. This always returns silently on a valid object.
 	public void CheckStructure() {
 		int numRepr = 0;
-		for (int i = 0; i < parents.Length; i++) {
-			int parent = parents[i];
-			int rank = ranks[i];
-			int size = sizes[i];
+		for (int i = 0; i < nodes.Length; i++) {
+			int parent = nodes[i].Parent;
+			int rank = nodes[i].Rank;
+			int size = nodes[i].Size;
 			bool isRepr = parent == i;
 			if (isRepr)
 				numRepr++;
 			
 			bool ok = true;
-			ok &= 0 <= parent && parent < parents.Length;
-			ok &= 0 <= rank && (isRepr || rank < ranks[parent]);
+			ok &= 0 <= parent && parent < nodes.Length;
+			ok &= 0 <= rank && (isRepr || rank < nodes[parent].Rank);
 			ok &= !isRepr && size == 0 || isRepr && size >= (1 << rank);
 			if (!ok)
 				throw new SystemException();
 		}
-		if (!(1 <= numSets && numSets == numRepr && numSets <= parents.Length))
+		if (!(1 <= NumberOfSets && NumberOfSets == numRepr && NumberOfSets <= nodes.Length))
 			throw new SystemException();
+	}
+	
+	
+	
+	private struct Node {
+		
+		// The index of the parent element. An element is a representative iff its parent is itself.
+		public int Parent;
+		
+		// Always in the range [0, floor(log2(NumberOfElements))]. Thus has a maximum value of 30.
+		public byte Rank;
+		
+		// Positive number if the element is a representative, otherwise zero.
+		public int Size;
+		
 	}
 	
 }
