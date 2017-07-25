@@ -1,7 +1,7 @@
 # 
 # Create dict (Python version)
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2017 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/java-native-interface-compared-to-python-c-api
 # 
@@ -13,7 +13,8 @@ distutils.core.setup(
 	ext_modules = [
 		distutils.core.Extension(
 			"createdict_native",
-			sources = ["createdict_native.c"]
+			sources = ["createdict_native.c"],
+			extra_compile_args=["-std=c99"],
 		)
 	]
 )

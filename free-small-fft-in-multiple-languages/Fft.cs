@@ -144,7 +144,7 @@ public sealed class Fft {
 			xvector[i] *= yvector[i];
 		Transform(xvector, true);
 		for (int i = 0; i < n; i++)  // Scaling (because this FFT implementation omits it)
-			outvector[i] = xvector[i] / new Complex(n, 0);
+			outvector[i] = xvector[i] / n;
 	}
 	
 	

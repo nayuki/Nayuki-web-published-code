@@ -17,7 +17,7 @@ public sealed class Dft {
 		int n = input.Length;
 		Complex[] output = new Complex[n];
 		for (int k = 0; k < n; k++) {  // For each output element
-			Complex sum = new Complex(0, 0);
+			Complex sum = 0;
 			for (int t = 0; t < n; t++) {  // For each input element
 				double angle = 2 * Math.PI * t * k / n;
 				sum += input[t] * Complex.Exp(new Complex(0, -angle));

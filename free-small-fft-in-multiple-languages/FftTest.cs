@@ -104,7 +104,7 @@ public sealed class FftTest {
 		int n = invector.Length;
 		double coef = (inverse ? 2 : -2) * Math.PI;
 		for (int k = 0; k < n; k++) {  // For each output element
-			Complex sum = new Complex(0, 0);
+			Complex sum = 0;
 			for (int t = 0; t < n; t++) {  // For each input element
 				double angle = coef * (int)((long)t * k % n) / n;  // This is more accurate than t * k
 				sum += invector[t] * Complex.Exp(new Complex(0, angle));
@@ -120,7 +120,7 @@ public sealed class FftTest {
 		
 		int n = xvector.Length;
 		for (int i = 0; i < n; i++)
-			outvector[i] = new Complex(0, 0);
+			outvector[i] = 0;
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++)
 				outvector[(i + j) % n] += xvector[i] * yvector[j];

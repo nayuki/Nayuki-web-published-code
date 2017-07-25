@@ -1,14 +1,14 @@
 # 
 # Create map (Java version)
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2017 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/java-native-interface-compared-to-python-c-api
 # 
 
 
 # You will need to change the include paths to match your build environment
-CFLAGS += -Wall -shared -fPIC -O
+CFLAGS += -std=c99 -Wall -shared -fPIC -O
 CFLAGS += -I /usr/lib/jvm/java-1.8.0-openjdk-amd64/include/
 CFLAGS += -I /usr/lib/jvm/java-1.8.0-openjdk-amd64/include/linux/
 

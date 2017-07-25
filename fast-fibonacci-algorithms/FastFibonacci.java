@@ -1,7 +1,7 @@
 /* 
  * Demonstration of fast Fibonacci algorithms (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/fast-fibonacci-algorithms
  */
@@ -60,7 +60,7 @@ public final class FastFibonacci {
 		BigInteger a = BigInteger.ZERO;
 		BigInteger b = BigInteger.ONE;
 		int m = 0;
-		for (int i = 31 - Integer.numberOfLeadingZeros(n); i >= 0; i--) {
+		for (int bit = Integer.highestOneBit(n); bit != 0; bit >>>= 1) {
 			// Loop invariant: a = F(m), b = F(m+1)
 			assert a.equals(slowFibonacci(m));
 			assert b.equals(slowFibonacci(m+1));
@@ -75,7 +75,7 @@ public final class FastFibonacci {
 			assert b.equals(slowFibonacci(m+1));
 			
 			// Advance by one conditionally
-			if (((n >>> i) & 1) != 0) {
+			if ((n & bit) != 0) {
 				BigInteger c = a.add(b);
 				a = b;
 				b = c;

@@ -70,7 +70,6 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	public E set(int index, E val) {
 		if (index < 0 || index >= size())
 			throw new IndexOutOfBoundsException();
-		
 		Node<E> node = root.getNodeAt(index);
 		E result = node.value;
 		node.value = val;
@@ -83,7 +82,6 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 			throw new IndexOutOfBoundsException();
 		if (size() == Integer.MAX_VALUE)
 			throw new IllegalStateException("Maximum size reached");
-		
 		root = root.insertAt(index, val);
 	}
 	
@@ -91,7 +89,6 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	public E remove(int index) {
 		if (index < 0 || index >= size())
 			throw new IndexOutOfBoundsException();
-		
 		E result = get(index);
 		root = root.removeAt(index);
 		return result;
