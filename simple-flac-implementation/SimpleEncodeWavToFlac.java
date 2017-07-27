@@ -34,10 +34,9 @@ public final class SimpleEncodeWavToFlac {
 			System.exit(1);
 			return;
 		}
-		try (InputStream in = new BufferedInputStream(new FileInputStream(args[0]))) {
-			try (BitOutputStream out = new BitOutputStream(new BufferedOutputStream(new FileOutputStream(args[1])))) {
-				encodeFile(in, out);
-			}
+		try (InputStream in = new BufferedInputStream(new FileInputStream(args[0]));
+				BitOutputStream out = new BitOutputStream(new BufferedOutputStream(new FileOutputStream(args[1])))) {
+			encodeFile(in, out);
 		}
 	}
 	

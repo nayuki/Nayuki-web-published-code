@@ -35,10 +35,9 @@ public final class SimpleDecodeFlacToWav {
 			System.exit(1);
 			return;
 		}
-		try (BitInputStream in = new BitInputStream(new BufferedInputStream(new FileInputStream(args[0])))) {
-			try (OutputStream out = new BufferedOutputStream(new FileOutputStream(args[1]))) {
-				decodeFile(in, out);
-			}
+		try (BitInputStream in = new BitInputStream(new BufferedInputStream(new FileInputStream(args[0])));
+				OutputStream out = new BufferedOutputStream(new FileOutputStream(args[1]))) {
+			decodeFile(in, out);
 		}
 	}
 	
