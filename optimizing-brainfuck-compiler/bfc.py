@@ -183,7 +183,7 @@ def optimize_simple_loop(commands):
 def optimize_complex_loop(commands):
 	result = []
 	origindelta = 0
-	clears = set([0])
+	clears = {0}
 	for cmd in commands:
 		if isinstance(cmd, Add):
 			if cmd.offset == 0:
