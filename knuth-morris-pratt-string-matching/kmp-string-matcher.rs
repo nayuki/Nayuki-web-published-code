@@ -31,16 +31,22 @@ fn kmp_search(pattern: &[char], text: &[char]) -> std::option::Option<usize> {
 	
 	// Compute longest suffix-prefix table
 	let mut lsp: Vec<usize> = Vec::with_capacity(pattern.len());
-	lsp.push(0);  // Base case
-	for i in 1 .. pattern.len() {
-		let mut j: usize = lsp[i - 1];  // Start by assuming we're extending the previous LSP
-		while j > 0 && pattern[i] != pattern[j] {
-			j = lsp[j - 1];
-		}
-		if pattern[i] == pattern[j] {
-			j += 1;
-		}
-		lsp.push(j);
+	for c in pattern {
+		let newval = match lsp.last() {
+			None => 0,  // Base case
+			Some(prevval) => {
+				// Start by assuming we're extending the previous LSP
+				let mut j: usize = *prevval;
+				while j > 0 && *c != pattern[j] {
+					j = lsp[j - 1];
+				}
+				if *c == pattern[j] {
+					j += 1;
+				}
+				j
+			},
+		};
+		lsp.push(newval);
 	}
 	
 	// Walk through text string
