@@ -84,13 +84,13 @@ std::uniform_real_distribution<double> realDist;
 
 
 static void assertEquals(bool expected, bool actual) {
-	if (expected != actual)
+	if (actual != expected)
 		throw "Assertion error";
 }
 
 
 static void assertEquals(size_t expected, size_t actual) {
-	if (expected != actual)
+	if (actual != expected)
 		throw "Assertion error";
 }
 

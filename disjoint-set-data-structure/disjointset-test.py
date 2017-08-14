@@ -93,17 +93,17 @@ class DisjointSetTest(unittest.TestCase):
 		iterations = 1000
 		numElems = 100
 		
-		for i in range(trials):
+		for _ in range(trials):
 			nds = NaiveDisjointSet(numElems)
 			ds = disjointset.DisjointSet(numElems)
-			for j in range(iterations):
-				k = random.randrange(numElems)
-				l = random.randrange(numElems)
-				self.assertEqual(ds.get_size_of_set(k), nds.get_size_of_set(k))
-				self.assertEqual(ds.are_in_same_set(k, l), nds.are_in_same_set(k, l))
+			for _ in range(iterations):
+				i = random.randrange(numElems)
+				j = random.randrange(numElems)
+				self.assertEqual(ds.get_size_of_set(i), nds.get_size_of_set(i))
+				self.assertEqual(ds.are_in_same_set(i, j), nds.are_in_same_set(i, j))
 				if random.random() < 0.1:
-					self.assertEqual(ds.merge_sets(k, l), nds.merge_sets(k, l))
-				self.assertEqual(nds.get_num_sets(), ds.get_num_sets())
+					self.assertEqual(ds.merge_sets(i, j), nds.merge_sets(i, j))
+				self.assertEqual(ds.get_num_sets(), nds.get_num_sets())
 				if random.random() < 0.001:
 					ds.check_structure()
 			ds.check_structure()

@@ -34,22 +34,25 @@ function main() {
 	];
 	var EPSILON = 1e-9;
 	
-	var pElem = document.querySelector("p");
 	var i = 0;
 	function iterate() {
-		try {
-			pElem.appendChild(document.createTextNode(FUNCS[i].name + "()"));
-			pElem.appendChild(document.createElement("br"));
-			FUNCS[i]();
-			i++;
-			if (i < FUNCS.length)
-				setTimeout(iterate, 0);
-			else {
-				pElem.appendChild(document.createTextNode("Test passed"));
+		var msg;
+		if (i >= FUNCS.length)
+			msg = "Finished";
+		else {
+			msg = FUNCS[i].name + "(): ";
+			try {
+				FUNCS[i]();
+				msg += "Pass";
+			} catch (e) {
+				msg += "Fail - " + e;
 			}
-		} catch (e) {
-			pElem.appendChild(document.createTextNode("Error: " + e));
+			i++;
+			setTimeout(iterate, 0);
 		}
+		var li = document.createElement("li");
+		li.appendChild(document.createTextNode(msg));
+		document.getElementById("results").appendChild(li);
 	}
 	iterate();
 	

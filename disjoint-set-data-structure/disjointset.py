@@ -1,7 +1,7 @@
 # 
 # Disjoint-set data structure - Library (Python)
 # 
-# Copyright (c) 2016 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/disjoint-set-data-structure
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,6 +20,8 @@
 #   out of or in connection with the Software or the use or other dealings in the
 #   Software.
 # 
+
+import itertools
 
 
 # Represents a set of disjoint sets. Also known as the union-find data structure.
@@ -116,10 +118,9 @@ class DisjointSet(object):
 	# if a structural invariant is known to be violated. This always returns silently on a valid object.
 	def check_structure(self):
 		numrepr = 0
-		for i in range(len(self.parents)):
-			parent = self.parents[i]
-			rank = self.ranks[i]
-			size = self.sizes[i]
+		for (i, parent, rank, size) in zip(
+				itertools.count(), self.parents, self.ranks, self.sizes):
+			
 			isrepr = parent == i
 			if isrepr:
 				numrepr += 1

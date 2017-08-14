@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -86,7 +86,7 @@ function testBigMerge() {
 			var j = Math.floor(Math.random() * numElems);
 			var k = Math.floor(Math.random() * numElems);
 			var expect = (j & mask) == (k & mask);
-			assertEquals(true, ds.areInSameSet(j, k) == expect);
+			assertEquals(expect, ds.areInSameSet(j, k));
 		}
 	}
 }
@@ -103,10 +103,10 @@ function testAgainstNaiveRandomly() {
 		for (var j = 0; j < iterations; j++) {
 			var k = Math.floor(Math.random() * numElems);
 			var l = Math.floor(Math.random() * numElems);
-			assertEquals(true, ds.getSizeOfSet(k) == nds.getSizeOfSet(k));
-			assertEquals(true, ds.areInSameSet(k, l) == nds.areInSameSet(k, l));
+			assertEquals(nds.getSizeOfSet(k), ds.getSizeOfSet(k));
+			assertEquals(nds.areInSameSet(k, l), ds.areInSameSet(k, l));
 			if (Math.random() < 0.1)
-				assertEquals(true, ds.mergeSets(k, l) == nds.mergeSets(k, l));
+				assertEquals(nds.mergeSets(k, l), ds.mergeSets(k, l));
 			assertEquals(nds.getNumberOfSets(), ds.getNumberOfSets());
 			if (Math.random() < 0.001)
 				ds.checkStructure();
@@ -143,10 +143,10 @@ function NaiveDisjointSet(numElems) {
 	this.getSizeOfSet = function(elemIndex) {
 		var repr = representatives[elemIndex];
 		var result = 0;
-		for (var i = 0; i < representatives.length; i++) {
-			if (representatives[i] == repr)
+		representatives.forEach(function(r) {
+			if (r == repr)
 				result++;
-		}
+		});
 		return result;
 	};
 	
@@ -157,10 +157,10 @@ function NaiveDisjointSet(numElems) {
 	this.mergeSets = function(elemIndex0, elemIndex1) {
 		var repr0 = representatives[elemIndex0];
 		var repr1 = representatives[elemIndex1];
-		for (var i = 0; i < representatives.length; i++) {
-			if (representatives[i] == repr1)
+		representatives.forEach(function(r, i) {
+			if (r == repr1)
 				representatives[i] = repr0;
-		}
+		});
 		return repr0 != repr1;
 	};
 	

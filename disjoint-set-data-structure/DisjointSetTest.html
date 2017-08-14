@@ -1,7 +1,7 @@
 <!--
   - Disjoint-set data structure - Test runner (HTML+JavaScript)
   - 
-  - Copyright (c) 2016 Project Nayuki. (MIT License)
+  - Copyright (c) 2017 Project Nayuki. (MIT License)
   - https://www.nayuki.io/page/disjoint-set-data-structure
   - 
   - Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,23 +29,23 @@
 	
 	<body>
 		<h1>DisjointSetTest (JavaScript)</h1>
+		<ul id="results"></ul>
 		
 		<script type="application/javascript" src="DisjointSet.js"></script>
 		<script type="application/javascript" src="DisjointSetTest.js"></script>
-		
 		<script type="application/javascript">
-			document.write("\u003Cul>");
 			TEST_SUITE_FUNCTIONS.forEach(function(func) {
-				document.write("\u003Cli>" + func.name + ": ");
+				var msg = func.name + ": ";
 				try {
 					func();
-					document.write("Pass");
+					msg += "Pass";
 				} catch (e) {
-					document.write("Fail - " + e);
+					msg += "Fail - " + e;
 				}
-				document.write("\u003C/li>");
+				var li = document.createElement("li");
+				li.appendChild(document.createTextNode(msg));
+				document.getElementById("results").appendChild(li);
 			});
-			document.write("\u003C/ul>");
 		</script>
 	</body>
 </html>

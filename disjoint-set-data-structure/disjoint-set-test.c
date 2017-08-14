@@ -198,7 +198,7 @@ static void testAgainstNaiveRandomly(void) {
 			assert(DisjointSet_areInSameSet(ds, k, l) == NaiveDisjointSet_areInSameSet(nds, k, l));
 			if ((double)rand() / RAND_MAX < 0.1)
 				assert(DisjointSet_mergeSets(ds, k, l) == NaiveDisjointSet_mergeSets(nds, k, l));
-			assert(NaiveDisjointSet_getNumberOfSets(nds) == ds->numSets);
+			assert(ds->numSets == NaiveDisjointSet_getNumberOfSets(nds));
 			if ((double)rand() / RAND_MAX < 0.001)
 				DisjointSet_checkStructure(ds);
 		}
