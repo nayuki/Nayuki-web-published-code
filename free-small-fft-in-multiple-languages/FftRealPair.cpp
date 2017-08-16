@@ -36,10 +36,9 @@ static size_t reverseBits(size_t x, int n);
 
 
 void Fft::transform(vector<double> &real, vector<double> &imag) {
-	if (real.size() != imag.size())
-		throw "Mismatched lengths";
-	
 	size_t n = real.size();
+	if (n != imag.size())
+		throw "Mismatched lengths";
 	if (n == 0)
 		return;
 	else if ((n & (n - 1)) == 0)  // Is power of 2
@@ -56,9 +55,9 @@ void Fft::inverseTransform(vector<double> &real, vector<double> &imag) {
 
 void Fft::transformRadix2(vector<double> &real, vector<double> &imag) {
 	// Length variables
-	if (real.size() != imag.size())
-		throw "Mismatched lengths";
 	size_t n = real.size();
+	if (n != imag.size())
+		throw "Mismatched lengths";
 	int levels = 0;  // Compute levels = floor(log2(n))
 	for (size_t temp = n; temp > 1U; temp >>= 1)
 		levels++;
@@ -104,9 +103,9 @@ void Fft::transformRadix2(vector<double> &real, vector<double> &imag) {
 
 void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
-	if (real.size() != imag.size())
-		throw "Mismatched lengths";
 	size_t n = real.size();
+	if (n != imag.size())
+		throw "Mismatched lengths";
 	size_t m;
 	{
 		size_t target;

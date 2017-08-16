@@ -29,10 +29,9 @@
  * The vector can have any length. This is a wrapper function.
  */
 function transform(real, imag) {
-	if (real.length != imag.length)
-		throw "Mismatched lengths";
-	
 	var n = real.length;
+	if (n != imag.length)
+		throw "Mismatched lengths";
 	if (n == 0)
 		return;
 	else if ((n & (n - 1)) == 0)  // Is power of 2
@@ -57,9 +56,9 @@ function inverseTransform(real, imag) {
  */
 function transformRadix2(real, imag) {
 	// Length variables
-	if (real.length != imag.length)
-		throw "Mismatched lengths";
 	var n = real.length;
+	if (n != imag.length)
+		throw "Mismatched lengths";
 	if (n == 1)  // Trivial transform
 		return;
 	var levels = -1;
@@ -126,9 +125,9 @@ function transformRadix2(real, imag) {
  */
 function transformBluestein(real, imag) {
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
-	if (real.length != imag.length)
-		throw "Mismatched lengths";
 	var n = real.length;
+	if (n != imag.length)
+		throw "Mismatched lengths";
 	var m = 1;
 	while (m < n * 2 + 1)
 		m *= 2;

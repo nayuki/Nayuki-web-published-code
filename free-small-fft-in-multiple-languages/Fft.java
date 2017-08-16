@@ -29,10 +29,9 @@ public final class Fft {
 	 * The vector can have any length. This is a wrapper function.
 	 */
 	public static void transform(double[] real, double[] imag) {
-		if (real.length != imag.length)
-			throw new IllegalArgumentException("Mismatched lengths");
-		
 		int n = real.length;
+		if (n != imag.length)
+			throw new IllegalArgumentException("Mismatched lengths");
 		if (n == 0)
 			return;
 		else if ((n & (n - 1)) == 0)  // Is power of 2
@@ -57,9 +56,9 @@ public final class Fft {
 	 */
 	public static void transformRadix2(double[] real, double[] imag) {
 		// Length variables
-		if (real.length != imag.length)
-			throw new IllegalArgumentException("Mismatched lengths");
 		int n = real.length;
+		if (n != imag.length)
+			throw new IllegalArgumentException("Mismatched lengths");
 		int levels = 31 - Integer.numberOfLeadingZeros(n);  // Equal to floor(log2(n))
 		if (1 << levels != n)
 			throw new IllegalArgumentException("Length is not a power of 2");
@@ -112,9 +111,9 @@ public final class Fft {
 	 */
 	public static void transformBluestein(double[] real, double[] imag) {
 		// Find a power-of-2 convolution length m such that m >= n * 2 + 1
-		if (real.length != imag.length)
-			throw new IllegalArgumentException("Mismatched lengths");
 		int n = real.length;
+		if (n != imag.length)
+			throw new IllegalArgumentException("Mismatched lengths");
 		if (n >= 0x20000000)
 			throw new IllegalArgumentException("Array too large");
 		int m = Integer.highestOneBit(n * 2) << 1;
