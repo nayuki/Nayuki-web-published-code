@@ -79,11 +79,13 @@ class BinaryArraySet(object):
 	
 	# Runs in average-case O((log n)^2) time, worst-case O(n) time
 	def add(self, val):
-		# Checking for duplicates is expensive, taking O((log n)^2) time
-		if val in self:
-			return
-		
-		# The pure add portion below runs in amortized O(1) time
+		# Checking for duplicates is expensive
+		if val not in self:
+			self.add_unique(val)
+	
+	
+	# Runs in amortized O(1) time, worst-case O(n) time
+	def add_unique(self, val):
 		toput = [val]
 		for (i, vals) in enumerate(self.values):
 			assert len(toput) == 1 << i

@@ -58,6 +58,7 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	
 	// Runs in O(n * (log n)^2) time
+	@SuppressWarnings("unchecked")
 	public BinaryArraySet(E... vals) {
 		this();
 		Objects.requireNonNull(vals);
@@ -86,17 +87,24 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	
 	
 	// Runs in average-case O((log n)^2) time, worst-case O(n) time
-	@SuppressWarnings("unchecked")
 	public boolean add(E val) {
 		Objects.requireNonNull(val);
-		if (size == Integer.MAX_VALUE)
-			throw new IllegalStateException("Maximum size reached");
-		
 		// Checking for duplicates is expensive, taking O((log n)^2) time
 		if (contains(val))
 			return false;
-		
-		// The pure add portion below runs in amortized O(1) time
+		else {
+			addUnique(val);
+			return true;
+		}
+	}
+	
+	
+	// Runs in amortized O(1) time, worst-case O(n) time
+	@SuppressWarnings("unchecked")
+	public void addUnique(E val) {
+		Objects.requireNonNull(val);
+		if (size == Integer.MAX_VALUE)
+			throw new IllegalStateException("Maximum size reached");
 		E[] toPut = (E[])new Comparable[]{val};
 		for (int i = 0; i < values.length; i++) {
 			assert toPut.length == 1 << i;
@@ -131,7 +139,6 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 			}
 		}
 		size++;
-		return true;
 	}
 	
 	

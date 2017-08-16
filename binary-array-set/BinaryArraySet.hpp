@@ -42,45 +42,12 @@ class BinaryArraySet final {
 	
 	
 	
-	/*---- Constructors and related ----*/
+	/*---- Constructors ----*/
 	
 	// Runs in O(1) time
 	public: BinaryArraySet() :
 		values(),
 		length(0) {}
-	
-	
-	// Copy constructor, runs in O(n) time
-	public: BinaryArraySet(const BinaryArraySet &other) {
-		*this = other;
-	}
-	
-	
-	// Move constructor, runs in O(1) time
-	public: BinaryArraySet(BinaryArraySet &&other) {
-		*this = std::move(other);
-	}
-	
-	
-	// Copy assignment, runs in O(n) time
-	public: BinaryArraySet &operator=(const BinaryArraySet &other) {
-		values = other.values;
-		length = other.length;
-		return *this;
-	}
-	
-	
-	// Move assignment, runs in O(1) time
-	public: BinaryArraySet &operator=(BinaryArraySet &&other) {
-		values = std::move(other.values);
-		length = other.length;
-		return *this;
-	}
-	
-	
-	// Runs in O(log n) time for simple types (e.g. E = int),
-	// otherwise O(n) time due to element destructors
-	public: ~BinaryArraySet() {}
 	
 	
 	
@@ -125,29 +92,36 @@ class BinaryArraySet final {
 	
 	// Runs in average-case O((log n)^2) time, worst-case O(n) time
 	public: void insert(const E &val) {
-		// Checking for duplicates is expensive, taking O((log n)^2) time
-		if (contains(val))
-			return;
-		if (length == SIZE_MAX)
-			throw "Maximum size reached";
+		// Checking for duplicates is expensive
+		if (!contains(val))
+			insertUnique(val);
+	}
+	
+	
+	// Move version
+	public: void insert(E &&val) {
+		if (!contains(val))
+			insertUnique(std::move(val));
+	}
+	
+	
+	// Runs in amortized O(1) time, worst-case O(n) time
+	public: void insertUnique(const E &val) {
 		std::vector<E> toPut{val};
 		insertHelper(std::move(toPut));
 	}
 	
 	
 	// Move version
-	public: void insert(E &&val) {
-		if (contains(val))
-			return;
-		if (length == SIZE_MAX)
-			throw "Maximum size reached";
+	public: void insertUnique(E &&val) {
 		std::vector<E> toPut{std::move(val)};
 		insertHelper(std::move(toPut));
 	}
 	
 	
-	// This pure insert method runs in amortized O(1) time
 	private: void insertHelper(std::vector<E> &&toPut) {
+		if (length == SIZE_MAX)
+			throw "Maximum size reached";
 		for (std::size_t i = 0; ; i++) {
 			if (i >= values.size()) {
 				values.push_back(std::move(toPut));
