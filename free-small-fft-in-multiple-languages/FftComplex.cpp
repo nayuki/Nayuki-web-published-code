@@ -97,16 +97,11 @@ void Fft::transformRadix2(vector<complex<double> > &vec) {
 void Fft::transformBluestein(vector<complex<double> > &vec) {
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
 	size_t n = vec.size();
-	size_t m;
-	{
-		size_t target;
-		if (n > (SIZE_MAX - 1) / 2)
+	size_t m = 1;
+	while (m / 2 <= n) {
+		if (m > SIZE_MAX / 2)
 			throw "Vector too large";
-		target = n * 2 + 1;
-		for (m = 1; m < target; m *= 2) {
-			if (SIZE_MAX / 2 < m)
-				throw "Vector too large";
-		}
+		m *= 2;
 	}
 	
 	// Trignometric table

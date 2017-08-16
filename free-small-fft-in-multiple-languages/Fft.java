@@ -117,7 +117,7 @@ public final class Fft {
 			throw new IllegalArgumentException("Mismatched lengths");
 		if (n >= 0x20000000)
 			throw new IllegalArgumentException("Array too large");
-		int m = Integer.highestOneBit(n * 2) << 1;
+		int m = Integer.highestOneBit(n) * 4;
 		
 		// Trignometric tables
 		double[] cosTable = new double[n];

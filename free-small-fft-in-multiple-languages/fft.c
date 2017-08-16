@@ -111,20 +111,14 @@ cleanup:
 
 
 bool Fft_transformBluestein(double real[], double imag[], size_t n) {
-	// Variables
 	bool status = false;
-	size_t m;
 	
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
-	{
-		size_t target;
-		if (n > (SIZE_MAX - 1) / 2)
+	size_t m = 1;
+	while (m / 2 <= n) {
+		if (m > SIZE_MAX / 2)
 			return false;
-		target = n * 2 + 1;
-		for (m = 1; m < target; m *= 2) {
-			if (SIZE_MAX / 2 < m)
-				return false;
-		}
+		m *= 2;
 	}
 	
 	// Allocate memory

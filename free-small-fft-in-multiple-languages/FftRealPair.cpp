@@ -107,16 +107,11 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 	size_t n = real.size();
 	if (n != imag.size())
 		throw "Mismatched lengths";
-	size_t m;
-	{
-		size_t target;
-		if (n > (SIZE_MAX - 1) / 2)
+	size_t m = 1;
+	while (m / 2 <= n) {
+		if (m > SIZE_MAX / 2)
 			throw "Vector too large";
-		target = n * 2 + 1;
-		for (m = 1; m < target; m *= 2) {
-			if (SIZE_MAX / 2 < m)
-				throw "Vector too large";
-		}
+		m *= 2;
 	}
 	
 	// Trignometric tables
