@@ -112,10 +112,10 @@ function testConvolution(size) {
 /*---- Naive reference computation functions ----*/
 
 function naiveDft(inreal, inimag, outreal, outimag, inverse) {
-	if (inreal.length != inimag.length || inreal.length != outreal.length || outreal.length != outimag.length)
+	var n = inreal.length;
+	if (n != inimag.length || n != outreal.length || n != outimag.length)
 		throw "Mismatched lengths";
 	
-	var n = inreal.length;
 	var coef = (inverse ? 2 : -2) * Math.PI;
 	for (var k = 0; k < n; k++) {  // For each output element
 		var sumreal = 0;
@@ -132,11 +132,11 @@ function naiveDft(inreal, inimag, outreal, outimag, inverse) {
 
 
 function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
-	if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length
-			|| xreal.length != outreal.length || outreal.length != outimag.length)
+	var n = xreal.length;
+	if (n != ximag.length || n != yreal.length || n != yimag.length
+			|| n != outreal.length || n != outimag.length)
 		throw "Mismatched lengths";
 	
-	var n = xreal.length;
 	for (var i = 0; i < n; i++) {
 		outreal[i] = 0;
 		outimag[i] = 0;
@@ -156,13 +156,14 @@ function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
 var maxLogError = Number.NEGATIVE_INFINITY;
 
 function log10RmsErr(xreal, ximag, yreal, yimag) {
-	if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length)
+	var n = xreal.length;
+	if (n != ximag.length || n != yreal.length || n != yimag.length)
 		throw "Mismatched lengths";
 	
 	var err = Math.pow(10, -99 * 2);
-	for (var i = 0; i < xreal.length; i++)
+	for (var i = 0; i < n; i++)
 		err += (xreal[i] - yreal[i]) * (xreal[i] - yreal[i]) + (ximag[i] - yimag[i]) * (ximag[i] - yimag[i]);
-	err = Math.sqrt(err / Math.max(xreal.length, 1));  // Now this is a root mean square (RMS) error
+	err = Math.sqrt(err / Math.max(n, 1));  // Now this is a root mean square (RMS) error
 	err = Math.log(err) / Math.log(10);
 	maxLogError = Math.max(err, maxLogError);
 	return err;

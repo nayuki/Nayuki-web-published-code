@@ -105,10 +105,10 @@ public final class FftTest {
 	/*---- Naive reference computation functions ----*/
 	
 	private static void naiveDft(double[] inreal, double[] inimag, double[] outreal, double[] outimag, boolean inverse) {
-		if (inreal.length != inimag.length || inreal.length != outreal.length || outreal.length != outimag.length)
+		int n = inreal.length;
+		if (n != inimag.length || n != outreal.length || n != outimag.length)
 			throw new IllegalArgumentException("Mismatched lengths");
 		
-		int n = inreal.length;
 		double coef = (inverse ? 2 : -2) * Math.PI;
 		for (int k = 0; k < n; k++) {  // For each output element
 			double sumreal = 0;
@@ -125,11 +125,11 @@ public final class FftTest {
 	
 	
 	private static void naiveConvolve(double[] xreal, double[] ximag, double[] yreal, double[] yimag, double[] outreal, double[] outimag) {
-		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length
-				|| xreal.length != outreal.length || outreal.length != outimag.length)
+		int n = xreal.length;
+		if (n != ximag.length || n != yreal.length || n != yimag.length
+				|| n != outreal.length || n != outimag.length)
 			throw new IllegalArgumentException("Mismatched lengths");
 		
-		int n = xreal.length;
 		Arrays.fill(outreal, 0.0);
 		Arrays.fill(outimag, 0.0);
 		for (int i = 0; i < n; i++) {
@@ -147,16 +147,17 @@ public final class FftTest {
 	private static double maxLogError = Double.NEGATIVE_INFINITY;
 	
 	private static double log10RmsErr(double[] xreal, double[] ximag, double[] yreal, double[] yimag) {
-		if (xreal.length != ximag.length || xreal.length != yreal.length || yreal.length != yimag.length)
+		int n = xreal.length;
+		if (n != ximag.length || n != yreal.length || n != yimag.length)
 			throw new IllegalArgumentException("Mismatched lengths");
 		
 		double err = Math.pow(10, -99 * 2);
-		for (int i = 0; i < xreal.length; i++) {
+		for (int i = 0; i < n; i++) {
 			double real = xreal[i] - yreal[i];
 			double imag = ximag[i] - yimag[i];
 			err += real * real + imag * imag;
 		}
-		err = Math.sqrt(err / Math.max(xreal.length, 1));  // Now this is a root mean square (RMS) error
+		err = Math.sqrt(err / Math.max(n, 1));  // Now this is a root mean square (RMS) error
 		err = Math.log10(err);
 		maxLogError = Math.max(err, maxLogError);
 		return err;

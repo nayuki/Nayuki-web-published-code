@@ -98,10 +98,10 @@ public sealed class FftTest {
 	/*---- Naive reference computation functions ----*/
 	
 	private static void NaiveDft(Complex[] invector, Complex[] outvector, bool inverse) {
-		if (invector.Length != outvector.Length)
+		int n = invector.Length;
+		if (n != outvector.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
-		int n = invector.Length;
 		double coef = (inverse ? 2 : -2) * Math.PI;
 		for (int k = 0; k < n; k++) {  // For each output element
 			Complex sum = 0;
@@ -115,10 +115,10 @@ public sealed class FftTest {
 	
 	
 	private static void NaiveConvolve(Complex[] xvector, Complex[] yvector, Complex[] outvector) {
-		if (xvector.Length != yvector.Length || xvector.Length != outvector.Length)
+		int n = xvector.Length;
+		if (n != yvector.Length || n != outvector.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
-		int n = xvector.Length;
 		for (int i = 0; i < n; i++)
 			outvector[i] = 0;
 		for (int i = 0; i < n; i++) {
@@ -133,15 +133,16 @@ public sealed class FftTest {
 	private static double maxLogError = Double.NegativeInfinity;
 	
 	private static double Log10RmsErr(Complex[] xvector, Complex[] yvector) {
-		if (xvector.Length != yvector.Length)
+		int n = xvector.Length;
+		if (n != yvector.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
 		double err = Math.Pow(10, -99 * 2);
-		for (int i = 0; i < xvector.Length; i++) {
+		for (int i = 0; i < n; i++) {
 			Complex temp = xvector[i] - yvector[i];
 			err += temp.Real * temp.Real + temp.Imaginary * temp.Imaginary;
 		}
-		err = Math.Sqrt(err / Math.Max(xvector.Length, 1));  // Now this is a root mean square (RMS) error
+		err = Math.Sqrt(err / Math.Max(n, 1));  // Now this is a root mean square (RMS) error
 		err = Math.Log10(err);
 		maxLogError = Math.Max(err, maxLogError);
 		return err;
