@@ -89,10 +89,11 @@ bool Fft_transformRadix2(double real[], double imag[], size_t n) {
 		size_t tablestep = n / size;
 		for (size_t i = 0; i < n; i += size) {
 			for (size_t j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
-				double tpre =  real[j+halfsize] * cos_table[k] + imag[j+halfsize] * sin_table[k];
-				double tpim = -real[j+halfsize] * sin_table[k] + imag[j+halfsize] * cos_table[k];
-				real[j + halfsize] = real[j] - tpre;
-				imag[j + halfsize] = imag[j] - tpim;
+				size_t l = j + halfsize;
+				double tpre =  real[l] * cos_table[k] + imag[l] * sin_table[k];
+				double tpim = -real[l] * sin_table[k] + imag[l] * cos_table[k];
+				real[l] = real[j] - tpre;
+				imag[l] = imag[j] - tpim;
 				real[j] += tpre;
 				imag[j] += tpim;
 			}

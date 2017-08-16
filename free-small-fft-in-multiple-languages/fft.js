@@ -96,10 +96,11 @@ function transformRadix2(real, imag) {
 		var tablestep = n / size;
 		for (var i = 0; i < n; i += size) {
 			for (var j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
-				var tpre =  real[j+halfsize] * cosTable[k] + imag[j+halfsize] * sinTable[k];
-				var tpim = -real[j+halfsize] * sinTable[k] + imag[j+halfsize] * cosTable[k];
-				real[j + halfsize] = real[j] - tpre;
-				imag[j + halfsize] = imag[j] - tpim;
+				var l = j + halfsize;
+				var tpre =  real[l] * cosTable[k] + imag[l] * sinTable[k];
+				var tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
+				real[l] = real[j] - tpre;
+				imag[l] = imag[j] - tpim;
 				real[j] += tpre;
 				imag[j] += tpim;
 			}
