@@ -75,6 +75,8 @@ int main() {
 			} else
 				throw "Invalid random operation";
 			
+			if (set0.empty() != set1.empty())
+				throw "Emptiness mismatch";
 			if (set0.size() != size || set1.size() != size)
 				throw "Set size mismatch";
 		}
