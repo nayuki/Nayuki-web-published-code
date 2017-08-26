@@ -174,3 +174,30 @@ impl DisjointSet {
 	}
 	
 }
+
+
+impl Clone for DisjointSet {
+	
+	fn clone(&self) -> Self {
+		DisjointSet {
+			numberofsets: self.numberofsets,
+			nodes: self.nodes.clone(),
+		}
+	}
+	
+	
+	fn clone_from(&mut self, source: &Self) {
+		self.numberofsets = source.numberofsets;
+		self.nodes.clone_from(&source.nodes);
+	}
+	
+}
+
+
+impl Copy for DisjointSetNode {}
+
+impl Clone for DisjointSetNode {
+	fn clone(&self) -> Self {
+		*self
+	}
+}

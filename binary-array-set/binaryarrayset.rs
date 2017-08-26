@@ -91,8 +91,7 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 			panic!("Maximum size reached");
 		}
 		let mut toput: Vec<E> = vec![val];
-		let mut i: usize = 0;
-		loop {
+		for i in 0usize .. {
 			if i >= self.values.len() {
 				self.values.push(toput);
 				break;
@@ -108,8 +107,7 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 			if vals.len() != toput.len() || vals.len() > std::usize::MAX / 2 {
 				panic!("Assertion error");
 			}
-			toput = merge_vecs(vals, &mut toput);
-			i += 1;
+			toput = BinaryArraySet::merge_vecs(vals, &mut toput);
 		}
 		self.size += 1;
 	}
@@ -134,25 +132,40 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 		}
 	}
 	
+	
+	// (Private) Assuming that xs and ys are both in ascending order, this
+	// moves all their elements into a new sorted vector zs and returns it.
+	fn merge_vecs(xs: &mut Vec<E>, ys: &mut Vec<E>) -> Vec<E> {
+		let mut result: Vec<E> = Vec::with_capacity(xs.len() + ys.len());
+		loop {
+			let which: bool = match (xs.last(), ys.last()) {
+				(None, None) => break,
+				(None, _) => false,
+				(_, None) => true,
+				(Some(x), Some(y)) => x > y,
+			};
+			result.push((if which { xs.pop() } else { ys.pop() }).unwrap());
+		}
+		result.reverse();
+		result
+	}
+	
 }
 
 
-// (Private) Assuming that xs and ys are both in ascending order, this
-// moves all their elements into a new sorted vector zs and returns it.
-fn merge_vecs<E: std::cmp::Ord>(xs: &mut Vec<E>, ys: &mut Vec<E>) -> Vec<E> {
-	let mut result: Vec<E> = Vec::with_capacity(xs.len() + ys.len());
-	loop {
-		let which: bool = if xs.is_empty() && ys.is_empty() {
-			break;
-		} else if xs.is_empty() {
-			false
-		} else if ys.is_empty() {
-			true
-		} else {
-			xs.last().unwrap() > ys.last().unwrap()
-		};
-		result.push((if which { xs.pop() } else { ys.pop() }).unwrap());
+impl<E> Clone for BinaryArraySet<E> where E: Clone {
+	
+	fn clone(&self) -> Self {
+		BinaryArraySet {
+			values: self.values.clone(),
+			size: self.size,
+		}
 	}
-	result.reverse();
-	result
+	
+	
+	fn clone_from(&mut self, source: &Self) {
+		self.values.clone_from(&source.values);
+		self.size = source.size;
+	}
+	
 }
