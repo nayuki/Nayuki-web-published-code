@@ -7,7 +7,7 @@
 
 fn next_permutation<T: std::cmp::Ord>(array: &mut [T]) -> bool {
 	// Find non-increasing suffix
-	if array.len() == 0 {
+	if array.is_empty() {
 		return false;
 	}
 	let mut i: usize = array.len() - 1;

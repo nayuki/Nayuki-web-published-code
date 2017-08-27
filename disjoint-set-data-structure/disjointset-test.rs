@@ -42,39 +42,39 @@ fn main() {
 
 fn test_new() {
 	let mut ds = disjointset::DisjointSet::new(10);
-	assert_equals(10, ds.number_of_sets());
-	assert_equals(1, ds.get_size_of_set(0));
-	assert_equals(1, ds.get_size_of_set(2));
-	assert_equals(1, ds.get_size_of_set(9));
-	assert_equals(true, ds.are_in_same_set(0, 0));
-	assert_equals(false, ds.are_in_same_set(0, 1));
-	assert_equals(false, ds.are_in_same_set(9, 3));
+	assert_eq!(10, ds.number_of_sets());
+	assert_eq!(1, ds.get_size_of_set(0));
+	assert_eq!(1, ds.get_size_of_set(2));
+	assert_eq!(1, ds.get_size_of_set(9));
+	assert_eq!(true, ds.are_in_same_set(0, 0));
+	assert_eq!(false, ds.are_in_same_set(0, 1));
+	assert_eq!(false, ds.are_in_same_set(9, 3));
 }
 
 
 fn test_merge() {
 	let mut ds = disjointset::DisjointSet::new(10);
-	assert_equals(true, ds.merge_sets(0, 1));
+	assert_eq!(true, ds.merge_sets(0, 1));
 	ds.check_structure();
-	assert_equals(9, ds.number_of_sets());
-	assert_equals(true, ds.are_in_same_set(0, 1));
+	assert_eq!(9, ds.number_of_sets());
+	assert_eq!(true, ds.are_in_same_set(0, 1));
 	
-	assert_equals(true, ds.merge_sets(2, 3));
+	assert_eq!(true, ds.merge_sets(2, 3));
 	ds.check_structure();
-	assert_equals(8, ds.number_of_sets());
-	assert_equals(true, ds.are_in_same_set(2, 3));
+	assert_eq!(8, ds.number_of_sets());
+	assert_eq!(true, ds.are_in_same_set(2, 3));
 	
-	assert_equals(false, ds.merge_sets(2, 3));
+	assert_eq!(false, ds.merge_sets(2, 3));
 	ds.check_structure();
-	assert_equals(8, ds.number_of_sets());
-	assert_equals(false, ds.are_in_same_set(0, 2));
+	assert_eq!(8, ds.number_of_sets());
+	assert_eq!(false, ds.are_in_same_set(0, 2));
 	
-	assert_equals(true, ds.merge_sets(0, 3));
+	assert_eq!(true, ds.merge_sets(0, 3));
 	ds.check_structure();
-	assert_equals(7, ds.number_of_sets());
-	assert_equals(true, ds.are_in_same_set(0, 2));
-	assert_equals(true, ds.are_in_same_set(3, 0));
-	assert_equals(true, ds.are_in_same_set(1, 3));
+	assert_eq!(7, ds.number_of_sets());
+	assert_eq!(true, ds.are_in_same_set(0, 2));
+	assert_eq!(true, ds.are_in_same_set(3, 0));
+	assert_eq!(true, ds.are_in_same_set(1, 3));
 }
 
 
@@ -91,8 +91,8 @@ fn test_big_merge() {
 		let incrstep: usize = mergestep * 2;
 		let mut i: usize = 0;
 		while i < numelems {
-			assert_equals(false, ds.are_in_same_set(i, i + mergestep));
-			assert_equals(true, ds.merge_sets(i, i + mergestep));
+			assert_eq!(false, ds.are_in_same_set(i, i + mergestep));
+			assert_eq!(true, ds.merge_sets(i, i + mergestep));
 			i += incrstep;
 		}
 		// Now we have a bunch of sets of size 2^(level+1)
@@ -103,7 +103,7 @@ fn test_big_merge() {
 			let j: usize = range.ind_sample(&mut rng);
 			let k: usize = range.ind_sample(&mut rng);
 			let expect: bool = (j & mask) == (k & mask);
-			assert_equals(expect, ds.are_in_same_set(j, k));
+			assert_eq!(expect, ds.are_in_same_set(j, k));
 		}
 	}
 }
@@ -123,12 +123,12 @@ fn test_against_naive_randomly() {
 		for _ in 0 .. iterations {
 			let i: usize = range.ind_sample(&mut rng);
 			let j: usize = range.ind_sample(&mut rng);
-			assert_equals(nds.get_size_of_set(i), ds.get_size_of_set(i));
-			assert_equals(nds.are_in_same_set(i, j), ds.are_in_same_set(i, j));
+			assert_eq!(nds.get_size_of_set(i), ds.get_size_of_set(i));
+			assert_eq!(nds.are_in_same_set(i, j), ds.are_in_same_set(i, j));
 			if uniform.ind_sample(&mut rng) < 0.1 {
-				assert_equals(nds.merge_sets(i, j), ds.merge_sets(i, j));
+				assert_eq!(nds.merge_sets(i, j), ds.merge_sets(i, j));
 			}
-			assert_equals(nds.number_of_sets(), ds.number_of_sets());
+			assert_eq!(nds.number_of_sets(), ds.number_of_sets());
 			if uniform.ind_sample(&mut rng) < 0.001 {
 				ds.check_structure();
 			}
@@ -141,13 +141,6 @@ fn test_against_naive_randomly() {
 
 /*---- Helper definitions ----*/
 
-fn assert_equals<T: std::cmp::PartialEq>(expect: T, actual: T) {
-	if actual != expect {
-		panic!("Assertion error");
-	}
-}
-
-
 struct NaiveDisjointSet {
 	
 	representatives: Vec<usize>,
@@ -158,37 +151,26 @@ struct NaiveDisjointSet {
 impl NaiveDisjointSet {
 	
 	fn new(numelems: usize) -> NaiveDisjointSet {
-		let mut reprs: Vec<usize> = Vec::with_capacity(numelems);
-		for i in 0 .. numelems {
-			reprs.push(i);
-		}
 		NaiveDisjointSet {
-			representatives: reprs,
+			representatives: (0 .. numelems).collect(),
 		}
 	}
 	
 	
 	fn number_of_sets(&self) -> usize {
-		let mut result: usize = 0;
-		for (i, repr) in self.representatives.iter().enumerate() {
-			result += (*repr == i) as usize;
-		}
-		result
+		self.representatives.iter().enumerate().filter(
+			|irepr: &(usize, &usize)| *irepr.1 == irepr.0).count()
 	}
 	
 	
 	fn get_size_of_set(&self, elemindex: usize) -> usize {
 		let repr: usize = self.representatives[elemindex];
-		let mut result = 0;
-		for r in self.representatives.iter() {
-			result += (*r == repr) as usize;
-		}
-		result
+		self.representatives.iter().filter(|r| **r == repr).count()
 	}
 	
 	
 	fn are_in_same_set(&self, elemindex0: usize, elemindex1: usize) -> bool {
-		return self.representatives[elemindex0] == self.representatives[elemindex1];
+		self.representatives[elemindex0] == self.representatives[elemindex1]
 	}
 	
 	

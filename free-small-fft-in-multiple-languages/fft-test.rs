@@ -188,13 +188,9 @@ fn log10_rms_err(
 
 
 fn random_reals(size: usize) -> Vec<f64> {
-	let mut result: Vec<f64> = Vec::with_capacity(size);
 	let mut rng = rand::thread_rng();
 	let uniform = rand::distributions::range::Range::new(-1.0, 1.0);
-	for _ in 0 .. size {
-		result.push(uniform.ind_sample(&mut rng));
-	}
-	result
+	(0 .. size).map(|_| uniform.ind_sample(&mut rng)).collect()
 }
 
 
