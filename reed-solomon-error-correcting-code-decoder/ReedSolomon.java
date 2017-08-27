@@ -286,7 +286,7 @@ public final class ReedSolomon<E> {
 					c++;
 				else if (c == matrix.columnCount() - 1)
 					return null;  // Linear system is inconsistent
-				else 
+				else
 					break;
 			}
 			

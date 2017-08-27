@@ -92,7 +92,7 @@ public final class DropboxBackupService {
 			System.err.println(errMsg);
 			System.exit(1);
 		}
-	}		
+	}
 	
 	
 	private static String subMain(String[] args) throws IOException, InterruptedException {

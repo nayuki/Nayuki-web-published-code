@@ -48,7 +48,7 @@ struct DisjointSetNode {
 	rank: i8,
 	
 	// Positive number if the element is a representative, otherwise zero.
-	size: usize,	
+	size: usize,
 	
 }
 

@@ -12,7 +12,7 @@ import java.util.Random;
 
 public final class ReedSolomonDemo {
 	
-	// Runs a bunch of demos and tests, printing information to standard error. 
+	// Runs a bunch of demos and tests, printing information to standard error.
 	public static void main(String[] args) {
 		showExample();
 		testCorrectness();

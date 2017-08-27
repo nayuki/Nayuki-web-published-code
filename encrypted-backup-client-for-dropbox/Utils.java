@@ -34,7 +34,7 @@ final class Utils {
 				return false;
 			else if (c < 0xE0) {
 				rest = 1;
-				least = 0x80; 
+				least = 0x80;
 				accum = c & 0x1F;
 			} else if (c < 0xF0) {
 				rest = 2;
