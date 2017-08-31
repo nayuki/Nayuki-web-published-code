@@ -35,7 +35,7 @@
  *   - Constructor QrCode(list<int> datacodewords, int mask, int version, QrCode.Ecc ecl)
  *   - Fields int version, size, mask
  *   - Field QrCode.Ecc errorCorrectionLevel
- *   - Method getModule(int x, int y) -> int
+ *   - Method getModule(int x, int y) -> bool
  *   - Method drawCanvas(int scale, int border, HTMLCanvasElement canvas) -> void
  *   - Method toSvgString(int border) -> str
  *   - Enum Ecc:
@@ -115,7 +115,7 @@ var qrcodegen = new function() {
 		} else if (initData instanceof qrcodegen.QrCode) {
 			for (var y = 0; y < size; y++) {
 				for (var x = 0; x < size; x++) {
-					modules[y][x] = initData.getModule(x, y) == 1;
+					modules[y][x] = initData.getModule(x, y);
 					isFunction[y][x] = initData.isFunctionModule(x, y);
 				}
 			}
@@ -163,13 +163,11 @@ var qrcodegen = new function() {
 		
 		/*---- Accessor methods ----*/
 		
-		// (Public) Returns the color of the module (pixel) at the given coordinates, which is either 0 for white or 1 for black. The top
-		// left corner has the coordinates (x=0, y=0). If the given coordinates are out of bounds, then 0 (white) is returned.
+		// (Public) Returns the color of the module (pixel) at the given coordinates, which is either
+		// false for white or true for black. The top left corner has the coordinates (x=0, y=0).
+		// If the given coordinates are out of bounds, then false (white) is returned.
 		this.getModule = function(x, y) {
-			if (0 <= x && x < size && 0 <= y && y < size)
-				return modules[y][x] ? 1 : 0;
-			else
-				return 0;  // Infinite white border
+			return 0 <= x && x < size && 0 <= y && y < size && modules[y][x];
 		};
 		
 		// (Package-private) Tests whether the module at the given coordinates is a function module (true) or not (false).
@@ -197,7 +195,7 @@ var qrcodegen = new function() {
 			var ctx = canvas.getContext("2d");
 			for (var y = -border; y < size + border; y++) {
 				for (var x = -border; x < size + border; x++) {
-					ctx.fillStyle = this.getModule(x, y) == 1 ? "#000000" : "#FFFFFF";
+					ctx.fillStyle = this.getModule(x, y) ? "#000000" : "#FFFFFF";
 					ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
 				}
 			}
@@ -205,18 +203,20 @@ var qrcodegen = new function() {
 		
 		// Based on the given number of border modules to add as padding, this returns a
 		// string whose contents represents an SVG XML file that depicts this QR Code symbol.
+		// Note that Unix newlines (\n) are always used, regardless of the platform.
 		this.toSvgString = function(border) {
 			if (border < 0)
 				throw "Border must be non-negative";
 			var result = '<?xml version="1.0" encoding="UTF-8"?>\n';
 			result += '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n';
-			result += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' + (size + border * 2) + ' ' + (size + border * 2) + '" stroke="none">\n';
+			result += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' +
+				(size + border * 2) + ' ' + (size + border * 2) + '" stroke="none">\n';
 			result += '\t<rect width="100%" height="100%" fill="#FFFFFF"/>\n';
 			result += '\t<path d="';
 			var head = true;
 			for (var y = -border; y < size + border; y++) {
 				for (var x = -border; x < size + border; x++) {
-					if (this.getModule(x, y) == 1) {
+					if (this.getModule(x, y)) {
 						if (head)
 							head = false;
 						else
@@ -533,10 +533,11 @@ var qrcodegen = new function() {
 	/*---- Public static factory functions for QrCode ----*/
 	
 	/* 
-	 * Returns a QR Code symbol representing the given Unicode text string at the given error correction level.
-	 * As a conservative upper bound, this function is guaranteed to succeed for strings that have 738 or fewer Unicode
-	 * code points (not UTF-16 code units). The smallest possible QR Code version is automatically chosen for the output.
-	 * The ECC level of the result may be higher than the ecl argument if it can be done without increasing the version.
+	 * Returns a QR Code symbol representing the specified Unicode text string at the specified error correction level.
+	 * As a conservative upper bound, this function is guaranteed to succeed for strings that have 738 or fewer
+	 * Unicode code points (not UTF-16 code units) if the low error correction level is used. The smallest possible
+	 * QR Code version is automatically chosen for the output. The ECC level of the result may be higher than the
+	 * ecl argument if it can be done without increasing the version.
 	 */
 	this.QrCode.encodeText = function(text, ecl) {
 		var segs = qrcodegen.QrSegment.makeSegments(text);
@@ -667,7 +668,9 @@ var qrcodegen = new function() {
 	QrCode.getNumDataCodewords = function(ver, ecl) {
 		if (ver < 1 || ver > 40)
 			throw "Version number out of range";
-		return Math.floor(QrCode.getNumRawDataModules(ver) / 8) - QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] * QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
+		return Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
+			QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] *
+			QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
 	};
 	
 	
@@ -783,8 +786,9 @@ var qrcodegen = new function() {
 	
 	
 	/* 
-	 * Returns a segment representing the given text string encoded in alphanumeric mode. The characters allowed are:
-	 * 0 to 9, A to Z (uppercase only), space, dollar, percent, asterisk, plus, hyphen, period, slash, colon.
+	 * Returns a segment representing the given text string encoded in alphanumeric mode.
+	 * The characters allowed are: 0 to 9, A to Z (uppercase only), space,
+	 * dollar, percent, asterisk, plus, hyphen, period, slash, colon.
 	 */
 	this.QrSegment.makeAlphanumeric = function(text) {
 		if (!this.ALPHANUMERIC_REGEX.test(text))
@@ -820,7 +824,8 @@ var qrcodegen = new function() {
 	
 	
 	/* 
-	 * Returns a segment representing an Extended Channel Interpretation (ECI) designator with the given assignment value.
+	 * Returns a segment representing an Extended Channel Interpretation
+	 * (ECI) designator with the given assignment value.
 	 */
 	this.QrSegment.makeEci = function(assignVal) {
 		var bb = new BitBuffer();
@@ -829,7 +834,7 @@ var qrcodegen = new function() {
 		else if ((1 << 7) <= assignVal && assignVal < (1 << 14)) {
 			bb.appendBits(2, 2);
 			bb.appendBits(assignVal, 14);
-		} else if ((1 << 14) <= assignVal && assignVal < 999999) {
+		} else if ((1 << 14) <= assignVal && assignVal < 1000000) {
 			bb.appendBits(6, 3);
 			bb.appendBits(assignVal, 21);
 		} else
@@ -921,7 +926,7 @@ var qrcodegen = new function() {
 	/* 
 	 * A private helper class that computes the Reed-Solomon error correction codewords for a sequence of
 	 * data codewords at a given degree. Objects are immutable, and the state only depends on the degree.
-	 * This class exists because the divisor polynomial does not need to be recalculated for every input.
+	 * This class exists because each data block in a QR Code shares the same the divisor polynomial.
 	 * This constructor creates a Reed-Solomon ECC generator for the given degree. This could be implemented
 	 * as a lookup table over all possible parameter values, instead of as an algorithm.
 	 */
@@ -952,14 +957,14 @@ var qrcodegen = new function() {
 			root = ReedSolomonGenerator.multiply(root, 0x02);
 		}
 		
-		// Computes and returns the Reed-Solomon error correction codewords for the given sequence of data codewords.
-		// The returned object is always a new byte array. This method does not alter this object's state (because it is immutable).
+		// Computes and returns the Reed-Solomon error correction codewords for the given
+		// sequence of data codewords. The returned object is always a new byte array.
+		// This method does not alter this object's state (because it is immutable).
 		this.getRemainder = function(data) {
 			// Compute the remainder by performing polynomial division
 			var result = coefficients.map(function() { return 0; });
 			data.forEach(function(b) {
-				var factor = b ^ result[0];
-				result.shift();
+				var factor = b ^ result.shift();
 				result.push(0);
 				for (var i = 0; i < result.length; i++)
 					result[i] ^= ReedSolomonGenerator.multiply(coefficients[i], factor);
