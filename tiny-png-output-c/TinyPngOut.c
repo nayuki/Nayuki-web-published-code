@@ -214,7 +214,7 @@ static uint32_t crc32(uint32_t state, const uint8_t data[], size_t len) {
 	for (size_t i = 0; i < len; i++) {
 		for (int j = 0; j < 8; j++) {  // Inefficient bitwise implementation, instead of table-based
 			uint32_t bit = (state ^ (data[i] >> j)) & 1;
-			state = (state >> 1) ^ ((-bit) & 0xEDB88320);
+			state = (state >> 1) ^ ((-bit) & UINT32_C(0xEDB88320));
 		}
 	}
 	return ~state;
@@ -222,11 +222,11 @@ static uint32_t crc32(uint32_t state, const uint8_t data[], size_t len) {
 
 
 static uint32_t adler32(uint32_t state, const uint8_t data[], size_t len) {
-	uint16_t s1 = state >>  0;
-	uint16_t s2 = state >> 16;
+	uint16_t s1 = (uint16_t)(state >>  0);
+	uint16_t s2 = (uint16_t)(state >> 16);
 	for (size_t i = 0; i < len; i++) {
-		s1 = (s1 + data[i]) % 65521;
-		s2 = (s2 + s1) % 65521;
+		s1 = ((uint32_t)s1 + data[i]) % 65521;
+		s2 = ((uint32_t)s2 + s1) % 65521;
 	}
 	return (uint32_t)s2 << 16 | s1;
 }
