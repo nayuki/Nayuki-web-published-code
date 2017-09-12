@@ -72,8 +72,8 @@ vector<Point> makeConvexHullPresorted(const vector<Point> &points) {
 	vector<Point> upperHull;
 	for (const Point &p : points) {
 		while (upperHull.size() >= 2) {
-			const Point &q(*(upperHull.cend() - 1));  // Same as .back()
-			const Point &r(*(upperHull.cend() - 2));
+			const Point &q = *(upperHull.cend() - 1);  // Same as .back()
+			const Point &r = *(upperHull.cend() - 2);
 			if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 				upperHull.pop_back();
 			else
@@ -85,10 +85,10 @@ vector<Point> makeConvexHullPresorted(const vector<Point> &points) {
 	
 	vector<Point> lowerHull;
 	for (vector<Point>::const_reverse_iterator it(points.crbegin()); it != points.crend(); ++it) {
-		const Point &p(*it);
+		const Point &p = *it;
 		while (lowerHull.size() >= 2) {
-			const Point &q(*(lowerHull.cend() - 1));  // Same as .back()
-			const Point &r(*(lowerHull.cend() - 2));
+			const Point &q = *(lowerHull.cend() - 1);  // Same as .back()
+			const Point &r = *(lowerHull.cend() - 2);
 			if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 				lowerHull.pop_back();
 			else

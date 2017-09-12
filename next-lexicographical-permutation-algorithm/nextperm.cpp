@@ -47,7 +47,7 @@ bool nextPermutation(T array[], std::size_t length) {
 template <typename T>
 bool nextPermutation(std::vector<T> &vec) {
 	// Find non-increasing suffix
-	if (vec.size() == 0)
+	if (vec.empty())
 		return false;
 	typename std::vector<T>::iterator i = vec.end() - 1;
 	while (i > vec.begin() && *(i - 1) >= *i)

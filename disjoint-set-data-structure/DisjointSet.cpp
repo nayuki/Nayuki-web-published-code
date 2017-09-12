@@ -27,13 +27,13 @@
 using std::size_t;
 
 
-DisjointSet::DisjointSet(size_t numElems) {
+DisjointSet::DisjointSet(size_t numElems) :
+		numSets(numElems) {
 	if (numElems == 0)
 		throw "Number of elements must be positive";
 	nodes.reserve(numElems);
 	for (size_t i = 0; i < numElems; i++)
 		nodes.push_back(Node{i, 0, 1});
-	numSets = numElems;
 }
 
 
@@ -48,17 +48,15 @@ size_t DisjointSet::getNumberOfSets() const {
 
 
 size_t DisjointSet::getRepr(size_t elemIndex) const {
-	if (elemIndex >= nodes.size())
-		throw "Element index out of bounds";
 	// Follow parent pointers until we reach a representative
-	size_t parent = nodes[elemIndex].parent;
+	size_t parent = nodes.at(elemIndex).parent;
 	if (parent == elemIndex)
 		return elemIndex;
 	while (true) {
-		size_t grandparent = nodes[parent].parent;
+		size_t grandparent = nodes.at(parent).parent;
 		if (grandparent == parent)
 			return parent;
-		nodes[elemIndex].parent = grandparent;  // Partial path compression
+		nodes.at(elemIndex).parent = grandparent;  // Partial path compression
 		elemIndex = parent;
 		parent = grandparent;
 	}
@@ -66,7 +64,7 @@ size_t DisjointSet::getRepr(size_t elemIndex) const {
 
 
 size_t DisjointSet::getSizeOfSet(size_t elemIndex) const {
-	return nodes[getRepr(elemIndex)].size;
+	return nodes.at(getRepr(elemIndex)).size;
 }
 
 
@@ -83,18 +81,18 @@ bool DisjointSet::mergeSets(size_t elemIndex0, size_t elemIndex1) {
 		return false;
 	
 	// Compare ranks
-	int cmp = nodes[repr0].rank - nodes[repr1].rank;
+	int cmp = nodes.at(repr0).rank - nodes.at(repr1).rank;
 	// Note: The computation of cmp does not overflow. 0 <= ranks[i] <= SCHAR_MAX, so SCHAR_MIN <= -SCHAR_MAX <= ranks[i] - ranks[j] <= SCHAR_MAX.
 	// The result actually fits in a signed char, and with sizeof(char) <= sizeof(int), the promotion to int still guarantees the result fits.
 	if (cmp == 0)  // Increment repr0's rank if both nodes have same rank
-		nodes[repr0].rank++;
+		nodes.at(repr0).rank++;
 	else if (cmp < 0)  // Swap to ensure that repr0's rank >= repr1's rank
 		std::swap(repr0, repr1);
 	
 	// Graft repr1's subtree onto node repr0
-	nodes[repr1].parent = repr0;
-	nodes[repr0].size += nodes[repr1].size;
-	nodes[repr1].size = 0;
+	nodes.at(repr1).parent = repr0;
+	nodes.at(repr0).size += nodes.at(repr1).size;
+	nodes.at(repr1).size = 0;
 	numSets--;
 	return true;
 }
@@ -110,7 +108,7 @@ void DisjointSet::checkStructure() const {
 		
 		bool ok = true;
 		ok &= node.parent < nodes.size();
-		ok &= 0 <= node.rank && (isRepr || node.rank < nodes[node.parent].rank);
+		ok &= 0 <= node.rank && (isRepr || node.rank < nodes.at(node.parent).rank);
 		ok &= (!isRepr && node.size == 0) || (isRepr && node.size >= (static_cast<size_t>(1) << node.rank));
 		if (!ok)
 			throw "Assertion error";

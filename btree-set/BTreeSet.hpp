@@ -35,9 +35,10 @@
 template <typename E>
 class BTreeSet final {
 	
+	private: class Node;  // Forward declaration
+	
 	/*---- Fields ----*/
 	
-	private: class Node;  // Forward declaration
 	private: Node *root;  // Never nullptr
 	private: std::size_t count;
 	private: const uint32_t minKeys;  // At least 1, equal to degree-1
@@ -196,7 +197,7 @@ class BTreeSet final {
 						std::move(right->keys.begin(), right->keys.end(), std::back_inserter(left->keys));
 						node->children.erase(node->children.begin() + index + 1);
 						delete right;
-						if (node == root && root->keys.size() == 0) {
+						if (node == root && root->keys.empty()) {
 							assert(root->children.size() == 1);
 							Node *newRoot = root->children.at(0);
 							assert(newRoot != nullptr);
@@ -210,7 +211,7 @@ class BTreeSet final {
 						throw "Impossible condition";
 				} else {  // Key might be found in some child
 					Node *child = node->ensureChildRemove(~index);
-					if (node == root && root->keys.size() == 0) {
+					if (node == root && root->keys.empty()) {
 						assert(root->children.size() == 1);
 						Node *newRoot = root->children.at(0);
 						assert(newRoot != nullptr);
@@ -281,7 +282,7 @@ class BTreeSet final {
 		/*-- Methods --*/
 		
 		public: bool isLeaf() const {
-			return children.size() == 0;
+			return children.empty();
 		}
 		
 		

@@ -83,16 +83,16 @@ static void testPrefixConsistency() {
 		}
 	}
 	{
-		vector<uint32_t> (*FUNCS[])(uint32_t) = {
+		vector<vector<uint32_t> (*)(uint32_t)> FUNCS{
 			sieveSmallestPrimeFactor,
 			sieveTotient,
 			sieveOmega,
 			sieveRadical,
 		};
-		for (size_t k = 0; k < sizeof(FUNCS) / sizeof(FUNCS[0]); k++) {
+		for (vector<uint32_t> (*func)(uint32_t) : FUNCS) {
 			vector<uint32_t> prev;
 			for (uint32_t i = 0; i < N; i++) {
-				vector<uint32_t> cur = FUNCS[k](i);
+				vector<uint32_t> cur = func(i);
 				for (uint32_t j = 0; j < i; j++) {
 					if (cur.at(j) != prev.at(j))
 						throw "Mismatch";

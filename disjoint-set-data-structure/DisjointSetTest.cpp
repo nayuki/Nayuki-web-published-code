@@ -34,17 +34,14 @@ using std::size_t;
 /*---- Helper definitions ----*/
 
 class NaiveDisjointSet final {
-private:
-	std::vector<size_t> representatives;
+	private: std::vector<size_t> representatives;
 	
-public:
-	
-	NaiveDisjointSet(size_t numElems) {
+	public: NaiveDisjointSet(size_t numElems) {
 		for (size_t i = 0; i < numElems; i++)
 			representatives.push_back(i);
 	}
 	
-	size_t getNumberOfSets() const {
+	public: size_t getNumberOfSets() const {
 		size_t result = 0;
 		for (size_t i = 0; i < representatives.size(); i++) {
 			if (representatives[i] == i)
@@ -53,7 +50,7 @@ public:
 		return result;
 	}
 	
-	size_t getSizeOfSet(size_t elemIndex) const {
+	public: size_t getSizeOfSet(size_t elemIndex) const {
 		size_t repr = representatives[elemIndex];
 		size_t result = 0;
 		for (size_t i = 0; i < representatives.size(); i++) {
@@ -63,11 +60,11 @@ public:
 		return result;
 	}
 	
-	bool areInSameSet(size_t elemIndex0, size_t elemIndex1) const {
+	public: bool areInSameSet(size_t elemIndex0, size_t elemIndex1) const {
 		return representatives[elemIndex0] == representatives[elemIndex1];
 	}
 	
-	bool mergeSets(size_t elemIndex0, size_t elemIndex1) {
+	public: bool mergeSets(size_t elemIndex0, size_t elemIndex1) {
 		size_t repr0 = representatives[elemIndex0];
 		size_t repr1 = representatives[elemIndex1];
 		for (size_t i = 0; i < representatives.size(); i++) {

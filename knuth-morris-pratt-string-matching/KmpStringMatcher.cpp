@@ -35,12 +35,12 @@ const char *kmpSearch(const char *pattern, const char *text) {
 	// Compute longest suffix-prefix table
 	std::vector<std::size_t> lsp;
 	lsp.reserve(std::strlen(pattern));
-	lsp.push_back(0);  // Base case
-	for (std::size_t i = 1; i < lsp.size(); i++) {
-		std::size_t j = lsp.at(i - 1);  // Start by assuming we're extending the previous LSP
-		while (j > 0 && pattern[i] != pattern[j])
+	lsp.push_back(0);
+	for (const char *pat = &pattern[1]; *pat != '\0'; pat++) {
+		std::size_t j = lsp.back();  // Start by assuming we're extending the previous LSP
+		while (j > 0 && *pat != pattern[j])
 			j = lsp.at(j - 1);
-		if (pattern[i] == pattern[j])
+		if (*pat == pattern[j])
 			j++;
 		lsp.push_back(j);
 	}

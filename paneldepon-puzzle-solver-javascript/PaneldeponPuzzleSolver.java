@@ -79,7 +79,7 @@ public final class PaneldeponPuzzleSolver {
 		if (solution[0] != null) {
 			@SuppressWarnings("unchecked")
 			List<SwapMove> moves = (List<SwapMove>)solution[0];
-			if (moves.size() == 0)
+			if (moves.isEmpty())
 				System.out.println("Solution: Self-clearing");
 			else {
 				System.out.printf("Solution: %d moves%n", moves.size());
