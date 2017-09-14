@@ -10,14 +10,15 @@ import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.zip.DataFormatException;
 
 
@@ -38,9 +39,13 @@ import java.util.zip.DataFormatException;
  *   ......
  *   .b....  <-- Each lowercase letter represents a different-colored tile
  *   .a....
- *   .cdc..
- *   .badd.
- *   .abbc.
+ *   .cdc..  <-- This is row 2
+ *   .badd.  <-- This is row 1
+ *   .abbc.  <-- This is row 0
+ *   ^^^
+ *   ||Column C
+ *   |Column B
+ *   Column A
  * 
  * And the sample output text:
  *   Solution: 3 moves
@@ -51,14 +56,28 @@ import java.util.zip.DataFormatException;
  */
 public final class PaneldeponPuzzleSolver {
 	
+	private static final int WIDTH = 6;
+	private static final int HEIGHT = 12;
+	
+	
 	public static void main(String[] args) throws IOException, DataFormatException {
-		final int WIDTH = 6;
-		final int HEIGHT = 12;
+		Object[] temp = parsePuzzleText();
+		int numMoves = (int)temp[0];
+		Board startState = (Board)temp[1];
 		
-		// Read puzzle
+		temp = solve(numMoves, startState);
+		Board endState = (Board)temp[0];
+		@SuppressWarnings("unchecked")
+		Map<Board,SearchInfo> visited = (Map<Board,SearchInfo>)temp[1];
+		
+		printSolution(endState, visited);
+	}
+	
+	
+	private static Object[] parsePuzzleText() throws IOException, DataFormatException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		int numMoves = Integer.parseInt(in.readLine());
-		byte[] grid = new byte[WIDTH * HEIGHT];
+		byte[] startGrid = new byte[WIDTH * HEIGHT];
 		for (int y = HEIGHT - 1; y >= 0; y--) {
 			String line = in.readLine();
 			if (line == null)
@@ -67,33 +86,80 @@ public final class PaneldeponPuzzleSolver {
 				throw new DataFormatException("Invalid line length");
 			for (int x = 0; x < WIDTH; x++) {
 				char c = line.charAt(x);
-				if (c == '.' || c >= 'a' && c <= 'z')
-					grid[y*WIDTH + x] = (byte)c;
+				if (c == Board.EMPTY || 'a' <= c && c <= 'z')
+					Board.gridSet(startGrid, x, y, (byte)c);
 				else
 					throw new DataFormatException("Invalid tile character");
 			}
 		}
-		
-		// Print solution
-		Object[] solution = new Board(grid, WIDTH, HEIGHT, null, null, 0).solve(numMoves);
-		if (solution[0] != null) {
-			@SuppressWarnings("unchecked")
-			List<SwapMove> moves = (List<SwapMove>)solution[0];
-			if (moves.isEmpty())
-				System.out.println("Solution: Self-clearing");
-			else {
-				System.out.printf("Solution: %d moves%n", moves.size());
-				for (int i = 0; i < moves.size(); i++) {
-					SwapMove move = moves.get(i);
-					System.out.printf("%d. %s%d-%s%d%n", i + 1, formatXCoordinate(move.x), move.y, formatXCoordinate(move.x + 1), move.y);
-				}
-			}
-		} else
-			System.out.println("No solution");
-		System.out.printf("Boards visited: %d%n", solution[1]);
+		return new Object[]{numMoves, new Board(startGrid)};
 	}
 	
 	
+	private static Object[] solve(int numMoves, Board startState) {
+		// Do breadth-first search
+		Queue<Board> queue = new ArrayDeque<>();
+		queue.add(startState);
+		Map<Board,SearchInfo> visited = new HashMap<>();
+		visited.put(startState, new SearchInfo(0, null, -1, -1));
+		Board endState = null;
+		while (!queue.isEmpty()) {
+			Board state = queue.remove();
+			if (state.isClear()) {
+				endState = state;
+				break;
+			}
+			int depth = visited.get(state).depth;
+			if (depth >= numMoves)
+				continue;
+			for (int[] move : state.getMoves()) {
+				Board newState = state.applyMove(move[0], move[1]);
+				if (!visited.containsKey(newState)) {
+					visited.put(newState, new SearchInfo(depth + 1, state, move[0], move[1]));
+					queue.add(newState);
+				}
+			}
+		}
+		return new Object[]{endState, visited};
+	}
+	
+	
+	private static void printSolution(Board endState, Map<Board,SearchInfo> visited) {
+		// Print solution
+		if (endState == null)
+			System.out.println("No solution");
+		else {
+			// Retrieve previous board states
+			List<int[]> moves = new ArrayList<>();
+			Board state = endState;
+			while (true) {
+				SearchInfo info = visited.get(state);
+				if (info.prevBoard == null)
+					break;
+				moves.add(new int[]{info.prevMoveX, info.prevMoveY});
+				state = info.prevBoard;
+			}
+			Collections.reverse(moves);
+			
+			// Format the list of moves
+			if (moves.isEmpty())
+				System.out.println("Solution: Self-clearing");
+			else {
+				System.out.printf("Solution: %d move%s%n", moves.size(), moves.size() > 1 ? "s" : "");
+				for (int i = 0; i < moves.size(); i++) {
+					int x = moves.get(i)[0], y = moves.get(i)[1];
+					System.out.printf("%d. %s%d-%s%d%n", i + 1,
+						formatXCoordinate(x), y, formatXCoordinate(x + 1), y);
+				}
+			}
+		}
+		System.out.printf("Boards visited: %d%n", visited.size());
+	}
+	
+	
+	// Examples: 0 -> A, 1 -> B, ..., 25 -> Z,
+	// 26 -> AA, 27 -> AB, ..., 51 -> AZ,
+	// 52 -> BA, ..., 701 -> ZZ.
 	private static String formatXCoordinate(int x) {
 		if (x < 0 || x >= 702)
 			throw new IllegalArgumentException();
@@ -105,199 +171,21 @@ public final class PaneldeponPuzzleSolver {
 			throw new AssertionError();
 	}
 	
-}
-
-
-
-final class Board {
-	
-	// Immutable
-	public final int width;
-	public final int height;
-	private byte[] grid;
-	
-	public final Board prevBoard;
-	public final SwapMove prevMove;
-	public final int depth;
-	
-	private int hash;
 	
 	
-	
-	public Board(byte[] grid, int width, int height, Board prevBoard, SwapMove prevMove, int depth) {
-		this.grid = grid;
-		this.width = width;
-		this.height = height;
-		this.prevBoard = prevBoard;
-		this.prevMove = prevMove;
-		this.depth = depth;
-		hash = 0;
+	private static final class Board {  // Immutable
 		
-		dropTiles();
-		while (matchAndClear()) {
-			if (!dropTiles())
-				break;
-		}
-	}
-	
-	
-	
-	public Object[] solve(int moves) {
-		Set<Board> visited = new HashSet<>();
-		Queue<Board> queue = new LinkedList<>();
-		queue.add(this);
-		visited.add(this);
+		private final byte[] grid;
+		private final int hash;
 		
-		// Breadth-first search
-		while (!queue.isEmpty()) {
-			Board board = queue.remove();
-			if (board.isEmpty()) {  // Solution found
-				List<SwapMove> solution = new ArrayList<>();
-				while (board.prevBoard != null) {
-					solution.add(0, board.prevMove);
-					board = board.prevBoard;
-				}
-				return new Object[]{solution, visited.size()};
-			}
+		
+		public Board(byte[] grid) {
+			// Apply game rules to the grid
+			this.grid = grid;
+			do dropTiles();
+			while (matchAndClear());
 			
-			else if (board.depth < moves) {  // Enqueue neighbors
-				for (Board next : board.getNextBoards()) {
-					if (!visited.contains(next)) {
-						queue.add(next);
-						visited.add(next);
-					}
-				}
-			}
-		}
-		return new Object[]{null, visited.size()};
-	}
-	
-	
-	private Collection<Board> getNextBoards() {
-		Collection<Board> result = new ArrayList<>();
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x + 1 < width; x++) {
-				Board next = swap(x, y);
-				if (next != null)
-					result.add(next);
-			}
-		}
-		return result;
-	}
-	
-	
-	private Board swap(int x, int y) {
-		if (x < 0 || x + 1 >= width || y < 0 || y >= height)
-			throw new IndexOutOfBoundsException();
-		if (grid[y*width + x + 0] == grid[y*width + x + 1])
-			return null;
-		
-		byte[] newGrid = grid.clone();
-		newGrid[y*width + x + 0] = grid[y*width + x + 1];
-		newGrid[y*width + x + 1] = grid[y*width + x + 0];
-		return new Board(newGrid, width, height, this, new SwapMove(x, y), depth + 1);
-	}
-	
-	
-	private boolean isEmpty() {
-		for (byte b : grid) {
-			if (b != EMPTY)
-				return false;
-		}
-		return true;
-	}
-	
-	
-	private boolean dropTiles() {
-		boolean changed = false;
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				if (grid[y*width + x] == EMPTY)
-					continue;
-				for (int i = y; i - 1 >= 0 && grid[(i-1)*width + x] == EMPTY; i--) {
-					grid[(i-1)*width + x] = grid[i*width + x];
-					grid[i*width + x] = EMPTY;
-					changed = true;
-				}
-			}
-		}
-		return changed;
-	}
-	
-	
-	private boolean matchAndClear() {
-		boolean[] toClear = new boolean[width * height];
-		
-		// Find horizontal matches
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width - MINIMUM_RUN + 1; ) {
-				int run = getRunLength(x, y, 1, 0);
-				if (run >= MINIMUM_RUN) {
-					for (int i = 0; i < run; i++)
-						toClear[y*width + x + i] = true;
-				}
-				x += run;
-			}
-		}
-		
-		// Find vertical matches
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height - MINIMUM_RUN + 1; ) {
-				int run = getRunLength(x, y, 0, 1);
-				if (run >= MINIMUM_RUN) {
-					for (int i = 0; i < run; i++)
-						toClear[(y+i)*width + x] = true;
-				}
-				y += run;
-			}
-		}
-		
-		// Clear tiles
-		boolean cleared = false;
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
-				if (toClear[y*width + x]) {
-					grid[y*width + x] = EMPTY;
-					cleared = true;
-				}
-			}
-		}
-		return cleared;
-	}
-	
-	
-	private int getRunLength(int x, int y, int dx, int dy) {
-		byte val = grid[y*width + x];
-		if (val == EMPTY)
-			return 1;
-		int count = 1;
-		x += dx;
-		y += dy;
-		while (x < width && y < height && grid[y*width + x] == val) {
-			count++;
-			x += dx;
-			y += dy;
-		}
-		return count;
-	}
-	
-	
-	public boolean equals(Object obj) {
-		if (obj == this)
-			return true;
-		else if (!(obj instanceof Board))
-			return false;
-		else {
-			Board other = (Board)obj;
-			return width  == other.width
-				&& height == other.height
-				&& Arrays.equals(grid, other.grid);
-		}
-	}
-	
-	
-	public int hashCode() {
-		if (hash == 0) {
+			// Calculate hash of grid state
 			int h = 0;
 			for (byte b : grid) {
 				h += b;
@@ -307,44 +195,180 @@ final class Board {
 			}
 			hash = h;
 		}
-		return hash;
-	}
-	
-	
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		String newline = System.getProperty("line.separator");
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++)
-				sb.append((char)grid[y*width + x]);
-			sb.append(newline);
+		
+		
+		private boolean dropTiles() {
+			boolean changed = false;
+			for (int x = 0; x < WIDTH; x++) {
+				for (int yRead = 0, yWrite = 0; yRead < HEIGHT; yRead++) {
+					if (gridGet(x, yRead) != EMPTY) {
+						if (yRead > yWrite) {
+							gridSet(x, yWrite, gridGet(x, yRead));
+							gridSet(x, yRead, EMPTY);
+							changed = true;
+						}
+						yWrite++;
+					}
+				}
+			}
+			return changed;
 		}
-		return sb.toString();
+		
+		
+		private boolean matchAndClear() {
+			byte[] toClear = new byte[WIDTH * HEIGHT];  // Conceptually Boolean
+			
+			// Find horizontal matches
+			for (int y = 0; y < HEIGHT; y++) {
+				for (int x = 0; x < WIDTH; ) {
+					int run = getRunLength(x, y, 1, 0);
+					if (run >= MINIMUM_RUN) {
+						for (int i = 0; i < run; i++)
+							gridSet(toClear, x + i, y, (byte)1);
+					}
+					x += run;
+				}
+			}
+			
+			// Find vertical matches
+			for (int x = 0; x < WIDTH; x++) {
+				for (int y = 0; y < HEIGHT; ) {
+					int run = getRunLength(x, y, 0, 1);
+					if (run >= MINIMUM_RUN) {
+						for (int i = 0; i < run; i++)
+							gridSet(toClear, x, y + i, (byte)1);
+					}
+					y += run;
+				}
+			}
+			
+			// Clear tiles
+			boolean cleared = false;
+			for (int y = 0; y < HEIGHT; y++) {
+				for (int x = 0; x < WIDTH; x++) {
+					if (gridGet(toClear, x, y) == 1) {
+						gridSet(x, y, EMPTY);
+						cleared = true;
+					}
+				}
+			}
+			return cleared;
+		}
+		
+		
+		private int getRunLength(int x, int y, int dx, int dy) {
+			if (dx < 0 || dy < 0 || dx == 0 && dy == 0)
+				throw new IllegalArgumentException();
+			byte val = gridGet(x, y);
+			if (val == EMPTY)
+				return 1;
+			int count = 0;
+			while (x < WIDTH && y < HEIGHT && gridGet(x, y) == val) {
+				count++;
+				x += dx;
+				y += dy;
+			}
+			return count;
+		}
+		
+		
+		public boolean isClear() {
+			for (byte b : grid) {
+				if (b != EMPTY)
+					return false;
+			}
+			return true;
+		}
+		
+		
+		public Collection<int[]> getMoves() {
+			Collection<int[]> result = new ArrayList<>();
+			for (int y = 0; y < HEIGHT; y++) {
+				for (int x = 0; x + 1 < WIDTH; x++) {
+					if (gridGet(x, y) != gridGet(x + 1, y))
+						result.add(new int[]{x, y});
+				}
+			}
+			return result;
+		}
+		
+		
+		public Board applyMove(int x, int y) {
+			byte[] newGrid = grid.clone();
+			gridSet(newGrid, x + 0, y, gridGet(x + 1, y));
+			gridSet(newGrid, x + 1, y, gridGet(x + 0, y));
+			return new Board(newGrid);
+		}
+		
+		
+		public boolean equals(Object obj) {
+			return obj instanceof Board && Arrays.equals(grid, ((Board)obj).grid);
+		}
+		
+		
+		public int hashCode() {
+			return hash;
+		}
+		
+		
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			for (int y = HEIGHT - 1; y >= 0; y--) {
+				for (int x = 0; x < WIDTH; x++)
+					sb.append((char)gridGet(x, y));
+				sb.append(NEWLINE);
+			}
+			return sb.toString();
+		}
+		
+		
+		public byte gridGet(int x, int y) {
+			return gridGet(grid, x, y);
+		}
+		
+		
+		private void gridSet(int x, int y, byte val) {
+			gridSet(grid, x, y, val);
+		}
+		
+		
+		private static byte gridGet(byte[] grid, int x, int y) {
+			if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
+				throw new IndexOutOfBoundsException();
+			return grid[y * WIDTH + x];
+		}
+		
+		
+		private static void gridSet(byte[] grid, int x, int y, byte val) {
+			if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
+				throw new IndexOutOfBoundsException();
+			grid[y * WIDTH + x] = val;
+		}
+		
+		
+		public static final byte EMPTY = '.';
+		private static final int MINIMUM_RUN = 3;
+		private static final String NEWLINE = System.getProperty("line.separator");
+		
 	}
 	
 	
-	private static final byte EMPTY = '.';
-	private static final int MINIMUM_RUN = 3;
 	
-}
-
-
-
-final class SwapMove {
-	
-	// Immutable
-	public final int x;
-	public final int y;
-	
-	
-	public SwapMove(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
-	
-	
-	public String toString() {
-		return String.format("(%d, %d)", x, y);
+	private static final class SearchInfo {  // Immutable
+		
+		public final int depth;
+		public final Board prevBoard;
+		public final int prevMoveX;
+		public final int prevMoveY;
+		
+		
+		public SearchInfo(int depth, Board prevBoard, int prevMoveX, int prevMoveY) {
+			this.depth = depth;
+			this.prevBoard = prevBoard;
+			this.prevMoveX = prevMoveX;
+			this.prevMoveY = prevMoveY;
+		}
+		
 	}
 	
 }

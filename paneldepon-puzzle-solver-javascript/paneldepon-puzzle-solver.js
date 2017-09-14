@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver (JavaScript)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -9,41 +9,41 @@
 "use strict";
 
 
-/* User interface */
+/*---- Configurable constants ----*/
 
-var BOARD_WIDTH = 6;
-var BOARD_HEIGHT = 12;
+var WIDTH = 6;
+var HEIGHT = 12;
 
 // The 0th index is considered a blank tile. Also, this array controls how many possible tile values exist.
 var TILE_COLORS = ["#000000", "#F01000", "#FFE000", "#00C000", "#40FFFF", "#0020F0", "#C000FF"];
 
-var pageBoard = new Board(null, BOARD_WIDTH, BOARD_HEIGHT, null, null, 0);
-var tbodyElem = document.getElementById("gameboard").getElementsByTagName("tbody")[0];
-var currentExample = -1;
+
+/*---- User interface ----*/
+
+var EMPTY = 0;  // Do not change this constant
+
+var pageGrid = new Grid();
+var tbodyElem = document.querySelector("#game-board tbody");
+
+// Either -1 if not showing a known example,
+// or an integer in the range [0, EXAMPLE_PUZZLES.length).
+var currentExampleIndex = -1;
 
 
 function initHtmlBoard() {
-	removeChildren(tbodyElem);
+	clearChildren(tbodyElem);
 	
 	// Header row
-	var row = document.createElement("tr");
-	row.appendChild(document.createElement("td"));
-	for (var x = 0; x < pageBoard.width; x++) {
-		var cell = document.createElement("td");
-		cell.appendChild(document.createTextNode(formatXCoordinate(x)));
-		row.appendChild(cell);
-	}
+	var row = createElement("tr", createElement("td"));
+	for (var x = 0; x < WIDTH; x++)
+		row.appendChild(createElement("td", formatXCoordinate(x)));
 	tbodyElem.appendChild(row);
 	
 	// Remaining rows
-	for (var y = pageBoard.height - 1; y >= 0; y--) {
-		row = document.createElement("tr");
-		var cell = document.createElement("td");
-		cell.appendChild(document.createTextNode(y));
-		row.appendChild(cell);
-		
-		for (var x = 0; x < pageBoard.width; x++) {
-			cell = document.createElement("td");
+	for (var y = HEIGHT - 1; y >= 0; y--) {
+		var row = createElement("tr", createElement("td", y.toString()));
+		for (var x = 0; x < WIDTH; x++) {
+			var cell = createElement("td");
 			cell.onmousedown = (function(x, y) {
 				return function(ev) {
 					var inc = 0;
@@ -51,11 +51,11 @@ function initHtmlBoard() {
 						inc = 1;
 					else if (ev.button == 2)
 						inc = -1;
-					pageBoard.grid[y*pageBoard.width + x] = (pageBoard.grid[y*pageBoard.width + x] + inc + TILE_COLORS.length) % TILE_COLORS.length;
-					handleBoardChanged(x, y);
+					pageGrid.set(x, y, (pageGrid.get(x, y) + inc + TILE_COLORS.length) % TILE_COLORS.length);
+					handleBoardChanged();
 				};
 			})(x, y);
-			cell.oncontextmenu = function() { return false; };
+			cell.oncontextmenu = cell.onselectstart = function() { return false; };
 			row.appendChild(cell);
 		}
 		tbodyElem.appendChild(row);
@@ -66,64 +66,64 @@ function initHtmlBoard() {
 
 function doSolve() {
 	clearSolution();
-	var solnTextElem = document.getElementById("solutiontext");
-	var solnStepsElem = document.getElementById("solutionsteps");
-	var boardsVisitedElem = document.getElementById("boardsvisited");
+	var numMoves = parseInt(document.getElementById("num-moves").value, 10);
+	var solution = solveBoard(numMoves, new Board(pageGrid.clone()));
+	var moves = solution[0];
+	var numVisited = solution[1];
 	
-	var board = new Board(pageBoard.grid.slice(), pageBoard.width, pageBoard.height, null, null, 0);
-	var solution = board.solve(parseInt(document.getElementById("nummoves").value, 10));
-	if (solution[0] != null) {
-		if (solution[0].length == 0)
-			solnTextElem.appendChild(document.createTextNode("Solution: Self-clearing"));
-		else {
-			solnTextElem.appendChild(document.createTextNode("Solution:"));
-			solution[0].forEach(function(soln) {
-				var li = document.createElement("li");
-				var x = soln[0];
-				var y = soln[1];
-				li.appendChild(document.createTextNode(formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
-				solnStepsElem.appendChild(li);
-			});
-		}
-	} else
-		solnTextElem.appendChild(document.createTextNode("No solution"));
-	boardsVisitedElem.appendChild(document.createTextNode("Boards visited: " + solution[1]));
+	var solnHeadText;
+	if (moves == null)
+		solnHeadText = "No solution";
+	else if (moves.length == 0)
+		solnHeadText = "Solution: Self-clearing";
+	else {
+		solnHeadText = "Solution:";
+		var solnStepsElem = document.getElementById("solution-steps");
+		moves.forEach(function(move) {
+			var x = move[0], y = move[1];
+			solnStepsElem.appendChild(createElement("li",
+				formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
+		});
+	}
+	document.getElementById("solution-text").appendChild(
+		document.createTextNode(solnHeadText));
+	document.getElementById("boards-visited").appendChild(
+		document.createTextNode("Boards visited: " + numVisited));
 }
 
 
 function doImport() {
-	var lines = document.getElementById("importexportbox").value.replace(/\s+$/, "").split("\n");
-	if (lines.length != pageBoard.height + 1) {
-		alert("Invalid number of lines (should be " + (pageBoard.height + 1) + ")");
+	var lines = document.getElementById("import-export").value.replace(/^\s+|\s+$/, "").split("\n");
+	if (lines.length != HEIGHT + 1) {
+		alert("Invalid number of lines (should be " + (HEIGHT + 1) + ")");
 		return;
 	}
 	
 	var moves = parseInt(lines[0], 10);
-	if (!/\d+/.test(lines[0]) || moves < 0 || moves > 100) {
+	if (!/^\d+$/.test(lines[0]) || moves < 0 || moves > 100) {
 		alert("Invalid number of moves");
 		return;
 	}
 	
-	var newGrid = [];
-	for (var y = pageBoard.height; y >= 1; y--) {
-		if (lines[y].length != pageBoard.width) {
-			alert("Invalid line length (should be " + pageBoard.width + ")");
+	for (var y = 0; y < HEIGHT; y++) {
+		var line = lines[HEIGHT - y];
+		if (line.length != WIDTH) {
+			alert("Invalid line length (should be " + WIDTH + ")");
 			return;
 		}
-		for (var x = 0; x < pageBoard.width; x++) {
-			var c = lines[y].charCodeAt(x);
+		for (var x = 0; x < WIDTH; x++) {
+			var c = line.charCodeAt(x);
 			if (c == ".".charCodeAt(0))
-				newGrid.push(0);
+				pageGrid.set(x, y, 0);
 			else if (c >= "a".charCodeAt(0) && c - "a".charCodeAt(0) < TILE_COLORS.length - 1)
-				newGrid.push(c - "a".charCodeAt(0) + 1);
+				pageGrid.set(x, y, c - "a".charCodeAt(0) + 1);
 			else {
-				alert("Invalid tile character: '" + lines[y].charAt(x) + "'");
+				alert("Invalid tile character: '" + line.charAt(x) + "'");
 				return;
 			}
 		}
 	}
-	document.getElementById("nummoves").value = moves.toString();
-	pageBoard.grid = newGrid;
+	document.getElementById("num-moves").value = moves.toString();
 	handleBoardChanged();
 }
 
@@ -131,10 +131,10 @@ function doImport() {
 function doExample() {
 	var index;
 	do index = Math.floor(Math.random() * EXAMPLE_PUZZLES.length);
-	while (index == currentExample);
-	document.getElementById("importexportbox").value = EXAMPLE_PUZZLES[index];
+	while (index == currentExampleIndex);
+	document.getElementById("import-export").value = EXAMPLE_PUZZLES[index];
 	doImport();
-	currentExample = index;
+	currentExampleIndex = index;
 }
 
 var EXAMPLE_PUZZLES = [
@@ -172,67 +172,75 @@ var EXAMPLE_PUZZLES = [
 
 
 function doClear() {
-	for (var i = 0; i < pageBoard.grid.length; i++)
-		pageBoard.grid[i] = 0;
+	for (var y = 0; y < HEIGHT; y++) {
+		for (var x = 0; x < WIDTH; x++)
+			pageGrid.set(x, y, 0);
+	}
 	handleBoardChanged();
 }
 
 
 function handleBoardChanged() {
-	// Refresh board
-	if (arguments.length == 0) {
-		// Update colors on all cells
-		for (var y = 0; y < pageBoard.height; y++) {
-			var row = tbodyElem.children[pageBoard.height - y];
-			for (var x = 0; x < pageBoard.width; x++)
-				row.children[x + 1].style.backgroundColor = TILE_COLORS[pageBoard.grid[y * pageBoard.width + x]];
-		}
-	} else if (arguments.length == 2) {
-		// Update color on single cell
-		var x = arguments[0];
-		var y = arguments[1];
-		tbodyElem.children[pageBoard.height - y].children[x + 1].style.backgroundColor = TILE_COLORS[pageBoard.grid[y*pageBoard.width + x]];
-	} else
-		throw "Invalid arguments";
+	// Update colors on all cells
+	var rows = tbodyElem.querySelectorAll("tr");
+	for (var y = 0; y < HEIGHT; y++) {
+		var cells = rows[rows.length - 1 - y].querySelectorAll("td");
+		for (var x = 0; x < WIDTH; x++)
+			cells[x + 1].style.backgroundColor = TILE_COLORS[pageGrid.get(x, y)];
+	}
 	
 	// Update export text
-	var exportStr = document.getElementById("nummoves").value;
-	for (var y = 0; y < pageBoard.height; y++) {
+	var exportStr = document.getElementById("num-moves").value;
+	for (var y = 0; y < HEIGHT; y++) {
 		exportStr += "\n";
-		for (var x = 0; x < pageBoard.width; x++) {
-			var val = pageBoard.grid[(pageBoard.height-1-y)*pageBoard.width + x];
+		for (var x = 0; x < WIDTH; x++) {
+			var val = pageGrid.get(x, HEIGHT - 1 - y);
 			if (val == 0)
 				exportStr += ".";
 			else
 				exportStr += String.fromCharCode("a".charCodeAt(0) + val - 1);
 		}
 	}
-	document.getElementById("importexportbox").value = exportStr;
+	document.getElementById("import-export").value = exportStr;
 	
 	clearSolution();
-	currentExample = -1;
+	currentExampleIndex = -1;
 }
 
 
-function clearSolution() {
-	removeChildren(document.getElementById("solutiontext"));
-	removeChildren(document.getElementById("solutionsteps"));
-	removeChildren(document.getElementById("boardsvisited"));
-}
-
-
+// Examples: 0 -> A, 1 -> B, ..., 25 -> Z,
+// 26 -> AA, 27 -> AB, ..., 51 -> AZ,
+// 52 -> BA, ..., 701 -> ZZ.
 function formatXCoordinate(x) {
 	var START = "A".charCodeAt(0);
-	if (x < 26)
+	if (0 <= x && x < 26)
 		return String.fromCharCode(START + x);
-	else if (x < 702)
+	else if (26 <= x && x < 702)
 		return String.fromCharCode(START + Math.floor((x - 26) / 26)) + String.fromCharCode(START + (x - 26) % 26);
 	else
 		throw "Invalid value";
 }
 
 
-function removeChildren(elem) {
+function clearSolution() {
+	clearChildren(document.getElementById("solution-text"));
+	clearChildren(document.getElementById("solution-steps"));
+	clearChildren(document.getElementById("boards-visited"));
+}
+
+
+function createElement(tagName, content) {
+	var result = document.createElement(tagName);
+	if (content != undefined) {
+		if (typeof content == "string")
+			content = document.createTextNode(content);
+		result.appendChild(content);
+	}
+	return result;
+}
+
+
+function clearChildren(elem) {
 	while (elem.firstChild != null)
 		elem.removeChild(elem.firstChild);
 }
@@ -242,133 +250,96 @@ function removeChildren(elem) {
 initHtmlBoard();
 
 
-/* Puzzle board and solver */
 
-function Board(grid, width, height, prevBoard, prevMove, depth) {
-	var EMPTY = 0;
-	var MINIMUM_RUN = 3;
-	
-	if (grid == null) {
-		grid = [];
-		for (var i = 0; i < width * height; i++)
-			grid.push(0);
-	}
-	dropTiles();
-	while (matchAndClear()) {
-		if (!dropTiles())
+/*---- Puzzle solver, board, grid ----*/
+
+function solveBoard(numMoves, startState) {
+	// Do breadth-first search
+	var queue = [startState];
+	var visited = {};
+	visited[startState.toString()] = {depth:0, prevBoard:null, prevMove:[-1, -1]};
+	var endState = null;
+	while (queue.length > 0) {
+		var state = queue.shift();
+		if (state.isClear()) {
+			endState = state;
 			break;
-	}
-	this.width = width;
-	this.height = height;
-	this.grid = grid;
-	this.prevBoard = prevBoard;
-	this.prevMove = prevMove;
-	this.depth = depth;
-	var self = this;
-	
-	this.solve = function(moves) {
-		var visited = {};
-		visited[self] = true;
-		var queue = [self];
-		
-		// Breadth-first search
-		while (queue.length > 0) {
-			var board = queue.shift();
-			if (board.isEmpty()) {  // Solution found
-				var solution = [];
-				while (board.prevBoard != null) {
-					solution.push(board.prevMove);
-					board = board.prevBoard;
-				}
-				solution.reverse();
-				return [solution, Object.keys(visited).length];
-			}
-			
-			else if (board.depth < moves) {  // Enqueue neighbors
-				var nextBoards = board.getNextBoards();
-				nextBoards.forEach(function(next) {
-					if (!(next in visited)) {
-						queue.push(next);
-						visited[next] = true;
-					}
-				});
-			}
 		}
+		var depth = visited[state.toString()].depth;
+		if (depth >= numMoves)
+			continue;
+		state.getMoves().forEach(function(move) {
+			var newState = state.applyMove(move[0], move[1]);
+			if (!(newState.toString() in visited)) {
+				visited[newState.toString()] = {depth:depth + 1, prevBoard:state, prevMove:move};
+				queue.push(newState);
+			}
+		});
+	}
+	
+	if (endState == null)
 		return [null, Object.keys(visited).length];
-	};
-	
-	this.getNextBoards = function() {
-		var result = [];
-		for (var y = 0; y < height; y++) {
-			for (var x = 0; x + 1 < width; x++) {
-				var next = swap(x, y);
-				if (next != null)
-					result.push(next);
-			}
-		}
-		return result;
-	};
-	
-	function swap(x, y) {
-		if (x < 0 || x + 1 >= width || y < 0 || y >= height)
-			throw "Index out of bounds";
-		if (grid[y*width + x + 0] == grid[y*width + x + 1])
-			return null;
-		
-		var newGrid = grid.slice();  // Clone
-		newGrid[y*width + x + 0] = grid[y*width + x + 1];
-		newGrid[y*width + x + 1] = grid[y*width + x + 0];
-		return new Board(newGrid, width, height, self, [x, y], depth + 1);
+	// Retrieve previous board states
+	var result = [];
+	var state = endState;
+	while (true) {
+		var info = visited[state.toString()];
+		if (info.prevBoard == null)
+			break;
+		result.push(info.prevMove);
+		state = info.prevBoard;
 	}
+	return [result.reverse(), Object.keys(visited).length];
+}
+
+
+
+function Board(grid) {  // Immutable class
+	// Apply game rules to the grid
+	do dropTiles();
+	while (matchAndClear());
 	
-	this.isEmpty = function() {
-		for (var i = 0; i < grid.length; i++) {
-			if (grid[i] != EMPTY)
-				return false;
-		}
-		return true;
-	};
 	
 	function dropTiles() {
 		var changed = false;
-		for (var y = 0; y < height; y++) {
-			for (var x = 0; x < width; x++) {
-				if (grid[y*width + x] == EMPTY)
-					continue;
-				for (var i = y; i - 1 >= 0 && grid[(i-1)*width + x] == EMPTY; i--) {
-					grid[(i-1)*width + x] = grid[i*width + x];
-					grid[i*width + x] = EMPTY;
-					changed = true;
+		for (var x = 0; x < WIDTH; x++) {
+			for (var yRead = 0, yWrite = 0; yRead < HEIGHT; yRead++) {
+				if (grid.get(x, yRead) != EMPTY) {
+					if (yRead > yWrite) {
+						grid.set(x, yWrite, grid.get(x, yRead));
+						grid.set(x, yRead, EMPTY);
+						changed = true;
+					}
+					yWrite++;
 				}
 			}
 		}
 		return changed;
 	}
 	
+	
 	function matchAndClear() {
-		var toClear = [];
-		for (var i = 0; i < grid.length; i++)
-			toClear.push(false);
+		var toClear = new Grid();  // Conceptually Boolean
 		
 		// Find horizontal matches
-		for (var y = 0; y < height; y++) {
-			for (var x = 0; x < width - MINIMUM_RUN + 1; ) {
+		for (var y = 0; y < HEIGHT; y++) {
+			for (var x = 0; x < WIDTH; ) {
 				var run = getRunLength(x, y, 1, 0);
 				if (run >= MINIMUM_RUN) {
 					for (var i = 0; i < run; i++)
-						toClear[y*width + x + i] = true;
+						toClear.set(x + i, y, 1);
 				}
 				x += run;
 			}
 		}
 		
 		// Find vertical matches
-		for (var x = 0; x < width; x++) {
-			for (var y = 0; y < height - MINIMUM_RUN + 1; ) {
+		for (var x = 0; x < WIDTH; x++) {
+			for (var y = 0; y < HEIGHT; ) {
 				var run = getRunLength(x, y, 0, 1);
 				if (run >= MINIMUM_RUN) {
 					for (var i = 0; i < run; i++)
-						toClear[(y+i)*width + x] = true;
+						toClear.set(x, y + i, 1);
 				}
 				y += run;
 			}
@@ -376,10 +347,10 @@ function Board(grid, width, height, prevBoard, prevMove, depth) {
 		
 		// Clear tiles
 		var cleared = false;
-		for (var y = 0; y < height; y++) {
-			for (var x = 0; x < width; x++) {
-				if (toClear[y*width + x]) {
-					grid[y*width + x] = EMPTY;
+		for (var y = 0; y < HEIGHT; y++) {
+			for (var x = 0; x < WIDTH; x++) {
+				if (toClear.get(x, y) == 1) {
+					grid.set(x, y, EMPTY);
 					cleared = true;
 				}
 			}
@@ -387,14 +358,15 @@ function Board(grid, width, height, prevBoard, prevMove, depth) {
 		return cleared;
 	}
 	
-	function getRunLength(x, y, dx, dy) {  // Requires dx >= 0 && dy >= 0 && dx + dy > 0
-		var val = grid[y*width + x];
+	
+	function getRunLength(x, y, dx, dy) {
+		if (dx < 0 || dy < 0 || dx == 0 && dy == 0)
+			throw "Invalid value";
+		var val = grid.get(x, y);
 		if (val == EMPTY)
 			return 1;
-		var count = 1;
-		x += dx;
-		y += dy;
-		while (x < width && y < height && grid[y*width + x] == val) {
+		var count = 0;
+		while (x < WIDTH && y < HEIGHT && grid.get(x, y) == val) {
 			count++;
 			x += dx;
 			y += dy;
@@ -402,11 +374,71 @@ function Board(grid, width, height, prevBoard, prevMove, depth) {
 		return count;
 	}
 	
-	this.toString = function() {
-		var result = "";
-		grid.forEach(function(item) {
-			result += item.toString();
-		});
+	
+	this.isClear = function() {
+		for (var y = 0; y < HEIGHT; y++) {
+			for (var x = 0; x < WIDTH; x++) {
+				if (grid.get(x, y) != EMPTY)
+					return false;
+			}
+		}
+		return true;
+	};
+	
+	
+	this.getMoves = function() {
+		var result = [];
+		for (var y = 0; y < HEIGHT; y++) {
+			for (var x = 0; x + 1 < WIDTH; x++) {
+				if (grid.get(x, y) != grid.get(x + 1, y))
+					result.push([x, y]);
+			}
+		}
 		return result;
+	};
+	
+	
+	this.applyMove = function(x, y) {
+		var newGrid = grid.clone();
+		newGrid.set(x + 0, y, grid.get(x + 1, y));
+		newGrid.set(x + 1, y, grid.get(x + 0, y));
+		return new Board(newGrid);
+	};
+	
+	
+	this.toString = function() {
+		return grid.toString();
+	};
+}
+
+var MINIMUM_RUN = 3;
+
+
+
+function Grid(data) {  // Mutable class
+	if (data == undefined) {
+		data = [];
+		for (var i = 0; i < WIDTH * HEIGHT; i++)
+			data.push(0);
+	}
+	
+	this.get = function(x, y) {
+		if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
+			throw "Index out of bounds";
+		return data[y * WIDTH + x];
+	};
+	
+	this.set = function(x, y, val) {
+		if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
+			throw "Index out of bounds";
+		data[y * WIDTH + x] = val;
+	};
+	
+	this.clone = function() {
+		return new Grid(data.slice());
+	};
+	
+	this.toString = function() {
+		return data.toString();
 	};
 }
