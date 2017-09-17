@@ -1,7 +1,7 @@
 /* 
  * Windows timestamp accessor (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
@@ -18,9 +18,9 @@ import java.math.BigInteger;
 
 // Note: Ticks is the number of 100-nanosecond units since the epoch of midnight UTC on January 1st, Year 1 on the proleptic Gregorian calendar
 
-public final class WindowsTimestampAccessor {
+public final class WindowsTimestampAccessor implements AutoCloseable {
 	
-	/* Object state */
+	/*---- Object state ----*/
 	
 	private Process process;
 	private PrintWriter query;
@@ -28,7 +28,7 @@ public final class WindowsTimestampAccessor {
 	
 	
 	
-	/* Initialization and disposal */
+	/*---- Initialization and disposal ----*/
 	
 	private static final String EXECUTABLE_PATH = "WindowsTimestampAccessor.exe";  // Assumes it is in the current working directory
 	
@@ -40,7 +40,7 @@ public final class WindowsTimestampAccessor {
 	}
 	
 	
-	public synchronized void dispose() throws IOException, InterruptedException {
+	public synchronized void close() throws IOException, InterruptedException {
 		query.close();
 		response.close();
 		if (process.waitFor() != 0)
@@ -49,7 +49,7 @@ public final class WindowsTimestampAccessor {
 	
 	
 	
-	/* Get timestamp methods */
+	/*---- Methods to get/set file/directory timestamps ----*/
 	
 	public long getCreationTime(File item) throws IOException {
 		return getSomeTime("Creation", item);
@@ -79,8 +79,6 @@ public final class WindowsTimestampAccessor {
 	}
 	
 	
-	/* Set timestamp methods */
-	
 	public void setCreationTime(File item, long ticks) throws IOException {
 		setSomeTime("Creation", item, ticks);
 	}
@@ -108,7 +106,7 @@ public final class WindowsTimestampAccessor {
 	
 	
 	
-	/* DateTime/ticks conversion */
+	/*---- DateTime/ticks conversion ----*/
 	
 	/* 
 	 * Returns an array of 7 integers representing the date and time:

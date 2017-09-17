@@ -7,7 +7,6 @@
 # https://www.nayuki.io/page/windows-timestamp-accessor-library
 # 
 
-
 import datetime, os, subprocess
 
 
@@ -24,7 +23,7 @@ class WindowsTimestampAccessor(object):
 		self.query = self.process.stdin
 		self.response = self.process.stdout
 	
-	def dispose(self):
+	def close(self):
 		self.query.close()
 		self.response.close()
 		proc = self.process
@@ -37,7 +36,7 @@ class WindowsTimestampAccessor(object):
 		return self
 	
 	def __exit__(self, type, value, traceback):
-		self.dispose()
+		self.close()
 	
 	
 	# Get-methods return the number of ticks as an int; path can be of type str or unicode
@@ -79,7 +78,7 @@ class WindowsTimestampAccessor(object):
 			raise Exception("Invalid data")
 
 
-# Takes an int. The returned datetime object will be naive, i.e. tzinfo=None
+# Takes an int. The returned datetime object will be naive, i.e. tzinfo=None.
 def ticks_to_datetime(ticks):
 	return datetime.datetime.utcfromtimestamp((ticks - 621355968000000000) / 1e7)
 

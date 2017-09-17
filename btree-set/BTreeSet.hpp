@@ -27,7 +27,6 @@
 #include <cassert>
 #include <climits>
 #include <cstdint>
-#include <iterator>
 #include <utility>
 #include <vector>
 
@@ -41,15 +40,15 @@ class BTreeSet final {
 	
 	private: Node *root;  // Never nullptr
 	private: std::size_t count;
-	private: const uint32_t minKeys;  // At least 1, equal to degree-1
-	private: const uint32_t maxKeys;  // At least 3, odd number, equal to minKeys*2+1
+	private: const std::uint32_t minKeys;  // At least 1, equal to degree-1
+	private: const std::uint32_t maxKeys;  // At least 3, odd number, equal to minKeys*2+1
 	
 	
 	
 	/*---- Constructors ----*/
 	
 	// The degree is the minimum number of children each non-root internal node must have.
-	public: BTreeSet(uint32_t deg) :
+	public: explicit BTreeSet(std::uint32_t deg) :
 			count(0),
 			minKeys(deg - 1),
 			maxKeys(deg * 2 - 1) {
@@ -91,7 +90,7 @@ class BTreeSet final {
 		// Walk down the tree
 		const Node *node = root;
 		while (true) {
-			uint32_t index = node->search(val);
+			std::uint32_t index = node->search(val);
 			if ((index >> 31) == 0)
 				return true;
 			else if (node->isLeaf())
@@ -106,7 +105,7 @@ class BTreeSet final {
 		// Special preprocessing to split root node
 		if (root->keys.size() == maxKeys) {
 			Node *rightNode = nullptr;
-			E middleKey(root->split(&rightNode));
+			E middleKey = root->split(&rightNode);
 			Node *left = root;
 			root = new Node(maxKeys, false);  // Increment tree height
 			root->keys.push_back(std::move(middleKey));
@@ -120,7 +119,7 @@ class BTreeSet final {
 			// Search for index in current node
 			assert(node->keys.size() < maxKeys);
 			assert(node == root || node->keys.size() >= minKeys);
-			uint32_t index = node->search(val);
+			std::uint32_t index = node->search(val);
 			if ((index >> 31) == 0)
 				return;  // Key already exists in tree
 			index = ~index;
@@ -135,7 +134,7 @@ class BTreeSet final {
 				Node *child = node->children.at(index);
 				if (child->keys.size() == maxKeys) {  // Split child node
 					Node *rightNode = nullptr;
-					E middleKey(child->split(&rightNode));
+					E middleKey = child->split(&rightNode);
 					int cmp;
 					if (val < middleKey)
 						cmp = -1;
@@ -158,7 +157,7 @@ class BTreeSet final {
 	
 	public: std::size_t erase(const E &val) {
 		// Walk down the tree
-		uint32_t index = root->search(val);
+		std::uint32_t index = root->search(val);
 		Node *node = root;
 		while (true) {
 			assert(node->keys.size() <= maxKeys);
@@ -255,15 +254,19 @@ class BTreeSet final {
 		
 		/*-- Fields --*/
 		
-		public: std::vector<E> keys;  // Size is in [0, maxKeys] for root node, [minKeys, maxKeys] for all other nodes
-		public: std::vector<Node*> children;  // If leaf then size is 0, otherwise if internal node then size always equals keys.size()+1
-		public: const uint32_t maxKeys;
+		// Size is in the range [0, maxKeys] for root node, [minKeys, maxKeys] for all other nodes.
+		public: std::vector<E> keys;
+		
+		// If leaf then size is 0, otherwise if internal node then size always equals keys.size()+1.
+		public: std::vector<Node*> children;
+		
+		public: const std::uint32_t maxKeys;
 		
 		
 		/*-- Constructors --*/
 		
 		// Note: Once created, a node's structure never changes between a leaf and internal node.
-		public: Node(uint32_t mxKeys, bool leaf) :
+		public: Node(std::uint32_t mxKeys, bool leaf) :
 				maxKeys(mxKeys) {
 			assert(maxKeys >= 3 && maxKeys % 2 == 1);
 			keys.reserve(maxKeys);
@@ -273,9 +276,8 @@ class BTreeSet final {
 		
 		
 		public: ~Node() {
-			for (typename std::vector<Node*>::iterator it(children.begin());
-					it != children.end(); ++it)
-				delete *it;
+			for (Node *node : children)
+				delete node;
 		}
 		
 		
@@ -289,11 +291,11 @@ class BTreeSet final {
 		// Searches this node's keys array and returns i (with top bit clear) if obj equals keys[i],
 		// otherwise returns ~i (with top bit set) if children[i] should be explored. For simplicity,
 		// the implementation uses linear search. It's possible to replace it with binary search for speed.
-		public: uint32_t search(const E &val) const {
+		public: std::uint32_t search(const E &val) const {
 			assert(keys.size() <= UINT32_MAX / 2);
-			uint32_t i = 0;
+			std::uint32_t i = 0;
 			while (i < keys.size()) {
-				const E &elem(keys.at(i));
+				const E &elem = keys.at(i);
 				if (val == elem)
 					return i;  // Key found
 				else if (val > elem)
@@ -308,7 +310,7 @@ class BTreeSet final {
 		
 		// Removes and returns the minimum key among the whole subtree rooted at this node.
 		public: E removeMin() {
-			uint32_t minKeys = maxKeys / 2;
+			std::uint32_t minKeys = maxKeys / 2;
 			Node *node = this;
 			while (!node->isLeaf()) {
 				assert(node->keys.size() > minKeys);
@@ -321,7 +323,7 @@ class BTreeSet final {
 		
 		// Removes and returns the maximum key among the whole subtree rooted at this node.
 		public: E removeMax() {
-			uint32_t minKeys = maxKeys / 2;
+			std::uint32_t minKeys = maxKeys / 2;
 			Node *node = this;
 			while (!node->isLeaf()) {
 				assert(node->keys.size() > minKeys);
@@ -333,8 +335,8 @@ class BTreeSet final {
 		
 		
 		// Removes and returns this node's key at the given index.
-		public: E removeKey(uint32_t index) {
-			E result(std::move(keys.at(index)));
+		public: E removeKey(std::uint32_t index) {
+			E result = std::move(keys.at(index));
 			keys.erase(keys.begin() + index);
 			return result;
 		}
@@ -345,7 +347,7 @@ class BTreeSet final {
 		public: E split(Node **rightNode) {
 			// Manipulate numbers
 			assert(keys.size() == maxKeys);
-			uint32_t minKeys = maxKeys / 2;
+			std::uint32_t minKeys = maxKeys / 2;
 			
 			// Handle children
 			*rightNode = new Node(maxKeys, isLeaf());
@@ -355,7 +357,7 @@ class BTreeSet final {
 			}
 			
 			// Handle keys
-			E result(std::move(keys.at(minKeys)));
+			E result = std::move(keys.at(minKeys));
 			std::move(keys.begin() + minKeys + 1, keys.end(), std::back_inserter((*rightNode)->keys));
 			keys.erase(keys.begin() + minKeys, keys.end());
 			return result;
@@ -366,10 +368,10 @@ class BTreeSet final {
 		// minKeys+1 keys in preparation for a single removal. The child may gain a key and subchild
 		// from its sibling, or it may be merged with a sibling, or nothing needs to be done.
 		// A reference to the appropriate child is returned, which is helpful if the old child no longer exists.
-		public: Node *ensureChildRemove(uint32_t index) {
+		public: Node *ensureChildRemove(std::uint32_t index) {
 			// Preliminaries
 			assert(!isLeaf());
-			uint32_t minKeys = maxKeys / 2;
+			std::uint32_t minKeys = maxKeys / 2;
 			Node *child = children.at(index);
 			if (child->keys.size() > minKeys)  // Already satisfies the condition
 				return child;
@@ -438,7 +440,7 @@ class BTreeSet final {
 			
 			// Check keys
 			for (std::size_t i = 0; i < keys.size(); i++) {
-				const E &key(keys.at(i));
+				const E &key = keys.at(i);
 				bool fail = i == 0 && min != nullptr && key <= *min;
 				fail |= i >= 1 && key <= keys.at(i - 1);
 				fail |= i == keys.size() - 1 && max != nullptr && key >= *max;

@@ -14,9 +14,10 @@ import org.junit.Test;
 
 public final class WindowsTimestampAccessorDatetimeTest {
 	
-	/* Test suite */
+	/*---- Test suite ----*/
 	
-	// Checks that each calendar day (at midnight) from year -500 to 2999 are converted correctly to and from ticks
+	// Checks that each calendar day (at midnight) from year
+	// -500 to 2999 are converted correctly to and from ticks.
 	@Test public void testWholeDays() {
 		long ticks = -158100768000000000L;
 		int year = -500;
@@ -42,7 +43,7 @@ public final class WindowsTimestampAccessorDatetimeTest {
 	}
 	
 	
-	// Checks that random moments in the middle of random days are converted correctly to and from ticks
+	// Checks that random moments in the middle of random days are converted correctly to and from ticks.
 	@Test public void testFractionalDays() {
 		for (int i = 0; i < 300000; i++) {
 			int day = rand.nextInt(2000000) - 500000;  // Approximately from year -1400 to 4100
@@ -67,8 +68,8 @@ public final class WindowsTimestampAccessorDatetimeTest {
 	}
 	
 	
-	// Checks that dates in non-standard form are equal to the canonical form.
-	// There's no need to test the day, hour, minute, second, or microsecond fields because they are treated linearly in the code.
+	// Checks that dates in non-standard form are equal to the canonical form. There's no need to test
+	// the day, hour, minute, second, or microsecond fields because they are treated linearly in the code.
 	@Test public void testLenientDates() {
 		for (int i = 0; i < 1000000; i++) {
 			int year = rand.nextInt(4000) - 1000;
@@ -82,7 +83,7 @@ public final class WindowsTimestampAccessorDatetimeTest {
 	}
 	
 	
-	/* Utilities */
+	/*---- Utilities ----*/
 	
 	private static int getMonthLength(int y, int m) {
 		if (m == 2 && isLeapYear(y))
