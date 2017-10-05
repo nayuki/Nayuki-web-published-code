@@ -1,6 +1,6 @@
 /* 
  * Test of variants of the sieve of Eratosthenes (C#)
- * by Project Nayuki, 2016. Public domain.
+ * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -14,6 +14,7 @@ public sealed class EratosthenesSievesTest {
 	public static void Main(string[] args) {
 		testValues();
 		testPrefixConsistency();
+		Console.WriteLine("Test passed");
 	}
 	
 	

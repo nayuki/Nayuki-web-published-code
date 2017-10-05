@@ -37,33 +37,33 @@ int main() {
 
 static void testValues() {
 	{
-		vector<bool> expected{false, false, true, true, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, false};
-		vector<bool> actual = sievePrimeness(30);
-		if (actual != expected)
+		vector<bool> expect{false, false, true, true, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, false};
+		vector<bool> actual = sievePrimeness(expect.size() - 1);
+		if (actual != expect)
 			throw "Mismatch";
 	}
 	{
-		vector<uint32_t> expected{0, 1, 2, 3, 2, 5, 2, 7, 2, 3, 2, 11, 2, 13, 2, 3, 2, 17, 2, 19, 2, 3, 2, 23, 2, 5, 2, 3, 2, 29, 2};
-		vector<uint32_t> actual = sieveSmallestPrimeFactor(30);
-		if (actual != expected)
+		vector<uint32_t> expect{0, 1, 2, 3, 2, 5, 2, 7, 2, 3, 2, 11, 2, 13, 2, 3, 2, 17, 2, 19, 2, 3, 2, 23, 2, 5, 2, 3, 2, 29, 2};
+		vector<uint32_t> actual = sieveSmallestPrimeFactor(expect.size() - 1);
+		if (actual != expect)
 			throw "Mismatch";
 	}
 	{
-		vector<uint32_t> expected{0, 1, 1, 2, 2, 4, 2, 6, 4, 6, 4, 10, 4, 12, 6, 8, 8, 16, 6, 18, 8, 12, 10, 22, 8, 20, 12, 18, 12, 28, 8};
-		vector<uint32_t> actual = sieveTotient(30);
-		if (actual != expected)
+		vector<uint32_t> expect{0, 1, 1, 2, 2, 4, 2, 6, 4, 6, 4, 10, 4, 12, 6, 8, 8, 16, 6, 18, 8, 12, 10, 22, 8, 20, 12, 18, 12, 28, 8};
+		vector<uint32_t> actual = sieveTotient(expect.size() - 1);
+		if (actual != expect)
 			throw "Mismatch";
 	}
 	{
-		vector<uint32_t> expected{0, 0, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 3};
-		vector<uint32_t> actual = sieveOmega(30);
-		if (actual != expected)
+		vector<uint32_t> expect{0, 0, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 3};
+		vector<uint32_t> actual = sieveOmega(expect.size() - 1);
+		if (actual != expect)
 			throw "Mismatch";
 	}
 	{
-		vector<uint32_t> expected{0, 1, 2, 3, 2, 5, 6, 7, 2, 3, 10, 11, 6, 13, 14, 15, 2, 17, 6, 19, 10, 21, 22, 23, 6, 5, 26, 3, 14, 29, 30};
-		vector<uint32_t> actual = sieveRadical(30);
-		if (actual != expected)
+		vector<uint32_t> expect{0, 1, 2, 3, 2, 5, 6, 7, 2, 3, 10, 11, 6, 13, 14, 15, 2, 17, 6, 19, 10, 21, 22, 23, 6, 5, 26, 3, 14, 29, 30};
+		vector<uint32_t> actual = sieveRadical(expect.size() - 1);
+		if (actual != expect)
 			throw "Mismatch";
 	}
 }

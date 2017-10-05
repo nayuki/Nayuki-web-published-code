@@ -1,11 +1,11 @@
 /* 
  * Test of variants of the sieve of Eratosthenes (Java)
- * by Project Nayuki, 2016. Public domain.
+ * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
 
 
 public final class EratosthenesSievesTest {
