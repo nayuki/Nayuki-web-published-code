@@ -102,8 +102,10 @@ public final class PfmToPng {
 	}
 	
 	
+	
 	/*---- Utility functions ----*/
 	
+	// Returns a value in the range [0, 255].
 	private static int to8Bit(double val) {
 		if (val > 1)
 			val = 1;

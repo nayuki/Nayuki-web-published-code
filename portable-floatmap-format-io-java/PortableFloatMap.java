@@ -40,8 +40,8 @@ import java.util.Objects;
 
 
 /**
- * Represents a {@code float}-based RGB/grayscale raster image, and provides methods for reading/writing Portable FloatMap (PFM) files.
- * <p>Based on the file format specification at: http://www.pauldebevec.com/Research/HDR/PFM/</p>
+ * Represents a {@code float}-based RGB/grayscale raster image,
+ * and provides methods for reading/writing Portable FloatMap (PFM) files.
  */
 public final class PortableFloatMap {
 	
@@ -65,8 +65,10 @@ public final class PortableFloatMap {
 	 */
 	public float[] pixels;
 	
-	/** Indicates whether the image read was in big endian, or indicates whether to write the image
-	 * in big endian. Big endian is preferred for Java, while little endian is preferred for C/C++. */
+	/**
+	 * Indicates whether the image read was in big endian, or indicates whether to write the image
+	 * in big endian. Big endian is preferred for Java, while little endian is preferred for C/C++.
+	 */
 	public boolean bigEndian;
 	
 	
@@ -127,12 +129,16 @@ public final class PortableFloatMap {
 		
 		// Parse width and height line
 		String[] tokens = readLine(in).split(" ", 2);
-		width = Integer.parseInt(tokens[0]);
-		if (width <= 0)
-			throw new IllegalArgumentException("Width must be positive");
-		height = Integer.parseInt(tokens[1]);
-		if (height <= 0)
-			throw new IllegalArgumentException("Height must be positive");
+		if (tokens.length != 2)
+			throw new IllegalArgumentException("Invalid dimensions");
+		try {
+			width = Integer.parseInt(tokens[0]);
+			height = Integer.parseInt(tokens[1]);
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Invalid dimensions");
+		}
+		if (width <= 0 || height <= 0)
+			throw new IllegalArgumentException("Width and height must be positive");
 		
 		// Parse endianness line
 		double temp = Double.parseDouble(readLine(in));
