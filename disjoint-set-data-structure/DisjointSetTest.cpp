@@ -22,6 +22,7 @@
  */
 
 #include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <iostream>
 #include <random>
@@ -81,56 +82,60 @@ std::default_random_engine randGen((std::random_device())());
 std::uniform_real_distribution<double> realDist;
 
 
-static void assertEquals(bool expected, bool actual) {
-	if (actual != expected)
+static void assertTrue(bool cond) {
+	if (!cond)
 		throw "Assertion error";
 }
 
 
-static void assertEquals(size_t expected, size_t actual) {
-	if (actual != expected)
-		throw "Assertion error";
+static void assertFalse(bool cond) {
+	assertTrue(!cond);
+}
+
+
+static void assertEquals(std::int64_t expected, std::int64_t actual) {
+	assertTrue(actual == expected);
 }
 
 
 /*---- Test suite ----*/
 
 static void testNew() {
-	DisjointSet ds(10);
+	DisjointSet<signed char> ds(10);
 	assertEquals(10, ds.getNumberOfSets());
 	assertEquals(1, ds.getSizeOfSet(0));
 	assertEquals(1, ds.getSizeOfSet(2));
 	assertEquals(1, ds.getSizeOfSet(9));
-	assertEquals(true, ds.areInSameSet(0, 0));
-	assertEquals(false, ds.areInSameSet(0, 1));
-	assertEquals(false, ds.areInSameSet(9, 3));
+	assertTrue(ds.areInSameSet(0, 0));
+	assertFalse(ds.areInSameSet(0, 1));
+	assertFalse(ds.areInSameSet(9, 3));
 	ds.checkStructure();
 }
 
 
 static void testMerge() {
-	DisjointSet ds(10);
-	assertEquals(true, ds.mergeSets(0, 1));
+	DisjointSet<std::uint16_t> ds(10);
+	assertTrue(ds.mergeSets(0, 1));
 	ds.checkStructure();
 	assertEquals(9, ds.getNumberOfSets());
-	assertEquals(true, ds.areInSameSet(0, 1));
+	assertTrue(ds.areInSameSet(0, 1));
 	
-	assertEquals(true, ds.mergeSets(2, 3));
+	assertTrue(ds.mergeSets(2, 3));
 	ds.checkStructure();
 	assertEquals(8, ds.getNumberOfSets());
-	assertEquals(true, ds.areInSameSet(2, 3));
+	assertTrue(ds.areInSameSet(2, 3));
 	
-	assertEquals(false, ds.mergeSets(2, 3));
+	assertFalse(ds.mergeSets(2, 3));
 	ds.checkStructure();
 	assertEquals(8, ds.getNumberOfSets());
-	assertEquals(false, ds.areInSameSet(0, 2));
+	assertFalse(ds.areInSameSet(0, 2));
 	
-	assertEquals(true, ds.mergeSets(0, 3));
+	assertTrue(ds.mergeSets(0, 3));
 	ds.checkStructure();
 	assertEquals(7, ds.getNumberOfSets());
-	assertEquals(true, ds.areInSameSet(0, 2));
-	assertEquals(true, ds.areInSameSet(3, 0));
-	assertEquals(true, ds.areInSameSet(1, 3));
+	assertTrue(ds.areInSameSet(0, 2));
+	assertTrue(ds.areInSameSet(3, 0));
+	assertTrue(ds.areInSameSet(1, 3));
 }
 
 
@@ -139,13 +144,13 @@ static void testBigMerge() {
 	const long TRIALS = 10000;
 	
 	const size_t numElems = static_cast<size_t>(1) << MAX_RANK;  // Grows exponentially
-	DisjointSet ds(numElems);
+	DisjointSet<std::uint32_t> ds(numElems);
 	for (int level = 0; level < MAX_RANK; level++) {
 		size_t mergeStep = static_cast<size_t>(1) << level;
 		size_t incrStep = mergeStep * 2;
 		for (size_t i = 0; i < numElems; i += incrStep) {
-			assertEquals(false, ds.areInSameSet(i, i + mergeStep));
-			assertEquals(true, ds.mergeSets(i, i + mergeStep));
+			assertFalse(ds.areInSameSet(i, i + mergeStep));
+			assertTrue(ds.mergeSets(i, i + mergeStep));
 		}
 		// Now we have a bunch of sets of size 2^(level+1)
 		
@@ -155,7 +160,7 @@ static void testBigMerge() {
 			size_t j = (std::uniform_int_distribution<size_t>(0, numElems - 1))(randGen);
 			size_t k = (std::uniform_int_distribution<size_t>(0, numElems - 1))(randGen);
 			bool expect = (j & mask) == (k & mask);
-			assertEquals(true, ds.areInSameSet(j, k) == expect);
+			assertTrue(ds.areInSameSet(j, k) == expect);
 		}
 	}
 }
@@ -168,14 +173,14 @@ static void testAgainstNaiveRandomly() {
 	
 	for (long i = 0; i < TRIALS; i++) {
 		NaiveDisjointSet nds(NUM_ELEMS);
-		DisjointSet ds(NUM_ELEMS);
+		DisjointSet<size_t> ds(NUM_ELEMS);
 		for (long j = 0; j < ITERATIONS; j++) {
 			size_t k = (std::uniform_int_distribution<size_t>(0, NUM_ELEMS - 1))(randGen);
 			size_t l = (std::uniform_int_distribution<size_t>(0, NUM_ELEMS - 1))(randGen);
-			assertEquals(true, ds.getSizeOfSet(k) == nds.getSizeOfSet(k));
-			assertEquals(true, ds.areInSameSet(k, l) == nds.areInSameSet(k, l));
+			assertTrue(ds.getSizeOfSet(k) == nds.getSizeOfSet(k));
+			assertTrue(ds.areInSameSet(k, l) == nds.areInSameSet(k, l));
 			if (realDist(randGen) < 0.1)
-				assertEquals(true, ds.mergeSets(k, l) == nds.mergeSets(k, l));
+				assertTrue(ds.mergeSets(k, l) == nds.mergeSets(k, l));
 			assertEquals(nds.getNumberOfSets(), ds.getNumberOfSets());
 			if (realDist(randGen) < 0.001)
 				ds.checkStructure();

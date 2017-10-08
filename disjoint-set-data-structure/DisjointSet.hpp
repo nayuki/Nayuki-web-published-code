@@ -1,5 +1,5 @@
 /* 
- * Disjoint-set data structure - Library header (C++)
+ * Disjoint-set data structure - Library (C++)
  * 
  * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
@@ -24,6 +24,8 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
+#include <utility>
 #include <vector>
 
 
@@ -31,33 +33,50 @@
  * Represents a set of disjoint sets. Also known as the union-find data structure.
  * Main operations are querying if two elements are in the same set, and merging two sets together.
  * Useful for testing graph connectivity, and is used in Kruskal's algorithm.
+ * The parameter S can be any integer type, such as size_t. For any given S, the maximum number
+ * of sets is S_MAX. Using a smaller type like int8_t can help save memory compared to uint64_t.
  */
+template <typename S>
 class DisjointSet final {
 	
 	/*---- Helper structure ----*/
 	
 	private: struct Node final {
-		// The index of the parent element. An element is a representative iff its parent is itself. Mutable due to path compression.
-		mutable std::size_t parent;
+		// The index of the parent element. An element is a representative
+		// iff its parent is itself. Mutable due to path compression.
+		mutable S parent;
+		
 		// Always in the range [0, floor(log2(numElems))]. For practical computers, this has a maximum value of 64.
 		// Note that signed char is guaranteed to cover at least the range [0, 127].
 		signed char rank;
+		
 		// Positive number if the element is a representative, otherwise zero.
-		std::size_t size;
+		S size;
 	};
+	
 	
 	
 	/*---- Fields ----*/
 	
 	private: std::vector<Node> nodes;
-	private: std::size_t numSets;
+	private: S numSets;
 	
 	
 	/*---- Constructors ----*/
 	
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, DisjointSet(3) --> {{0}, {1}, {2}}.
-	public: DisjointSet(std::size_t numElems);
+	// Even if S has a wider range than size_t, it is required that 1 <= numElems <= SIZE_MAX.
+	public: DisjointSet(S numElems) :
+			numSets(numElems) {
+		if (numElems <= 0)
+			throw "Number of elements must be positive";
+		if (!safeLessEquals(numElems, SIZE_MAX))
+			throw "Number of elements too large";
+		nodes.reserve(static_cast<std::size_t>(numElems));
+		for (S i = 0; i < numElems; i++)
+			nodes.push_back(Node{i, 0, 1});
+	}
 	
 	
 	/*---- Methods ----*/
@@ -65,36 +84,114 @@ class DisjointSet final {
 	// Returns the number of elements among the set of disjoint sets; this was the number passed
 	// into the constructor and is constant for the lifetime of the object. All the other methods
 	// require the argument elemIndex to satisfy 0 <= elemIndex < getNumberOfElements().
-	public: std::size_t getNumberOfElements() const;
+	public: S getNumberOfElements() const {
+		return static_cast<S>(nodes.size());
+	}
 	
 	
 	// Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
 	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 1 <= result <= getNumberOfElements().
-	public: std::size_t getNumberOfSets() const;
+	public: S getNumberOfSets() const {
+		return numSets;
+	}
 	
 	
 	// Returns the size of the set that the given element is a member of. 1 <= result <= getNumberOfElements().
-	public: std::size_t getSizeOfSet(std::size_t elemIndex) const;
+	public: S getSizeOfSet(S elemIndex) const {
+		return nodes.at(getRepr(elemIndex)).size;
+	}
 	
 	
 	// Tests whether the given two elements are members of the same set. Note that the arguments are orderless.
-	public: bool areInSameSet(std::size_t elemIndex0, std::size_t elemIndex1) const;
+	public: bool areInSameSet(S elemIndex0, S elemIndex1) const {
+		return getRepr(elemIndex0) == getRepr(elemIndex1);
+	}
 	
 	
 	// Merges together the sets that the given two elements belong to. This method is also known as "union" in the literature.
 	// If the two elements belong to different sets, then the two sets are merged and the method returns true.
 	// Otherwise they belong in the same set, nothing is changed and the method returns false. Note that the arguments are orderless.
-	public: bool mergeSets(std::size_t elemIndex0, std::size_t elemIndex1);
+	public: bool mergeSets(S elemIndex0, S elemIndex1) {
+		// Get representatives
+		std::size_t repr0 = getRepr(elemIndex0);
+		std::size_t repr1 = getRepr(elemIndex1);
+		if (repr0 == repr1)
+			return false;
+		
+		// Compare ranks
+		int cmp = nodes.at(repr0).rank - nodes.at(repr1).rank;
+		// Note: The computation of cmp does not overflow. 0 <= ranks[i] <= SCHAR_MAX,
+		// so SCHAR_MIN <= -SCHAR_MAX <= ranks[i] - ranks[j] <= SCHAR_MAX.
+		// The result actually fits in a signed char, and with sizeof(char) <= sizeof(int),
+		// the promotion to int still guarantees the result fits.
+		if (cmp == 0)  // Increment repr0's rank if both nodes have same rank
+			nodes.at(repr0).rank++;
+		else if (cmp < 0)  // Swap to ensure that repr0's rank >= repr1's rank
+			std::swap(repr0, repr1);
+		
+		// Graft repr1's subtree onto node repr0
+		nodes.at(repr1).parent = repr0;
+		nodes.at(repr0).size += nodes.at(repr1).size;
+		nodes.at(repr1).size = 0;
+		numSets--;
+		return true;
+	}
 	
 	
 	// For unit tests. This detects many but not all invalid data structures, throwing an exception
 	// if a structural invariant is known to be violated. This always returns silently on a valid object.
-	public: void checkStructure() const;
+	public: void checkStructure() const {
+		S numRepr = 0;
+		S i = 0;
+		for (const Node &node : nodes) {
+			bool isRepr = node.parent == i;
+			if (isRepr)
+				numRepr++;
+			
+			bool ok = true;
+			ok &= 0 <= node.parent && safeLessThan(node.parent, nodes.size());
+			ok &= 0 <= node.rank && (isRepr || node.rank < nodes.at(node.parent).rank);
+			ok &= 0 <= node.size && safeLessEquals(node.size, nodes.size());
+			ok &= (!isRepr && node.size == 0) || (isRepr && node.size >= (static_cast<S>(1) << node.rank));
+			if (!ok)
+				throw "Assertion error";
+			i++;
+		}
+		if (!(1 <= numSets && numSets == numRepr && safeLessEquals(numSets, nodes.size())))
+			throw "Assertion error";
+	}
 	
 	
 	// (Private) Returns the representative element for the set containing the given element. This method is also
 	// known as "find" in the literature. Also performs path compression, which alters the internal state to
 	// improve the speed of future queries, but has no externally visible effect on the values returned.
-	private: std::size_t getRepr(std::size_t elemIndex) const;
+	private: S getRepr(S elemIndex) const {
+		// Follow parent pointers until we reach a representative
+		S parent = nodes.at(elemIndex).parent;
+		if (parent == elemIndex)
+			return static_cast<std::size_t>(elemIndex);
+		while (true) {
+			S grandparent = nodes.at(static_cast<std::size_t>(parent)).parent;
+			if (grandparent == parent)
+				return static_cast<std::size_t>(parent);
+			nodes.at(static_cast<std::size_t>(elemIndex)).parent = grandparent;  // Partial path compression
+			elemIndex = parent;
+			parent = grandparent;
+		}
+	}
+	
+	
+	// Notes: If S is an unsigned integer type, then x < 0 is always false, which may generate a warning.
+	// If S is a signed integer type, then x <= y is a mixed-signedness comparison, which may generate a warning.
+	// But for all types and values, these functions are safe and correct, despite possible warnings.
+	
+	private: static bool safeLessThan(S x, std::size_t y) {
+		return x < 0 || x < y;  // Safe despite warnings, see above
+	}
+	
+	
+	private: static bool safeLessEquals(S x, std::size_t y) {
+		return x < 0 || x <= y;  // Safe despite warnings, see above
+	}
 	
 };
