@@ -92,7 +92,7 @@ public final class DisjointSetTest {
 				int j = rand.nextInt(numElems);
 				int k = rand.nextInt(numElems);
 				boolean expect = (j & mask) == (k & mask);
-				assertEquals(expect, ds.areInSameSet(j, k));
+				assertTrue(expect == ds.areInSameSet(j, k));
 			}
 		}
 	}
@@ -110,9 +110,9 @@ public final class DisjointSetTest {
 				int k = rand.nextInt(numElems);
 				int l = rand.nextInt(numElems);
 				assertEquals(nds.getSizeOfSet(k), ds.getSizeOfSet(k));
-				assertEquals(nds.areInSameSet(k, l), ds.areInSameSet(k, l));
+				assertTrue(nds.areInSameSet(k, l) == ds.areInSameSet(k, l));
 				if (rand.nextDouble() < 0.1)
-					assertEquals(nds.mergeSets(k, l), ds.mergeSets(k, l));
+					assertTrue(nds.mergeSets(k, l) == ds.mergeSets(k, l));
 				assertEquals(nds.getNumberOfSets(), ds.getNumberOfSets());
 				if (rand.nextDouble() < 0.001)
 					ds.checkStructure();
@@ -120,6 +120,7 @@ public final class DisjointSetTest {
 			ds.checkStructure();
 		}
 	}
+	
 	
 	
 	/*---- Helper definitions ----*/

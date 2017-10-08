@@ -45,36 +45,36 @@ public sealed class DisjointSetTest {
 		AssertEquals(1, ds.GetSizeOfSet(0));
 		AssertEquals(1, ds.GetSizeOfSet(2));
 		AssertEquals(1, ds.GetSizeOfSet(9));
-		AssertEquals(true, ds.AreInSameSet(0, 0));
-		AssertEquals(false, ds.AreInSameSet(0, 1));
-		AssertEquals(false, ds.AreInSameSet(9, 3));
+		AssertTrue(ds.AreInSameSet(0, 0));
+		AssertFalse(ds.AreInSameSet(0, 1));
+		AssertFalse(ds.AreInSameSet(9, 3));
 		ds.CheckStructure();
 	}
 	
 	
 	private static void TestMerge() {
 		DisjointSet ds = new DisjointSet(10);
-		AssertEquals(true, ds.MergeSets(0, 1));
+		AssertTrue(ds.MergeSets(0, 1));
 		ds.CheckStructure();
 		AssertEquals(9, ds.NumberOfSets);
-		AssertEquals(true, ds.AreInSameSet(0, 1));
+		AssertTrue(ds.AreInSameSet(0, 1));
 		
-		AssertEquals(true, ds.MergeSets(2, 3));
+		AssertTrue(ds.MergeSets(2, 3));
 		ds.CheckStructure();
 		AssertEquals(8, ds.NumberOfSets);
-		AssertEquals(true, ds.AreInSameSet(2, 3));
+		AssertTrue(ds.AreInSameSet(2, 3));
 		
-		AssertEquals(false, ds.MergeSets(2, 3));
+		AssertFalse(ds.MergeSets(2, 3));
 		ds.CheckStructure();
 		AssertEquals(8, ds.NumberOfSets);
-		AssertEquals(false, ds.AreInSameSet(0, 2));
+		AssertFalse(ds.AreInSameSet(0, 2));
 		
-		AssertEquals(true, ds.MergeSets(0, 3));
+		AssertTrue(ds.MergeSets(0, 3));
 		ds.CheckStructure();
 		AssertEquals(7, ds.NumberOfSets);
-		AssertEquals(true, ds.AreInSameSet(0, 2));
-		AssertEquals(true, ds.AreInSameSet(3, 0));
-		AssertEquals(true, ds.AreInSameSet(1, 3));
+		AssertTrue(ds.AreInSameSet(0, 2));
+		AssertTrue(ds.AreInSameSet(3, 0));
+		AssertTrue(ds.AreInSameSet(1, 3));
 	}
 	
 	
@@ -88,8 +88,8 @@ public sealed class DisjointSetTest {
 			int mergeStep = 1 << level;
 			int incrStep = mergeStep * 2;
 			for (int i = 0; i < numElems; i += incrStep) {
-				AssertEquals(false, ds.AreInSameSet(i, i + mergeStep));
-				AssertEquals(true, ds.MergeSets(i, i + mergeStep));
+				AssertFalse(ds.AreInSameSet(i, i + mergeStep));
+				AssertTrue(ds.MergeSets(i, i + mergeStep));
 			}
 			// Now we have a bunch of sets of size 2^(level+1)
 			
@@ -99,7 +99,7 @@ public sealed class DisjointSetTest {
 				int j = rand.Next(numElems);
 				int k = rand.Next(numElems);
 				bool expect = (j & mask) == (k & mask);
-				AssertEquals(expect, ds.AreInSameSet(j, k));
+				AssertTrue(expect == ds.AreInSameSet(j, k));
 			}
 		}
 	}
@@ -117,9 +117,9 @@ public sealed class DisjointSetTest {
 				int k = rand.Next(numElems);
 				int l = rand.Next(numElems);
 				AssertEquals(nds.GetSizeOfSet(k), ds.GetSizeOfSet(k));
-				AssertEquals(nds.AreInSameSet(k, l), ds.AreInSameSet(k, l));
+				AssertTrue(nds.AreInSameSet(k, l) == ds.AreInSameSet(k, l));
 				if (rand.NextDouble() < 0.1)
-					AssertEquals(nds.MergeSets(k, l), ds.MergeSets(k, l));
+					AssertTrue(nds.MergeSets(k, l) == ds.MergeSets(k, l));
 				AssertEquals(nds.NumberOfSets, ds.NumberOfSets);
 				if (rand.NextDouble() < 0.001)
 					ds.CheckStructure();
@@ -131,15 +131,19 @@ public sealed class DisjointSetTest {
 	
 	/*---- Helper definitions ----*/
 	
-	private static void AssertEquals(bool expect, bool actual) {
-		if (actual != expect)
+	private static void AssertTrue(bool cond) {
+		if (!cond)
 			throw new SystemException("Assertion failed");
 	}
 	
 	
+	private static void AssertFalse(bool cond) {
+		AssertTrue(!cond);
+	}
+	
+	
 	private static void AssertEquals(int expect, int actual) {
-		if (actual != expect)
-			throw new SystemException("Assertion failed");
+		AssertTrue(actual == expect);
 	}
 	
 	

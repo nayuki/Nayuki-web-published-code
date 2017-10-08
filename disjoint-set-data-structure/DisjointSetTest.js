@@ -32,36 +32,36 @@ function testNew() {
 	assertEquals(1, ds.getSizeOfSet(0));
 	assertEquals(1, ds.getSizeOfSet(2));
 	assertEquals(1, ds.getSizeOfSet(9));
-	assertEquals(true, ds.areInSameSet(0, 0));
-	assertEquals(false, ds.areInSameSet(0, 1));
-	assertEquals(false, ds.areInSameSet(9, 3));
+	assertTrue(ds.areInSameSet(0, 0));
+	assertFalse(ds.areInSameSet(0, 1));
+	assertFalse(ds.areInSameSet(9, 3));
 	ds.checkStructure();
 }
 
 
 function testMerge() {
 	var ds = new DisjointSet(10);
-	assertEquals(true, ds.mergeSets(0, 1));
+	assertTrue(ds.mergeSets(0, 1));
 	ds.checkStructure();
 	assertEquals(9, ds.getNumberOfSets());
-	assertEquals(true, ds.areInSameSet(0, 1));
+	assertTrue(ds.areInSameSet(0, 1));
 	
-	assertEquals(true, ds.mergeSets(2, 3));
+	assertTrue(ds.mergeSets(2, 3));
 	ds.checkStructure();
 	assertEquals(8, ds.getNumberOfSets());
-	assertEquals(true, ds.areInSameSet(2, 3));
+	assertTrue(ds.areInSameSet(2, 3));
 	
-	assertEquals(false, ds.mergeSets(2, 3));
+	assertFalse(ds.mergeSets(2, 3));
 	ds.checkStructure();
 	assertEquals(8, ds.getNumberOfSets());
-	assertEquals(false, ds.areInSameSet(0, 2));
+	assertFalse(ds.areInSameSet(0, 2));
 	
-	assertEquals(true, ds.mergeSets(0, 3));
+	assertTrue(ds.mergeSets(0, 3));
 	ds.checkStructure();
 	assertEquals(7, ds.getNumberOfSets());
-	assertEquals(true, ds.areInSameSet(0, 2));
-	assertEquals(true, ds.areInSameSet(3, 0));
-	assertEquals(true, ds.areInSameSet(1, 3));
+	assertTrue(ds.areInSameSet(0, 2));
+	assertTrue(ds.areInSameSet(3, 0));
+	assertTrue(ds.areInSameSet(1, 3));
 }
 
 
@@ -75,8 +75,8 @@ function testBigMerge() {
 		var mergeStep = 1 << level;
 		var incrStep = mergeStep * 2;
 		for (var i = 0; i < numElems; i += incrStep) {
-			assertEquals(false, ds.areInSameSet(i, i + mergeStep));
-			assertEquals(true, ds.mergeSets(i, i + mergeStep));
+			assertFalse(ds.areInSameSet(i, i + mergeStep));
+			assertTrue(ds.mergeSets(i, i + mergeStep));
 		}
 		// Now we have a bunch of sets of size 2^(level+1)
 		
@@ -86,7 +86,7 @@ function testBigMerge() {
 			var j = Math.floor(Math.random() * numElems);
 			var k = Math.floor(Math.random() * numElems);
 			var expect = (j & mask) == (k & mask);
-			assertEquals(expect, ds.areInSameSet(j, k));
+			assertTrue(expect == ds.areInSameSet(j, k));
 		}
 	}
 }
@@ -104,9 +104,9 @@ function testAgainstNaiveRandomly() {
 			var k = Math.floor(Math.random() * numElems);
 			var l = Math.floor(Math.random() * numElems);
 			assertEquals(nds.getSizeOfSet(k), ds.getSizeOfSet(k));
-			assertEquals(nds.areInSameSet(k, l), ds.areInSameSet(k, l));
+			assertTrue(nds.areInSameSet(k, l) == ds.areInSameSet(k, l));
 			if (Math.random() < 0.1)
-				assertEquals(nds.mergeSets(k, l), ds.mergeSets(k, l));
+				assertTrue(nds.mergeSets(k, l) == ds.mergeSets(k, l));
 			assertEquals(nds.getNumberOfSets(), ds.getNumberOfSets());
 			if (Math.random() < 0.001)
 				ds.checkStructure();
@@ -167,7 +167,17 @@ function NaiveDisjointSet(numElems) {
 }
 
 
-function assertEquals(expected, actual) {
-	if (expected !== actual)
+function assertTrue(cond) {
+	if (cond !== true)
 		throw "Assertion error";
+}
+
+
+function assertFalse(cond) {
+	assertTrue(cond === false);
+}
+
+
+function assertEquals(expect, actual) {
+	assertTrue(actual === expect)
 }

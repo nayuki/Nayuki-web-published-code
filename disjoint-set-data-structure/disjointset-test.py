@@ -85,7 +85,7 @@ class DisjointSetTest(unittest.TestCase):
 				j = random.randrange(numElems)
 				k = random.randrange(numElems)
 				expect = (j & mask) == (k & mask)
-				self.assertEqual(ds.are_in_same_set(j, k), expect)
+				self.assertTrue(ds.are_in_same_set(j, k) == expect)
 	
 	
 	def test_against_naive_randomly(self):
@@ -100,9 +100,9 @@ class DisjointSetTest(unittest.TestCase):
 				i = random.randrange(numElems)
 				j = random.randrange(numElems)
 				self.assertEqual(ds.get_size_of_set(i), nds.get_size_of_set(i))
-				self.assertEqual(ds.are_in_same_set(i, j), nds.are_in_same_set(i, j))
+				self.assertTrue(ds.are_in_same_set(i, j) == nds.are_in_same_set(i, j))
 				if random.random() < 0.1:
-					self.assertEqual(ds.merge_sets(i, j), nds.merge_sets(i, j))
+					self.assertTrue(ds.merge_sets(i, j) == nds.merge_sets(i, j))
 				self.assertEqual(ds.get_num_sets(), nds.get_num_sets())
 				if random.random() < 0.001:
 					ds.check_structure()
