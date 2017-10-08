@@ -32,8 +32,8 @@ class DisjointSet(object):
 	# Constructs a new set containing the given number of singleton sets.
 	# For example, DisjointSet(3) --> {{0}, {1}, {2}}.
 	def __init__(self, numelems):
-		if numelems <= 0:
-			raise ValueError("Number of elements must be positive")
+		if numelems < 0:
+			raise ValueError("Number of elements must be non-negative")
 		
 		# A global property
 		self.num_sets = numelems
@@ -55,7 +55,7 @@ class DisjointSet(object):
 	
 	
 	# Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	# each call to merge_sets() either decrements the number by one or leaves it unchanged. 1 <= result <= get_num_elements().
+	# each call to merge_sets() either decrements the number by one or leaves it unchanged. 0 <= result <= get_num_elements().
 	def get_num_sets(self):
 		return self.num_sets
 	
@@ -131,5 +131,5 @@ class DisjointSet(object):
 			ok &= ((not isrepr) and size == 0) or (isrepr and size >= (1 << rank))
 			if not ok:
 				raise AssertionError()
-		if not (1 <= self.num_sets == numrepr <= len(self.parents)):
+		if not (0 <= self.num_sets == numrepr <= len(self.parents)):
 			raise AssertionError()

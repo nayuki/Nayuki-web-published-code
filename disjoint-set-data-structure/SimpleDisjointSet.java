@@ -40,8 +40,8 @@ public final class SimpleDisjointSet {
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, new SimpleDisjointSet(3) --> {{0}, {1}, {2}}.
 	public SimpleDisjointSet(int numElems) {
-		if (numElems <= 0)
-			throw new IllegalArgumentException("Number of elements must be positive");
+		if (numElems < 0)
+			throw new IllegalArgumentException("Number of elements must be non-negative");
 		nodes = new Node[numElems];
 		for (int i = 0; i < numElems; i++) {
 			Node node = new Node();

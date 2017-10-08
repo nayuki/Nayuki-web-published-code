@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (Java)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,8 +46,8 @@ public final class DisjointSet {
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 	public DisjointSet(int numElems) {
-		if (numElems <= 0)
-			throw new IllegalArgumentException("Number of elements must be positive");
+		if (numElems < 0)
+			throw new IllegalArgumentException("Number of elements must be non-negative");
 		parents = new int[numElems];
 		ranks = new byte[numElems];
 		sizes = new int[numElems];
@@ -72,7 +72,7 @@ public final class DisjointSet {
 	
 	
 	// Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 1 <= result <= getNumberOfElements().
+	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 0 <= result <= getNumberOfElements().
 	public int getNumberOfSets() {
 		return numSets;
 	}
@@ -159,7 +159,7 @@ public final class DisjointSet {
 			if (!ok)
 				throw new AssertionError();
 		}
-		if (!(1 <= numSets && numSets == numRepr && numSets <= parents.length))
+		if (!(0 <= numSets && numSets == numRepr && numSets <= parents.length))
 			throw new AssertionError();
 	}
 	

@@ -69,8 +69,8 @@ class DisjointSet final {
 	// Even if S has a wider range than size_t, it is required that 1 <= numElems <= SIZE_MAX.
 	public: DisjointSet(S numElems) :
 			numSets(numElems) {
-		if (numElems <= 0)
-			throw "Number of elements must be positive";
+		if (numElems < 0)
+			throw "Number of elements must be non-negative";
 		if (!safeLessEquals(numElems, SIZE_MAX))
 			throw "Number of elements too large";
 		nodes.reserve(static_cast<std::size_t>(numElems));
@@ -90,7 +90,7 @@ class DisjointSet final {
 	
 	
 	// Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 1 <= result <= getNumberOfElements().
+	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 0 <= result <= getNumberOfElements().
 	public: S getNumberOfSets() const {
 		return numSets;
 	}
@@ -157,7 +157,7 @@ class DisjointSet final {
 				throw "Assertion error";
 			i++;
 		}
-		if (!(1 <= numSets && numSets == numRepr && safeLessEquals(numSets, nodes.size())))
+		if (!(0 <= numSets && numSets == numRepr && safeLessEquals(numSets, nodes.size())))
 			throw "Assertion error";
 	}
 	

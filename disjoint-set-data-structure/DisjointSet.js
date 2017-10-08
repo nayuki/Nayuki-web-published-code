@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,8 +44,8 @@ function DisjointSet(numElems) {
 	var ranks   = [];  // Always in the range [0, floor(log2(numElems))].
 	var sizes   = [];  // Positive number if the element is a representative, otherwise zero.
 	
-	if (numElems <= 0)
-		throw "Number of elements must be positive";
+	if (numElems < 0)
+		throw "Number of elements must be non-negative";
 	for (var i = 0; i < numElems; i++) {
 		parents.push(i);
 		ranks.push(0);
@@ -64,7 +64,7 @@ function DisjointSet(numElems) {
 	
 	
 	// Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 1 <= result <= getNumberOfElements().
+	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 0 <= result <= getNumberOfElements().
 	this.getNumberOfSets = function() {
 		return numSets;
 	};
@@ -151,7 +151,7 @@ function DisjointSet(numElems) {
 			if (!ok)
 				throw new "Assertion error";
 		}
-		if (!(1 <= numSets && numSets == numRepr && numSets <= parents.length))
+		if (!(0 <= numSets && numSets == numRepr && numSets <= parents.length))
 			throw new "Assertion error";
 	};
 	

@@ -57,7 +57,7 @@ struct DisjointSet {
 	
 	// The current number of disjoint sets overall. This number decreases monotonically as time
 	// progresses; each call to mergeSets() either decrements the number by one or leaves it
-	// unchanged. 1 <= numSets <= numElements(). Publicly readable but only privately writable.
+	// unchanged. 0 <= numSets <= numElements(). Publicly readable but only privately writable.
 	size_t numSets;
 	
 	// The internal nodes representing the disjoint-set data structure.

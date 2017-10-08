@@ -58,9 +58,6 @@ impl DisjointSet {
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 	pub fn new(numelems: usize) -> DisjointSet {
-		if numelems == 0 {
-			panic!("Number of elements must be positive");
-		}
 		let mut nodes: Vec<DisjointSetNode> = Vec::with_capacity(numelems);
 		for i in 0 .. numelems {
 			nodes.push(DisjointSetNode{
@@ -85,7 +82,7 @@ impl DisjointSet {
 	
 	
 	// The number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to merge_sets() either decrements the number by one or leaves it unchanged. 1 <= number_of_sets() <= number_of_elements().
+	// each call to merge_sets() either decrements the number by one or leaves it unchanged. 0 <= number_of_sets() <= number_of_elements().
 	pub fn number_of_sets(&self) -> usize {
 		self.numberofsets
 	}
@@ -168,7 +165,7 @@ impl DisjointSet {
 				panic!("Assertion error");
 			}
 		}
-		if !(1 <= self.numberofsets && self.numberofsets == numrepr && self.numberofsets <= self.nodes.len()) {
+		if !(self.numberofsets == numrepr && self.numberofsets <= self.nodes.len()) {
 			panic!("Assertion error");
 		}
 	}

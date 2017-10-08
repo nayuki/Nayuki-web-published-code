@@ -1,7 +1,7 @@
 /* 
  * Animated floating graph nodes
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
@@ -347,19 +347,14 @@ function containsEdge(array, edge) {
 }
 
 
-// The union-find data structure. A heavily stripped-down version derived from https://www.nayuki.io/page/disjoint-set-data-structure .
+// The union-find data structure. A heavily stripped-down version
+// derived from https://www.nayuki.io/page/disjoint-set-data-structure .
 function DisjointSet(size) {
 	var parents = [];
 	var ranks = [];
 	for (var i = 0; i < size; i++) {
 		parents.push(i);
 		ranks.push(0);
-	}
-	
-	function getRepr(i) {
-		if (parents[i] != i)
-			parents[i] = getRepr(parents[i]);
-		return parents[i];
 	}
 	
 	this.mergeSets = function(i, j) {
@@ -377,4 +372,9 @@ function DisjointSet(size) {
 		return true;
 	};
 	
+	function getRepr(i) {
+		if (parents[i] != i)
+			parents[i] = getRepr(parents[i]);
+		return parents[i];
+	}
 }

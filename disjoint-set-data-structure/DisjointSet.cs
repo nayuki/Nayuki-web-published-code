@@ -34,7 +34,7 @@ public sealed class DisjointSet {
 	/*---- Fields ----*/
 	
 	// The number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to MergeSets() either decrements the number by one or leaves it unchanged. 1 <= NumberOfSets <= NumberOfElements.
+	// each call to MergeSets() either decrements the number by one or leaves it unchanged. 0 <= NumberOfSets <= NumberOfElements.
 	public int NumberOfSets {
 		get;
 		private set;
@@ -49,8 +49,8 @@ public sealed class DisjointSet {
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 	public DisjointSet(int numElems) {
-		if (numElems <= 0)
-			throw new ArgumentOutOfRangeException("Number of elements must be positive");
+		if (numElems < 0)
+			throw new ArgumentOutOfRangeException("Number of elements must be non-negative");
 		nodes = new Node[numElems];
 		for (int i = 0; i < numElems; i++) {
 			nodes[i].Parent = i;
@@ -155,7 +155,7 @@ public sealed class DisjointSet {
 			if (!ok)
 				throw new SystemException();
 		}
-		if (!(1 <= NumberOfSets && NumberOfSets == numRepr && NumberOfSets <= nodes.Length))
+		if (!(0 <= NumberOfSets && NumberOfSets == numRepr && NumberOfSets <= nodes.Length))
 			throw new SystemException();
 	}
 	

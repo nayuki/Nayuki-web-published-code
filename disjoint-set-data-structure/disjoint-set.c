@@ -29,9 +29,6 @@
 
 
 struct DisjointSet *DisjointSet_init(size_t numElems) {
-	if (numElems == 0)  // Invalid argument
-		return NULL;
-	
 	// Compute size carefully to avoid overflow
 	size_t temp = sizeof(struct DisjointSetNode);
 	if (SIZE_MAX / temp < numElems)
@@ -133,5 +130,5 @@ void DisjointSet_checkStructure(const struct DisjointSet *this) {
 		ok &= (!isRepr && node->size == 0) || (isRepr && node->size >= ((size_t)1 << node->rank));
 		assert(ok);
 	}
-	assert(1 <= this->numSets && this->numSets == numRepr && this->numSets <= this->numElements);
+	assert(this->numSets == numRepr && this->numSets <= this->numElements);
 }
