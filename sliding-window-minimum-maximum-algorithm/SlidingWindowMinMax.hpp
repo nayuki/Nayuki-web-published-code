@@ -37,12 +37,9 @@ std::vector<E> computeSlidingWindowMinOrMax(const std::vector<E> &array, std::si
 	
 	std::vector<E> result;
 	std::deque<E> deque;
-	typename std::vector<E>::const_iterator it(array.begin());
-	typename std::vector<E>::const_iterator tail(array.begin());
 	std::size_t countdown = window - 1;
-	for (; it != array.end(); ++it) {
-		
-		const E &val = *it;
+	typename std::vector<E>::const_iterator tail = array.cbegin();
+	for (const E &val : array) {
 		while (!deque.empty() && ((!maximize && val < deque.back()) || (maximize && val > deque.back())))
 			deque.pop_back();
 		deque.push_back(val);

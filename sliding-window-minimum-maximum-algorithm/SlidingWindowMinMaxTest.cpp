@@ -66,7 +66,7 @@ vector<E> computeSlidingWindowMinOrMaxNaive(const vector<E> &array, size_t windo
 	if (array.size() < window)
 		return result;
 	
-	for (vector<int>::const_iterator start(array.cbegin()), end(array.cbegin() + window); ; ++start, ++end) {
+	for (vector<int>::const_iterator start = array.cbegin(), end = array.cbegin() + window; ; ++start, ++end) {
 		if (!maximize)
 			result.push_back(*std::min_element(start, end));
 		else
@@ -91,8 +91,8 @@ static void testRandomly() {
 		size_t window = windowDist(randGen);
 		bool maximize = boolDist(randGen);
 		
-		vector<int> expect(computeSlidingWindowMinOrMaxNaive(array, window, maximize));
-		vector<int> actual(computeSlidingWindowMinOrMax     (array, window, maximize));
+		vector<int> expect = computeSlidingWindowMinOrMaxNaive(array, window, maximize);
+		vector<int> actual = computeSlidingWindowMinOrMax     (array, window, maximize);
 		if (expect.size() != actual.size())
 			throw "Size mismatch";
 		for (size_t i = 0; i < expect.size(); i++) {
@@ -113,8 +113,8 @@ static void testIncremental() {
 			array.push_back(valueDist(randGen));
 		
 		SlidingWindowMinMax<int> swm;
-		vector<int>::const_iterator start(array.cbegin());
-		vector<int>::const_iterator end(array.cbegin());
+		vector<int>::const_iterator start = array.cbegin();
+		vector<int>::const_iterator end = array.cbegin();
 		while (start < array.end()) {
 			if (start == end || (end < array.end() && boolDist(randGen))) {
 				swm.addTail(*end);
