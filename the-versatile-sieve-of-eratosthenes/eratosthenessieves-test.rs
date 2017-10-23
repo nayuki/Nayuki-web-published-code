@@ -43,7 +43,7 @@ fn test_values() {
 
 fn test_prefix_consistency<T: std::cmp::PartialEq>(func: fn(u32) -> Vec<T>) {
 	let n: u32 = 10000;
-	let mut prev: Vec<T> = Vec::new();
+	let mut prev = Vec::<T>::new();
 	for i in 0 .. n {
 		let cur: Vec<T> = func(i);
 		for j in 0 .. i {

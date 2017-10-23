@@ -136,7 +136,7 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	// (Private) Assuming that xs and ys are both in ascending order, this
 	// moves all their elements into a new sorted vector zs and returns it.
 	fn merge_vecs(xs: &mut Vec<E>, ys: &mut Vec<E>) -> Vec<E> {
-		let mut result: Vec<E> = Vec::with_capacity(xs.len() + ys.len());
+		let mut result = Vec::<E>::with_capacity(xs.len() + ys.len());
 		loop {
 			let which: bool = match (xs.last(), ys.last()) {
 				(None, None) => break,

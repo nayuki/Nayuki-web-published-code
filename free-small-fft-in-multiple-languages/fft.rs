@@ -68,8 +68,8 @@ pub fn transform_radix2(real: &mut [f64], imag: &mut [f64]) {
 	}
 	
 	// Trigonometric tables
-	let mut costable: Vec<f64> = Vec::with_capacity(n / 2);
-	let mut sintable: Vec<f64> = Vec::with_capacity(n / 2);
+	let mut costable = Vec::<f64>::with_capacity(n / 2);
+	let mut sintable = Vec::<f64>::with_capacity(n / 2);
 	for i in 0 .. n / 2 {
 		let angle: f64 = 2.0 * std::f64::consts::PI * (i as f64) / (n as f64);
 		costable.push(angle.cos());
@@ -142,8 +142,8 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 	}
 	
 	// Trignometric tables
-	let mut costable: Vec<f64> = Vec::with_capacity(n);
-	let mut sintable: Vec<f64> = Vec::with_capacity(n);
+	let mut costable = Vec::<f64>::with_capacity(n);
+	let mut sintable = Vec::<f64>::with_capacity(n);
 	for i in 0 .. n {
 		  // This is more accurate than j = i * i
 		let j: u64 = (i as u64) * (i as u64) % ((n as u64) * 2);
@@ -153,8 +153,8 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 	}
 	
 	// Temporary vectors and preprocessing
-	let mut areal: Vec<f64> = Vec::with_capacity(m);
-	let mut aimag: Vec<f64> = Vec::with_capacity(m);
+	let mut areal = Vec::<f64>::with_capacity(m);
+	let mut aimag = Vec::<f64>::with_capacity(m);
 	for i in 0 .. n {
 		areal.push( real[i] * costable[i] + imag[i] * sintable[i]);
 		aimag.push(-real[i] * sintable[i] + imag[i] * costable[i]);

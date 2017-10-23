@@ -30,7 +30,7 @@ fn kmp_search(pattern: &[char], text: &[char]) -> std::option::Option<usize> {
 	}
 	
 	// Compute longest suffix-prefix table
-	let mut lsp: Vec<usize> = Vec::with_capacity(pattern.len());
+	let mut lsp = Vec::<usize>::with_capacity(pattern.len());
 	for c in pattern {
 		let newval = match lsp.last() {
 			None => 0,  // Base case

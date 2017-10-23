@@ -58,7 +58,7 @@ impl DisjointSet {
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 	pub fn new(numelems: usize) -> DisjointSet {
-		let mut nodes: Vec<DisjointSetNode> = Vec::with_capacity(numelems);
+		let mut nodes = Vec::<DisjointSetNode>::with_capacity(numelems);
 		for i in 0 .. numelems {
 			nodes.push(DisjointSetNode{
 				parent: i,
