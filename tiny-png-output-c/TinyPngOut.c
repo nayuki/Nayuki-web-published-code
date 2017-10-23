@@ -29,14 +29,14 @@
 
 #define DEFLATE_MAX_BLOCK_SIZE 65535
 
-static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout);
+static enum TinyPngOutStatus finish(const struct TinyPngOut pngout[static 1]);
 static uint32_t crc32  (uint32_t state, const uint8_t data[], size_t len);
 static uint32_t adler32(uint32_t state, const uint8_t data[], size_t len);
 
 
 /* Public function implementations */
 
-enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int32_t width, int32_t height) {
+enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut pngout[static 1], FILE fout[static 1], int32_t width, int32_t height) {
 	// Check arguments
 	if (fout == NULL || width <= 0 || height <= 0)
 		return TINYPNGOUT_INVALID_ARGUMENT;
@@ -99,7 +99,7 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
 }
 
 
-enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t pixels[], int count) {
+enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut pngout[static 1], const uint8_t pixels[], int count) {
 	int32_t width  = pngout->width;
 	int32_t height = pngout->height;
 	if (pngout->positionY == height)
@@ -186,7 +186,7 @@ enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t 
 
 /* Private function implementations */
 
-static enum TinyPngOutStatus finish(const struct TinyPngOut *pngout) {
+static enum TinyPngOutStatus finish(const struct TinyPngOut pngout[static 1]) {
 	#define FOOTER_SIZE 20
 	uint32_t adler = pngout->adler;
 	uint8_t footer[FOOTER_SIZE] = {

@@ -18,8 +18,8 @@
 // Function prototypes
 static bool self_check(void);
 static void benchmark(void);
-static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]);
-static void sha512_compress(uint64_t state[8], const uint8_t block[128]);
+static int compare_hashes(const uint64_t hash0[static 8], const uint64_t hash1[static 8]);
+static void sha512_compress(uint64_t state[static 8], const uint8_t block[static 128]);
 
 // The message length can be anywhere from 1 to 111 (so that the message plus footer
 // fits in a block). For an alphabet of lowercase letters, 16 characters already
@@ -158,7 +158,7 @@ static void benchmark(void) {
 }
 
 
-static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]) {
+static int compare_hashes(const uint64_t hash0[static 8], const uint64_t hash1[static 8]) {
 	for (int i = 0; i < 8; i++) {
 		uint64_t x = hash0[i];
 		uint64_t y = hash1[i];
@@ -174,7 +174,7 @@ static int compare_hashes(const uint64_t hash0[8], const uint64_t hash1[8]) {
 
 /*---- SHA-512 compression function ----*/
 
-static void sha512_compress(uint64_t state[8], const uint8_t block[128]) {
+static void sha512_compress(uint64_t state[static 8], const uint8_t block[static 128]) {
 	// 64-bit right rotation
 	#define ROTR64(x, i)  \
 		(((x) << (64 - (i))) | ((x) >> (i)))

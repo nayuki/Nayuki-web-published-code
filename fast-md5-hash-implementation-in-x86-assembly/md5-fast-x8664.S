@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in x86-64 assembly
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void md5_compress(uint32_t state[4], const uint8_t block[64]) */
+/* void md5_compress(uint32_t state[static 4], const uint8_t block[static 64]) */
 .globl md5_compress
 md5_compress:
 	/* 

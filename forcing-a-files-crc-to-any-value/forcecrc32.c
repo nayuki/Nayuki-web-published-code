@@ -32,13 +32,13 @@
 
 const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc, bool printstatus);
 
-static uint32_t get_crc32_and_length(FILE *f, uint64_t *length);
-static void fseek64(FILE *f, uint64_t offset);
+static uint32_t get_crc32_and_length(FILE f[static 1], uint64_t length[static 1]);
+static void fseek64(FILE f[static 1], uint64_t offset);
 static uint32_t reverse_bits(uint32_t x);
 
 static uint64_t multiply_mod(uint64_t x, uint64_t y);
 static uint64_t pow_mod(uint64_t x, uint64_t y);
-static void divide_and_remainder(uint64_t x, uint64_t y, uint64_t *q, uint64_t *r);
+static void divide_and_remainder(uint64_t x, uint64_t y, uint64_t q[static 1], uint64_t r[static 1]);
 static uint64_t reciprocal_mod(uint64_t x);
 static int get_degree(uint64_t x);
 
@@ -154,7 +154,7 @@ const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc
 static const uint64_t POLYNOMIAL = UINT64_C(0x104C11DB7);
 
 
-static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
+static uint32_t get_crc32_and_length(FILE f[static 1], uint64_t length[static 1]) {
 	rewind(f);
 	uint32_t crc = UINT32_C(0xFFFFFFFF);
 	*length = 0;
@@ -182,7 +182,7 @@ static uint32_t get_crc32_and_length(FILE *f, uint64_t *length) {
 }
 
 
-static void fseek64(FILE *f, uint64_t offset) {
+static void fseek64(FILE f[static 1], uint64_t offset) {
 	rewind(f);
 	while (offset > 0) {
 		unsigned long n = LONG_MAX;
@@ -234,7 +234,7 @@ static uint64_t pow_mod(uint64_t x, uint64_t y) {
 
 
 // Computes polynomial x divided by polynomial y, returning the quotient and remainder.
-static void divide_and_remainder(uint64_t x, uint64_t y, uint64_t *q, uint64_t *r) {
+static void divide_and_remainder(uint64_t x, uint64_t y, uint64_t q[static 1], uint64_t r[static 1]) {
 	if (y == 0) {
 		fprintf(stderr, "Division by zero\n");
 		exit(EXIT_FAILURE);

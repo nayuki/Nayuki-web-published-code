@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in x86 assembly
  * 
- * Copyright (c) 2014 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha1-hash-implementation-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void sha1_compress(uint32_t state[5], const uint8_t block[64]) */
+/* void sha1_compress(uint32_t state[static 5], const uint8_t block[static 64]) */
 .globl sha1_compress
 sha1_compress:
 	/* 

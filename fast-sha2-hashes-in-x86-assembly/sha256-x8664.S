@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in x86-64 assembly
  * 
- * Copyright (c) 2015 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void sha256_compress(uint32_t state[8], const uint8_t block[64]) */
+/* void sha256_compress(uint32_t state[static 8], const uint8_t block[static 64]) */
 .globl sha256_compress
 sha256_compress:
 	/* 

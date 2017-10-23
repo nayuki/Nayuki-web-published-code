@@ -1,7 +1,7 @@
 /* 
  * SHA-512 hash in x86 assembly
  * 
- * Copyright (c) 2014 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void sha512_compress(uint64_t state[8], const uint8_t block[128]) */
+/* void sha512_compress(uint64_t state[static 8], const uint8_t block[static 128]) */
 .globl sha512_compress
 sha512_compress:
 	/* 

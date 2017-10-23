@@ -84,7 +84,7 @@ void *fft_init(size_t n) {
 
 
 // Performs a forward FFT in place on the given arrays. The length is given by the tables struct.
-void fft_transform(const void *tables, double real[], double imag[]) {
+void fft_transform(const void *tables, double real[static 1], double imag[static 1]) {
 	const struct FftTables *tbl = (const struct FftTables *)tables;
 	size_t n = tbl->n;
 	
