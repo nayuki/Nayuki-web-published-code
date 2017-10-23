@@ -31,7 +31,7 @@ static const int num_threads = 4;
 
 static bool self_check(void);
 static void benchmark(void);
-static void *worker(void *data);
+static void *worker(void *blks);
 static int compare_hashes(uint64_t dualhash[8][NUM_CH], int channel, const uint64_t hash[static 8]);
 static uint8_t get_byte(uint8_t blocks[16][NUM_CH][8], int index, int channel);
 static void    set_byte(uint8_t blocks[16][NUM_CH][8], int index, int channel, uint8_t val);

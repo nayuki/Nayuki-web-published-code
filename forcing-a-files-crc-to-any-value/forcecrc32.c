@@ -45,7 +45,7 @@ static int get_degree(uint64_t x);
 
 /*---- Main application ----*/
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
 	// Handle arguments
 	if (argc != 4) {
 		fprintf(stderr, "Usage: %s FileName ByteOffset NewCrc32Value\n", argv[0]);

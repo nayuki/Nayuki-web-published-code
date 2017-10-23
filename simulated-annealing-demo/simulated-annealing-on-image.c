@@ -213,6 +213,7 @@ uint32_t pixel_diff(uint32_t p0, uint32_t p1) {
 }
 
 
+
 /*---- Mersenne Twister random number generator library ----*/
 
 /* 
@@ -258,13 +259,13 @@ uint32_t pixel_diff(uint32_t p0, uint32_t p1) {
  * email: m-mat@math.sci.hiroshima-u.ac.jp
  */
 
-void MtRandom_next_state(struct MtRandom mt[static 1]);
+static void MtRandom_next_state(struct MtRandom mt[static 1]);
 
 
 void MtRandom_init(struct MtRandom mt[static 1], uint32_t seed) {
 	for (unsigned int i = 0; i < 624; i++) {
 		mt->state[i] = seed;
-		seed = UINT32_C(1812433253) * (seed ^ (seed >> 30)) + i + 1;
+		seed = 1U * UINT32_C(1812433253) * (seed ^ (seed >> 30)) + i + 1;
 	}
 	mt->index = 624;
 }
@@ -279,8 +280,8 @@ uint32_t MtRandom_next_int(struct MtRandom mt[static 1]) {
 	
 	// Tempering
 	x ^= x >> 11;
-	x ^= (x <<  7) & UINT32_C(0x9D2C5680);
-	x ^= (x << 15) & UINT32_C(0xEFC60000);
+	x ^= ((0U + x) <<  7) & UINT32_C(0x9D2C5680);
+	x ^= ((0U + x) << 15) & UINT32_C(0xEFC60000);
 	return x ^ (x >> 18);
 }
 
@@ -316,18 +317,18 @@ double MtRandom_next_double(struct MtRandom mt[static 1]) {
 
 
 // Private function, for MtRandom internal use only.
-void MtRandom_next_state(struct MtRandom mt[static 1]) {
+static void MtRandom_next_state(struct MtRandom mt[static 1]) {
 	int k = 0;
 	for (; k < 227; k++) {
-		uint32_t y = (mt->state[k] & 0x80000000) | (mt->state[k + 1] & 0x7FFFFFFF);
+		uint32_t y = (mt->state[k] & UINT32_C(0x80000000)) | (mt->state[k + 1] & UINT32_C(0x7FFFFFFF));
 		mt->state[k] = mt->state[k + 397] ^ (y >> 1) ^ ((y & 1) * 0x9908B0DF);
 	}
 	for (; k < 623; k++) {
-		uint32_t y = (mt->state[k] & 0x80000000) | (mt->state[k + 1] & 0x7FFFFFFF);
-		mt->state[k] = mt->state[k - 227] ^ (y >> 1) ^ ((y & 1) * 0x9908B0DF);
+		uint32_t y = (mt->state[k] & UINT32_C(0x80000000)) | (mt->state[k + 1] & UINT32_C(0x7FFFFFFF));
+		mt->state[k] = mt->state[k - 227] ^ (y >> 1) ^ ((y & 1) * UINT32_C(0x9908B0DF));
 	}
-	uint32_t y = (mt->state[623] & 0x80000000) | (mt->state[0] & 0x7FFFFFFF);
-	mt->state[623] = mt->state[396] ^ (y >> 1) ^ ((y & 1) * 0x9908B0DF);
+	uint32_t y = (mt->state[623] & UINT32_C(0x80000000)) | (mt->state[0] & UINT32_C(0x7FFFFFFF));
+	mt->state[623] = mt->state[396] ^ (y >> 1) ^ ((y & 1) * UINT32_C(0x9908B0DF));
 	mt->index = 0;
 }
 
