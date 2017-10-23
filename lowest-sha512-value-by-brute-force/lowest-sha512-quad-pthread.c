@@ -31,11 +31,11 @@ static const int num_threads = 4;
 
 static bool self_check(void);
 static void benchmark(void);
-static void *worker(void *data);
-static int compare_hashes(uint64_t quadhash[8][NUM_CH], int channel, const uint64_t hash[8]);
+static void *worker(void *blks);
+static int compare_hashes(uint64_t quadhash[8][NUM_CH], int channel, const uint64_t hash[static 8]);
 static uint8_t get_byte(uint8_t blocks[16][NUM_CH][8], int index, int channel);
 static void    set_byte(uint8_t blocks[16][NUM_CH][8], int index, int channel, uint8_t val);
-static void get_message(uint8_t blocks[16][NUM_CH][8], int channel, char message[MSG_LEN+1]);
+static void get_message(uint8_t blocks[16][NUM_CH][8], int channel, char message[static MSG_LEN+1]);
 
 // Link this program with an external C or x86 compression function
 extern void sha512_compress_quad(uint64_t states[8][NUM_CH], uint8_t blocks[16][NUM_CH][8]);
@@ -256,7 +256,7 @@ static void benchmark(void) {
 }
 
 
-static int compare_hashes(uint64_t quadhash[8][NUM_CH], int channel, const uint64_t hash[8]) {
+static int compare_hashes(uint64_t quadhash[8][NUM_CH], int channel, const uint64_t hash[static 8]) {
 	for (int i = 0; i < 8; i++) {
 		uint64_t x = quadhash[i][channel];
 		uint64_t y = hash[i];
@@ -279,7 +279,7 @@ static void set_byte(uint8_t blocks[16][NUM_CH][8], int index, int channel, uint
 }
 
 
-static void get_message(uint8_t blocks[16][NUM_CH][8], int channel, char message[MSG_LEN+1]) {
+static void get_message(uint8_t blocks[16][NUM_CH][8], int channel, char message[static MSG_LEN+1]) {
 	for (int i = 0; i < MSG_LEN; i++)
 		message[i] = get_byte(blocks, i, channel);
 	message[MSG_LEN] = '\0';

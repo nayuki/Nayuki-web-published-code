@@ -37,10 +37,10 @@
 #define HASH_LEN (STATE_LEN-2)  // In words
 
 static bool self_check(void);
-void sha384_hash(const uint8_t message[], size_t len, uint64_t hash[HASH_LEN]);
+void sha384_hash(const uint8_t message[], size_t len, uint64_t hash[static HASH_LEN]);
 
 // Link this program with an external C or x86 compression function
-extern void sha512_compress(uint64_t state[STATE_LEN], const uint8_t block[BLOCK_LEN]);
+extern void sha512_compress(uint64_t state[static STATE_LEN], const uint8_t block[static BLOCK_LEN]);
 
 
 /* Main program */
@@ -110,7 +110,7 @@ static bool self_check(void) {
 
 /* Full message hasher */
 
-void sha384_hash(const uint8_t message[], size_t len, uint64_t hash[HASH_LEN]) {
+void sha384_hash(const uint8_t message[], size_t len, uint64_t hash[static HASH_LEN]) {
 	uint64_t state[STATE_LEN] = {
 		UINT64_C(0xCBBB9D5DC1059ED8),
 		UINT64_C(0x629A292A367CD507),

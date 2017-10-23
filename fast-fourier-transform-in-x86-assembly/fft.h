@@ -26,6 +26,6 @@
 
 void *fft_init(size_t n);
 
-void fft_transform(const void *tables, double real[], double imag[]);
+void fft_transform(const void *tables, double real[static 4], double imag[static 4]);
 
 void fft_destroy(void *tables);

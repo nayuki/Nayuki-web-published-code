@@ -1,13 +1,13 @@
 /* 
  * Simulated annealing on image demo - auxiliary functions (x86-64)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/simulated-annealing-demo
  */
 
 
-/* int32_t horizontal_energy_diff_if_swapped(const uint32_t *pixels, uint32_t width, uint32_t height, uint32_t x, uint32_t y) */
+/* int32_t horizontal_energy_diff_if_swapped(const uint32_t pixels[static 1], uint32_t width, uint32_t height, uint32_t x, uint32_t y) */
 .globl horizontal_energy_diff_if_swapped
 horizontal_energy_diff_if_swapped:
 	/* 
@@ -102,7 +102,7 @@ horizontal_energy_diff_if_swapped:
 	retq
 
 
-/* int32_t vertical_energy_diff_if_swapped(const uint32_t *pixels, uint32_t width, uint32_t height, uint32_t x, uint32_t y) */
+/* int32_t vertical_energy_diff_if_swapped(const uint32_t pixels[static 1], uint32_t width, uint32_t height, uint32_t x, uint32_t y) */
 .globl vertical_energy_diff_if_swapped
 vertical_energy_diff_if_swapped:
 	/* 

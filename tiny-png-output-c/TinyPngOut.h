@@ -70,7 +70,8 @@ enum TinyPngOutStatus {
  *     ... (handle error) ...
  *   }
  */
-enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int32_t width, int32_t height);
+enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut pngout[static 1], FILE fout[static 1], int32_t width, int32_t height);
+
 
 /* 
  * Pixel-writing function. The function reads 3*count bytes from the array.
@@ -89,4 +90,4 @@ enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut *pngout, FILE *fout, int
  *   }
  *   fclose(fout);
  */
-enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut *pngout, const uint8_t pixels[], int count);
+enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut pngout[static 1], const uint8_t pixels[], int count);

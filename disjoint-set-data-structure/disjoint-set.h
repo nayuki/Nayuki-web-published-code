@@ -78,7 +78,7 @@ struct DisjointSet *DisjointSet_init(size_t numElems);
 // Releases the memory for a disjoint-set data structure object. The argument can be NULL.
 // Do not attempt to call free() on the pointer, because there may be internal structures and other
 // implementation details. This function returns NULL to facilitate this code idiom: ds = destroy(ds);
-struct DisjointSet *DisjointSet_destroy(struct DisjointSet *this);
+struct DisjointSet *DisjointSet_destroy(struct DisjointSet this[static 1]);
 
 
 
@@ -89,19 +89,19 @@ struct DisjointSet *DisjointSet_destroy(struct DisjointSet *this);
 // mutates and optimizes the data structure, but without affecting the answers returned.
 
 // Returns the size of the set that the given element is a member of. 1 <= result <= numElements.
-size_t DisjointSet_getSizeOfSet(struct DisjointSet *this, size_t elemIndex);
+size_t DisjointSet_getSizeOfSet(struct DisjointSet this[static 1], size_t elemIndex);
 
 
 // Tests whether the given two elements are members of the same set. Note that the arguments are orderless.
-bool DisjointSet_areInSameSet(struct DisjointSet *this, size_t elemIndex0, size_t elemIndex1);
+bool DisjointSet_areInSameSet(struct DisjointSet this[static 1], size_t elemIndex0, size_t elemIndex1);
 
 
 // Merges together the sets that the given two elements belong to. This method is also known as "union" in the literature.
 // If the two elements belong to different sets, then the two sets are merged and the method returns true.
 // Otherwise they belong in the same set, nothing is changed and the method returns false. Note that the arguments are orderless.
-bool DisjointSet_mergeSets(struct DisjointSet *this, size_t elemIndex0, size_t elemIndex1);
+bool DisjointSet_mergeSets(struct DisjointSet this[static 1], size_t elemIndex0, size_t elemIndex1);
 
 
 // For unit tests. This detects many but not all invalid data structures, failing an assert() if
 // a structural invariant is known to be violated. This always returns silently on a valid object.
-void DisjointSet_checkStructure(const struct DisjointSet *this);
+void DisjointSet_checkStructure(const struct DisjointSet this[static 1]);

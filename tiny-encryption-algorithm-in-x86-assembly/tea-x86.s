@@ -1,7 +1,7 @@
 /* 
  * Tiny Encryption Algorithm (TEA) in x86 assembly
  * 
- * Copyright (c) 2014 Project Nayuki. (MIT License)
+ * Copyright (c) 2017 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/tiny-encryption-algorithm-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void tea_encrypt_x86(uint32_t msg[2], const uint32_t key[4]) */
+/* void tea_encrypt_x86(uint32_t msg[static 2], const uint32_t key[static 4]) */
 .globl tea_encrypt_x86
 tea_encrypt_x86:
 	/* 

@@ -50,7 +50,7 @@ struct DisjointSet *DisjointSet_init(size_t numElems) {
 }
 
 
-struct DisjointSet *DisjointSet_destroy(struct DisjointSet *this) {
+struct DisjointSet *DisjointSet_destroy(struct DisjointSet this[static 1]) {
 	free(this);
 	return NULL;
 }
@@ -59,7 +59,7 @@ struct DisjointSet *DisjointSet_destroy(struct DisjointSet *this) {
 // (Private) Returns the representative element for the set containing the given element. This method is also
 // known as "find" in the literature. Also performs path compression, which alters the internal state to
 // improve the speed of future queries, but has no externally visible effect on the values returned.
-static size_t getRepr(struct DisjointSet *this, size_t elemIndex) {
+static size_t getRepr(struct DisjointSet this[static 1], size_t elemIndex) {
 	assert(elemIndex < this->numElements);
 	// Follow parent pointers until we reach a representative
 	size_t parent = this->nodes[elemIndex].parent;
@@ -76,17 +76,17 @@ static size_t getRepr(struct DisjointSet *this, size_t elemIndex) {
 }
 
 
-size_t DisjointSet_getSizeOfSet(struct DisjointSet *this, size_t elemIndex) {
+size_t DisjointSet_getSizeOfSet(struct DisjointSet this[static 1], size_t elemIndex) {
 	return this->nodes[getRepr(this, elemIndex)].size;
 }
 
 
-bool DisjointSet_areInSameSet(struct DisjointSet *this, size_t elemIndex0, size_t elemIndex1) {
+bool DisjointSet_areInSameSet(struct DisjointSet this[static 1], size_t elemIndex0, size_t elemIndex1) {
 	return getRepr(this, elemIndex0) == getRepr(this, elemIndex1);
 }
 
 
-bool DisjointSet_mergeSets(struct DisjointSet *this, size_t elemIndex0, size_t elemIndex1) {
+bool DisjointSet_mergeSets(struct DisjointSet this[static 1], size_t elemIndex0, size_t elemIndex1) {
 	// Get representatives
 	size_t repr0 = getRepr(this, elemIndex0);
 	size_t repr1 = getRepr(this, elemIndex1);
@@ -116,7 +116,7 @@ bool DisjointSet_mergeSets(struct DisjointSet *this, size_t elemIndex0, size_t e
 }
 
 
-void DisjointSet_checkStructure(const struct DisjointSet *this) {
+void DisjointSet_checkStructure(const struct DisjointSet this[static 1]) {
 	size_t numRepr = 0;
 	for (size_t i = 0; i < this->numElements; i++) {
 		const struct DisjointSetNode *node = &this->nodes[i];

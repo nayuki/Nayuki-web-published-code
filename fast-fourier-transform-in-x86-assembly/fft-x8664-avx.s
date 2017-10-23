@@ -44,7 +44,7 @@
  *        8  [rsp+24]  Caller's value of r10
  */
 
-/* void fft_transform(const void *tables, double real[], double imag[]) */
+/* void fft_transform(const void *tables, double real[static 4], double imag[static 4]) */
 .globl fft_transform
 fft_transform:
 	/* Save registers */

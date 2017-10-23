@@ -63,7 +63,7 @@ static struct NaiveDisjointSet *NaiveDisjointSet_destroy(struct NaiveDisjointSet
 }
 
 
-static size_t NaiveDisjointSet_getNumberOfSets(const struct NaiveDisjointSet *this) {
+static size_t NaiveDisjointSet_getNumberOfSets(const struct NaiveDisjointSet this[static 1]) {
 	size_t result = 0;
 	for (size_t i = 0; i < this->numElements; i++) {
 		if (this->representatives[i] == i)
@@ -73,7 +73,7 @@ static size_t NaiveDisjointSet_getNumberOfSets(const struct NaiveDisjointSet *th
 }
 
 
-static size_t NaiveDisjointSet_getSizeOfSet(const struct NaiveDisjointSet *this, size_t elemIndex) {
+static size_t NaiveDisjointSet_getSizeOfSet(const struct NaiveDisjointSet this[static 1], size_t elemIndex) {
 	size_t repr = this->representatives[elemIndex];
 	size_t result = 0;
 	for (size_t i = 0; i < this->numElements; i++) {
@@ -84,12 +84,12 @@ static size_t NaiveDisjointSet_getSizeOfSet(const struct NaiveDisjointSet *this,
 }
 
 
-static bool NaiveDisjointSet_areInSameSet(const struct NaiveDisjointSet *this, size_t elemIndex0, size_t elemIndex1) {
+static bool NaiveDisjointSet_areInSameSet(const struct NaiveDisjointSet this[static 1], size_t elemIndex0, size_t elemIndex1) {
 	return this->representatives[elemIndex0] == this->representatives[elemIndex1];
 }
 
 
-static bool NaiveDisjointSet_mergeSets(struct NaiveDisjointSet *this, size_t elemIndex0, size_t elemIndex1) {
+static bool NaiveDisjointSet_mergeSets(struct NaiveDisjointSet this[static 1], size_t elemIndex0, size_t elemIndex1) {
 	size_t repr0 = this->representatives[elemIndex0];
 	size_t repr1 = this->representatives[elemIndex1];
 	for (size_t i = 0; i < this->numElements; i++) {

@@ -22,7 +22,7 @@
  */
 
 
-/* void rc4_encrypt_x86(struct Rc4State *state, uint8_t *msg, size_t len) */
+/* void rc4_encrypt_x86(struct Rc4State state[static 1], uint8_t msg[], size_t len) */
 .globl rc4_encrypt_x86
 rc4_encrypt_x86:
 	/* 

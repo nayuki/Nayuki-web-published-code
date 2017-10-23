@@ -48,7 +48,7 @@ static const double A[] = {
 
 // DCT type II, scaled. Algorithm by Arai, Agui, Nakajima, 1988.
 // See: https://web.stanford.edu/class/ee398a/handouts/lectures/07-TransformCoding.pdf#page=30
-void FastDct8_transform(double vector[8]) {
+void FastDct8_transform(double vector[static 8]) {
 	const double v0 = vector[0] + vector[7];
 	const double v1 = vector[1] + vector[6];
 	const double v2 = vector[2] + vector[5];
@@ -96,7 +96,7 @@ void FastDct8_transform(double vector[8]) {
 
 
 // DCT type III, scaled. A straightforward inverse of the forward algorithm.
-void FastDct8_inverseTransform(double vector[8]) {
+void FastDct8_inverseTransform(double vector[static 8]) {
 	const double v15 = vector[0] / S[0];
 	const double v26 = vector[1] / S[1];
 	const double v21 = vector[2] / S[2];

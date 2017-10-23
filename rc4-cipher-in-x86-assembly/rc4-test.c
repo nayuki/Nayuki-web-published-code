@@ -39,9 +39,9 @@ struct Rc4State {
 
 /* Function prototypes */
 
-extern void rc4_encrypt_x86(struct Rc4State *state, uint8_t msg[], size_t len);
-void rc4_init(struct Rc4State *state, const uint8_t key[], size_t len);
-void rc4_encrypt_c(struct Rc4State *state, uint8_t msg[], size_t len);
+extern void rc4_encrypt_x86(struct Rc4State state[static 1], uint8_t msg[], size_t len);
+void rc4_init(struct Rc4State state[static 1], const uint8_t key[static 1], size_t len);
+void rc4_encrypt_c(struct Rc4State state[static 1], uint8_t msg[], size_t len);
 static bool self_check(void);
 
 
@@ -106,7 +106,7 @@ static bool self_check(void) {
 
 /* RC4 functions in C */
 
-void rc4_init(struct Rc4State *state, const uint8_t key[], size_t len) {
+void rc4_init(struct Rc4State state[static 1], const uint8_t key[static 1], size_t len) {
 	for (int i = 0; i < 256; i++)
 		state->s[i] = (uint8_t)i;
 	state->i = 0;
@@ -124,7 +124,7 @@ void rc4_init(struct Rc4State *state, const uint8_t key[], size_t len) {
 }
 
 
-void rc4_encrypt_c(struct Rc4State *state, uint8_t msg[], size_t len) {
+void rc4_encrypt_c(struct Rc4State state[static 1], uint8_t msg[], size_t len) {
 	uint8_t i = state->i;
 	uint8_t j = state->j;
 	uint8_t *s = state->s;

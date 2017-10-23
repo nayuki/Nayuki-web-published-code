@@ -32,15 +32,15 @@ struct MtRandom {
 	uint32_t state[624];
 };
 
-void     MtRandom_init(struct MtRandom *mt, uint32_t seed);
-uint32_t MtRandom_next_int(struct MtRandom *mt);
-uint32_t MtRandom_next_int_bounded(struct MtRandom *mt, uint32_t bound);
-double   MtRandom_next_double(struct MtRandom *mt);
-void     MtRandom_reseed(struct MtRandom *mt);
+void     MtRandom_init(struct MtRandom mt[static 1], uint32_t seed);
+uint32_t MtRandom_next_int(struct MtRandom mt[static 1]);
+uint32_t MtRandom_next_int_bounded(struct MtRandom mt[static 1], uint32_t bound);
+double   MtRandom_next_double(struct MtRandom mt[static 1]);
+void     MtRandom_reseed(struct MtRandom mt[static 1]);
 
-void write_bmp_image(const uint32_t pixels[], uint32_t width, uint32_t height, const char *filepath);
-int32_t horizontal_energy_diff_if_swapped(const uint32_t pixels[], uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
-int32_t vertical_energy_diff_if_swapped  (const uint32_t pixels[], uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
+void write_bmp_image(const uint32_t pixels[static 1], uint32_t width, uint32_t height, const char *filepath);
+int32_t horizontal_energy_diff_if_swapped(const uint32_t pixels[static 1], uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
+int32_t vertical_energy_diff_if_swapped  (const uint32_t pixels[static 1], uint32_t width, uint32_t height, uint32_t x, uint32_t y);  // Implemented in assembly language
 uint32_t pixel_diff(uint32_t p0, uint32_t p1);
 double fast_2_pow(double x);
 
@@ -124,7 +124,7 @@ int main(void) {
 }
 
 
-void write_bmp_image(const uint32_t pixels[], uint32_t width, uint32_t height, const char *filepath) {
+void write_bmp_image(const uint32_t pixels[static 1], uint32_t width, uint32_t height, const char *filepath) {
 	// Allocate objects
 	FILE *f = fopen(filepath, "wb");
 	if (f == NULL) {
@@ -213,6 +213,7 @@ uint32_t pixel_diff(uint32_t p0, uint32_t p1) {
 }
 
 
+
 /*---- Mersenne Twister random number generator library ----*/
 
 /* 
@@ -258,20 +259,20 @@ uint32_t pixel_diff(uint32_t p0, uint32_t p1) {
  * email: m-mat@math.sci.hiroshima-u.ac.jp
  */
 
-void MtRandom_next_state(struct MtRandom *mt);
+static void MtRandom_next_state(struct MtRandom mt[static 1]);
 
 
-void MtRandom_init(struct MtRandom *mt, uint32_t seed) {
+void MtRandom_init(struct MtRandom mt[static 1], uint32_t seed) {
 	for (unsigned int i = 0; i < 624; i++) {
 		mt->state[i] = seed;
-		seed = UINT32_C(1812433253) * (seed ^ (seed >> 30)) + i + 1;
+		seed = 1U * UINT32_C(1812433253) * (seed ^ (seed >> 30)) + i + 1;
 	}
 	mt->index = 624;
 }
 
 
 // Uniform unsigned 32-bit integer.
-uint32_t MtRandom_next_int(struct MtRandom *mt) {
+uint32_t MtRandom_next_int(struct MtRandom mt[static 1]) {
 	if (mt->index == 624)
 		MtRandom_next_state(mt);
 	uint32_t x = mt->state[mt->index];
@@ -279,14 +280,14 @@ uint32_t MtRandom_next_int(struct MtRandom *mt) {
 	
 	// Tempering
 	x ^= x >> 11;
-	x ^= (x <<  7) & UINT32_C(0x9D2C5680);
-	x ^= (x << 15) & UINT32_C(0xEFC60000);
+	x ^= ((0U + x) <<  7) & UINT32_C(0x9D2C5680);
+	x ^= ((0U + x) << 15) & UINT32_C(0xEFC60000);
 	return x ^ (x >> 18);
 }
 
 
 // Unbiased generator of integers in the range [0, bound).
-uint32_t MtRandom_next_int_bounded(struct MtRandom *mt, uint32_t bound) {
+uint32_t MtRandom_next_int_bounded(struct MtRandom mt[static 1], uint32_t bound) {
 	if (!REPLICATE_JAVA) {
 		while (true) {
 			uint32_t raw = MtRandom_next_int(mt);
@@ -308,7 +309,7 @@ uint32_t MtRandom_next_int_bounded(struct MtRandom *mt, uint32_t bound) {
 
 
 // Uniform double in the range [0.0, 1.0).
-double MtRandom_next_double(struct MtRandom *mt) {
+double MtRandom_next_double(struct MtRandom mt[static 1]) {
 	uint64_t temp = MtRandom_next_int(mt) >> 6;
 	temp = (temp << 27) | (MtRandom_next_int(mt) >> 5);
 	return (double)temp / 9007199254740992.0;
@@ -316,23 +317,23 @@ double MtRandom_next_double(struct MtRandom *mt) {
 
 
 // Private function, for MtRandom internal use only.
-void MtRandom_next_state(struct MtRandom *mt) {
+static void MtRandom_next_state(struct MtRandom mt[static 1]) {
 	int k = 0;
 	for (; k < 227; k++) {
-		uint32_t y = (mt->state[k] & 0x80000000) | (mt->state[k + 1] & 0x7FFFFFFF);
+		uint32_t y = (mt->state[k] & UINT32_C(0x80000000)) | (mt->state[k + 1] & UINT32_C(0x7FFFFFFF));
 		mt->state[k] = mt->state[k + 397] ^ (y >> 1) ^ ((y & 1) * 0x9908B0DF);
 	}
 	for (; k < 623; k++) {
-		uint32_t y = (mt->state[k] & 0x80000000) | (mt->state[k + 1] & 0x7FFFFFFF);
-		mt->state[k] = mt->state[k - 227] ^ (y >> 1) ^ ((y & 1) * 0x9908B0DF);
+		uint32_t y = (mt->state[k] & UINT32_C(0x80000000)) | (mt->state[k + 1] & UINT32_C(0x7FFFFFFF));
+		mt->state[k] = mt->state[k - 227] ^ (y >> 1) ^ ((y & 1) * UINT32_C(0x9908B0DF));
 	}
-	uint32_t y = (mt->state[623] & 0x80000000) | (mt->state[0] & 0x7FFFFFFF);
-	mt->state[623] = mt->state[396] ^ (y >> 1) ^ ((y & 1) * 0x9908B0DF);
+	uint32_t y = (mt->state[623] & UINT32_C(0x80000000)) | (mt->state[0] & UINT32_C(0x7FFFFFFF));
+	mt->state[623] = mt->state[396] ^ (y >> 1) ^ ((y & 1) * UINT32_C(0x9908B0DF));
 	mt->index = 0;
 }
 
 
-void MtRandom_reseed(struct MtRandom *mt) {
+void MtRandom_reseed(struct MtRandom mt[static 1]) {
 	FILE *f = fopen("/dev/urandom", "rb");
 	if (f == NULL) {
 		fprintf(stderr, "Reseed failed\n");
