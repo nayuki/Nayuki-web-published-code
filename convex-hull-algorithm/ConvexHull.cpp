@@ -55,7 +55,7 @@ bool Point::operator>=(const Point &other) const {
 
 
 vector<Point> makeConvexHull(const vector<Point> &points) {
-	vector<Point> newPoints(points);
+	vector<Point> newPoints = points;
 	std::sort(newPoints.begin(), newPoints.end());
 	return makeConvexHullPresorted(newPoints);
 }
@@ -84,7 +84,7 @@ vector<Point> makeConvexHullPresorted(const vector<Point> &points) {
 	upperHull.pop_back();
 	
 	vector<Point> lowerHull;
-	for (vector<Point>::const_reverse_iterator it(points.crbegin()); it != points.crend(); ++it) {
+	for (vector<Point>::const_reverse_iterator it = points.crbegin(); it != points.crend(); ++it) {
 		const Point &p = *it;
 		while (lowerHull.size() >= 2) {
 			const Point &q = *(lowerHull.cend() - 1);  // Same as .back()

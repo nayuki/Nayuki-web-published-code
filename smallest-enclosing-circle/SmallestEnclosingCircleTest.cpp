@@ -65,7 +65,7 @@ static void testMatchingNaiveAlgorithm() {
 	const long trials = 10000;
 	std::uniform_int_distribution<size_t> numPointsDist(1, 30);
 	for (long i = 0; i < trials; i++) {
-		const vector<Point> points(makeRandomPoints(numPointsDist(randGen)));
+		const vector<Point> points = makeRandomPoints(numPointsDist(randGen));
 		Circle reference = smallestEnclosingCircleNaive(points);
 		Circle actual = makeSmallestEnclosingCircle(points);
 		assertApproxEqual(reference.c.x, actual.c.x, EPSILON);
@@ -80,7 +80,7 @@ static void testTranslation() {
 	const long checks = 10;
 	std::uniform_int_distribution<size_t> numPointsDist(1, 300);
 	for (long i = 0; i < trials; i++) {
-		const vector<Point> points(makeRandomPoints(numPointsDist(randGen)));
+		const vector<Point> points = makeRandomPoints(numPointsDist(randGen));
 		Circle reference = makeSmallestEnclosingCircle(points);
 		
 		for (long j = 0; j < checks; j++) {
@@ -104,7 +104,7 @@ static void testScaling() {
 	const long checks = 10;
 	std::uniform_int_distribution<size_t> numPointsDist(1, 300);
 	for (long i = 0; i < trials; i++) {
-		const vector<Point> points(makeRandomPoints(numPointsDist(randGen)));
+		const vector<Point> points = makeRandomPoints(numPointsDist(randGen));
 		Circle reference = makeSmallestEnclosingCircle(points);
 		
 		for (long j = 0; j < checks; j++) {

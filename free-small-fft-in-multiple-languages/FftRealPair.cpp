@@ -170,10 +170,10 @@ void Fft::convolve(
 			|| n != outreal.size() || n != outimag.size())
 		throw "Mismatched lengths";
 	
-	vector<double> xr(xreal);
-	vector<double> xi(ximag);
-	vector<double> yr(yreal);
-	vector<double> yi(yimag);
+	vector<double> xr = xreal;
+	vector<double> xi = ximag;
+	vector<double> yr = yreal;
+	vector<double> yi = yimag;
 	transform(xr, xi);
 	transform(yr, yi);
 	

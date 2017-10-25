@@ -89,8 +89,8 @@ int main() {
 
 static void testEmpty() {
 	const vector<Point> points{};
-	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect(points);
+	const vector<Point> actual = makeConvexHull(points);
+	const vector<Point> expect = points;
 	if (actual != expect)
 		throw "Value mismatch";
 }
@@ -98,8 +98,8 @@ static void testEmpty() {
 
 static void testOne() {
 	const vector<Point> points{Point{3, 1}};
-	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect(points);
+	const vector<Point> actual = makeConvexHull(points);
+	const vector<Point> expect = points;
 	if (actual != expect)
 		throw "Value mismatch";
 }
@@ -107,7 +107,7 @@ static void testOne() {
 
 static void testTwoDuplicate() {
 	const vector<Point> points{Point{0, 0}, Point{0, 0}};
-	const vector<Point> actual(makeConvexHull(points));
+	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect{Point{0, 0}};
 	if (actual != expect)
 		throw "Value mismatch";
@@ -116,8 +116,8 @@ static void testTwoDuplicate() {
 
 static void testTwoHorizontal0() {
 	const vector<Point> points{Point{2, 0}, Point{5, 0}};
-	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect(points);
+	const vector<Point> actual = makeConvexHull(points);
+	const vector<Point> expect = points;
 	if (actual != expect)
 		throw "Value mismatch";
 }
@@ -125,7 +125,7 @@ static void testTwoHorizontal0() {
 
 static void testTwoHorizontal1() {
 	const vector<Point> points{Point{-6, -3}, Point{-8, -3}};
-	const vector<Point> actual(makeConvexHull(points));
+	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect{Point{-8, -3}, Point{-6, -3}};
 	if (actual != expect)
 		throw "Value mismatch";
@@ -134,8 +134,8 @@ static void testTwoHorizontal1() {
 
 static void testTwoVertical0() {
 	const vector<Point> points{Point{1, -4}, Point{1, 4}};
-	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect(points);
+	const vector<Point> actual = makeConvexHull(points);
+	const vector<Point> expect = points;
 	if (actual != expect)
 		throw "Value mismatch";
 }
@@ -143,7 +143,7 @@ static void testTwoVertical0() {
 
 static void testTwoVertical1() {
 	const vector<Point> points{Point{-1, 2}, Point{-1, -3}};
-	const vector<Point> actual(makeConvexHull(points));
+	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect{Point{-1, -3}, Point{-1, 2}};
 	if (actual != expect)
 		throw "Value mismatch";
@@ -152,8 +152,8 @@ static void testTwoVertical1() {
 
 static void testTwoDiagonal0() {
 	const vector<Point> points{Point{-2, -3}, Point{2, 0}};
-	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect(points);
+	const vector<Point> actual = makeConvexHull(points);
+	const vector<Point> expect = points;
 	if (actual != expect)
 		throw "Value mismatch";
 }
@@ -161,8 +161,8 @@ static void testTwoDiagonal0() {
 
 static void testTwoDiagonal1() {
 	const vector<Point> points{Point{-2, 3}, Point{2, 0}};
-	const vector<Point> actual(makeConvexHull(points));
-	const vector<Point> expect(points);
+	const vector<Point> actual = makeConvexHull(points);
+	const vector<Point> expect = points;
 	if (actual != expect)
 		throw "Value mismatch";
 }
@@ -170,7 +170,7 @@ static void testTwoDiagonal1() {
 
 static void testRectangle() {
 	const vector<Point> points{Point{-3, 2}, Point{1, 2}, Point{1, -4}, Point{-3, -4}};
-	const vector<Point> actual(makeConvexHull(points));
+	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect{Point{-3, -4}, Point{-3, 2}, Point{1, 2}, Point{1, -4}};
 	if (actual != expect)
 		throw "Value mismatch";
@@ -197,9 +197,9 @@ static void testHorizontalRandomly() {
 				points.push_back(Point{static_cast<double>(valDist(randGen)), y});
 		}
 		
-		const vector<Point> actual(makeConvexHull(points));
+		const vector<Point> actual = makeConvexHull(points);
 		vector<Point> expected{*std::min_element(points.cbegin(), points.cend())};
-		const Point &temp(*std::max_element(points.cbegin(), points.cend()));
+		const Point &temp = *std::max_element(points.cbegin(), points.cend());
 		if (temp != expected.front())
 			expected.push_back(temp);
 		if (actual != expected)
@@ -225,9 +225,9 @@ static void testVerticalRandomly() {
 				points.push_back(Point{x, static_cast<double>(valDist(randGen))});
 		}
 		
-		const vector<Point> actual(makeConvexHull(points));
+		const vector<Point> actual = makeConvexHull(points);
 		vector<Point> expected{*std::min_element(points.cbegin(), points.cend())};
-		const Point &temp(*std::max_element(points.cbegin(), points.cend()));
+		const Point &temp = *std::max_element(points.cbegin(), points.cend());
 		if (temp != expected.front())
 			expected.push_back(temp);
 		if (actual != expected)
@@ -251,8 +251,8 @@ static void testVsNaiveRandomly() {
 				points.push_back(Point{static_cast<double>(valDist(randGen)), static_cast<double>(valDist(randGen))});
 		}
 		
-		const vector<Point> actual(makeConvexHull(points));
-		const vector<Point> expected(makeHullNaive(points));
+		const vector<Point> actual = makeConvexHull(points);
+		const vector<Point> expected = makeHullNaive(points);
 		if (actual != expected)
 			throw "Value mismatch";
 	}
@@ -278,7 +278,7 @@ static void testHullPropertiesRandomly() {
 		}
 		
 		// Compute hull and check properties
-		const vector<Point> hull(makeConvexHull(points));
+		const vector<Point> hull = makeConvexHull(points);
 		if (!isPolygonConvex(hull))
 			throw "Polygon not convex";
 		for (const Point &p : points) {
@@ -293,7 +293,7 @@ static void testHullPropertiesRandomly() {
 				std::uniform_int_distribution<size_t> sizeDist(0, points.size() - 1);
 				points.push_back(points.at(sizeDist(randGen)));
 			}
-			const vector<Point> nextHull(makeConvexHull(points));
+			const vector<Point> nextHull = makeConvexHull(points);
 			if (nextHull != hull)
 				throw "Value mismatch";
 		}
@@ -329,9 +329,9 @@ static vector<Point> makeHullNaive(const vector<Point> &points) {
 static bool isPolygonConvex(const vector<Point> &points) {
 	int state = 0;
 	for (size_t i = 0; i + 2 < points.size(); i++) {
-		const Point &p(points.at(i + 0));
-		const Point &q(points.at(i + 1));
-		const Point &r(points.at(i + 2));
+		const Point &p = points.at(i + 0);
+		const Point &q = points.at(i + 1);
+		const Point &r = points.at(i + 2);
 		int sign = signum((q.x - p.x) * (r.y - q.y) - (q.y - p.y) * (r.x - q.x));
 		if (sign == 0)
 			continue;
@@ -347,8 +347,8 @@ static bool isPolygonConvex(const vector<Point> &points) {
 static bool isPointInConvexPolygon(const vector<Point> &polygon, const Point &point) {
 	int state = 0;
 	for (size_t i = 0; i < polygon.size(); i++) {
-		const Point &p(polygon.at(i));
-		const Point &q(polygon.at((i + 1) % polygon.size()));
+		const Point &p = polygon.at(i);
+		const Point &q = polygon.at((i + 1) % polygon.size());
 		int sign = signum((q.x - p.x) * (point.y - q.y) - (q.y - p.y) * (point.x - q.x));
 		if (sign == 0)
 			continue;

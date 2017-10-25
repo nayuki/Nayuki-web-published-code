@@ -95,15 +95,15 @@ int main() {
 
 
 static void testFft(int n) {
-	vector<double> inputreal(randomReals(n));
-	vector<double> inputimag(randomReals(n));
+	vector<double> inputreal = randomReals(n);
+	vector<double> inputimag = randomReals(n);
 	
 	vector<double> refoutreal(n);
 	vector<double> refoutimag(n);
 	naiveDft(inputreal, inputimag, refoutreal, refoutimag, false);
 	
-	vector<double> actualoutreal(inputreal);
-	vector<double> actualoutimag(inputimag);
+	vector<double> actualoutreal = inputreal;
+	vector<double> actualoutimag = inputimag;
 	Fft::transform(actualoutreal, actualoutimag);
 	
 	cout << "fftsize=" << std::setw(4) << std::setfill(' ') << n << "  "
@@ -113,10 +113,10 @@ static void testFft(int n) {
 
 
 static void testConvolution(int n) {
-	vector<double> input0real(randomReals(n));
-	vector<double> input0imag(randomReals(n));
-	vector<double> input1real(randomReals(n));
-	vector<double> input1imag(randomReals(n));
+	vector<double> input0real = randomReals(n);
+	vector<double> input0imag = randomReals(n);
+	vector<double> input1real = randomReals(n);
+	vector<double> input1imag = randomReals(n);
 	
 	vector<double> refoutreal(n);
 	vector<double> refoutimag(n);
