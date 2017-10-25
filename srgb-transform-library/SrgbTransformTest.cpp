@@ -39,7 +39,7 @@ static void testForwardInverse() {
 	std::uniform_real_distribution<double> dist(0.0, 1.0);
 	for (long i = 0; i < TRIALS; i++) {
 		double xd = dist(randGen);
-		float xf = (float)xd;
+		float xf = static_cast<float>(xd);
 		double yd = SrgbTransform::srgbToLinear(xd);
 		float yf = SrgbTransform::srgbToLinear(xf);
 		double zd = SrgbTransform::linearToSrgb(xd);
@@ -63,8 +63,8 @@ static void testMonotonicity() {
 			xd = yd;
 			yd = temp;
 		}
-		float xf = (float)xd;
-		float yf = (float)yd;
+		float xf = static_cast<float>(xd);
+		float yf = static_cast<float>(yd);
 		if (yd - xd > DELTA) {
 			assert(SrgbTransform::srgbToLinear(xd) <= SrgbTransform::srgbToLinear(yd));
 			assert(SrgbTransform::linearToSrgb(xd) <= SrgbTransform::linearToSrgb(yd));

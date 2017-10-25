@@ -136,8 +136,7 @@ static vector<complex<double> > naiveDft(const vector<complex<double> > &input, 
 static vector<complex<double> > naiveConvolve(
 		const vector<complex<double> > &xvec, const vector<complex<double> > &yvec) {
 	int n = static_cast<int>(xvec.size());
-	vector<complex<double> > outvec(n);
-	std::fill(outvec.begin(), outvec.end(), complex<double>(0, 0));
+	vector<complex<double> > outvec(n);  // All zeros
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			int k = (i + j) % n;
