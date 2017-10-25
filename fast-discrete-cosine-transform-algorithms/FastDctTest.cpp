@@ -67,14 +67,14 @@ int main() {
 
 static void testFastDctLeeVsNaive() {
 	for (size_t len = 1; len <= (1UL << 13) && len != 0; len *= 2) {
-		vector<double> vec = randomVector(len);
+		const vector<double> vec = randomVector(len);
 		{
-			vector<double> expect = NaiveDct::transform(vec);
+			const vector<double> expect = NaiveDct::transform(vec);
 			vector<double> actual = vec;
 			FastDctLee::transform(actual);
 			assertArrayEquals(expect, actual, EPSILON);
 		} {
-			vector<double> expect = NaiveDct::inverseTransform(vec);
+			const vector<double> expect = NaiveDct::inverseTransform(vec);
 			vector<double> actual = vec;
 			FastDctLee::inverseTransform(actual);
 			assertArrayEquals(expect, actual, EPSILON);
@@ -85,7 +85,7 @@ static void testFastDctLeeVsNaive() {
 
 static void testFastDctLeeInvertibility() {
 	for (size_t len = 1; len <= (1UL << 22) && len != 0; len *= 2) {
-		vector<double> vec = randomVector(len);
+		const vector<double> vec = randomVector(len);
 		vector<double> temp = vec;
 		FastDctLee::transform(temp);
 		FastDctLee::inverseTransform(temp);
@@ -98,7 +98,7 @@ static void testFastDctLeeInvertibility() {
 
 static void testFastDct8VsNaive() {
 	size_t len = 8;
-	vector<double> vec = randomVector(len);
+	const vector<double> vec = randomVector(len);
 	{
 		vector<double> expect = NaiveDct::transform(vec);
 		for (size_t i = 0; i < len; i++)
@@ -110,7 +110,7 @@ static void testFastDct8VsNaive() {
 		vector<double> temp = vec;
 		for (size_t i = 0; i < len; i++)
 			temp.at(i) /= std::sqrt(4 / (i == 0 ? 2 : 1));
-		vector<double> expect = NaiveDct::inverseTransform(temp);
+		const vector<double> expect = NaiveDct::inverseTransform(temp);
 		vector<double> actual = vec;
 		FastDct8::inverseTransform(actual.data());
 		assertArrayEquals(expect, actual, EPSILON);
@@ -125,14 +125,14 @@ static void testFastDctFftVsNaive() {
 		if (len <= prev)
 			continue;
 		prev = len;
-		vector<double> vec = randomVector(len);
+		const vector<double> vec = randomVector(len);
 		{
-			vector<double> expect = NaiveDct::transform(vec);
+			const vector<double> expect = NaiveDct::transform(vec);
 			vector<double> actual = vec;
 			FastDctFft::transform(actual);
 			assertArrayEquals(expect, actual, EPSILON);
 		} {
-			vector<double> expect = NaiveDct::inverseTransform(vec);
+			const vector<double> expect = NaiveDct::inverseTransform(vec);
 			vector<double> actual = vec;
 			FastDctFft::inverseTransform(actual);
 			assertArrayEquals(expect, actual, EPSILON);
@@ -148,7 +148,7 @@ static void testFastDctFftInvertibility() {
 		if (len <= prev)
 			continue;
 		prev = len;
-		vector<double> vec = randomVector(len);
+		const vector<double> vec = randomVector(len);
 		vector<double> temp = vec;
 		FastDctFft::transform(temp);
 		FastDctFft::inverseTransform(temp);

@@ -93,8 +93,8 @@ int main() {
 
 
 static void testFft(int n) {
-	vector<complex<double> > input = randomComplexes(n);
-	vector<complex<double> > refout = naiveDft(input, false);
+	const vector<complex<double> > input = randomComplexes(n);
+	const vector<complex<double> > refout = naiveDft(input, false);
 	vector<complex<double> > actualout = input;
 	Fft::transform(actualout);
 	cout << "fftsize=" << std::setw(4) << std::setfill(' ') << n << "  "
@@ -104,9 +104,9 @@ static void testFft(int n) {
 
 
 static void testConvolution(int n) {
-	vector<complex<double> > input0 = randomComplexes(n);
-	vector<complex<double> > input1 = randomComplexes(n);
-	vector<complex<double> > refout = naiveConvolve(input0, input1);
+	const vector<complex<double> > input0 = randomComplexes(n);
+	const vector<complex<double> > input1 = randomComplexes(n);
+	const vector<complex<double> > refout = naiveConvolve(input0, input1);
 	vector<complex<double> > actualout(n);
 	Fft::convolve(input0, input1, actualout);
 	cout << "convsize=" << std::setw(4) << std::setfill(' ') << n << "  "

@@ -95,8 +95,8 @@ int main() {
 
 
 static void testFft(int n) {
-	vector<double> inputreal = randomReals(n);
-	vector<double> inputimag = randomReals(n);
+	const vector<double> inputreal = randomReals(n);
+	const vector<double> inputimag = randomReals(n);
 	
 	vector<double> refoutreal(n);
 	vector<double> refoutimag(n);
@@ -113,10 +113,10 @@ static void testFft(int n) {
 
 
 static void testConvolution(int n) {
-	vector<double> input0real = randomReals(n);
-	vector<double> input0imag = randomReals(n);
-	vector<double> input1real = randomReals(n);
-	vector<double> input1imag = randomReals(n);
+	const vector<double> input0real = randomReals(n);
+	const vector<double> input0imag = randomReals(n);
+	const vector<double> input1real = randomReals(n);
+	const vector<double> input1imag = randomReals(n);
 	
 	vector<double> refoutreal(n);
 	vector<double> refoutimag(n);
