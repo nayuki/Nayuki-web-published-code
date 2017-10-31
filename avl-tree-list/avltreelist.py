@@ -61,6 +61,14 @@ class AvlTreeList(object):
 			self.append(val)
 	
 	
+	def pop(self, index):
+		if index is None:
+			index = len(self) - 1
+		result = self[index]
+		del self[index]
+		return result
+	
+	
 	def __delitem__(self, index):
 		if index < 0 or index >= len(self):
 			raise IndexError()
