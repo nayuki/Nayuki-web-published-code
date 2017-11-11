@@ -55,12 +55,12 @@ fn test_add() {
 	list.push("June");
 	list.check_structure();
 	assert_eq!(list.len(), 6);
-	assert_eq!(*list.get(0), "January" );
-	assert_eq!(*list.get(1), "February");
-	assert_eq!(*list.get(2), "March"   );
-	assert_eq!(*list.get(3), "April"   );
-	assert_eq!(*list.get(4), "May"     );
-	assert_eq!(*list.get(5), "June"    );
+	assert_eq!(list[0], "January" );
+	assert_eq!(list[1], "February");
+	assert_eq!(list[2], "March"   );
+	assert_eq!(list[3], "April"   );
+	assert_eq!(list[4], "May"     );
+	assert_eq!(list[5], "June"    );
 }
 
 
@@ -70,18 +70,18 @@ fn test_add_list() {
 	list.append(&mut vec!["February", "March", "April"]);
 	list.append(&mut vec!["May", "June", "July", "August", "September", "October", "November", "December"]);
 	assert_eq!(list.len(), 12);
-	assert_eq!(*list.get( 0), "January"  );
-	assert_eq!(*list.get( 1), "February" );
-	assert_eq!(*list.get( 2), "March"    );
-	assert_eq!(*list.get( 3), "April"    );
-	assert_eq!(*list.get( 4), "May"      );
-	assert_eq!(*list.get( 5), "June"     );
-	assert_eq!(*list.get( 6), "July"     );
-	assert_eq!(*list.get( 7), "August"   );
-	assert_eq!(*list.get( 8), "September");
-	assert_eq!(*list.get( 9), "October"  );
-	assert_eq!(*list.get(10), "November" );
-	assert_eq!(*list.get(11), "December" );
+	assert_eq!(list[ 0], "January"  );
+	assert_eq!(list[ 1], "February" );
+	assert_eq!(list[ 2], "March"    );
+	assert_eq!(list[ 3], "April"    );
+	assert_eq!(list[ 4], "May"      );
+	assert_eq!(list[ 5], "June"     );
+	assert_eq!(list[ 6], "July"     );
+	assert_eq!(list[ 7], "August"   );
+	assert_eq!(list[ 8], "September");
+	assert_eq!(list[ 9], "October"  );
+	assert_eq!(list[10], "November" );
+	assert_eq!(list[11], "December" );
 }
 
 
@@ -90,27 +90,27 @@ fn test_set() {
 	for _ in 0 .. 10 {
 		list.push("");
 	}
-	list.set(0, "zero");
-	list.set(1, "ten");
-	list.set(2, "twenty");
-	list.set(3, "thirty");
-	list.set(4, "forty");
-	list.set(5, "fifty");
-	list.set(6, "sixty");
-	list.set(7, "seventy");
-	list.set(8, "eighty");
-	list.set(9, "ninety");
+	list[0] = "zero";
+	list[1] = "ten";
+	list[2] = "twenty";
+	list[3] = "thirty";
+	list[4] = "forty";
+	list[5] = "fifty";
+	list[6] = "sixty";
+	list[7] = "seventy";
+	list[8] = "eighty";
+	list[9] = "ninety";
 	assert_eq!(list.len(), 10);
-	assert_eq!(*list.get(0), "zero"   );
-	assert_eq!(*list.get(1), "ten"    );
-	assert_eq!(*list.get(2), "twenty" );
-	assert_eq!(*list.get(3), "thirty" );
-	assert_eq!(*list.get(4), "forty"  );
-	assert_eq!(*list.get(5), "fifty"  );
-	assert_eq!(*list.get(6), "sixty"  );
-	assert_eq!(*list.get(7), "seventy");
-	assert_eq!(*list.get(8), "eighty" );
-	assert_eq!(*list.get(9), "ninety" );
+	assert_eq!(list[0], "zero"   );
+	assert_eq!(list[1], "ten"    );
+	assert_eq!(list[2], "twenty" );
+	assert_eq!(list[3], "thirty" );
+	assert_eq!(list[4], "forty"  );
+	assert_eq!(list[5], "fifty"  );
+	assert_eq!(list[6], "sixty"  );
+	assert_eq!(list[7], "seventy");
+	assert_eq!(list[8], "eighty" );
+	assert_eq!(list[9], "ninety" );
 }
 
 
@@ -120,9 +120,9 @@ fn test_insert_at_beginning() {
 	list.insert(0, "Monday");
 	list.insert(0, "Tuesday");
 	assert_eq!(list.len(), 3);
-	assert_eq!(*list.get(0), "Tuesday");
-	assert_eq!(*list.get(1), "Monday" );
-	assert_eq!(*list.get(2), "Sunday" );
+	assert_eq!(list[0], "Tuesday");
+	assert_eq!(list[1], "Monday" );
+	assert_eq!(list[2], "Sunday" );
 }
 
 
@@ -133,10 +133,10 @@ fn test_insert_at_end() {
 	list.insert(2, "Thursday");
 	list.insert(3, "Wednesday");
 	assert_eq!(list.len(), 4);
-	assert_eq!(*list.get(0), "Saturday" );
-	assert_eq!(*list.get(1), "Friday"   );
-	assert_eq!(*list.get(2), "Thursday" );
-	assert_eq!(*list.get(3), "Wednesday");
+	assert_eq!(list[0], "Saturday" );
+	assert_eq!(list[1], "Friday"   );
+	assert_eq!(list[2], "Thursday" );
+	assert_eq!(list[3], "Wednesday");
 }
 
 
@@ -149,12 +149,12 @@ fn test_insert_at_middle() {
 	list.insert(1, "Front");
 	list.insert(2, "Back");
 	assert_eq!(list.len(), 6);
-	assert_eq!(*list.get(0), "Up"   );
-	assert_eq!(*list.get(1), "Front");
-	assert_eq!(*list.get(2), "Back" );
-	assert_eq!(*list.get(3), "Left" );
-	assert_eq!(*list.get(4), "Right");
-	assert_eq!(*list.get(5), "Down" );
+	assert_eq!(list[0], "Up"   );
+	assert_eq!(list[1], "Front");
+	assert_eq!(list[2], "Back" );
+	assert_eq!(list[3], "Left" );
+	assert_eq!(list[4], "Right");
+	assert_eq!(list[5], "Down" );
 }
 
 
@@ -165,21 +165,21 @@ fn test_insert_list() {
 	list.append_at(4, &mut vec!["8", "13", "21", "144", "233"]);
 	list.append_at(7, &mut vec!["34", "55", "89"]);
 	assert_eq!(list.len(), 15);
-	assert_eq!(*list.get( 0),  "1");
-	assert_eq!(*list.get( 1),  "2");
-	assert_eq!(*list.get( 2),  "3");
-	assert_eq!(*list.get( 3),  "5");
-	assert_eq!(*list.get( 4),  "8");
-	assert_eq!(*list.get( 5), "13");
-	assert_eq!(*list.get( 6), "21");
-	assert_eq!(*list.get( 7), "34");
-	assert_eq!(*list.get( 8), "55");
-	assert_eq!(*list.get( 9), "89");
-	assert_eq!(*list.get(10), "144");
-	assert_eq!(*list.get(11), "233");
-	assert_eq!(*list.get(12), "377");
-	assert_eq!(*list.get(13), "610");
-	assert_eq!(*list.get(14), "987");
+	assert_eq!(list[ 0],  "1");
+	assert_eq!(list[ 1],  "2");
+	assert_eq!(list[ 2],  "3");
+	assert_eq!(list[ 3],  "5");
+	assert_eq!(list[ 4],  "8");
+	assert_eq!(list[ 5], "13");
+	assert_eq!(list[ 6], "21");
+	assert_eq!(list[ 7], "34");
+	assert_eq!(list[ 8], "55");
+	assert_eq!(list[ 9], "89");
+	assert_eq!(list[10], "144");
+	assert_eq!(list[11], "233");
+	assert_eq!(list[12], "377");
+	assert_eq!(list[13], "610");
+	assert_eq!(list[14], "987");
 }
 
 
@@ -192,7 +192,7 @@ fn test_insert_many_beginning() {
 	}
 	
 	for i in 0 .. n {
-		assert_eq!(*list.get(i as usize), i);
+		assert_eq!(list[i as usize], i);
 	}
 }
 
@@ -206,7 +206,7 @@ fn test_insert_many_end() {
 	}
 	
 	for i in 0 .. n {
-		assert_eq!(*list.get(i as usize), i);
+		assert_eq!(list[i as usize], i);
 	}
 }
 
@@ -227,7 +227,7 @@ fn test_insert_many_everywhere() {
 	}
 	
 	for i in 0 .. list.len() {
-		assert_eq!(*list.get(i), i as i32);
+		assert_eq!(list[i], i as i32);
 	}
 }
 
@@ -265,10 +265,8 @@ fn test_remove() {
 	
 	let s = "thick broom or they do";
 	assert_eq!(list.len(), s.len());
-	let mut i: usize = 0;
-	for c in s.chars() {
-		assert_eq!(*list.get(i), c);
-		i += 1;
+	for (i, c) in (0usize .. ).zip(s.chars()) {
+		assert_eq!(list[i], c);
 	}
 	
 	assert_eq!(list.remove(0), 't');
@@ -288,10 +286,8 @@ fn test_remove() {
 	assert_eq!(list.remove(6), 'y');
 	
 	let s = "him red";
-	let mut i: usize = 0;
-	for c in s.chars() {
-		assert_eq!(*list.get(i), c);
-		i += 1;
+	for (i, c) in (0usize .. ).zip(s.chars()) {
+		assert_eq!(list[i], c);
 	}
 }
 
@@ -309,9 +305,9 @@ fn test_clear() {
 	list.push(- 8);
 	list.push(-27);
 	assert_eq!(list.len(), 3);
-	assert_eq!(*list.get(0), - 1);
-	assert_eq!(*list.get(1), - 8);
-	assert_eq!(*list.get(2), -27);
+	assert_eq!(list[0], - 1);
+	assert_eq!(list[1], - 8);
+	assert_eq!(list[2], -27);
 }
 
 
@@ -339,7 +335,7 @@ fn test_against_rust_vec_randomly() {
 				let index = Range::new(0, size).ind_sample(&mut rng);
 				let val = valuedist.ind_sample(&mut rng);
 				list0[index] = val;
-				list1.set(index, val);
+				list1[index] = val;
 			}
 			
 		} else if op < 30 {  // Random insertion
@@ -409,7 +405,7 @@ fn test_against_rust_vec_randomly() {
 			let indexdist = Range::new(0, size);
 			for _ in 0 .. 10 {
 				let index = indexdist.ind_sample(&mut rng);
-				assert_eq!(list0[index], *list1.get(index));
+				assert_eq!(list0[index], list1[index]);
 			}
 		}
 	}

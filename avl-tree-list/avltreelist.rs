@@ -43,18 +43,6 @@ impl <E> AvlTreeList<E> {
 	}
 	
 	
-	pub fn get(&self, index: usize) -> &E {
-		assert!(index < self.len(), "Index out of bounds");
-		&self.root.get_at(index)
-	}
-	
-	
-	pub fn set(&mut self, index: usize, val: E) {
-		assert!(index < self.len(), "Index out of bounds");
-		self.root.set_at(index, val);
-	}
-	
-	
 	pub fn push(&mut self, val: E) {
 		let index = self.len();
 		self.insert(index, val);
@@ -104,6 +92,24 @@ impl <E> AvlTreeList<E> {
 		self.root.check_structure();
 	}
 	
+}
+
+
+impl <E> std::ops::Index<usize> for AvlTreeList<E> {
+	type Output = E;
+	
+	fn index(&self, index: usize) -> &E {
+		assert!(index < self.len(), "Index out of bounds");
+		&self.root.get_at(index)
+	}
+}
+
+
+impl <E> std::ops::IndexMut<usize> for AvlTreeList<E> {
+	fn index_mut(&mut self, index: usize) -> &mut E {
+		assert!(index < self.len(), "Index out of bounds");
+		self.root.get_at_mut(index)
+	}
 }
 
 
@@ -161,28 +167,28 @@ impl <E> Node<E> {
 				} else if index > leftsize {
 					right.get_at(index - leftsize - 1)
 				} else {
-					&value
+					value
 				}
 			},
 		}
 	}
 	
 	
-	fn set_at(&mut self, index: usize, val: E) {
+	fn get_at_mut(&mut self, index: usize) -> &mut E {
 		match *self {
 			Node::EmptyLeafNode => panic!("Assertion error"),
 			Node::InternalNode(ref mut value, _, size, ref mut left, ref mut right) => {
 				assert!(index < size, "Assertion error");
 				let leftsize = left.size();
 				if index < leftsize {
-					left.set_at(index, val)
+					left.get_at_mut(index)
 				} else if index > leftsize {
-					right.set_at(index - leftsize - 1, val)
+					right.get_at_mut(index - leftsize - 1)
 				} else {
-					*value = val;
+					value
 				}
 			},
-		};
+		}
 	}
 	
 	
