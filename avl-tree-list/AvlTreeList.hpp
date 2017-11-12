@@ -57,17 +57,27 @@ class AvlTreeList final {
 	}
 	
 	
-	public: E &at(std::size_t index) {
+	public: E &operator[](std::size_t index) {
 		if (index >= size())
 			throw "Index out of bounds";
 		return root->getNodeAt(index)->value;
 	}
 	
 	
-	public: const E &at(std::size_t index) const {
+	public: const E &operator[](std::size_t index) const {
 		if (index >= size())
 			throw "Index out of bounds";
 		return root->getNodeAt(index)->value;
+	}
+	
+	
+	public: void push_back(const E &val) {
+		insert(size(), val);
+	}
+	
+	
+	public: void push_back(E &&val) {
+		insert(size(), std::move(val));
 	}
 	
 	
@@ -108,6 +118,7 @@ class AvlTreeList final {
 	
 	// For unit tests.
 	public: void checkStructure() const {
+		assert(root != nullptr);
 		std::set<const Node*> visited;
 		root->checkStructure(visited);
 	}

@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-import random, sys
+import random, sys, unittest
 if sys.version_info.major == 2:
 	import Queue as queue
 else:
@@ -29,69 +29,111 @@ else:
 import binomialheap
 
 
-# Comprehensively tests all the defined methods against Python's built-in queue.PriorityQueue class
-def main():
-	ITERATIONS = 10000
-	que = queue.PriorityQueue()
-	heap = binomialheap.BinomialHeap()
-	length = 0
-	for i in range(ITERATIONS):
-		if i % 300 == 0:
-			print("Progress: {:.0%}".format(float(i) / ITERATIONS))
-		op = random.randrange(100)
-		
-		if op < 1:  # Clear
-			heap.check_structure()
-			for j in range(length):
-				if heap.dequeue() != que.get(False):
-					raise AssertionError()
-			if not que.empty():
-				raise AssertionError()
-			length = 0
-			
-		elif op < 2:  # Peek
-			heap.check_structure()
-			if length > 0:
-				val = que.get(False)
-				if heap.peek() != val:
-					raise AssertionError()
-				que.put(val)
-			
-		elif op < 60:  # Add
-			n = random.randint(1, 100)
-			for j in range(n):
-				val = random.randrange(10000)
-				que.put(val)
-				heap.enqueue(val)
-			length += n
-			
-		elif op < 70:  # Merge
-			n = random.randint(1, 100)
-			temp = binomialheap.BinomialHeap()
-			for j in range(n):
-				val = random.randrange(10000)
-				que.put(val)
-				temp.enqueue(val)
-			heap.merge(temp)
-			if len(temp) != 0:
-				raise AssertionError()
-			length += n
-			
-		elif op < 100:  # Remove
-			n = min(random.randint(1, 100), length)
-			for j in range(n):
-				if heap.dequeue() != que.get(False):
-					raise AssertionError()
-			length -= n
-			
-		else:
-			raise AssertionError()
-		
-		if len(heap) != length:
-			raise AssertionError()
+class BinomialHeapTest(unittest.TestCase):
 	
-	print("Test passed")
+	def test_size_1(self):
+		h = binomialheap.BinomialHeap()
+		h.enqueue(3)
+		self.assertEqual(1, len(h))
+		self.assertEqual(3, h.peek())
+		self.assertEqual(3, h.dequeue())
+		self.assertEqual(0, len(h))
+	
+	
+	def test_size_2(self):
+		h = binomialheap.BinomialHeap()
+		h.enqueue(4)
+		h.enqueue(2)
+		self.assertEqual(2, len(h))
+		self.assertEqual(2, h.peek())
+		self.assertEqual(2, h.dequeue())
+		self.assertEqual(1, len(h))
+		self.assertEqual(4, h.peek())
+		self.assertEqual(4, h.dequeue())
+		self.assertEqual(0, len(h))
+	
+	
+	def test_size_7(self):
+		h = binomialheap.BinomialHeap()
+		h.enqueue(2)
+		h.enqueue(7)
+		h.enqueue(1)
+		h.enqueue(8)
+		h.enqueue(3)
+		h.enqueue(1)
+		h.enqueue(4)
+		self.assertEqual(7, len(h))
+		self.assertEqual(1, h.dequeue());  self.assertEqual(6, len(h))
+		self.assertEqual(1, h.dequeue());  self.assertEqual(5, len(h))
+		self.assertEqual(2, h.dequeue());  self.assertEqual(4, len(h))
+		self.assertEqual(3, h.dequeue());  self.assertEqual(3, len(h))
+		self.assertEqual(4, h.dequeue());  self.assertEqual(2, len(h))
+		self.assertEqual(7, h.dequeue());  self.assertEqual(1, len(h))
+		self.assertEqual(8, h.dequeue());  self.assertEqual(0, len(h))
+	
+	
+	# Comprehensively tests all the defined methods
+	def test_against_python_priority_queue_randomly(self):
+		ITERATIONS = 10000
+		que = queue.PriorityQueue()
+		heap = binomialheap.BinomialHeap()
+		length = 0
+		for i in range(ITERATIONS):
+			if i % 300 == 0:
+				print("Progress: {:.0%}".format(float(i) / ITERATIONS))
+			op = random.randrange(100)
+			
+			if op < 1:  # Clear
+				heap.check_structure()
+				for j in range(length):
+					if heap.dequeue() != que.get(False):
+						raise AssertionError()
+				if not que.empty():
+					raise AssertionError()
+				length = 0
+				
+			elif op < 2:  # Peek
+				heap.check_structure()
+				if length > 0:
+					val = que.get(False)
+					if heap.peek() != val:
+						raise AssertionError()
+					que.put(val)
+				
+			elif op < 60:  # Add
+				n = random.randint(1, 100)
+				for j in range(n):
+					val = random.randrange(10000)
+					que.put(val)
+					heap.enqueue(val)
+				length += n
+				
+			elif op < 70:  # Merge
+				n = random.randint(1, 100)
+				temp = binomialheap.BinomialHeap()
+				for j in range(n):
+					val = random.randrange(10000)
+					que.put(val)
+					temp.enqueue(val)
+				heap.merge(temp)
+				if len(temp) != 0:
+					raise AssertionError()
+				length += n
+				
+			elif op < 100:  # Remove
+				n = min(random.randint(1, 100), length)
+				for j in range(n):
+					if heap.dequeue() != que.get(False):
+						raise AssertionError()
+				length -= n
+				
+			else:
+				raise AssertionError()
+			
+			if len(heap) != length:
+				raise AssertionError()
+
 
 
 if __name__ == "__main__":
-	main()
+	unittest.main()

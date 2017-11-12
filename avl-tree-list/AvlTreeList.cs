@@ -66,6 +66,11 @@ public sealed class AvlTreeList<E> {
 	}
 	
 	
+	public void Add(E val) {
+		Insert(Count, val);
+	}
+	
+	
 	public void Insert(int index, E val) {
 		if (index < 0 || index > Count)  // Different constraint than the other methods
 			throw new IndexOutOfRangeException();
@@ -75,7 +80,7 @@ public sealed class AvlTreeList<E> {
 	}
 	
 	
-	public void  RemoveAt(int index) {
+	public void RemoveAt(int index) {
 		if (index < 0 || index >= Count)
 			throw new IndexOutOfRangeException();
 		root = root.RemoveAt(index);
