@@ -87,9 +87,9 @@ class BinomialHeap(object):
 		other.head.next = None
 	
 	
-	# 'other' must be a bare node with no initial dummy node
 	def _merge(self, other):
 		assert self.head.rank == -1
+		assert other is None or other.rank >= 0
 		this = self.head.next
 		self.head.next = None
 		prevtail = None
@@ -139,7 +139,7 @@ class BinomialHeap(object):
 		if head.next is not None:
 			if head.next.rank <= head.rank:
 				raise AssertionError()
-			head.next.check_structure(True)
+			head.next.check_structure(True, None)
 	
 	
 	
@@ -168,18 +168,22 @@ class BinomialHeap(object):
 		
 		
 		# For unit tests
-		def check_structure(self, ismain):
+		def check_structure(self, ismain, lowerbound):
 			if self.value is None or self.rank < 0:
+				raise AssertionError()
+			if ismain ^ (lowerbound is None):
+				raise AssertionError()
+			if not ismain and self.value < lowerbound:
 				raise AssertionError()
 			if self.rank >= 1:
 				if self.down is None or self.down.rank != self.rank - 1:
 					raise AssertionError()
-				self.down.check_structure(False)
+				self.down.check_structure(False, self.value)
 				if not ismain:
 					if self.next is None or self.next.rank != self.rank - 1:
 						raise AssertionError()
-					self.next.check_structure(False)
+					self.next.check_structure(False, lowerbound)
 			if ismain and self.next is not None:
 				if self.next.rank <= self.rank:
 					raise AssertionError()
-				self.next.check_structure(True)
+				self.next.check_structure(True, None)

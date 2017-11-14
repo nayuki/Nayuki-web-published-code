@@ -112,9 +112,9 @@ class BinomialHeap final {
 	}
 	
 	
-	// 'other' must not start with a dummy node
 	private: void merge(Node *other) {
 		assert(head.rank == -1);
+		assert(other == nullptr || other->rank >= 0);
 		Node *self = head.next;
 		head.next = nullptr;
 		Node *prevTail = nullptr;
@@ -177,7 +177,7 @@ class BinomialHeap final {
 		if (head.next != nullptr) {
 			if (head.next->rank <= head.rank)
 				throw "Assertion error";
-			head.next->checkStructure(true);
+			head.next->checkStructure(true, nullptr);
 		}
 	}
 	
@@ -240,23 +240,27 @@ class BinomialHeap final {
 		
 		
 		// For unit tests
-		public: void checkStructure(bool isMain) const {
+		public: void checkStructure(bool isMain, const E *lowerBound) const {
 			if (rank < 0)
+				throw "Assertion error";
+			if (isMain ^ (lowerBound == nullptr))
+				throw "Assertion error";
+			if (!isMain && value < *lowerBound)
 				throw "Assertion error";
 			if (rank >= 1) {
 				if (down == nullptr || down->rank != rank - 1)
 					throw "Assertion error";
-				down->checkStructure(false);
+				down->checkStructure(false, &value);
 				if (!isMain) {
 					if (next == nullptr || next->rank != rank - 1)
 						throw "Assertion error";
-					next->checkStructure(false);
+					next->checkStructure(false, lowerBound);
 				}
 			}
 			if (isMain && next != nullptr) {
 				if (next->rank <= rank)
 					throw "Assertion error";
-				next->checkStructure(true);
+				next->checkStructure(true, nullptr);
 			}
 		}
 		

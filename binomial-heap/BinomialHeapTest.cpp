@@ -60,7 +60,6 @@ static void testSize2() {
 	assertEquals(h.top(), 4);
 	assertEquals(h.pop(), 4);
 	assertEquals(h.size(), static_cast<size_t>(0));
-	
 }
 
 

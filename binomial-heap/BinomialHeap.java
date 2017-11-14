@@ -23,6 +23,7 @@
 
 import java.util.AbstractQueue;
 import java.util.Iterator;
+import java.util.Objects;
 
 
 public final class BinomialHeap<E extends Comparable<? super E>> extends AbstractQueue<E> {
@@ -60,6 +61,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	
 	
 	public boolean offer(E val) {
+		Objects.requireNonNull(val);
 		merge(new Node<E>(val));
 		return true;
 	}
@@ -111,9 +113,9 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	}
 	
 	
-	// 'other' must not start with a dummy node
 	private void merge(Node<E> other) {
 		assert head.rank == -1;
+		assert other == null || other.rank >= 0;
 		Node<E> self = head.next;
 		head.next = null;
 		Node<E> prevTail = null;
@@ -167,7 +169,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		if (head.next != null) {
 			if (head.next.rank <= head.rank)
 				throw new AssertionError();
-			head.next.checkStructure(true);
+			head.next.checkStructure(true, null);
 		}
 	}
 	
@@ -175,7 +177,7 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	
 	/*---- Helper class: Binomial heap node ----*/
 	
-	private static final class Node<E> {
+	private static final class Node<E extends Comparable<? super E>> {
 		
 		/*-- Fields --*/
 		
@@ -221,23 +223,27 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		
 		
 		// For unit tests
-		void checkStructure(boolean isMain) {
+		void checkStructure(boolean isMain, E lowerBound) {
 			if (value == null || rank < 0)
+				throw new AssertionError();
+			if (isMain ^ (lowerBound == null))
+				throw new AssertionError();
+			if (!isMain && value.compareTo(lowerBound) < 0)
 				throw new AssertionError();
 			if (rank >= 1) {
 				if (down == null || down.rank != rank - 1)
 					throw new AssertionError();
-				down.checkStructure(false);
+				down.checkStructure(false, value);
 				if (!isMain) {
 					if (next == null || next.rank != rank - 1)
 						throw new AssertionError();
-					next.checkStructure(false);
+					next.checkStructure(false, lowerBound);
 				}
 			}
 			if (isMain && next != null) {
 				if (next.rank <= rank)
 					throw new AssertionError();
-				next.checkStructure(true);
+				next.checkStructure(true, null);
 			}
 		}
 		

@@ -51,7 +51,6 @@ public final class BinomialHeapTest {
 		assertEquals(4, (int)h.element());
 		assertEquals(4, (int)h.remove());
 		assertEquals(0, h.size());
-		
 	}
 	
 	
