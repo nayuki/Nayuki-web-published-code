@@ -30,7 +30,8 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	
 	/*---- Fields ----*/
 	
-	private Node<E> head;
+	// Only the reference is fixed; all the contents are mutable
+	private final Node<E> head;
 	
 	
 	
@@ -44,11 +45,18 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	
 	/*---- Methods ----*/
 	
+	public boolean isEmpty() {
+		return head.next == null;
+	}
+	
+	
 	public int size() {
 		int result = 0;
 		for (Node<?> node = head.next; node != null; node = node.next) {
-			if (node.rank >= 31)
-				throw new ArithmeticException("Size overflow");  // The result cannot be returned, however the data structure is still valid
+			if (node.rank >= 31) {
+				// The result cannot be returned, however the data structure is still valid
+				throw new ArithmeticException("Size overflow");
+			}
 			result |= 1 << node.rank;
 		}
 		return result;
@@ -82,11 +90,15 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 			return null;
 		E min = null;
 		Node<E> nodeBeforeMin = null;
-		for (Node<E> node = head.next, prevNode = head; node != null; prevNode = node, node = node.next) {
+		for (Node<E> prevNode = head; ; ) {
+			Node<E> node = prevNode.next;
+			if (node == null)
+				break;
 			if (min == null || node.value.compareTo(min) < 0) {
 				min = node.value;
 				nodeBeforeMin = prevNode;
 			}
+			prevNode = node;
 		}
 		assert min != null && nodeBeforeMin != null;
 		
@@ -114,7 +126,6 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	
 	
 	private void merge(Node<E> other) {
-		assert head.rank == -1;
 		assert other == null || other.rank >= 0;
 		Node<E> self = head.next;
 		head.next = null;
@@ -165,12 +176,9 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 	// For unit tests
 	void checkStructure() {
 		if (head.value != null || head.rank != -1)
-			throw new AssertionError();
-		if (head.next != null) {
-			if (head.next.rank <= head.rank)
-				throw new AssertionError();
-			head.next.checkStructure(true, null);
-		}
+			throw new AssertionError("Head must be dummy node");
+		// Check chain of nodes and their children
+		head.checkStructure(true, null);
 	}
 	
 	
@@ -224,25 +232,31 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		
 		// For unit tests
 		void checkStructure(boolean isMain, E lowerBound) {
-			if (value == null || rank < 0)
-				throw new AssertionError();
+			// Basic checks
+			if ((rank < 0) ^ (value == null))
+				throw new AssertionError("Invalid node rank or value");
 			if (isMain ^ (lowerBound == null))
-				throw new AssertionError();
+				throw new AssertionError("Invalid arguments");
 			if (!isMain && value.compareTo(lowerBound) < 0)
-				throw new AssertionError();
-			if (rank >= 1) {
+				throw new AssertionError("Min-heap property violated");
+			
+			// Check children and non-main chains
+			if (rank > 0) {
 				if (down == null || down.rank != rank - 1)
-					throw new AssertionError();
+					throw new AssertionError("Down node absent or has invalid rank");
 				down.checkStructure(false, value);
 				if (!isMain) {
 					if (next == null || next.rank != rank - 1)
-						throw new AssertionError();
+						throw new AssertionError("Next node absent or has invalid rank");
 					next.checkStructure(false, lowerBound);
 				}
-			}
+			} else if (down != null)
+				throw new AssertionError("Down node must be absent");
+			
+			// Check main chain
 			if (isMain && next != null) {
 				if (next.rank <= rank)
-					throw new AssertionError();
+					throw new AssertionError("Next node has invalid rank");
 				next.checkStructure(true, null);
 			}
 		}

@@ -1,7 +1,7 @@
 # 
 # Binomial heap (Python)
 # 
-# Copyright (c) 2014 Project Nayuki. (MIT License)
+# Copyright (c) 2017 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binomial-heap
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,6 +26,10 @@ class BinomialHeap(object):
 	
 	def __init__(self):
 		self.head = BinomialHeap.Node()  # Dummy node
+	
+	
+	def empty(self):
+		return self.head.next is None
 	
 	
 	def __len__(self):
@@ -63,13 +67,14 @@ class BinomialHeap(object):
 		min = None
 		nodebeforemin = None
 		prevnode = self.head
-		node = self.head.next
-		while node is not None:
+		while True:
+			node = prevnode.next
+			if node is None:
+				break
 			if min is None or node.value < min:
 				min = node.value
 				nodebeforemin = prevnode
 			prevnode = node
-			node = node.next
 		assert min is not None and nodebeforemin is not None
 		
 		minnode = nodebeforemin.next
@@ -135,13 +140,13 @@ class BinomialHeap(object):
 	def check_structure(self):
 		head = self.head
 		if head.value is not None or head.rank != -1:
-			raise AssertionError()
-		if head.next is not None:
-			if head.next.rank <= head.rank:
-				raise AssertionError()
-			head.next.check_structure(True, None)
+			raise AssertionError("Head must be dummy node")
+		# Check chain of nodes and their children
+		head.check_structure(True, None)
 	
 	
+	
+	# ---- Helper class: Binomial heap node ----
 	
 	class Node(object):
 		
@@ -169,21 +174,28 @@ class BinomialHeap(object):
 		
 		# For unit tests
 		def check_structure(self, ismain, lowerbound):
-			if self.value is None or self.rank < 0:
-				raise AssertionError()
+			# Basic checks
+			if (self.rank < 0) ^ (self.value is None):
+				raise AssertionError("Invalid node rank or value")
 			if ismain ^ (lowerbound is None):
-				raise AssertionError()
+				raise AssertionError("Invalid arguments")
 			if not ismain and self.value < lowerbound:
-				raise AssertionError()
-			if self.rank >= 1:
+				raise AssertionError("Min-heap property violated")
+			
+			# Check children and non-main chains
+			if self.rank > 0:
 				if self.down is None or self.down.rank != self.rank - 1:
-					raise AssertionError()
+					raise AssertionError("Down node absent or has invalid rank")
 				self.down.check_structure(False, self.value)
 				if not ismain:
 					if self.next is None or self.next.rank != self.rank - 1:
-						raise AssertionError()
+						raise AssertionError("Next node absent or has invalid rank")
 					self.next.check_structure(False, lowerbound)
+			elif self.down is not None:
+				raise AssertionError("Down node must be absent")
+			
+			# Check main chain
 			if ismain and self.next is not None:
 				if self.next.rank <= self.rank:
-					raise AssertionError()
+					raise AssertionError("Next node has invalid rank")
 				self.next.check_structure(True, None)

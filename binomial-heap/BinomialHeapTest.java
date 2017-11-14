@@ -22,8 +22,9 @@
  */
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import java.util.Arrays;
 import java.util.PriorityQueue;
-import java.util.Queue;
 import java.util.Random;
 import org.junit.Test;
 
@@ -31,56 +32,91 @@ import org.junit.Test;
 public final class BinomialHeapTest {
 	
 	@Test public void testSize1() {
-		Queue<Integer> h = newPriorityQueue();
+		BinomialHeap<Integer> h = new BinomialHeap<>();
 		h.add(3);
+		h.checkStructure();
 		assertEquals(1, h.size());
 		assertEquals(3, (int)h.element());
 		assertEquals(3, (int)h.remove());
+		h.checkStructure();
 		assertEquals(0, h.size());
 	}
 	
 	
 	@Test public void testSize2() {
-		Queue<Integer> h = newPriorityQueue();
+		BinomialHeap<Integer> h = new BinomialHeap<>();
 		h.add(4);
 		h.add(2);
+		h.checkStructure();
 		assertEquals(2, h.size());
 		assertEquals(2, (int)h.element());
 		assertEquals(2, (int)h.remove());
+		h.checkStructure();
 		assertEquals(1, h.size());
 		assertEquals(4, (int)h.element());
 		assertEquals(4, (int)h.remove());
+		h.checkStructure();
 		assertEquals(0, h.size());
 	}
 	
 	
 	@Test public void testSize7() {
-		Queue<Integer> h = newPriorityQueue();
+		BinomialHeap<Integer> h = new BinomialHeap<>();
 		h.add(2);
 		h.add(7);
 		h.add(1);
 		h.add(8);
 		h.add(3);
+		h.checkStructure();
 		h.add(1);
 		h.add(4);
+		h.checkStructure();
 		assertEquals(7, h.size());
 		assertEquals(1, (int)h.remove());  assertEquals(6, h.size());
 		assertEquals(1, (int)h.remove());  assertEquals(5, h.size());
 		assertEquals(2, (int)h.remove());  assertEquals(4, h.size());
 		assertEquals(3, (int)h.remove());  assertEquals(3, h.size());
+		h.checkStructure();
 		assertEquals(4, (int)h.remove());  assertEquals(2, h.size());
 		assertEquals(7, (int)h.remove());  assertEquals(1, h.size());
 		assertEquals(8, (int)h.remove());  assertEquals(0, h.size());
+		h.checkStructure();
 	}
 	
 	
-	// Comprehensively tests all the defined methods
+	@Test public void testAgainstArrayRandomly() {
+		final int TRIALS = 10_000;
+		final int MAX_SIZE = 1000;
+		final int RANGE = 1000;
+		
+		BinomialHeap<Integer> heap = new BinomialHeap<>();
+		for (int i = 0; i < TRIALS; i++) {
+			int[] values = new int[rand.nextInt(MAX_SIZE)];
+			for (int j = 0; j < values.length; j++) {
+				int val = rand.nextInt(RANGE);
+				values[j] = val;
+				heap.add(val);
+			}
+			
+			Arrays.sort(values);
+			for (int val : values)
+				assertEquals(val, (int)heap.remove());
+			
+			assertTrue(heap.isEmpty());
+			heap.clear();
+		}
+	}
+	
+	
 	@Test public void testAgainstJavaPriorityQueueRandomly() {
-		Random rand = new Random();
+		final int TRIALS = 100_000;
+		final int ITER_OPS = 100;
+		final int RANGE = 10_000;
+		
 		BinomialHeap<Integer> heap = new BinomialHeap<>();
 		PriorityQueue<Integer> queue = new PriorityQueue<>();
 		int size = 0;
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < TRIALS; i++) {
 			int op = rand.nextInt(100);
 			
 			if (op < 1) {  // Clear
@@ -91,32 +127,25 @@ public final class BinomialHeapTest {
 				
 			} else if (op < 2) {  // Peek
 				heap.checkStructure();
-				if (size > 0)
-					assertEquals(queue.element(), heap.element());
+				assertEquals(queue.peek(), heap.peek());
 				
-			} else if (op < 60) {  // Add
-				int n = rand.nextInt(100) + 1;
+			} else if (op < 70) {  // Enqueue/merge
+				boolean merge = !(op < 60);
+				BinomialHeap<Integer> sink = merge ? new BinomialHeap<>() : heap;
+				int n = rand.nextInt(ITER_OPS) + 1;
 				for (int j = 0; j < n; j++) {
-					int val = rand.nextInt(10000);
+					int val = rand.nextInt(RANGE);
 					queue.add(val);
-					heap.add(val);
+					sink.add(val);
+				}
+				if (merge) {
+					heap.merge(sink);
+					assertEquals(0, sink.size());
 				}
 				size += n;
 				
-			} else if (op < 70) {  // Merge
-				int n = rand.nextInt(100) + 1;
-				BinomialHeap<Integer> temp = new BinomialHeap<>();
-				for (int j = 0; j < n; j++) {
-					int val = rand.nextInt(10000);
-					queue.add(val);
-					temp.add(val);
-				}
-				heap.merge(temp);
-				assertEquals(0, temp.size());
-				size += n;
-				
-			} else if (op < 100) {  // Remove
-				int n = Math.min(rand.nextInt(100) + 1, size);
+			} else if (op < 100) {  // Dequeue
+				int n = Math.min(rand.nextInt(ITER_OPS) + 1, size);
 				for (int j = 0; j < n; j++)
 					assertEquals(queue.remove(), heap.remove());
 				size -= n;
@@ -126,12 +155,12 @@ public final class BinomialHeapTest {
 			
 			assertEquals(size, queue.size());
 			assertEquals(size, heap.size());
+			assertTrue(queue.isEmpty() == (size == 0));
+			assertTrue(heap.isEmpty() == (size == 0));
 		}
 	}
 	
 	
-	private static <E extends Comparable<? super E>> Queue<E> newPriorityQueue() {
-		return new BinomialHeap<E>();
-	}
+	private static Random rand = new Random();
 	
 }

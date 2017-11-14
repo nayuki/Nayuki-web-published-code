@@ -24,27 +24,42 @@
 #pragma once
 
 #include <cassert>
-#include <cstdlib>
+#include <cstddef>
 #include <utility>
 
 
 template <typename E>
 class BinomialHeap final {
 	
+	/*---- Fields ----*/
+	
 	private: class Node;  // Forward declaration
 	private: Node head;   // The head node is an immovable dummy node
 	
+	
+	
+	/*---- Constructors ----*/
 	
 	public: BinomialHeap()
 		: head() {}  // Dummy node
 	
 	
+	
+	/*---- Methods ----*/
+	
+	public: bool empty() const {
+		return head.next == nullptr;
+	}
+	
+	
 	public: std::size_t size() const {
 		std::size_t result = 0;
-		for (Node *node = head.next; node != nullptr; node = node->next) {
+		for (const Node *node = head.next; node != nullptr; node = node->next) {
 			std::size_t temp = safeLeftShift(1, node->rank);
-			if (temp == 0)
-				throw "Size overflow";  // The result cannot be returned, however the data structure is still valid
+			if (temp == 0) {
+				// The result cannot be returned, however the data structure is still valid
+				throw "Size overflow";
+			}
 			result |= temp;
 		}
 		return result;
@@ -70,8 +85,8 @@ class BinomialHeap final {
 	public: const E &top() const {
 		if (head.next == nullptr)
 			throw "Empty heap";
-		E *result = nullptr;
-		for (Node *node = head.next; node != nullptr; node = node->next) {
+		const E *result = nullptr;
+		for (const Node *node = head.next; node != nullptr; node = node->next) {
 			if (result == nullptr || node->value < *result)
 				result = &node->value;
 		}
@@ -84,11 +99,15 @@ class BinomialHeap final {
 			throw "Empty heap";
 		E *min = nullptr;
 		Node *nodeBeforeMin = nullptr;
-		for (Node *node = head.next, *prevNode = &head; node != nullptr; prevNode = node, node = node->next) {
+		for (Node *prevNode = &head; ; ) {
+			Node *node = prevNode->next;
+			if (node == nullptr)
+				break;
 			if (min == nullptr || node->value < *min) {
 				min = &node->value;
 				nodeBeforeMin = prevNode;
 			}
+			prevNode = node;
 		}
 		assert(min != nullptr && nodeBeforeMin != nullptr);
 		
@@ -97,7 +116,7 @@ class BinomialHeap final {
 		nodeBeforeMin->next = minNode->next;
 		minNode->next = nullptr;
 		merge(minNode->removeRoot());
-		E result(std::move(*min));
+		E result = std::move(*min);
 		delete minNode;
 		return result;
 	}
@@ -143,18 +162,13 @@ class BinomialHeap final {
 				prevTail = node;
 			} else if (tail->rank == node->rank) {
 				// Merge nodes
-				if (tail->value <= node->value) {
-					node->next = tail->down;
-					tail->down = node;
-					tail->rank++;
-				} else {
-					assert(prevTail != nullptr);
-					tail->next = node->down;
-					node->down = tail;
-					node->rank++;
-					tail = node;
-					prevTail->next = node;
+				if (node->value < tail->value) {
+					std::swap(node->value, tail->value);
+					std::swap(node->down, tail->down);
 				}
+				node->next = tail->down;
+				tail->down = node;
+				tail->rank++;
 			} else
 				throw "Assertion error";
 		}
@@ -173,17 +187,18 @@ class BinomialHeap final {
 	// For unit tests
 	public: void checkStructure() const {
 		if (head.rank != -1)
-			throw "Assertion error";
-		if (head.next != nullptr) {
-			if (head.next->rank <= head.rank)
-				throw "Assertion error";
-			head.next->checkStructure(true, nullptr);
-		}
+			throw "Assertion error: Head must be dummy node";
+		// Check chain of nodes and their children
+		head.checkStructure(true, nullptr);
 	}
 	
 	
 	
+	/*---- Helper class: Binomial heap node ----*/
+	
 	private: class Node final {
+		
+		/*-- Fields --*/
 		
 		public: E value;
 		public: int rank;
@@ -192,6 +207,7 @@ class BinomialHeap final {
 		public: Node *next;
 		
 		
+		/*-- Constructors --*/
 		
 		// Dummy sentinel node at head of list
 		public: Node() :
@@ -223,6 +239,7 @@ class BinomialHeap final {
 		}
 		
 		
+		/*-- Methods --*/
 		
 		public: Node *removeRoot() {
 			assert(next == nullptr);
@@ -241,25 +258,29 @@ class BinomialHeap final {
 		
 		// For unit tests
 		public: void checkStructure(bool isMain, const E *lowerBound) const {
-			if (rank < 0)
-				throw "Assertion error";
+			// Basic checks
 			if (isMain ^ (lowerBound == nullptr))
-				throw "Assertion error";
+				throw "Assertion error: Invalid arguments";
 			if (!isMain && value < *lowerBound)
-				throw "Assertion error";
-			if (rank >= 1) {
+				throw "Assertion error: Min-heap property violated";
+			
+			// Check children and non-main chain
+			if (rank > 0) {
 				if (down == nullptr || down->rank != rank - 1)
-					throw "Assertion error";
+					throw "Assertion error: Down node absent or has invalid rank";
 				down->checkStructure(false, &value);
 				if (!isMain) {
 					if (next == nullptr || next->rank != rank - 1)
-						throw "Assertion error";
+						throw "Assertion error: Next node absent or has invalid rank";
 					next->checkStructure(false, lowerBound);
 				}
-			}
+			} else if (down != nullptr)
+				throw "Assertion error: Down node must be absent";
+			
+			// Check main chain
 			if (isMain && next != nullptr) {
 				if (next->rank <= rank)
-					throw "Assertion error";
+					throw "Assertion error: Next node has invalid rank";
 				next->checkStructure(true, nullptr);
 			}
 		}

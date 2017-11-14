@@ -32,6 +32,7 @@ fn main() {
 	test_size_1();
 	test_size_2();
 	test_size_7();
+	test_against_vec_randomly();
 	test_against_rust_binary_heap_randomly();
 }
 
@@ -39,9 +40,11 @@ fn main() {
 fn test_size_1() {
 	let mut h = BinomialHeap::<i32>::new();
 	h.push(3);
+	h.check_structure();
 	assert_eq!(h.len(), 1);
 	assert_eq!(*h.peek().unwrap(), 3);
 	assert_eq!(h.pop().unwrap(), 3);
+	h.check_structure();
 	assert_eq!(h.len(), 0);
 }
 
@@ -50,12 +53,15 @@ fn test_size_2() {
 	let mut h = BinomialHeap::<i32>::new();
 	h.push(4);
 	h.push(2);
+	h.check_structure();
 	assert_eq!(h.len(), 2);
 	assert_eq!(*h.peek().unwrap(), 2);
 	assert_eq!(h.pop().unwrap(), 2);
+	h.check_structure();
 	assert_eq!(h.len(), 1);
 	assert_eq!(*h.peek().unwrap(), 4);
 	assert_eq!(h.pop().unwrap(), 4);
+	h.check_structure();
 	assert_eq!(h.len(), 0);
 }
 
@@ -67,29 +73,63 @@ fn test_size_7() {
 	h.push(1);
 	h.push(8);
 	h.push(3);
+	h.check_structure();
 	h.push(1);
 	h.push(4);
+	h.check_structure();
 	assert_eq!(h.len(), 7);
 	assert_eq!(h.pop().unwrap(), 1);  assert_eq!(h.len(), 6);
 	assert_eq!(h.pop().unwrap(), 1);  assert_eq!(h.len(), 5);
 	assert_eq!(h.pop().unwrap(), 2);  assert_eq!(h.len(), 4);
 	assert_eq!(h.pop().unwrap(), 3);  assert_eq!(h.len(), 3);
+	h.check_structure();
 	assert_eq!(h.pop().unwrap(), 4);  assert_eq!(h.len(), 2);
 	assert_eq!(h.pop().unwrap(), 7);  assert_eq!(h.len(), 1);
 	assert_eq!(h.pop().unwrap(), 8);  assert_eq!(h.len(), 0);
+	h.check_structure();
 }
 
 
-// Comprehensively tests all the defined methods
+fn test_against_vec_randomly() {
+	let trials = 10_000;
+	let maxsize: usize = 1000;
+	let range: i32 = 1000;
+	
+	let mut rng = rand::thread_rng();
+	let sizedist = Range::new(0, maxsize);
+	let valuedist = Range::new(0, range);
+	
+	let mut heap = BinomialHeap::<i32>::new();
+	for _ in 0 .. trials {
+		let size = sizedist.ind_sample(&mut rng);
+		let mut values = Vec::<i32>::with_capacity(size);
+		for _ in 0 .. size {
+			let val = valuedist.ind_sample(&mut rng);
+			values.push(val);
+			heap.push(val);
+		}
+		
+		values.sort();
+		for val in values {
+			assert_eq!(heap.pop().unwrap(), val);
+		}
+		heap.clear();
+	}
+}
+
+
 fn test_against_rust_binary_heap_randomly() {
 	let trials = 100_000;
+	let iterops: usize = 100;
+	let range: i32 = 10_000;
+	
 	let mut rng = rand::thread_rng();
-	let opcountdist = Range::new(1, 101);
-	let valuedist = Range::new(0i32, 10000i32);
+	let opcountdist = Range::new(1, iterops + 1);
+	let valuedist = Range::new(0, range);
 	
 	let mut heap = BinomialHeap::<i32>::new();
 	let mut queue = std::collections::binary_heap::BinaryHeap::<i32>::new();
-	let mut size = 0usize;
+	let mut size: usize = 0;
 	for _ in 0 .. trials {
 		let op = Range::new(0, 100).ind_sample(&mut rng);
 		
@@ -106,28 +146,26 @@ fn test_against_rust_binary_heap_randomly() {
 				assert_eq!(-*queue.peek().unwrap(), *heap.peek().unwrap());
 			}
 			
-		} else if op < 60 {  // push
-			let n = opcountdist.ind_sample(&mut rng);
-			for _ in 0 .. n {
-				let val = valuedist.ind_sample(&mut rng);
-				queue.push(-val);
-				heap.push(val);
-			}
-			size += n;
-			
-		} else if op < 70 {  // Merge
-			let n = opcountdist.ind_sample(&mut rng);
+		} else if op < 70 {  // Enqueue/merge
+			let merge = !(op < 60);
 			let mut temp = BinomialHeap::<i32>::new();
+			let n = opcountdist.ind_sample(&mut rng);
 			for _ in 0 .. n {
 				let val = valuedist.ind_sample(&mut rng);
 				queue.push(-val);
-				temp.push(val);
+				if merge {
+					temp.push(val);
+				} else {
+					heap.push(val);
+				}
 			}
-			heap.merge(&mut temp);
-			assert_eq!(temp.len(), 0);
+			if merge {
+				heap.merge(&mut temp);
+				assert_eq!(temp.len(), 0);
+			}
 			size += n;
 			
-		} else if op < 100 {  // Remove
+		} else if op < 100 {  // Dequeue
 			let n = std::cmp::min(opcountdist.ind_sample(&mut rng), size);
 			for _ in 0 .. n {
 				assert_eq!(-queue.pop().unwrap(), heap.pop().unwrap());
@@ -140,5 +178,7 @@ fn test_against_rust_binary_heap_randomly() {
 		
 		assert_eq!(queue.len(), size);
 		assert_eq!(heap.len(), size);
+		assert_eq!(queue.is_empty(), size == 0);
+		assert_eq!(heap.is_empty(), size == 0);
 	}
 }

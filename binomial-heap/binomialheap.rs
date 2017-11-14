@@ -24,6 +24,8 @@
 use std;
 
 
+/*-- Fields --*/
+
 pub struct BinomialHeap<E> {
 	head: Node<E>,
 }
@@ -31,10 +33,19 @@ pub struct BinomialHeap<E> {
 
 impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
+	/*-- Constructors --*/
+	
 	pub fn new() -> Self {
 		BinomialHeap {
 			head: Node::dummy(),
 		}
+	}
+	
+	
+	/*-- Methods --*/
+	
+	pub fn is_empty(&self) -> bool {
+		self.head.next.is_none()
 	}
 	
 	
@@ -187,14 +198,17 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	pub fn check_structure(&self) {
 		assert!(self.head.value.is_none());
 		assert_eq!(self.head.rank, -1);
-		if let Some(ref next) = self.head.next {
-			assert!(next.rank > self.head.rank);
-			next.check_structure(true);
-		}
+		// Check chain of nodes and their children
+		self.head.check_structure(true, None);
 	}
 	
 }
 
+
+
+/*---- Helper struct: Binomial heap node ----*/
+
+/*-- Fields --*/
 
 struct Node<E> {
 	value: Option<E>,
@@ -206,6 +220,8 @@ struct Node<E> {
 
 
 impl <E: std::cmp::Ord> Node<E> {
+	
+	/*-- Constructors --*/
 	
 	fn dummy() -> Self {
 		Node {
@@ -226,6 +242,8 @@ impl <E: std::cmp::Ord> Node<E> {
 		}
 	}
 	
+	
+	/*-- Methods --*/
 	
 	fn remove_at(&mut self, index: i32) -> Self {
 		if index < 0 {
@@ -256,30 +274,39 @@ impl <E: std::cmp::Ord> Node<E> {
 		
 		
 	// For unit tests
-	fn check_structure(&self, ismain: bool) {
-		assert!(self.value.is_some() && self.rank >= 0);
-		if self.rank >= 1 {
+	fn check_structure(&self, ismain: bool, lowerbound: Option<&E>) {
+		// Basic checks
+		assert!((self.rank < 0) == self.value.is_none(), "Invalid node rank or value");
+		assert!(ismain == lowerbound.is_none(), "Invalid arguments");
+		assert!(ismain || self.value.as_ref().unwrap() >= lowerbound.unwrap(), "Min-heap property violated");
+		
+		// Check children and non-main chains
+		if self.rank > 0 {
 			match self.down {
-				None => panic!("Assertion error"),
+				None => panic!("Down node absent"),
 				Some(ref down) => {
-					assert_eq!(down.rank, self.rank - 1);
-					down.check_structure(false);
+					assert_eq!(down.rank, self.rank - 1, "Down node has invalid rank");
+					down.check_structure(false, self.value.as_ref());
 				},
 			}
 			if !ismain {
 				match self.next {
-					None => panic!("Assertion error"),
+					None => panic!("Next node absent"),
 					Some(ref next) => {
-						assert_eq!(next.rank, self.rank - 1);
-						next.check_structure(false);
+						assert_eq!(next.rank, self.rank - 1, "Next node has invalid rank");
+						next.check_structure(false, lowerbound);
 					},
 				}
 			}
+		} else {
+			assert!(self.down.is_none(), "Down node must be absent");
 		}
+		
+		// Check main chain
 		if ismain {
 			if let Some(ref next) = self.next {
 				assert!(next.rank > self.rank);
-				next.check_structure(true);
+				next.check_structure(true, None);
 			}
 		}
 	}

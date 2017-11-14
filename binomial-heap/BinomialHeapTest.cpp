@@ -24,9 +24,11 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <random>
 #include <queue>
+#include <vector>
 #include "BinomialHeap.hpp"
 
 using std::size_t;
@@ -42,9 +44,11 @@ static void assertEquals(T x, T y) {
 static void testSize1() {
 	BinomialHeap<int> h;
 	h.push(3);
+	h.checkStructure();
 	assertEquals(h.size(), static_cast<size_t>(1));
 	assertEquals(h.top(), 3);
 	assertEquals(h.pop(), 3);
+	h.checkStructure();
 	assertEquals(h.size(), static_cast<size_t>(0));
 }
 
@@ -53,12 +57,15 @@ static void testSize2() {
 	BinomialHeap<int> h;
 	h.push(4);
 	h.push(2);
+	h.checkStructure();
 	assertEquals(h.size(), static_cast<size_t>(2));
 	assertEquals(h.top(), 2);
 	assertEquals(h.pop(), 2);
+	h.checkStructure();
 	assertEquals(h.size(), static_cast<size_t>(1));
 	assertEquals(h.top(), 4);
 	assertEquals(h.pop(), 4);
+	h.checkStructure();
 	assertEquals(h.size(), static_cast<size_t>(0));
 }
 
@@ -70,28 +77,63 @@ static void testSize7() {
 	h.push(1);
 	h.push(8);
 	h.push(3);
+	h.checkStructure();
 	h.push(1);
 	h.push(4);
+	h.checkStructure();
 	assertEquals(h.size(), static_cast<size_t>(7));
 	assertEquals(h.pop(), 1);  assertEquals(h.size(), static_cast<size_t>(6));
 	assertEquals(h.pop(), 1);  assertEquals(h.size(), static_cast<size_t>(5));
 	assertEquals(h.pop(), 2);  assertEquals(h.size(), static_cast<size_t>(4));
 	assertEquals(h.pop(), 3);  assertEquals(h.size(), static_cast<size_t>(3));
+	h.checkStructure();
 	assertEquals(h.pop(), 4);  assertEquals(h.size(), static_cast<size_t>(2));
 	assertEquals(h.pop(), 7);  assertEquals(h.size(), static_cast<size_t>(1));
 	assertEquals(h.pop(), 8);  assertEquals(h.size(), static_cast<size_t>(0));
+	h.checkStructure();
 }
 
 
-// Comprehensively tests all the defined methods
-static void testAgainstCppPriorityQueueRandomly() {
-	// Random number generation variables
-	std::default_random_engine randGen((std::random_device())());
-	std::uniform_int_distribution<int> operationDist(0, 99);
-	std::uniform_int_distribution<int> opCountDist(1, 100);
-	std::uniform_int_distribution<int> valueDist(0, 9999);
+std::default_random_engine randGen((std::random_device())());
+
+
+static void testAgainstVectorRandomly() {
+	const long TRIALS = 10000;
+	const size_t MAX_SIZE = 1000;
+	const int RANGE = 1000;
 	
+	std::uniform_int_distribution<int> sizeDist(0, MAX_SIZE - 1);
+	std::uniform_int_distribution<int> valueDist(0, RANGE - 1);
+	
+	BinomialHeap<int> heap;
+	for (long i = 0; i < TRIALS; i++) {
+		std::vector<int> values;
+		size_t size = sizeDist(randGen);
+		for (size_t j = 0; j < size; j++) {
+			int val = valueDist(randGen);
+			values.push_back(val);
+			heap.push(val);
+		}
+		
+		std::sort(values.begin(), values.end());
+		for (int val : values)
+			assertEquals(val, heap.pop());
+		
+		assertEquals(heap.empty(), true);
+		heap.clear();
+	}
+}
+
+
+static void testAgainstCppPriorityQueueRandomly() {
 	const long TRIALS = 300000;
+	const size_t ITER_OPS = 100;
+	const int RANGE = 10000;
+	
+	std::uniform_int_distribution<int> operationDist(0, 99);
+	std::uniform_int_distribution<size_t> opCountDist(1, ITER_OPS);
+	std::uniform_int_distribution<int> valueDist(0, RANGE - 1);
+	
 	std::priority_queue<int,std::vector<int>,std::greater<int> > queue;  // std::greater effects a min-queue
 	BinomialHeap<int> heap;
 	size_t size = 0;
@@ -100,8 +142,10 @@ static void testAgainstCppPriorityQueueRandomly() {
 		
 		if (op < 1) {  // Clear
 			heap.checkStructure();
-			queue = std::priority_queue<int,std::vector<int>,std::greater<int> >();
-			heap.clear();
+			for (size_t j = 0; j < size; j++) {
+				assertEquals(queue.top(), heap.pop());
+				queue.pop();
+			}
 			size = 0;
 			
 		} else if (op < 2) {  // Top
@@ -109,18 +153,24 @@ static void testAgainstCppPriorityQueueRandomly() {
 			if (size > 0)
 				assertEquals(heap.top(), queue.top());
 			
-		} else if (op < 70) {  // Push
-			int n = opCountDist(randGen);
-			for (int j = 0; j < n; j++) {
+		} else if (op < 70) {  // Enqueue/merge
+			bool merge = !(op < 60);
+			BinomialHeap<int> temp;
+			size_t n = opCountDist(randGen);
+			for (size_t j = 0; j < n; j++) {
 				int val = valueDist(randGen);
 				queue.push(val);
-				heap.push(val);
+				(merge ? temp : heap).push(val);
+			}
+			if (merge) {
+				heap.merge(temp);
+				assertEquals(temp.size(), static_cast<size_t>(0));
 			}
 			size += n;
 			
-		} else if (op < 100) {  // Pop
-			int n = std::min(opCountDist(randGen), (int)size);
-			for (int j = 0; j < n; j++) {
+		} else if (op < 100) {  // Dequeue
+			size_t n = std::min(opCountDist(randGen), size);
+			for (size_t j = 0; j < n; j++) {
 				assertEquals(heap.pop(), queue.top());
 				queue.pop();
 			}
@@ -131,6 +181,8 @@ static void testAgainstCppPriorityQueueRandomly() {
 		
 		assertEquals(queue.size(), size);
 		assertEquals(heap.size(), size);
+		assertEquals(queue.empty(), size == 0);
+		assertEquals(heap.empty(), size == 0);
 	}
 }
 
@@ -140,6 +192,7 @@ int main() {
 		testSize1();
 		testSize2();
 		testSize7();
+		testAgainstVectorRandomly();
 		testAgainstCppPriorityQueueRandomly();
 		
 		std::cerr << "Test passed" << std::endl;
