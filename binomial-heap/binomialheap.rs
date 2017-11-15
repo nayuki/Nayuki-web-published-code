@@ -51,14 +51,14 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
 	pub fn len(&self) -> usize {
 		let mut result = 0;
-		if let Some(ref head) = self.head {
-			let mut node: &Node<E> = head;
-			loop {
-				result |= 1 << node.rank;
-				match node.next {
-					None => break,
-					Some(ref next) => { node = next.as_ref(); },
-				}
+		let mut node = &self.head;
+		loop {
+			match *node {
+				None => break,
+				Some(ref nd) => {
+					result |= 1 << nd.rank;
+					node = &nd.next;
+				},
 			}
 		}
 		result
@@ -77,7 +77,7 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
 	
 	pub fn peek(&self) -> Option<&E> {
-		self.find_min().map(|(val, _)| val)
+		self.find_min().map(|x| x.0)
 	}
 	
 	
@@ -285,10 +285,8 @@ fn reverse_nodes<E>(mut nodes: Option<Box<Node<E>>>) -> Option<Box<Node<E>>> {
 		match nodes {
 			None => break,
 			Some(mut node) => {
-				let next = std::mem::replace(&mut node.next, None);
-				node.next = result;
+				nodes = std::mem::replace(&mut node.next, result);
 				result = Some(node);
-				nodes = next;
 			},
 		}
 	}

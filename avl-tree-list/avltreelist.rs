@@ -116,7 +116,7 @@ impl <E> std::ops::IndexMut<usize> for AvlTreeList<E> {
 
 
 
-/*---- Helper struct: AVL tree nodes ----*/
+/*---- Helper structs: AVL tree nodes ----*/
 
 struct MaybeNode<E>(Option<Box<Node<E>>>);
 
@@ -243,7 +243,7 @@ impl <E> MaybeNode<E> {
 				}
 			}
 			self = self.rotate_right();
-		} else if bal == 2{
+		} else if bal == 2 {
 			{
 				let mut node = self.node_mut();
 				let childbal = node.right.node_ref().get_balance();
@@ -269,13 +269,12 @@ impl <E> MaybeNode<E> {
 	fn rotate_left(mut self) -> Self {
 		let mut root;
 		{
-			{
-				let mut selfnode = self.node_mut();
-				root = selfnode.right.pop();
-				let rootnode = root.node_mut();
-				std::mem::swap(&mut selfnode.right, &mut rootnode.left);
-				selfnode.recalculate();
-			}
+			let mut selfnode = self.node_mut();
+			root = selfnode.right.pop();
+			let rootnode = root.node_mut();
+			std::mem::swap(&mut selfnode.right, &mut rootnode.left);
+			selfnode.recalculate();
+		} {
 			let rootnode = root.node_mut();
 			rootnode.left = self;
 			rootnode.recalculate();
@@ -294,13 +293,12 @@ impl <E> MaybeNode<E> {
 	fn rotate_right(mut self) -> Self {
 		let mut root;
 		{
-			{
-				let mut selfnode = self.node_mut();
-				root = selfnode.left.pop();
-				let rootnode = root.node_mut();
-				std::mem::swap(&mut selfnode.left, &mut rootnode.right);
-				selfnode.recalculate();
-			}
+			let mut selfnode = self.node_mut();
+			root = selfnode.left.pop();
+			let rootnode = root.node_mut();
+			std::mem::swap(&mut selfnode.left, &mut rootnode.right);
+			selfnode.recalculate();
+		} {
 			let rootnode = root.node_mut();
 			rootnode.right = self;
 			rootnode.recalculate();
