@@ -25,7 +25,7 @@ use std;
 
 
 pub struct AvlTreeList<E> {
-	root: Node<E>,
+	root: MaybeNode<E>,
 }
 
 
@@ -33,16 +33,13 @@ impl <E> AvlTreeList<E> {
 	
 	pub fn new() -> Self {
 		AvlTreeList {
-			root: Node::EmptyLeafNode,
+			root: MaybeNode(None),
 		}
 	}
 	
 	
 	pub fn is_empty(&self) -> bool {
-		match self.root {
-			Node::EmptyLeafNode => true,
-			_ => false,
-		}
+		self.root.0.is_none()
 	}
 	
 	
@@ -76,22 +73,20 @@ impl <E> AvlTreeList<E> {
 	pub fn insert(&mut self, index: usize, val: E) {
 		assert!(index <= self.len(), "Index out of bounds");  // Different constraint than the other methods
 		assert!(self.len() < std::usize::MAX, "Maximum size reached");
-		let temp = std::mem::replace(&mut self.root, Node::EmptyLeafNode);
-		self.root = temp.insert_at(index, val);
+		self.root = self.root.pop().insert_at(index, val);
 	}
 	
 	
 	pub fn remove(&mut self, index: usize) -> E {
 		assert!(index < self.len(), "Index out of bounds");
 		let mut result: Option<E> = None;
-		let temp = std::mem::replace(&mut self.root, Node::EmptyLeafNode);
-		self.root = temp.remove_at(index, &mut result);
+		self.root = self.root.pop().remove_at(index, &mut result);
 		result.unwrap()
 	}
 	
 	
 	pub fn clear(&mut self) {
-		self.root = Node::EmptyLeafNode;
+		self.root = MaybeNode(None);
 	}
 	
 	
@@ -99,7 +94,6 @@ impl <E> AvlTreeList<E> {
 	pub fn check_structure(&self) {
 		self.root.check_structure();
 	}
-	
 }
 
 
@@ -108,7 +102,7 @@ impl <E> std::ops::Index<usize> for AvlTreeList<E> {
 	
 	fn index(&self, index: usize) -> &E {
 		assert!(index < self.len(), "Index out of bounds");
-		&self.root.get_at(index)
+		&self.root.node_ref().get_at(index)
 	}
 }
 
@@ -116,191 +110,151 @@ impl <E> std::ops::Index<usize> for AvlTreeList<E> {
 impl <E> std::ops::IndexMut<usize> for AvlTreeList<E> {
 	fn index_mut(&mut self, index: usize) -> &mut E {
 		assert!(index < self.len(), "Index out of bounds");
-		self.root.get_at_mut(index)
+		self.root.node_mut().get_at_mut(index)
 	}
 }
 
 
 
-/*---- Helper struct: AVL tree node ----*/
+/*---- Helper struct: AVL tree nodes ----*/
 
-enum Node<E> {
-	EmptyLeafNode,
+struct MaybeNode<E>(Option<Box<Node<E>>>);
+
+
+impl <E> MaybeNode<E> {
 	
-	InternalNode(
-		// The object stored at this node.
-		E,
-		// The height of the tree rooted at this node. Empty nodes have height 0.
-		// This node has height equal to max(left.height, right.height) + 1.
-		i16,
-		// The number of nodes in the tree rooted at this node, including this node.
-		// Empty nodes have size 0. This node has size equal to left.size + right.size + 1.
-		usize,
-		// The root node of the left subtree.
-		Box<Node<E>>,
-		// The root node of the right subtree.
-		Box<Node<E>>),
-}
-
-
-impl <E> Node<E> {
-	
-	fn new(val: E) -> Self {
-		Node::InternalNode(val, 1, 1,
-			Box::new(Node::EmptyLeafNode), Box::new(Node::EmptyLeafNode))
+	fn size(&self) -> usize {
+		match self.0 {
+			None => 0,
+			Some(ref node) => node.size,
+		}
 	}
 	
 	
 	fn height(&self) -> i16 {
-		match *self {
-			Node::EmptyLeafNode => 0,
-			Node::InternalNode(_, ht, _, _, _) => ht,
+		match self.0 {
+			None => 0,
+			Some(ref node) => node.height,
 		}
 	}
 	
 	
-	fn size(&self) -> usize {
-		match *self {
-			Node::EmptyLeafNode => 0,
-			Node::InternalNode(_, _, sz, _, _) => sz,
-		}
+	fn node_ref(&self) -> &Node<E> {
+		self.0.as_ref().unwrap().as_ref()
 	}
 	
 	
-	fn get_at(&self, index: usize) -> &E {
-		match *self {
-			Node::EmptyLeafNode => panic!("Assertion error"),
-			Node::InternalNode(ref value, _, size, ref left, ref right) => {
-				assert!(index < size, "Assertion error");
-				let leftsize = left.size();
-				if index < leftsize {
-					left.get_at(index)
-				} else if index > leftsize {
-					right.get_at(index - leftsize - 1)
-				} else {
-					value
-				}
-			},
-		}
+	fn node_mut(&mut self) -> &mut Node<E> {
+		self.0.as_mut().unwrap().as_mut()
 	}
 	
 	
-	fn get_at_mut(&mut self, index: usize) -> &mut E {
-		match *self {
-			Node::EmptyLeafNode => panic!("Assertion error"),
-			Node::InternalNode(ref mut value, _, size, ref mut left, ref mut right) => {
-				assert!(index < size, "Assertion error");
-				let leftsize = left.size();
-				if index < leftsize {
-					left.get_at_mut(index)
-				} else if index > leftsize {
-					right.get_at_mut(index - leftsize - 1)
-				} else {
-					value
-				}
-			},
-		}
+	fn pop(&mut self) -> Self {
+		std::mem::replace(self, MaybeNode(None))
 	}
 	
 	
 	fn insert_at(mut self, index: usize, val: E) -> Self {
-		assert!(index <= self.size(), "Assertion error");
-		match self {
-			Node::EmptyLeafNode => Node::new(val),
-			Node::InternalNode(_, _, _, _, _) => {
-				if let Node::InternalNode(_, _, _, ref mut left, ref mut right) = self {
-					let leftsize = left.size();
-					if index <= leftsize {
-						let temp = std::mem::replace(left, Box::new(Node::EmptyLeafNode));
-						*left = Box::new(temp.insert_at(index, val));
-					} else {
-						let temp = std::mem::replace(right, Box::new(Node::EmptyLeafNode));
-						*right = Box::new(temp.insert_at(index - leftsize - 1, val));
-					}
+		assert!(index <= self.size());
+		match self.0 {
+			None => {
+				return MaybeNode(Some(Box::new(Node::new(val))));
+			},
+			Some(ref mut bx) => {
+				let mut node = bx.as_mut();
+				let leftsize = node.left.size();
+				if index <= leftsize {
+					node.left = node.left.pop().insert_at(index, val);
+				} else {
+					node.right = node.right.pop().insert_at(index - leftsize - 1, val);
 				}
-				self.recalculate();
-				self.balance()
+				node.recalculate();
 			},
 		}
+		self.balance()
 	}
 	
 	
 	fn remove_at(mut self, index: usize, outval: &mut Option<E>) -> Self {
-		let recursed;
-		if let Node::InternalNode(_, _, _, ref mut left, ref mut right) = self {
-			let leftsize = left.size();
-			if index < leftsize {
-				let temp = std::mem::replace(left, Box::new(Node::EmptyLeafNode));
-				*left = Box::new(temp.remove_at(index, outval));
-				recursed = true;
-			} else if index > leftsize {
-				let temp = std::mem::replace(right, Box::new(Node::EmptyLeafNode));
-				*right = Box::new(temp.remove_at(index - leftsize - 1, outval));
-				recursed = true;
-			} else {
-				recursed = false;
-			}
-		} else {
-			panic!("Index out of bounds");
+		let mut done: bool;
+		
+		// Recursively find and remove a node
+		match self.0 {
+			None => panic!(),
+			Some(ref mut bx) => {
+				let mut node = bx.as_mut();
+				let leftsize = node.left.size();
+				if index < leftsize {
+					node.left = node.left.pop().remove_at(index, outval);
+					done = true;
+				} else if index > leftsize {
+					node.right = node.right.pop().remove_at(index - leftsize - 1, outval);
+					done = true;
+				} else {
+					done = false;
+				}
+			},
 		}
-		if recursed {
-			self.recalculate();
+		
+		// If current node needs removal but has both children
+		if !done {
+			if let Some(ref mut bx) = self.0 {
+				let mut node = bx.as_mut();
+				if node.left.size() > 0 && node.right.size() > 0 {
+					node.right = node.right.pop().remove_at(0, outval);
+					std::mem::swap(outval.as_mut().unwrap(), &mut node.value);
+					done = true;
+				}
+			}
+		}
+		
+		// Rebalance and return
+		if done {
+			self.node_mut().recalculate();
 			return self.balance();
 		}
 		
-		if let Node::InternalNode(val, _, _, left, right) = self {
-			*outval = Some(val);
-			if left.size() == 0 && right.size() == 0 {
-				return Node::EmptyLeafNode;
-			} else if right.size() == 0 {
-				return *left;
-			} else if left.size() == 0 {
-				return *right;
+		// Remove current node and return a child or nothing
+		if let Some(bx) = self.0 {
+			let node = *bx;
+			*outval = Some(node.value);
+			return if node.left.size() > 0 {
+				node.left
+			} else if node.right.size() > 0 {
+				node.right
 			} else {
-				let mut tempval: Option<E> = None;
-				let newright = Box::new(right.remove_at(0, &mut tempval));
-				let mut result = Node::InternalNode(tempval.unwrap(), 0, 0, left, newright);
-				result.recalculate();
-				return result.balance();
-			}
-		} else {
-			panic!("Index out of bounds");
+				MaybeNode(None)
+			};
 		}
+		panic!("Assertion error");
 	}
 	
 	
 	fn balance(mut self) -> Self {
-		if let Node::EmptyLeafNode = self {
-			panic!("Assertion error");
-		}
-		let bal = self.get_balance();
-		assert!(bal.abs() <= 2, "Assertion error");
+		let bal = self.node_ref().get_balance();
+		assert!(bal.abs() <= 2);
 		if bal == -2 {
-			if let Node::InternalNode(_, _, _, ref mut left, _) = self {
-				let childbal = left.get_balance();
-				assert!(childbal.abs() <= 1, "Assertion error");
+			{
+				let mut node = self.node_mut();
+				let childbal = node.left.node_ref().get_balance();
+				assert!(childbal.abs() <= 1);
 				if childbal == 1 {
-					let temp = std::mem::replace(left, Box::new(Node::EmptyLeafNode));
-					*left = Box::new(temp.rotate_left());
+					node.left = node.left.pop().rotate_left();
 				}
-			} else {
-				panic!("Assertion error");
 			}
 			self = self.rotate_right();
-		} else if bal == 2 {
-			if let Node::InternalNode(_, _, _, _, ref mut right) = self {
-				let childbal = right.get_balance();
-				assert!(childbal.abs() <= 1, "Assertion error");
+		} else if bal == 2{
+			{
+				let mut node = self.node_mut();
+				let childbal = node.right.node_ref().get_balance();
+				assert!(childbal.abs() <= 1);
 				if childbal == -1 {
-					let temp = std::mem::replace(right, Box::new(Node::EmptyLeafNode));
-					*right = Box::new(temp.rotate_right());
+					node.right = node.right.pop().rotate_right();
 				}
-			} else {
-				panic!("Assertion error");
 			}
 			self = self.rotate_left();
 		}
-		assert!(self.get_balance().abs() <= 1, "Assertion error");
+		assert!(self.node_ref().get_balance().abs() <= 1);
 		self
 	}
 	
@@ -314,23 +268,18 @@ impl <E> Node<E> {
 	 */
 	fn rotate_left(mut self) -> Self {
 		let mut root;
-		if let Node::InternalNode(_, _, _, _, ref mut right) = self {
-			root = *std::mem::replace(right, Box::new(Node::EmptyLeafNode));
-			if let Node::InternalNode(_, _, _, ref mut left, _) = root {
-				std::mem::swap(left, right);
-			} else {
-				panic!("Assertion error");
+		{
+			{
+				let mut selfnode = self.node_mut();
+				root = selfnode.right.pop();
+				let rootnode = root.node_mut();
+				std::mem::swap(&mut selfnode.right, &mut rootnode.left);
+				selfnode.recalculate();
 			}
-		} else {
-			panic!("Assertion error");
+			let rootnode = root.node_mut();
+			rootnode.left = self;
+			rootnode.recalculate();
 		}
-		self.recalculate();
-		if let Node::InternalNode(_, _, _, ref mut left, _) = root {
-			*left = Box::new(self);
-		} else {
-			panic!("Assertion error");
-		}
-		root.recalculate();
 		root
 	}
 	
@@ -344,59 +293,108 @@ impl <E> Node<E> {
 	 */
 	fn rotate_right(mut self) -> Self {
 		let mut root;
-		if let Node::InternalNode(_, _, _, ref mut left, _) = self {
-			root = *std::mem::replace(left, Box::new(Node::EmptyLeafNode));
-			if let Node::InternalNode(_, _, _, _, ref mut right) = root {
-				std::mem::swap(right, left);
-			} else {
-				panic!("Assertion error");
+		{
+			{
+				let mut selfnode = self.node_mut();
+				root = selfnode.left.pop();
+				let rootnode = root.node_mut();
+				std::mem::swap(&mut selfnode.left, &mut rootnode.right);
+				selfnode.recalculate();
 			}
-		} else {
-			panic!("Assertion error");
+			let rootnode = root.node_mut();
+			rootnode.right = self;
+			rootnode.recalculate();
 		}
-		self.recalculate();
-		if let Node::InternalNode(_, _, _, _, ref mut right) = root {
-			*right = Box::new(self);
-		} else {
-			panic!("Assertion error");
-		}
-		root.recalculate();
 		root
 	}
 	
 	
-	fn recalculate(&mut self) {
-		match *self {
-			Node::EmptyLeafNode => panic!("Assertion error"),
-			Node::InternalNode(_, ref mut height, ref mut size, ref left, ref right) => {
-				assert!(left.height() >= 0 && right.height() >= 0, "Assertion error");
-				*height = std::cmp::max(left.height(), right.height()) + 1;
-				*size = left.size() + right.size() + 1;
-				assert!(*height >= 0, "Assertion error");
-			}
+	fn check_structure(&self) {
+		if let Some(ref node) = self.0 {
+			node.check_structure();
 		}
+	}
+	
+}
+
+
+struct Node<E> {
+	// The object stored at this node.
+	value: E,
+	
+	// The height of the tree rooted at this node. Empty nodes have height 0.
+	// This node has height equal to max(left.height, right.height) + 1.
+	height: i16,
+	
+	// The number of nodes in the tree rooted at this node, including this node.
+	// Empty nodes have size 0. This node has size equal to left.size + right.size + 1.
+	size: usize,
+	
+	// The root node of the left subtree.
+	left: MaybeNode<E>,
+	
+	// The root node of the right subtree.
+	right: MaybeNode<E>,
+}
+
+
+impl <E> Node<E> {
+	
+	fn new(val: E) -> Self {
+		Self {
+			value: val,
+			height: 1,
+			size: 1,
+			left: MaybeNode(None),
+			right: MaybeNode(None),
+		}
+	}
+	
+	
+	fn get_at(&self, index: usize) -> &E {
+		assert!(index < self.size);
+		let leftsize = self.left.size();
+		if index < leftsize {
+			self.left.node_ref().get_at(index)
+		} else if index > leftsize {
+			self.right.node_ref().get_at(index - leftsize - 1)
+		} else {
+			&self.value
+		}
+	}
+	
+	
+	fn get_at_mut(&mut self, index: usize) -> &mut E {
+		assert!(index < self.size);
+		let leftsize = self.left.size();
+		if index < leftsize {
+			self.left.node_mut().get_at_mut(index)
+		} else if index > leftsize {
+			self.right.node_mut().get_at_mut(index - leftsize - 1)
+		} else {
+			&mut self.value
+		}
+	}
+	
+	
+	fn recalculate(&mut self) {
+		assert!(self.left .height() >= 0);
+		assert!(self.right.height() >= 0);
+		self.height = std::cmp::max(self.left.height(), self.right.height()) + 1;
+		self.size = self.left.size() + self.right.size() + 1;
+		assert!(self.height >= 0);
 	}
 	
 	
 	fn get_balance(&self) -> i16 {
-		match *self {
-			Node::EmptyLeafNode => 0,
-			Node::InternalNode(_, _, _, ref left, ref right) =>
-				right.height() - left.height(),
-		}
+		self.right.height() - self.left.height()
 	}
 	
 	
-	// For unit tests, invokable by AvlTreeList.
 	fn check_structure(&self) {
-		match *self {
-			Node::EmptyLeafNode => (),
-			Node::InternalNode(_, height, size, ref left, ref right) => {
-				assert_eq!(height, std::cmp::max(left.height(), right.height()) + 1, "Assertion error");
-				assert_eq!(size, left.size() + right.size() + 1, "Assertion error");
-				assert!(self.get_balance().abs() <= 1, "Assertion error");
-			},
-		}
+		assert_eq!(self.height, std::cmp::max(self.left.height(), self.right.height()) + 1);
+		assert_eq!(self.size, self.left.size() + self.right.size() + 1);
+		assert!(self.get_balance().abs() <= 1);
 	}
 	
 }
