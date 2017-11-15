@@ -27,7 +27,7 @@ use std;
 /*-- Fields --*/
 
 pub struct BinomialHeap<E> {
-	head: Node<E>,
+	head: Option<Box<Node<E>>>,
 }
 
 
@@ -36,8 +36,8 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	/*-- Constructors --*/
 	
 	pub fn new() -> Self {
-		BinomialHeap {
-			head: Node::dummy(),
+		Self {
+			head: None,
 		}
 	}
 	
@@ -45,20 +45,20 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	/*-- Methods --*/
 	
 	pub fn is_empty(&self) -> bool {
-		self.head.next.is_none()
+		self.head.is_none()
 	}
 	
 	
 	pub fn len(&self) -> usize {
 		let mut result = 0;
-		let mut node = &self.head.next;
-		loop {
-			match *node {
-				None => break,
-				Some(ref nd) => {
-					result |= 1 << nd.rank;
-					node = &nd.next;
-				},
+		if let Some(ref head) = self.head {
+			let mut node: &Node<E> = head;
+			loop {
+				result |= 1 << node.rank;
+				match node.next {
+					None => break,
+					Some(ref next) => { node = next.as_ref(); },
+				}
 			}
 		}
 		result
@@ -66,140 +66,137 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
 	
 	pub fn clear(&mut self) {
-		self.head.next = None;
+		self.head = None;
 	}
 	
 	
 	pub fn push(&mut self, val: E) {
-		self.merge_nodes(Some(Box::new(Node::new(val))));
+		let other = Some(Box::new(Node::new(val)));
+		self.merge_nodes(other);
 	}
 	
 	
 	pub fn peek(&self) -> Option<&E> {
-		let mut result = None;
-		let mut node = &self.head.next;
-		loop {
-			match *node {
-				None => break,
-				Some(ref nd) => {
-					match result {
-						None => {
-							result = nd.value.as_ref();
-						},
-						Some(val) => {
-							if *nd.value.as_ref().unwrap() < *val {
-								result = nd.value.as_ref();
-							}
-						},
-					}
-					node = &nd.next;
-				},
-			}
-		}
-		result
+		self.find_min().map(|(val, _)| val)
 	}
 	
 	
 	pub fn pop(&mut self) -> Option<E> {
-		if self.head.next.is_none() {
-			return None;
-		}
+		let minnodeindex: u32 = match self.find_min() {
+			None => { return None; },
+			Some((_, index)) => { index },
+		};
 		
-		let mut minnodeindex: i32 = -1;
+		let mut minnode: Option<Node<E>> = None;
 		{
-			let mut min: Option<&E> = None;
-			let mut node = &self.head.next;
-			let mut nodeindex: i32 = 0;
-			loop {
-				match *node {
+			let mut oldlist = std::mem::replace(&mut self.head, None);
+			let mut newlist: Option<Box<Node<E>>> = None;
+			for index in 0u32 .. {
+				match oldlist {
 					None => break,
-					Some(ref nd) => {
-						if min.is_none() || *nd.value.as_ref().unwrap() < *min.unwrap() {
-							min = nd.value.as_ref();
-							minnodeindex = nodeindex;
+					Some(mut node) => {
+						oldlist = std::mem::replace(&mut node.next, None);
+						if index == minnodeindex {
+							minnode = Some(*node);
+						} else {
+							node.next = newlist;
+							newlist = Some(node);
 						}
-						node = &nd.next;
 					},
 				}
-				nodeindex += 1;
 			}
-			assert!(min.is_some());
-			assert!(minnodeindex >= 0);
+			self.head = reverse_nodes(newlist);
 		}
 		
-		let mut minnode = self.head.remove_at(minnodeindex);
+		let mut minnode = minnode.unwrap();
 		self.merge_nodes(minnode.remove_root());
-		minnode.value
+		Some(minnode.value)
+	}
+	
+	
+	fn find_min(&self) -> Option<(&E, u32)> {
+		let mut minvalue: &E;
+		let mut node: &Node<E>;
+		match self.head {
+			None => { return None; },
+			Some(ref nd) => {
+				minvalue = &nd.value;
+				node = nd;
+			},
+		};
+		
+		let mut minindex = 0;
+		for index in 1u32 .. {
+			match node.next {
+				None => break,
+				Some(ref next) => {
+					node = next.as_ref();
+					if node.value < *minvalue {
+						minvalue = &node.value;
+						minindex = index;
+					}
+				},
+			}
+		}
+		Some((minvalue, minindex))
 	}
 	
 	
 	// Moves all the values in the given heap into this heap
 	pub fn merge(&mut self, other: &mut Self) {
-		let othernext = std::mem::replace(&mut other.head.next, None);
-		self.merge_nodes(othernext);
+		let othernodes = std::mem::replace(&mut other.head, None);
+		self.merge_nodes(othernodes);
 	}
 	
 	
 	// 'other' must not start with a dummy node
 	fn merge_nodes(&mut self, mut other: Option<Box<Node<E>>>) {
-		assert_eq!(self.head.rank, -1);
-		assert!(other.is_none() || other.as_ref().unwrap().rank >= 0);
-		let mut this = std::mem::replace(&mut self.head.next, None);
-		let mut merged: Node<E> = Node::dummy();
+		let mut this = std::mem::replace(&mut self.head, None);
+		let mut merged: Option<Box<Node<E>>> = None;
 		
 		while this.is_some() || other.is_some() {
-			let mut node: Node<E>;
+			let mut node: Box<Node<E>>;
 			if other.is_none() || this.is_some() && this.as_ref().unwrap().rank <= other.as_ref().unwrap().rank {
-				node = *this.unwrap();
+				node = this.unwrap();
 				this = std::mem::replace(&mut node.next, None);
 			} else {
-				node = *other.unwrap();
+				node = other.unwrap();
 				other = std::mem::replace(&mut node.next, None);
 			}
 			
-			if merged.rank < node.rank {
-				node.next = Some(Box::new(merged));
-				merged = node;
-			} else if merged.rank == node.rank + 1 {
-				std::mem::swap(&mut merged.next, &mut node.next);
-				merged.next = Some(Box::new(node));
-			} else if merged.rank == node.rank {
-				// Merge nodes
-				if merged.value <= node.value {
-					node.next = std::mem::replace(&mut merged.down, None);
-					merged.down = Some(Box::new(node));
-					merged.rank += 1;
-				} else {
-					let mergednext = std::mem::replace(&mut merged.next, None);
-					merged.next = std::mem::replace(&mut node.down, None);
-					node.down = Some(Box::new(merged));
-					node.next = mergednext;
-					node.rank += 1;
-					merged = node;
-				}
+			if merged.is_none() || merged.as_ref().unwrap().rank < node.rank {
+				node.next = merged;
+				merged = Some(node);
 			} else {
-				panic!("Assertion error");
+				let mut mrgd = merged.unwrap();
+				if mrgd.rank == node.rank + 1 {
+					std::mem::swap(&mut mrgd.next, &mut node.next);
+					mrgd.next = Some(node);
+				} else if mrgd.rank == node.rank {
+					// Merge nodes
+					if node.value < mrgd.value {
+						std::mem::swap(&mut node.value, &mut mrgd.value);
+						std::mem::swap(&mut node.down, &mut mrgd.down);
+					}
+					node.next = std::mem::replace(&mut mrgd.down, None);
+					mrgd.down = Some(node);
+					mrgd.rank += 1;
+				} else {
+					panic!("Assertion error");
+				}
+				merged = Some(mrgd);
 			}
 		}
-		
-		let mut reversed: Node<E> = merged;
-		let mut merged: Option<Box<Node<E>>> = std::mem::replace(&mut reversed.next, None);
-		while merged.is_some() {
-			let mut node = *merged.unwrap();
-			merged = std::mem::replace(&mut node.next, None);
-			node.next = Some(Box::new(reversed));
-			reversed = node;
-		}
-		self.head = reversed;
+		self.head = reverse_nodes(merged);
 	}
 	
 	
 	// For unit tests
 	pub fn check_structure(&self) {
-		assert!(self.head.value.is_none());
-		assert_eq!(self.head.rank, -1);
-		// Check chain of nodes and their children
-		self.head.check_structure(true, None);
+		match self.head {
+			Some(ref node) => node.check_structure(true, None),
+			_ => (),
+		}
 	}
 	
 }
@@ -211,8 +208,8 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 /*-- Fields --*/
 
 struct Node<E> {
-	value: Option<E>,
-	rank: i8,
+	value: E,
+	rank: u8,
 	
 	down: Option<Box<Node<E>>>,
 	next: Option<Box<Node<E>>>,
@@ -223,19 +220,9 @@ impl <E: std::cmp::Ord> Node<E> {
 	
 	/*-- Constructors --*/
 	
-	fn dummy() -> Self {
-		Node {
-			value: None,
-			rank: -1,
-			down: None,
-			next: None,
-		}
-	}
-	
-	
 	fn new(val: E) -> Self {
-		Node {
-			value: Some(val),
+		Self {
+			value: val,
 			rank: 0,
 			down: None,
 			next: None,
@@ -245,40 +232,18 @@ impl <E: std::cmp::Ord> Node<E> {
 	
 	/*-- Methods --*/
 	
-	fn remove_at(&mut self, index: i32) -> Self {
-		if index < 0 {
-			panic!("Assertion error");
-		} else if index == 0 {
-			let mut result = *std::mem::replace(&mut self.next, None).unwrap();
-			std::mem::swap(&mut result.next, &mut self.next);
-			result
-		} else {
-			self.next.as_mut().unwrap().remove_at(index - 1)
-		}
-	}
-	
-	
 	fn remove_root(&mut self) -> Option<Box<Self>> {
 		assert!(self.next.is_none());
-		let mut result = None;
-		let mut node = std::mem::replace(&mut self.down, None);
-		while node.is_some() {  // Reverse the order of nodes from descending rank to ascending rank
-			let mut nd = *node.unwrap();
-			let next = std::mem::replace(&mut nd.next, None);
-			nd.next = result;
-			result = Some(Box::new(nd));
-			node = next;
-		}
-		result
+		let temp = std::mem::replace(&mut self.down, None);
+		reverse_nodes(temp)
 	}
 		
 		
 	// For unit tests
 	fn check_structure(&self, ismain: bool, lowerbound: Option<&E>) {
 		// Basic checks
-		assert!((self.rank < 0) == self.value.is_none(), "Invalid node rank or value");
 		assert!(ismain == lowerbound.is_none(), "Invalid arguments");
-		assert!(ismain || self.value.as_ref().unwrap() >= lowerbound.unwrap(), "Min-heap property violated");
+		assert!(ismain || self.value >= *lowerbound.unwrap(), "Min-heap property violated");
 		
 		// Check children and non-main chains
 		if self.rank > 0 {
@@ -286,7 +251,7 @@ impl <E: std::cmp::Ord> Node<E> {
 				None => panic!("Down node absent"),
 				Some(ref down) => {
 					assert_eq!(down.rank, self.rank - 1, "Down node has invalid rank");
-					down.check_structure(false, self.value.as_ref());
+					down.check_structure(false, Some(&self.value));
 				},
 			}
 			if !ismain {
@@ -311,4 +276,21 @@ impl <E: std::cmp::Ord> Node<E> {
 		}
 	}
 	
+}
+
+
+fn reverse_nodes<E>(mut nodes: Option<Box<Node<E>>>) -> Option<Box<Node<E>>> {
+	let mut result: Option<Box<Node<E>>> = None;
+	loop {
+		match nodes {
+			None => break,
+			Some(mut node) => {
+				let next = std::mem::replace(&mut node.next, None);
+				node.next = result;
+				result = Some(node);
+				nodes = next;
+			},
+		}
+	}
+	result
 }

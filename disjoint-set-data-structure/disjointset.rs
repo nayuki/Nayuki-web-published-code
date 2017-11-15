@@ -21,7 +21,7 @@
  *   Software.
  */
 
-extern crate std;
+use std;
 
 
 /* 
@@ -29,6 +29,7 @@ extern crate std;
  * Main operations are querying if two elements are in the same set, and merging two sets together.
  * Useful for testing graph connectivity, and is used in Kruskal's algorithm.
  */
+#[derive(Clone)]
 pub struct DisjointSet {
 	
 	numberofsets: usize,
@@ -39,6 +40,7 @@ pub struct DisjointSet {
 
 
 // Private helper structure.
+#[derive(Clone, Copy)]
 struct DisjointSetNode {
 	
 	// The index of the parent element. An element is a representative iff its parent is itself.
@@ -57,7 +59,7 @@ impl DisjointSet {
 	
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
-	pub fn new(numelems: usize) -> DisjointSet {
+	pub fn new(numelems: usize) -> Self {
 		let mut nodes = Vec::<DisjointSetNode>::with_capacity(numelems);
 		for i in 0 .. numelems {
 			nodes.push(DisjointSetNode{
@@ -161,40 +163,9 @@ impl DisjointSet {
 			ok &= node.parent < self.nodes.len();
 			ok &= 0 <= node.rank && (isrepr || node.rank < self.nodes[node.parent].rank);
 			ok &= !isrepr && node.size == 0 || isrepr && node.size >= (1usize << node.rank);
-			if !ok {
-				panic!("Assertion error");
-			}
+			assert!(ok);
 		}
-		if !(self.numberofsets == numrepr && self.numberofsets <= self.nodes.len()) {
-			panic!("Assertion error");
-		}
+		assert!(self.numberofsets == numrepr && self.numberofsets <= self.nodes.len());
 	}
 	
-}
-
-
-impl Clone for DisjointSet {
-	
-	fn clone(&self) -> Self {
-		DisjointSet {
-			numberofsets: self.numberofsets,
-			nodes: self.nodes.clone(),
-		}
-	}
-	
-	
-	fn clone_from(&mut self, source: &Self) {
-		self.numberofsets = source.numberofsets;
-		self.nodes.clone_from(&source.nodes);
-	}
-	
-}
-
-
-impl Copy for DisjointSetNode {}
-
-impl Clone for DisjointSetNode {
-	fn clone(&self) -> Self {
-		*self
-	}
 }

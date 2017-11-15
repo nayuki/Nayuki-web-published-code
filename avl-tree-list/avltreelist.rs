@@ -31,9 +31,17 @@ pub struct AvlTreeList<E> {
 
 impl <E> AvlTreeList<E> {
 	
-	pub fn new() -> AvlTreeList<E> {
+	pub fn new() -> Self {
 		AvlTreeList {
 			root: Node::EmptyLeafNode,
+		}
+	}
+	
+	
+	pub fn is_empty(&self) -> bool {
+		match self.root {
+			Node::EmptyLeafNode => true,
+			_ => false,
 		}
 	}
 	
@@ -113,6 +121,9 @@ impl <E> std::ops::IndexMut<usize> for AvlTreeList<E> {
 }
 
 
+
+/*---- Helper struct: AVL tree node ----*/
+
 enum Node<E> {
 	EmptyLeafNode,
 	
@@ -134,7 +145,7 @@ enum Node<E> {
 
 impl <E> Node<E> {
 	
-	fn new(val: E) -> Node<E> {
+	fn new(val: E) -> Self {
 		Node::InternalNode(val, 1, 1,
 			Box::new(Node::EmptyLeafNode), Box::new(Node::EmptyLeafNode))
 	}
@@ -301,7 +312,7 @@ impl <E> Node<E> {
 	 *    / \      / \
 	 *   1   2    0   1
 	 */
-	fn rotate_left(mut self) -> Node<E> {
+	fn rotate_left(mut self) -> Self {
 		let mut root;
 		if let Node::InternalNode(_, _, _, _, ref mut right) = self {
 			root = *std::mem::replace(right, Box::new(Node::EmptyLeafNode));
@@ -331,7 +342,7 @@ impl <E> Node<E> {
 	 *  / \            / \
 	 * 0   1          1   2
 	 */
-	fn rotate_right(mut self) -> Node<E> {
+	fn rotate_right(mut self) -> Self {
 		let mut root;
 		if let Node::InternalNode(_, _, _, ref mut left, _) = self {
 			root = *std::mem::replace(left, Box::new(Node::EmptyLeafNode));
@@ -376,7 +387,7 @@ impl <E> Node<E> {
 	}
 	
 	
-	// For unit tests, invokable by AvlTreeList<E>.
+	// For unit tests, invokable by AvlTreeList.
 	fn check_structure(&self) {
 		match *self {
 			Node::EmptyLeafNode => (),

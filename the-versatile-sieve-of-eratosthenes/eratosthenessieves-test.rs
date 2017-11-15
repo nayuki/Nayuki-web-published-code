@@ -4,7 +4,7 @@
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
-extern crate eratosthenessieves;
+mod eratosthenessieves;
 
 
 fn main() {

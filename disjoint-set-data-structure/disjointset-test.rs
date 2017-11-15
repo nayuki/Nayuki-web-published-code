@@ -82,12 +82,12 @@ fn test_big_merge() {
 	let maxrank: i8 = 20;
 	let trials: i32 = 10000;
 	
-	let numelems: usize = 1usize << maxrank;  // Grows exponentially
+	let numelems: usize = 1 << maxrank;  // Grows exponentially
 	let mut ds = disjointset::DisjointSet::new(numelems);
 	let mut rng = rand::thread_rng();
 	let range = rand::distributions::range::Range::new(0, numelems);
 	for level in 0 .. maxrank {
-		let mergestep: usize = 1usize << level;
+		let mergestep: usize = 1 << level;
 		let incrstep: usize = mergestep * 2;
 		let mut i: usize = 0;
 		while i < numelems {
@@ -142,17 +142,15 @@ fn test_against_naive_randomly() {
 /*---- Helper definitions ----*/
 
 struct NaiveDisjointSet {
-	
 	representatives: Vec<usize>,
-	
 }
 
 
 impl NaiveDisjointSet {
 	
-	fn new(numelems: usize) -> NaiveDisjointSet {
+	fn new(numelems: usize) -> Self {
 		NaiveDisjointSet {
-			representatives: (0 .. numelems).collect(),
+			representatives: (0usize .. numelems).collect(),
 		}
 	}
 	

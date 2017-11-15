@@ -52,9 +52,7 @@ fn main() {
 			for _ in 0 .. n {
 				let val: i32 = valuedist.ind_sample(&mut rng);
 				let added: bool = set0.insert(val);
-				if set1.insert(val) != added {
-					panic!("Insert mismatch");
-				}
+				assert_eq!(set1.insert(val), added, "Insert mismatch");
 				size += added as usize;
 			}
 			
@@ -62,21 +60,16 @@ fn main() {
 			let n = opcountdist.ind_sample(&mut rng);
 			for _ in 0 .. n {
 				let val: i32 = valuedist.ind_sample(&mut rng);
-				if set1.contains(&val) != set0.contains(&val) {
-					panic!("Contain test mismatch");
-				}
+				assert_eq!(set1.contains(&val), set0.contains(&val), "Contain test mismatch");
 			}
 			
 		} else {
 			panic!("Invalid random operation");
 		}
 		
-		if set0.is_empty() != set1.is_empty() {
-			panic!("Emptiness mismatch");
-		}
-		if set0.len() != size || set1.len() != size {
-			panic!("Set size mismatch");
-		}
+		assert_eq!(set0.is_empty(), set1.is_empty(), "Emptiness mismatch");
+		assert_eq!(set1.len(), size, "Set size mismatch");
+		assert_eq!(set1.len(), size, "Set size mismatch");
 	}
 	println!("Test passed");
 }

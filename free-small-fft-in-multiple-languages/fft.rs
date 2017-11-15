@@ -21,7 +21,7 @@
  *   Software.
  */
 
-extern crate std;
+use std;
 
 
 /* 

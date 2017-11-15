@@ -4,6 +4,8 @@
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
+use std;
+
 
 pub fn sieve_primeness(limit: u32) -> Vec<bool> {
 	check_limit(limit);

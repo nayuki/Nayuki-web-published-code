@@ -21,9 +21,10 @@
  *   Software.
  */
 
-extern crate std;
+use std;
 
 
+#[derive(Clone)]
 pub struct BinaryArraySet<E> {
 	
 	// Each values[i]'s length is either 0 or 2^i, with elements in ascending order
@@ -36,8 +37,8 @@ pub struct BinaryArraySet<E> {
 
 impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	
-	pub fn new() -> BinaryArraySet<E> {
-		BinaryArraySet {
+	pub fn new() -> Self {
+		Self {
 			values: Vec::new(),
 			size: 0,
 		}
@@ -65,7 +66,7 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	// Runs in O((log n)^2) time
 	pub fn contains(&self, val: &E) -> bool {
 		for vals in &self.values {
-			if let Ok(_) = vals.binary_search(val) {
+			if vals.binary_search(val).is_ok() {
 				return true;
 			}
 		}
@@ -87,9 +88,7 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	
 	// Runs in amortized O(1) time, worst-case O(n) time
 	pub fn insert_unique(&mut self, val: E) {
-		if self.size == std::usize::MAX {
-			panic!("Maximum size reached");
-		}
+		assert!(self.size < std::usize::MAX, "Maximum size reached");
 		let mut toput: Vec<E> = vec![val];
 		for i in 0usize .. {
 			if i >= self.values.len() {
@@ -104,9 +103,8 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 			}
 			
 			// Merge two sorted arrays
-			if vals.len() != toput.len() || vals.len() > std::usize::MAX / 2 {
-				panic!("Assertion error");
-			}
+			assert_eq!(vals.len(), toput.len());
+			assert!(vals.len() <= std::usize::MAX / 2);
 			toput = BinaryArraySet::merge_vecs(vals, &mut toput);
 		}
 		self.size += 1;
@@ -116,20 +114,14 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	pub fn check_structure(&self) {
 		let mut sum: usize = 0;
 		for (i, vals) in self.values.iter().enumerate() {
-			let len: usize = vals.len();
-			if len != 0 && len != 1usize << i {
-				panic!("Invalid sub-vector length");
-			}
+			let len = vals.len();
+			assert!(len == 0 || len == 1 << i, "Invalid sub-vector length");
 			for j in 1 .. vals.len() {
-				if vals[j - 1] >= vals[j] {
-					panic!("Invalid ordering of elements in vector");
-				}
+				assert!(vals[j - 1] < vals[j], "Invalid ordering of elements in vector");
 			}
 			sum += len;
 		}
-		if sum != self.size {
-			panic!("Size mismatch between counter and sub-vectors");
-		}
+		assert_eq!(sum, self.size, "Size mismatch between counter and sub-vectors");
 	}
 	
 	
@@ -148,24 +140,6 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 		}
 		result.reverse();
 		result
-	}
-	
-}
-
-
-impl<E> Clone for BinaryArraySet<E> where E: Clone {
-	
-	fn clone(&self) -> Self {
-		BinaryArraySet {
-			values: self.values.clone(),
-			size: self.size,
-		}
-	}
-	
-	
-	fn clone_from(&mut self, source: &Self) {
-		self.values.clone_from(&source.values);
-		self.size = source.size;
 	}
 	
 }
