@@ -27,16 +27,60 @@ use rand::distributions::IndependentSample;
 mod binaryarrayset;
 
 
-// Comprehensively tests all the defined methods against std::collections::HashSet
 fn main() {
+	test_blank();
+	test_add_0();
+	test_add_1();
+	test_against_rust_set_randomly();
+}
+
+
+fn test_blank() {
+	let set = binaryarrayset::BinaryArraySet::<i32>::new();
+	assert!(!set.contains(&0));
+	assert!(!set.contains(&-5));
+	assert!(!set.contains(&2));
+}
+
+
+fn test_add_0() {
+	let mut set = binaryarrayset::BinaryArraySet::<i32>::new();
+	for i in 1 .. 101 {
+		set.insert(i - 1);
+		assert_eq!(set.len(), i as usize);
+		assert!(!set.contains(&-7));
+		assert!(!set.contains(&-1));
+		for j in 0 .. i {
+			assert!(set.contains(&j));
+		}
+		for j in i .. i + 10 {
+			assert!(!set.contains(&j));
+		}
+	}
+}
+
+
+fn test_add_1() {
+	let mut set = binaryarrayset::BinaryArraySet::<i32>::new();
+	for i in 1 .. 31 {
+		set.insert((i - 1) * (i - 1));
+		for j in -3 .. i * i + 5 {
+			assert_eq!(set.contains(&j), j <= (i - 1) * (i - 1) && is_perfect_square(j));
+		}
+	}
+}
+
+
+// Comprehensively tests all the defined methods
+fn test_against_rust_set_randomly() {
 	let trials = 100_000;
 	let mut rng = rand::thread_rng();
 	let operationdist = rand::distributions::range::Range::new(0, 100);
 	let opcountdist = rand::distributions::range::Range::new(1, 101);
 	let valuedist = rand::distributions::range::Range::new(0i32, 10000i32);
 	
-	let mut set0: std::collections::HashSet<i32> = std::collections::HashSet::new();
-	let mut set1: binaryarrayset::BinaryArraySet<i32> = binaryarrayset::BinaryArraySet::new();
+	let mut set0 = std::collections::HashSet::<i32>::new();
+	let mut set1 = binaryarrayset::BinaryArraySet::<i32>::new();
 	let mut size: usize = 0;
 	for _ in 0 .. trials {
 		let op = operationdist.ind_sample(&mut rng);
@@ -52,7 +96,7 @@ fn main() {
 			for _ in 0 .. n {
 				let val: i32 = valuedist.ind_sample(&mut rng);
 				let added: bool = set0.insert(val);
-				assert_eq!(set1.insert(val), added, "Insert mismatch");
+				assert_eq!(added, set1.insert(val), "Insert mismatch");
 				size += added as usize;
 			}
 			
@@ -60,16 +104,28 @@ fn main() {
 			let n = opcountdist.ind_sample(&mut rng);
 			for _ in 0 .. n {
 				let val: i32 = valuedist.ind_sample(&mut rng);
-				assert_eq!(set1.contains(&val), set0.contains(&val), "Contain test mismatch");
+				assert_eq!(set0.contains(&val), set1.contains(&val), "Contain test mismatch");
 			}
 			
 		} else {
-			panic!("Invalid random operation");
+			panic!("Assertion error");
 		}
 		
 		assert_eq!(set0.is_empty(), set1.is_empty(), "Emptiness mismatch");
-		assert_eq!(set1.len(), size, "Set size mismatch");
+		assert_eq!(set0.len(), size, "Set size mismatch");
 		assert_eq!(set1.len(), size, "Set size mismatch");
 	}
 	println!("Test passed");
+}
+
+
+fn is_perfect_square(n: i32) -> bool {
+	for i in 0 .. {
+		if i * i == n {
+			return true;
+		} else if i * i > n {
+			return false;
+		}
+	}
+	panic!();
 }
