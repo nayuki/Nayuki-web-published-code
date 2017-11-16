@@ -102,7 +102,7 @@ public final class BinaryArraySetTest {
 	
 	
 	// Comprehensively tests all the defined methods
-	@Test public void testAgainstJavaListRandomly() {
+	@Test public void testAgainstJavaSetRandomly() {
 		Random rand = new Random();
 		Set<Integer> set0 = new HashSet<>();
 		Set<Integer> set1 = newSet();

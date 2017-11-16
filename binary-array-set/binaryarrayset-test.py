@@ -21,62 +21,120 @@
 #   Software.
 # 
 
-import random
+import itertools, random, unittest
 import binaryarrayset
 
 
-# Comprehensively tests all the defined methods against Python's built-in set class
-def main():
-	ITERATIONS = 10000
-	set0 = set()
-	set1 = binaryarrayset.BinaryArraySet()
-	length = 0
-	for i in range(ITERATIONS):
-		if i % 300 == 0:
-			print("Progress: {:.0%}".format(float(i) / ITERATIONS))
-		op = random.randrange(100)
+class BinaryArraySetTest(unittest.TestCase):
+
+	def test_blank(self):
+		s = binaryarrayset.BinaryArraySet()
+		self.assertFalse(0 in s)
+		self.assertFalse(-5 in s)
+		self.assertFalse(2 in s)
+	
+	
+	def test_construct_from_existing(self):
+		s = binaryarrayset.BinaryArraySet([1, 5, 5, 8])
+		self.assertEqual(3, len(s))
+		self.assertTrue(1 in s)
+		self.assertTrue(5 in s)
+		self.assertTrue(8 in s)
+		self.assertFalse(-2 in s)
+		self.assertFalse(0 in s)
+		self.assertFalse(4 in s)
+		self.assertFalse(9 in s)
+	
+	
+	def test_add_0(self):
+		s = binaryarrayset.BinaryArraySet()
+		for i in range(1, 101):
+			s.add(i - 1)
+			self.assertEqual(i, len(s))
+			self.assertFalse(-7 in s)
+			self.assertFalse(-1 in s)
+			for j in range(i):
+				self.assertTrue(j in s)
+			for j in range(i, i + 10):
+				self.assertFalse(j in s)
+	
+	
+	def test_add_1(self):
+		def is_perfect_square(n):
+			for i in itertools.count():
+				ii = i * i
+				if ii == n:
+					return True
+				elif ii > n:
+					return False
 		
-		if op < 1:  # Fast clear
-			set1.check_structure()
-			set0.clear()
-			set1.clear()
-			length = 0
+		s = binaryarrayset.BinaryArraySet()
+		for i in range(1, 31):
+			s.add((i - 1)**2)
+			for j in range(-3, i**2 + 5):
+				self.assertEqual(j in s, j <= (i - 1)**2 and is_perfect_square(j))
+	
+	
+	def test_iterator(self):
+		s = binaryarrayset.BinaryArraySet()
+		for i in range(1, 101):
+			s.add((i - 1)**2)
 			
-		elif op < 2:  # Clear with iterator and removal
-			set1.check_structure()
-			for val in set1:
-				set0.remove(val)
-			set1.clear()
-			length = 0
+			lst = sorted(list(s))
+			self.assertEqual(i, len(lst))
 			
-		elif op < 3:  # Check iterator fully
-			if sorted(set1) != sorted(set0):
+			for j in range(i):
+				self.assertEqual(j**2, lst[j])
+	
+	
+	# Comprehensively tests all the defined methods
+	def test_against_python_set_randomly(self):
+		ITERATIONS = 10000
+		set0 = set()
+		set1 = binaryarrayset.BinaryArraySet()
+		length = 0
+		for i in range(ITERATIONS):
+			if i % 300 == 0:
+				print("Progress: {:.0%}".format(float(i) / ITERATIONS))
+			op = random.randrange(100)
+			
+			if op < 1:  # Fast clear
+				set1.check_structure()
+				set0.clear()
+				set1.clear()
+				length = 0
+				
+			elif op < 2:  # Clear with iterator and removal
+				set1.check_structure()
+				for val in set1:
+					set0.remove(val)
+				set1.clear()
+				length = 0
+				
+			elif op < 3:  # Check iterator fully
+				self.assertEqual(sorted(set0), sorted(set1))
+				
+			elif op < 70:  # Add
+				n = random.randint(1, 100)
+				for j in range(n):
+					val = random.randrange(10000)
+					if val not in set0:
+						length += 1
+					set0.add(val)
+					set1.add(val)
+				
+			elif op < 100:  # Contains
+				n = random.randint(1, 100)
+				for j in range(n):
+					val = random.randrange(10000)
+					self.assertEqual(val in set0, val in set1)
+				
+			else:
 				raise AssertionError()
 			
-		elif op < 70:  # Add
-			n = random.randint(1, 100)
-			for j in range(n):
-				val = random.randrange(10000)
-				if val not in set0:
-					length += 1
-				set0.add(val)
-				set1.add(val)
-			
-		elif op < 100:  # Contains
-			n = random.randint(1, 100)
-			for j in range(n):
-				val = random.randrange(10000)
-				if (val in set1) != (val in set0):
-					raise AssertionError()
-			
-		else:
-			raise AssertionError()
-		
-		if not (len(set0) == len(set1) == length):
-			raise AssertionError()
-	
-	print("Test passed")
+			self.assertEqual(len(set0), len(set1))
+
 
 
 if __name__ == "__main__":
-	main()
+	unittest.main()
