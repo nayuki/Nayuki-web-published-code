@@ -1,7 +1,7 @@
 /* 
  * Brainfuck interpreter
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/brainfuck-interpreter-javascript
  */
@@ -10,9 +10,12 @@
 
 
 var instance = null;
+var stepButton = document.getElementById("step");
+var runButton = document.getElementById("run");
+var pauseButton = document.getElementById("pause");
 
 
-/* Entry points from the HTML code */
+/*---- Entry points from the HTML code ----*/
 
 function doLoad() {
 	if (instance != null) {
@@ -27,39 +30,52 @@ function doLoad() {
 	}
 }
 
+
 function demo(s) {
 	document.getElementById("code").value = s;
 	doLoad();
 }
+
 
 function doStep() {
 	if (instance != null)
 		instance.step();
 }
 
+
 function doRun() {
 	if (instance != null) {
-		setButtonEnabled("step", false);
-		setButtonEnabled("run", false);
-		setButtonEnabled("pause", true);
+		stepButton.disabled = true;
+		runButton.disabled = true;
+		pauseButton.disabled = false;
 		instance.run();
 	}
 }
 
+
 function doPause() {
 	if (instance != null) {
 		instance.pause();
-		setButtonEnabled("step", true);
-		setButtonEnabled("run", true);
-		setButtonEnabled("pause", false);
+		stepButton.disabled = false;
+		runButton.disabled = false;
+		pauseButton.disabled = true;
 	}
 }
 
 
-/* Brainfuck interpreter core */
+
+/*---- Brainfuck interpreter core ----*/
 
 // Constants for the opcodes
-var LEFT = 0, RIGHT = 1, PLUS = 2, MINUS = 3, IN = 4, OUT = 5, LOOP = 6, BACK = 7;
+var LEFT  = 0,
+    RIGHT = 1,
+    PLUS  = 2,
+    MINUS = 3,
+    IN    = 4,
+    OUT   = 5,
+    LOOP  = 6,
+    BACK  = 7;
+
 
 function Brainfuck(code) {
 	// State variables
@@ -80,9 +96,9 @@ function Brainfuck(code) {
 	var maxMemoryWrite = memoryIndex;  // Inclusive
 	
 	showState();
-	setButtonEnabled("step", !isHalted());
-	setButtonEnabled("run", !isHalted());
-	setButtonEnabled("pause", false);
+	stepButton.disabled = isHalted();
+	runButton.disabled = isHalted();
+	pauseButton.disabled = true;
 	
 	// Public controls
 	
@@ -96,8 +112,8 @@ function Brainfuck(code) {
 			step();
 			showState();
 			if (isHalted()) {
-				setButtonEnabled("step", false);
-				setButtonEnabled("run" , false);
+				stepButton.disabled = true;
+				runButton.disabled = true;
 			}
 		}
 	};
@@ -121,7 +137,7 @@ function Brainfuck(code) {
 		
 		if (isHalted()) {
 			showState();
-			setButtonEnabled("pause", false);
+			pauseButton.disabled = true;
 		
 		} else {
 			if (outputChanged)
@@ -147,15 +163,43 @@ function Brainfuck(code) {
 		if (isHalted())
 			return false;
 		switch (program[programCounter]) {
-			case LEFT :  memoryIndex--;  programCounter++;  break;
-			case RIGHT:  memoryIndex++;  programCounter++;  break;
-			case PLUS :  setCell((getCell() + 1) & 0xFF);  programCounter++;  break;
-			case MINUS:  setCell((getCell() - 1) & 0xFF);  programCounter++;  break;
-			case IN   :  setCell(getNextInputByte());  programCounter++;  break;
-			case OUT  :  output += String.fromCharCode(getCell());  outputChanged = true;  programCounter++;  break;
-			case LOOP :  if (getCell() == 0) { programCounter = program[programCounter + 1]; }  programCounter += 2;  break;
-			case BACK :  if (getCell() != 0) { programCounter = program[programCounter + 1]; }  programCounter += 2;  break;
-			default   :  throw "Assertion error";
+			case LEFT:
+				memoryIndex--;
+				programCounter++;
+				break;
+			case RIGHT:
+				memoryIndex++;
+				programCounter++;
+				break;
+			case PLUS:
+				setCell((getCell() + 1) & 0xFF);
+				programCounter++;
+				break;
+			case MINUS:
+				setCell((getCell() - 1) & 0xFF);
+				programCounter++;
+				break;
+			case IN:
+				setCell(getNextInputByte());
+				programCounter++;
+				break;
+			case OUT:
+				output += String.fromCharCode(getCell());
+				outputChanged = true;
+				programCounter++;
+				break;
+			case LOOP:
+				if (getCell() == 0)
+					programCounter = program[programCounter + 1];
+				programCounter += 2;
+				break;
+			case BACK:
+				if (getCell() != 0)
+					programCounter = program[programCounter + 1];
+				programCounter += 2;
+				break;
+			default:
+				throw "Assertion error";
 		}
 		steps++;
 		return !isHalted();
@@ -278,9 +322,4 @@ function compile(str) {
 	if (openBracketIndices.length > 0)
 		throw "Mismatched brackets (extra left bracket)";
 	return result;
-}
-
-
-function setButtonEnabled(name, enabled) {
-	document.getElementById(name).disabled = !enabled;
 }
