@@ -8,6 +8,7 @@
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Objects;
 
 
 /**
@@ -57,8 +58,9 @@ public final class ReedSolomon<E> {
 	 */
 	public ReedSolomon(Field<E> f, E gen, Class<E> elemType, int msgLen, int eccLen) {
 		// Check arguments
-		if (f == null || gen == null || elemType == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(f);
+		Objects.requireNonNull(gen);
+		Objects.requireNonNull(elemType);
 		if (msgLen <= 0 || eccLen <= 0 || Integer.MAX_VALUE - msgLen < eccLen)
 			throw new IllegalArgumentException("Invalid message or ECC length");
 		
@@ -86,8 +88,7 @@ public final class ReedSolomon<E> {
 	 */
 	public E[] encode(E[] message) {
 		// Check arguments
-		if (message == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(message);
 		if (message.length != messageLen)
 			throw new IllegalArgumentException("Invalid message length");
 		
@@ -179,8 +180,7 @@ public final class ReedSolomon<E> {
 	 */
 	public E[] decode(E[] codeword, int numErrorsToCorrect) {
 		// Check arguments
-		if (codeword == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(codeword);
 		if (codeword.length != codewordLen)
 			throw new IllegalArgumentException("Invalid codeword length");
 		if (numErrorsToCorrect < 0 || numErrorsToCorrect > eccLen / 2)
@@ -228,8 +228,7 @@ public final class ReedSolomon<E> {
 	// To summarize the math, syndrome[i] = codeword(generator^i).
 	private E[] calculateSyndromes(E[] codeword) {
 		// Check arguments
-		if (codeword == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(codeword);
 		if (codeword.length != codewordLen)
 			throw new IllegalArgumentException();
 		
@@ -248,8 +247,7 @@ public final class ReedSolomon<E> {
 	// in little endian, or null if the syndrome values imply too many errors to handle.
 	private E[] calculateErrorLocatorPolynomial(E[] syndromes, int numErrorsToCorrect) {
 		// Check arguments
-		if (syndromes == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(syndromes);
 		if (syndromes.length != eccLen || numErrorsToCorrect <= 0 || numErrorsToCorrect > syndromes.length / 2)
 			throw new IllegalArgumentException();
 		
@@ -302,8 +300,7 @@ public final class ReedSolomon<E> {
 	// This method tries to find roots of the error locator polynomial by brute force.
 	private int[] findErrorLocations(E[] errLocPoly, int maxSolutions) {
 		// Check arguments
-		if (errLocPoly == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(errLocPoly);
 		if (maxSolutions <= 0 || maxSolutions > codewordLen)
 			throw new IllegalArgumentException();
 		
@@ -335,8 +332,8 @@ public final class ReedSolomon<E> {
 	// to have all zero syndromes (but it could be the wrong answer, unequal to the original message).
 	private E[] calculateErrorValues(int[] errLocs, E[] syndromes) {
 		// Check arguments
-		if (errLocs == null || syndromes == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(errLocs);
+		Objects.requireNonNull(syndromes);
 		if (syndromes.length != eccLen)
 			throw new IllegalArgumentException();
 		
@@ -374,8 +371,9 @@ public final class ReedSolomon<E> {
 	// Always succeeds, as long as the array values are well-formed.
 	private E[] fixErrors(E[] codeword, int[] errLocs, E[] errVals) {
 		// Check arguments
-		if (codeword == null || errLocs == null || errVals == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(codeword);
+		Objects.requireNonNull(errLocs);
+		Objects.requireNonNull(errVals);
 		if (codeword.length != codewordLen || errLocs.length != errVals.length)
 			throw new IllegalArgumentException();
 		
@@ -404,8 +402,8 @@ public final class ReedSolomon<E> {
 	// in little endian. In other words, this method evaluates result = polynomial(point)
 	// = polynomial[0]*point^0 + polynomial[1]*point^1 + ... + ponylomial[len-1]*point^(len-1).
 	private E evaluatePolynomial(E[] polynomial, E point) {
-		if (polynomial == null || point == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(polynomial);
+		Objects.requireNonNull(point);
 		
 		// Horner's method
 		E result = f.zero();
@@ -419,8 +417,7 @@ public final class ReedSolomon<E> {
 	
 	// Tests whether all elements of the given array are equal to the field's zero element.
 	private boolean areAllZero(E[] array) {
-		if (array == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(array);
 		for (E val : array) {
 			if (!f.equals(val, f.zero()))
 				return false;
@@ -431,8 +428,7 @@ public final class ReedSolomon<E> {
 	
 	// Returns the given field element raised to the given power. The power must be non-negative.
 	private E pow(E base, int exp) {
-		if (base == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(base);
 		if (exp < 0)
 			throw new UnsupportedOperationException();
 		E result = f.one();

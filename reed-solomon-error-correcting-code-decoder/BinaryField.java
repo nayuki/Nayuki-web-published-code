@@ -6,6 +6,8 @@
  * https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
  */
 
+import java.util.Objects;
+
 
 /**
  * A Galois field of the form GF(2^n/mod). Each element of this kind of field is a
@@ -58,8 +60,7 @@ public final class BinaryField extends Field<Integer> {
 	// Checks if the given object is non-null and within the range
 	// of valid values, and returns the unboxed primitive value.
 	private int check(Integer x) {
-		if (x == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(x);
 		int y = x.intValue();
 		if (y < 0 || y >= size)
 			throw new IllegalArgumentException("Not an element of this field: " + y);

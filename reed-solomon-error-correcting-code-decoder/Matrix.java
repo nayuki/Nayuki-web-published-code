@@ -6,6 +6,8 @@
  * https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
  */
 
+import java.util.Objects;
+
 
 /**
  * Represents a mutable matrix of field elements, supporting linear algebra operations.
@@ -37,8 +39,7 @@ public final class Matrix<E> implements Cloneable {
 	public Matrix(int rows, int cols, Field<E> f) {
 		if (rows <= 0 || cols <= 0)
 			throw new IllegalArgumentException("Invalid number of rows or columns");
-		if (f == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(f);
 		
 		values = new Object[rows][cols];
 		this.f = f;
