@@ -125,7 +125,7 @@ function nextMonth() {
 			amount = 500000;  // Known amount
 		else if (year == 2015)
 			amount = 1000000;  // Known amount
-		else if (year <= 2017)
+		else if (year <= 2018)
 			amount = 550000;  // Known amount
 		else  // Estimate based on 2% annual inflation
 			amount = Math.round(5000 * Math.pow(1.02, year - 2009) / 500) * 50000;
