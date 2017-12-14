@@ -27,21 +27,24 @@
 #include <cstddef>
 #include <utility>
 
+using std::size_t;
+
 
 template <typename E>
 class BinomialHeap final {
 	
+	private: class Node;  // Forward declaration
+	
+	
 	/*---- Fields ----*/
 	
-	private: class Node;  // Forward declaration
 	private: Node head;   // The head node is an immovable dummy node
 	
 	
 	
 	/*---- Constructors ----*/
 	
-	public: BinomialHeap()
-		: head() {}  // Dummy node
+	public: BinomialHeap() {}
 	
 	
 	
@@ -52,10 +55,10 @@ class BinomialHeap final {
 	}
 	
 	
-	public: std::size_t size() const {
-		std::size_t result = 0;
+	public: size_t size() const {
+		size_t result = 0;
 		for (const Node *node = head.next; node != nullptr; node = node->next) {
-			std::size_t temp = safeLeftShift(1, node->rank);
+			size_t temp = safeLeftShift(1, node->rank);
 			if (temp == 0) {
 				// The result cannot be returned, however the data structure is still valid
 				throw "Size overflow";
@@ -73,31 +76,32 @@ class BinomialHeap final {
 	
 	
 	public: void push(const E &val) {
-		merge(new Node(val));
+		mergeNodes(new Node(val));
 	}
 	
 	
 	public: void push(E &&val) {
-		merge(new Node(std::move(val)));
+		mergeNodes(new Node(std::move(val)));
 	}
 	
 	
 	public: const E &top() const {
-		if (head.next == nullptr)
+		if (empty())
 			throw "Empty heap";
 		const E *result = nullptr;
 		for (const Node *node = head.next; node != nullptr; node = node->next) {
 			if (result == nullptr || node->value < *result)
 				result = &node->value;
 		}
+		assert(result != nullptr);
 		return *result;
 	}
 	
 	
 	public: E pop() {
-		if (head.next == nullptr)
+		if (empty())
 			throw "Empty heap";
-		E *min = nullptr;
+		const E *min = nullptr;
 		Node *nodeBeforeMin = nullptr;
 		for (Node *prevNode = &head; ; ) {
 			Node *node = prevNode->next;
@@ -115,8 +119,8 @@ class BinomialHeap final {
 		assert(min == &minNode->value);
 		nodeBeforeMin->next = minNode->next;
 		minNode->next = nullptr;
-		merge(minNode->removeRoot());
-		E result = std::move(*min);
+		mergeNodes(minNode->removeRoot());
+		const E result = std::move(*min);
 		delete minNode;
 		return result;
 	}
@@ -126,12 +130,12 @@ class BinomialHeap final {
 	public: void merge(BinomialHeap<E> &other) {
 		if (&other == this)
 			throw "Merging with self";
-		merge(other.head.next);
+		mergeNodes(other.head.next);
 		other.head.next = nullptr;
 	}
 	
 	
-	private: void merge(Node *other) {
+	private: void mergeNodes(Node *other) {
 		assert(head.rank == -1);
 		assert(other == nullptr || other->rank >= 0);
 		Node *self = head.next;
@@ -148,6 +152,7 @@ class BinomialHeap final {
 				node = other;
 				other = other->next;
 			}
+			assert(node != nullptr);
 			node->next = nullptr;
 			
 			assert(tail->next == nullptr);
@@ -175,7 +180,7 @@ class BinomialHeap final {
 	}
 	
 	
-	private: static std::size_t safeLeftShift(std::size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
+	private: static size_t safeLeftShift(size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
 		if (shift < 0)
 			throw "Negative shift";
 		for (int i = 0; i < shift && val != 0; i++)
@@ -201,7 +206,7 @@ class BinomialHeap final {
 		/*-- Fields --*/
 		
 		public: E value;
-		public: int rank;
+		public: signed char rank;
 		
 		public: Node *down;
 		public: Node *next;
@@ -247,10 +252,8 @@ class BinomialHeap final {
 			down = nullptr;
 			Node *result = nullptr;
 			while (node != nullptr) {  // Reverse the order of nodes from descending rank to ascending rank
-				Node *next = node->next;
-				node->next = result;
-				result = node;
-				node = next;
+				std::swap(node->next, result);
+				std::swap(node, result);
 			}
 			return result;
 		}
