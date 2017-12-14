@@ -53,7 +53,7 @@ class BinomialHeap final {
 	/*---- Methods ----*/
 	
 	public: bool empty() const {
-		return head.next.get() == nullptr;
+		return isNull(head.next);
 	}
 	
 	
@@ -139,19 +139,19 @@ class BinomialHeap final {
 		Node *prevTail = nullptr;
 		Node *tail = &head;
 		
-		while (self.get() != nullptr || other.get() != nullptr) {
+		while (!isNull(self) || !isNull(other)) {
 			unique_ptr<Node> node;
-			if (other.get() == nullptr || (self.get() != nullptr && self->rank <= other->rank)) {
+			if (isNull(other) || (!isNull(self) && self->rank <= other->rank)) {
 				node = std::move(self);
 				self.swap(node->next);
 			} else {
 				node = std::move(other);
 				other.swap(node->next);
 			}
-			assert(node.get() != nullptr);
-			assert(node->next.get() == nullptr);
+			assert(!isNull(node));
+			assert(isNull(node->next));
 			
-			assert(tail->next.get() == nullptr);
+			assert(isNull(tail->next));
 			if (tail->rank < node->rank) {
 				prevTail = tail;
 				tail->next = std::move(node);
@@ -172,8 +172,13 @@ class BinomialHeap final {
 				tail->rank++;
 			} else
 				throw "Assertion error";
-			assert(node.get() == nullptr);
+			assert(isNull(node));
 		}
+	}
+	
+	
+	private: static bool isNull(const unique_ptr<Node> &p) {
+		return p.get() == nullptr;
 	}
 	
 	
@@ -232,10 +237,10 @@ class BinomialHeap final {
 		/*-- Methods --*/
 		
 		public: unique_ptr<Node> removeRoot() {
-			assert(next.get() == nullptr);
+			assert(isNull(next));
 			unique_ptr<Node> node = std::move(down);
 			unique_ptr<Node> result;
-			while (node.get() != nullptr) {  // Reverse the order of nodes from descending rank to ascending rank
+			while (!isNull(node)) {  // Reverse the order of nodes from descending rank to ascending rank
 				node->next.swap(result);
 				node.swap(result);
 			}
@@ -253,19 +258,19 @@ class BinomialHeap final {
 			
 			// Check children and non-main chain
 			if (rank > 0) {
-				if (down.get() == nullptr || down->rank != rank - 1)
+				if (isNull(down) || down->rank != rank - 1)
 					throw "Assertion error: Down node absent or has invalid rank";
 				down->checkStructure(false, &value);
 				if (!isMain) {
-					if (next.get() == nullptr || next->rank != rank - 1)
+					if (isNull(next) || next->rank != rank - 1)
 						throw "Assertion error: Next node absent or has invalid rank";
 					next->checkStructure(false, lowerBound);
 				}
-			} else if (down.get() != nullptr)
+			} else if (!isNull(down))
 				throw "Assertion error: Down node must be absent";
 			
 			// Check main chain
-			if (isMain && next.get() != nullptr) {
+			if (isMain && !isNull(next)) {
 				if (next->rank <= rank)
 					throw "Assertion error: Next node has invalid rank";
 				next->checkStructure(true, nullptr);
