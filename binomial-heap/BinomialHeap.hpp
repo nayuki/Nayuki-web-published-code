@@ -40,7 +40,7 @@ class BinomialHeap final {
 	
 	/*---- Fields ----*/
 	
-	private: Node head;   // The head node is an immovable dummy node
+	private: unique_ptr<Node> head;
 	
 	
 	
@@ -53,13 +53,13 @@ class BinomialHeap final {
 	/*---- Methods ----*/
 	
 	public: bool empty() const {
-		return isNull(head.next);
+		return isNull(head);
 	}
 	
 	
 	public: size_t size() const {
 		size_t result = 0;
-		for (const Node *node = head.next.get(); node != nullptr; node = node->next.get()) {
+		for (const Node *node = head.get(); node != nullptr; node = node->next.get()) {
 			size_t temp = safeLeftShift(1, node->rank);
 			if (temp == 0) {
 				// The result cannot be returned, however the data structure is still valid
@@ -72,7 +72,7 @@ class BinomialHeap final {
 	
 	
 	public: void clear() {
-		head.next.reset();
+		head.reset();
 	}
 	
 	
@@ -90,7 +90,7 @@ class BinomialHeap final {
 		if (empty())
 			throw "Empty heap";
 		const E *result = nullptr;
-		for (const Node *node = head.next.get(); node != nullptr; node = node->next.get()) {
+		for (const Node *node = head.get(); node != nullptr; node = node->next.get()) {
 			if (result == nullptr || node->value < *result)
 				result = &node->value;
 		}
@@ -103,22 +103,22 @@ class BinomialHeap final {
 		if (empty())
 			throw "Empty heap";
 		const E *min = nullptr;
-		Node *nodeBeforeMin = nullptr;
-		for (Node *prevNode = &head; ; ) {
-			Node *node = prevNode->next.get();
+		unique_ptr<Node> *linkToMin = nullptr;
+		for (unique_ptr<Node> *link = &head; ; ) {
+			Node *node = link->get();
 			if (node == nullptr)
 				break;
 			if (min == nullptr || node->value < *min) {
 				min = &node->value;
-				nodeBeforeMin = prevNode;
+				linkToMin = link;
 			}
-			prevNode = node;
+			link = &node->next;
 		}
-		assert(min != nullptr && nodeBeforeMin != nullptr);
+		assert(min != nullptr && linkToMin != nullptr);
 		
-		unique_ptr<Node> minNode = std::move(nodeBeforeMin->next);
+		unique_ptr<Node> minNode = std::move(*linkToMin);
 		assert(min == &minNode->value);
-		nodeBeforeMin->next.swap(minNode->next);
+		linkToMin->swap(minNode->next);
 		mergeNodes(minNode->removeRoot());
 		return std::move(*min);
 	}
@@ -128,16 +128,14 @@ class BinomialHeap final {
 	public: void merge(BinomialHeap<E> &other) {
 		if (&other == this)
 			throw "Merging with self";
-		mergeNodes(std::move(other.head.next));
+		mergeNodes(std::move(other.head));
 	}
 	
 	
 	private: void mergeNodes(unique_ptr<Node> other) {
-		assert(head.rank == -1);
-		assert(other.get() == nullptr || other->rank >= 0);
-		unique_ptr<Node> self = std::move(head.next);
-		Node *prevTail = nullptr;
-		Node *tail = &head;
+		unique_ptr<Node> self = std::move(head);
+		unique_ptr<Node> *linkToTail = nullptr;
+		Node *tail = nullptr;
 		
 		while (!isNull(self) || !isNull(other)) {
 			unique_ptr<Node> node;
@@ -151,16 +149,20 @@ class BinomialHeap final {
 			assert(!isNull(node));
 			assert(isNull(node->next));
 			
-			assert(isNull(tail->next));
-			if (tail->rank < node->rank) {
-				prevTail = tail;
+			assert(tail == nullptr || isNull(tail->next));
+			if (tail == nullptr) {
+				head = std::move(node);
+				linkToTail = &head;
+				tail = head.get();
+			} else if (tail->rank < node->rank) {
+				linkToTail = &tail->next;
 				tail->next = std::move(node);
 				tail = tail->next.get();
 			} else if (tail->rank == node->rank + 1) {
-				assert(prevTail != nullptr);
-				node->next = std::move(prevTail->next);
-				prevTail->next = std::move(node);
-				prevTail = prevTail->next.get();
+				assert(linkToTail != nullptr);
+				node->next = std::move(*linkToTail);
+				*linkToTail = std::move(node);
+				linkToTail = &(*linkToTail)->next;
 			} else if (tail->rank == node->rank) {
 				// Merge nodes
 				if (node->value < tail->value) {
@@ -193,10 +195,9 @@ class BinomialHeap final {
 	
 	// For unit tests
 	public: void checkStructure() const {
-		if (head.rank != -1)
-			throw "Assertion error: Head must be dummy node";
 		// Check chain of nodes and their children
-		head.checkStructure(true, nullptr);
+		if (!isNull(head))
+			head->checkStructure(true, nullptr);
 	}
 	
 	
@@ -215,12 +216,6 @@ class BinomialHeap final {
 		
 		
 		/*-- Constructors --*/
-		
-		// Dummy sentinel node at head of list
-		public: Node() :
-			value(),  // Type E needs to have a default constructor
-			rank(-1) {}
-		
 		
 		// Regular node
 		public: Node(const E &val) :
