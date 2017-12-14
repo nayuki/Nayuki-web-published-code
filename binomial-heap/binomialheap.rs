@@ -27,7 +27,7 @@ use std;
 /*-- Fields --*/
 
 pub struct BinomialHeap<E> {
-	head: Option<Box<Node<E>>>,
+	head: MaybeNode<E>,
 }
 
 
@@ -90,7 +90,7 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 		let mut minnode: Option<Node<E>> = None;
 		{
 			let mut oldlist = std::mem::replace(&mut self.head, None);
-			let mut newlist: Option<Box<Node<E>>> = None;
+			let mut newlist: MaybeNode<E> = None;
 			for index in 0u32 .. {
 				match oldlist {
 					None => break,
@@ -149,10 +149,9 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	}
 	
 	
-	// 'other' must not start with a dummy node
-	fn merge_nodes(&mut self, mut other: Option<Box<Node<E>>>) {
+	fn merge_nodes(&mut self, mut other: MaybeNode<E>) {
 		let mut this = std::mem::replace(&mut self.head, None);
-		let mut merged: Option<Box<Node<E>>> = None;
+		let mut merged: MaybeNode<E> = None;
 		
 		while this.is_some() || other.is_some() {
 			let mut node: Box<Node<E>>;
@@ -205,14 +204,17 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 
 /*---- Helper struct: Binomial heap node ----*/
 
+type MaybeNode<E> = Option<Box<Node<E>>>;
+
+
 /*-- Fields --*/
 
 struct Node<E> {
 	value: E,
 	rank: u8,
 	
-	down: Option<Box<Node<E>>>,
-	next: Option<Box<Node<E>>>,
+	down: MaybeNode<E>,
+	next: MaybeNode<E>,
 }
 
 
@@ -232,7 +234,7 @@ impl <E: std::cmp::Ord> Node<E> {
 	
 	/*-- Methods --*/
 	
-	fn remove_root(&mut self) -> Option<Box<Self>> {
+	fn remove_root(&mut self) -> MaybeNode<E> {
 		assert!(self.next.is_none());
 		let temp = std::mem::replace(&mut self.down, None);
 		reverse_nodes(temp)
@@ -279,8 +281,8 @@ impl <E: std::cmp::Ord> Node<E> {
 }
 
 
-fn reverse_nodes<E>(mut nodes: Option<Box<Node<E>>>) -> Option<Box<Node<E>>> {
-	let mut result: Option<Box<Node<E>>> = None;
+fn reverse_nodes<E>(mut nodes: MaybeNode<E>) -> MaybeNode<E> {
+	let mut result: MaybeNode<E> = None;
 	loop {
 		match nodes {
 			None => break,

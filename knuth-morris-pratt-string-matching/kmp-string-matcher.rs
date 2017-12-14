@@ -24,7 +24,7 @@
 
 // Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
 // If the pattern is found, this returns the index of the start of the earliest match in 'text'. Otherwise None is returned.
-fn kmp_search(pattern: &[char], text: &[char]) -> std::option::Option<usize> {
+fn kmp_search(pattern: &[char], text: &[char]) -> Option<usize> {
 	if pattern.is_empty() {
 		return Some(0);  // Immediate match
 	}

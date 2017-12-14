@@ -25,37 +25,42 @@
 
 #include <cassert>
 #include <cstddef>
+#include <memory>
 #include <utility>
+
+using std::size_t;
+using std::unique_ptr;
 
 
 template <typename E>
 class BinomialHeap final {
 	
+	private: class Node;  // Forward declaration
+	
+	
 	/*---- Fields ----*/
 	
-	private: class Node;  // Forward declaration
-	private: Node head;   // The head node is an immovable dummy node
+	private: unique_ptr<Node> head;
 	
 	
 	
 	/*---- Constructors ----*/
 	
-	public: BinomialHeap()
-		: head() {}  // Dummy node
+	public: BinomialHeap() {}
 	
 	
 	
 	/*---- Methods ----*/
 	
 	public: bool empty() const {
-		return head.next == nullptr;
+		return isNull(head);
 	}
 	
 	
-	public: std::size_t size() const {
-		std::size_t result = 0;
-		for (const Node *node = head.next; node != nullptr; node = node->next) {
-			std::size_t temp = safeLeftShift(1, node->rank);
+	public: size_t size() const {
+		size_t result = 0;
+		for (const Node *node = head.get(); node != nullptr; node = node->next.get()) {
+			size_t temp = safeLeftShift(1, node->rank);
 			if (temp == 0) {
 				// The result cannot be returned, however the data structure is still valid
 				throw "Size overflow";
@@ -67,58 +72,55 @@ class BinomialHeap final {
 	
 	
 	public: void clear() {
-		delete head.next;
-		head.next = nullptr;
+		head.reset();
 	}
 	
 	
 	public: void push(const E &val) {
-		merge(new Node(val));
+		mergeNodes(std::make_unique<Node>(val));
 	}
 	
 	
 	public: void push(E &&val) {
-		merge(new Node(std::move(val)));
+		mergeNodes(std::make_unique<Node>(std::move(val)));
 	}
 	
 	
 	public: const E &top() const {
-		if (head.next == nullptr)
+		if (empty())
 			throw "Empty heap";
 		const E *result = nullptr;
-		for (const Node *node = head.next; node != nullptr; node = node->next) {
+		for (const Node *node = head.get(); node != nullptr; node = node->next.get()) {
 			if (result == nullptr || node->value < *result)
 				result = &node->value;
 		}
+		assert(result != nullptr);
 		return *result;
 	}
 	
 	
 	public: E pop() {
-		if (head.next == nullptr)
+		if (empty())
 			throw "Empty heap";
-		E *min = nullptr;
-		Node *nodeBeforeMin = nullptr;
-		for (Node *prevNode = &head; ; ) {
-			Node *node = prevNode->next;
+		const E *min = nullptr;
+		unique_ptr<Node> *linkToMin = nullptr;
+		for (unique_ptr<Node> *link = &head; ; ) {
+			Node *node = link->get();
 			if (node == nullptr)
 				break;
 			if (min == nullptr || node->value < *min) {
 				min = &node->value;
-				nodeBeforeMin = prevNode;
+				linkToMin = link;
 			}
-			prevNode = node;
+			link = &node->next;
 		}
-		assert(min != nullptr && nodeBeforeMin != nullptr);
+		assert(min != nullptr && linkToMin != nullptr);
 		
-		Node *minNode = nodeBeforeMin->next;
+		unique_ptr<Node> minNode = std::move(*linkToMin);
 		assert(min == &minNode->value);
-		nodeBeforeMin->next = minNode->next;
-		minNode->next = nullptr;
-		merge(minNode->removeRoot());
-		E result = std::move(*min);
-		delete minNode;
-		return result;
+		linkToMin->swap(minNode->next);
+		mergeNodes(minNode->removeRoot());
+		return std::move(*min);
 	}
 	
 	
@@ -126,56 +128,63 @@ class BinomialHeap final {
 	public: void merge(BinomialHeap<E> &other) {
 		if (&other == this)
 			throw "Merging with self";
-		merge(other.head.next);
-		other.head.next = nullptr;
+		mergeNodes(std::move(other.head));
 	}
 	
 	
-	private: void merge(Node *other) {
-		assert(head.rank == -1);
-		assert(other == nullptr || other->rank >= 0);
-		Node *self = head.next;
-		head.next = nullptr;
-		Node *prevTail = nullptr;
-		Node *tail = &head;
+	private: void mergeNodes(unique_ptr<Node> other) {
+		unique_ptr<Node> self = std::move(head);
+		unique_ptr<Node> *linkToTail = nullptr;
+		Node *tail = nullptr;
 		
-		while (self != nullptr || other != nullptr) {
-			Node *node;
-			if (other == nullptr || (self != nullptr && self->rank <= other->rank)) {
-				node = self;
-				self = self->next;
+		while (!isNull(self) || !isNull(other)) {
+			unique_ptr<Node> node;
+			if (isNull(other) || (!isNull(self) && self->rank <= other->rank)) {
+				node = std::move(self);
+				self.swap(node->next);
 			} else {
-				node = other;
-				other = other->next;
+				node = std::move(other);
+				other.swap(node->next);
 			}
-			node->next = nullptr;
+			assert(!isNull(node));
+			assert(isNull(node->next));
 			
-			assert(tail->next == nullptr);
-			if (tail->rank < node->rank) {
-				prevTail = tail;
-				tail->next = node;
-				tail = node;
+			assert(tail == nullptr || isNull(tail->next));
+			if (tail == nullptr) {
+				head = std::move(node);
+				linkToTail = &head;
+				tail = head.get();
+			} else if (tail->rank < node->rank) {
+				linkToTail = &tail->next;
+				tail->next = std::move(node);
+				tail = tail->next.get();
 			} else if (tail->rank == node->rank + 1) {
-				assert(prevTail != nullptr);
-				node->next = tail;
-				prevTail->next = node;
-				prevTail = node;
+				assert(linkToTail != nullptr);
+				node->next = std::move(*linkToTail);
+				*linkToTail = std::move(node);
+				linkToTail = &(*linkToTail)->next;
 			} else if (tail->rank == node->rank) {
 				// Merge nodes
 				if (node->value < tail->value) {
 					std::swap(node->value, tail->value);
 					std::swap(node->down, tail->down);
 				}
-				node->next = tail->down;
-				tail->down = node;
+				node->next = std::move(tail->down);
+				tail->down = std::move(node);
 				tail->rank++;
 			} else
 				throw "Assertion error";
+			assert(isNull(node));
 		}
 	}
 	
 	
-	private: static std::size_t safeLeftShift(std::size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
+	private: static bool isNull(const unique_ptr<Node> &p) {
+		return p.get() == nullptr;
+	}
+	
+	
+	private: static size_t safeLeftShift(size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
 		if (shift < 0)
 			throw "Negative shift";
 		for (int i = 0; i < shift && val != 0; i++)
@@ -186,10 +195,9 @@ class BinomialHeap final {
 	
 	// For unit tests
 	public: void checkStructure() const {
-		if (head.rank != -1)
-			throw "Assertion error: Head must be dummy node";
 		// Check chain of nodes and their children
-		head.checkStructure(true, nullptr);
+		if (!isNull(head))
+			head->checkStructure(true, nullptr);
 	}
 	
 	
@@ -201,56 +209,35 @@ class BinomialHeap final {
 		/*-- Fields --*/
 		
 		public: E value;
-		public: int rank;
+		public: signed char rank;
 		
-		public: Node *down;
-		public: Node *next;
+		public: unique_ptr<Node> down;
+		public: unique_ptr<Node> next;
 		
 		
 		/*-- Constructors --*/
 		
-		// Dummy sentinel node at head of list
-		public: Node() :
-			value(),  // Type E needs to have a default constructor
-			rank(-1),
-			down(nullptr),
-			next(nullptr) {}
-		
-		
 		// Regular node
 		public: Node(const E &val) :
 			value(val),  // Copy constructor
-			rank(0),
-			down(nullptr),
-			next(nullptr) {}
+			rank(0) {}
 		
 		
 		// Regular node
 		public: Node(E &&val) :
 			value(std::move(val)),  // Move constructor
-			rank(0),
-			down(nullptr),
-			next(nullptr) {}
-		
-		
-		public: ~Node() {
-			delete down;
-			delete next;
-		}
+			rank(0) {}
 		
 		
 		/*-- Methods --*/
 		
-		public: Node *removeRoot() {
-			assert(next == nullptr);
-			Node *node = down;
-			down = nullptr;
-			Node *result = nullptr;
-			while (node != nullptr) {  // Reverse the order of nodes from descending rank to ascending rank
-				Node *next = node->next;
-				node->next = result;
-				result = node;
-				node = next;
+		public: unique_ptr<Node> removeRoot() {
+			assert(isNull(next));
+			unique_ptr<Node> node = std::move(down);
+			unique_ptr<Node> result;
+			while (!isNull(node)) {  // Reverse the order of nodes from descending rank to ascending rank
+				node->next.swap(result);
+				node.swap(result);
 			}
 			return result;
 		}
@@ -266,19 +253,19 @@ class BinomialHeap final {
 			
 			// Check children and non-main chain
 			if (rank > 0) {
-				if (down == nullptr || down->rank != rank - 1)
+				if (isNull(down) || down->rank != rank - 1)
 					throw "Assertion error: Down node absent or has invalid rank";
 				down->checkStructure(false, &value);
 				if (!isMain) {
-					if (next == nullptr || next->rank != rank - 1)
+					if (isNull(next) || next->rank != rank - 1)
 						throw "Assertion error: Next node absent or has invalid rank";
 					next->checkStructure(false, lowerBound);
 				}
-			} else if (down != nullptr)
+			} else if (!isNull(down))
 				throw "Assertion error: Down node must be absent";
 			
 			// Check main chain
-			if (isMain && next != nullptr) {
+			if (isMain && !isNull(next)) {
 				if (next->rank <= rank)
 					throw "Assertion error: Next node has invalid rank";
 				next->checkStructure(true, nullptr);
