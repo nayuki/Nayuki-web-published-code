@@ -1,4 +1,4 @@
-#  
+# 
 # AVL tree list (Python)
 # 
 # Copyright (c) 2017 Project Nayuki. (MIT License)
@@ -61,7 +61,7 @@ class AvlTreeList(object):
 			self.append(val)
 	
 	
-	def pop(self, index):
+	def pop(self, index=None):
 		if index is None:
 			index = len(self) - 1
 		result = self[index]

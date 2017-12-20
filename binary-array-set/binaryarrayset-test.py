@@ -26,7 +26,7 @@ import binaryarrayset
 
 
 class BinaryArraySetTest(unittest.TestCase):
-
+	
 	def test_blank(self):
 		s = binaryarrayset.BinaryArraySet()
 		self.assertFalse(0 in s)
