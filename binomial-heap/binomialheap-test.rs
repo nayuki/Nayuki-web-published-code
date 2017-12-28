@@ -173,7 +173,7 @@ fn test_against_rust_binary_heap_randomly() {
 			size -= n;
 			
 		} else {
-			panic!("Assertion error");
+			unreachable!();
 		}
 		
 		assert_eq!(queue.len(), size);

@@ -180,7 +180,7 @@ impl <E> MaybeNode<E> {
 		
 		// Recursively find and remove a node
 		match self.0 {
-			None => panic!(),
+			None => unreachable!(),
 			Some(ref mut bx) => {
 				let mut node = bx.as_mut();
 				let leftsize = node.left.size();
@@ -226,7 +226,7 @@ impl <E> MaybeNode<E> {
 				MaybeNode(None)
 			};
 		}
-		panic!("Assertion error");
+		unreachable!();
 	}
 	
 	

@@ -30,9 +30,7 @@ use std;
  */
 pub fn transform(real: &mut [f64], imag: &mut [f64]) {
 	let n: usize = real.len();
-	if n != imag.len() {
-		panic!("Mismatched lengths");
-	}
+	assert_eq!(imag.len(), n);
 	if n == 0 {
 		return;
 	} else if n & (n - 1) == 0 {  // Is power of 2
@@ -59,13 +57,9 @@ pub fn inverse_transform(real: &mut [f64], imag: &mut [f64]) {
 pub fn transform_radix2(real: &mut [f64], imag: &mut [f64]) {
 	// Length variables
 	let n: usize = real.len();
-	if n != imag.len() {
-		panic!("Mismatched lengths");
-	}
+	assert_eq!(imag.len(), n);
 	let levels: u32 = n.trailing_zeros();
-	if 1usize << levels != n {
-		panic!("Length is not a power of 2");
-	}
+	assert_eq!(1usize << levels, n, "Length is not a power of 2");
 	
 	// Trigonometric tables
 	let mut costable = Vec::<f64>::with_capacity(n / 2);
@@ -130,9 +124,7 @@ pub fn transform_radix2(real: &mut [f64], imag: &mut [f64]) {
 pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
 	let n: usize = real.len();
-	if n != imag.len() {
-		panic!("Mismatched lengths");
-	}
+	assert_eq!(imag.len(), n);
 	let mut m: usize = 1;
 	while m / 2 <= n {
 		match m.checked_mul(2) {
@@ -192,9 +184,8 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
  */
 pub fn convolve_real(x: &[f64], y: &[f64], out: &mut [f64]) {
 	let n: usize = x.len();
-	if n != y.len() || n != out.len() {
-		panic!("Mismatched lengths");
-	}
+	assert_eq!(y.len(), n);
+	assert_eq!(out.len(), n);
 	convolve_complex(x, &mut vec![0.0; n], y, &mut vec![0.0; n], out, &mut vec![0.0; n]);
 }
 
@@ -206,10 +197,11 @@ pub fn convolve_complex(xreal: &[f64], ximag: &[f64], yreal: &[f64], yimag: &[f6
 		outreal: &mut [f64], outimag: &mut [f64]) {
 	
 	let n: usize = xreal.len();
-	if n != ximag.len() || n != yreal.len() || n != yimag.len()
-			|| n != outreal.len() || n != outimag.len() {
-		panic!("Mismatched lengths");
-	}
+	assert_eq!(ximag.len(), n);
+	assert_eq!(yreal.len(), n);
+	assert_eq!(yimag.len(), n);
+	assert_eq!(outreal.len(), n);
+	assert_eq!(outimag.len(), n);
 	
 	let mut xrecp: Vec<f64> = xreal.to_vec();
 	let mut ximcp: Vec<f64> = ximag.to_vec();

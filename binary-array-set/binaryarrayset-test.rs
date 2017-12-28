@@ -108,7 +108,7 @@ fn test_against_rust_set_randomly() {
 			}
 			
 		} else {
-			panic!("Assertion error");
+			unreachable!();
 		}
 		
 		assert_eq!(set0.is_empty(), set1.is_empty(), "Emptiness mismatch");
@@ -127,5 +127,5 @@ fn is_perfect_square(n: i32) -> bool {
 			return false;
 		}
 	}
-	panic!();
+	unreachable!();
 }

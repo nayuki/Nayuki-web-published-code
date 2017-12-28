@@ -181,7 +181,7 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 					mrgd.down = Some(node);
 					mrgd.rank += 1;
 				} else {
-					panic!("Assertion error");
+					unreachable!();
 				}
 				merged = Some(mrgd);
 			}

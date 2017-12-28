@@ -150,7 +150,5 @@ fn floor_sqrt(x: u32) -> u32 {
 fn check_limit(limit: u32) {
 	let sizenarrower: bool = 0usize.count_zeros() < 0u32.count_zeros();
 	let upperbound: u32 = if sizenarrower { std::usize::MAX as u32 } else { std::u32::MAX };
-	if limit >= upperbound {
-		panic!("Limit too large");
-	}
+	assert!(limit < upperbound, "Limit too large");
 }

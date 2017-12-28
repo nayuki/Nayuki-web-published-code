@@ -117,9 +117,9 @@ fn naive_dft(inreal: &[f64], inimag: &[f64],
 		inverse: bool) {
 	
 	let n: usize = inreal.len();
-	if n != inimag.len() || n != outreal.len() || n != outimag.len() {
-		panic!("Mismatched lengths");
-	}
+	assert_eq!(inreal.len(), n);
+	assert_eq!(outreal.len(), n);
+	assert_eq!(outimag.len(), n);
 	
 	let coef: f64 = if inverse { 2.0 } else { -2.0 } * std::f64::consts::PI;
 	for k in 0 .. n {  // For each output element
@@ -143,10 +143,11 @@ fn naive_convolve(
 		outreal: &mut [f64], outimag: &mut [f64]) {
 	
 	let n: usize = xreal.len();
-	if n != ximag.len() || n != yreal.len() || n != yimag.len()
-			|| n != outreal.len() || n != outimag.len() {
-		panic!("Mismatched lengths");
-	}
+	assert_eq!(ximag.len(), n);
+	assert_eq!(yreal.len(), n);
+	assert_eq!(yimag.len(), n);
+	assert_eq!(outreal.len(), n);
+	assert_eq!(outimag.len(), n);
 	
 	for v in outreal.iter_mut() {
 		*v = 0.0;
@@ -171,9 +172,9 @@ fn log10_rms_err(
 		yreal: &[f64], yimag: &[f64]) -> f64 {
 	
 	let n: usize = xreal.len();
-	if n != ximag.len() || n != yreal.len() || n != yimag.len() {
-		panic!("Mismatched lengths");
-	}
+	assert_eq!(ximag.len(), n);
+	assert_eq!(yreal.len(), n);
+	assert_eq!(yimag.len(), n);
 	
 	let mut err: f64 = (10.0f64).powf(-99.0 * 2.0);
 	for i in 0 .. n {

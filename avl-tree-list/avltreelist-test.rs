@@ -396,7 +396,7 @@ fn test_against_rust_vec_randomly() {
 				size -= n;
 			}
 		} else {
-			panic!("Assertion error");
+			unreachable!();
 		}
 		
 		assert_eq!(list0.len(), size);
