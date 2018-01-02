@@ -54,7 +54,7 @@ class BTreeSet final {
 			maxKeys(deg * 2 - 1) {
 		if (deg < 2)
 			throw "Degree must be at least 2";
-		if (deg > UINT32_MAX / 4 + 1)  // In other words, need maxChildren <= (UINT32_MAX + 1) / 2
+		if (deg > UINT32_MAX / 2)  // In other words, need maxChildren <= UINT32_MAX
 			throw "Degree too large";
 		root = new Node(maxKeys, true);
 	}
@@ -302,7 +302,6 @@ class BTreeSet final {
 		// otherwise returns (false, i) if children[i] should be explored. For simplicity,
 		// the implementation uses linear search. It's possible to replace it with binary search for speed.
 		public: SearchResult search(const E &val) const {
-			assert(keys.size() <= UINT32_MAX / 2);
 			std::uint32_t i = 0;
 			while (i < keys.size()) {
 				const E &elem = keys.at(i);
@@ -313,7 +312,6 @@ class BTreeSet final {
 				else  // val < elem
 					break;
 			}
-			assert((i >> 31) == 0);
 			return SearchResult(false, i);  // Not found, caller should recurse on child
 		}
 		
