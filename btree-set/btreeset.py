@@ -54,13 +54,13 @@ class BTreeSet(object):
 		# Walk down the tree
 		node = self.root
 		while True:
-			index = node.search(obj)
-			if index >= 0:
+			found, index = node.search(obj)
+			if found:
 				return True
 			elif node.is_leaf():
 				return False
 			else:  # Internal node
-				node = node.children[~index]
+				node = node.children[index]
 	
 	
 	def add(self, obj):
@@ -81,11 +81,9 @@ class BTreeSet(object):
 			# Search for index in current node
 			assert len(node.keys) < self.maxkeys
 			assert node is root or len(node.keys) >= self.minkeys
-			index = node.search(obj)
-			if index >= 0:
+			found, index = node.search(obj)
+			if found:
 				return  # Key already exists in tree
-			index = ~index
-			assert index >= 0
 			
 			if node.is_leaf():  # Simple insertion into leaf
 				node.keys.insert(index, obj)
@@ -115,13 +113,13 @@ class BTreeSet(object):
 	def _remove(self, obj):
 		# Walk down the tree
 		root = self.root
-		index = root.search(obj)
+		found, index = root.search(obj)
 		node = root
 		while True:
 			assert len(node.keys) <= self.maxkeys
 			assert node is root or len(node.keys) > self.minkeys
 			if node.is_leaf():
-				if index >= 0:  # Simple removal from leaf
+				if found:  # Simple removal from leaf
 					node.remove_key(index)
 					self.size -= 1
 					return True
@@ -129,7 +127,7 @@ class BTreeSet(object):
 					return False
 				
 			else:  # Internal node
-				if index >= 0:  # Key is stored at current node
+				if found:  # Key is stored at current node
 					left, right = node.children[index : index + 2]
 					if len(left.keys) > self.minkeys:  # Replace key with predecessor
 						node.keys[index] = left.remove_max()
@@ -153,12 +151,12 @@ class BTreeSet(object):
 					else:
 						raise AssertionError("Impossible condition")
 				else:  # Key might be found in some child
-					child = node.ensure_child_remove(~index)
+					child = node.ensure_child_remove(index)
 					if node is root and len(root.keys) == 0:
 						self.root = root.children[0]  # Decrement tree height
 						root = self.root
 					node = child
-					index = node.search(obj)
+					found, index = node.search(obj)
 	
 	
 	# Note: Not fail-fast on concurrent modification.
@@ -238,20 +236,20 @@ class BTreeSet(object):
 			return self.children is None
 		
 		
-		# Searches this node's keys list and returns i (non-negative) if obj equals keys[i],
-		# otherwise returns ~i (negative) if children[i] should be explored. For simplicity,
+		# Searches this node's keys list and returns (True, i) if obj equals keys[i],
+		# otherwise returns (False, i) if children[i] should be explored. For simplicity,
 		# the implementation uses linear search. It's possible to replace it with binary search for speed.
 		def search(self, obj):
 			keys = self.keys
 			i = 0
 			while i < len(keys):
 				if obj == keys[i]:
-					return i  # Key found
+					return (True, i)  # Key found
 				elif obj > keys[i]:
 					i += 1
 				else:
 					break
-			return ~i  # Not found, caller should recurse on child
+			return (False, i)  # Not found, caller should recurse on child
 		
 		
 		# Removes and returns the minimum key among the whole subtree rooted at this node.

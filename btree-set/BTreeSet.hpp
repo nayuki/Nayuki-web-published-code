@@ -86,17 +86,19 @@ class BTreeSet final {
 	}
 	
 	
+	using SearchResult = std::pair<bool,std::uint32_t>;
+	
 	public: bool contains(const E &val) const {
 		// Walk down the tree
 		const Node *node = root;
 		while (true) {
-			std::uint32_t index = node->search(val);
-			if ((index >> 31) == 0)
+			SearchResult sr = node->search(val);
+			if (sr.first)
 				return true;
 			else if (node->isLeaf())
 				return false;
 			else  // Internal node
-				node = node->children.at(~index);
+				node = node->children.at(sr.second);
 		}
 	}
 	
@@ -119,10 +121,10 @@ class BTreeSet final {
 			// Search for index in current node
 			assert(node->keys.size() < maxKeys);
 			assert(node == root || node->keys.size() >= minKeys);
-			std::uint32_t index = node->search(val);
-			if ((index >> 31) == 0)
+			SearchResult sr = node->search(val);
+			if (sr.first)
 				return;  // Key already exists in tree
-			index = ~index;
+			std::uint32_t index = sr.second;
 			
 			if (node->isLeaf()) {  // Simple insertion into leaf
 				if (count == SIZE_MAX)
@@ -157,13 +159,19 @@ class BTreeSet final {
 	
 	public: std::size_t erase(const E &val) {
 		// Walk down the tree
-		std::uint32_t index = root->search(val);
+		bool found;
+		std::uint32_t index;
+		{
+			SearchResult sr = root->search(val);
+			found = sr.first;
+			index = sr.second;
+		}
 		Node *node = root;
 		while (true) {
 			assert(node->keys.size() <= maxKeys);
 			assert(node == root || node->keys.size() > minKeys);
 			if (node->isLeaf()) {
-				if ((index >> 31) == 0) {  // Simple removal from leaf
+				if (found) {  // Simple removal from leaf
 					node->removeKey(index);
 					assert(count > 0);
 					count--;
@@ -172,7 +180,7 @@ class BTreeSet final {
 					return 0;
 				
 			} else {  // Internal node
-				if ((index >> 31) == 0) {  // Key is stored at current node
+				if (found) {  // Key is stored at current node
 					Node *left  = node->children.at(index + 0);
 					Node *right = node->children.at(index + 1);
 					assert(left != nullptr && right != nullptr);
@@ -209,7 +217,7 @@ class BTreeSet final {
 					} else
 						throw "Impossible condition";
 				} else {  // Key might be found in some child
-					Node *child = node->ensureChildRemove(~index);
+					Node *child = node->ensureChildRemove(index);
 					if (node == root && root->keys.empty()) {
 						assert(root->children.size() == 1);
 						Node *newRoot = root->children.at(0);
@@ -219,7 +227,9 @@ class BTreeSet final {
 						root = newRoot;  // Decrement tree height
 					}
 					node = child;
-					index = node->search(val);
+					SearchResult sr = node->search(val);
+					found = sr.first;
+					index = sr.second;
 				}
 			}
 		}
@@ -288,23 +298,23 @@ class BTreeSet final {
 		}
 		
 		
-		// Searches this node's keys array and returns i (with top bit clear) if obj equals keys[i],
-		// otherwise returns ~i (with top bit set) if children[i] should be explored. For simplicity,
+		// Searches this node's keys array and returns (true, i) if obj equals keys[i],
+		// otherwise returns (false, i) if children[i] should be explored. For simplicity,
 		// the implementation uses linear search. It's possible to replace it with binary search for speed.
-		public: std::uint32_t search(const E &val) const {
+		public: SearchResult search(const E &val) const {
 			assert(keys.size() <= UINT32_MAX / 2);
 			std::uint32_t i = 0;
 			while (i < keys.size()) {
 				const E &elem = keys.at(i);
 				if (val == elem)
-					return i;  // Key found
+					return SearchResult(true, i);  // Key found
 				else if (val > elem)
 					i++;
 				else  // val < elem
 					break;
 			}
 			assert((i >> 31) == 0);
-			return ~i;  // Not found, caller should recurse on child
+			return SearchResult(false, i);  // Not found, caller should recurse on child
 		}
 		
 		
