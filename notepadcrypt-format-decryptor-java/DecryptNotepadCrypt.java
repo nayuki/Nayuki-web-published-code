@@ -16,7 +16,7 @@
  *     (Prints to standard output)
  * 
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/notepadcrypt-format-decryptor-java
  * 
@@ -26,20 +26,18 @@
  */
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.Arrays;
 import static java.lang.Integer.rotateRight;
 
 
 public final class DecryptNotepadCrypt {
 	
-	/* Main functions */
+	/*---- Main functions ----*/
 	
 	public static void main(String[] args) throws IOException {
 		// Get arguments
-		File inputFile;
 		String passphrase;
 		boolean useMasterKey;
 		if (args.length == 2) {
@@ -54,21 +52,10 @@ public final class DecryptNotepadCrypt {
 			System.exit(1);
 			return;
 		}
-		inputFile = new File(args[0]);
+		File inputFile = new File(args[0]);
 		
-		// Read file
-		byte[] data = new byte[(int)inputFile.length()];
-		InputStream in = new FileInputStream(inputFile);
-		try {
-			if (data.length > 0 && in.read(data) < data.length)
-				throw new IOException("Unexpected file size");
-			if (in.read(data) != -1)
-				throw new IOException("Unexpected file size");
-		} finally {
-			in.close();
-		}
-		
-		// Decrypt and write
+		// Read, decrypt, write
+		byte[] data = Files.readAllBytes(inputFile.toPath());
 		byte[] plaintext;
 		try {
 			plaintext = decryptFileData(data, passphrase.getBytes("US-ASCII"), useMasterKey);
@@ -116,7 +103,7 @@ public final class DecryptNotepadCrypt {
 	}
 	
 	
-	/* Utility functions */
+	/*---- Utility functions ----*/
 	
 	private static byte[] decryptWithPadding(byte[] ciphertext, byte[] key, byte[] initVec) {
 		// Decrypt message
@@ -147,7 +134,7 @@ public final class DecryptNotepadCrypt {
 	}
 	
 	
-	/* Cryptography library functions */
+	/*---- Cryptography library functions ----*/
 	
 	private static byte[] getSha256Hash(byte[] msg) {
 		if (msg.length > Integer.MAX_VALUE / 8)
