@@ -181,13 +181,8 @@ class BTreeSet final {
 						assert(count > 0);
 						count--;
 						return 1;
-					} else if (left->keys.size() == minKeys && right->keys.size() == minKeys) {
-						// Merge key and right node into left node, then recurse
-						if (!left->isLeaf())
-							std::move(right->children.begin(), right->children.end(), std::back_inserter(left->children));
-						left->keys.push_back(node->removeKey(index));
-						std::move(right->keys.begin(), right->keys.end(), std::back_inserter(left->keys));
-						node->children.erase(node->children.begin() + index + 1);
+					} else {  // Merge key and right node into left node, then recurse
+						node->mergeChildren(index);
 						if (node == root.get() && root->keys.empty()) {
 							assert(root->children.size() == 1);
 							std::unique_ptr<Node> newRoot = std::move(root->children.at(0));
@@ -195,8 +190,7 @@ class BTreeSet final {
 						}
 						node = left;
 						index = minKeys;  // Index known due to merging; no need to search
-					} else
-						throw "Impossible condition";
+					}
 				} else {  // Key might be found in some child
 					Node *child = node->ensureChildRemove(index);
 					if (node == root.get() && root->keys.empty()) {
@@ -344,6 +338,24 @@ class BTreeSet final {
 		}
 		
 		
+		// Merges the child node at index+1 into the child node at index,
+		// assuming the current node is not empty and both children have minkeys.
+		public: void mergeChildren(std::uint32_t index) {
+			if (isLeaf() || keys.empty())
+				throw "Cannot merge children";
+			std::uint32_t minKeys = maxKeys / 2;
+			Node &left  = *children.at(index + 0);
+			Node &right = *children.at(index + 1);
+			if (left.keys.size() != minKeys || right.keys.size() != minKeys)
+				throw "Cannot merge children";
+			if (!left.isLeaf())
+				std::move(right.children.begin(), right.children.end(), std::back_inserter(left.children));
+			left.keys.push_back(removeKey(index));
+			std::move(right.keys.begin(), right.keys.end(), std::back_inserter(left.keys));
+			children.erase(children.begin() + index + 1);
+		}
+		
+		
 		// Performs modifications to ensure that this node's child at the given index has at least
 		// minKeys+1 keys in preparation for a single removal. The child may gain a key and subchild
 		// from its sibling, or it may be merged with a sibling, or nothing needs to be done.
@@ -382,20 +394,10 @@ class BTreeSet final {
 				this->keys.at(index) = right->removeKey(0);
 				return child;
 			} else if (left != nullptr) {  // Merge child into left sibling
-				assert(left->keys.size() == minKeys);
-				if (internal)
-					std::move(child->children.begin(), child->children.end(), std::back_inserter(left->children));
-				left->keys.push_back(this->removeKey(index - 1));
-				std::move(child->keys.begin(), child->keys.end(), std::back_inserter(left->keys));
-				this->children.erase(this->children.begin() + index);
+				mergeChildren(index - 1);
 				return left;  // This is the only case where the return value is different
 			} else if (right != nullptr) {  // Merge right sibling into child
-				assert(right->keys.size() == minKeys);
-				if (internal)
-					std::move(right->children.begin(), right->children.end(), std::back_inserter(child->children));
-				child->keys.push_back(this->removeKey(index));
-				std::move(right->keys.begin(), right->keys.end(), std::back_inserter(child->keys));
-				this->children.erase(this->children.begin() + index + 1);
+				mergeChildren(index);
 				return child;
 			} else
 				throw "Impossible condition";

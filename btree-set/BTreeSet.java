@@ -1,7 +1,7 @@
 /* 
  * B-tree set (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -178,21 +178,15 @@ public final class BTreeSet<E extends Comparable<? super E>>
 						node.keys[index] = right.removeMin();
 						size--;
 						return true;
-					} else if (left.numKeys == minKeys && right.numKeys == minKeys) {
-						// Merge key and right node into left node, then recurse
-						if (!left.isLeaf())
-							System.arraycopy(right.children, 0, left.children, minKeys + 1, minKeys + 1);
-						left.keys[minKeys] = node.removeKeyAndChild(index, index + 1);
-						System.arraycopy(right.keys, 0, left.keys, minKeys + 1, minKeys);
-						left.numKeys = maxKeys;
+					} else {  // Merge key and right node into left node, then recurse
+						node.mergeChildren(index);
 						if (node == root && root.numKeys == 0) {
 							root = root.children[0];  // Decrement tree height
 							assert root != null;
 						}
 						node = left;
 						index = minKeys;  // Index known due to merging; no need to search
-					} else
-						throw new AssertionError("Impossible condition");
+					}
 				} else {  // Key might be found in some child
 					Node<E> child = node.ensureChildRemove(~index);
 					if (node == root && root.numKeys == 0) {
@@ -430,6 +424,24 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		}
 		
 		
+		// Merges the child node at index+1 into the child node at index,
+		// assuming the current node is not empty and both children have minkeys.
+		public void mergeChildren(int index) {
+			if (isLeaf() || numKeys == 0)
+				throw new IllegalStateException("Cannot merge children");
+			int minKeys = keys.length / 2;
+			Node<E> left  = children[index + 0];
+			Node<E> right = children[index + 1];
+			if (left.numKeys != minKeys || right.numKeys != minKeys)
+				throw new IllegalStateException("Cannot merge children");
+			if (!left.isLeaf())
+				System.arraycopy(right.children, 0, left.children, minKeys + 1, minKeys + 1);
+			left.keys[minKeys] = removeKeyAndChild(index, index + 1);
+			System.arraycopy(right.keys, 0, left.keys, minKeys + 1, minKeys);
+			left.numKeys += minKeys + 1;
+		}
+		
+		
 		// Performs modifications to ensure that this node's child at the given index has at least
 		// minKeys+1 keys in preparation for a single removal. The child may gain a key and subchild
 		// from its sibling, or it may be merged with a sibling, or nothing needs to be done.
@@ -464,22 +476,10 @@ public final class BTreeSet<E extends Comparable<? super E>>
 				this.keys[index] = right.removeKeyAndChild(0, (internal ? 0 : -1));
 				return child;
 			} else if (left != null) {  // Merge child into left sibling
-				assert left.numKeys == minKeys;
-				if (internal)
-					System.arraycopy(child.children, 0, left.children, degree, degree);
-				left.keys[left.numKeys] = this.removeKeyAndChild(index - 1, index);
-				System.arraycopy(child.keys, 0, left.keys, left.numKeys + 1, child.numKeys);
-				left.numKeys += minKeys + 1;
-				assert left.numKeys == maxKeys;
+				mergeChildren(index - 1);
 				return left;  // This is the only case where the return value is different
 			} else if (right != null) {  // Merge right sibling into child
-				assert right.numKeys == minKeys;
-				if (internal)
-					System.arraycopy(right.children, 0, child.children, degree, degree);
-				child.keys[child.numKeys] = this.removeKeyAndChild(index, index + 1);
-				System.arraycopy(right.keys, 0, child.keys, child.numKeys + 1, minKeys);
-				child.numKeys += minKeys + 1;
-				assert child.numKeys == maxKeys;
+				mergeChildren(index);
 				return child;
 			} else
 				throw new AssertionError("Impossible condition");

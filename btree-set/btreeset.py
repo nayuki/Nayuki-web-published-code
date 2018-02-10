@@ -137,19 +137,13 @@ class BTreeSet(object):
 						node.keys[index] = right.remove_min()
 						self.size -= 1
 						return True
-					elif len(left.keys) == self.minkeys and len(right.keys) == self.minkeys:
-						# Merge key and right node into left node, then recurse
-						if not left.is_leaf():
-							left.children.extend(right.children)
-						left.keys.append(node.remove_key_and_child(index, index + 1))
-						left.keys.extend(right.keys)
+					else:  # Merge key and right node into left node, then recurse
+						node.merge_children(index)
 						if node is root and len(root.keys) == 0:
 							self.root = root.children[0]  # Decrement tree height
 							root = self.root
 						node = left
 						index = self.minkeys  # Index known due to merging; no need to search
-					else:
-						raise AssertionError("Impossible condition")
 				else:  # Key might be found in some child
 					child = node.ensure_child_remove(index)
 					if node is root and len(root.keys) == 0:
@@ -312,6 +306,21 @@ class BTreeSet(object):
 			return (middlekey, rightnode)
 		
 		
+		# Merges the child node at index+1 into the child node at index,
+		# assuming the current node is not empty and both children have minkeys.
+		def merge_children(self, index):
+			if self.is_leaf() or len(self.keys) == 0:
+				raise RuntimeError("Cannot merge children")
+			minkeys = self.maxkeys // 2
+			left, right = self.children[index : index + 2]
+			if len(left.keys) != minkeys or len(right.keys) != minkeys:
+				raise RuntimeError("Cannot merge children")
+			if not left.is_leaf():
+				left.children.extend(right.children)
+			left.keys.append(self.remove_key_and_child(index, index + 1))
+			left.keys.extend(right.keys)
+		
+		
 		# Performs modifications to ensure that this node's child at the given index has at least
 		# minKeys+1 keys in preparation for a single removal. The child may gain a key and subchild
 		# from its sibling, or it may be merged with a sibling, or nothing needs to be done.
@@ -346,18 +355,10 @@ class BTreeSet(object):
 				self.keys[index] = right.remove_key(0)
 				return child
 			elif left is not None:  # Merge child into left sibling
-				assert len(left.keys) == minkeys
-				if internal:
-					left.children.extend(child.children)
-				left.keys.append(self.remove_key_and_child(index - 1, index))
-				left.keys.extend(child.keys)
+				self.merge_children(index - 1)
 				return left  # This is the only case where the return value is different
 			elif right is not None:  # Merge right sibling into child
-				assert len(right.keys) == minkeys
-				if internal:
-					child.children.extend(right.children)
-				child.keys.append(self.remove_key_and_child(index, index + 1))
-				child.keys.extend(right.keys)
+				self.merge_children(index)
 				return child
 			else:
 				raise AssertionError("Impossible condition")
