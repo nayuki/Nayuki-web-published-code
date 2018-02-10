@@ -57,12 +57,7 @@ class BTreeSet final {
 			throw "Degree must be at least 2";
 		if (deg > UINT32_MAX / 2)  // In other words, need maxChildren <= UINT32_MAX
 			throw "Degree too large";
-		root = std::make_unique<Node>(maxKeys, true);
-	}
-	
-	
-	public: ~BTreeSet() {
-		assert(root.get() != nullptr);
+		clear();
 	}
 	
 	
@@ -80,8 +75,7 @@ class BTreeSet final {
 	
 	
 	public: void clear() {
-		assert(root.get() != nullptr);
-		root.reset(new Node(maxKeys, true));
+		root = std::make_unique<Node>(maxKeys, true);
 	}
 	
 	
@@ -102,16 +96,17 @@ class BTreeSet final {
 	}
 	
 	
+	using SplitResult = std::pair<E,std::unique_ptr<Node> >;
+	
 	public: void insert(const E &val) {
 		// Special preprocessing to split root node
 		if (root->keys.size() == maxKeys) {
-			std::unique_ptr<Node> rightNode;
-			E middleKey = root->split(rightNode);
+			SplitResult sr = root->split();
 			std::unique_ptr<Node> left = std::move(root);
 			root = std::make_unique<Node>(maxKeys, false);  // Increment tree height
-			root->keys.push_back(std::move(middleKey));
+			root->keys.push_back(std::move(sr.first));
 			root->children.push_back(std::move(left));
-			root->children.push_back(std::move(rightNode));
+			root->children.push_back(std::move(sr.second));
 		}
 		
 		// Walk down the tree
@@ -134,20 +129,13 @@ class BTreeSet final {
 			} else {  // Handle internal node
 				Node *child = node->children.at(index).get();
 				if (child->keys.size() == maxKeys) {  // Split child node
-					std::unique_ptr<Node> rightNode;
-					E middleKey = child->split(rightNode);
-					int cmp;
-					if (val < middleKey)
-						cmp = -1;
-					else if (val > middleKey)
-						cmp = 1;
-					else
-						cmp = 0;
-					node->keys.insert(node->keys.begin() + index, std::move(middleKey));
-					node->children.insert(node->children.begin() + index + 1, std::move(rightNode));
-					if (cmp == 0)
+					SplitResult sr = child->split();
+					node->keys.insert(node->keys.begin() + index, std::move(sr.first));
+					node->children.insert(node->children.begin() + index + 1, std::move(sr.second));
+					const E &middleKey = node->keys.at(index);
+					if (val == middleKey)
 						return;  // Key already exists in tree
-					else if (cmp > 0)
+					else if (val > middleKey)
 						child = node->children.at(index + 1).get();
 				}
 				node = child;
@@ -258,7 +246,7 @@ class BTreeSet final {
 		public: std::vector<E> keys;
 		
 		// If leaf then size is 0, otherwise if internal node then size always equals keys.size()+1.
-		public: std::vector<std::unique_ptr<Node>> children;
+		public: std::vector<std::unique_ptr<Node> > children;
 		
 		public: const std::uint32_t maxKeys;
 		
@@ -336,23 +324,23 @@ class BTreeSet final {
 		
 		// Moves the right half of keys and children to a new node, yielding the pair of values
 		// (new node, promoted key). The left half of data is still retained in this node.
-		public: E split(std::unique_ptr<Node> &rightNode) {
+		public: SplitResult split() {
 			// Manipulate numbers
 			assert(keys.size() == maxKeys);
 			std::uint32_t minKeys = maxKeys / 2;
 			
 			// Handle children
-			rightNode = std::make_unique<Node>(maxKeys, isLeaf());
+			std::unique_ptr<Node> rightNode = std::make_unique<Node>(maxKeys, isLeaf());
 			if (!isLeaf()) {
 				std::move(children.begin() + minKeys + 1, children.end(), std::back_inserter(rightNode->children));
 				children.erase(children.begin() + minKeys + 1, children.end());
 			}
 			
 			// Handle keys
-			E result = std::move(keys.at(minKeys));
+			E key = std::move(keys.at(minKeys));
 			std::move(keys.begin() + minKeys + 1, keys.end(), std::back_inserter(rightNode->keys));
 			keys.erase(keys.begin() + minKeys, keys.end());
-			return result;
+			return SplitResult(std::move(key), std::move(rightNode));
 		}
 		
 		
@@ -383,8 +371,7 @@ class BTreeSet final {
 					left->children.pop_back();
 				}
 				child->keys.insert(child->keys.begin(), std::move(this->keys.at(index - 1)));
-				this->keys.at(index - 1) = std::move(left->keys.back());
-				left->keys.pop_back();
+				this->keys.at(index - 1) = left->removeKey(left->keys.size() - 1);
 				return child;
 			} else if (right != nullptr && right->keys.size() > minKeys) {  // Steal leftmost item from right sibling
 				if (internal) {
@@ -392,8 +379,7 @@ class BTreeSet final {
 					right->children.erase(right->children.begin());
 				}
 				child->keys.push_back(std::move(this->keys.at(index)));
-				this->keys.at(index) = std::move(right->keys.front());
-				right->keys.erase(right->keys.begin());
+				this->keys.at(index) = right->removeKey(0);
 				return child;
 			} else if (left != nullptr) {  // Merge child into left sibling
 				assert(left->keys.size() == minKeys);
