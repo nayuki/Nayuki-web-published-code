@@ -69,8 +69,7 @@ class BTreeSet(object):
 		if len(root.keys) == self.maxkeys:
 			middlekey, right = root.split()
 			left = root
-			self.root = BTreeSet.Node(self.maxkeys, False)  # Increment tree height
-			root = self.root
+			self.root = root = BTreeSet.Node(self.maxkeys, False)  # Increment tree height
 			root.keys.append(middlekey)
 			root.children.append(left)
 			root.children.append(right)
@@ -96,7 +95,7 @@ class BTreeSet(object):
 					node.children.insert(index + 1, right)
 					node.keys.insert(index, middlekey)
 					if obj == middlekey:
-						return False  # Key already exists in tree
+						return  # Key already exists in tree
 					elif obj > middlekey:
 						child = right
 				node = child
@@ -110,6 +109,7 @@ class BTreeSet(object):
 		self._remove(obj)
 	
 	
+	# Returns whether an object was removed.
 	def _remove(self, obj):
 		# Walk down the tree
 		root = self.root
@@ -140,39 +140,32 @@ class BTreeSet(object):
 					else:  # Merge key and right node into left node, then recurse
 						node.merge_children(index)
 						if node is root and len(root.keys) == 0:
-							self.root = root.children[0]  # Decrement tree height
-							root = self.root
+							self.root = root = left  # Decrement tree height
 						node = left
 						index = self.minkeys  # Index known due to merging; no need to search
 				else:  # Key might be found in some child
 					child = node.ensure_child_remove(index)
 					if node is root and len(root.keys) == 0:
-						self.root = root.children[0]  # Decrement tree height
-						root = self.root
+						self.root = root = root.children[0]  # Decrement tree height
 					node = child
 					found, index = node.search(obj)
 	
 	
 	# Note: Not fail-fast on concurrent modification.
 	def __iter__(self):
-		if self.size == 0:
-			return
-		
 		# Initialization
-		nodestack  = []
-		indexstack = []
-		node = self.root
-		while True:
-			nodestack.append(node)
-			indexstack.append(0)
-			if node.is_leaf():
-				break
-			node = node.children[0]
+		stack = []
+		def push_left_path(node):
+			while True:
+				stack.append((node, 0))
+				if node.is_leaf():
+					break
+				node = node.children[0]
+		push_left_path(self.root)
 		
 		# Generate elements
-		while len(nodestack) > 0:
-			node = nodestack.pop()
-			index = indexstack.pop()
+		while len(stack) > 0:
+			node, index = stack.pop()
 			if node.is_leaf():
 				assert index == 0
 				for obj in node.keys:
@@ -181,15 +174,8 @@ class BTreeSet(object):
 				yield node.keys[index]
 				index += 1
 				if index < len(node.keys):
-					nodestack.append(node)
-					indexstack.append(index)
-				node = node.children[index]
-				while True:
-					nodestack.append(node)
-					indexstack.append(0)
-					if node.is_leaf():
-						break
-					node = node.children[0]
+					stack.append((node, index))
+				push_left_path(node.children[index])
 	
 	
 	# For unit tests
@@ -270,7 +256,7 @@ class BTreeSet(object):
 		
 		# Removes and returns this node's key at the given index.
 		def remove_key(self, index):
-			if index < 0 or index >= len(self.keys):
+			if not (0 <= index < len(self.keys)):
 				raise IndexError()
 			return self.keys.pop(index)
 		
@@ -278,13 +264,13 @@ class BTreeSet(object):
 		# Removes and returns this node's key at the given index,
 		# and also removes the child at the given index.
 		def remove_key_and_child(self, keyindex, childindex):
-			if keyindex < 0 or keyindex >= len(self.keys):
+			if not (0 <= keyindex < len(self.keys)):
 				raise IndexError()
 			if self.is_leaf():
 				if childindex is not None:
 					raise ValueError()
 			else:
-				if childindex < 0 or childindex >= len(self.children):
+				if not (0 <= childindex < len(self.children)):
 					raise IndexError()
 				del self.children[childindex]
 			return self.remove_key(keyindex)
