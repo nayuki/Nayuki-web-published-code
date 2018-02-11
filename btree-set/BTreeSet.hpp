@@ -76,6 +76,7 @@ class BTreeSet final {
 	
 	public: void clear() {
 		root = std::make_unique<Node>(maxKeys, true);
+		count = 0;
 	}
 	
 	
@@ -264,7 +265,7 @@ class BTreeSet final {
 		}
 		
 		
-		// Searches this node's keys array and returns (true, i) if obj equals keys[i],
+		// Searches this node's keys vector and returns (true, i) if obj equals keys[i],
 		// otherwise returns (false, i) if children[i] should be explored. For simplicity,
 		// the implementation uses linear search. It's possible to replace it with binary search for speed.
 		public: SearchResult search(const E &val) const {
@@ -317,7 +318,7 @@ class BTreeSet final {
 		
 		
 		// Moves the right half of keys and children to a new node, yielding the pair of values
-		// (new node, promoted key). The left half of data is still retained in this node.
+		// (promoted key, new node). The left half of data is still retained in this node.
 		public: SplitResult split() {
 			// Manipulate numbers
 			assert(keys.size() == maxKeys);
