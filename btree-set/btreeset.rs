@@ -102,6 +102,28 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 		result
 	}
 	
+	
+	// For unit tests
+	pub fn check_structure(&self) {
+		// Check size and root node properties
+		if self.count <= self.min_keys * 2 {
+			assert!(self.root.is_leaf() && self.root.keys.len() == self.count, "Invalid size or root type");
+		} else if self.count > self.max_keys {
+			assert!(!self.root.is_leaf(), "Invalid size or root type");
+		}
+		
+		// Calculate height by descending into one branch
+		let mut height: i8 = 0;
+		let mut node = &self.root;
+		while !node.is_leaf() {
+			height = height.checked_add(1).unwrap();
+			node = node.children[0].as_ref();
+		}
+		
+		// Check all nodes and total size
+		assert_eq!(self.root.check_structure(true, height, None, None), self.count, "Size mismatch");
+	}
+	
 }
 
 
@@ -193,17 +215,48 @@ impl <E: std::cmp::Ord> Node<E> {
 	fn split(&mut self) -> (E,Box<Self>) {
 		// Manipulate numbers
 		assert!(self.keys.len() == self.max_keys);
-		let minkeys = self.max_keys / 2;
+		let half = self.min_keys() + 1;
 		
 		// Handle children
 		let mut rightnode = Node::<E>::new(self.max_keys, self.is_leaf());
 		if !self.is_leaf() {
-			rightnode.children.extend(self.children.drain(minkeys + 1 ..));
+			rightnode.children.extend(self.children.drain(half ..));
 		}
 		
 		// Handle keys
-		rightnode.keys.extend(self.keys.drain(minkeys + 1 ..));
+		rightnode.keys.extend(self.keys.drain(half ..));
 		(self.keys.pop().unwrap(), Box::new(rightnode))
+	}
+	
+	
+	// Checks the structure recursively and returns the total number of keys in the subtree rooted at this node. For unit tests
+	fn check_structure(&self, isroot: bool, leafdepth: i8, min: Option<&E>, max: Option<&E>) -> usize {
+		// Check basic fields
+		assert!(self.keys.len() <= self.max_keys && (isroot || self.keys.len() >= self.min_keys()), "Invalid number of keys");
+		assert_eq!(self.is_leaf(), leafdepth == 0, "Incorrect leaf/internal node type");
+		
+		// Check keys
+		for i in 0 .. self.keys.len() {
+			let key = &self.keys[i];
+			let mut fail = i == 0 && min.is_some() && key <= min.unwrap();
+			fail |= i >= 1 && *key <= self.keys[i - 1];
+			fail |= i == self.keys.len() - 1 && max.is_some() && key >= max.unwrap();
+			assert!(!fail, "Invalid key ordering");
+		}
+		
+		// Count keys in this subtree
+		let mut count = self.keys.len();
+		if !self.is_leaf() {
+			assert_eq!(self.children.len(), self.keys.len() + 1, "Invalid number of children");
+			// Check children pointers and recurse
+			for (i, child) in self.children.iter().enumerate() {
+				let temp = child.check_structure(false, leafdepth - 1,
+					if i == 0 { min } else { Some(&self.keys[i - 1]) },
+					if i == self.keys.len() { max } else { Some(&self.keys[i]) });
+				count = count.checked_add(temp).unwrap();
+			}
+		}
+		return count;
 	}
 	
 }

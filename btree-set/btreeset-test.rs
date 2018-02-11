@@ -36,6 +36,7 @@ fn test_insert_randomly() {
 	let operations = 10000;
 	let checks = 10;
 	let mut rng = rand::thread_rng();
+	let uniform = rand::distributions::range::Range::new(0.0, 1.0);
 	let valuedist = rand::distributions::range::Range::new(0i32, 100_000i32);
 	
 	for _ in 0 .. trials {
@@ -45,6 +46,9 @@ fn test_insert_randomly() {
 			// Add a random value
 			let val: i32 = valuedist.ind_sample(&mut rng);
 			assert_eq!(set0.insert(val), set1.insert(val));
+			if uniform.ind_sample(&mut rng) < 0.003 {
+				set1.check_structure();
+			}
 			
 			// Check size and random element membership
 			assert_eq!(set0.len(), set1.len());
