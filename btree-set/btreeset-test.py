@@ -1,7 +1,7 @@
 # 
 # B-tree set test (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/btree-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,8 +48,7 @@ class BTreeSetTest(unittest.TestCase):
 				# Check size and check element membership over entire range
 				self.assertEqual(len(set0), len(set1))
 				for k in range(-4, VALRANGE + 4):
-					val = k
-					self.assertTrue((val in set0) == (val in set1))
+					self.assertEqual(k in set0, k in set1)
 	
 	
 	def test_insert_randomly(self):
@@ -70,7 +69,7 @@ class BTreeSetTest(unittest.TestCase):
 				self.assertEqual(len(set0), len(set1))
 				for _ in range(CHECKS):
 					val = random.randrange(VALRANGE)
-					self.assertTrue((val in set0) == (val in set1))
+					self.assertEqual(val in set0, val in set1)
 	
 	
 	def test_large_randomly(self):
@@ -97,7 +96,7 @@ class BTreeSetTest(unittest.TestCase):
 				self.assertEqual(len(set0), len(set1))
 				for _ in range(CHECKS):
 					val = random.randrange(VALRANGE)
-					self.assertTrue((val in set0) == (val in set1))
+					self.assertEqual(val in set0, val in set1)
 	
 	
 	def test_remove_all_randomly(self):
@@ -122,7 +121,7 @@ class BTreeSetTest(unittest.TestCase):
 				self.assertEqual(len(set0), len(set1))
 				for _ in range(CHECKS):
 					val = random.randrange(VALRANGE)
-					self.assertTrue((val in set0) == (val in set1))
+					self.assertEqual(val in set0, val in set1)
 	
 	
 	def test_iterator_randomly(self):

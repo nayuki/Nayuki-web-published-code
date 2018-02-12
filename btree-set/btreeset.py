@@ -350,14 +350,20 @@ class BTreeSet(object):
 				raise AssertionError("Impossible condition")
 		
 		
-		# Checks the structure recursively and returns the total number of keys in the subtree rooted at this node. For unit tests
+		# Checks the structure recursively and returns the total number
+		# of keys in the subtree rooted at this node. For unit tests.
 		def check_structure(self, isroot, leafdepth, min, max):
 			# Check basic fields
 			keys = self.keys
-			if not isroot and not (self.maxkeys // 2 <= len(keys) <= self.maxkeys):
-				raise AssertionError("Invalid number of keys")
+			numkeys = len(keys)
 			if self.is_leaf() != (leafdepth == 0):
 				raise AssertionError("Incorrect leaf/internal node type")
+			if numkeys > self.maxkeys:
+				raise AssertionError("Invalid number of keys")
+			if isroot and not self.is_leaf() and numkeys == 0:
+				raise AssertionError("Invalid number of keys")
+			elif not isroot and numkeys < self.maxkeys // 2:
+				raise AssertionError("Invalid number of keys")
 			
 			# Check ordering of keys
 			tempkeys = [min] + keys + [max]
@@ -368,9 +374,9 @@ class BTreeSet(object):
 					raise AssertionError("Invalid key ordering")
 			
 			# Count keys in this subtree
-			count = len(keys)
+			count = numkeys
 			if not self.is_leaf():
-				if len(self.children) != len(keys) + 1:
+				if len(self.children) != numkeys + 1:
 					raise AssertionError("Invalid number of children")
 				for (i, child) in enumerate(self.children):
 					# Check children pointers and recurse

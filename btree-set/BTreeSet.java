@@ -451,7 +451,6 @@ public final class BTreeSet<E extends Comparable<? super E>>
 			assert !isLeaf();
 			int maxKeys = keys.length;
 			int minKeys = maxKeys / 2;
-			int degree = minKeys + 1;
 			Node<E> child = children[index];
 			if (child.numKeys > minKeys)  // Already satisfies the condition
 				return child;
@@ -486,13 +485,18 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		}
 		
 		
-		// Checks the structure recursively and returns the total number of keys in the subtree rooted at this node. For unit tests
+		// Checks the structure recursively and returns the total number
+		// of keys in the subtree rooted at this node. For unit tests.
 		int checkStructure(boolean isRoot, int leafDepth, E min, E max) {
 			// Check basic fields
-			if (numKeys < 0 || numKeys > keys.length || !isRoot && numKeys < keys.length / 2)
-				throw new AssertionError("Invalid number of keys");
 			if (isLeaf() != (leafDepth == 0))
 				throw new AssertionError("Incorrect leaf/internal node type");
+			if (numKeys < 0 || numKeys > keys.length)
+				throw new AssertionError("Invalid number of keys");
+			if (isRoot && !isLeaf() && numKeys <= 0)
+				throw new AssertionError("Invalid number of keys");
+			else if (!isRoot && numKeys < keys.length / 2)
+				throw new AssertionError("Invalid number of keys");
 			
 			// Check keys
 			for (int i = 0; i < keys.length; i++) {

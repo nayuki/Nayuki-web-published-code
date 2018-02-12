@@ -405,33 +405,42 @@ class BTreeSet final {
 		}
 		
 		
-		// Checks the structure recursively and returns the total number of keys in the subtree rooted at this node. For unit tests
+		// Checks the structure recursively and returns the total number
+		// of keys in the subtree rooted at this node. For unit tests.
 		public: std::size_t checkStructure(bool isRoot, int leafDepth, const E *min, const E *max) const {
 			// Check basic fields
-			if (keys.size() > maxKeys || (!isRoot && keys.size() < maxKeys / 2))
-				throw "Invalid number of keys";
+			const std::size_t numKeys = keys.size();
 			if (isLeaf() != (leafDepth == 0))
 				throw "Incorrect leaf/internal node type";
+			if (numKeys > maxKeys)
+				throw "Invalid number of keys";
+			if (isRoot && !isLeaf() && numKeys == 0)
+				throw "Invalid number of keys";
+			else if (!isRoot && numKeys < maxKeys / 2)
+				throw "Invalid number of keys";
 			
 			// Check keys
-			for (std::size_t i = 0; i < keys.size(); i++) {
+			for (std::size_t i = 0; i < numKeys; i++) {
 				const E &key = keys.at(i);
 				bool fail = i == 0 && min != nullptr && key <= *min;
 				fail |= i >= 1 && key <= keys.at(i - 1);
-				fail |= i == keys.size() - 1 && max != nullptr && key >= *max;
+				fail |= i == numKeys - 1 && max != nullptr && key >= *max;
 				if (fail)
 					throw "Invalid key ordering";
 			}
 			
 			// Count keys in this subtree
-			std::size_t count = keys.size();
-			if (!isLeaf()) {
-				if (children.size() != keys.size() + 1)
+			std::size_t count = numKeys;
+			if (isLeaf()) {
+				if (children.size() != 0)
+					throw "Invalid number of children";
+			} else {
+				if (children.size() != numKeys + 1)
 					throw "Invalid number of children";
 				// Check children pointers and recurse
 				for (std::size_t i = 0; i < children.size(); i++) {
 					std::size_t temp = children.at(i)->checkStructure(false, leafDepth - 1,
-						(i == 0 ? min : &keys.at(i - 1)), (i == keys.size() ? max : &keys.at(i)));
+						(i == 0 ? min : &keys.at(i - 1)), (i == numKeys ? max : &keys.at(i)));
 					if (SIZE_MAX - temp < count)
 						throw "Size overflow";
 					count += temp;
