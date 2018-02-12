@@ -29,7 +29,7 @@ pub struct BTreeSet<E> {
 	
 	root: Node<E>,
 	
-	count: usize,
+	size: usize,
 	
 	min_keys: usize,  // At least 1, equal to degree-1
 	max_keys: usize,  // At least 3, odd number, equal to min_keys*2+1
@@ -46,7 +46,7 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 		let maxkeys = degree * 2 - 1;
 		Self {
 			root: Node::new(maxkeys, true),
-			count: 0,
+			size: 0,
 			min_keys: degree - 1,
 			max_keys: maxkeys,
 		}
@@ -54,12 +54,12 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 	
 	
 	pub fn is_empty(&self) -> bool {
-		self.count == 0
+		self.size == 0
 	}
 	
 	
 	pub fn len(&self) -> usize {
-		self.count
+		self.size
 	}
 	
 	
@@ -95,9 +95,9 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 		}
 		
 		// Walk down the tree
-		let result = self.root.insert(val, true, self.count < std::usize::MAX);
+		let result = self.root.insert(val, true, self.size < std::usize::MAX);
 		if result {
-			self.count += 1;
+			self.size += 1;
 		}
 		result
 	}
@@ -107,8 +107,8 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 		let (found, index) = self.root.search(val);
 		let result = self.root.remove(val, found, index);
 		if result {
-			assert!(self.count > 0);
-			self.count -= 1;
+			assert!(self.size > 0);
+			self.size -= 1;
 		}
 		if self.root.keys.is_empty() && !self.root.is_leaf() {
 			assert!(self.root.children.len() == 1);
@@ -121,9 +121,9 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 	// For unit tests
 	pub fn check_structure(&self) {
 		// Check size and root node properties
-		if self.count <= self.min_keys * 2 {
-			assert!(self.root.is_leaf() && self.root.keys.len() == self.count, "Invalid size or root type");
-		} else if self.count > self.max_keys {
+		if self.size <= self.min_keys * 2 {
+			assert!(self.root.is_leaf() && self.root.keys.len() == self.size, "Invalid size or root type");
+		} else if self.size > self.max_keys {
 			assert!(!self.root.is_leaf(), "Invalid size or root type");
 		}
 		
@@ -136,7 +136,7 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 		}
 		
 		// Check all nodes and total size
-		assert_eq!(self.root.check_structure(true, height, None, None), self.count, "Size mismatch");
+		assert_eq!(self.root.check_structure(true, height, None, None), self.size, "Size mismatch");
 	}
 	
 }
