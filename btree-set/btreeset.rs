@@ -88,14 +88,14 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 		// Special preprocessing to split root node
 		if self.root.keys.len() == self.max_keys {
 			let mut leftnode = std::mem::replace(&mut self.root, Node::new(self.max_keys, false));  // Increment tree height
-			let (middlekey, rightnode) = leftnode.split();
+			let (middlekey, rightnode) = leftnode.split(self.min_keys, self.max_keys);
 			self.root.keys.push(middlekey);
 			self.root.children.push(Box::new(leftnode));
 			self.root.children.push(rightnode);
 		}
 		
 		// Walk down the tree
-		let result = self.root.insert(val, true, self.size < std::usize::MAX);
+		let result = self.root.insert(self.min_keys, self.max_keys, val, true, self.size < std::usize::MAX);
 		if result {
 			self.size += 1;
 		}
@@ -197,10 +197,10 @@ impl <E: std::cmp::Ord> Node<E> {
 	}
 	
 	
-	fn insert(&mut self, val: E, hasroom: bool, isroot: bool) -> bool {
+	fn insert(&mut self, minkeys: usize, maxkeys: usize, val: E, hasroom: bool, isroot: bool) -> bool {
 		// Search for index in current node
-		assert!(self.keys.len() < self.max_keys);
-		assert!(isroot || self.keys.len() >= self.min_keys());
+		assert!(self.keys.len() < maxkeys);
+		assert!(isroot || self.keys.len() >= minkeys);
 		let (found, mut index) = self.search(&val);
 		if found {
 			false  // Key already exists in tree
@@ -209,8 +209,8 @@ impl <E: std::cmp::Ord> Node<E> {
 			self.keys.insert(index, val);
 			true  // Successfully inserted
 		} else {  // Handle internal node
-			if self.children[index].keys.len() == self.max_keys {  // Split child node
-				let (middlekey, rightnode) = self.children[index].split();
+			if self.children[index].keys.len() == maxkeys {  // Split child node
+				let (middlekey, rightnode) = self.children[index].split(minkeys, maxkeys);
 				let cmp = val.cmp(&middlekey);
 				self.keys.insert(index, middlekey);
 				self.children.insert(index + 1, rightnode);
@@ -220,7 +220,7 @@ impl <E: std::cmp::Ord> Node<E> {
 					Ordering::Less    => {},
 				}
 			}
-			self.children[index].insert(val, hasroom, isroot)  // Recurse
+			self.children[index].insert(minkeys, maxkeys, val, hasroom, isroot)  // Recurse
 		}
 	}
 	
@@ -250,13 +250,13 @@ impl <E: std::cmp::Ord> Node<E> {
 	
 	// Moves the right half of keys and children to a new node, yielding the pair of values
 	// (promoted key, new node). The left half of data is still retained in this node.
-	fn split(&mut self) -> (E,Box<Self>) {
+	fn split(&mut self, minkeys: usize, maxkeys: usize) -> (E,Box<Self>) {
 		// Manipulate numbers
-		assert!(self.keys.len() == self.max_keys);
-		let half = self.min_keys() + 1;
+		assert!(self.keys.len() == maxkeys);
+		let half = minkeys + 1;
 		
 		// Handle children
-		let mut rightnode = Node::<E>::new(self.max_keys, self.is_leaf());
+		let mut rightnode = Node::<E>::new(maxkeys, self.is_leaf());
 		if !self.is_leaf() {
 			rightnode.children.extend(self.children.drain(half ..));
 		}

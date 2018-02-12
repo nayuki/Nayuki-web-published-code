@@ -67,7 +67,7 @@ class BTreeSet(object):
 		# Special preprocessing to split root node
 		root = self.root
 		if len(root.keys) == self.maxkeys:
-			middlekey, right = root.split()
+			middlekey, right = root.split(self.minkeys, self.maxkeys)
 			left = root
 			self.root = root = BTreeSet.Node(self.maxkeys, False)  # Increment tree height
 			root.keys.append(middlekey)
@@ -91,7 +91,7 @@ class BTreeSet(object):
 			else:  # Handle internal node
 				child = node.children[index]
 				if len(child.keys) == self.maxkeys:  # Split child node
-					middlekey, right = child.split()
+					middlekey, right = child.split(self.minkeys, self.maxkeys)
 					node.children.insert(index + 1, right)
 					node.keys.insert(index, middlekey)
 					if obj == middlekey:
@@ -280,16 +280,16 @@ class BTreeSet(object):
 		
 		# Moves the right half of keys and children to a new node, returning the pair of values
 		# (promoted key, new node). The left half of data is still retained in this node.
-		def split(self):
-			if len(self.keys) != self.maxkeys:
+		def split(self, minkeys, maxkeys):
+			if len(self.keys) != maxkeys:
 				raise RuntimeError("Can only split full node")
-			rightnode = BTreeSet.Node(self.maxkeys, self.is_leaf())
-			middlekey = self.keys[self.min_keys()]
-			rightnode.keys.extend(self.keys[self.min_keys() + 1 : ])
-			del self.keys[self.min_keys() : ]
+			rightnode = BTreeSet.Node(maxkeys, self.is_leaf())
+			middlekey = self.keys[minkeys]
+			rightnode.keys.extend(self.keys[minkeys + 1 : ])
+			del self.keys[minkeys : ]
 			if not self.is_leaf():
-				rightnode.children.extend(self.children[self.min_keys() + 1 : ])
-				del self.children[self.min_keys() + 1 : ]
+				rightnode.children.extend(self.children[minkeys + 1 : ])
+				del self.children[minkeys + 1 : ]
 			return (middlekey, rightnode)
 		
 		

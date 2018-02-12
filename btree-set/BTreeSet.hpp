@@ -102,7 +102,7 @@ class BTreeSet final {
 	public: void insert(const E &val) {
 		// Special preprocessing to split root node
 		if (root->keys.size() == maxKeys) {
-			SplitResult sr = root->split();
+			SplitResult sr = root->split(minKeys, maxKeys);
 			std::unique_ptr<Node> left = std::move(root);
 			root = std::make_unique<Node>(maxKeys, false);  // Increment tree height
 			root->keys.push_back(std::move(sr.first));
@@ -130,7 +130,7 @@ class BTreeSet final {
 			} else {  // Handle internal node
 				Node *child = node->children.at(index).get();
 				if (child->keys.size() == maxKeys) {  // Split child node
-					SplitResult sr = child->split();
+					SplitResult sr = child->split(minKeys, maxKeys);
 					node->keys.insert(node->keys.begin() + index, std::move(sr.first));
 					node->children.insert(node->children.begin() + index + 1, std::move(sr.second));
 					const E &middleKey = node->keys.at(index);
@@ -322,21 +322,21 @@ class BTreeSet final {
 		
 		// Moves the right half of keys and children to a new node, yielding the pair of values
 		// (promoted key, new node). The left half of data is still retained in this node.
-		public: SplitResult split() {
+		public: SplitResult split(std::size_t minKeys, std::size_t maxKeys) {
 			// Manipulate numbers
 			assert(keys.size() == maxKeys);
 			
 			// Handle children
 			std::unique_ptr<Node> rightNode = std::make_unique<Node>(maxKeys, isLeaf());
 			if (!isLeaf()) {
-				std::move(children.begin() + minKeys() + 1, children.end(), std::back_inserter(rightNode->children));
-				children.erase(children.begin() + minKeys() + 1, children.end());
+				std::move(children.begin() + minKeys + 1, children.end(), std::back_inserter(rightNode->children));
+				children.erase(children.begin() + minKeys + 1, children.end());
 			}
 			
 			// Handle keys
-			E key = std::move(keys.at(minKeys()));
-			std::move(keys.begin() + minKeys() + 1, keys.end(), std::back_inserter(rightNode->keys));
-			keys.erase(keys.begin() + minKeys(), keys.end());
+			E key = std::move(keys.at(minKeys));
+			std::move(keys.begin() + minKeys + 1, keys.end(), std::back_inserter(rightNode->keys));
+			keys.erase(keys.begin() + minKeys, keys.end());
 			return SplitResult(std::move(key), std::move(rightNode));
 		}
 		
