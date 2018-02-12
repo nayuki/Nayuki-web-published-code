@@ -37,7 +37,10 @@ class BTreeSetTest(unittest.TestCase):
 			for _ in range(OPERATIONS):
 				# Add/remove a random value
 				val = random.randrange(VALRANGE)
-				if random.random() < 0.5:
+				if random.random() < 0.001:
+					set0.clear()
+					set1.clear()
+				elif random.random() < 0.5:
 					set0.add(val)
 					set1.add(val)
 				else:

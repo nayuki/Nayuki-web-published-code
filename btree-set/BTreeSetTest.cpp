@@ -1,7 +1,7 @@
 /* 
  * B-tree set test (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -74,7 +74,10 @@ static void testSmallRandomly() {
 		for (long j = 0; j < OPERATIONS; j++) {
 			// Add/remove a random value
 			int val = valueDist(randGen);
-			if (realDist(randGen) < 0.5) {
+			if (realDist(randGen) < 0.001) {
+				set0.clear();
+				set1.clear();
+			} else if (realDist(randGen) < 0.5) {
 				set0.insert(val);
 				set1.insert(val);
 			} else {
@@ -84,6 +87,8 @@ static void testSmallRandomly() {
 			set1.checkStructure();
 			
 			// Check size and check element membership over entire range
+			if (set0.empty() != set1.empty())
+				throw "Empty mismatch";
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
 			for (int k = -4; k < RANGE + 4; k++) {

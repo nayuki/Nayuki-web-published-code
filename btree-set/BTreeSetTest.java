@@ -1,7 +1,7 @@
 /* 
  * B-tree set test (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,13 +47,17 @@ public final class BTreeSetTest {
 			for (int j = 0; j < operations; j++) {
 				// Add/remove a random value
 				Integer val = rand.nextInt(range);
-				if (rand.nextDouble() < 0.5)
+				if (rand.nextDouble() < 0.001) {
+					set0.clear();
+					set1.clear();
+				} else if (rand.nextDouble() < 0.5)
 					assertTrue(set0.add(val) == set1.add(val));
 				else
 					assertTrue(set0.remove(val) == set1.remove(val));
 				set1.checkStructure();
 				
 				// Check size and check element membership over entire range
+				assertTrue(set0.isEmpty() == set1.isEmpty());
 				assertEquals(set0.size(), set1.size());
 				if (!set0.isEmpty()) {
 					assertEquals(set0.first(), set1.first());

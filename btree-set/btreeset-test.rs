@@ -50,7 +50,10 @@ fn test_small_randomly() {
 		for _ in 0 .. operations {
 			// Add/remove a random value
 			let val: i32 = valuedist.ind_sample(&mut rng);
-			if rng.next_f64() < 0.5 {
+			if rng.next_f64() < 0.001 {
+				set0.clear();
+				set1.clear();
+			} else if rng.next_f64() < 0.5 {
 				assert_eq!(set0.insert(val), set1.insert(val));
 			} else {
 				assert_eq!(set0.remove(&val), set1.remove(&val));
@@ -58,6 +61,7 @@ fn test_small_randomly() {
 			set1.check_structure();
 			
 			// Check size and check element membership over entire range
+			assert_eq!(set0.is_empty(), set1.is_empty());
 			assert_eq!(set0.len(), set1.len());
 			for k in -4 .. range + 4 {
 				assert_eq!(set0.contains(&k), set1.contains(&k));
