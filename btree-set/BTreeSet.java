@@ -292,6 +292,11 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		
 		/*-- Methods --*/
 		
+		private int minKeys() {
+			return keys.length / 2;
+		}
+		
+		
 		public boolean isLeaf() {
 			return children == null;
 		}
@@ -401,7 +406,6 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		public SplitResult<E> split() {
 			// Manipulate numbers
 			int maxKeys = keys.length;
-			int minKeys = maxKeys / 2;
 			assert maxKeys % 2 == 1;
 			if (numKeys != maxKeys)
 				throw new IllegalStateException("Can only split full node");
@@ -409,6 +413,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 			// Handle children
 			SplitResult<E> result = new SplitResult<>();
 			result.rightNode = new Node<E>(maxKeys, isLeaf());
+			int minKeys = minKeys();
 			if (!isLeaf()) {
 				System.arraycopy(this.children, minKeys + 1, result.rightNode.children, 0, minKeys + 1);
 				Arrays.fill(this.children, minKeys + 1, this.children.length, null);
@@ -429,16 +434,15 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		public void mergeChildren(int index) {
 			if (isLeaf() || numKeys == 0)
 				throw new IllegalStateException("Cannot merge children");
-			int minKeys = keys.length / 2;
 			Node<E> left  = children[index + 0];
 			Node<E> right = children[index + 1];
-			if (left.numKeys != minKeys || right.numKeys != minKeys)
+			if (left.numKeys != minKeys() || right.numKeys != minKeys())
 				throw new IllegalStateException("Cannot merge children");
 			if (!left.isLeaf())
-				System.arraycopy(right.children, 0, left.children, minKeys + 1, minKeys + 1);
-			left.keys[minKeys] = removeKeyAndChild(index, index + 1);
-			System.arraycopy(right.keys, 0, left.keys, minKeys + 1, minKeys);
-			left.numKeys += minKeys + 1;
+				System.arraycopy(right.children, 0, left.children, minKeys() + 1, minKeys() + 1);
+			left.keys[minKeys()] = removeKeyAndChild(index, index + 1);
+			System.arraycopy(right.keys, 0, left.keys, minKeys() + 1, minKeys());
+			left.numKeys += minKeys() + 1;
 		}
 		
 		
@@ -449,12 +453,10 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		public Node<E> ensureChildRemove(int index) {
 			// Preliminaries
 			assert !isLeaf();
-			int maxKeys = keys.length;
-			int minKeys = maxKeys / 2;
 			Node<E> child = children[index];
-			if (child.numKeys > minKeys)  // Already satisfies the condition
+			if (child.numKeys > minKeys())  // Already satisfies the condition
 				return child;
-			assert child.numKeys == minKeys;
+			assert child.numKeys == minKeys();
 			
 			// Get siblings
 			Node<E> left = index >= 1 ? children[index - 1] : null;
@@ -464,12 +466,12 @@ public final class BTreeSet<E extends Comparable<? super E>>
 			assert left  == null || left .isLeaf() != internal;  // Sibling must be same type (internal/leaf) as child
 			assert right == null || right.isLeaf() != internal;  // Sibling must be same type (internal/leaf) as child
 			
-			if (left != null && left.numKeys > minKeys) {  // Steal rightmost item from left sibling
+			if (left != null && left.numKeys > minKeys()) {  // Steal rightmost item from left sibling
 				child.insertKeyAndChild(0, this.keys[index - 1],
 					(internal ? 0 : -1), (internal ? left.children[left.numKeys] : null));
 				this.keys[index - 1] = left.removeKeyAndChild(left.numKeys - 1, (internal ? left.numKeys : -1));
 				return child;
-			} else if (right != null && right.numKeys > minKeys) {  // Steal leftmost item from right sibling
+			} else if (right != null && right.numKeys > minKeys()) {  // Steal leftmost item from right sibling
 				child.insertKeyAndChild(child.numKeys, this.keys[index],
 					(internal ? child.numKeys + 1 : -1), (internal ? right.children[0] : null));
 				this.keys[index] = right.removeKeyAndChild(0, (internal ? 0 : -1));

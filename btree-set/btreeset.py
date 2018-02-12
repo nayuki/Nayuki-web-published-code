@@ -212,6 +212,10 @@ class BTreeSet(object):
 			self.children = None if leaf else []  # If internal node, then length always equals len(keys)+1
 		
 		
+		def min_keys(self):
+			return self.maxkeys // 2
+		
+		
 		def is_leaf(self):
 			return self.children is None
 		
@@ -234,23 +238,21 @@ class BTreeSet(object):
 		
 		# Removes and returns the minimum key among the whole subtree rooted at this node.
 		def remove_min(self):
-			minkeys = len(self.keys) // 2
 			node = self
 			while not node.is_leaf():
-				assert len(node.keys) > minkeys
+				assert len(node.keys) > self.min_keys()
 				node = node.ensure_child_remove(0)
-			assert len(node.keys) > minkeys
+			assert len(node.keys) > self.min_keys()
 			return node.remove_key(0)
 		
 		
 		# Removes and returns the maximum key among the whole subtree rooted at this node.
 		def remove_max(self):
-			minkeys = len(self.keys) // 2
 			node = self
 			while not node.is_leaf():
-				assert len(node.keys) > minkeys
+				assert len(node.keys) > self.min_keys()
 				node = node.ensure_child_remove(len(node.children) - 1)
-			assert len(node.keys) > minkeys
+			assert len(node.keys) > self.min_keys()
 			return node.remove_key(len(node.keys) - 1)
 		
 		
@@ -281,14 +283,13 @@ class BTreeSet(object):
 		def split(self):
 			if len(self.keys) != self.maxkeys:
 				raise RuntimeError("Can only split full node")
-			minkeys = self.maxkeys // 2
 			rightnode = BTreeSet.Node(self.maxkeys, self.is_leaf())
-			middlekey = self.keys[minkeys]
-			rightnode.keys.extend(self.keys[minkeys + 1 : ])
-			del self.keys[minkeys : ]
+			middlekey = self.keys[self.min_keys()]
+			rightnode.keys.extend(self.keys[self.min_keys() + 1 : ])
+			del self.keys[self.min_keys() : ]
 			if not self.is_leaf():
-				rightnode.children.extend(self.children[minkeys + 1 : ])
-				del self.children[minkeys + 1 : ]
+				rightnode.children.extend(self.children[self.min_keys() + 1 : ])
+				del self.children[self.min_keys() + 1 : ]
 			return (middlekey, rightnode)
 		
 		
@@ -297,9 +298,8 @@ class BTreeSet(object):
 		def merge_children(self, index):
 			if self.is_leaf() or len(self.keys) == 0:
 				raise RuntimeError("Cannot merge children")
-			minkeys = self.maxkeys // 2
 			left, right = self.children[index : index + 2]
-			if len(left.keys) != minkeys or len(right.keys) != minkeys:
+			if not (len(left.keys) == len(right.keys) == self.min_keys()):
 				raise RuntimeError("Cannot merge children")
 			if not left.is_leaf():
 				left.children.extend(right.children)
@@ -314,11 +314,10 @@ class BTreeSet(object):
 		def ensure_child_remove(self, index):
 			# Preliminaries
 			assert not self.is_leaf()
-			minkeys = self.maxkeys // 2
 			child = self.children[index]
-			if len(child.keys) > minkeys:  # Already satisfies the condition
+			if len(child.keys) > self.min_keys():  # Already satisfies the condition
 				return child
-			assert len(child.keys) == minkeys
+			assert len(child.keys) == self.min_keys()
 			
 			# Get siblings
 			left  = self.children[index - 1] if index >= 1 else None
@@ -328,13 +327,13 @@ class BTreeSet(object):
 			assert left  is None or left .is_leaf() != internal  # Sibling must be same type (internal/leaf) as child
 			assert right is None or right.is_leaf() != internal  # Sibling must be same type (internal/leaf) as child
 			
-			if left is not None and len(left.keys) > minkeys:  # Steal rightmost item from left sibling
+			if left is not None and len(left.keys) > self.min_keys():  # Steal rightmost item from left sibling
 				if internal:
 					child.children.insert(0, left.children.pop(-1))
 				child.keys.insert(0, self.keys[index - 1])
 				self.keys[index - 1] = left.remove_key(len(left.keys) - 1)
 				return child
-			elif right is not None and len(right.keys) > minkeys:  # Steal leftmost item from right sibling
+			elif right is not None and len(right.keys) > self.min_keys():  # Steal leftmost item from right sibling
 				if internal:
 					child.children.append(right.children.pop(0))
 				child.keys.append(self.keys[index])
@@ -362,7 +361,7 @@ class BTreeSet(object):
 				raise AssertionError("Invalid number of keys")
 			if isroot and not self.is_leaf() and numkeys == 0:
 				raise AssertionError("Invalid number of keys")
-			elif not isroot and numkeys < self.maxkeys // 2:
+			elif not isroot and numkeys < self.min_keys():
 				raise AssertionError("Invalid number of keys")
 			
 			# Check ordering of keys

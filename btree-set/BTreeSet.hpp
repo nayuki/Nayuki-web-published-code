@@ -260,6 +260,11 @@ class BTreeSet final {
 		
 		/*-- Methods --*/
 		
+		private: std::uint32_t minKeys() const {
+			return maxKeys / 2;
+		}
+		
+		
 		public: bool isLeaf() const {
 			return children.empty();
 		}
@@ -285,26 +290,24 @@ class BTreeSet final {
 		
 		// Removes and returns the minimum key among the whole subtree rooted at this node.
 		public: E removeMin() {
-			std::uint32_t minKeys = maxKeys / 2;
 			Node *node = this;
 			while (!node->isLeaf()) {
-				assert(node->keys.size() > minKeys);
+				assert(node->keys.size() > minKeys());
 				node = node->ensureChildRemove(0);
 			}
-			assert(node->keys.size() > minKeys);
+			assert(node->keys.size() > minKeys());
 			return node->removeKey(0);
 		}
 		
 		
 		// Removes and returns the maximum key among the whole subtree rooted at this node.
 		public: E removeMax() {
-			std::uint32_t minKeys = maxKeys / 2;
 			Node *node = this;
 			while (!node->isLeaf()) {
-				assert(node->keys.size() > minKeys);
+				assert(node->keys.size() > minKeys());
 				node = node->ensureChildRemove(node->children.size() - 1);
 			}
-			assert(node->keys.size() > minKeys);
+			assert(node->keys.size() > minKeys());
 			return node->removeKey(node->keys.size() - 1);
 		}
 		
@@ -322,32 +325,30 @@ class BTreeSet final {
 		public: SplitResult split() {
 			// Manipulate numbers
 			assert(keys.size() == maxKeys);
-			std::uint32_t minKeys = maxKeys / 2;
 			
 			// Handle children
 			std::unique_ptr<Node> rightNode = std::make_unique<Node>(maxKeys, isLeaf());
 			if (!isLeaf()) {
-				std::move(children.begin() + minKeys + 1, children.end(), std::back_inserter(rightNode->children));
-				children.erase(children.begin() + minKeys + 1, children.end());
+				std::move(children.begin() + minKeys() + 1, children.end(), std::back_inserter(rightNode->children));
+				children.erase(children.begin() + minKeys() + 1, children.end());
 			}
 			
 			// Handle keys
-			E key = std::move(keys.at(minKeys));
-			std::move(keys.begin() + minKeys + 1, keys.end(), std::back_inserter(rightNode->keys));
-			keys.erase(keys.begin() + minKeys, keys.end());
+			E key = std::move(keys.at(minKeys()));
+			std::move(keys.begin() + minKeys() + 1, keys.end(), std::back_inserter(rightNode->keys));
+			keys.erase(keys.begin() + minKeys(), keys.end());
 			return SplitResult(std::move(key), std::move(rightNode));
 		}
 		
 		
 		// Merges the child node at index+1 into the child node at index,
-		// assuming the current node is not empty and both children have minkeys.
+		// assuming the current node is not empty and both children have minKeys.
 		public: void mergeChildren(std::uint32_t index) {
 			if (isLeaf() || keys.empty())
 				throw "Cannot merge children";
-			std::uint32_t minKeys = maxKeys / 2;
 			Node &left  = *children.at(index + 0);
 			Node &right = *children.at(index + 1);
-			if (left.keys.size() != minKeys || right.keys.size() != minKeys)
+			if (left.keys.size() != minKeys() || right.keys.size() != minKeys())
 				throw "Cannot merge children";
 			if (!left.isLeaf())
 				std::move(right.children.begin(), right.children.end(), std::back_inserter(left.children));
@@ -364,11 +365,10 @@ class BTreeSet final {
 		public: Node *ensureChildRemove(std::uint32_t index) {
 			// Preliminaries
 			assert(!isLeaf());
-			std::uint32_t minKeys = maxKeys / 2;
 			Node *child = children.at(index).get();
-			if (child->keys.size() > minKeys)  // Already satisfies the condition
+			if (child->keys.size() > minKeys())  // Already satisfies the condition
 				return child;
-			assert(child->keys.size() == minKeys);
+			assert(child->keys.size() == minKeys());
 			
 			// Get siblings
 			Node *left = index >= 1 ? children.at(index - 1).get() : nullptr;
@@ -378,7 +378,7 @@ class BTreeSet final {
 			assert(left  == nullptr || left ->isLeaf() != internal);  // Sibling must be same type (internal/leaf) as child
 			assert(right == nullptr || right->isLeaf() != internal);  // Sibling must be same type (internal/leaf) as child
 			
-			if (left != nullptr && left->keys.size() > minKeys) {  // Steal rightmost item from left sibling
+			if (left != nullptr && left->keys.size() > minKeys()) {  // Steal rightmost item from left sibling
 				if (internal) {
 					child->children.insert(child->children.begin(), std::move(left->children.back()));
 					left->children.pop_back();
@@ -386,7 +386,7 @@ class BTreeSet final {
 				child->keys.insert(child->keys.begin(), std::move(this->keys.at(index - 1)));
 				this->keys.at(index - 1) = left->removeKey(left->keys.size() - 1);
 				return child;
-			} else if (right != nullptr && right->keys.size() > minKeys) {  // Steal leftmost item from right sibling
+			} else if (right != nullptr && right->keys.size() > minKeys()) {  // Steal leftmost item from right sibling
 				if (internal) {
 					child->children.push_back(std::move(right->children.front()));
 					right->children.erase(right->children.begin());
@@ -416,7 +416,7 @@ class BTreeSet final {
 				throw "Invalid number of keys";
 			if (isRoot && !isLeaf() && numKeys == 0)
 				throw "Invalid number of keys";
-			else if (!isRoot && numKeys < maxKeys / 2)
+			else if (!isRoot && numKeys < minKeys())
 				throw "Invalid number of keys";
 			
 			// Check keys
