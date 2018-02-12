@@ -32,6 +32,7 @@ fn main() {
 	test_insert_randomly();
 	test_large_randomly();
 	test_remove_all_randomly();
+	println!("Test passed");
 }
 
 
@@ -68,10 +69,11 @@ fn test_small_randomly() {
 
 fn test_insert_randomly() {
 	let trials = 100;
-	let operations = 10000;
+	let operations = 10_000;
+	let range = 100_000;
 	let checks = 10;
 	let mut rng = rand::thread_rng();
-	let valuedist = rand::distributions::range::Range::new(0i32, 100_000i32);
+	let valuedist = rand::distributions::range::Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
 		let mut set0 = std::collections::HashSet::<i32>::new();
@@ -97,11 +99,12 @@ fn test_insert_randomly() {
 
 fn test_large_randomly() {
 	let trials = 100;
-	let operations = 30000;
+	let operations = 30_000;
+	let range = 100_000;
 	let checks = 10;
 	let mut rng = rand::thread_rng();
 	let degreedist = rand::distributions::range::Range::new(2usize, 7usize);
-	let valuedist = rand::distributions::range::Range::new(0i32, 100_000i32);
+	let valuedist = rand::distributions::range::Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
 		let mut set0 = std::collections::HashSet::<i32>::new();
@@ -131,11 +134,12 @@ fn test_large_randomly() {
 
 fn test_remove_all_randomly() {
 	let trials = 100;
-	let limit = 10000;
+	let limit = 10_000;
+	let range = 100_000;
 	let checks = 10;
 	let mut rng = rand::thread_rng();
 	let degreedist = rand::distributions::range::Range::new(2usize, 7usize);
-	let valuedist = rand::distributions::range::Range::new(0i32, 100_000i32);
+	let valuedist = rand::distributions::range::Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
 		// Create sets and add all values

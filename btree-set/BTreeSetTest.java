@@ -40,6 +40,7 @@ public final class BTreeSetTest {
 		final int trials = 1000;
 		final int operations = 100;
 		final int range = 1000;
+		
 		for (int i = 0; i < trials; i++) {
 			SortedSet<Integer> set0 = new TreeSet<>();
 			BTreeSet<Integer> set1 = new BTreeSet<>(rand.nextInt(5) + 2);
@@ -69,9 +70,10 @@ public final class BTreeSetTest {
 	
 	@Test public void testInsertRandomly() {
 		final int trials = 100;
-		final int operations = 10000;
-		final int range = 100000;
+		final int operations = 10_000;
+		final int range = 100_000;
 		final int checks = 10;
+		
 		for (int i = 0; i < trials; i++) {
 			Set<Integer> set0 = new HashSet<>();
 			BTreeSet<Integer> set1 = new BTreeSet<>(2);
@@ -95,9 +97,10 @@ public final class BTreeSetTest {
 	
 	@Test public void testLargeRandomly() {
 		final int trials = 100;
-		final int operations = 30000;
-		final int range = 100000;
+		final int operations = 30_000;
+		final int range = 100_000;
 		final int checks = 10;
+		
 		for (int i = 0; i < trials; i++) {
 			Set<Integer> set0 = new HashSet<>();
 			BTreeSet<Integer> set1 = new BTreeSet<>(rand.nextInt(5) + 2);
@@ -124,9 +127,10 @@ public final class BTreeSetTest {
 	
 	@Test public void testRemoveAllRandomly() {
 		final int trials = 100;
-		final int limit = 10000;
-		final int range = 100000;
+		final int limit = 10_000;
+		final int range = 100_000;
 		final int checks = 10;
+		
 		for (int i = 0; i < trials; i++) {
 			// Create sets and add all values
 			Set<Integer> set0 = new HashSet<>();
@@ -155,9 +159,10 @@ public final class BTreeSetTest {
 	
 	
 	@Test public void testIteratorRandomly() {
-		final int trials = 10000;
+		final int trials = 10_000;
 		final int operations = 1000;
-		final int range = 10000;
+		final int range = 10_000;
+		
 		for (int i = 0; i < trials; i++) {
 			Set<Integer> set0 = new HashSet<>();
 			BTreeSet<Integer> set1 = new BTreeSet<>(rand.nextInt(5) + 2);

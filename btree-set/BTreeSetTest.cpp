@@ -30,6 +30,7 @@
 #include "BTreeSet.hpp"
 
 using std::size_t;
+using std::uniform_int_distribution;
 
 
 // Forward declarations
@@ -64,14 +65,15 @@ static void testSmallRandomly() {
 	const long TRIALS = 1000;
 	const long OPERATIONS = 100;
 	const int RANGE = 1000;
-	std::uniform_int_distribution<int> rangeDist(0, RANGE - 1);
-	std::uniform_int_distribution<int> degreeDist(2, 6);
+	uniform_int_distribution<int> valueDist(0, RANGE - 1);
+	uniform_int_distribution<int> degreeDist(2, 6);
+	
 	for (long i = 0; i < TRIALS; i++) {
 		std::set<int> set0;
 		BTreeSet<int> set1(degreeDist(randGen));
 		for (long j = 0; j < OPERATIONS; j++) {
 			// Add/remove a random value
-			int val = rangeDist(randGen);
+			int val = valueDist(randGen);
 			if (realDist(randGen) < 0.5) {
 				set0.insert(val);
 				set1.insert(val);
@@ -96,16 +98,17 @@ static void testSmallRandomly() {
 
 static void testInsertRandomly() {
 	const long TRIALS = 100;
-	const long OPERATIONS = 10000;
-	const int RANGE = 100000;
+	const long OPERATIONS = 10'000;
+	const int RANGE = 100'000;
 	const long CHECKS = 10;
-	std::uniform_int_distribution<int> rangeDist(0, RANGE - 1);
+	uniform_int_distribution<int> valueDist(0, RANGE - 1);
+	
 	for (long i = 0; i < TRIALS; i++) {
 		std::set<int> set0;
 		BTreeSet<int> set1(2);
 		for (long j = 0; j < OPERATIONS; j++) {
 			// Add a random value
-			int val = rangeDist(randGen);
+			int val = valueDist(randGen);
 			set0.insert(val);
 			set1.insert(val);
 			if (realDist(randGen) < 0.003)
@@ -115,7 +118,7 @@ static void testInsertRandomly() {
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
 			for (long k = 0; k < CHECKS; k++) {
-				int val = rangeDist(randGen);
+				int val = valueDist(randGen);
 				if (set1.contains(val) != (set0.find(val) != set0.end()))
 					throw "Contain test mismatch";
 			}
@@ -126,17 +129,18 @@ static void testInsertRandomly() {
 
 static void testLargeRandomly() {
 	const long TRIALS = 100;
-	const long OPERATIONS = 30000;
-	const int RANGE = 100000;
+	const long OPERATIONS = 30'000;
+	const int RANGE = 100'000;
 	const long CHECKS = 10;
-	std::uniform_int_distribution<int> rangeDist(0, RANGE - 1);
-	std::uniform_int_distribution<int> degreeDist(2, 6);
+	uniform_int_distribution<int> valueDist(0, RANGE - 1);
+	uniform_int_distribution<int> degreeDist(2, 6);
+	
 	for (long i = 0; i < TRIALS; i++) {
 		std::set<int> set0;
 		BTreeSet<int> set1(degreeDist(randGen));
 		for (long j = 0; j < OPERATIONS; j++) {
 			// Add/remove a random value
-			int val = rangeDist(randGen);
+			int val = valueDist(randGen);
 			if (realDist(randGen) < 0.5) {
 				set0.insert(val);
 				set1.insert(val);
@@ -151,7 +155,7 @@ static void testLargeRandomly() {
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
 			for (long k = 0; k < CHECKS; k++) {
-				int val = rangeDist(randGen);
+				int val = valueDist(randGen);
 				if (set1.contains(val) != (set0.find(val) != set0.end()))
 					throw "Contain test mismatch";
 			}
@@ -162,16 +166,17 @@ static void testLargeRandomly() {
 
 static void testRemoveAllRandomly() {
 	const long TRIALS = 100;
-	const long LIMIT = 10000;
-	const int RANGE = 100000;
+	const long LIMIT = 10'000;
+	const int RANGE = 100'000;
 	const long CHECKS = 10;
-	std::uniform_int_distribution<int> rangeDist(0, RANGE - 1);
-	std::uniform_int_distribution<int> degreeDist(2, 6);
+	uniform_int_distribution<int> valueDist(0, RANGE - 1);
+	uniform_int_distribution<int> degreeDist(2, 6);
+	
 	for (long i = 0; i < TRIALS; i++) {
 		std::set<int> set0;
 		BTreeSet<int> set1(degreeDist(randGen));
 		for (long j = 0; j < LIMIT; j++) {
-			int val = rangeDist(randGen);
+			int val = valueDist(randGen);
 			set0.insert(val);
 			set1.insert(val);
 		}
@@ -189,7 +194,7 @@ static void testRemoveAllRandomly() {
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
 			for (long k = 0; k < CHECKS; k++) {
-				int val = rangeDist(randGen);
+				int val = valueDist(randGen);
 				if (set1.contains(val) != (set0.find(val) != set0.end()))
 					throw "Contain test mismatch";
 			}
