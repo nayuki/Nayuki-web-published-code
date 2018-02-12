@@ -130,21 +130,21 @@ class BTreeSet(object):
 				if found:  # Key is stored at current node
 					left, right = node.children[index : index + 2]
 					if len(left.keys) > self.minkeys:  # Replace key with predecessor
-						node.keys[index] = left.remove_max()
+						node.keys[index] = left.remove_max(self.minkeys)
 						self.size -= 1
 						return True
 					elif len(right.keys) > self.minkeys:
-						node.keys[index] = right.remove_min()
+						node.keys[index] = right.remove_min(self.minkeys)
 						self.size -= 1
 						return True
 					else:  # Merge key and right node into left node, then recurse
-						node.merge_children(index)
+						node.merge_children(self.minkeys, index)
 						if node is root and len(root.keys) == 0:
 							self.root = root = left  # Decrement tree height
 						node = left
 						index = self.minkeys  # Index known due to merging; no need to search
 				else:  # Key might be found in some child
-					child = node.ensure_child_remove(index)
+					child = node.ensure_child_remove(self.minkeys, index)
 					if node is root and len(root.keys) == 0:
 						self.root = root = root.children[0]  # Decrement tree height
 					node = child
@@ -195,7 +195,7 @@ class BTreeSet(object):
 			node = node.children[0]
 		
 		# Check all nodes and total size
-		if root.check_structure(True, height, None, None) != size:
+		if root.check_structure(self.minkeys, self.maxkeys, True, height, None, None) != size:
 			raise AssertionError("Size mismatch")
 	
 	
@@ -210,10 +210,6 @@ class BTreeSet(object):
 			self.maxkeys = maxkeys
 			self.keys = []  # Length is in [0, maxkeys] for root node, [minkeys, maxkeys] for all other nodes
 			self.children = None if leaf else []  # If internal node, then length always equals len(keys)+1
-		
-		
-		def min_keys(self):
-			return self.maxkeys // 2
 		
 		
 		def is_leaf(self):
@@ -237,22 +233,22 @@ class BTreeSet(object):
 		
 		
 		# Removes and returns the minimum key among the whole subtree rooted at this node.
-		def remove_min(self):
+		def remove_min(self, minkeys):
 			node = self
 			while not node.is_leaf():
-				assert len(node.keys) > self.min_keys()
-				node = node.ensure_child_remove(0)
-			assert len(node.keys) > self.min_keys()
+				assert len(node.keys) > minkeys
+				node = node.ensure_child_remove(minkeys, 0)
+			assert len(node.keys) > minkeys
 			return node.remove_key(0)
 		
 		
 		# Removes and returns the maximum key among the whole subtree rooted at this node.
-		def remove_max(self):
+		def remove_max(self, minkeys):
 			node = self
 			while not node.is_leaf():
-				assert len(node.keys) > self.min_keys()
-				node = node.ensure_child_remove(len(node.children) - 1)
-			assert len(node.keys) > self.min_keys()
+				assert len(node.keys) > minkeys
+				node = node.ensure_child_remove(minkeys, len(node.children) - 1)
+			assert len(node.keys) > minkeys
 			return node.remove_key(len(node.keys) - 1)
 		
 		
@@ -295,11 +291,11 @@ class BTreeSet(object):
 		
 		# Merges the child node at index+1 into the child node at index,
 		# assuming the current node is not empty and both children have minkeys.
-		def merge_children(self, index):
+		def merge_children(self, minkeys, index):
 			if self.is_leaf() or len(self.keys) == 0:
 				raise RuntimeError("Cannot merge children")
 			left, right = self.children[index : index + 2]
-			if not (len(left.keys) == len(right.keys) == self.min_keys()):
+			if not (len(left.keys) == len(right.keys) == minkeys):
 				raise RuntimeError("Cannot merge children")
 			if not left.is_leaf():
 				left.children.extend(right.children)
@@ -311,13 +307,13 @@ class BTreeSet(object):
 		# minKeys+1 keys in preparation for a single removal. The child may gain a key and subchild
 		# from its sibling, or it may be merged with a sibling, or nothing needs to be done.
 		# A reference to the appropriate child is returned, which is helpful if the old child no longer exists.
-		def ensure_child_remove(self, index):
+		def ensure_child_remove(self, minkeys, index):
 			# Preliminaries
 			assert not self.is_leaf()
 			child = self.children[index]
-			if len(child.keys) > self.min_keys():  # Already satisfies the condition
+			if len(child.keys) > minkeys:  # Already satisfies the condition
 				return child
-			assert len(child.keys) == self.min_keys()
+			assert len(child.keys) == minkeys
 			
 			# Get siblings
 			left  = self.children[index - 1] if index >= 1 else None
@@ -327,23 +323,23 @@ class BTreeSet(object):
 			assert left  is None or left .is_leaf() != internal  # Sibling must be same type (internal/leaf) as child
 			assert right is None or right.is_leaf() != internal  # Sibling must be same type (internal/leaf) as child
 			
-			if left is not None and len(left.keys) > self.min_keys():  # Steal rightmost item from left sibling
+			if left is not None and len(left.keys) > minkeys:  # Steal rightmost item from left sibling
 				if internal:
 					child.children.insert(0, left.children.pop(-1))
 				child.keys.insert(0, self.keys[index - 1])
 				self.keys[index - 1] = left.remove_key(len(left.keys) - 1)
 				return child
-			elif right is not None and len(right.keys) > self.min_keys():  # Steal leftmost item from right sibling
+			elif right is not None and len(right.keys) > minkeys:  # Steal leftmost item from right sibling
 				if internal:
 					child.children.append(right.children.pop(0))
 				child.keys.append(self.keys[index])
 				self.keys[index] = right.remove_key(0)
 				return child
 			elif left is not None:  # Merge child into left sibling
-				self.merge_children(index - 1)
+				self.merge_children(minkeys, index - 1)
 				return left  # This is the only case where the return value is different
 			elif right is not None:  # Merge right sibling into child
-				self.merge_children(index)
+				self.merge_children(minkeys, index)
 				return child
 			else:
 				raise AssertionError("Impossible condition")
@@ -351,17 +347,17 @@ class BTreeSet(object):
 		
 		# Checks the structure recursively and returns the total number
 		# of keys in the subtree rooted at this node. For unit tests.
-		def check_structure(self, isroot, leafdepth, min, max):
+		def check_structure(self, minkeys, maxkeys, isroot, leafdepth, min, max):
 			# Check basic fields
 			keys = self.keys
 			numkeys = len(keys)
 			if self.is_leaf() != (leafdepth == 0):
 				raise AssertionError("Incorrect leaf/internal node type")
-			if numkeys > self.maxkeys:
+			if numkeys > maxkeys:
 				raise AssertionError("Invalid number of keys")
 			if isroot and not self.is_leaf() and numkeys == 0:
 				raise AssertionError("Invalid number of keys")
-			elif not isroot and numkeys < self.min_keys():
+			elif not isroot and numkeys < minkeys:
 				raise AssertionError("Invalid number of keys")
 			
 			# Check ordering of keys
@@ -381,5 +377,6 @@ class BTreeSet(object):
 					# Check children pointers and recurse
 					if not isinstance(child, BTreeSet.Node):
 						raise TypeError()
-					count += child.check_structure(False, leafdepth - 1, tempkeys[i], tempkeys[i + 1])
+					count += child.check_structure(minkeys, maxkeys, False,
+						leafdepth - 1, tempkeys[i], tempkeys[i + 1])
 			return count
