@@ -105,7 +105,7 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 	
 	pub fn remove(&mut self, val: &E) -> bool {
 		let (found, index) = self.root.search(val);
-		let result = self.root.remove(self.min_keys, val, found, index);
+		let result = self.root.remove(self.min_keys, self.max_keys, val, found, index);
 		if result {
 			assert!(self.size > 0);
 			self.size -= 1;
@@ -153,8 +153,6 @@ struct Node<E> {
 	// If leaf then size is 0, otherwise if internal node then size always equals keys.len()+1.
 	children: Vec<Box<Node<E>>>,
 	
-	max_keys: usize,
-	
 }
 
 
@@ -166,7 +164,6 @@ impl <E: std::cmp::Ord> Node<E> {
 		Self {
 			keys: Vec::with_capacity(maxkeys),
 			children: Vec::with_capacity(if leaf { 0 } else { maxkeys + 1 }),
-			max_keys: maxkeys,
 		}
 	}
 	
@@ -335,8 +332,8 @@ impl <E: std::cmp::Ord> Node<E> {
 	}
 	
 	
-	fn remove(&mut self, minkeys: usize, val: &E, found: bool, index: usize) -> bool {
-		assert!(self.keys.len() <= self.max_keys);
+	fn remove(&mut self, minkeys: usize, maxkeys: usize, val: &E, found: bool, index: usize) -> bool {
+		assert!(self.keys.len() <= maxkeys);
 		if self.is_leaf() {
 			if found {  // Simple removal from leaf
 				self.keys.remove(index);
@@ -352,12 +349,12 @@ impl <E: std::cmp::Ord> Node<E> {
 					true
 				} else {  // Merge key and right node into left node, then recurse
 					self.merge_children(minkeys, index);
-					self.children[index].remove(minkeys, val, true, minkeys)  // Index known due to merging; no need to search
+					self.children[index].remove(minkeys, maxkeys, val, true, minkeys)  // Index known due to merging; no need to search
 				}
 			} else {  // Key might be found in some child
 				let child = self.ensure_child_remove(minkeys, index);
 				let (found, index) = child.search(val);
-				child.remove(minkeys, val, found, index)
+				child.remove(minkeys, maxkeys, val, found, index)
 			}
 		}
 	}

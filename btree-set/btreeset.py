@@ -207,7 +207,6 @@ class BTreeSet(object):
 		# Note: Once created, a node's structure never changes between a leaf and internal node.
 		def __init__(self, maxkeys, leaf):
 			assert maxkeys >= 3 and maxkeys % 2 == 1
-			self.maxkeys = maxkeys
 			self.keys = []  # Length is in [0, maxkeys] for root node, [minkeys, maxkeys] for all other nodes
 			self.children = None if leaf else []  # If internal node, then length always equals len(keys)+1
 		

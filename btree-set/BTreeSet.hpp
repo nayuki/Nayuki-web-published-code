@@ -243,14 +243,11 @@ class BTreeSet final {
 		// If leaf then size is 0, otherwise if internal node then size always equals keys.size()+1.
 		public: std::vector<std::unique_ptr<Node> > children;
 		
-		public: const std::uint32_t maxKeys;
-		
 		
 		/*-- Constructors --*/
 		
 		// Note: Once created, a node's structure never changes between a leaf and internal node.
-		public: Node(std::uint32_t mxKeys, bool leaf) :
-				maxKeys(mxKeys) {
+		public: Node(std::uint32_t maxKeys, bool leaf) {
 			assert(maxKeys >= 3 && maxKeys % 2 == 1);
 			keys.reserve(maxKeys);
 			if (!leaf)
