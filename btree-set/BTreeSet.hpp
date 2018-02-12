@@ -49,13 +49,13 @@ class BTreeSet final {
 	/*---- Constructors ----*/
 	
 	// The degree is the minimum number of children each non-root internal node must have.
-	public: explicit BTreeSet(std::uint32_t deg) :
+	public: explicit BTreeSet(std::uint32_t degree) :
 			count(0),
-			minKeys(deg - 1),
-			maxKeys(deg * 2 - 1) {
-		if (deg < 2)
+			minKeys(degree - 1),
+			maxKeys(degree * 2 - 1) {
+		if (degree < 2)
 			throw "Degree must be at least 2";
-		if (deg > UINT32_MAX / 2)  // In other words, need maxChildren <= UINT32_MAX
+		if (degree > UINT32_MAX / 2)  // In other words, need maxChildren <= UINT32_MAX
 			throw "Degree too large";
 		clear();
 	}

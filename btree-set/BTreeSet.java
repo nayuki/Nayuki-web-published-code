@@ -46,19 +46,19 @@ public final class BTreeSet<E extends Comparable<? super E>>
 	/*---- Constructors ----*/
 	
 	// The degree is the minimum number of children each non-root internal node must have.
-	public BTreeSet(int deg) {
-		if (deg < 2)
+	public BTreeSet(int degree) {
+		if (degree < 2)
 			throw new IllegalArgumentException("Degree must be at least 2");
-		if (deg * 2L > Integer.MAX_VALUE)  // In other words, need maxChildren <= INT_MAX
+		if (degree * 2L > Integer.MAX_VALUE)  // In other words, need maxChildren <= INT_MAX
 			throw new IllegalArgumentException("Degree too large");
-		minKeys = deg - 1;
-		maxKeys = deg * 2 - 1;
+		minKeys = degree - 1;
+		maxKeys = degree * 2 - 1;
 		clear();
 	}
 	
 	
-	public BTreeSet(int deg, Collection<E> coll) {
-		this(deg);
+	public BTreeSet(int degree, Collection<E> coll) {
+		this(degree);
 		addAll(coll);
 	}
 	

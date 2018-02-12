@@ -27,13 +27,13 @@ import numbers
 class BTreeSet(object):
 	
 	# The degree is the minimum number of children each non-root internal node must have.
-	def __init__(self, deg, coll=None):
-		if not isinstance(deg, numbers.Integral):
+	def __init__(self, degree, coll=None):
+		if not isinstance(degree, numbers.Integral):
 			raise TypeError()
-		if deg < 2:
+		if degree < 2:
 			raise ValueError("Degree must be at least 2")
-		self.minkeys = deg - 1      # At least 1
-		self.maxkeys = deg * 2 - 1  # At least 3, odd number
+		self.minkeys = degree - 1      # At least 1
+		self.maxkeys = degree * 2 - 1  # At least 3, odd number
 		
 		self.clear()
 		if coll is not None:

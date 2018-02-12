@@ -40,14 +40,14 @@ pub struct BTreeSet<E> {
 impl <E: std::cmp::Ord> BTreeSet<E> {
 	
 	// The degree is the minimum number of children each non-root internal node must have.
-	pub fn new(deg: usize) -> Self {
-		assert!(deg >= 2, "Degree must be at least 2");
-		assert!(deg <= std::usize::MAX / 2, "Degree too large");  // In other words, need maxChildren <= USIZE_MAX
-		let maxkeys = deg * 2 - 1;
+	pub fn new(degree: usize) -> Self {
+		assert!(degree >= 2, "Degree must be at least 2");
+		assert!(degree <= std::usize::MAX / 2, "Degree too large");  // In other words, need maxChildren <= USIZE_MAX
+		let maxkeys = degree * 2 - 1;
 		Self {
 			root: Node::new(maxkeys, true),
 			count: 0,
-			min_keys: deg - 1,
+			min_keys: degree - 1,
 			max_keys: maxkeys,
 		}
 	}
