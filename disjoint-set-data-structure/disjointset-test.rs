@@ -23,6 +23,7 @@
 
 extern crate rand;
 use rand::distributions::IndependentSample;
+use rand::Rng;
 mod disjointset;
 
 
@@ -115,7 +116,6 @@ fn test_against_naive_randomly() {
 	let numelems: usize = 300;
 	
 	let mut rng = rand::thread_rng();
-	let uniform = rand::distributions::range::Range::new(0.0, 1.0);
 	let range = rand::distributions::range::Range::new(0, numelems);
 	for _ in 0 .. trials {
 		let mut nds = NaiveDisjointSet::new(numelems);
@@ -125,11 +125,11 @@ fn test_against_naive_randomly() {
 			let j: usize = range.ind_sample(&mut rng);
 			assert_eq!(nds.get_size_of_set(i), ds.get_size_of_set(i));
 			assert_eq!(nds.are_in_same_set(i, j), ds.are_in_same_set(i, j));
-			if uniform.ind_sample(&mut rng) < 0.1 {
+			if rng.next_f64() < 0.1 {
 				assert_eq!(nds.merge_sets(i, j), ds.merge_sets(i, j));
 			}
 			assert_eq!(nds.number_of_sets(), ds.number_of_sets());
-			if uniform.ind_sample(&mut rng) < 0.001 {
+			if rng.next_f64() < 0.001 {
 				ds.check_structure();
 			}
 		}

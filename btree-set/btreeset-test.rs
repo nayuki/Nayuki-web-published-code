@@ -40,7 +40,6 @@ fn test_small_randomly() {
 	let operations = 100;
 	let range = 1000;
 	let mut rng = rand::thread_rng();
-	let uniform = rand::distributions::range::Range::new(0.0, 1.0);
 	let degreedist = rand::distributions::range::Range::new(2usize, 7usize);
 	let valuedist = rand::distributions::range::Range::new(0i32, range);
 	
@@ -50,7 +49,7 @@ fn test_small_randomly() {
 		for _ in 0 .. operations {
 			// Add/remove a random value
 			let val: i32 = valuedist.ind_sample(&mut rng);
-			if uniform.ind_sample(&mut rng) < 0.5 {
+			if rng.next_f64() < 0.5 {
 				assert_eq!(set0.insert(val), set1.insert(val));
 			} else {
 				assert_eq!(set0.remove(&val), set1.remove(&val));
@@ -72,7 +71,6 @@ fn test_insert_randomly() {
 	let operations = 10000;
 	let checks = 10;
 	let mut rng = rand::thread_rng();
-	let uniform = rand::distributions::range::Range::new(0.0, 1.0);
 	let valuedist = rand::distributions::range::Range::new(0i32, 100_000i32);
 	
 	for _ in 0 .. trials {
@@ -82,7 +80,7 @@ fn test_insert_randomly() {
 			// Add a random value
 			let val: i32 = valuedist.ind_sample(&mut rng);
 			assert_eq!(set0.insert(val), set1.insert(val));
-			if uniform.ind_sample(&mut rng) < 0.003 {
+			if rng.next_f64() < 0.003 {
 				set1.check_structure();
 			}
 			
@@ -102,7 +100,6 @@ fn test_large_randomly() {
 	let operations = 30000;
 	let checks = 10;
 	let mut rng = rand::thread_rng();
-	let uniform = rand::distributions::range::Range::new(0.0, 1.0);
 	let degreedist = rand::distributions::range::Range::new(2usize, 7usize);
 	let valuedist = rand::distributions::range::Range::new(0i32, 100_000i32);
 	
@@ -112,12 +109,12 @@ fn test_large_randomly() {
 		for _ in 0 .. operations {
 			// Add/remove a random value
 			let val: i32 = valuedist.ind_sample(&mut rng);
-			if uniform.ind_sample(&mut rng) < 0.5 {
+			if rng.next_f64() < 0.5 {
 				assert_eq!(set0.insert(val), set1.insert(val));
 			} else {
 				assert_eq!(set0.remove(&val), set1.remove(&val));
 			}
-			if uniform.ind_sample(&mut rng) < 0.001 {
+			if rng.next_f64() < 0.001 {
 				set1.check_structure();
 			}
 			
@@ -137,7 +134,6 @@ fn test_remove_all_randomly() {
 	let limit = 10000;
 	let checks = 10;
 	let mut rng = rand::thread_rng();
-	let uniform = rand::distributions::range::Range::new(0.0, 1.0);
 	let degreedist = rand::distributions::range::Range::new(2usize, 7usize);
 	let valuedist = rand::distributions::range::Range::new(0i32, 100_000i32);
 	
@@ -156,7 +152,7 @@ fn test_remove_all_randomly() {
 		rng.shuffle(&mut list);
 		for val in list {
 			assert_eq!(set0.remove(&val), set1.remove(&val));
-			if uniform.ind_sample(&mut rng) < (1.0 / (set1.len() as f64)).max(0.001) {
+			if rng.next_f64() < (1.0 / (set1.len() as f64)).max(0.001) {
 				set1.check_structure();
 			}
 			assert_eq!(set0.len(), set1.len());
