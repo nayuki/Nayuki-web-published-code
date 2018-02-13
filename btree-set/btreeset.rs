@@ -87,11 +87,9 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 	pub fn insert(&mut self, val: E) -> bool {
 		// Special preprocessing to split root node
 		if self.root.keys.len() == self.max_keys {
-			let mut leftnode = std::mem::replace(&mut self.root, Node::new(self.max_keys, false));  // Increment tree height
-			let (middlekey, rightnode) = leftnode.split(self.min_keys, self.max_keys);
-			self.root.keys.push(middlekey);
-			self.root.children.push(Box::new(leftnode));
-			self.root.children.push(rightnode);
+			let child = std::mem::replace(&mut self.root, Node::new(self.max_keys, false));  // Increment tree height
+			self.root.children.push(Box::new(child));
+			self.root.split_child(self.min_keys, self.max_keys, 0);
 		}
 		
 		// Walk down the tree
@@ -202,11 +200,8 @@ impl <E: std::cmp::Ord> Node<E> {
 			true  // Successfully inserted
 		} else {  // Handle internal node
 			if self.children[index].keys.len() == maxkeys {  // Split child node
-				let (middlekey, rightnode) = self.children[index].split(minkeys, maxkeys);
-				let cmp = val.cmp(&middlekey);
-				self.keys.insert(index, middlekey);
-				self.children.insert(index + 1, rightnode);
-				match cmp {
+				self.split_child(minkeys, maxkeys, index);
+				match val.cmp(&self.keys[index]) {
 					Ordering::Equal   => return false,  // Key already exists in tree
 					Ordering::Greater => index += 1,
 					Ordering::Less    => {},
@@ -240,22 +235,25 @@ impl <E: std::cmp::Ord> Node<E> {
 	}
 	
 	
-	// Moves the right half of keys and children to a new node, yielding the pair of values
-	// (promoted key, new node). The left half of data is still retained in this node.
-	fn split(&mut self, minkeys: usize, maxkeys: usize) -> (E,Box<Self>) {
-		// Manipulate numbers
-		assert!(self.keys.len() == maxkeys);
-		let half = minkeys + 1;
-		
-		// Handle children
-		let mut rightnode = Node::<E>::new(maxkeys, self.is_leaf());
-		if !self.is_leaf() {
-			rightnode.children.extend(self.children.drain(half ..));
+	// For the child node at the given index, this moves the right half of keys and children to a new node,
+	// and adds the middle key and new child to this node. The left half of child's data is not moved.
+	fn split_child(&mut self, minkeys: usize, maxkeys: usize, index: usize) {
+		assert!(!self.is_leaf(), "Cannot split child node");
+		assert!(self.keys.len() < maxkeys, "Cannot split child node");
+		let middlekey;
+		let mut right;
+		{
+			let left = self.children[index].as_mut();
+			assert_eq!(left.keys.len(), maxkeys, "Can only split full node");
+			right = Node::<E>::new(maxkeys, left.is_leaf());
+			if !left.is_leaf() {
+				right.children.extend(left.children.drain(minkeys + 1 ..));
+			}
+			right.keys.extend(left.keys.drain(minkeys + 1 ..));
+			middlekey = left.keys.pop().unwrap();
 		}
-		
-		// Handle keys
-		rightnode.keys.extend(self.keys.drain(half ..));
-		(self.keys.pop().unwrap(), Box::new(rightnode))
+		self.keys.insert(index, middlekey);
+		self.children.insert(index + 1, Box::new(right));
 	}
 	
 	

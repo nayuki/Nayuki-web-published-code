@@ -103,11 +103,10 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		
 		// Special preprocessing to split root node
 		if (root.numKeys == maxKeys) {
-			Node.SplitResult<E> temp = root.split();
-			Node<E> left = root;
-			root = new Node<E>(maxKeys, false);  // Increment tree height
-			root.children[0] = left;
-			root.insertKeyAndChild(0, temp.middleKey, 1, temp.rightNode);
+			Node<E> child = root;
+			root = new Node<>(maxKeys, false);  // Increment tree height
+			root.children[0] = child;
+			root.splitChild(0);
 		}
 		
 		// Walk down the tree
@@ -131,13 +130,12 @@ public final class BTreeSet<E extends Comparable<? super E>>
 			} else {  // Handle internal node
 				Node<E> child = node.children[index];
 				if (child.numKeys == maxKeys) {  // Split child node
-					Node.SplitResult<E> temp = child.split();
-					node.insertKeyAndChild(index, temp.middleKey, index + 1, temp.rightNode);
-					int cmp = obj.compareTo(temp.middleKey);
+					node.splitChild(index);
+					int cmp = obj.compareTo(node.keys[index]);
 					if (cmp == 0)
 						return false;  // Key already exists in tree
 					else if (cmp > 0)
-						child = temp.rightNode;
+						child = node.children[index + 1];
 				}
 				node = child;
 			}
@@ -406,30 +404,31 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		}
 		
 		
-		// Moves the right half of keys and children to a new node, returning the pair of values
-		// (new node, promoted key). The left half of data is still retained in this node.
-		public SplitResult<E> split() {
-			// Manipulate numbers
-			assert maxKeys() % 2 == 1;
-			if (numKeys != maxKeys())
+		// For the child node at the given index, this moves the right half of keys and children to a new node,
+		// and adds the middle key and new child to this node. The left half of child's data is not moved.
+		public void splitChild(int index) {
+			if (this.isLeaf() || this.numKeys >= maxKeys())
+				throw new IllegalStateException("Cannot split child node");
+			Node<E> left = this.children[index];
+			if (left.numKeys != maxKeys())
 				throw new IllegalStateException("Can only split full node");
+			Node<E> right = new Node<>(maxKeys(), left.isLeaf());
+			int minKeys = minKeys();
 			
 			// Handle children
-			SplitResult<E> result = new SplitResult<>();
-			result.rightNode = new Node<E>(maxKeys(), isLeaf());
-			int minKeys = minKeys();
-			if (!isLeaf()) {
-				System.arraycopy(this.children, minKeys + 1, result.rightNode.children, 0, minKeys + 1);
-				Arrays.fill(this.children, minKeys + 1, this.children.length, null);
+			if (!left.isLeaf()) {
+				System.arraycopy(left.children, minKeys + 1, right.children, 0, minKeys + 1);
+				Arrays.fill(left.children, minKeys + 1, left.children.length, null);
 			}
 			
 			// Handle keys
-			result.middleKey = this.keys[minKeys];
-			System.arraycopy(this.keys, minKeys + 1, result.rightNode.keys, 0, minKeys);
-			Arrays.fill(this.keys, minKeys, this.keys.length, null);
-			this.numKeys = minKeys;
-			result.rightNode.numKeys = minKeys;
-			return result;
+			E middleKey = left.keys[minKeys];
+			System.arraycopy(left.keys, minKeys + 1, right.keys, 0, minKeys);
+			Arrays.fill(left.keys, minKeys, left.keys.length, null);
+			left.numKeys = minKeys;
+			right.numKeys = minKeys;
+			
+			this.insertKeyAndChild(index, middleKey, index + 1, right);
 		}
 		
 		
@@ -532,14 +531,6 @@ public final class BTreeSet<E extends Comparable<? super E>>
 				}
 			}
 			return (int)count;
-		}
-		
-		
-		
-		// Simple data structure for safe typing.
-		public static final class SplitResult<E extends Comparable<? super E>> {
-			public E middleKey;
-			public Node<E> rightNode;
 		}
 		
 	}
