@@ -145,7 +145,7 @@ public final class BTreeSetTest {
 			}
 			set1.checkStructure();
 			
-			// Incrementally remove each value
+			// Remove each value in random order
 			List<Integer> list = new ArrayList<>(set0);
 			Collections.shuffle(list);
 			for (Integer val : list) {
@@ -158,6 +158,7 @@ public final class BTreeSetTest {
 					assertTrue(set0.contains(val) == set1.contains(val));
 				}
 			}
+			assertTrue(set0.isEmpty() && set1.isEmpty());
 		}
 	}
 	
@@ -168,9 +169,9 @@ public final class BTreeSetTest {
 		final int range = 10_000;
 		
 		for (int i = 0; i < trials; i++) {
+			// Create sets and add all values
 			Set<Integer> set0 = new HashSet<>();
 			BTreeSet<Integer> set1 = new BTreeSet<>(rand.nextInt(5) + 2);
-			
 			int numInsert = rand.nextInt(operations);
 			for (int j = 0; j < numInsert; j++) {
 				Integer val = rand.nextInt(range);
@@ -178,13 +179,12 @@ public final class BTreeSetTest {
 			}
 			assertEquals(set0, new HashSet<>(set1));
 			
+			// Remove a random subset
 			List<Integer> list = new ArrayList<>(set0);
 			Collections.shuffle(list);
 			int numRemove = rand.nextInt(list.size() + 1);
-			for (int j = 0; j < numRemove; j++) {
-				Integer val = list.get(j);
+			for (Integer val : list.subList(0, numRemove))
 				assertTrue(set0.remove(val) == set1.remove(val));
-			}
 			assertEquals(set0, new HashSet<>(set1));
 		}
 	}

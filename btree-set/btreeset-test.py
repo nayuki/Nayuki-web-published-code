@@ -56,7 +56,7 @@ class BTreeSetTest(unittest.TestCase):
 	
 	def test_insert_randomly(self):
 		TRIALS = 30
-		OPERATIONS = 10000
+		OPERATIONS = 3000
 		VALRANGE = 100000
 		CHECKS = 10
 		for _ in range(TRIALS):
@@ -65,6 +65,8 @@ class BTreeSetTest(unittest.TestCase):
 			for _ in range(OPERATIONS):
 				# Add a random value
 				val = random.randrange(VALRANGE)
+				set0.add(val)
+				set1.add(val)
 				if random.random() < 0.003:
 					set1.check_structure()
 				
@@ -113,10 +115,8 @@ class BTreeSetTest(unittest.TestCase):
 			set1 = btreeset.BTreeSet(random.randrange(5) + 2, set0)
 			set1.check_structure()
 			
-			# Incrementally remove each value
-			lst = list(set0)
-			random.shuffle(lst)
-			for val in lst:
+			# Remove each value in random order
+			for val in random.sample(set0, len(set0)):
 				set0.discard(val)
 				set1.discard(val)
 				if random.random() < 1.0 / min(max(len(set1), 1), 1000):

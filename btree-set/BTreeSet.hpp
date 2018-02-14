@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cassert>
 #include <climits>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <utility>
@@ -39,7 +40,7 @@ class BTreeSet final {
 	
 	/*---- Fields ----*/
 	
-	private: std::unique_ptr<Node> root;  // Never empty
+	private: std::unique_ptr<Node> root;  // Not nullptr
 	private: std::size_t count;
 	private: const std::uint32_t minKeys;  // At least 1, equal to degree-1
 	private: const std::uint32_t maxKeys;  // At least 3, odd number, equal to minKeys*2+1
@@ -50,9 +51,8 @@ class BTreeSet final {
 	
 	// The degree is the minimum number of children each non-root internal node must have.
 	public: explicit BTreeSet(std::uint32_t degree) :
-			count(0),
 			minKeys(degree - 1),
-			maxKeys(degree * 2 - 1) {
+			maxKeys(degree <= UINT32_MAX / 2 ? degree * 2 - 1 : 0) {  // Avoid overflow
 		if (degree < 2)
 			throw "Degree must be at least 2";
 		if (degree > UINT32_MAX / 2)  // In other words, need maxChildren <= UINT32_MAX
@@ -263,38 +263,42 @@ class BTreeSet final {
 			std::uint32_t i = 0;
 			while (i < keys.size()) {
 				const E &elem = keys.at(i);
-				if (val == elem)
+				if (val == elem) {
+					assert(i < keys.size());
 					return SearchResult(true, i);  // Key found
-				else if (val > elem)
+				} else if (val > elem)
 					i++;
 				else  // val < elem
 					break;
 			}
+			assert(i <= keys.size());
 			return SearchResult(false, i);  // Not found, caller should recurse on child
 		}
 		
 		
 		// Removes and returns the minimum key among the whole subtree rooted at this node.
+		// Requires this node to be preprocessed to have at least minKeys+1 keys.
 		public: E removeMin(std::size_t minKeys) {
-			Node *node = this;
-			while (!node->isLeaf()) {
+			for (Node *node = this; ; ) {
 				assert(node->keys.size() > minKeys);
-				node = node->ensureChildRemove(minKeys, 0);
+				if (node->isLeaf())
+					return node->removeKey(0);
+				else
+					node = node->ensureChildRemove(minKeys, 0);
 			}
-			assert(node->keys.size() > minKeys);
-			return node->removeKey(0);
 		}
 		
 		
 		// Removes and returns the maximum key among the whole subtree rooted at this node.
+		// Requires this node to be preprocessed to have at least minKeys+1 keys.
 		public: E removeMax(std::size_t minKeys) {
-			Node *node = this;
-			while (!node->isLeaf()) {
+			for (Node *node = this; ; ) {
 				assert(node->keys.size() > minKeys);
-				node = node->ensureChildRemove(minKeys, node->children.size() - 1);
+				if (node->isLeaf())
+					return node->removeKey(node->keys.size() - 1);
+				else
+					node = node->ensureChildRemove(minKeys, node->children.size() - 1);
 			}
-			assert(node->keys.size() > minKeys);
-			return node->removeKey(node->keys.size() - 1);
 		}
 		
 		
@@ -309,11 +313,9 @@ class BTreeSet final {
 		// For the child node at the given index, this moves the right half of keys and children to a new node,
 		// and adds the middle key and new child to this node. The left half of child's data is not moved.
 		public: void splitChild(std::size_t minKeys, std::size_t maxKeys, std::size_t index) {
-			if (this->isLeaf() || this->keys.size() >= maxKeys)
-				throw "Cannot split child node";
+			assert(!this->isLeaf() && index <= this->keys.size() && this->keys.size() < maxKeys);
 			Node *left = this->children.at(index).get();
-			if (left->keys.size() != maxKeys)
-				throw "Can only split full node";
+			assert(left->keys.size() == maxKeys);
 			this->children.insert(this->children.begin() + index + 1, std::make_unique<Node>(maxKeys, left->isLeaf()));
 			Node *right = this->children.at(index + 1).get();
 			
@@ -333,12 +335,10 @@ class BTreeSet final {
 		// Merges the child node at index+1 into the child node at index,
 		// assuming the current node is not empty and both children have minKeys.
 		public: void mergeChildren(std::size_t minKeys, std::uint32_t index) {
-			if (isLeaf() || keys.empty())
-				throw "Cannot merge children";
+			assert(!this->isLeaf() && index < this->keys.size());
 			Node &left  = *children.at(index + 0);
 			Node &right = *children.at(index + 1);
-			if (left.keys.size() != minKeys || right.keys.size() != minKeys)
-				throw "Cannot merge children";
+			assert(left.keys.size() == minKeys && right.keys.size() == minKeys);
 			if (!left.isLeaf())
 				std::move(right.children.begin(), right.children.end(), std::back_inserter(left.children));
 			left.keys.push_back(removeKey(index));
@@ -353,15 +353,15 @@ class BTreeSet final {
 		// A reference to the appropriate child is returned, which is helpful if the old child no longer exists.
 		public: Node *ensureChildRemove(std::size_t minKeys, std::uint32_t index) {
 			// Preliminaries
-			assert(!isLeaf());
-			Node *child = children.at(index).get();
+			assert(!this->isLeaf() && index < this->children.size());
+			Node *child = this->children.at(index).get();
 			if (child->keys.size() > minKeys)  // Already satisfies the condition
 				return child;
 			assert(child->keys.size() == minKeys);
 			
 			// Get siblings
-			Node *left = index >= 1 ? children.at(index - 1).get() : nullptr;
-			Node *right = index < this->keys.size() ? children.at(index + 1).get() : nullptr;
+			Node *left = index >= 1 ? this->children.at(index - 1).get() : nullptr;
+			Node *right = index < this->keys.size() ? this->children.at(index + 1).get() : nullptr;
 			bool internal = !child->isLeaf();
 			assert(left != nullptr || right != nullptr);  // At least one sibling exists because degree >= 2
 			assert(left  == nullptr || left ->isLeaf() != internal);  // Sibling must be same type (internal/leaf) as child
@@ -384,10 +384,10 @@ class BTreeSet final {
 				this->keys.at(index) = right->removeKey(0);
 				return child;
 			} else if (left != nullptr) {  // Merge child into left sibling
-				mergeChildren(minKeys, index - 1);
+				this->mergeChildren(minKeys, index - 1);
 				return left;  // This is the only case where the return value is different
 			} else if (right != nullptr) {  // Merge right sibling into child
-				mergeChildren(minKeys, index);
+				this->mergeChildren(minKeys, index);
 				return child;
 			} else
 				throw "Impossible condition";
@@ -408,7 +408,7 @@ class BTreeSet final {
 			else if (!isRoot && numKeys < minKeys)
 				throw "Invalid number of keys";
 			
-			// Check keys
+			// Check keys for strict increasing order
 			for (std::size_t i = 0; i < numKeys; i++) {
 				const E &key = keys.at(i);
 				bool fail = i == 0 && min != nullptr && key <= *min;
@@ -418,12 +418,9 @@ class BTreeSet final {
 					throw "Invalid key ordering";
 			}
 			
-			// Count keys in this subtree
+			// Check children recursively and count keys in this subtree
 			std::size_t count = numKeys;
-			if (isLeaf()) {
-				if (children.size() != 0)
-					throw "Invalid number of children";
-			} else {
+			if (!isLeaf()) {
 				if (children.size() != numKeys + 1)
 					throw "Invalid number of children";
 				// Check children pointers and recurse

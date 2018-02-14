@@ -42,7 +42,8 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 	// The degree is the minimum number of children each non-root internal node must have.
 	pub fn new(degree: usize) -> Self {
 		assert!(degree >= 2, "Degree must be at least 2");
-		assert!(degree <= std::usize::MAX / 2, "Degree too large");  // In other words, need maxChildren <= USIZE_MAX
+		// In other words, need maxChildren <= USIZE_MAX
+		assert!(degree <= std::usize::MAX / 2, "Degree too large");
 		let maxkeys = degree * 2 - 1;
 		Self {
 			root: Node::new(maxkeys, true),
@@ -87,13 +88,15 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 	pub fn insert(&mut self, val: E) -> bool {
 		// Special preprocessing to split root node
 		if self.root.keys.len() == self.max_keys {
-			let child = std::mem::replace(&mut self.root, Node::new(self.max_keys, false));  // Increment tree height
+			let child = std::mem::replace(&mut self.root,
+				Node::new(self.max_keys, false));  // Increment tree height
 			self.root.children.push(Box::new(child));
 			self.root.split_child(self.min_keys, self.max_keys, 0);
 		}
 		
 		// Walk down the tree
-		let result = self.root.insert(self.min_keys, self.max_keys, val, true, self.size < std::usize::MAX);
+		let result = self.root.insert(self.min_keys, self.max_keys,
+			self.size < std::usize::MAX, val, true);
 		if result {
 			self.size += 1;
 		}
@@ -103,7 +106,7 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 	
 	pub fn remove(&mut self, val: &E) -> bool {
 		let (found, index) = self.root.search(val);
-		let result = self.root.remove(self.min_keys, self.max_keys, val, found, index);
+		let result = self.root.remove(self.min_keys, self.max_keys, val, true, found, index);
 		if result {
 			assert!(self.size > 0);
 			self.size -= 1;
@@ -120,7 +123,8 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 	pub fn check_structure(&self) {
 		// Check size and root node properties
 		if self.size <= self.min_keys * 2 {
-			assert!(self.root.is_leaf() && self.root.keys.len() == self.size, "Invalid size or root type");
+			assert!(self.root.is_leaf(), "Invalid size or root type");
+			assert_eq!(self.root.keys.len(), self.size, "Invalid size or root type");
 		} else if self.size > self.max_keys {
 			assert!(!self.root.is_leaf(), "Invalid size or root type");
 		}
@@ -134,14 +138,15 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 		}
 		
 		// Check all nodes and total size
-		assert_eq!(self.root.check_structure(self.min_keys, self.max_keys, true, height, None, None), self.size, "Size mismatch");
+		assert_eq!(self.root.check_structure(self.min_keys, self.max_keys, true, height, None, None),
+			self.size, "Size mismatch");
 	}
 	
 }
 
 
 
-/*---- Helper class: B-tree node ----*/
+/*---- Helper struct: B-tree node ----*/
 
 struct Node<E> {
 	
@@ -183,11 +188,12 @@ impl <E: std::cmp::Ord> Node<E> {
 				Ordering::Less    => break,
 			}
 		}
+		assert!(i <= self.keys.len());
 		(false, i)  // Not found, caller should recurse on child
 	}
 	
 	
-	fn insert(&mut self, minkeys: usize, maxkeys: usize, val: E, hasroom: bool, isroot: bool) -> bool {
+	fn insert(&mut self, minkeys: usize, maxkeys: usize, hasroom: bool, val: E, isroot: bool) -> bool {
 		// Search for index in current node
 		assert!(self.keys.len() < maxkeys);
 		assert!(isroot || self.keys.len() >= minkeys);
@@ -207,12 +213,13 @@ impl <E: std::cmp::Ord> Node<E> {
 					Ordering::Less    => {},
 				}
 			}
-			self.children[index].insert(minkeys, maxkeys, val, hasroom, isroot)  // Recurse
+			self.children[index].insert(minkeys, maxkeys, hasroom, val, isroot)  // Recurse
 		}
 	}
 	
 	
 	// Removes and returns the minimum key among the whole subtree rooted at this node.
+	// Requires this node to be preprocessed to have at least minkeys+1 keys.
 	fn remove_min(&mut self, minkeys: usize) -> E {
 		assert!(self.keys.len() > minkeys);
 		if self.is_leaf() {
@@ -224,6 +231,7 @@ impl <E: std::cmp::Ord> Node<E> {
 	
 	
 	// Removes and returns the maximum key among the whole subtree rooted at this node.
+	// Requires this node to be preprocessed to have at least minkeys+1 keys.
 	fn remove_max(&mut self, minkeys: usize) -> E {
 		assert!(self.keys.len() > minkeys);
 		if self.is_leaf() {
@@ -238,14 +246,13 @@ impl <E: std::cmp::Ord> Node<E> {
 	// For the child node at the given index, this moves the right half of keys and children to a new node,
 	// and adds the middle key and new child to this node. The left half of child's data is not moved.
 	fn split_child(&mut self, minkeys: usize, maxkeys: usize, index: usize) {
-		assert!(!self.is_leaf(), "Cannot split child node");
-		assert!(self.keys.len() < maxkeys, "Cannot split child node");
+		assert!(!self.is_leaf() && index <= self.keys.len() && self.keys.len() < maxkeys);
 		let middlekey;
 		let mut right;
 		{
 			let left = self.children[index].as_mut();
-			assert_eq!(left.keys.len(), maxkeys, "Can only split full node");
-			right = Node::<E>::new(maxkeys, left.is_leaf());
+			assert_eq!(left.keys.len(), maxkeys);
+			right = Self::new(maxkeys, left.is_leaf());
 			if !left.is_leaf() {
 				right.children.extend(left.children.drain(minkeys + 1 ..));
 			}
@@ -260,12 +267,12 @@ impl <E: std::cmp::Ord> Node<E> {
 	// Merges the child node at index+1 into the child node at index,
 	// assuming the current node is not empty and both children have min_keys.
 	fn merge_children(&mut self, minkeys: usize, index: usize) {
-		assert!(!self.is_leaf() && !self.keys.is_empty(), "Cannot merge children");
+		assert!(!self.is_leaf() && index < self.keys.len());
 		let middlekey = self.keys.remove(index);
 		let mut right = *self.children.remove(index + 1);
 		let left = self.children[index].as_mut();
-		assert_eq!(left .keys.len(), minkeys, "Cannot merge children");
-		assert_eq!(right.keys.len(), minkeys, "Cannot merge children");
+		assert_eq!(left .keys.len(), minkeys);
+		assert_eq!(right.keys.len(), minkeys);
 		if !left.is_leaf() {
 			left.children.extend(right.children.drain(..));
 		}
@@ -280,7 +287,7 @@ impl <E: std::cmp::Ord> Node<E> {
 	// A reference to the appropriate child is returned, which is helpful if the old child no longer exists.
 	fn ensure_child_remove(&mut self, minkeys: usize, mut index: usize) -> &mut Self {
 		// Preliminaries
-		assert!(!self.is_leaf());
+		assert!(!self.is_leaf() && index <= self.keys.len());
 		let childsize = self.children[index].keys.len();
 		if childsize > minkeys {  // Already satisfies the condition
 			return self.children[index].as_mut();
@@ -330,8 +337,10 @@ impl <E: std::cmp::Ord> Node<E> {
 	}
 	
 	
-	fn remove(&mut self, minkeys: usize, maxkeys: usize, val: &E, found: bool, index: usize) -> bool {
+	fn remove(&mut self, minkeys: usize, maxkeys: usize,
+			val: &E, isroot: bool, found: bool, index: usize) -> bool {
 		assert!(self.keys.len() <= maxkeys);
+		assert!(isroot || self.keys.len() > minkeys);
 		if self.is_leaf() {
 			if found {  // Simple removal from leaf
 				self.keys.remove(index);
@@ -347,12 +356,13 @@ impl <E: std::cmp::Ord> Node<E> {
 					true
 				} else {  // Merge key and right node into left node, then recurse
 					self.merge_children(minkeys, index);
-					self.children[index].remove(minkeys, maxkeys, val, true, minkeys)  // Index known due to merging; no need to search
+					// Index known due to merging; no need to search
+					self.children[index].remove(minkeys, maxkeys, val, false, true, minkeys)
 				}
 			} else {  // Key might be found in some child
 				let child = self.ensure_child_remove(minkeys, index);
 				let (found, index) = child.search(val);
-				child.remove(minkeys, maxkeys, val, found, index)
+				child.remove(minkeys, maxkeys, val, false, found, index)  // Recurse
 			}
 		}
 	}
@@ -360,7 +370,8 @@ impl <E: std::cmp::Ord> Node<E> {
 	
 	// Checks the structure recursively and returns the total number
 	// of keys in the subtree rooted at this node. For unit tests.
-	fn check_structure(&self, minkeys: usize, maxkeys: usize, isroot: bool, leafdepth: i8, min: Option<&E>, max: Option<&E>) -> usize {
+	fn check_structure(&self, minkeys: usize, maxkeys: usize,
+			isroot: bool, leafdepth: i8, min: Option<&E>, max: Option<&E>) -> usize {
 		// Check basic fields
 		let numkeys = self.keys.len();
 		assert_eq!(self.is_leaf(), leafdepth == 0, "Incorrect leaf/internal node type");
@@ -381,9 +392,7 @@ impl <E: std::cmp::Ord> Node<E> {
 		
 		// Check children recursively and count keys in this subtree
 		let mut count = numkeys;
-		if self.is_leaf() {
-			assert_eq!(self.children.len(), 0, "Invalid number of children");
-		} else {
+		if !self.is_leaf() {
 			assert_eq!(self.children.len(), numkeys + 1, "Invalid number of children");
 			// Check children pointers and recurse
 			for (i, child) in self.children.iter().enumerate() {
@@ -394,7 +403,7 @@ impl <E: std::cmp::Ord> Node<E> {
 				count = count.checked_add(temp).unwrap();
 			}
 		}
-		return count;
+		count
 	}
 	
 }

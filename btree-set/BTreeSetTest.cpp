@@ -61,6 +61,12 @@ int main() {
 }
 
 
+template <typename E>
+static bool contains(std::set<E> &set, const E &val) {
+	return set.find(val) != set.end();
+}
+
+
 static void testSmallRandomly() {
 	const long TRIALS = 1000;
 	const long OPERATIONS = 100;
@@ -81,8 +87,8 @@ static void testSmallRandomly() {
 				set0.insert(val);
 				set1.insert(val);
 			} else {
-				set0.erase(val);
-				set1.erase(val);
+				if (set0.erase(val) != set1.erase(val))
+					throw "Erase mismatch";
 			}
 			set1.checkStructure();
 			
@@ -93,7 +99,7 @@ static void testSmallRandomly() {
 				throw "Size mismatch";
 			for (int k = -4; k < RANGE + 4; k++) {
 				int val = k;
-				if (set1.contains(val) != (set0.find(val) != set0.end()))
+				if (contains(set0, val) != set1.contains(val))
 					throw "Contain test mismatch";
 			}
 		}
@@ -104,16 +110,16 @@ static void testSmallRandomly() {
 static void testInsertRandomly() {
 	const long TRIALS = 100;
 	const long OPERATIONS = 10'000;
-	const int RANGE = 100'000;
+	const long RANGE = 100'000;
 	const long CHECKS = 10;
-	uniform_int_distribution<int> valueDist(0, RANGE - 1);
+	uniform_int_distribution<long> valueDist(0, RANGE - 1);
 	
 	for (long i = 0; i < TRIALS; i++) {
-		std::set<int> set0;
-		BTreeSet<int> set1(2);
+		std::set<long> set0;
+		BTreeSet<long> set1(2);
 		for (long j = 0; j < OPERATIONS; j++) {
 			// Add a random value
-			int val = valueDist(randGen);
+			long val = valueDist(randGen);
 			set0.insert(val);
 			set1.insert(val);
 			if (realDist(randGen) < 0.003)
@@ -123,8 +129,8 @@ static void testInsertRandomly() {
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
 			for (long k = 0; k < CHECKS; k++) {
-				int val = valueDist(randGen);
-				if (set1.contains(val) != (set0.find(val) != set0.end()))
+				long val = valueDist(randGen);
+				if (contains(set0, val) != set1.contains(val))
 					throw "Contain test mismatch";
 			}
 		}
@@ -135,23 +141,23 @@ static void testInsertRandomly() {
 static void testLargeRandomly() {
 	const long TRIALS = 100;
 	const long OPERATIONS = 30'000;
-	const int RANGE = 100'000;
+	const long RANGE = 100'000;
 	const long CHECKS = 10;
-	uniform_int_distribution<int> valueDist(0, RANGE - 1);
+	uniform_int_distribution<long> valueDist(0, RANGE - 1);
 	uniform_int_distribution<int> degreeDist(2, 6);
 	
 	for (long i = 0; i < TRIALS; i++) {
-		std::set<int> set0;
-		BTreeSet<int> set1(degreeDist(randGen));
+		std::set<long> set0;
+		BTreeSet<long> set1(degreeDist(randGen));
 		for (long j = 0; j < OPERATIONS; j++) {
 			// Add/remove a random value
-			int val = valueDist(randGen);
+			long val = valueDist(randGen);
 			if (realDist(randGen) < 0.5) {
 				set0.insert(val);
 				set1.insert(val);
 			} else {
-				set0.erase(val);
-				set1.erase(val);
+				if (set0.erase(val) != set1.erase(val))
+					throw "Erase mismatch";
 			}
 			if (realDist(randGen) < 0.001)
 				set1.checkStructure();
@@ -160,8 +166,8 @@ static void testLargeRandomly() {
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
 			for (long k = 0; k < CHECKS; k++) {
-				int val = valueDist(randGen);
-				if (set1.contains(val) != (set0.find(val) != set0.end()))
+				long val = valueDist(randGen);
+				if (contains(set0, val) != set1.contains(val))
 					throw "Contain test mismatch";
 			}
 		}
@@ -172,35 +178,34 @@ static void testLargeRandomly() {
 static void testRemoveAllRandomly() {
 	const long TRIALS = 100;
 	const long LIMIT = 10'000;
-	const int RANGE = 100'000;
+	const long RANGE = 100'000;
 	const long CHECKS = 10;
-	uniform_int_distribution<int> valueDist(0, RANGE - 1);
+	uniform_int_distribution<long> valueDist(0, RANGE - 1);
 	uniform_int_distribution<int> degreeDist(2, 6);
 	
 	for (long i = 0; i < TRIALS; i++) {
-		std::set<int> set0;
-		BTreeSet<int> set1(degreeDist(randGen));
+		std::set<long> set0;
+		BTreeSet<long> set1(degreeDist(randGen));
 		for (long j = 0; j < LIMIT; j++) {
-			int val = valueDist(randGen);
+			long val = valueDist(randGen);
 			set0.insert(val);
 			set1.insert(val);
 		}
 		set1.checkStructure();
 		
 		// Incrementally remove each value
-		std::vector<int> temp(set0.begin(), set0.end());
+		std::vector<long> temp(set0.begin(), set0.end());
 		std::shuffle(temp.begin(), temp.end(), randGen);
-		for (size_t j = 0; j < temp.size(); j++) {
-			int val = temp.at(j);
-			set0.erase(val);
-			set1.erase(val);
+		for (long val : temp) {
+			if (set0.erase(val) != set1.erase(val))
+				throw "Erase mismatch";
 			if (realDist(randGen) < 1.0 / std::min(std::max(set1.size(), static_cast<size_t>(1)), static_cast<size_t>(1000)))
 				set1.checkStructure();
 			if (set0.size() != set1.size())
 				throw "Size mismatch";
 			for (long k = 0; k < CHECKS; k++) {
-				int val = valueDist(randGen);
-				if (set1.contains(val) != (set0.find(val) != set0.end()))
+				long val = valueDist(randGen);
+				if (contains(set0, val) != set1.contains(val))
 					throw "Contain test mismatch";
 			}
 		}

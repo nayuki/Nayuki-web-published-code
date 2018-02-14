@@ -21,10 +21,13 @@
  *   Software.
  */
 
+use std::collections::HashSet;
 extern crate rand;
 use rand::distributions::IndependentSample;
+use rand::distributions::range::Range;
 use rand::Rng;
 mod btreeset;
+use btreeset::BTreeSet;
 
 
 fn main() {
@@ -40,16 +43,16 @@ fn test_small_randomly() {
 	let trials = 1000;
 	let operations = 100;
 	let range = 1000;
-	let mut rng = rand::thread_rng();
-	let degreedist = rand::distributions::range::Range::new(2usize, 7usize);
-	let valuedist = rand::distributions::range::Range::new(0i32, range);
+	let mut rng = rand::thread_rng(); let rng = &mut rng;
+	let degreedist = Range::new(2usize, 7usize);
+	let valuedist = Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
-		let mut set0 = std::collections::HashSet::<i32>::new();
-		let mut set1 = btreeset::BTreeSet::<i32>::new(degreedist.ind_sample(&mut rng));
+		let mut set0 = HashSet::<i32>::new();
+		let mut set1 = BTreeSet::<i32>::new(degreedist.ind_sample(rng));
 		for _ in 0 .. operations {
 			// Add/remove a random value
-			let val: i32 = valuedist.ind_sample(&mut rng);
+			let val: i32 = valuedist.ind_sample(rng);
 			if rng.next_f64() < 0.001 {
 				set0.clear();
 				set1.clear();
@@ -76,15 +79,15 @@ fn test_insert_randomly() {
 	let operations = 10_000;
 	let range = 100_000;
 	let checks = 10;
-	let mut rng = rand::thread_rng();
-	let valuedist = rand::distributions::range::Range::new(0i32, range);
+	let mut rng = rand::thread_rng(); let rng = &mut rng;
+	let valuedist = Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
-		let mut set0 = std::collections::HashSet::<i32>::new();
-		let mut set1 = btreeset::BTreeSet::<i32>::new(2);
+		let mut set0 = HashSet::<i32>::new();
+		let mut set1 = BTreeSet::<i32>::new(2);
 		for _ in 0 .. operations {
 			// Add a random value
-			let val: i32 = valuedist.ind_sample(&mut rng);
+			let val: i32 = valuedist.ind_sample(rng);
 			assert_eq!(set0.insert(val), set1.insert(val));
 			if rng.next_f64() < 0.003 {
 				set1.check_structure();
@@ -93,7 +96,7 @@ fn test_insert_randomly() {
 			// Check size and random element membership
 			assert_eq!(set0.len(), set1.len());
 			for _ in 0 .. checks {
-				let val: i32 = valuedist.ind_sample(&mut rng);
+				let val: i32 = valuedist.ind_sample(rng);
 				assert_eq!(set0.contains(&val), set1.contains(&val));
 			}
 		}
@@ -106,16 +109,16 @@ fn test_large_randomly() {
 	let operations = 30_000;
 	let range = 100_000;
 	let checks = 10;
-	let mut rng = rand::thread_rng();
-	let degreedist = rand::distributions::range::Range::new(2usize, 7usize);
-	let valuedist = rand::distributions::range::Range::new(0i32, range);
+	let mut rng = rand::thread_rng(); let rng = &mut rng;
+	let degreedist = Range::new(2usize, 7usize);
+	let valuedist = Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
-		let mut set0 = std::collections::HashSet::<i32>::new();
-		let mut set1 = btreeset::BTreeSet::<i32>::new(degreedist.ind_sample(&mut rng));
+		let mut set0 = HashSet::<i32>::new();
+		let mut set1 = BTreeSet::<i32>::new(degreedist.ind_sample(rng));
 		for _ in 0 .. operations {
 			// Add/remove a random value
-			let val: i32 = valuedist.ind_sample(&mut rng);
+			let val: i32 = valuedist.ind_sample(rng);
 			if rng.next_f64() < 0.5 {
 				assert_eq!(set0.insert(val), set1.insert(val));
 			} else {
@@ -128,7 +131,7 @@ fn test_large_randomly() {
 			// Check size and random element membership
 			assert_eq!(set0.len(), set1.len());
 			for _ in 0 .. checks {
-				let val: i32 = valuedist.ind_sample(&mut rng);
+				let val: i32 = valuedist.ind_sample(rng);
 				assert_eq!(set0.contains(&val), set1.contains(&val));
 			}
 		}
@@ -141,21 +144,21 @@ fn test_remove_all_randomly() {
 	let limit = 10_000;
 	let range = 100_000;
 	let checks = 10;
-	let mut rng = rand::thread_rng();
-	let degreedist = rand::distributions::range::Range::new(2usize, 7usize);
-	let valuedist = rand::distributions::range::Range::new(0i32, range);
+	let mut rng = rand::thread_rng(); let rng = &mut rng;
+	let degreedist = Range::new(2usize, 7usize);
+	let valuedist = Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
 		// Create sets and add all values
-		let mut set0 = std::collections::HashSet::<i32>::new();
-		let mut set1 = btreeset::BTreeSet::<i32>::new(degreedist.ind_sample(&mut rng));
+		let mut set0 = HashSet::<i32>::new();
+		let mut set1 = BTreeSet::<i32>::new(degreedist.ind_sample(rng));
 		for _ in 0 .. limit {
-			let val: i32 = valuedist.ind_sample(&mut rng);
+			let val: i32 = valuedist.ind_sample(rng);
 			assert_eq!(set0.insert(val), set1.insert(val));
 		}
 		set1.check_structure();
 		
-		// Incrementally remove each value
+		// Remove each value in random order
 		let mut list: Vec<i32> = set0.iter().map(|x| *x).collect();
 		rng.shuffle(&mut list);
 		for val in list {
@@ -165,7 +168,7 @@ fn test_remove_all_randomly() {
 			}
 			assert_eq!(set0.len(), set1.len());
 			for _ in 0 .. checks {
-				let val: i32 = valuedist.ind_sample(&mut rng);
+				let val: i32 = valuedist.ind_sample(rng);
 				assert_eq!(set0.contains(&val), set1.contains(&val));
 			}
 		}
