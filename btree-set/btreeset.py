@@ -86,6 +86,7 @@ class BTreeSet(object):
 				node.keys.insert(index, obj)
 				self.size += 1
 				return  # Successfully added
+				
 			else:  # Handle internal node
 				child = node.children[index]
 				if len(child.keys) == self.maxkeys:  # Split child node
@@ -141,6 +142,7 @@ class BTreeSet(object):
 							self.root = root = left  # Decrement tree height
 						node = left
 						index = self.minkeys  # Index known due to merging; no need to search
+					
 				else:  # Key might be found in some child
 					child = node.ensure_child_remove(self.minkeys, index)
 					if node is root and len(root.keys) == 0:
@@ -349,7 +351,7 @@ class BTreeSet(object):
 				raise AssertionError("Invalid number of keys")
 			if isroot and not self.is_leaf() and numkeys == 0:
 				raise AssertionError("Invalid number of keys")
-			elif not isroot and numkeys < minkeys:
+			if not isroot and numkeys < minkeys:
 				raise AssertionError("Invalid number of keys")
 			
 			# Check keys for strict increasing order

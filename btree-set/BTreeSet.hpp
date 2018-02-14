@@ -42,6 +42,7 @@ class BTreeSet final {
 	
 	private: std::unique_ptr<Node> root;  // Not nullptr
 	private: std::size_t count;
+	
 	private: const std::uint32_t minKeys;  // At least 1, equal to degree-1
 	private: const std::uint32_t maxKeys;  // At least 3, odd number, equal to minKeys*2+1
 	
@@ -123,6 +124,7 @@ class BTreeSet final {
 				node->keys.insert(node->keys.begin() + index, val);
 				count++;
 				return;  // Successfully inserted
+				
 			} else {  // Handle internal node
 				Node *child = node->children.at(index).get();
 				if (child->keys.size() == maxKeys) {  // Split child node
@@ -186,6 +188,7 @@ class BTreeSet final {
 						node = left;
 						index = minKeys;  // Index known due to merging; no need to search
 					}
+					
 				} else {  // Key might be found in some child
 					Node *child = node->ensureChildRemove(minKeys, index);
 					if (node == root.get() && root->keys.empty()) {
@@ -405,7 +408,7 @@ class BTreeSet final {
 				throw "Invalid number of keys";
 			if (isRoot && !isLeaf() && numKeys == 0)
 				throw "Invalid number of keys";
-			else if (!isRoot && numKeys < minKeys)
+			if (!isRoot && numKeys < minKeys)
 				throw "Invalid number of keys";
 			
 			// Check keys for strict increasing order

@@ -39,6 +39,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 	
 	private Node<E> root;  // Not null
 	private int size;  // Non-negative
+	
 	private final int minKeys;  // At least 1, equal to degree-1
 	private final int maxKeys;  // At least 3, odd number, equal to minKeys*2+1
 	
@@ -126,6 +127,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 				node.insertKeyAndChild(index, obj, -1, null);
 				size++;
 				return true;
+				
 			} else {  // Handle internal node
 				Node<E> child = node.children[index];
 				if (child.numKeys == maxKeys) {  // Split child node
@@ -186,6 +188,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 						node = left;
 						index = minKeys;  // Index known due to merging; no need to search
 					}
+					
 				} else {  // Key might be found in some child
 					Node<E> child = node.ensureChildRemove(~index);
 					if (node == root && root.numKeys == 0) {
@@ -295,7 +298,6 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		private int minKeys() {
 			return keys.length / 2;
 		}
-		
 		
 		private int maxKeys() {
 			return keys.length;
@@ -492,7 +494,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 				throw new AssertionError("Invalid number of keys");
 			if (isRoot && !isLeaf() && numKeys <= 0)
 				throw new AssertionError("Invalid number of keys");
-			else if (!isRoot && numKeys < minKeys())
+			if (!isRoot && numKeys < minKeys())
 				throw new AssertionError("Invalid number of keys");
 			
 			// Check keys for strict increasing order

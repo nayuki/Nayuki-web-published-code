@@ -28,11 +28,10 @@ use std::cmp::Ordering;
 pub struct BTreeSet<E> {
 	
 	root: Node<E>,
-	
 	size: usize,
 	
-	min_keys: usize,  // At least 1, equal to degree-1
-	max_keys: usize,  // At least 3, odd number, equal to min_keys*2+1
+	min_keys: usize,  // At least 1, equal to degree-1, immutable
+	max_keys: usize,  // At least 3, odd number, equal to min_keys*2+1, immutable
 	
 }
 
