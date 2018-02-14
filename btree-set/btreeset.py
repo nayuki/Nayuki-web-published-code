@@ -205,12 +205,16 @@ class BTreeSet(object):
 	
 	class Node(object):
 		
+		# -- Constructor --
+		
 		# Note: Once created, a node's structure never changes between a leaf and internal node.
 		def __init__(self, maxkeys, leaf):
 			assert maxkeys >= 3 and maxkeys % 2 == 1
 			self.keys = []  # Length is in [0, maxkeys] for root node, [minkeys, maxkeys] for all other nodes
 			self.children = None if leaf else []  # If internal node, then length always equals len(keys)+1
 		
+		
+		# -- Methods for getting info --
 		
 		def is_leaf(self):
 			return self.children is None
@@ -234,35 +238,7 @@ class BTreeSet(object):
 			return (False, i)  # Not found, caller should recurse on child
 		
 		
-		# Removes and returns the minimum key among the whole subtree rooted at this node.
-		# Requires this node to be preprocessed to have at least minkeys+1 keys.
-		def remove_min(self, minkeys):
-			node = self
-			while True:
-				assert len(node.keys) > minkeys
-				if node.is_leaf():
-					return node.remove_key(0)
-				else:
-					node = node.ensure_child_remove(minkeys, 0)
-		
-		
-		# Removes and returns the maximum key among the whole subtree rooted at this node.
-		# Requires this node to be preprocessed to have at least minkeys+1 keys.
-		def remove_max(self, minkeys):
-			node = self
-			while True:
-				assert len(node.keys) > minkeys
-				if node.is_leaf():
-					return node.remove_key(len(node.keys) - 1)
-				else:
-					node = node.ensure_child_remove(minkeys, len(node.children) - 1)
-		
-		
-		# Removes and returns this node's key at the given index.
-		def remove_key(self, index):
-			assert 0 <= index < len(self.keys)
-			return self.keys.pop(index)
-		
+		# -- Methods for insertion --
 		
 		# For the child node at the given index, this moves the right half of keys and children to a new node,
 		# and adds the middle key and new child to this node. The left half of child's data is not moved.
@@ -284,18 +260,7 @@ class BTreeSet(object):
 			del left.keys[minkeys : ]
 		
 		
-		# Merges the child node at index+1 into the child node at index,
-		# assuming the current node is not empty and both children have minkeys.
-		def merge_children(self, minkeys, index):
-			assert not self.is_leaf() and 0 <= index < len(self.keys)
-			left, right = self.children[index : index + 2]
-			assert len(left.keys) == len(right.keys) == minkeys
-			if not left.is_leaf():
-				left.children.extend(right.children)
-			del self.children[index + 1]
-			left.keys.append(self.remove_key(index))
-			left.keys.extend(right.keys)
-		
+		# -- Methods for removal --
 		
 		# Performs modifications to ensure that this node's child at the given index has at least
 		# minKeys+1 keys in preparation for a single removal. The child may gain a key and subchild
@@ -338,6 +303,51 @@ class BTreeSet(object):
 			else:
 				raise AssertionError("Impossible condition")
 		
+		
+		# Merges the child node at index+1 into the child node at index,
+		# assuming the current node is not empty and both children have minkeys.
+		def merge_children(self, minkeys, index):
+			assert not self.is_leaf() and 0 <= index < len(self.keys)
+			left, right = self.children[index : index + 2]
+			assert len(left.keys) == len(right.keys) == minkeys
+			if not left.is_leaf():
+				left.children.extend(right.children)
+			del self.children[index + 1]
+			left.keys.append(self.remove_key(index))
+			left.keys.extend(right.keys)
+		
+		
+		# Removes and returns the minimum key among the whole subtree rooted at this node.
+		# Requires this node to be preprocessed to have at least minkeys+1 keys.
+		def remove_min(self, minkeys):
+			node = self
+			while True:
+				assert len(node.keys) > minkeys
+				if node.is_leaf():
+					return node.remove_key(0)
+				else:
+					node = node.ensure_child_remove(minkeys, 0)
+		
+		
+		# Removes and returns the maximum key among the whole subtree rooted at this node.
+		# Requires this node to be preprocessed to have at least minkeys+1 keys.
+		def remove_max(self, minkeys):
+			node = self
+			while True:
+				assert len(node.keys) > minkeys
+				if node.is_leaf():
+					return node.remove_key(len(node.keys) - 1)
+				else:
+					node = node.ensure_child_remove(minkeys, len(node.children) - 1)
+		
+		
+		# Removes and returns this node's key at the given index.
+		def remove_key(self, index):
+			assert 0 <= index < len(self.keys)
+			return self.keys.pop(index)
+		
+		
+		# -- Miscellaneous methods --
 		
 		# Checks the structure recursively and returns the total number
 		# of keys in the subtree rooted at this node. For unit tests.

@@ -160,6 +160,8 @@ struct Node<E> {
 
 impl <E: std::cmp::Ord> Node<E> {
 	
+	/*-- Constructor --*/
+	
 	// Note: Once created, a node's structure never changes between a leaf and internal node.
 	fn new(maxkeys: usize, leaf: bool) -> Self {
 		assert!(maxkeys >= 3 && maxkeys % 2 == 1);
@@ -169,6 +171,8 @@ impl <E: std::cmp::Ord> Node<E> {
 		}
 	}
 	
+	
+	/*-- Methods for getting info --*/
 	
 	fn is_leaf(&self) -> bool {
 		self.children.is_empty()
@@ -191,6 +195,8 @@ impl <E: std::cmp::Ord> Node<E> {
 		(false, i)  // Not found, caller should recurse on child
 	}
 	
+	
+	/*-- Methods for insertion --*/
 	
 	fn insert(&mut self, minkeys: usize, maxkeys: usize, hasroom: bool, val: E, isroot: bool) -> bool {
 		// Search for index in current node
@@ -217,31 +223,6 @@ impl <E: std::cmp::Ord> Node<E> {
 	}
 	
 	
-	// Removes and returns the minimum key among the whole subtree rooted at this node.
-	// Requires this node to be preprocessed to have at least minkeys+1 keys.
-	fn remove_min(&mut self, minkeys: usize) -> E {
-		assert!(self.keys.len() > minkeys);
-		if self.is_leaf() {
-			self.keys.remove(0)
-		} else {
-			self.ensure_child_remove(minkeys, 0).remove_min(minkeys)
-		}
-	}
-	
-	
-	// Removes and returns the maximum key among the whole subtree rooted at this node.
-	// Requires this node to be preprocessed to have at least minkeys+1 keys.
-	fn remove_max(&mut self, minkeys: usize) -> E {
-		assert!(self.keys.len() > minkeys);
-		if self.is_leaf() {
-			self.keys.pop().unwrap()
-		} else {
-			let end = self.children.len() - 1;
-			self.ensure_child_remove(minkeys, end).remove_max(minkeys)
-		}
-	}
-	
-	
 	// For the child node at the given index, this moves the right half of keys and children to a new node,
 	// and adds the middle key and new child to this node. The left half of child's data is not moved.
 	fn split_child(&mut self, minkeys: usize, maxkeys: usize, index: usize) {
@@ -263,20 +244,36 @@ impl <E: std::cmp::Ord> Node<E> {
 	}
 	
 	
-	// Merges the child node at index+1 into the child node at index,
-	// assuming the current node is not empty and both children have min_keys.
-	fn merge_children(&mut self, minkeys: usize, index: usize) {
-		assert!(!self.is_leaf() && index < self.keys.len());
-		let middlekey = self.keys.remove(index);
-		let mut right = *self.children.remove(index + 1);
-		let left = self.children[index].as_mut();
-		assert_eq!(left .keys.len(), minkeys);
-		assert_eq!(right.keys.len(), minkeys);
-		if !left.is_leaf() {
-			left.children.extend(right.children.drain(..));
+	/*-- Methods for removal --*/
+	
+	fn remove(&mut self, minkeys: usize, maxkeys: usize,
+			val: &E, isroot: bool, found: bool, index: usize) -> bool {
+		assert!(self.keys.len() <= maxkeys);
+		assert!(isroot || self.keys.len() > minkeys);
+		if self.is_leaf() {
+			if found {  // Simple removal from leaf
+				self.keys.remove(index);
+			}
+			found
+		} else {  // Internal node
+			if found {  // Key is stored at current node
+				if self.children[index].keys.len() > minkeys {  // Replace key with predecessor
+					self.keys[index] = self.children[index].remove_max(minkeys);
+					true
+				} else if self.children[index + 1].keys.len() > minkeys {  // Replace key with successor
+					self.keys[index] = self.children[index + 1].remove_min(minkeys);
+					true
+				} else {  // Merge key and right node into left node, then recurse
+					self.merge_children(minkeys, index);
+					// Index known due to merging; no need to search
+					self.children[index].remove(minkeys, maxkeys, val, false, true, minkeys)
+				}
+			} else {  // Key might be found in some child
+				let child = self.ensure_child_remove(minkeys, index);
+				let (found, index) = child.search(val);
+				child.remove(minkeys, maxkeys, val, false, found, index)  // Recurse
+			}
 		}
-		left.keys.push(middlekey);
-		left.keys.extend(right.keys.drain(..));
 	}
 	
 	
@@ -336,36 +333,49 @@ impl <E: std::cmp::Ord> Node<E> {
 	}
 	
 	
-	fn remove(&mut self, minkeys: usize, maxkeys: usize,
-			val: &E, isroot: bool, found: bool, index: usize) -> bool {
-		assert!(self.keys.len() <= maxkeys);
-		assert!(isroot || self.keys.len() > minkeys);
+	// Merges the child node at index+1 into the child node at index,
+	// assuming the current node is not empty and both children have min_keys.
+	fn merge_children(&mut self, minkeys: usize, index: usize) {
+		assert!(!self.is_leaf() && index < self.keys.len());
+		let middlekey = self.keys.remove(index);
+		let mut right = *self.children.remove(index + 1);
+		let left = self.children[index].as_mut();
+		assert_eq!(left .keys.len(), minkeys);
+		assert_eq!(right.keys.len(), minkeys);
+		if !left.is_leaf() {
+			left.children.extend(right.children.drain(..));
+		}
+		left.keys.push(middlekey);
+		left.keys.extend(right.keys.drain(..));
+	}
+	
+	
+	// Removes and returns the minimum key among the whole subtree rooted at this node.
+	// Requires this node to be preprocessed to have at least minkeys+1 keys.
+	fn remove_min(&mut self, minkeys: usize) -> E {
+		assert!(self.keys.len() > minkeys);
 		if self.is_leaf() {
-			if found {  // Simple removal from leaf
-				self.keys.remove(index);
-			}
-			found
-		} else {  // Internal node
-			if found {  // Key is stored at current node
-				if self.children[index].keys.len() > minkeys {  // Replace key with predecessor
-					self.keys[index] = self.children[index].remove_max(minkeys);
-					true
-				} else if self.children[index + 1].keys.len() > minkeys {  // Replace key with successor
-					self.keys[index] = self.children[index + 1].remove_min(minkeys);
-					true
-				} else {  // Merge key and right node into left node, then recurse
-					self.merge_children(minkeys, index);
-					// Index known due to merging; no need to search
-					self.children[index].remove(minkeys, maxkeys, val, false, true, minkeys)
-				}
-			} else {  // Key might be found in some child
-				let child = self.ensure_child_remove(minkeys, index);
-				let (found, index) = child.search(val);
-				child.remove(minkeys, maxkeys, val, false, found, index)  // Recurse
-			}
+			self.keys.remove(0)
+		} else {
+			self.ensure_child_remove(minkeys, 0).remove_min(minkeys)
 		}
 	}
 	
+	
+	// Removes and returns the maximum key among the whole subtree rooted at this node.
+	// Requires this node to be preprocessed to have at least minkeys+1 keys.
+	fn remove_max(&mut self, minkeys: usize) -> E {
+		assert!(self.keys.len() > minkeys);
+		if self.is_leaf() {
+			self.keys.pop().unwrap()
+		} else {
+			let end = self.children.len() - 1;
+			self.ensure_child_remove(minkeys, end).remove_max(minkeys)
+		}
+	}
+	
+	
+	/*-- Miscellaneous methods --*/
 	
 	// Checks the structure recursively and returns the total number
 	// of keys in the subtree rooted at this node. For unit tests.

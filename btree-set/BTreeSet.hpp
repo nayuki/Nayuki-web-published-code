@@ -241,7 +241,7 @@ class BTreeSet final {
 		public: std::vector<std::unique_ptr<Node> > children;
 		
 		
-		/*-- Constructors --*/
+		/*-- Constructor --*/
 		
 		// Note: Once created, a node's structure never changes between a leaf and internal node.
 		public: Node(std::uint32_t maxKeys, bool leaf) {
@@ -252,7 +252,7 @@ class BTreeSet final {
 		}
 		
 		
-		/*-- Methods --*/
+		/*-- Methods for getting info --*/
 		
 		public: bool isLeaf() const {
 			return children.empty();
@@ -279,39 +279,7 @@ class BTreeSet final {
 		}
 		
 		
-		// Removes and returns the minimum key among the whole subtree rooted at this node.
-		// Requires this node to be preprocessed to have at least minKeys+1 keys.
-		public: E removeMin(std::size_t minKeys) {
-			for (Node *node = this; ; ) {
-				assert(node->keys.size() > minKeys);
-				if (node->isLeaf())
-					return node->removeKey(0);
-				else
-					node = node->ensureChildRemove(minKeys, 0);
-			}
-		}
-		
-		
-		// Removes and returns the maximum key among the whole subtree rooted at this node.
-		// Requires this node to be preprocessed to have at least minKeys+1 keys.
-		public: E removeMax(std::size_t minKeys) {
-			for (Node *node = this; ; ) {
-				assert(node->keys.size() > minKeys);
-				if (node->isLeaf())
-					return node->removeKey(node->keys.size() - 1);
-				else
-					node = node->ensureChildRemove(minKeys, node->children.size() - 1);
-			}
-		}
-		
-		
-		// Removes and returns this node's key at the given index.
-		public: E removeKey(std::uint32_t index) {
-			E result = std::move(keys.at(index));
-			keys.erase(keys.begin() + index);
-			return result;
-		}
-		
+		/*-- Methods for insertion --*/
 		
 		// For the child node at the given index, this moves the right half of keys and children to a new node,
 		// and adds the middle key and new child to this node. The left half of child's data is not moved.
@@ -335,20 +303,7 @@ class BTreeSet final {
 		}
 		
 		
-		// Merges the child node at index+1 into the child node at index,
-		// assuming the current node is not empty and both children have minKeys.
-		public: void mergeChildren(std::size_t minKeys, std::uint32_t index) {
-			assert(!this->isLeaf() && index < this->keys.size());
-			Node &left  = *children.at(index + 0);
-			Node &right = *children.at(index + 1);
-			assert(left.keys.size() == minKeys && right.keys.size() == minKeys);
-			if (!left.isLeaf())
-				std::move(right.children.begin(), right.children.end(), std::back_inserter(left.children));
-			left.keys.push_back(removeKey(index));
-			std::move(right.keys.begin(), right.keys.end(), std::back_inserter(left.keys));
-			children.erase(children.begin() + index + 1);
-		}
-		
+		/*-- Methods for removal --*/
 		
 		// Performs modifications to ensure that this node's child at the given index has at least
 		// minKeys+1 keys in preparation for a single removal. The child may gain a key and subchild
@@ -396,6 +351,57 @@ class BTreeSet final {
 				throw "Impossible condition";
 		}
 		
+		
+		// Merges the child node at index+1 into the child node at index,
+		// assuming the current node is not empty and both children have minKeys.
+		public: void mergeChildren(std::size_t minKeys, std::uint32_t index) {
+			assert(!this->isLeaf() && index < this->keys.size());
+			Node &left  = *children.at(index + 0);
+			Node &right = *children.at(index + 1);
+			assert(left.keys.size() == minKeys && right.keys.size() == minKeys);
+			if (!left.isLeaf())
+				std::move(right.children.begin(), right.children.end(), std::back_inserter(left.children));
+			left.keys.push_back(removeKey(index));
+			std::move(right.keys.begin(), right.keys.end(), std::back_inserter(left.keys));
+			children.erase(children.begin() + index + 1);
+		}
+		
+		
+		// Removes and returns the minimum key among the whole subtree rooted at this node.
+		// Requires this node to be preprocessed to have at least minKeys+1 keys.
+		public: E removeMin(std::size_t minKeys) {
+			for (Node *node = this; ; ) {
+				assert(node->keys.size() > minKeys);
+				if (node->isLeaf())
+					return node->removeKey(0);
+				else
+					node = node->ensureChildRemove(minKeys, 0);
+			}
+		}
+		
+		
+		// Removes and returns the maximum key among the whole subtree rooted at this node.
+		// Requires this node to be preprocessed to have at least minKeys+1 keys.
+		public: E removeMax(std::size_t minKeys) {
+			for (Node *node = this; ; ) {
+				assert(node->keys.size() > minKeys);
+				if (node->isLeaf())
+					return node->removeKey(node->keys.size() - 1);
+				else
+					node = node->ensureChildRemove(minKeys, node->children.size() - 1);
+			}
+		}
+		
+		
+		// Removes and returns this node's key at the given index.
+		public: E removeKey(std::uint32_t index) {
+			E result = std::move(keys.at(index));
+			keys.erase(keys.begin() + index);
+			return result;
+		}
+		
+		
+		/*-- Miscellaneous methods --*/
 		
 		// Checks the structure recursively and returns the total number
 		// of keys in the subtree rooted at this node. For unit tests.

@@ -281,7 +281,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		public int numKeys;  // Range is [0, maxKeys] for root, but [minKeys, maxKeys] for all other nodes
 		
 		
-		/*-- Constructors --*/
+		/*-- Constructor --*/
 		
 		// Note: Once created, a node's structure never changes between a leaf and internal node.
 		@SuppressWarnings("unchecked")
@@ -293,7 +293,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		}
 		
 		
-		/*-- Methods --*/
+		/*-- Methods for getting info --*/
 		
 		private int minKeys() {
 			return keys.length / 2;
@@ -329,31 +329,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		}
 		
 		
-		// Removes and returns the minimum key among the whole subtree rooted at this node.
-		// Requires this node to be preprocessed to have at least minKeys+1 keys.
-		public E removeMin() {
-			for (Node<E> node = this; ; ) {
-				assert node.numKeys > minKeys();
-				if (node.isLeaf())
-					return node.removeKeyAndChild(0, -1);
-				else
-					node = node.ensureChildRemove(0);
-			}
-		}
-		
-		
-		// Removes and returns the maximum key among the whole subtree rooted at this node.
-		// Requires this node to be preprocessed to have at least minKeys+1 keys.
-		public E removeMax() {
-			for (Node<E> node = this; ; ) {
-				assert node.numKeys > minKeys();
-				if (node.isLeaf())
-					return node.removeKeyAndChild(node.numKeys - 1, -1);
-				else
-					node = node.ensureChildRemove(node.numKeys);
-			}
-		}
-		
+		/*-- Methods for basic manipulation --*/
 		
 		// Inserts the given key and child into this node's arrays at the given indices, incrementing the number of keys.
 		public void insertKeyAndChild(int keyIndex, E key, int childIndex, Node<E> child) {
@@ -402,6 +378,8 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		}
 		
 		
+		/*-- Methods for insertion --*/
+		
 		// For the child node at the given index, this moves the right half of keys and children to a new node,
 		// and adds the middle key and new child to this node. The left half of child's data is not moved.
 		public void splitChild(int index) {
@@ -428,20 +406,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		}
 		
 		
-		// Merges the child node at index+1 into the child node at index,
-		// assuming the current node is not empty and both children have minkeys.
-		public void mergeChildren(int index) {
-			assert !this.isLeaf() && 0 <= index && index < this.numKeys;
-			Node<E> left  = children[index + 0];
-			Node<E> right = children[index + 1];
-			assert left.numKeys == minKeys() && right.numKeys == minKeys();
-			if (!left.isLeaf())
-				System.arraycopy(right.children, 0, left.children, minKeys() + 1, minKeys() + 1);
-			left.keys[minKeys()] = removeKeyAndChild(index, index + 1);
-			System.arraycopy(right.keys, 0, left.keys, minKeys() + 1, minKeys());
-			left.numKeys = maxKeys();
-		}
-		
+		/*-- Methods for removal --*/
 		
 		// Performs modifications to ensure that this node's child at the given index has at least
 		// minKeys+1 keys in preparation for a single removal. The child may gain a key and subchild
@@ -483,6 +448,49 @@ public final class BTreeSet<E extends Comparable<? super E>>
 				throw new AssertionError("Impossible condition");
 		}
 		
+		
+		// Merges the child node at index+1 into the child node at index,
+		// assuming the current node is not empty and both children have minkeys.
+		public void mergeChildren(int index) {
+			assert !this.isLeaf() && 0 <= index && index < this.numKeys;
+			Node<E> left  = children[index + 0];
+			Node<E> right = children[index + 1];
+			assert left.numKeys == minKeys() && right.numKeys == minKeys();
+			if (!left.isLeaf())
+				System.arraycopy(right.children, 0, left.children, minKeys() + 1, minKeys() + 1);
+			left.keys[minKeys()] = removeKeyAndChild(index, index + 1);
+			System.arraycopy(right.keys, 0, left.keys, minKeys() + 1, minKeys());
+			left.numKeys = maxKeys();
+		}
+		
+		
+		// Removes and returns the minimum key among the whole subtree rooted at this node.
+		// Requires this node to be preprocessed to have at least minKeys+1 keys.
+		public E removeMin() {
+			for (Node<E> node = this; ; ) {
+				assert node.numKeys > minKeys();
+				if (node.isLeaf())
+					return node.removeKeyAndChild(0, -1);
+				else
+					node = node.ensureChildRemove(0);
+			}
+		}
+		
+		
+		// Removes and returns the maximum key among the whole subtree rooted at this node.
+		// Requires this node to be preprocessed to have at least minKeys+1 keys.
+		public E removeMax() {
+			for (Node<E> node = this; ; ) {
+				assert node.numKeys > minKeys();
+				if (node.isLeaf())
+					return node.removeKeyAndChild(node.numKeys - 1, -1);
+				else
+					node = node.ensureChildRemove(node.numKeys);
+			}
+		}
+		
+		
+		/*-- Miscellaneous methods --*/
 		
 		// Checks the structure recursively and returns the total number
 		// of keys in the subtree rooted at this node. For unit tests.
