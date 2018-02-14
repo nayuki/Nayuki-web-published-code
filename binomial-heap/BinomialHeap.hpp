@@ -1,7 +1,7 @@
 /* 
  * Binomial heap (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -246,7 +246,7 @@ class BinomialHeap final {
 		// For unit tests
 		public: void checkStructure(bool isMain, const E *lowerBound) const {
 			// Basic checks
-			if (isMain ^ (lowerBound == nullptr))
+			if (isMain != (lowerBound == nullptr))
 				throw "Assertion error: Invalid arguments";
 			if (!isMain && value < *lowerBound)
 				throw "Assertion error: Min-heap property violated";

@@ -1,7 +1,7 @@
 /* 
  * Binomial heap (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -244,7 +244,7 @@ impl <E: std::cmp::Ord> Node<E> {
 	// For unit tests
 	fn check_structure(&self, ismain: bool, lowerbound: Option<&E>) {
 		// Basic checks
-		assert!(ismain == lowerbound.is_none(), "Invalid arguments");
+		assert_eq!(ismain, lowerbound.is_none(), "Invalid arguments");
 		assert!(ismain || self.value >= *lowerbound.unwrap(), "Min-heap property violated");
 		
 		// Check children and non-main chains

@@ -1,7 +1,7 @@
 /* 
  * Binomial heap (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -233,9 +233,9 @@ public final class BinomialHeap<E extends Comparable<? super E>> extends Abstrac
 		// For unit tests
 		void checkStructure(boolean isMain, E lowerBound) {
 			// Basic checks
-			if ((rank < 0) ^ (value == null))
+			if ((rank < 0) != (value == null))
 				throw new AssertionError("Invalid node rank or value");
-			if (isMain ^ (lowerBound == null))
+			if (isMain != (lowerBound == null))
 				throw new AssertionError("Invalid arguments");
 			if (!isMain && value.compareTo(lowerBound) < 0)
 				throw new AssertionError("Min-heap property violated");

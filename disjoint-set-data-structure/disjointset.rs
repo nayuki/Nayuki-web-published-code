@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -165,7 +165,8 @@ impl DisjointSet {
 			ok &= !isrepr && node.size == 0 || isrepr && node.size >= (1usize << node.rank);
 			assert!(ok);
 		}
-		assert!(self.numberofsets == numrepr && self.numberofsets <= self.nodes.len());
+		assert_eq!(self.numberofsets, numrepr);
+		assert!(self.numberofsets <= self.nodes.len());
 	}
 	
 }

@@ -1,7 +1,7 @@
 /* 
  * Binary array set (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -116,7 +116,7 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 		for (i, vals) in self.values.iter().enumerate() {
 			let len = vals.len();
 			assert!(len == 0 || len == 1 << i, "Invalid sub-vector length");
-			for j in 1 .. vals.len() {
+			for j in 1 .. len {
 				assert!(vals[j - 1] < vals[j], "Invalid ordering of elements in vector");
 			}
 			sum += len;

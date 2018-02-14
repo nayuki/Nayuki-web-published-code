@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,6 +25,7 @@ extern crate rand;
 use rand::distributions::IndependentSample;
 use rand::Rng;
 mod disjointset;
+use disjointset::DisjointSet;
 
 
 /*---- Main runner ----*/
@@ -42,7 +43,7 @@ fn main() {
 /*---- Test suite ----*/
 
 fn test_new() {
-	let mut ds = disjointset::DisjointSet::new(10);
+	let mut ds = DisjointSet::new(10);
 	assert_eq!(10, ds.number_of_sets());
 	assert_eq!(1, ds.get_size_of_set(0));
 	assert_eq!(1, ds.get_size_of_set(2));
@@ -54,7 +55,7 @@ fn test_new() {
 
 
 fn test_merge() {
-	let mut ds = disjointset::DisjointSet::new(10);
+	let mut ds = DisjointSet::new(10);
 	assert_eq!(true, ds.merge_sets(0, 1));
 	ds.check_structure();
 	assert_eq!(9, ds.number_of_sets());
@@ -84,7 +85,7 @@ fn test_big_merge() {
 	let trials: i32 = 10000;
 	
 	let numelems: usize = 1 << maxrank;  // Grows exponentially
-	let mut ds = disjointset::DisjointSet::new(numelems);
+	let mut ds = DisjointSet::new(numelems);
 	let mut rng = rand::thread_rng();
 	let range = rand::distributions::range::Range::new(0, numelems);
 	for level in 0 .. maxrank {
@@ -119,7 +120,7 @@ fn test_against_naive_randomly() {
 	let range = rand::distributions::range::Range::new(0, numelems);
 	for _ in 0 .. trials {
 		let mut nds = NaiveDisjointSet::new(numelems);
-		let mut ds = disjointset::DisjointSet::new(numelems);
+		let mut ds = DisjointSet::new(numelems);
 		for _ in 0 .. iterations {
 			let i: usize = range.ind_sample(&mut rng);
 			let j: usize = range.ind_sample(&mut rng);

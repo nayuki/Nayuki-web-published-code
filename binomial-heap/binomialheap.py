@@ -1,7 +1,7 @@
 # 
 # Binomial heap (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binomial-heap
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -175,9 +175,9 @@ class BinomialHeap(object):
 		# For unit tests
 		def check_structure(self, ismain, lowerbound):
 			# Basic checks
-			if (self.rank < 0) ^ (self.value is None):
+			if (self.rank < 0) != (self.value is None):
 				raise AssertionError("Invalid node rank or value")
-			if ismain ^ (lowerbound is None):
+			if ismain != (lowerbound is None):
 				raise AssertionError("Invalid arguments")
 			if not ismain and self.value < lowerbound:
 				raise AssertionError("Min-heap property violated")

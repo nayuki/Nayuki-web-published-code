@@ -112,7 +112,7 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 			self.size -= 1;
 		}
 		if self.root.keys.is_empty() && !self.root.is_leaf() {
-			assert!(self.root.children.len() == 1);
+			assert_eq!(self.root.children.len(), 1);
 			self.root = *self.root.children.pop().unwrap();  // Decrement tree height
 		}
 		result
@@ -292,7 +292,7 @@ impl <E: std::cmp::Ord> Node<E> {
 		if childsize > minkeys {  // Already satisfies the condition
 			return self.children[index].as_mut();
 		}
-		assert!(childsize == minkeys);
+		assert_eq!(childsize, minkeys);
 		
 		let internal = !self.children[index].is_leaf();
 		let mut leftsize  = 0;
