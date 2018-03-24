@@ -89,23 +89,22 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 		
 		let mut minnode: Option<Node<E>> = None;
 		{
-			let mut oldlist = std::mem::replace(&mut self.head, None);
-			let mut newlist: MaybeNode<E> = None;
+			let mut node = &mut self.head;
 			for index in 0u32 .. {
-				match oldlist {
-					None => break,
-					Some(mut node) => {
-						oldlist = std::mem::replace(&mut node.next, None);
-						if index == minnodeindex {
-							minnode = Some(*node);
-						} else {
-							node.next = newlist;
-							newlist = Some(node);
-						}
-					},
+				if index < minnodeindex {
+					match {node} {
+						&mut Some(ref mut nd) => node = &mut nd.next,
+						_ => unreachable!(),
+					}
+				} else if index == minnodeindex {
+					let mut temp = *std::mem::replace(node, None).unwrap();
+					std::mem::swap(node, &mut temp.next);
+					minnode = Some(temp);
+					break;
+				} else {
+					unreachable!();
 				}
 			}
-			self.head = reverse_nodes(newlist);
 		}
 		
 		let mut minnode = minnode.unwrap();

@@ -94,18 +94,39 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 		}
 		
 		// Walk down the tree
-		let result = self.root.insert(self.min_keys, self.max_keys,
-			self.size < std::usize::MAX, val, true);
-		if result {
-			self.size += 1;
+		let mut node = &mut self.root;
+		let mut isroot = true;
+		loop {
+			// Search for index in current node
+			assert!(node.keys.len() < self.max_keys);
+			assert!(isroot || node.keys.len() >= self.min_keys);
+			let (found, mut index) = node.search(&val);
+			if found {
+				return false;  // Key already exists in tree
+			} else if node.is_leaf() {  // Simple insertion into leaf
+				assert!(self.size < std::usize::MAX, "Maximum size reached");
+				node.keys.insert(index, val);
+				self.size += 1;
+				return true;
+			} else {  // Handle internal node
+				if node.children[index].keys.len() == self.max_keys {  // Split child node
+					node.split_child(self.min_keys, self.max_keys, index);
+					match val.cmp(&node.keys[index]) {
+						Ordering::Equal   => return false,  // Key already exists in tree
+						Ordering::Greater => index += 1,
+						Ordering::Less    => {},
+					}
+				}
+				let nd = node;
+				node = nd.children[index].as_mut();
+				isroot = false;
+			}
 		}
-		result
 	}
 	
 	
 	pub fn remove(&mut self, val: &E) -> bool {
-		let (found, index) = self.root.search(val);
-		let result = self.root.remove(self.min_keys, self.max_keys, val, true, found, index);
+		let result = self.remove_sub(val);
 		if result {
 			assert!(self.size > 0);
 			self.size -= 1;
@@ -115,6 +136,47 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 			self.root = *self.root.children.pop().unwrap();  // Decrement tree height
 		}
 		result
+	}
+	
+	
+	fn remove_sub(&mut self, val: &E) -> bool {
+		// Walk down the tree
+		let (mut found, mut index) = self.root.search(val);
+		let mut node = &mut self.root;
+		let mut isroot = true;
+		loop {
+			assert!(node.keys.len() <= self.max_keys);
+			assert!(isroot || node.keys.len() > self.min_keys);
+			if node.is_leaf() {
+				if found {  // Simple removal from leaf
+					node.keys.remove(index);
+				}
+				return found;
+			} else {  // Internal node
+				if found {  // Key is stored at current node
+					if node.children[index].keys.len() > self.min_keys {  // Replace key with predecessor
+						node.keys[index] = node.children[index].remove_max(self.min_keys);
+						return true;
+					} else if node.children[index + 1].keys.len() > self.min_keys {  // Replace key with successor
+						node.keys[index] = node.children[index + 1].remove_min(self.min_keys);
+						return true;
+					} else {  // Merge key and right node into left node, then recurse
+						node.merge_children(self.min_keys, index);
+						// Index known due to merging; no need to search
+						let nd = node;
+						node = nd.children[index].as_mut();
+						index = self.min_keys;
+					}
+				} else {  // Key might be found in some child
+					let nd = node;
+					node = nd.ensure_child_remove(self.min_keys, index);
+					let (f, i) = node.search(val);
+					found = f;
+					index = i;
+				}
+				isroot = false;
+			}
+		}
 	}
 	
 	
@@ -198,31 +260,6 @@ impl <E: std::cmp::Ord> Node<E> {
 	
 	/*-- Methods for insertion --*/
 	
-	fn insert(&mut self, minkeys: usize, maxkeys: usize, hasroom: bool, val: E, isroot: bool) -> bool {
-		// Search for index in current node
-		assert!(self.keys.len() < maxkeys);
-		assert!(isroot || self.keys.len() >= minkeys);
-		let (found, mut index) = self.search(&val);
-		if found {
-			false  // Key already exists in tree
-		} else if self.is_leaf() {  // Simple insertion into leaf
-			assert!(hasroom, "Maximum size reached");
-			self.keys.insert(index, val);
-			true  // Successfully inserted
-		} else {  // Handle internal node
-			if self.children[index].keys.len() == maxkeys {  // Split child node
-				self.split_child(minkeys, maxkeys, index);
-				match val.cmp(&self.keys[index]) {
-					Ordering::Equal   => return false,  // Key already exists in tree
-					Ordering::Greater => index += 1,
-					Ordering::Less    => {},
-				}
-			}
-			self.children[index].insert(minkeys, maxkeys, hasroom, val, isroot)  // Recurse
-		}
-	}
-	
-	
 	// For the child node at the given index, this moves the right half of keys and children to a new node,
 	// and adds the middle key and new child to this node. The left half of child's data is not moved.
 	fn split_child(&mut self, minkeys: usize, maxkeys: usize, index: usize) {
@@ -245,37 +282,6 @@ impl <E: std::cmp::Ord> Node<E> {
 	
 	
 	/*-- Methods for removal --*/
-	
-	fn remove(&mut self, minkeys: usize, maxkeys: usize,
-			val: &E, isroot: bool, found: bool, index: usize) -> bool {
-		assert!(self.keys.len() <= maxkeys);
-		assert!(isroot || self.keys.len() > minkeys);
-		if self.is_leaf() {
-			if found {  // Simple removal from leaf
-				self.keys.remove(index);
-			}
-			found
-		} else {  // Internal node
-			if found {  // Key is stored at current node
-				if self.children[index].keys.len() > minkeys {  // Replace key with predecessor
-					self.keys[index] = self.children[index].remove_max(minkeys);
-					true
-				} else if self.children[index + 1].keys.len() > minkeys {  // Replace key with successor
-					self.keys[index] = self.children[index + 1].remove_min(minkeys);
-					true
-				} else {  // Merge key and right node into left node, then recurse
-					self.merge_children(minkeys, index);
-					// Index known due to merging; no need to search
-					self.children[index].remove(minkeys, maxkeys, val, false, true, minkeys)
-				}
-			} else {  // Key might be found in some child
-				let child = self.ensure_child_remove(minkeys, index);
-				let (found, index) = child.search(val);
-				child.remove(minkeys, maxkeys, val, false, found, index)  // Recurse
-			}
-		}
-	}
-	
 	
 	// Performs modifications to ensure that this node's child at the given index has at least
 	// min_keys+1 keys in preparation for a single removal. The child may gain a key and subchild
@@ -353,11 +359,15 @@ impl <E: std::cmp::Ord> Node<E> {
 	// Removes and returns the minimum key among the whole subtree rooted at this node.
 	// Requires this node to be preprocessed to have at least minkeys+1 keys.
 	fn remove_min(&mut self, minkeys: usize) -> E {
-		assert!(self.keys.len() > minkeys);
-		if self.is_leaf() {
-			self.keys.remove(0)
-		} else {
-			self.ensure_child_remove(minkeys, 0).remove_min(minkeys)
+		let mut node = self;
+		loop {
+			assert!(node.keys.len() > minkeys);
+			if node.is_leaf() {
+				return node.keys.remove(0)
+			} else {
+				let nd = node;
+				node = nd.ensure_child_remove(minkeys, 0);
+			}
 		}
 	}
 	
@@ -365,12 +375,16 @@ impl <E: std::cmp::Ord> Node<E> {
 	// Removes and returns the maximum key among the whole subtree rooted at this node.
 	// Requires this node to be preprocessed to have at least minkeys+1 keys.
 	fn remove_max(&mut self, minkeys: usize) -> E {
-		assert!(self.keys.len() > minkeys);
-		if self.is_leaf() {
-			self.keys.pop().unwrap()
-		} else {
-			let end = self.children.len() - 1;
-			self.ensure_child_remove(minkeys, end).remove_max(minkeys)
+		let mut node = self;
+		loop {
+			assert!(node.keys.len() > minkeys);
+			if node.is_leaf() {
+				return node.keys.pop().unwrap();
+			} else {
+				let end = node.children.len() - 1;
+				let nd = node;
+				node = nd.ensure_child_remove(minkeys, end);
+			}
 		}
 	}
 	
