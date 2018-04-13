@@ -1,7 +1,7 @@
 # 
 # Simple FLAC decoder (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/simple-flac-implementation
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -124,16 +124,10 @@ def decode_frame(inp, numchannels, sampledepth, out):
 	
 	# Write the decoded samples
 	numbytes = sampledepth // 8
-	if python3:
-		def write_little_int(val):
-			out.write(bytes(((val >> (i * 8)) & 0xFF) for i in range(numbytes)))
-	else:
-		def write_little_int(val):
-			out.write("".join(chr((val >> (i * 8)) & 0xFF) for i in range(numbytes)))
 	addend = 128 if sampledepth == 8 else 0
 	for i in range(blocksize):
 		for j in range(numchannels):
-			write_little_int(samples[j][i] + addend)
+			out.write(struct.pack("<i", samples[j][i] + addend)[ : numbytes])
 	return True
 
 
