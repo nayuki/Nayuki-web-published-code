@@ -26,6 +26,7 @@ use std;
 
 /*-- Fields --*/
 
+#[derive(Clone)]
 pub struct BinomialHeap<E> {
 	head: MaybeNode<E>,
 }
@@ -208,6 +209,7 @@ type MaybeNode<E> = Option<Box<Node<E>>>;
 
 /*-- Fields --*/
 
+#[derive(Clone)]
 struct Node<E> {
 	value: E,
 	rank: u8,

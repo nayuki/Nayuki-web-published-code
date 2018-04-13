@@ -25,6 +25,7 @@ use std;
 use std::cmp::Ordering;
 
 
+#[derive(Clone)]
 pub struct BTreeSet<E> {
 	
 	root: Node<E>,
@@ -209,6 +210,7 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 
 /*---- Helper struct: B-tree node ----*/
 
+#[derive(Clone)]
 struct Node<E> {
 	
 	// Size is in the range [0, max_keys] for root node, [min_keys, max_keys] for all other nodes.

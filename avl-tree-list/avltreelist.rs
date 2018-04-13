@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,6 +24,7 @@
 use std;
 
 
+#[derive(Clone)]
 pub struct AvlTreeList<E> {
 	root: MaybeNode<E>,
 }
@@ -118,6 +119,7 @@ impl <E> std::ops::IndexMut<usize> for AvlTreeList<E> {
 
 /*---- Helper structs: AVL tree nodes ----*/
 
+#[derive(Clone)]
 struct MaybeNode<E>(Option<Box<Node<E>>>);
 
 
@@ -316,6 +318,7 @@ impl <E> MaybeNode<E> {
 }
 
 
+#[derive(Clone)]
 struct Node<E> {
 	// The object stored at this node.
 	value: E,
