@@ -163,7 +163,7 @@ impl <E> MaybeNode<E> {
 				return MaybeNode(Some(Box::new(Node::new(val))));
 			},
 			Some(ref mut bx) => {
-				let mut node = bx.as_mut();
+				let node = bx.as_mut();
 				let leftsize = node.left.size();
 				if index <= leftsize {
 					node.left = node.left.pop().insert_at(index, val);
@@ -184,7 +184,7 @@ impl <E> MaybeNode<E> {
 		match self.0 {
 			None => unreachable!(),
 			Some(ref mut bx) => {
-				let mut node = bx.as_mut();
+				let node = bx.as_mut();
 				let leftsize = node.left.size();
 				if index < leftsize {
 					node.left = node.left.pop().remove_at(index, outval);
@@ -201,7 +201,7 @@ impl <E> MaybeNode<E> {
 		// If current node needs removal but has both children
 		if !done {
 			if let Some(ref mut bx) = self.0 {
-				let mut node = bx.as_mut();
+				let node = bx.as_mut();
 				if node.left.size() > 0 && node.right.size() > 0 {
 					node.right = node.right.pop().remove_at(0, outval);
 					std::mem::swap(outval.as_mut().unwrap(), &mut node.value);
@@ -237,7 +237,7 @@ impl <E> MaybeNode<E> {
 		assert!(bal.abs() <= 2);
 		if bal == -2 {
 			{
-				let mut node = self.node_mut();
+				let node = self.node_mut();
 				let childbal = node.left.node_ref().get_balance();
 				assert!(childbal.abs() <= 1);
 				if childbal == 1 {
@@ -247,7 +247,7 @@ impl <E> MaybeNode<E> {
 			self = self.rotate_right();
 		} else if bal == 2 {
 			{
-				let mut node = self.node_mut();
+				let node = self.node_mut();
 				let childbal = node.right.node_ref().get_balance();
 				assert!(childbal.abs() <= 1);
 				if childbal == -1 {
@@ -271,7 +271,7 @@ impl <E> MaybeNode<E> {
 	fn rotate_left(mut self) -> Self {
 		let mut root;
 		{
-			let mut selfnode = self.node_mut();
+			let selfnode = self.node_mut();
 			root = selfnode.right.pop();
 			let rootnode = root.node_mut();
 			std::mem::swap(&mut selfnode.right, &mut rootnode.left);
@@ -295,7 +295,7 @@ impl <E> MaybeNode<E> {
 	fn rotate_right(mut self) -> Self {
 		let mut root;
 		{
-			let mut selfnode = self.node_mut();
+			let selfnode = self.node_mut();
 			root = selfnode.left.pop();
 			let rootnode = root.node_mut();
 			std::mem::swap(&mut selfnode.left, &mut rootnode.right);

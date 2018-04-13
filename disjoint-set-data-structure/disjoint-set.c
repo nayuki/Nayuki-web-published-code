@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library implementation (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -124,11 +124,9 @@ void DisjointSet_checkStructure(const struct DisjointSet this[static 1]) {
 		if (isRepr)
 			numRepr++;
 		
-		bool ok = true;
-		ok &= node->parent < this->numElements;
-		ok &= 0 <= node->rank && (isRepr || node->rank < this->nodes[node->parent].rank);
-		ok &= (!isRepr && node->size == 0) || (isRepr && node->size >= ((size_t)1 << node->rank));
-		assert(ok);
+		assert(node->parent < this->numElements);
+		assert(0 <= node->rank && (isRepr || node->rank < this->nodes[node->parent].rank));
+		assert((!isRepr && node->size == 0) || (isRepr && node->size >= ((size_t)1 << node->rank)));
 	}
 	assert(this->numSets == numRepr && this->numSets <= this->numElements);
 }

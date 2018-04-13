@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -137,8 +137,7 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 	let mut costable = Vec::<f64>::with_capacity(n);
 	let mut sintable = Vec::<f64>::with_capacity(n);
 	for i in 0 .. n {
-		  // This is more accurate than j = i * i
-		let j: u64 = (i as u64) * (i as u64) % ((n as u64) * 2);
+		let j: u64 = (i as u64) * (i as u64) % ((n as u64) * 2);  // This is more accurate than j = i * i
 		let angle: f64 = std::f64::consts::PI * (j as f64) / (n as f64);
 		costable.push(angle.cos());
 		sintable.push(angle.sin());

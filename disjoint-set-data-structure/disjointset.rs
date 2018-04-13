@@ -60,17 +60,13 @@ impl DisjointSet {
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 	pub fn new(numelems: usize) -> Self {
-		let mut nodes = Vec::<DisjointSetNode>::with_capacity(numelems);
-		for i in 0 .. numelems {
-			nodes.push(DisjointSetNode{
-				parent: i,
-				rank: 0,
-				size: 1,
-			});
-		}
-		DisjointSet {
+		Self {
 			numberofsets: numelems,
-			nodes: nodes,
+			nodes: (0 .. numelems).map(|i| DisjointSetNode{
+					parent: i,
+					rank: 0,
+					size: 1,
+				}).collect(),
 		}
 	}
 	
@@ -159,11 +155,9 @@ impl DisjointSet {
 		for (i, node) in self.nodes.iter().enumerate() {
 			let isrepr: bool = node.parent == i;
 			numrepr += isrepr as usize;
-			let mut ok: bool = true;
-			ok &= node.parent < self.nodes.len();
-			ok &= 0 <= node.rank && (isrepr || node.rank < self.nodes[node.parent].rank);
-			ok &= !isrepr && node.size == 0 || isrepr && node.size >= (1usize << node.rank);
-			assert!(ok);
+			assert!(node.parent < self.nodes.len());
+			assert!(0 <= node.rank && (isrepr || node.rank < self.nodes[node.parent].rank));
+			assert!(!isrepr && node.size == 0 || isrepr && node.size >= (1usize << node.rank));
 		}
 		assert_eq!(self.numberofsets, numrepr);
 		assert!(self.numberofsets <= self.nodes.len());

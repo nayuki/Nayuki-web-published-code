@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,39 +30,42 @@ mod fft;
 
 fn main() {
 	let mut maxlogerr: f64 = std::f64::NEG_INFINITY;
-	
-	// Test power-of-2 size FFTs
-	for i in 0 .. 13 {
-		update_error(test_fft(1usize << i), &mut maxlogerr);
-	}
-	
-	// Test small size FFTs
-	for i in 0 .. 30 {
-		update_error(test_fft(i), &mut maxlogerr);
-	}
-	
-	// Test diverse size FFTs
-	let mut prev: usize = 0;
-	for i in 0i32 .. 101 {
-		let n: usize = (1500.0f64).powf((i as f64) / 100.0).round() as usize;
-		if n > prev {
-			update_error(test_fft(n), &mut maxlogerr);
-			prev = n;
+	{
+		let mut update_error = |err: f64| maxlogerr = maxlogerr.max(err);
+		
+		// Test power-of-2 size FFTs
+		for i in 0 .. 13 {
+			update_error(test_fft(1usize << i));
 		}
-	}
-	
-	// Test power-of-2 size convolutions
-	for i in 0 .. 13 {
-		update_error(test_convolution(1usize << i), &mut maxlogerr);
-	}
-	
-	// Test diverse size convolutions
-	let mut prev: usize = 0;
-	for i in 0i32 .. 101 {
-		let n: usize = (1500.0f64).powf((i as f64) / 100.0).round() as usize;
-		if n > prev {
-			update_error(test_convolution(n), &mut maxlogerr);
-			prev = n;
+		
+		// Test small size FFTs
+		for i in 0 .. 30 {
+			update_error(test_fft(i));
+		}
+		
+		// Test diverse size FFTs
+		let mut prev: usize = 0;
+		for i in 0i32 .. 101 {
+			let n: usize = (1500.0f64).powf((i as f64) / 100.0).round() as usize;
+			if n > prev {
+				update_error(test_fft(n));
+				prev = n;
+			}
+		}
+		
+		// Test power-of-2 size convolutions
+		for i in 0 .. 13 {
+			update_error(test_convolution(1usize << i));
+		}
+		
+		// Test diverse size convolutions
+		let mut prev: usize = 0;
+		for i in 0i32 .. 101 {
+			let n: usize = (1500.0f64).powf((i as f64) / 100.0).round() as usize;
+			if n > prev {
+				update_error(test_convolution(n));
+				prev = n;
+			}
 		}
 	}
 	
@@ -98,11 +101,13 @@ fn test_convolution(size: usize) -> f64 {
 	
 	let mut refoutreal: Vec<f64> = vec![0.0; size];
 	let mut refoutimag: Vec<f64> = vec![0.0; size];
-	naive_convolve(&input0real, &input0imag, &input1real, &input1imag, &mut refoutreal, &mut refoutimag);
+	naive_convolve(&input0real, &input0imag, &input1real, &input1imag,
+		&mut refoutreal, &mut refoutimag);
 	
 	let mut actualoutreal: Vec<f64> = vec![0.0; size];
 	let mut actualoutimag: Vec<f64> = vec![0.0; size];
-	fft::convolve_complex(&input0real, &input0imag, &input1real, &input1imag, &mut actualoutreal, &mut actualoutimag);
+	fft::convolve_complex(&input0real, &input0imag, &input1real, &input1imag,
+		&mut actualoutreal, &mut actualoutimag);
 	
 	let err: f64 = log10_rms_err(&refoutreal, &refoutimag, &actualoutreal, &actualoutimag);
 	println!("convsize={:4}  logerr={:5.1}", size, err);
@@ -183,7 +188,7 @@ fn log10_rms_err(
 		err += real * real + imag * imag;
 	}
 	// Calculate root mean square (RMS) error
-	err /= (n as f64).max(1.0);
+	err /= std::cmp::max(n, 1) as f64;
 	err.sqrt().log10()
 }
 
@@ -192,9 +197,4 @@ fn random_reals(size: usize) -> Vec<f64> {
 	let mut rng = rand::thread_rng();
 	let uniform = rand::distributions::range::Range::new(-1.0, 1.0);
 	(0 .. size).map(|_| uniform.ind_sample(&mut rng)).collect()
-}
-
-
-fn update_error(err: f64, maxlogerr: &mut f64) {
-	*maxlogerr = maxlogerr.max(err);
 }
