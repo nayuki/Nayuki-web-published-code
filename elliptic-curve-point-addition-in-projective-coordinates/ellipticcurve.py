@@ -330,29 +330,6 @@ class FieldInt(object):
 	def __ne__(self, other):
 		return not (self == other)
 	
-	def __lt__(self, other):
-		return self.compare_to(other) < 0
-	
-	def __le__(self, other):
-		return self.compare_to(other) <= 0
-	
-	def __gt__(self, other):
-		return self.compare_to(other) > 0
-	
-	def __ge__(self, other):
-		return self.compare_to(other) >= 0
-	
-	
-	def compare_to(self, other):
-		if self.modulus != other.modulus:
-			raise ValueError("Other number must have same modulus")
-		if self.value < other.value:
-			return -1
-		elif self.value > other.value:
-			return +1
-		else:
-			return 0
-	
 	
 	# -- Miscellaneous methods --
 	

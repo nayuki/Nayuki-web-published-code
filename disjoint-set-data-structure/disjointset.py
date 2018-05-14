@@ -1,7 +1,7 @@
 # 
 # Disjoint-set data structure - Library (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/disjoint-set-data-structure
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -64,7 +64,7 @@ class DisjointSet(object):
 	# known as "find" in the literature. Also performs path compression, which alters the internal state to
 	# improve the speed of future queries, but has no externally visible effect on the values returned.
 	def _get_repr(self, elemindex):
-		if elemindex < 0 or elemindex >= len(self.parents):
+		if not (0 <= elemindex < len(self.parents)):
 			raise IndexError()
 		# Follow parent pointers until we reach a representative
 		parent = self.parents[elemindex]

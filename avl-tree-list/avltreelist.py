@@ -1,7 +1,7 @@
 # 
 # AVL tree list (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/avl-tree-list
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,19 +35,19 @@ class AvlTreeList(object):
 	
 	
 	def __getitem__(self, index):
-		if index < 0 or index >= len(self):
+		if not (0 <= index < len(self)):
 			raise IndexError()
 		return self.root.get_node_at(index).value
 	
 	
 	def __setitem__(self, index, val):
-		if index < 0 or index >= len(self):
+		if not (0 <= index < len(self)):
 			raise IndexError()
 		self.root.get_node_at(index).value = val
 	
 	
 	def insert(self, index, val):
-		if index < 0 or index > len(self):  # Different constraint than the other methods
+		if not (0 <= index <= len(self)):  # Different constraint than the other methods
 			raise IndexError()
 		self.root = self.root.insert_at(index, val)
 	
@@ -70,7 +70,7 @@ class AvlTreeList(object):
 	
 	
 	def __delitem__(self, index):
-		if index < 0 or index >= len(self):
+		if not (0 <= index < len(self)):
 			raise IndexError()
 		self.root = self.root.remove_at(index)
 	
