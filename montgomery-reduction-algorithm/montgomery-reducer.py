@@ -1,37 +1,38 @@
 # 
 # Montgomery reduction algorithm (Python)
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2018 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/montgomery-reduction-algorithm
 # 
 
-import fractions, random
+import fractions, random, unittest
 
 
-def main():
-	print("Self-check...")
-	for i in range(3000):
-		bitlen = random.randint(2, 100)
-		mod = random.randrange(1 << bitlen, 2 << bitlen) | 1  # Force it to be odd
-		mr = MontgomeryReducer(mod)
-		
-		for j in range(100):
-			x = random.randrange(0, mod)
-			y = random.randrange(0, mod)
-			u = mr.convert_in(x)
-			v = mr.convert_in(y)
-			w = mr.multiply(u, v)
-			if mr.convert_out(w) != x * y % mod:
-				raise AssertionError()
-		
-		for j in range(10):
-			x = random.randrange(0, mod)
-			y = random.randrange(0, mod)
-			u = mr.convert_in(x)
-			v = mr.pow(u, y)
-			if mr.convert_out(v) != pow(x, y, mod):
-				raise AssertionError()
+class MontgomeryReducerTest(unittest.TestCase):
+	
+	def test_basic(self):
+		for _ in range(3000):
+			bitlen = random.randint(2, 100)
+			mod = random.randrange(1 << bitlen, 2 << bitlen) | 1  # Force it to be odd
+			mr = MontgomeryReducer(mod)
+			
+			for _ in range(100):
+				x = random.randrange(0, mod)
+				y = random.randrange(0, mod)
+				u = mr.convert_in(x)
+				v = mr.convert_in(y)
+				w = mr.multiply(u, v)
+				if mr.convert_out(w) != x * y % mod:
+					raise AssertionError()
+			
+			for _ in range(10):
+				x = random.randrange(0, mod)
+				y = random.randrange(0, mod)
+				u = mr.convert_in(x)
+				v = mr.pow(u, y)
+				if mr.convert_out(v) != pow(x, y, mod):
+					raise AssertionError()
 
 
 
@@ -110,4 +111,4 @@ class MontgomeryReducer(object):
 
 
 if __name__ == "__main__":
-	main()
+	unittest.main()

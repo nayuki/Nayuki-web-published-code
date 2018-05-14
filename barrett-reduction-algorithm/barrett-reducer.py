@@ -1,29 +1,31 @@
 # 
 # Barrett reduction algorithm (Python)
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2018 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/barrett-reduction-algorithm
 # 
 
-import random
+import random, unittest
 
 
-def main():
-	print("Self-check...")
-	for i in range(10000):
-		mod = random_modulus()
-		modsqr = mod**2
-		br = BarrettReducer(mod)
-		for j in range(100):
-			x = random.randrange(modsqr)
-			if br.reduce(x) != x % mod:
-				raise AssertionError()
-
-
-def random_modulus():
-	bitlen = random.randint(2, 100)
-	return random.randint((1 << bitlen) + 1, (2 << bitlen) - 1)
+class BarrettReducerTest(unittest.TestCase):
+	
+	def test_basic(self):
+		for _ in range(10000):
+			mod = BarrettReducerTest.random_modulus()
+			modsqr = mod**2
+			br = BarrettReducer(mod)
+			for _ in range(100):
+				x = random.randrange(modsqr)
+				if br.reduce(x) != x % mod:
+					raise AssertionError()
+	
+	
+	@staticmethod
+	def random_modulus():
+		bitlen = random.randint(2, 100)
+		return random.randint((1 << bitlen) + 1, (2 << bitlen) - 1)
 
 
 
@@ -49,4 +51,4 @@ class BarrettReducer(object):
 
 
 if __name__ == "__main__":
-	main()
+	unittest.main()
