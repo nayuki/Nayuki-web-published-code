@@ -43,6 +43,10 @@ class AffineCurvePoint(object):
 		self.modulus = mod
 	
 	
+	def _create(self, x, y):
+		return AffineCurvePoint(x, y, self.a, self.b, self.modulus)
+	
+	
 	def is_zero(self):
 		return self.x is None
 	
@@ -70,29 +74,29 @@ class AffineCurvePoint(object):
 			if self.y == other.y:
 				return self.double()
 			else:
-				return AffineCurvePoint(None, None, self.a, self.b, self.modulus)
+				return self._create(None, None)
 		else:
 			s = (self.y - other.y) * (self.x - other.x).reciprocal()
 			rx = s * s - self.x - other.x
 			ry = s * (self.x - rx) - self.y
-			return AffineCurvePoint(rx, ry, self.a, self.b, self.modulus)
+			return self._create(rx, ry)
 	
 	
 	def double(self):
 		if self.is_zero() or self.y == 0:
-			return AffineCurvePoint(None, None, self.a, self.b, self.modulus)
+			return self._create(None, None)
 		else:
 			s = (self.x * self.x * FieldInt(3, self.modulus) + self.a) * (self.y * FieldInt(2, self.modulus)).reciprocal()
 			rx = s * s - self.x * FieldInt(2, self.modulus)
 			ry = s * (self.x - rx) - self.y
-			return AffineCurvePoint(rx, ry, self.a, self.b, self.modulus)
+			return self._create(rx, ry)
 	
 	
 	def __neg__(self):
 		if self.is_zero():
 			return self
 		else:
-			return AffineCurvePoint(self.x, -self.y, self.a, self.b, self.modulus)
+			return self._create(self.x, -self.y)
 	
 	def __sub__(self, other):
 		return self + -other
@@ -103,7 +107,7 @@ class AffineCurvePoint(object):
 			raise TypeError("Expected integer")
 		if n < 0:
 			return -self * -n
-		result = AffineCurvePoint(None, None, self.a, self.b, self.modulus)
+		result = self._create(None, None)
 		temp = self
 		while n != 0:
 			if n & 1 != 0:
@@ -160,6 +164,10 @@ class ProjectiveCurvePoint(object):
 		self.modulus = mod
 	
 	
+	def _create(self, x, y, z):
+		return ProjectiveCurvePoint(x, y, z, self.a, self.b, self.modulus)
+	
+	
 	def is_zero(self):
 		return self.x is None
 	
@@ -195,7 +203,7 @@ class ProjectiveCurvePoint(object):
 			if t0 == t1:
 				return self.double()
 			else:
-				return ProjectiveCurvePoint(None, None, None, self.a, self.b, self.modulus)
+				return self._create(None, None, None)
 		else:
 			t = t0 - t1
 			u = u0 - u1
@@ -206,12 +214,12 @@ class ProjectiveCurvePoint(object):
 			rx = u * w
 			ry = t * (u0 * u2 - w) - t0 * u3
 			rz = u3 * v
-			return ProjectiveCurvePoint(rx, ry, rz, self.a, self.b, self.modulus)
+			return self._create(rx, ry, rz)
 	
 	
 	def double(self):
 		if self.is_zero() or self.y == 0:
-			return ProjectiveCurvePoint(None, None, None, self.a, self.b, self.modulus)
+			return self._create(None, None, None)
 		else:
 			two = FieldInt(2, self.modulus)
 			t = self.x * self.x * FieldInt(3, self.modulus) + self.a * self.z * self.z
@@ -221,14 +229,14 @@ class ProjectiveCurvePoint(object):
 			rx = u * w
 			ry = t * (v - w) - u * u * self.y * self.y * two
 			rz = u * u * u
-			return ProjectiveCurvePoint(rx, ry, rz, self.a, self.b, self.modulus)
+			return self._create(rx, ry, rz)
 	
 	
 	def __neg__(self):
 		if self.is_zero():
 			return self
 		else:
-			return ProjectiveCurvePoint(self.x, -self.y, self.z, self.a, self.b, self.modulus)
+			return self._create(self.x, -self.y, self.z)
 	
 	def __sub__(self, other):
 		return self + -other
@@ -239,7 +247,7 @@ class ProjectiveCurvePoint(object):
 			raise TypeError("Expected integer")
 		if n < 0:
 			return -self * -n
-		result = ProjectiveCurvePoint(None, None, None, self.a, self.b, self.modulus)
+		result = self._create(None, None, None)
 		temp = self
 		while n != 0:
 			if n & 1 != 0:
@@ -277,6 +285,8 @@ class ProjectiveCurvePoint(object):
 class FieldInt(object):
 	"""A non-negative integer modulo a prime number."""
 	
+	# -- Instance management methods --
+	
 	# The modulus must be prime, which is not checked!
 	def __init__(self, value, modulus):
 		if not isinstance(value, numbers.Integral) or not isinstance(modulus, numbers.Integral):
@@ -287,6 +297,15 @@ class FieldInt(object):
 			raise ValueError("Value out of range")
 		self.value = value
 		self.modulus = modulus
+	
+	def _create(self, val):
+		return FieldInt(val % self.modulus, self.modulus)
+	
+	def _check(self, other):
+		if not isinstance(other, FieldInt):
+			raise TypeError("Expected FieldInt")
+		if self.modulus != other.modulus:
+			raise ValueError("Other number must have same modulus")
 	
 	
 	# -- Arithmetic methods --
@@ -338,13 +357,3 @@ class FieldInt(object):
 	
 	def __repr__(self):
 		return "FieldInt(value={}, modulus={})".format(self.value, self.modulus)
-	
-	
-	def _check(self, other):
-		if not isinstance(other, FieldInt):
-			raise TypeError("Expected FieldInt")
-		if self.modulus != other.modulus:
-			raise ValueError("Other number must have same modulus")
-	
-	def _create(self, val):
-		return FieldInt(val % self.modulus, self.modulus)
