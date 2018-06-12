@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -85,10 +85,8 @@ function doSolve() {
 				formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
 		});
 	}
-	document.getElementById("solution-text").appendChild(
-		document.createTextNode(solnHeadText));
-	document.getElementById("boards-visited").appendChild(
-		document.createTextNode("Boards visited: " + numVisited));
+	document.getElementById("solution-text").textContent = solnHeadText;
+	document.getElementById("boards-visited").textContent = "Boards visited: " + numVisited;
 }
 
 
@@ -223,9 +221,9 @@ function formatXCoordinate(x) {
 
 
 function clearSolution() {
-	clearChildren(document.getElementById("solution-text"));
+	document.getElementById("solution-text").textContent = "";
 	clearChildren(document.getElementById("solution-steps"));
-	clearChildren(document.getElementById("boards-visited"));
+	document.getElementById("boards-visited").textContent = "";
 }
 
 
@@ -233,8 +231,9 @@ function createElement(tagName, content) {
 	var result = document.createElement(tagName);
 	if (content != undefined) {
 		if (typeof content == "string")
-			content = document.createTextNode(content);
-		result.appendChild(content);
+			result.textContent = content;
+		else
+			result.appendChild(content);
 	}
 	return result;
 }

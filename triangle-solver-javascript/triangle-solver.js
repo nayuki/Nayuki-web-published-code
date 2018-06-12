@@ -1,7 +1,7 @@
 /* 
  * Triangle solver
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/triangle-solver-javascript
  */
@@ -294,10 +294,7 @@ function initImageMap() {
 /*---- Simple functions ----*/
 
 function setElementText(nodeId, str) {
-	var node = document.getElementById(nodeId);
-	while (node.firstChild != null)
-		node.removeChild(node.firstChild);
-	node.appendChild(document.createTextNode(str));
+	document.getElementById(nodeId).textContent = str;
 }
 
 function parsePixels(str) {

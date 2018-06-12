@@ -1,7 +1,7 @@
 /* 
  * Gaussian blur demo (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gaussian-blur-demo
  */
@@ -120,10 +120,7 @@ function updateRadius() {
 		return false;
 	radius = newRad;
 	
-	var radiusOutElem = document.getElementById("radius-out");
-	while (radiusOutElem.firstChild != null)
-		radiusOutElem.removeChild(radiusOutElem.firstChild);
-	radiusOutElem.appendChild(document.createTextNode(radius.toFixed(2)));
+	document.getElementById("radius-out").textContent = radius.toFixed(2);
 	return true;
 }
 

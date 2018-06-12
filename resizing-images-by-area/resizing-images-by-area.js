@@ -1,7 +1,7 @@
 /* 
  * Resizing images by area
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/resizing-images-by-area
  */
@@ -12,11 +12,6 @@
 var TIMES = "\u00D7";  // Times sign
 
 function calc() {
-	function clearChildren(node) {
-		while (node.firstChild != null)
-			node.removeChild(node.firstChild);
-	}
-	
 	function parseNumber(nodeId) {
 		var text = document.getElementById(nodeId).value;
 		text = text.replace(/^\s+|\s+$/g, "");  // Trim whitespace
@@ -33,9 +28,9 @@ function calc() {
 	var resizedDimensions = document.getElementById("resized-dimensions");
 	var resizedAreaOutput = document.getElementById("resized-area-output");
 	var aspectRatio       = document.getElementById("aspect-ratio");
-	clearChildren(resizedDimensions);
-	clearChildren(resizedAreaOutput);
-	clearChildren(aspectRatio);
+	resizedDimensions.textContent = "";
+	resizedAreaOutput.textContent = "";
+	aspectRatio      .textContent = "";
 	
 	try {
 		// Get inputs
@@ -51,7 +46,7 @@ function calc() {
 			artext = "1 : " + (originalHeight / originalWidth).toFixed(3);
 		else
 			artext = "1 : 1";
-		aspectRatio.appendChild(document.createTextNode(artext));
+		aspectRatio.textContent = artext;
 		
 		// Calculate outputs
 		var resizedWidth  = Math.sqrt(resizedArea * originalWidth / originalHeight);
@@ -61,7 +56,7 @@ function calc() {
 		var area = resizedWidth * resizedHeight / 1000000;  // In megapixels
 		
 		// Format outputs
-		resizedDimensions.appendChild(document.createTextNode(resizedWidth + " " + TIMES + " " + resizedHeight));
+		resizedDimensions.textContent = resizedWidth + " " + TIMES + " " + resizedHeight;
 		var areatext;
 		if (area < 0.3)
 			areatext = area.toFixed(3);
@@ -71,6 +66,6 @@ function calc() {
 			areatext = area.toFixed(1);
 		else
 			areatext = area.toFixed(0);
-		resizedAreaOutput.appendChild(document.createTextNode(areatext + " megapixels"));
+		resizedAreaOutput.textContent = areatext + " megapixels";
 	} catch (e) {}
 }

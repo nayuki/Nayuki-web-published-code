@@ -1,7 +1,7 @@
 /* 
  * Simulated annealing on image demo (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/simulated-annealing-demo
  */
@@ -18,13 +18,6 @@
 	}
 })();
 
-
-var curIterationsText  = document.createTextNode("");
-var curTemperatureText = document.createTextNode("");
-var curEnergyText      = document.createTextNode("");
-document.getElementById("current-iterations" ).appendChild(curIterationsText );
-document.getElementById("current-temperature").appendChild(curTemperatureText);
-document.getElementById("current-energy"     ).appendChild(curEnergyText     );
 
 var canvas   = document.getElementById("canvas");
 var graphics = canvas.getContext("2d");
@@ -180,9 +173,9 @@ function doAnnealing() {
 	}
 	
 	graphics.putImageData(image, 0, 0);
-	curIterationsText.data = formatWithThousandsSeparators(curIterations) + " (" + (curIterations / numIterations * 100).toFixed(2) + "%)";
-	curTemperatureText.data = curTemperature.toFixed(2);
-	curEnergyText.data = formatWithThousandsSeparators(curEnergy);
+	document.getElementById("current-iterations").textContent = formatWithThousandsSeparators(curIterations) + " (" + (curIterations / numIterations * 100).toFixed(2) + "%)";
+	document.getElementById("current-temperature").textContent = curTemperature.toFixed(2);
+	document.getElementById("current-energy").textContent = formatWithThousandsSeparators(curEnergy);
 	
 	if (isRunning && curIterations < numIterations) {
 		// Try to target 30 ms run time

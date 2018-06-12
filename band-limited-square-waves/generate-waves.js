@@ -1,7 +1,7 @@
 /* 
  * Band-limited square waves (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/band-limited-square-waves
  */
@@ -161,7 +161,7 @@ function updateNumHarmonics() {
 	while (elem.firstChild != null)
 		elem.removeChild(elem.firstChild);
 	var text = "floor(" + (SAMPLE_RATE / 2) + " / " + freq.toFixed(3) + ") = " + Math.floor((SAMPLE_RATE / 2) / freq);
-	elem.appendChild(document.createTextNode(text));
+	elem.textContent = text;
 }
 
 

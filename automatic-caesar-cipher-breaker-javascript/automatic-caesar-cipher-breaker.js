@@ -1,7 +1,7 @@
 /* 
  * Automatic Caesar cipher breaker
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/automatic-caesar-cipher-breaker-javascript
  */
@@ -40,11 +40,11 @@ function doBreak() {
 			tr.classList.add("active");
 		
 		var td = document.createElement("td");
-		td.appendChild(document.createTextNode(item[0].toString()));
+		td.textContent = item[0].toString();
 		tr.appendChild(td);
 		
 		td = document.createElement("td");
-		td.appendChild(document.createTextNode(item[1].toFixed(3)));
+		td.textContent = item[1].toFixed(3);
 		tr.appendChild(td);
 		
 		td = document.createElement("td");

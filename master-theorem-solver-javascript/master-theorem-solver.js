@@ -1,7 +1,7 @@
 /* 
  * Master theorem solver (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/master-theorem-solver
  */
@@ -17,7 +17,10 @@ function calc() {
 		messagesDisabled = true;
 	}
 	
-	clearOutput();
+	var recurrenceElem = document.getElementById("recurrence");
+	var solutionElem = document.getElementById("solution");
+	recurrenceElem.textContent = "";
+	solutionElem.textContent = "";
 	
 	// Get input
 	var aStr = document.getElementById("var-a").value;
@@ -51,8 +54,7 @@ function calc() {
 		recurrenceText = "Error: \\(i\\) must be at least 0";
 	else
 		recurrenceText = "\\(T(n) \\: = \\: " + (a != 1 ? a : "") + " \\: T(n" + (b != 1 ? " / " + b : "") + ") \\, + \\, \\Theta(" + formatPolyLog(k, i) + ").\\)";
-	var recurrenceElem = document.getElementById("recurrence");
-	recurrenceElem.appendChild(document.createTextNode(recurrenceText));
+	recurrenceElem.textContent = recurrenceText;
 	MathJax.Hub.Queue(["Typeset", MathJax.Hub, recurrenceElem]);
 	if (recurrenceText.substr(0, 6) == "Error:")
 		return;
@@ -75,8 +77,7 @@ function calc() {
 	else
 		result = "Arithmetic error";
 	
-	var solutionElem = document.getElementById("solution");
-	solutionElem.appendChild(document.createTextNode(result));
+	solutionElem.textContent = result;
 	MathJax.Hub.Queue(["Typeset", MathJax.Hub, solutionElem]);
 }
 
@@ -88,16 +89,6 @@ function example(a, b, k, i) {
 	document.getElementById("var-i").value = i + "";
 	calc();
 	return false;
-}
-
-
-function clearOutput() {
-	function clearChildren(node) {
-		while (node.firstChild != null)
-			node.removeChild(node.firstChild);
-	}
-	clearChildren(document.getElementById("recurrence"));
-	clearChildren(document.getElementById("solution"));
 }
 
 

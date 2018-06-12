@@ -1,7 +1,7 @@
 /* 
  * Calculate prime factorization
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-prime-factorization-javascript
  */
@@ -10,8 +10,7 @@
 
 
 var numberElem = document.getElementById("number");
-var factorization0Text = document.createTextNode("");
-document.getElementById("factorization0").appendChild(factorization0Text);
+var factorization0Elem = document.getElementById("factorization0");
 var lastInput = "";
 
 
@@ -27,18 +26,18 @@ function factor() {
 	lastInput = numberText;
 	
 	// Reset output line 0
-	factorization0Text.data = "";
+	factorization0Elem.textContent = "";
 	
 	// Reset output line 1 with blank filler to prevent the page layout from bobbing up and down
 	var outElem1 = document.getElementById("factorization1");
 	clearChildren(outElem1);
-	outElem1.appendChild(document.createTextNode(NBSP));
+	outElem1.textContent = NBSP;
 	var temp = document.createElement("sup");
-	temp.appendChild(document.createTextNode(NBSP));
+	temp.textContent = NBSP;
 	outElem1.appendChild(temp);
 	
 	if (!/^-?\d+$/.test(numberText)) {
-		factorization0Text.data = "Not an integer";
+		factorization0Elem.textContent = "Not an integer";
 		return;
 	}
 	
@@ -48,16 +47,16 @@ function factor() {
 	
 	var n = parseInt(numberText, 10);
 	if (n < 2) {
-		factorization0Text.data = "Number out of range (< 2)";
+		factorization0Elem.textContent = "Number out of range (< 2)";
 	} else if (n >= 9007199254740992) {
-		factorization0Text.data = "Number too large";
+		factorization0Elem.textContent = "Number too large";
 	} else {
 		// Main case
 		var factors = primeFactorList(n);
 		var factorPowers = toFactorPowerList(factors);
 		
 		// Build prime factor list without powers
-		factorization0Text.data = n + " = " + factors.join(" " + TIMES + " ");
+		factorization0Elem.textContent = n + " = " + factors.join(" " + TIMES + " ");
 		
 		// Build prime factor list with powers in superscripts
 		if (factorPowers.length < factors.length) {
@@ -71,7 +70,7 @@ function factor() {
 				appendText(factPow[0].toString());
 				if (factPow[1] > 1) {
 					var temp = document.createElement("sup");
-					temp.appendChild(document.createTextNode(factPow[1].toString()));
+					temp.textContent = factPow[1].toString();
 					outElem1.appendChild(temp);
 				}
 			});

@@ -1,7 +1,7 @@
 /* 
  * Calculate divisors
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-divisors-javascript
  */
@@ -10,8 +10,6 @@
 
 
 var numberElem = document.getElementById("number");
-var outputText = document.createTextNode("");
-document.getElementById("output").appendChild(outputText);
 var lastInput = "";
 
 
@@ -38,7 +36,7 @@ function divisors() {
 		else  // Main case
 			s = listDivisors(n).join(", ");
 	}
-	outputText.data = s;
+	document.getElementById("output").textContent = s;
 }
 
 

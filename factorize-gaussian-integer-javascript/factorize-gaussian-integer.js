@@ -1,7 +1,7 @@
 /* 
  * Factorize Gaussian integer (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
@@ -18,7 +18,7 @@ function doFactor() {
 		outElem.removeChild(outElem.firstChild);
 	var input = document.getElementById("number").value;
 	if (/^\s*$/.test(input)) {  // Blank input
-		outElem.appendChild(document.createTextNode(NBSP));
+		outElem.textContent = NBSP;
 		return;
 	}
 	
@@ -34,7 +34,7 @@ function doFactor() {
 			appendTextNode(outElem, s);
 		else {
 			var varElem = document.createElement("var");
-			appendTextNode(varElem, "i");
+			varElem.textContent = "i";
 			appendTextNode(outElem, s.substr(0, s.length - 1));
 			outElem.appendChild(varElem);
 		}

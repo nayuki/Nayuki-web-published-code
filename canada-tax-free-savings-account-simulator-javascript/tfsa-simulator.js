@@ -1,7 +1,7 @@
 /* 
  * Tax-free savings account simulator
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/canada-tax-free-savings-account-simulator-javascript
  */
@@ -182,7 +182,7 @@ function display() {
 			while (s.length > 0) {
 				var i = Math.max(s.length - 3, 0);
 				var span = document.createElement("span");
-				span.appendChild(document.createTextNode(s.substring(i)));
+				span.textContent = s.substring(i);
 				span.classList.add("digitgrouper");
 				result.push(span);
 				s = s.substring(0, i);
@@ -239,9 +239,7 @@ function display() {
 
 
 function setText(elementName, text) {
-	var elem = document.getElementById(elementName);
-	clearChildren(elem);
-	elem.appendChild(document.createTextNode(text));
+	document.getElementById(elementName).textContent = text;
 }
 
 

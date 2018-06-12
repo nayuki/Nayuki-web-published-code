@@ -1,7 +1,7 @@
 /* 
  * Image unshredder demo (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -19,10 +19,12 @@ var shuffleButton   = element("shuffle-button"   );
 var annealButton    = element("anneal-button"    );
 var stopButton      = element("stop-button"      );
 var imageAttribElem = element("image-attribution");
-var imageAttribText    = makeTextNodeChild("image-attribution"  , ""      );
-var curIterationsText  = makeTextNodeChild("current-iterations" , "\u2012");
-var curTemperatureText = makeTextNodeChild("current-temperature", "\u2012");
-var curEnergyText      = makeTextNodeChild("current-energy"     , "\u2012");
+var curIterationsElem  = element("current-iterations" );
+var curTemperatureElem = element("current-temperature");
+var curEnergyElem      = element("current-energy"     );
+curIterationsElem .textContent = "\u2012";
+curTemperatureElem.textContent = "\u2012";
+curEnergyElem     .textContent = "\u2012";
 
 // List of images to play with
 var IMAGE_LIST = [
@@ -89,7 +91,7 @@ function init() {
 		setButtonState(0);
 		var entry = IMAGE_LIST[imageSelectElem.selectedIndex];
 		baseImage.src = "/res/image-unshredder-by-annealing/" + entry[1];
-		imageAttribText.data = "by " + entry[2];
+		imageAttribElem.textContent = "by " + entry[2];
 		imageAttribElem.href = entry[3];
 	};
 	imageSelectElem.onchange();
@@ -106,9 +108,9 @@ function doStop() {
 
 function startShuffle() {
 	setButtonState(2);
-	curIterationsText.data  = "\u2012";
-	curTemperatureText.data = "\u2012";
-	curEnergyText.data      = "\u2012";
+	curIterationsElem.textContent  = "\u2012";
+	curTemperatureElem.textContent = "\u2012";
+	curEnergyElem.textContent      = "\u2012";
 	graphics.drawImage(baseImage, 0, 0, width, height);
 	shuffledImage = graphics.getImageData(0, 0, width, height);
 	shuffleStartColumn = 0;
@@ -164,7 +166,7 @@ function doAnnealPrecompute() {
 	var startTime = Date.now();
 	if (columnDiffs == null) {
 		columnDiffs = [];
-		curIterationsText.data = "Precomputing...";
+		curIterationsElem.textContent = "Precomputing...";
 	}
 	var pixels = shuffledImage.data;
 	while (columnDiffs.length < width) {
@@ -251,9 +253,9 @@ function doAnneal() {
 	
 	// Show image and statistics on screen periodically
 	if (curIteration == numIterations || Date.now() - annealingLastDrawTime > ANNEAL_REDRAW_TIME) {
-		curIterationsText.data = formatWithThousandsSeparators(curIteration) + " (" + (t * 100).toFixed(2) + "%)";
-		curTemperatureText.data = temperature.toFixed(2);
-		curEnergyText.data = formatWithThousandsSeparators(curEnergy);
+		curIterationsElem.textContent = formatWithThousandsSeparators(curIteration) + " (" + (t * 100).toFixed(2) + "%)";
+		curTemperatureElem.textContent = temperature.toFixed(2);
+		curEnergyElem.textContent = formatWithThousandsSeparators(curEnergy);
 		var annealedImage = graphics.createImageData(width, height);
 		var shuffledPixels = shuffledImage.data;
 		var annealedPixels = annealedImage.data;
@@ -308,13 +310,6 @@ function setButtonState(state) {
 	shuffleButton.disabled = state == 0 || state == 2;
 	annealButton.disabled = state != 3;
 	stopButton.disabled = state != 2;
-}
-
-
-function makeTextNodeChild(elemId, initText) {
-	var result = document.createTextNode(initText);
-	element(elemId).appendChild(result);
-	return result;
 }
 
 

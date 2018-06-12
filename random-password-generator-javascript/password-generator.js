@@ -1,7 +1,7 @@
 /* 
  * Random password generator (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/random-password-generator-javascript
  */
@@ -18,12 +18,11 @@ var CHARACTER_SETS = [
 ];
 
 
-var passwordText = document.createTextNode("");
-var statisticsText = document.createTextNode("\u00A0");
+var passwordElem = document.getElementById("password");
+var statisticsElem = document.getElementById("statistics");
+statisticsElem.textContent = "\u00A0";
 
 function init() {
-	document.getElementById("password").appendChild(passwordText);
-	document.getElementById("statistics").appendChild(statisticsText);
 	var elements = document.createDocumentFragment();
 	CHARACTER_SETS.forEach(function(entry, i) {
 		var spanElem = document.createElement("span");
@@ -34,9 +33,9 @@ function init() {
 		spanElem.appendChild(inputElem);
 		var labelElem = document.createElement("label");
 		labelElem.htmlFor = inputElem.id;
-		labelElem.appendChild(document.createTextNode(" " + entry[1] + " "));
+		labelElem.textContent = " " + entry[1] + " ";
 		var smallElem = document.createElement("small");
-		smallElem.appendChild(document.createTextNode("(" + entry[2] + ")"));
+		smallElem.textContent = "(" + entry[2] + ")";
 		labelElem.appendChild(smallElem);
 		spanElem.appendChild(labelElem);
 		elements.appendChild(spanElem);
@@ -120,8 +119,8 @@ function generate() {
 			statistics = "Length = " + length + " chars, \u00A0\u00A0Charset size = " + charset.length + " symbols, \u00A0\u00A0Entropy = " + entropystr + " bits";
 		}
 	}
-	passwordText.data = password;
-	statisticsText.data = statistics;
+	passwordElem.textContent = password;
+	statisticsElem.textContent = statistics;
 }
 
 
@@ -157,8 +156,8 @@ function randomIntBrowserCrypto(n) {
 
 
 function initCrypto() {
-	var textNode = document.createTextNode("\u2717");
-	document.getElementById("crypto-getrandomvalues-entropy").appendChild(textNode);
+	var elem = document.getElementById("crypto-getrandomvalues-entropy");
+	elem.textContent = "\u2717";
 	
 	if ("crypto" in window)
 		cryptoObject = crypto;
@@ -168,7 +167,7 @@ function initCrypto() {
 		return;
 	
 	if ("getRandomValues" in cryptoObject && "Uint32Array" in window && typeof Uint32Array == "function")
-		textNode.data = "\u2713";
+		elem.textContent = "\u2713";
 	else
 		cryptoObject = null;
 }

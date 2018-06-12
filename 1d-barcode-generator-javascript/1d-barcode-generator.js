@@ -1,7 +1,7 @@
 /* 
  * 1D barcode generator
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/1d-barcode-generator-javascript
  */
@@ -29,8 +29,7 @@ var BARCODE_GENERATOR_FUNCTIONS = {
 // Initialize HTML elements
 var canvasElem = document.getElementById("canvas");
 var graphics = canvasElem.getContext("2d");
-var feedbackText = document.createTextNode("");
-document.getElementById("feedback").appendChild(feedbackText);
+var feedbackElem = document.getElementById("feedback");
 
 // Set form input event handlers
 document.querySelector("article form").onsubmit = function() {
@@ -59,9 +58,9 @@ function generate() {
 		if (func == null)
 			throw "Assertion error";
 		barcode = func(document.getElementById("text").value);
-		feedbackText.data = "OK";
+		feedbackElem.textContent = "OK";
 	} catch (e) {
-		feedbackText.data = "Error: " + e;
+		feedbackElem.textContent = "Error: " + e;
 		return;
 	}
 	

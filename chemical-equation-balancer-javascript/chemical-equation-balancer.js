@@ -1,7 +1,7 @@
 /* 
  * Chemical equation balancer
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
@@ -856,9 +856,7 @@ Array.prototype.clone = Array.prototype.slice;
 
 // Sets the page's message element to the given string. Returns nothing.
 function setMessage(str) {
-	var messageElem = document.getElementById("message");
-	removeAllChildren(messageElem);
-	appendText(str, messageElem);
+	document.getElementById("message").textContent = str;
 }
 
 

@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Triangle solver (JavaScript)</title>
-		<!-- Copyright (c) 2017 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
+		<!-- Copyright (c) 2018 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
 		<style type="text/css">
 		html {
 			background-color: #FFFFFF;
@@ -479,10 +479,7 @@
 			/*---- Simple functions ----*/
 			
 			function setElementText(nodeId, str) {
-				var node = document.getElementById(nodeId);
-				while (node.firstChild != null)
-					node.removeChild(node.firstChild);
-				node.appendChild(document.createTextNode(str));
+				document.getElementById(nodeId).textContent = str;
 			}
 			
 			function parsePixels(str) {

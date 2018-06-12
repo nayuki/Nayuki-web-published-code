@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--
 - Full screen clock (24-hour)
-- Copyright (c) 2017 Project Nayuki
+- Copyright (c) 2018 Project Nayuki
 - 
 - https://www.nayuki.io/page/full-screen-clock-javascript
 -->
@@ -27,8 +27,6 @@
 			"use strict";
 			
 			var textElem = document.getElementById("clocktext");
-			var textNode = document.createTextNode("");
-			textElem.appendChild(textNode);
 			var targetWidth = 0.9;  // Proportion of full screen width
 			var curFontSize = 20;  // Do not change
 			
@@ -37,7 +35,7 @@
 				var s = "";
 				s += (10 > d.getHours  () ? "0" : "") + d.getHours  () + ":";
 				s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes();
-				textNode.data = s;
+				textElem.textContent = s;
 				setTimeout(updateClock, 60000 - d.getTime() % 60000 + 100);
 			}
 			

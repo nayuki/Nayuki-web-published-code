@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,7 +51,7 @@ function main() {
 			setTimeout(iterate, 0);
 		}
 		var li = document.createElement("li");
-		li.appendChild(document.createTextNode(msg));
+		li.textContent = msg;
 		document.getElementById("results").appendChild(li);
 	}
 	iterate();
