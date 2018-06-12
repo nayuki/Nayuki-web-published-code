@@ -1,7 +1,7 @@
 /* 
  * QR Code generator demo (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/qr-code-generator-library
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -127,10 +127,7 @@ function redrawQrCode() {
 	stats += "encoding mode = " + describeSegments(segs) + ", ";
 	stats += "error correction = level " + "LMQH".charAt(qr.errorCorrectionLevel.ordinal) + ", ";
 	stats += "data bits = " + qrcodegen.QrSegment.getTotalBits(segs, qr.version) + ".";
-	var elem = document.getElementById("statistics-output");
-	while (elem.firstChild != null)
-		elem.removeChild(elem.firstChild);
-	elem.appendChild(document.createTextNode(stats));
+	document.getElementById("statistics-output").textContent = stats;
 }
 
 
@@ -139,8 +136,8 @@ function handleVersionMinMax(which) {
 	var maxElem = document.getElementById("version-max-input");
 	var minVal = parseInt(minElem.value, 10);
 	var maxVal = parseInt(maxElem.value, 10);
-	minVal = Math.max(Math.min(minVal, 40), 1);
-	maxVal = Math.max(Math.min(maxVal, 40), 1);
+	minVal = Math.max(Math.min(minVal, qrcodegen.QrCode.MAX_VERSION), qrcodegen.QrCode.MIN_VERSION);
+	maxVal = Math.max(Math.min(maxVal, qrcodegen.QrCode.MAX_VERSION), qrcodegen.QrCode.MIN_VERSION);
 	if (which == "min" && minVal > maxVal)
 		maxVal = minVal;
 	else if (which == "max" && maxVal < minVal)

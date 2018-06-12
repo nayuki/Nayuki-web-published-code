@@ -1,7 +1,7 @@
 /* 
  * QR Code generator library (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/qr-code-generator-library
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@
  *   - Function encodeBinary(list<byte> data, QrCode.Ecc ecl) -> QrCode
  *   - Function encodeSegments(list<QrSegment> segs, QrCode.Ecc ecl,
  *         int minVersion=1, int maxVersion=40, mask=-1, boostEcl=true) -> QrCode
- *   - Constructor QrCode(QrCode qr, int mask)
+ *   - Constants int MIN_VERSION, MAX_VERSION
  *   - Constructor QrCode(list<int> datacodewords, int mask, int version, QrCode.Ecc ecl)
  *   - Fields int version, size, mask
  *   - Field QrCode.Ecc errorCorrectionLevel
@@ -64,35 +64,19 @@ var qrcodegen = new function() {
 	 * with associated static functions to create a QR Code from user-supplied textual or binary data.
 	 * This class covers the QR Code model 2 specification, supporting all versions (sizes)
 	 * from 1 to 40, all 4 error correction levels.
-	 * 
-	 * This constructor can be called in one of two ways:
-	 * - new QrCode(datacodewords, mask, version, errCorLvl):
-	 *       Creates a new QR Code symbol with the given version number, error correction level, binary data array,
-	 *       and mask number. This is a cumbersome low-level constructor that should not be invoked directly by the user.
-	 *       To go one level up, see the QrCode.encodeSegments() function.
-	 * - new QrCode(qr, mask):
-	 *       Creates a new QR Code symbol based on the given existing object, but with a potentially different
-	 *       mask pattern. The version, error correction level, codewords, etc. of the newly created object are
-	 *       all identical to the argument object; only the mask may differ.
-	 * In both cases, mask = -1 is for automatic choice or 0 to 7 for fixed choice.
+	 * This constructor creates a new QR Code symbol with the given version number, error correction level, binary data array,
+	 * and mask number. mask = -1 is for automatic choice, or 0 to 7 for fixed choice. This is a cumbersome low-level constructor
+	 * that should not be invoked directly by the user. To go one level up, see the QrCode.encodeSegments() function.
 	 */
-	this.QrCode = function(initData, mask, version, errCorLvl) {
+	this.QrCode = function(datacodewords, mask, version, errCorLvl) {
 		
 		/*---- Constructor ----*/
 		
 		// Check arguments and handle simple scalar fields
 		if (mask < -1 || mask > 7)
 			throw "Mask value out of range";
-		if (initData instanceof Array) {
-			if (version < 1 || version > 40)
-				throw "Version value out of range";
-		} else if (initData instanceof qrcodegen.QrCode) {
-			if (version != undefined || errCorLvl != undefined)
-				throw "Values must be undefined";
-			version = initData.version;
-			errCorLvl = initData.errorCorrectionLevel;
-		} else
-			throw "Invalid initial data";
+		if (version < MIN_VERSION || version > MAX_VERSION)
+			throw "Version value out of range";
 		var size = version * 4 + 17;
 		
 		// Initialize both grids to be size*size arrays of Boolean false
@@ -106,22 +90,10 @@ var qrcodegen = new function() {
 			isFunction.push(row.slice());
 		}
 		
-		// Handle grid fields
-		if (initData instanceof Array) {
-			// Draw function patterns, draw all codewords
-			drawFunctionPatterns();
-			var allCodewords = appendErrorCorrection(initData);
-			drawCodewords(allCodewords);
-		} else if (initData instanceof qrcodegen.QrCode) {
-			for (var y = 0; y < size; y++) {
-				for (var x = 0; x < size; x++) {
-					modules[y][x] = initData.getModule(x, y);
-					isFunction[y][x] = initData.isFunctionModule(x, y);
-				}
-			}
-			applyMask(initData.mask);  // Undo old mask
-		} else
-			throw "Invalid initial data";
+		// Handle grid fields, draw function patterns, draw all codewords
+		drawFunctionPatterns();
+		var allCodewords = appendErrorCorrection(datacodewords);
+		drawCodewords(allCodewords);
 		
 		// Handle masking
 		if (mask == -1) {  // Automatically choose best mask
@@ -278,18 +250,18 @@ var qrcodegen = new function() {
 			
 			// Draw first copy
 			for (var i = 0; i <= 5; i++)
-				setFunctionModule(8, i, ((data >>> i) & 1) != 0);
-			setFunctionModule(8, 7, ((data >>> 6) & 1) != 0);
-			setFunctionModule(8, 8, ((data >>> 7) & 1) != 0);
-			setFunctionModule(7, 8, ((data >>> 8) & 1) != 0);
+				setFunctionModule(8, i, getBit(data, i));
+			setFunctionModule(8, 7, getBit(data, 6));
+			setFunctionModule(8, 8, getBit(data, 7));
+			setFunctionModule(7, 8, getBit(data, 8));
 			for (var i = 9; i < 15; i++)
-				setFunctionModule(14 - i, 8, ((data >>> i) & 1) != 0);
+				setFunctionModule(14 - i, 8, getBit(data, i));
 			
 			// Draw second copy
 			for (var i = 0; i <= 7; i++)
-				setFunctionModule(size - 1 - i, 8, ((data >>> i) & 1) != 0);
+				setFunctionModule(size - 1 - i, 8, getBit(data, i));
 			for (var i = 8; i < 15; i++)
-				setFunctionModule(8, size - 15 + i, ((data >>> i) & 1) != 0);
+				setFunctionModule(8, size - 15 + i, getBit(data, i));
 			setFunctionModule(8, size - 8, true);
 		}
 		
@@ -310,7 +282,7 @@ var qrcodegen = new function() {
 			
 			// Draw two copies
 			for (var i = 0; i < 18; i++) {
-				var bit = ((data >>> i) & 1) != 0;
+				var bit = getBit(data, i);
 				var a = size - 11 + i % 3, b = Math.floor(i / 3);
 				setFunctionModule(a, b, bit);
 				setFunctionModule(b, a, bit);
@@ -409,7 +381,7 @@ var qrcodegen = new function() {
 						var upward = ((right + 1) & 2) == 0;
 						var y = upward ? size - 1 - vert : vert;  // Actual y coordinate
 						if (!isFunction[y][x] && i < data.length * 8) {
-							modules[y][x] = ((data[i >>> 3] >>> (7 - (i & 7))) & 1) != 0;
+							modules[y][x] = getBit(data[i >>> 3], 7 - (i & 7));
 							i++;
 						}
 						// If there are any remainder bits (0 to 7), they are already
@@ -527,6 +499,12 @@ var qrcodegen = new function() {
 				result += QrCode.PENALTY_N4;
 			return result;
 		}
+		
+		
+		// Returns true iff the i'th bit of x is set to 1.
+		function getBit(x, i) {
+			return ((x >>> i) & 1) != 0;
+		}
 	};
 	
 	
@@ -565,11 +543,11 @@ var qrcodegen = new function() {
 	 * This function is considered to be lower level than simply encoding text or binary data.
 	 */
 	this.QrCode.encodeSegments = function(segs, ecl, minVersion, maxVersion, mask, boostEcl) {
-		if (minVersion == undefined) minVersion = 1;
-		if (maxVersion == undefined) maxVersion = 40;
+		if (minVersion == undefined) minVersion = MIN_VERSION;
+		if (maxVersion == undefined) maxVersion = MAX_VERSION;
 		if (mask == undefined) mask = -1;
 		if (boostEcl == undefined) boostEcl = true;
-		if (!(1 <= minVersion && minVersion <= maxVersion && maxVersion <= 40) || mask < -1 || mask > 7)
+		if (!(MIN_VERSION <= minVersion && minVersion <= maxVersion && maxVersion <= MAX_VERSION) || mask < -1 || mask > 7)
 			throw "Invalid value";
 		
 		// Find the minimal version number to use
@@ -615,6 +593,14 @@ var qrcodegen = new function() {
 	};
 	
 	
+	/*---- Public constants for QrCode ----*/
+	
+	var MIN_VERSION =  1;
+	var MAX_VERSION = 40;
+	Object.defineProperty(this.QrCode, "MIN_VERSION", {value:MIN_VERSION});
+	Object.defineProperty(this.QrCode, "MAX_VERSION", {value:MAX_VERSION});
+	
+	
 	/*---- Private static helper functions QrCode ----*/
 	
 	var QrCode = {};  // Private object to assign properties to. Not the same object as 'this.QrCode'.
@@ -624,7 +610,7 @@ var qrcodegen = new function() {
 	// used on both the x and y axes. Each value in the resulting sequence is in the range [0, 177).
 	// This stateless pure function could be implemented as table of 40 variable-length lists of integers.
 	QrCode.getAlignmentPatternPositions = function(ver) {
-		if (ver < 1 || ver > 40)
+		if (ver < MIN_VERSION || ver > MAX_VERSION)
 			throw "Version number out of range";
 		else if (ver == 1)
 			return [];
@@ -649,7 +635,7 @@ var qrcodegen = new function() {
 	// all function modules are excluded. This includes remainder bits, so it might not be a multiple of 8.
 	// The result is in the range [208, 29648]. This could be implemented as a 40-entry lookup table.
 	QrCode.getNumRawDataModules = function(ver) {
-		if (ver < 1 || ver > 40)
+		if (ver < MIN_VERSION || ver > MAX_VERSION)
 			throw "Version number out of range";
 		var result = (16 * ver + 128) * ver + 64;
 		if (ver >= 2) {
@@ -666,7 +652,7 @@ var qrcodegen = new function() {
 	// QR Code of the given version number and error correction level, with remainder bits discarded.
 	// This stateless pure function could be implemented as a (40*4)-cell lookup table.
 	QrCode.getNumDataCodewords = function(ver, ecl) {
-		if (ver < 1 || ver > 40)
+		if (ver < MIN_VERSION || ver > MAX_VERSION)
 			throw "Version number out of range";
 		return Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
 			QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] *
@@ -845,7 +831,7 @@ var qrcodegen = new function() {
 	
 	// Package-private helper function.
 	this.QrSegment.getTotalBits = function(segs, version) {
-		if (version < 1 || version > 40)
+		if (version < MIN_VERSION || version > MAX_VERSION)
 			throw "Version number out of range";
 		var result = 0;
 		for (var i = 0; i < segs.length; i++) {

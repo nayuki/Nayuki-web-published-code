@@ -17,8 +17,8 @@ function balance(formulaStr) {
 	setMessage("");
 	var balancedElem = document.getElementById("balanced");
 	var codeOutElem  = document.getElementById("codeOutput");
-	removeAllChildren(balancedElem);
-	removeAllChildren(codeOutElem);
+	clearChildren(balancedElem);
+	clearChildren(codeOutElem);
 	appendText(" ", codeOutElem);
 	
 	// Parse equation
@@ -861,7 +861,7 @@ function setMessage(str) {
 
 
 // Removes all the children of the given DOM node. Returns nothing.
-function removeAllChildren(node) {
+function clearChildren(node) {
 	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }
