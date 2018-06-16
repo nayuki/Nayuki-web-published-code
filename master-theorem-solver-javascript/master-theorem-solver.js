@@ -76,19 +76,18 @@ function calc() {
 
 
 function MathElem(id) {
-	var self = this;
 	var containerElem = document.getElementById(id);
-	
-	var isBusy = false;
-	var queuedText = null;
+	var nextText = null;
 	
 	this.render = function(text) {
-		if (isBusy) {
-			queuedText = text;
-			return;
-		}
-		isBusy = true;
-		
+		var start = nextText === null;
+		nextText = text;
+		if (start)
+			update();
+	};
+	
+	function update() {
+		var text = nextText;
 		var oldSpanElem = containerElem.querySelector("span");
 		oldSpanElem.style.color = "#E0E0E0";
 		var newSpanElem = document.createElement("span");
@@ -99,12 +98,10 @@ function MathElem(id) {
 		MathJax.Hub.Queue(function() {
 			containerElem.removeChild(oldSpanElem);
 			newSpanElem.style.removeProperty("display");
-			isBusy = false;
-			if (queuedText != null) {
-				text = queuedText;
-				queuedText = null;
-				self.render(text);
-			}
+			if (nextText !== text)
+				update();
+			else
+				nextText = null;
 		});
 	};
 }
