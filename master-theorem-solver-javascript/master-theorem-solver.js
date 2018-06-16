@@ -9,18 +9,12 @@
 "use strict";
 
 
-var messagesDisabled = false;
+var recurrenceMath = new MathElem("recurrence");
+var solutionMath = new MathElem("solution");
+
 
 function calc() {
-	if (!messagesDisabled) {
-		MathJax.Hub.Config({showProcessingMessages: false});
-		messagesDisabled = true;
-	}
-	
-	var recurrenceElem = document.getElementById("recurrence");
-	var solutionElem = document.getElementById("solution");
-	recurrenceElem.textContent = "";
-	solutionElem.textContent = "";
+	MathJax.Hub.Config({showProcessingMessages: false});
 	
 	// Get input
 	var aStr = document.getElementById("var-a").value;
@@ -35,29 +29,30 @@ function calc() {
 	var b = parseFloat(bStr);
 	var k = parseFloat(kStr);
 	var i = parseFloat(iStr);
-	var recurrenceText;
+	var recurrenceText = "Error: ";
 	if (isNaN(a))
-		recurrenceText = "Error: Invalid value for \\(a\\)";
+		recurrenceText += "Invalid value for \\(a\\)";
 	else if (isNaN(b))
-		recurrenceText = "Error: Invalid value for \\(b\\)";
+		recurrenceText += "Invalid value for \\(b\\)";
 	else if (isNaN(k))
-		recurrenceText = "Error: Invalid value for \\(k\\)";
+		recurrenceText += "Invalid value for \\(k\\)";
 	else if (isNaN(i))
-		recurrenceText = "Error: Invalid value for \\(i\\)";
+		recurrenceText += "Invalid value for \\(i\\)";
 	else if (a <= 0)
-		recurrenceText = "Error: \\(a\\) must be positive";
+		recurrenceText += "\\(a\\) must be positive";
 	else if (b <= 1)
-		recurrenceText = "Error: \\(b\\) must be greater than 1";
+		recurrenceText += "\\(b\\) must be greater than 1";
 	else if (k < 0)
-		recurrenceText = "Error: \\(k\\) must be at least 0";
+		recurrenceText += "\\(k\\) must be at least 0";
 	else if (i < 0)
-		recurrenceText = "Error: \\(i\\) must be at least 0";
+		recurrenceText += "\\(i\\) must be at least 0";
 	else
 		recurrenceText = "\\(T(n) \\: = \\: " + (a != 1 ? a : "") + " \\: T(n" + (b != 1 ? " / " + b : "") + ") \\, + \\, \\Theta(" + formatPolyLog(k, i) + ").\\)";
-	recurrenceElem.textContent = recurrenceText;
-	MathJax.Hub.Queue(["Typeset", MathJax.Hub, recurrenceElem]);
-	if (recurrenceText.substr(0, 6) == "Error:")
+	recurrenceMath.render(recurrenceText);
+	if (recurrenceText.substr(0, 6) == "Error:") {
+		solutionMath.render("");
 		return;
+	}
 	
 	var p = Math.log(a) / Math.log(b);
 	var result = "\\(T(n) \\: \\in \\: \\Theta(";
@@ -76,9 +71,42 @@ function calc() {
 		result += ").\\)";
 	else
 		result = "Arithmetic error";
+	solutionMath.render(result);
+}
+
+
+function MathElem(id) {
+	var self = this;
+	var containerElem = document.getElementById(id);
 	
-	solutionElem.textContent = result;
-	MathJax.Hub.Queue(["Typeset", MathJax.Hub, solutionElem]);
+	var isBusy = false;
+	var queuedText = null;
+	
+	this.render = function(text) {
+		if (isBusy) {
+			queuedText = text;
+			return;
+		}
+		isBusy = true;
+		
+		var oldSpanElem = containerElem.querySelector("span");
+		oldSpanElem.style.color = "#E0E0E0";
+		var newSpanElem = document.createElement("span");
+		newSpanElem.textContent = text;
+		newSpanElem.style.display = "none";
+		containerElem.appendChild(newSpanElem);
+		MathJax.Hub.Queue(["Typeset", MathJax.Hub, newSpanElem]);
+		MathJax.Hub.Queue(function() {
+			containerElem.removeChild(oldSpanElem);
+			newSpanElem.style.removeProperty("display");
+			isBusy = false;
+			if (queuedText != null) {
+				text = queuedText;
+				queuedText = null;
+				self.render(text);
+			}
+		});
+	};
 }
 
 
