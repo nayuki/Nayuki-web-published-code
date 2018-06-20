@@ -11,25 +11,23 @@
 
 // All monetary amounts are in whole cents
 
-/* State variables */
+/*---- State variables ----*/
 
-var showAllTransactions = false;
 var date = 2009 * 12 + 0;
 var contributionRoom = 500000;  // Current contribution room, carries over indefinitely; negative means over-contribution
-var chequingTransactions = [[date, "New account", 0, 0]];  // New transactions are appended
-var tfsaTransactions     = [[date, "New account", 0, 0, contributionRoom, 0]];
 var maxExcess = 0;  // Maximum excess amount encountered this month
 var withdrawn = 0;  // Amount withdrawn this year (excluding "qualifying withdrawals" that reduce the excess amount)
+var chequingTransactions = [[date, "New account", 0, 0]];  // New transactions are appended
+var tfsaTransactions     = [[date, "New account", 0, 0, contributionRoom, 0]];
 
 
-/* User interaction handlers */
+/*---- User interaction handlers ----*/
 
 function transaction(func) {
 	try {
 		// Parse amount
 		var amountElem = document.getElementById("amount");
-		var s = amountElem.value;
-		s = s.replace(/^\s+|\s+$/g, "");  // Trim whitespace
+		var s = amountElem.value.trim();
 		if (!/^(\d{1,13}(\.\d{0,2})?|\.\d{1,2})$/.test(s))
 			throw "Invalid amount number";
 		
@@ -44,50 +42,47 @@ function transaction(func) {
 
 
 function deposit(amount) {
-	var ct = chequingTransactions;
-	var balance = ct[ct.length - 1][3];
-	ct.push([date, "Deposit", amount, balance + amount]);
+	chequingTransactions.push(
+		[date, "Deposit", amount, getChequingBalance() + amount]);
 }
 
 
 function withdraw(amount) {
-	var ct = chequingTransactions;
-	var balance = ct[ct.length - 1][3];
+	var balance = getChequingBalance();
 	if (balance < amount)
 		throw "Not enough money in chequing account";
-	ct.push([date, "Withdraw", amount, balance - amount]);
+	chequingTransactions.push(
+		[date, "Withdraw", amount, balance - amount]);
 }
 
 
 function transferIn(amount) {
-	var ct = chequingTransactions;
-	var balance = ct[ct.length - 1][3];
+	var balance = getChequingBalance();
 	if (balance < amount)
 		throw "Not enough money in chequing account";
-	ct.push([date, "Transfer out", amount, balance - amount]);
+	chequingTransactions.push(
+		[date, "Transfer out", amount, balance - amount]);
 	
 	contributionRoom -= amount;
 	maxExcess = Math.max(-contributionRoom, maxExcess);
-	var tt = tfsaTransactions;
-	balance = tt[tt.length - 1][3];
-	tt.push([date, "Transfer in", amount, balance + amount, contributionRoom, withdrawn]);
+	tfsaTransactions.push(
+		[date, "Transfer in", amount, getTfsaBalance() + amount, contributionRoom, withdrawn]);
 }
 
 
 function transferOut(amount) {
-	var tt = tfsaTransactions;
-	var balance = tt[tt.length - 1][3];
+	var balance = getTfsaBalance();
 	if (balance < amount)
 		throw "Not enough money in TFSA";
 	
 	var qualifying = Math.min(Math.max(-contributionRoom, 0), amount);
 	contributionRoom += qualifying;
 	withdrawn += amount - qualifying;
-	tt.push([date, "Transfer out", amount, balance - amount, contributionRoom, withdrawn]);
+	tfsaTransactions.push(
+		[date, "Transfer out", amount, balance - amount, contributionRoom, withdrawn]);
 	
-	var ct = chequingTransactions;
-	balance = ct[ct.length - 1][3];
-	ct.push([date, "Transfer in", amount, balance + amount]);
+	chequingTransactions.push(
+		[date, "Transfer in", amount, getChequingBalance() + amount]);
 }
 
 
@@ -102,38 +97,43 @@ function nextMonth() {
 		return;
 	}
 	setText("interest-error", "");
-	var tt = tfsaTransactions;
-	var balance = tt[tt.length - 1][3];
+	var balance = getTfsaBalance();
 	var amount = Math.round(balance * parseFloat(s) / 1200);
-	if (amount != 0)
-		tt.push([date, "Interest", amount, balance + amount, contributionRoom, withdrawn, contributionRoom, withdrawn]);
+	if (amount != 0) {
+		tfsaTransactions.push(
+			[date, "Interest", amount, balance + amount, contributionRoom, withdrawn]);
+	}
 	
 	// Handle excess amount
-	var ct = chequingTransactions;
 	amount = Math.round(maxExcess / 100);
 	if (amount > 0) {
-		balance = ct[ct.length - 1][3];
-		ct.push([date, "TFSA tax", amount, balance - amount]);
+		chequingTransactions.push(
+			[date, "TFSA tax", amount, getChequingBalance() - amount]);
+	}
+	
+	function getContributionRoom(year) {
+		if (year <= 2008)
+			return 0;
+		else if (year <= 2012)
+			return 500000;  // Known amount
+		else if (year == 2015)
+			return 1000000;  // Known amount
+		else if (year <= 2018)
+			return 550000;  // Known amount
+		else  // Estimate based on 2% annual inflation
+			return Math.round(5000 * Math.pow(1.02, year - 2009) / 500) * 50000;
 	}
 	
 	// Increment month
 	date++;
 	if (date % 12 == 0) {
-		// Raise contribution room
-		var year = Math.floor(date / 12);
-		if (year <= 2012)
-			amount = 500000;  // Known amount
-		else if (year == 2015)
-			amount = 1000000;  // Known amount
-		else if (year <= 2018)
-			amount = 550000;  // Known amount
-		else  // Estimate based on 2% annual inflation
-			amount = Math.round(5000 * Math.pow(1.02, year - 2009) / 500) * 50000;
+		// Raise contribution room in January
+		var amount = getContributionRoom(Math.floor(date / 12));
 		amount += withdrawn;
 		contributionRoom += amount;
 		withdrawn = 0;
-		balance = tt[tt.length - 1][3];
-		tt.push([date, "Raise room", amount, balance, contributionRoom, withdrawn]);
+		tfsaTransactions.push(
+			[date, "Raise room", amount, getTfsaBalance(), contributionRoom, withdrawn]);
 	}
 	maxExcess = Math.max(-contributionRoom, 0);
 	
@@ -141,19 +141,7 @@ function nextMonth() {
 }
 
 
-function changeShowTransactions() {
-	var showRecent = document.getElementById("show-recent").checked;
-	var showAll    = document.getElementById("show-all"   ).checked;
-	if (showRecent == showAll)
-		throw "Invalid states of radio buttons";
-	if (showAllTransactions != showAll) {
-		showAllTransactions = showAll;
-		display();
-	}
-}
-
-
-/* HTML output logic and formatting utilities */
+/*---- HTML output logic and formatting utilities ----*/
 
 var TRANSACTION_ROWS = 16;
 
@@ -174,7 +162,7 @@ function display() {
 			return [document.createTextNode("Overflow")];
 		else if (amount < 0) {
 			var result = formatMoney(-amount);
-			result.splice(0, 0, document.createTextNode(MINUS));
+			result.unshift(document.createTextNode(MINUS));
 			return result;
 		} else {
 			var result = [];
@@ -197,6 +185,8 @@ function display() {
 	function formatDate(d) {
 		return MONTH_NAMES[d % 12] + " " + Math.floor(d / 12);
 	}
+	
+	var showAllTransactions = document.getElementById("show-all").checked;
 	
 	var cheqElem = document.getElementById("chequing-transactions");
 	clearChildren(cheqElem);
@@ -238,6 +228,16 @@ function display() {
 }
 
 
+function getChequingBalance() {
+	return chequingTransactions[chequingTransactions.length - 1][3];
+}
+
+
+function getTfsaBalance() {
+	return tfsaTransactions[tfsaTransactions.length - 1][3];
+}
+
+
 function setText(elementName, text) {
 	document.getElementById(elementName).textContent = text;
 }
@@ -249,14 +249,14 @@ function clearChildren(node) {
 }
 
 
-/* String constants */
+/*---- String constants ----*/
 
 var NBSP = "\u00A0";
 var MINUS = "\u2212";
 var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 
-/* Initialization */
+/*---- Initialization ----*/
 
 display();
 document.getElementById("amount").focus();
