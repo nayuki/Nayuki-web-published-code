@@ -47,7 +47,7 @@ function calc() {
 	else if (i < 0)
 		recurrenceText += "\\(i\\) must be at least 0";
 	else
-		recurrenceText = "\\(T(n) \\: = \\: " + (a != 1 ? a : "") + " \\: T(n" + (b != 1 ? " / " + b : "") + ") \\, + \\, \\Theta(" + formatPolyLog(k, i) + ").\\)";
+		recurrenceText = "\\(T(n) \\: = \\: " + (a != 1 ? a : "") + " \\: T(n" + (b != 1 ? " / " + b : "") + ") \\, + \\, \u0398(" + formatPolyLog(k, i) + ").\\)";
 	recurrenceMath.render(recurrenceText);
 	if (recurrenceText.substr(0, 6) == "Error:") {
 		solutionMath.render("");
@@ -55,7 +55,7 @@ function calc() {
 	}
 	
 	var p = Math.log(a) / Math.log(b);
-	var result = "\\(T(n) \\: \\in \\: \\Theta(";
+	var result = "\\(T(n) \\: \\in \\: \u0398(";
 	if (floatEquals(p, k))
 		result += formatPolyLog(k, i + 1);
 	else if (p < k)
@@ -64,7 +64,7 @@ function calc() {
 		if (floatEquals(Math.round(p), p))
 			result += formatPolyLog(Math.round(p), 0);
 		else
-			result += formatPolyLog("\\log_{" + b + "} " + a, 0) + ") \\approx \\Theta(" + formatPolyLog(p.toFixed(3), 0);
+			result += formatPolyLog("\\log_{" + b + "} " + a, 0) + ") \\approx \u0398(" + formatPolyLog(p.toFixed(3), 0);
 	} else
 		result = null;
 	if (result != null)
