@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -75,7 +75,7 @@ function DisjointSet(numElems) {
 	// improve the speed of future queries, but has no externally visible effect on the values returned.
 	function getRepr(elemIndex) {
 		if (elemIndex < 0 || elemIndex >= parents.length)
-			throw new "Element index out of bounds";
+			throw "Element index out of bounds";
 		// Follow parent pointers until we reach a representative
 		var parent = parents[elemIndex];
 		if (parent == elemIndex)
@@ -145,14 +145,14 @@ function DisjointSet(numElems) {
 				numRepr++;
 			
 			var ok = true;
-			ok &= 0 <= parent && parent < parents.length;
-			ok &= 0 <= rank && (isRepr || rank < ranks[parent]);
-			ok &= !isRepr && size == 0 || isRepr && size >= (1 << rank);
+			ok = ok && 0 <= parent && parent < parents.length;
+			ok = ok && 0 <= rank && (isRepr || rank < ranks[parent]);
+			ok = ok && (!isRepr && size == 0 || isRepr && size >= (1 << rank));
 			if (!ok)
-				throw new "Assertion error";
+				throw "Assertion error";
 		}
 		if (!(0 <= numSets && numSets == numRepr && numSets <= parents.length))
-			throw new "Assertion error";
+			throw "Assertion error";
 	};
 	
 }

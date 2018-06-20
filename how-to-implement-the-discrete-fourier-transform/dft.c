@@ -1,5 +1,5 @@
 /* 
- * Discrete Fourier transform
+ * Discrete Fourier transform (C)
  * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */

@@ -70,7 +70,7 @@ function makeCircleOnePoint(points, p) {
 // Two boundary points known
 function makeCircleTwoPoints(points, p, q) {
 	var circ = makeDiameter(p, q);
-	var left = null;
+	var left  = null;
 	var right = null;
 	
 	// For each point not in the two-point circle
@@ -92,25 +92,27 @@ function makeCircleTwoPoints(points, p, q) {
 	// Select which circle to return
 	if (left == null && right == null)
 		return circ;
-	else if (left == null)
+	else if (left == null && right != null)
 		return right;
-	else if (right == null)
+	else if (left != null && right == null)
 		return left;
-	else
+	else if (left != null && right != null)
 		return left.r <= right.r ? left : right;
+	else
+		throw "Assertion error";
 }
 
 
 function makeCircumcircle(p0, p1, p2) {
 	// Mathematical algorithm from Wikipedia: Circumscribed circle
-	var ax = p0.x, ay = p0.y;
-	var bx = p1.x, by = p1.y;
-	var cx = p2.x, cy = p2.y;
+	var ax = p0.x,  ay = p0.y;
+	var bx = p1.x,  by = p1.y;
+	var cx = p2.x,  cy = p2.y;
 	var ox = (Math.min(ax, bx, cx) + Math.max(ax, bx, cx)) / 2;
 	var oy = (Math.min(ay, by, cy) + Math.max(ay, by, cy)) / 2;
-	ax -= ox; ay -= oy;
-	bx -= ox; by -= oy;
-	cx -= ox; cy -= oy;
+	ax -= ox;  ay -= oy;
+	bx -= ox;  by -= oy;
+	cx -= ox;  cy -= oy;
 	var d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 	if (d == 0)
 		return null;
