@@ -130,7 +130,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		// This node has height equal to max(left.height, right.height) + 1.
 		public int height;
 		
-		// The number of nodes in the tree rooted at this node, including this node.
+		// The number of non-empty nodes in the tree rooted at this node, including this node.
 		// Empty nodes have size 0. This node has size equal to left.size + right.size + 1.
 		public int size;
 		

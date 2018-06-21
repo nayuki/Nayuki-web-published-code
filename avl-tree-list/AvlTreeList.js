@@ -241,7 +241,7 @@ function AvlTreeListNode() {
 	 * - value : The object stored at this node. Can be any JavaScript type.
 	 * - height: The height of the tree rooted at this node. Empty nodes have height 0.
 	 *           This node has height equal to max(left.height, right.height) + 1.
-	 * - size  : The number of nodes in the tree rooted at this node, including this node.
+	 * - size  : The number of non-empty nodes in the tree rooted at this node, including this node.
 	 *           Empty nodes have size 0. This node has size equal to left.size + right.size + 1.
 	 * - left  : The root node of the left subtree.
 	 * - right : The root node of the right subtree.

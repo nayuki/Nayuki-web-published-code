@@ -59,7 +59,7 @@ class AvlTreeList<E> {
 	public get(index: number): E {
 		if (index < 0 || index >= this.length)
 			throw "Index out of bounds";
-		return this.root.getNodeAt(index).value;
+		return (this.root as AvlTreeListInternalNode<E>).getNodeAt(index).value;
 	}
 	
 	
@@ -68,7 +68,7 @@ class AvlTreeList<E> {
 	public set(index: number, val: E): void {
 		if (index < 0 || index >= this.length)
 			throw "Index out of bounds";
-		this.root.getNodeAt(index).value = val;
+		(this.root as AvlTreeListInternalNode<E>).getNodeAt(index).value = val;
 	}
 	
 	
@@ -93,7 +93,7 @@ class AvlTreeList<E> {
 	public remove(index: number): void {
 		if (index < 0 || index >= this.length)
 			throw "Index out of bounds";
-		this.root = this.root.removeAt(index);
+		this.root = (this.root as AvlTreeListInternalNode<E>).removeAt(index);
 	}
 	
 	
@@ -226,20 +226,14 @@ class AvlTreeList<E> {
 
 interface AvlTreeListNode<E> {
 	
-	// The height of the tree rooted at this node. Empty nodes have height 0.
-	// This node has height equal to max(left.height, right.height) + 1.
+	// The height of the tree rooted at this node.
 	height: number;
 	
-	// The number of nodes in the tree rooted at this node, including this node.
-	// Empty nodes have size 0. This node has size equal to left.size + right.size + 1.
+	// The number of non-empty nodes in the tree rooted at this node, including this node.
 	size: number;
 	
 	
-	getNodeAt(index: number): AvlTreeListInternalNode<E>;
-	
 	insertAt(index: number, obj: E): AvlTreeListInternalNode<E>;
-	
-	removeAt(index: number): AvlTreeListNode<E>;
 	
 	checkStructure(): void;
 	
@@ -253,21 +247,11 @@ class AvlTreeListEmptyNode<E> implements AvlTreeListNode<E> {
 	public size = 0;
 	
 	
-	public getNodeAt(index: number): never {
-		throw "Illegal argument";
-	}
-	
-	
 	public insertAt<E>(index: number, obj: E): AvlTreeListInternalNode<E> {
 		if (index == 0)
 			return new AvlTreeListInternalNode<E>(obj, this);
 		else
 			throw "Index out of bounds";
-	}
-	
-	
-	public removeAt(index: number): never {
-		throw "Illegal argument";
 	}
 	
 	
@@ -282,8 +266,10 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	// Public for the sake of AvlTreeList.
 	public value: E;
 	
+	// This node has height equal to max(left.height, right.height) + 1.
 	public height: number;
 	
+	// This node has size equal to left.size + right.size + 1.
 	// Public for the sake of AvlTreeList.
 	public size: number;
 	
@@ -303,14 +289,28 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	}
 	
 	
+	private get leftNode(): AvlTreeListInternalNode<E> {
+		if (this.left.size == 0)
+			throw "Assertion error";
+		return this.left as AvlTreeListInternalNode<E>;
+	}
+	
+	
+	private get rightNode(): AvlTreeListInternalNode<E> {
+		if (this.right.size == 0)
+			throw "Assertion error";
+		return this.right as AvlTreeListInternalNode<E>;
+	}
+	
+	
 	public getNodeAt(index: number): AvlTreeListInternalNode<E> {
 		if (index < 0 || index >= this.size)
 			throw "Assertion error";
 		let leftSize: number = this.left.size;
 		if (index < leftSize)
-			return this.left.getNodeAt(index);
+			return this.leftNode.getNodeAt(index);
 		else if (index > leftSize)
-			return this.right.getNodeAt(index - leftSize - 1);
+			return this.rightNode.getNodeAt(index - leftSize - 1);
 		else
 			return this;
 	}
@@ -334,9 +334,9 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 			throw "Assertion error";
 		let leftSize: number = this.left.size;
 		if (index < leftSize)
-			this.left = this.left.removeAt(index);
+			this.left = this.leftNode.removeAt(index);
 		else if (index > leftSize)
-			this.right = this.right.removeAt(index - leftSize - 1);
+			this.right = this.rightNode.removeAt(index - leftSize - 1);
 		else if (this.left.size == 0 && this.right.size == 0)
 			return this.left;  // Empty
 		else if (this.left.size != 0 && this.right.size == 0)
@@ -346,7 +346,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 		else {
 			// We can remove the successor or the predecessor
 			this.value = this.getSuccessor();
-			this.right = this.right.removeAt(0);
+			this.right = this.rightNode.removeAt(0);
 		}
 		this.recalculate();
 		return this.balance();
@@ -356,9 +356,9 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	private getSuccessor(): E {
 		if (this.right.size == 0)
 			throw "Illegal state";
-		let node = this.right as AvlTreeListInternalNode<E>;
+		let node = this.rightNode;
 		while (node.left.size != 0)
-			node = node.left as AvlTreeListInternalNode<E>;
+			node = node.leftNode;
 		return node.value;
 	}
 	
@@ -370,14 +370,14 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 			throw "Assertion error";
 		let result: AvlTreeListInternalNode<E> = this;
 		if (bal == -2) {
-			let left = this.left as AvlTreeListInternalNode<E>;
+			let left = this.leftNode;
 			if (Math.abs(left.getBalance()) > 1)
 				throw "Assertion error";
 			if (left.getBalance() == +1)
 				this.left = left.rotateLeft();
 			result = this.rotateRight();
 		} else if (bal == +2) {
-			let right = this.right as AvlTreeListInternalNode<E>;
+			let right = this.rightNode;
 			if (Math.abs(right.getBalance()) > 1)
 				throw "Assertion error";
 			if (right.getBalance() == -1)
@@ -400,7 +400,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	private rotateLeft(): AvlTreeListInternalNode<E> {
 		if (this.right.size == 0)
 			throw "Illegal state";
-		let root = this.right as AvlTreeListInternalNode<E>;
+		let root = this.rightNode;
 		this.right = root.left;
 		root.left = this;
 		this.recalculate();
@@ -419,7 +419,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	private rotateRight(): AvlTreeListInternalNode<E> {
 		if (this.left.size == 0)
 			throw "Illegal state";
-		let root = this.left as AvlTreeListInternalNode<E>;
+		let root = this.leftNode;
 		this.left = root.right;
 		root.right = this;
 		this.recalculate();

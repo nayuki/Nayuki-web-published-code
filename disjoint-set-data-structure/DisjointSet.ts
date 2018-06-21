@@ -29,34 +29,27 @@
  * Main operations are querying if two elements are in the same set, and merging two sets together.
  * Useful for testing graph connectivity, and is used in Kruskal's algorithm.
  */
-
-// Constructs a new set containing the given number of singleton sets.
-// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 class DisjointSet {
 	
-	private numElems: number;
-	private numSets : number;
-	private parents: Array<number>;
-	private ranks  : Array<number>;
-	private sizes  : Array<number>;
+	// Global properties
+	private numSets: number;
+	
+	// Per-node property arrays. This representation is more space-efficient than creating one node object per element.
+	private parents: Array<number> = [];  // The index of the parent element. An element is a representative iff its parent is itself.
+	private ranks  : Array<number> = [];  // Always in the range [0, floor(log2(numElems))].
+	private sizes  : Array<number> = [];  // Positive number if the element is a representative, otherwise zero.
 	
 	
+	// Constructs a new set containing the given number of singleton sets.
+	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 	public constructor(numElems: number) {
 		if (numElems < 0)
 			throw "Number of elements must be non-negative";
-		
-		// Global properties
-		this.numElems = numElems;
-		this.numSets  = numElems;
-		
-		// Per-node properties. This representation is more space-efficient than creating one node object per element.
-		this.parents = [];  // The index of the parent element. An element is a representative iff its parent is itself.
-		this.ranks   = [];  // Always in the range [0, floor(log2(numElems))].
-		this.sizes   = [];  // Positive number if the element is a representative, otherwise zero.
+		this.numSets = numElems;
 		for (let i = 0; i < numElems; i++) {
 			this.parents.push(i);
-			this.ranks.push(0);
-			this.sizes.push(1);
+			this.ranks  .push(0);
+			this.sizes  .push(1);
 		}
 	}
 	
@@ -144,8 +137,8 @@ class DisjointSet {
 		let numRepr: number = 0;
 		for (let i = 0; i < this.parents.length; i++) {
 			let parent: number = this.parents[i];
-			let rank: number = this.ranks[i];
-			let size: number = this.sizes[i];
+			let rank  : number = this.ranks  [i];
+			let size  : number = this.sizes  [i];
 			let isRepr: boolean = parent == i;
 			if (isRepr)
 				numRepr++;

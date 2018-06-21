@@ -327,7 +327,7 @@ struct Node<E> {
 	// This node has height equal to max(left.height, right.height) + 1.
 	height: i16,
 	
-	// The number of nodes in the tree rooted at this node, including this node.
+	// The number of non-empty nodes in the tree rooted at this node, including this node.
 	// Empty nodes have size 0. This node has size equal to left.size + right.size + 1.
 	size: usize,
 	

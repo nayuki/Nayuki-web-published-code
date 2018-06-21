@@ -116,7 +116,7 @@ public sealed class AvlTreeList<E> {
 		// This node has height equal to max(Left.Height, Right.Height) + 1.
 		public int Height;
 		
-		// The number of nodes in the tree rooted at this node, including this node.
+		// The number of non-empty nodes in the tree rooted at this node, including this node.
 		// Empty nodes have size 0. This node has size equal to Left.Size + Right.Size + 1.
 		public int Size;
 		
