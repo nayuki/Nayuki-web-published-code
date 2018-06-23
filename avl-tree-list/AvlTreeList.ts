@@ -36,7 +36,7 @@ class AvlTreeList<E> {
 	// For example:
 	//   let a = new AvlTreeList<boolean>();  // Blank, zero-length list
 	//   let b = new AvlTreeList<number>([2,7,1,8]);  // Has the four elements 2,7,1,8
-	constructor(arr?: Array<E>) {
+	public constructor(arr?: Array<E>) {
 		this.root = new AvlTreeListEmptyNode<E>();
 		if (arguments.length == 1 && arr !== undefined)
 			arr.forEach((val: E) => this.push(val));
@@ -49,7 +49,7 @@ class AvlTreeList<E> {
 	// getter function, so that parentheses are not used to get the value. For example:
 	//   let list = new AvlTreeList<number>([3,1,4]);
 	//   let n = list.length;  // 3
-	get length(): number {
+	public get length(): number {
 		return this.root.size;
 	}
 	

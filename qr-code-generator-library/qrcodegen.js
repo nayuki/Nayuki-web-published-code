@@ -142,16 +142,6 @@ var qrcodegen = new function() {
 			return 0 <= x && x < size && 0 <= y && y < size && modules[y][x];
 		};
 		
-		// (Package-private) Tests whether the module at the given coordinates is a function module (true) or not (false).
-		// The top left corner has the coordinates (x=0, y=0). If the given coordinates are out of bounds, then false is returned.
-		// The JavaScript version of this library has this method because it is impossible to access private variables of another object.
-		this.isFunctionModule = function(x, y) {
-			if (0 <= x && x < size && 0 <= y && y < size)
-				return isFunction[y][x];
-			else
-				return false;  // Infinite border
-		};
-		
 		
 		/*---- Public instance methods ----*/
 		
@@ -179,27 +169,20 @@ var qrcodegen = new function() {
 		this.toSvgString = function(border) {
 			if (border < 0)
 				throw "Border must be non-negative";
-			var result = '<?xml version="1.0" encoding="UTF-8"?>\n';
-			result += '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n';
-			result += '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' +
-				(size + border * 2) + ' ' + (size + border * 2) + '" stroke="none">\n';
-			result += '\t<rect width="100%" height="100%" fill="#FFFFFF"/>\n';
-			result += '\t<path d="';
-			var head = true;
+			var parts = [];
 			for (var y = -border; y < size + border; y++) {
 				for (var x = -border; x < size + border; x++) {
-					if (this.getModule(x, y)) {
-						if (head)
-							head = false;
-						else
-							result += " ";
-						result += "M" + (x + border) + "," + (y + border) + "h1v1h-1z";
-					}
+					if (this.getModule(x, y))
+						parts.push("M" + (x + border) + "," + (y + border) + "h1v1h-1z");
 				}
 			}
-			result += '" fill="#000000"/>\n';
-			result += '</svg>\n';
-			return result;
+			return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+				'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+				'<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ' +
+					(size + border * 2) + ' ' + (size + border * 2) + '" stroke="none">\n' +
+				'\t<rect width="100%" height="100%" fill="#FFFFFF"/>\n' +
+				'\t<path d="' + parts.join(" ") + '" fill="#000000"/>\n' +
+				'</svg>\n';
 		};
 		
 		
@@ -601,7 +584,7 @@ var qrcodegen = new function() {
 	Object.defineProperty(this.QrCode, "MAX_VERSION", {value:MAX_VERSION});
 	
 	
-	/*---- Private static helper functions QrCode ----*/
+	/*---- Private static helper functions for QrCode ----*/
 	
 	var QrCode = {};  // Private object to assign properties to. Not the same object as 'this.QrCode'.
 	
