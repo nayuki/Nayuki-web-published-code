@@ -1,7 +1,7 @@
 /* 
  * Tiny PNG Output (C)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * https://www.nayuki.io/page/tiny-png-output-c
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -21,73 +21,55 @@
 
 #pragma once
 
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
 
-/* 
- * TinyPngOut data structure. Treat this as opaque; do not read or write any fields directly.
- */
+// Treat this data structure as private and opaque. Do not read or write any fields directly.
+// This structure can be safely discarded at any time, because the functions of this library don't
+// allocate memory or resources. The caller is responsible for initializing objects and cleaning up.
 struct TinyPngOut {
-    
-    // Configuration
-    int32_t width;   // Measured in bytes, not pixels. A row has (width * 3 + 1) bytes.
-    int32_t height;  // Measured in pixels
-    
-    // State
-    FILE *outStream;
-    int32_t positionX;  // Measured in bytes
-    int32_t positionY;  // Measured in pixels
-    int32_t deflateRemain;  // Measured in bytes
-    int32_t deflateFilled;  // Number of bytes filled in the current block (0 <= n < 65535)
-    uint32_t crc;    // For IDAT chunk
-    uint32_t adler;  // For DEFLATE data within IDAT
-    
+	
+	// Immutable configuration
+	uint32_t width;   // Measured in pixels
+	uint32_t height;  // Measured in pixels
+	uint32_t lineSize;  // Measured in bytes, equal to (width * 3 + 1)
+	
+	// Running state
+	FILE *output;
+	uint32_t positionX;      // Next byte index in current line
+	uint32_t positionY;      // Line index of next byte
+	uint32_t uncompRemain;   // Number of uncompressed bytes remaining
+	uint16_t deflateFilled;  // Bytes filled in the current block (0 <= n < DEFLATE_MAX_BLOCK_SIZE)
+	uint32_t crc;    // Primarily for IDAT chunk
+	uint32_t adler;  // For DEFLATE data within IDAT
+	
 };
 
 
-/* 
- * Enumeration of status codes
- */
-enum TinyPngOutStatus {
+enum TinyPngOut_Status {
 	TINYPNGOUT_OK,
-	TINYPNGOUT_DONE,
 	TINYPNGOUT_INVALID_ARGUMENT,
-	TINYPNGOUT_IO_ERROR,
 	TINYPNGOUT_IMAGE_TOO_LARGE,
+	TINYPNGOUT_IO_ERROR,
 };
 
 
 /* 
- * Initialization function.
- * 
- * Example usage:
- *   #define WIDTH 640
- *   #define HEIGHT 480
- *   FILE *fout = fopen("image.png", "wb");
- *   struct TinyPngOut pngout;
- *   if (fout == NULL || TinyPngOut_init(&pngout, fout, WIDTH, HEIGHT) != TINYPNGOUT_OK) {
- *     ... (handle error) ...
- *   }
+ * Creates a PNG writer with the given width and height (both non-zero) and byte output stream.
+ * TinyPngOut will leave the output stream still open once it finishes writing the PNG file data.
+ * Returns an error if the dimensions exceed certain limits (e.g. w * h > 700 million).
  */
-enum TinyPngOutStatus TinyPngOut_init(struct TinyPngOut pngout[static 1], FILE fout[static 1], int32_t width, int32_t height);
+enum TinyPngOut_Status TinyPngOut_init(struct TinyPngOut this[static 1], uint32_t w, uint32_t h, FILE out[static 1]);
 
 
 /* 
- * Pixel-writing function. The function reads 3*count bytes from the array.
- * Pixels are presented in the array in RGB order, from top to bottom, left to right.
- * It is an error to write more pixels in total than width*height.
- * After all the pixels are written, every subsequent call will return TINYPNGOUT_DONE (which is considered success).
- * 
- * Example usage:
- *   uint8_t pixels[WIDTH * HEIGHT * 3];
- *   ... (fill pixels) ...
- *   if (TinyPngOut_write(&pngout, pixels, WIDTH * HEIGHT) != TINYPNGOUT_OK) {
- *     ... (handle error) ...
- *   }
- *   if (TinyPngOut_write(&pngout, NULL, 0) != TINYPNGOUT_DONE) {
- *     ... (handle error) ...
- *   }
- *   fclose(fout);
+ * Writes 'count' pixels from the given array to the output stream. This reads count*3
+ * bytes from the array. Pixels are presented from top to bottom, left to right, and with
+ * subpixels in RGB order. This object keeps track of how many pixels were written and
+ * various position variables. It is an error to write more pixels in total than width*height.
+ * Once exactly width*height pixels have been written with this TinyPngOut object,
+ * there are no more valid operations on the object and it should be discarded.
  */
-enum TinyPngOutStatus TinyPngOut_write(struct TinyPngOut pngout[static 1], const uint8_t pixels[], int count);
+enum TinyPngOut_Status TinyPngOut_write(struct TinyPngOut this[static 1], const uint8_t pixels[], size_t count);
