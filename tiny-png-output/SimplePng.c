@@ -2,7 +2,7 @@
  * Simple sample image using Tiny PNG Output (C)
  * 
  * Copyright (c) 2018 Project Nayuki
- * https://www.nayuki.io/page/tiny-png-output-c
+ * https://www.nayuki.io/page/tiny-png-output
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
