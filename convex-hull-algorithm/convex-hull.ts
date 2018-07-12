@@ -28,12 +28,12 @@ interface Point {
 }
 
 
-class convexhull {
+namespace convexhull {
 	
 	// Returns a new array of points representing the convex hull of
 	// the given set of points. The convex hull excludes collinear points.
 	// This algorithm runs in O(n log n) time.
-	public static makeHull(points: Array<Point>): Array<Point> {
+	export function makeHull(points: Array<Point>): Array<Point> {
 		let newPoints = points.slice();
 		newPoints.sort(convexhull.POINT_COMPARATOR);
 		return convexhull.makeHullPresorted(newPoints);
@@ -41,7 +41,7 @@ class convexhull {
 	
 	
 	// Returns the convex hull, assuming that each points[i] <= points[i + 1]. Runs in O(n) time.
-	public static makeHullPresorted(points: Array<Point>): Array<Point> {
+	export function makeHullPresorted(points: Array<Point>): Array<Point> {
 		if (points.length <= 1)
 			return points.slice();
 		
@@ -86,7 +86,7 @@ class convexhull {
 	}
 	
 	
-	public static POINT_COMPARATOR(a: Point, b: Point): number {
+	export function POINT_COMPARATOR(a: Point, b: Point): number {
 		if (a.x < b.x)
 			return -1;
 		else if (a.x > b.x)

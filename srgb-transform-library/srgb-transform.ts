@@ -24,9 +24,9 @@
 "use strict";
 
 
-const srgbtransform = new (function(this: any) {
+namespace srgbtransform {
 	
-	this.srgbToLinear = (x: number): number => {
+	export function srgbToLinear(x: number): number {
 		if (x <= 0)
 			return 0;
 		else if (x >= 1)
@@ -35,17 +35,17 @@ const srgbtransform = new (function(this: any) {
 			return x / 12.92;
 		else
 			return Math.pow((x + 0.055) / 1.055, 2.4);
-	};
+	}
 	
 	
-	this.srgb8BitToLinear = (x: number): number => {
+	export function srgb8BitToLinear(x: number): number {
 		if ((x | 0) != x || (x >>> 8) != 0)
 			throw "Value out of 8-bit range";
 		return SRGB_8BIT_TO_LINEAR[x];
-	};
+	}
 	
 	
-	this.linearToSrgb = (x: number): number => {
+	export function linearToSrgb(x: number): number {
 		if (x <= 0)
 			return 0;
 		else if (x >= 1)
@@ -54,10 +54,10 @@ const srgbtransform = new (function(this: any) {
 			return x * 12.92;
 		else
 			return Math.pow(x, 1 / 2.4) * 1.055 - 0.055;
-	};
+	}
 	
 	
-	this.linearToSrgb8Bit = (x: number): number => {
+	export function linearToSrgb8Bit(x: number): number {
 		if (x <= 0)
 			return 0;
 		const TABLE: Array<number> = SRGB_8BIT_TO_LINEAR;
@@ -72,11 +72,11 @@ const srgbtransform = new (function(this: any) {
 			return y;
 		else
 			return y + 1;
-	};
+	}
 	
 	
 	let SRGB_8BIT_TO_LINEAR: Array<number> = [];
 	for (let i = 0; i < 256; i++)
-		SRGB_8BIT_TO_LINEAR.push(this.srgbToLinear(i / 255.0));
+		SRGB_8BIT_TO_LINEAR.push(srgbToLinear(i / 255.0));
 	
-} as any);
+}

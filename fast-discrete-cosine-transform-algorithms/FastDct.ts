@@ -24,11 +24,11 @@
 "use strict";
 
 
-const fastDct8 = new (function(this: any) {
+namespace fastDct8 {
 	
 	// DCT type II, scaled. Algorithm by Arai, Agui, Nakajima, 1988.
 	// See: https://web.stanford.edu/class/ee398a/handouts/lectures/07-TransformCoding.pdf#page=30
-	this.transform = (vector: Array<number>): void => {
+	export function transform(vector: Array<number>): void {
 		const v0 = vector[0] + vector[7];
 		const v1 = vector[1] + vector[6];
 		const v2 = vector[2] + vector[5];
@@ -72,11 +72,11 @@ const fastDct8 = new (function(this: any) {
 		vector[5] = S[5] * v25;
 		vector[6] = S[6] * v22;
 		vector[7] = S[7] * v27;
-	};
+	}
 	
 	
 	// DCT type III, scaled. A straightforward inverse of the forward algorithm.
-	this.inverseTransform = (vector: Array<number>): void => {
+	export function inverseTransform(vector: Array<number>): void {
 		const v15 = vector[0] / S[0];
 		const v26 = vector[1] / S[1];
 		const v21 = vector[2] / S[2];
@@ -121,7 +121,7 @@ const fastDct8 = new (function(this: any) {
 		vector[5] = (v2 - v5) / 2;
 		vector[6] = (v1 - v6) / 2;
 		vector[7] = (v0 - v7) / 2;
-	};
+	}
 	
 	
 	let S: Array<number> = [];
@@ -131,24 +131,26 @@ const fastDct8 = new (function(this: any) {
 		S.push(1 / (4 * C[i]));
 	}
 	S[0] = 1 / (2 * Math.sqrt(2));
+	
 	let A: Array<number> = [NaN, C[4], C[2] - C[6], C[4], C[6] + C[2], C[6]];
-} as any);
+	
+}
 
 
 
-class fastDctLee {
+namespace fastDctLee {
 	
 	// DCT type II, unscaled. Algorithm by Byeong Gi Lee, 1984.
 	// See: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.3056&rep=rep1&type=pdf#page=34
-	public static transform(vector: Array<number>): void {
+	export function transform(vector: Array<number>): void {
 		const n: number = vector.length;
 		if (n <= 0 && (n & (n - 1)) != 0)
 			throw "Length must be power of 2";
-		fastDctLee.transformInternal(vector, 0, n, new Float64Array(n));
+		transformInternal(vector, 0, n, new Float64Array(n));
 	}
 	
 	
-	private static transformInternal(vector: Array<number>|Float64Array, off: number, len: number, temp: Array<number>|Float64Array): void {
+	function transformInternal(vector: Array<number>|Float64Array, off: number, len: number, temp: Array<number>|Float64Array): void {
 		if (len == 1)
 			return;
 		const halfLen: number = Math.floor(len / 2);
@@ -158,8 +160,8 @@ class fastDctLee {
 			temp[off + i] = x + y;
 			temp[off + i + halfLen] = (x - y) / (Math.cos((i + 0.5) * Math.PI / len) * 2);
 		}
-		fastDctLee.transformInternal(temp, off, halfLen, vector);
-		fastDctLee.transformInternal(temp, off + halfLen, halfLen, vector);
+		transformInternal(temp, off, halfLen, vector);
+		transformInternal(temp, off + halfLen, halfLen, vector);
 		for (let i = 0; i < halfLen - 1; i++) {
 			vector[off + i * 2 + 0] = temp[off + i];
 			vector[off + i * 2 + 1] = temp[off + i + halfLen] + temp[off + i + halfLen + 1];
@@ -171,16 +173,16 @@ class fastDctLee {
 	
 	// DCT type III, unscaled. Algorithm by Byeong Gi Lee, 1984.
 	// See: http://tsp7.snu.ac.kr/int_jour/IJ_2.pdf
-	public static inverseTransform(vector: Array<number>): void {
+	export function inverseTransform(vector: Array<number>): void {
 		const n: number = vector.length;
 		if (n <= 0 && (n & (n - 1)) != 0)
 			throw "Length must be power of 2";
 		vector[0] /= 2;
-		fastDctLee.inverseTransformInternal(vector, 0, n, new Float64Array(n));
+		inverseTransformInternal(vector, 0, n, new Float64Array(n));
 	}
 	
 	
-	private static inverseTransformInternal(vector: Array<number>|Float64Array, off: number, len: number, temp: Array<number>|Float64Array): void {
+	function inverseTransformInternal(vector: Array<number>|Float64Array, off: number, len: number, temp: Array<number>|Float64Array): void {
 		if (len == 1)
 			return;
 		const halfLen: number = Math.floor(len / 2);
@@ -190,8 +192,8 @@ class fastDctLee {
 			temp[off + i] = vector[off + i * 2];
 			temp[off + i + halfLen] = vector[off + i * 2 - 1] + vector[off + i * 2 + 1];
 		}
-		fastDctLee.inverseTransformInternal(temp, off, halfLen, vector);
-		fastDctLee.inverseTransformInternal(temp, off + halfLen, halfLen, vector);
+		inverseTransformInternal(temp, off, halfLen, vector);
+		inverseTransformInternal(temp, off + halfLen, halfLen, vector);
 		for (let i = 0; i < halfLen; i++) {
 			let x: number = temp[off + i];
 			let y: number = temp[off + i + halfLen] / (Math.cos((i + 0.5) * Math.PI / len) * 2);
@@ -200,7 +202,7 @@ class fastDctLee {
 		}
 	}
 	
-};
+}
 
 
 
@@ -224,7 +226,7 @@ class fastDctFft {
 			let temp: number = i * Math.PI / (len * 2);
 			vector[i] = real[i] * Math.cos(temp) + vector[i] * Math.sin(temp);
 		}
-	};
+	}
 	
 	
 	// DCT type III, unscaled.
@@ -247,6 +249,6 @@ class fastDctFft {
 		}
 		if (len % 2 == 1)
 			vector[len - 1] = real[halfLen];
-	};
+	}
 	
-};
+}
