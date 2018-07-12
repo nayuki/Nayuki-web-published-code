@@ -1,12 +1,13 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
  */
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 
 /**
@@ -25,8 +26,7 @@ public final class BinaryField extends Field<BigInteger> {
 	 * @throws IllegalArgumentException if the modulus has degree less than 1
 	 */
 	public BinaryField(BigInteger mod) {
-		if (mod == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(mod);
 		if (mod.signum() == -1)
 			throw new IllegalArgumentException("Invalid modulus polynomial");
 		if (mod.bitLength() <= 1)
@@ -113,8 +113,7 @@ public final class BinaryField extends Field<BigInteger> {
 	
 	
 	private BigInteger check(BigInteger x) {
-		if (x == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(x);
 		if (x.signum() == -1 || x.bitLength() >= modulus.bitLength())
 			throw new IllegalArgumentException("Not an element of this field");
 		return x;

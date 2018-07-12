@@ -1,12 +1,13 @@
 /* 
  * Linear congruential generator (LCG) with fast skipping and backward iteration (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
  */
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 
 public final class LcgRandom {
@@ -70,8 +71,10 @@ public final class LcgRandom {
 	
 	// Requires a > 0, b >= 0, m > 0, 0 <= seed < m, a coprime with m
 	public LcgRandom(BigInteger a, BigInteger b, BigInteger m, BigInteger seed) {
-		if (a == null || b == null || m == null || seed == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(a);
+		Objects.requireNonNull(b);
+		Objects.requireNonNull(m);
+		Objects.requireNonNull(seed);
 		if (a.signum() != 1 || b.signum() == -1 || m.signum() != 1
 				|| seed.signum() == -1 || seed.compareTo(m) >= 0)
 			throw new IllegalArgumentException("Value out of range");

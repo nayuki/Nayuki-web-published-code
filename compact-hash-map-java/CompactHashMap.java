@@ -1,7 +1,7 @@
 /* 
  * Compact hash map
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/compact-hash-map-java
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -51,8 +52,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	/*---- Constructors ----*/
 	
 	public CompactHashMap(CompactMapTranslator<K,V> trans) {
-		if (trans == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(trans);
 		this.translator = trans;
 		version = -1;
 		clear();
@@ -77,8 +77,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	
 	@SuppressWarnings("unchecked")
 	public boolean containsKey(Object key) {
-		if (key == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(key);
 		if (!translator.isKeyInstance(key))
 			return false;
 		return probe((K)key) >= 0;
@@ -86,8 +85,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	
 	
 	public V get(Object key) {
-		if (key == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(key);
 		if (!translator.isKeyInstance(key))
 			return null;
 		@SuppressWarnings("unchecked")
@@ -100,8 +98,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	
 	
 	public V put(K key, V value) {
-		if (key == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(key);
 		version++;
 		int index = probe(key);
 		boolean isNew = index < 0;
@@ -125,8 +122,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	
 	
 	public V remove(Object key) {
-		if (key == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(key);
 		if (!translator.isKeyInstance(key))
 			return null;
 		@SuppressWarnings("unchecked")
@@ -287,8 +283,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 			@SuppressWarnings("unchecked")
 			Map.Entry<K,V> entry = (Map.Entry<K,V>)obj;
 			K key = entry.getKey();
-			if (key == null)
-				throw new NullPointerException();
+			Objects.requireNonNull(key);
 			if (!CompactHashMap.this.containsKey(key))
 				return false;
 			V val0 = entry.getValue();

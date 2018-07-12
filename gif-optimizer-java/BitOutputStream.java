@@ -1,13 +1,14 @@
 /* 
  * Library classes for GIF optimizer (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 
 // A sink for accepting a sequence of variable numbers of bits.
@@ -37,8 +38,7 @@ final class ByteBitOutputStream extends BitOutputStream {
 	
 	
 	public ByteBitOutputStream(OutputStream out) {
-		if (out == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(out);
 		output = out;
 		bitBuffer = 0;
 		bitBufferLen = 0;
@@ -61,8 +61,7 @@ final class ByteBitOutputStream extends BitOutputStream {
 	
 	// Writes the currently accumulated bits, if any (the last byte may be partial).
 	public void detach() throws IOException {
-		if (output == null)
-			throw new IllegalStateException();
+		Objects.requireNonNull(output);
 		if (bitBufferLen > 0)
 			output.write(bitBuffer);
 		output = null;

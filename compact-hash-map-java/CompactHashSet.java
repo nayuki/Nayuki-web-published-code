@@ -1,7 +1,7 @@
 /* 
  * Compact hash set
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/compact-hash-map-java
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,6 +25,7 @@ import java.util.AbstractSet;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 
 /**
@@ -48,8 +49,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	/*---- Constructors ----*/
 	
 	public CompactHashSet(CompactSetTranslator<E> trans) {
-		if (trans == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(trans);
 		this.translator = trans;
 		version = -1;
 		clear();
@@ -74,8 +74,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	
 	@SuppressWarnings("unchecked")
 	public boolean contains(Object obj) {
-		if (obj == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(obj);
 		if (!translator.isInstance(obj))
 			return false;
 		return probe((E)obj) >= 0;
@@ -83,8 +82,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	
 	
 	public boolean add(E obj) {
-		if (obj == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(obj);
 		int index = probe(obj);
 		if (index >= 0)
 			return false;
@@ -103,8 +101,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	
 	
 	public boolean remove(Object obj) {
-		if (obj == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(obj);
 		if (!translator.isInstance(obj))
 			return false;
 		@SuppressWarnings("unchecked")

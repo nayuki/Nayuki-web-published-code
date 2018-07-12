@@ -1,12 +1,13 @@
 /* 
  * Primitive recursive functions (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/primitive-recursive-functions
  */
 
 import java.util.Arrays;
+import java.util.Objects;
 
 
 public abstract class Prf {
@@ -75,15 +76,13 @@ public abstract class Prf {
 	
 	// Composition function: C_{f, g_0, ..., g_{k-1}}(xs) = f(g_0(xs), ..., g_{k-1}(xs))
 	public static Prf C(final Prf f, Prf... gs) {
-		if (f == null || gs == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(f);
+		Objects.requireNonNull(gs);
 		if (gs.length == 0)
 			throw new IllegalArgumentException();
 		final Prf[] myGs = gs.clone();  // Defensive copy
-		for (Prf g : myGs) {
-			if (g == null)
-				throw new NullPointerException();
-		}
+		for (Prf g : myGs)
+			Objects.requireNonNull(g);
 		return new Prf() {
 			public long eval(long... xs) {
 				long[] temp = new long[myGs.length];

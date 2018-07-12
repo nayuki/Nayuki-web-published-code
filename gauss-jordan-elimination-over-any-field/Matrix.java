@@ -1,10 +1,12 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
  */
+
+import java.util.Objects;
 
 
 /**
@@ -37,8 +39,7 @@ public final class Matrix<E> implements Cloneable {
 	public Matrix(int rows, int cols, Field<E> f) {
 		if (rows <= 0 || cols <= 0)
 			throw new IllegalArgumentException("Invalid number of rows or columns");
-		if (f == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(f);
 		
 		values = new Object[rows][cols];
 		this.f = f;
@@ -214,8 +215,7 @@ public final class Matrix<E> implements Cloneable {
 	 * @throws IllegalArgumentException if the specified matrix has incompatible dimensions for multiplication
 	 */
 	public Matrix<E> multiply(Matrix<E> other) {
-		if (other == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(other);
 		if (columnCount() != other.rowCount())
 			throw new IllegalArgumentException("Incompatible matrix sizes for multiplication");
 		

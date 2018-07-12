@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (Java)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,6 +21,8 @@
  *   Software.
  */
 
+import java.util.Objects;
+
 
 public final class KmpStringMatcher {
 	
@@ -29,8 +31,7 @@ public final class KmpStringMatcher {
 	
 	
 	public KmpStringMatcher(String patt) {
-		if (patt == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(patt);
 		pattern = patt;
 		
 		// Compute longest suffix-prefix table
@@ -50,8 +51,7 @@ public final class KmpStringMatcher {
 	
 	
 	public int search(String text) {
-		if (text == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(text);
 		if (pattern.length() == 0)
 			return 0;  // Immediate match
 		

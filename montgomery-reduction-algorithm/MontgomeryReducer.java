@@ -1,12 +1,13 @@
 /* 
  * Montgomery reduction algorithm (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/montgomery-reduction-algorithm
  */
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 
 public final class MontgomeryReducer {
@@ -27,8 +28,7 @@ public final class MontgomeryReducer {
 	// The modulus must be an odd number at least 3
 	public MontgomeryReducer(BigInteger modulus) {
 		// Modulus
-		if (modulus == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(modulus);
 		if (!modulus.testBit(0) || modulus.compareTo(BigInteger.ONE) <= 0)
 			throw new IllegalArgumentException("Modulus must be an odd number at least 3");
 		this.modulus = modulus;

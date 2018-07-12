@@ -1,7 +1,7 @@
 /* 
  * Library classes for GIF optimizer (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
@@ -9,6 +9,7 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 
 /* 
@@ -23,8 +24,7 @@ final class MemoizingInputStream extends InputStream {
 	
 	
 	public MemoizingInputStream(InputStream in) {
-		if (in == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(in);
 		input = in;
 		clearBuffer();
 	}

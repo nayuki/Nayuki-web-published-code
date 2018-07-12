@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Objects;
 
 
 public final class forcecrc32 {
@@ -82,8 +83,7 @@ public final class forcecrc32 {
 	
 	// Public library function.
 	public static void modifyFileCrc32(File file, long offset, int newCrc, boolean printStatus) throws IOException {
-		if (file == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(file);
 		if (offset < 0)
 			throw new IllegalArgumentException("Negative file offset");
 		

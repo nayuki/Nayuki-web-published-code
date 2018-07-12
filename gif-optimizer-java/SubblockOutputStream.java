@@ -1,13 +1,14 @@
 /* 
  * Library classes for GIF optimizer (Java)
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 
 /* 
@@ -23,8 +24,7 @@ final class SubblockOutputStream extends OutputStream {
 	
 	
 	public SubblockOutputStream(OutputStream out) {
-		if (out == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(out);
 		output = out;
 		buffer = new byte[255];  // Can be any length from 1 to 255, but larger is more efficient
 		bufferLen = 0;

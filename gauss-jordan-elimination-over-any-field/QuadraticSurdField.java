@@ -1,12 +1,13 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
  */
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 
 /**
@@ -28,8 +29,7 @@ public final class QuadraticSurdField extends Field<QuadraticSurd> {
 	 * @throws NullPointerException if {@code d} is {@code null}
 	 */
 	public QuadraticSurdField(BigInteger d) {
-		if (d == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(d);
 		this.d = d;
 	}
 	
@@ -80,8 +80,7 @@ public final class QuadraticSurdField extends Field<QuadraticSurd> {
 	
 	
 	private void check(QuadraticSurd x) {
-		if (x == null)
-			throw new NullPointerException();
+		Objects.requireNonNull(x);
 		if (!x.d.equals(d))
 			throw new IllegalArgumentException("The value under the square root must match that of the field");
 	}
