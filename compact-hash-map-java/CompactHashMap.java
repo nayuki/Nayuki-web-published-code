@@ -52,8 +52,7 @@ public final class CompactHashMap<K,V> extends AbstractMap<K,V> {
 	/*---- Constructors ----*/
 	
 	public CompactHashMap(CompactMapTranslator<K,V> trans) {
-		Objects.requireNonNull(trans);
-		this.translator = trans;
+		this.translator = Objects.requireNonNull(trans);
 		version = -1;
 		clear();
 	}

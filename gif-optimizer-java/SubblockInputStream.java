@@ -27,8 +27,7 @@ final class SubblockInputStream extends InputStream {
 	
 	
 	public SubblockInputStream(InputStream in) {
-		Objects.requireNonNull(in);
-		input = in;
+		input = Objects.requireNonNull(in);
 		buffer = new byte[255];
 		bufferLen = 0;
 		bufferIndex = 0;

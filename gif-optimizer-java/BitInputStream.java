@@ -29,8 +29,7 @@ final class BitInputStream {
 	
 	
 	public BitInputStream(InputStream in) {
-		Objects.requireNonNull(in);
-		input = in;
+		input = Objects.requireNonNull(in);
 		bitBuffer = 0;
 		bitBufferLen = 0;
 	}

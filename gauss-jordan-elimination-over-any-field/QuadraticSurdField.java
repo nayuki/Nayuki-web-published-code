@@ -29,8 +29,7 @@ public final class QuadraticSurdField extends Field<QuadraticSurd> {
 	 * @throws NullPointerException if {@code d} is {@code null}
 	 */
 	public QuadraticSurdField(BigInteger d) {
-		Objects.requireNonNull(d);
-		this.d = d;
+		this.d = Objects.requireNonNull(d);
 	}
 	
 	

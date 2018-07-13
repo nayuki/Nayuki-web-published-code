@@ -38,8 +38,7 @@ final class ByteBitOutputStream extends BitOutputStream {
 	
 	
 	public ByteBitOutputStream(OutputStream out) {
-		Objects.requireNonNull(out);
-		output = out;
+		output = Objects.requireNonNull(out);
 		bitBuffer = 0;
 		bitBufferLen = 0;
 	}

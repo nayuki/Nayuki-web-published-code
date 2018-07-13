@@ -24,8 +24,7 @@ final class SubblockOutputStream extends OutputStream {
 	
 	
 	public SubblockOutputStream(OutputStream out) {
-		Objects.requireNonNull(out);
-		output = out;
+		output = Objects.requireNonNull(out);
 		buffer = new byte[255];  // Can be any length from 1 to 255, but larger is more efficient
 		bufferLen = 0;
 	}

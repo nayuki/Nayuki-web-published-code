@@ -49,8 +49,7 @@ public final class CompactHashSet<E> extends AbstractSet<E> {
 	/*---- Constructors ----*/
 	
 	public CompactHashSet(CompactSetTranslator<E> trans) {
-		Objects.requireNonNull(trans);
-		this.translator = trans;
+		this.translator = Objects.requireNonNull(trans);
 		version = -1;
 		clear();
 	}

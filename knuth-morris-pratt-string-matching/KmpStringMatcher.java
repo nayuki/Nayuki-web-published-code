@@ -31,8 +31,7 @@ public final class KmpStringMatcher {
 	
 	
 	public KmpStringMatcher(String patt) {
-		Objects.requireNonNull(patt);
-		pattern = patt;
+		pattern = Objects.requireNonNull(patt);
 		
 		// Compute longest suffix-prefix table
 		lsp = new int[pattern.length()];

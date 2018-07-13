@@ -24,8 +24,7 @@ final class MemoizingInputStream extends InputStream {
 	
 	
 	public MemoizingInputStream(InputStream in) {
-		Objects.requireNonNull(in);
-		input = in;
+		input = Objects.requireNonNull(in);
 		clearBuffer();
 	}
 	

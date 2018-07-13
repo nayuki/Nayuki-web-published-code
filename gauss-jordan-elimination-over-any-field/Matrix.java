@@ -37,12 +37,10 @@ public final class Matrix<E> implements Cloneable {
 	 * @throws NullPointerException if {@code f} is {@code null}
 	 */
 	public Matrix(int rows, int cols, Field<E> f) {
+		this.f = Objects.requireNonNull(f);
 		if (rows <= 0 || cols <= 0)
 			throw new IllegalArgumentException("Invalid number of rows or columns");
-		Objects.requireNonNull(f);
-		
 		values = new Object[rows][cols];
-		this.f = f;
 	}
 	
 	
