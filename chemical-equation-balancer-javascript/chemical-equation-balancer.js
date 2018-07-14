@@ -6,7 +6,7 @@
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
 "use strict";
-/*---- Main functions, which are the entry points from the HTML code ----*/
+/*---- Entry point functions from HTML GUI ----*/
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function balance(formulaStr) {
     // Clear output
@@ -104,101 +104,190 @@ function random() {
     lastRandomIndex = index;
     demo(RANDOM_DEMOS[index]);
 }
-/* Core number-processing fuctions */
-// Returns a matrix based on the given equation object.
-function buildMatrix(eqn) {
-    var elems = eqn.getElements();
-    var lhs = eqn.getLeftSide();
-    var rhs = eqn.getRightSide();
-    var matrix = new Matrix(elems.length + 1, lhs.length + rhs.length + 1);
-    elems.forEach(function (elem, i) {
-        var j = 0;
-        for (var _i = 0, lhs_1 = lhs; _i < lhs_1.length; _i++) {
-            var term = lhs_1[_i];
-            matrix.set(i, j, term.countElement(elem));
-            j++;
+/*---- Text formula parser classes ----*/
+var Parser = /** @class */ (function () {
+    function Parser(formulaStr) {
+        this.tok = new Tokenizer(formulaStr);
+    }
+    // Parses and returns an equation.
+    Parser.prototype.parseEquation = function () {
+        var lhs = [this.parseTerm()];
+        while (true) {
+            var next = this.tok.peek();
+            if (next == "=") {
+                this.tok.consume("=");
+                break;
+            }
+            else if (next == null) {
+                throw { message: "Plus or equal sign expected", start: this.tok.position() };
+            }
+            else if (next == "+") {
+                this.tok.consume("+");
+                lhs.push(this.parseTerm());
+            }
+            else
+                throw { message: "Plus expected", start: this.tok.position() };
         }
-        for (var _a = 0, rhs_1 = rhs; _a < rhs_1.length; _a++) {
-            var term = rhs_1[_a];
-            matrix.set(i, j, -term.countElement(elem));
-            j++;
+        var rhs = [this.parseTerm()];
+        while (true) {
+            var next = this.tok.peek();
+            if (next == null)
+                break;
+            else if (next == "+") {
+                this.tok.consume("+");
+                rhs.push(this.parseTerm());
+            }
+            else
+                throw { message: "Plus or end expected", start: this.tok.position() };
         }
-    });
-    return matrix;
-}
-function solve(matrix) {
-    matrix.gaussJordanEliminate();
-    // Find row with more than one non-zero coefficient
-    var i;
-    for (i = 0; i < matrix.rowCount() - 1; i++) {
-        if (countNonzeroCoeffs(matrix, i) > 1)
-            break;
-    }
-    if (i == matrix.rowCount() - 1)
-        throw "All-zero solution"; // Unique solution with all coefficients zero
-    // Add an inhomogeneous equation
-    matrix.set(matrix.rowCount() - 1, i, 1);
-    matrix.set(matrix.rowCount() - 1, matrix.columnCount() - 1, 1);
-    matrix.gaussJordanEliminate();
-}
-function countNonzeroCoeffs(matrix, row) {
-    var count = 0;
-    for (var i = 0; i < matrix.columnCount(); i++) {
-        if (matrix.get(row, i) != 0)
-            count++;
-    }
-    return count;
-}
-function extractCoefficients(matrix) {
-    var rows = matrix.rowCount();
-    var cols = matrix.columnCount();
-    if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
-        throw "Multiple independent solutions";
-    var lcm = 1;
-    for (var i = 0; i < cols - 1; i++)
-        lcm = checkedMultiply(lcm / gcd(lcm, matrix.get(i, i)), matrix.get(i, i));
-    var coefs = [];
-    var allzero = true;
-    for (var i = 0; i < cols - 1; i++) {
-        var coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
-        coefs.push(coef);
-        allzero = allzero && coef == 0;
-    }
-    if (allzero)
-        throw "Assertion error: All-zero solution";
-    return coefs;
-}
-// Throws an exception if there's a problem, otherwise returns silently.
-function checkAnswer(eqn, coefs) {
-    if (coefs.length != eqn.getLeftSide().length + eqn.getRightSide().length)
-        throw "Assertion error: Mismatched length";
-    var allzero = true;
-    for (var _i = 0, coefs_1 = coefs; _i < coefs_1.length; _i++) {
-        var coef = coefs_1[_i];
-        if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
-            throw "Assertion error: Not an integer";
-        allzero = allzero && coef == 0;
-    }
-    if (allzero)
-        throw "Assertion error: All-zero solution";
-    for (var _a = 0, _b = eqn.getElements(); _a < _b.length; _a++) {
-        var elem = _b[_a];
-        var sum = 0;
-        var j = 0;
-        for (var _c = 0, _d = eqn.getLeftSide(); _c < _d.length; _c++) {
-            var term = _d[_c];
-            sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), coefs[j]));
-            j++;
+        return new Equation(lhs, rhs);
+    };
+    // Parses and returns a term.
+    Parser.prototype.parseTerm = function () {
+        var startPosition = this.tok.position();
+        // Parse groups and elements
+        var items = [];
+        while (true) {
+            var next_1 = this.tok.peek();
+            if (next_1 == null)
+                break;
+            else if (next_1 == "(")
+                items.push(this.parseGroup());
+            else if (/^[A-Za-z][a-z]*$/.test(next_1))
+                items.push(this.parseElement());
+            else
+                break;
         }
-        for (var _e = 0, _f = eqn.getRightSide(); _e < _f.length; _e++) {
-            var term = _f[_e];
-            sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), -coefs[j]));
-            j++;
+        // Parse optional charge
+        var charge = 0;
+        var next = this.tok.peek();
+        if (next != null && next == "^") {
+            this.tok.consume("^");
+            next = this.tok.peek();
+            if (next == null)
+                throw { message: "Number or sign expected", start: this.tok.position() };
+            else
+                charge = this.parseOptionalNumber();
+            next = this.tok.peek();
+            if (next == "+")
+                charge = +charge; // No-op
+            else if (next == "-")
+                charge = -charge;
+            else
+                throw { message: "Sign expected", start: this.tok.position() };
+            this.tok.take(); // Consume the sign
         }
-        if (sum != 0)
-            throw "Assertion error: Incorrect balance";
+        // Check if term is valid
+        var elemSet = new Set();
+        for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
+            var item = items_1[_i];
+            item.getElements(elemSet);
+        }
+        var elems = Array.from(elemSet); // List of all elements used in this term, with no repeats
+        if (items.length == 0) {
+            throw { message: "Invalid term - empty", start: startPosition, end: this.tok.position() };
+        }
+        else if (elems.indexOf("e") != -1) { // If it's the special electron element
+            if (items.length > 1)
+                throw { message: "Invalid term - electron needs to stand alone", start: startPosition, end: this.tok.position() };
+            else if (charge != 0 && charge != -1)
+                throw { message: "Invalid term - invalid charge for electron", start: startPosition, end: this.tok.position() };
+            // Tweak data
+            items = [];
+            charge = -1;
+        }
+        else { // Otherwise, a term must not contain an element that starts with lowercase
+            for (var _a = 0, elems_1 = elems; _a < elems_1.length; _a++) {
+                var elem = elems_1[_a];
+                if (/^[a-z]+$/.test(elem))
+                    throw { message: 'Invalid element name "' + elem + '"', start: startPosition, end: this.tok.position() };
+            }
+        }
+        return new Term(items, charge);
+    };
+    // Parses and returns a group.
+    Parser.prototype.parseGroup = function () {
+        var startPosition = this.tok.position();
+        this.tok.consume("(");
+        var items = [];
+        while (true) {
+            var next = this.tok.peek();
+            if (next == null)
+                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.position() };
+            else if (next == "(")
+                items.push(this.parseGroup());
+            else if (/^[A-Za-z][a-z]*$/.test(next))
+                items.push(this.parseElement());
+            else if (next == ")") {
+                this.tok.consume(")");
+                if (items.length == 0)
+                    throw { message: "Empty group", start: startPosition, end: this.tok.position() };
+                break;
+            }
+            else
+                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.position() };
+        }
+        return new Group(items, this.parseOptionalNumber());
+    };
+    // Parses and returns an element.
+    Parser.prototype.parseElement = function () {
+        var name = this.tok.take();
+        if (!/^[A-Za-z][a-z]*$/.test(name))
+            throw "Assertion error";
+        return new ChemElem(name, this.parseOptionalNumber());
+    };
+    // Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
+    Parser.prototype.parseOptionalNumber = function () {
+        var next = this.tok.peek();
+        if (next != null && /^[0-9]+$/.test(next))
+            return checkedParseInt(this.tok.take());
+        else
+            return 1;
+    };
+    return Parser;
+}());
+// Tokenizes a formula into a stream of token strings.
+var Tokenizer = /** @class */ (function () {
+    function Tokenizer(str) {
+        this.str = str.replace(/\u2212/g, "-");
+        this.i = 0;
+        this.skipSpaces();
     }
-}
+    // Returns the index of the next character to tokenize.
+    Tokenizer.prototype.position = function () {
+        return this.i;
+    };
+    // Returns the next token as a string, or null if the end of the token stream is reached.
+    Tokenizer.prototype.peek = function () {
+        if (this.i == this.str.length) // End of stream
+            return null;
+        var match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.i));
+        if (match == null)
+            throw { message: "Invalid symbol", start: this.i };
+        return match[0];
+    };
+    // Returns the next token as a string and advances this tokenizer past the token.
+    Tokenizer.prototype.take = function () {
+        var result = this.peek();
+        if (result == null)
+            throw "Advancing beyond last token";
+        this.i += result.length;
+        this.skipSpaces();
+        return result;
+    };
+    // Takes the next token and checks that it matches the given string, or throws an exception.
+    Tokenizer.prototype.consume = function (s) {
+        if (this.take() != s)
+            throw "Token mismatch";
+    };
+    Tokenizer.prototype.skipSpaces = function () {
+        var match = /^[ \t]*/.exec(this.str.substring(this.i));
+        if (match === null)
+            throw "Assertion error";
+        this.i += match[0].length;
+    };
+    return Tokenizer;
+}());
 /*---- Chemical equation data types ----*/
 // A complete chemical equation. It has a left-hand side list of terms and a right-hand side list of terms.
 // For example: H2 + O2 -> H2O.
@@ -373,192 +462,7 @@ var ChemElem = /** @class */ (function () {
     };
     return ChemElem;
 }());
-/*---- Parser object ----*/
-var Parser = /** @class */ (function () {
-    function Parser(formulaStr) {
-        this.tok = new Tokenizer(formulaStr);
-    }
-    // Parses and returns an equation.
-    Parser.prototype.parseEquation = function () {
-        var lhs = [this.parseTerm()];
-        while (true) {
-            var next = this.tok.peek();
-            if (next == "=") {
-                this.tok.consume("=");
-                break;
-            }
-            else if (next == null) {
-                throw { message: "Plus or equal sign expected", start: this.tok.position() };
-            }
-            else if (next == "+") {
-                this.tok.consume("+");
-                lhs.push(this.parseTerm());
-            }
-            else
-                throw { message: "Plus expected", start: this.tok.position() };
-        }
-        var rhs = [this.parseTerm()];
-        while (true) {
-            var next = this.tok.peek();
-            if (next == null)
-                break;
-            else if (next == "+") {
-                this.tok.consume("+");
-                rhs.push(this.parseTerm());
-            }
-            else
-                throw { message: "Plus or end expected", start: this.tok.position() };
-        }
-        return new Equation(lhs, rhs);
-    };
-    // Parses and returns a term.
-    Parser.prototype.parseTerm = function () {
-        var startPosition = this.tok.position();
-        // Parse groups and elements
-        var items = [];
-        while (true) {
-            var next_1 = this.tok.peek();
-            if (next_1 == null)
-                break;
-            else if (next_1 == "(")
-                items.push(this.parseGroup());
-            else if (/^[A-Za-z][a-z]*$/.test(next_1))
-                items.push(this.parseElement());
-            else
-                break;
-        }
-        // Parse optional charge
-        var charge = 0;
-        var next = this.tok.peek();
-        if (next != null && next == "^") {
-            this.tok.consume("^");
-            next = this.tok.peek();
-            if (next == null)
-                throw { message: "Number or sign expected", start: this.tok.position() };
-            else
-                charge = this.parseOptionalNumber();
-            next = this.tok.peek();
-            if (next == "+")
-                charge = +charge; // No-op
-            else if (next == "-")
-                charge = -charge;
-            else
-                throw { message: "Sign expected", start: this.tok.position() };
-            this.tok.take(); // Consume the sign
-        }
-        // Check if term is valid
-        var elemSet = new Set();
-        for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
-            var item = items_1[_i];
-            item.getElements(elemSet);
-        }
-        var elems = Array.from(elemSet); // List of all elements used in this term, with no repeats
-        if (items.length == 0) {
-            throw { message: "Invalid term - empty", start: startPosition, end: this.tok.position() };
-        }
-        else if (elems.indexOf("e") != -1) { // If it's the special electron element
-            if (items.length > 1)
-                throw { message: "Invalid term - electron needs to stand alone", start: startPosition, end: this.tok.position() };
-            else if (charge != 0 && charge != -1)
-                throw { message: "Invalid term - invalid charge for electron", start: startPosition, end: this.tok.position() };
-            // Tweak data
-            items = [];
-            charge = -1;
-        }
-        else { // Otherwise, a term must not contain an element that starts with lowercase
-            for (var _a = 0, elems_1 = elems; _a < elems_1.length; _a++) {
-                var elem = elems_1[_a];
-                if (/^[a-z]+$/.test(elem))
-                    throw { message: 'Invalid element name "' + elem + '"', start: startPosition, end: this.tok.position() };
-            }
-        }
-        return new Term(items, charge);
-    };
-    // Parses and returns a group.
-    Parser.prototype.parseGroup = function () {
-        var startPosition = this.tok.position();
-        this.tok.consume("(");
-        var items = [];
-        while (true) {
-            var next = this.tok.peek();
-            if (next == null)
-                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.position() };
-            else if (next == "(")
-                items.push(this.parseGroup());
-            else if (/^[A-Za-z][a-z]*$/.test(next))
-                items.push(this.parseElement());
-            else if (next == ")") {
-                this.tok.consume(")");
-                if (items.length == 0)
-                    throw { message: "Empty group", start: startPosition, end: this.tok.position() };
-                break;
-            }
-            else
-                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.position() };
-        }
-        return new Group(items, this.parseOptionalNumber());
-    };
-    // Parses and returns an element.
-    Parser.prototype.parseElement = function () {
-        var name = this.tok.take();
-        if (!/^[A-Za-z][a-z]*$/.test(name))
-            throw "Assertion error";
-        return new ChemElem(name, this.parseOptionalNumber());
-    };
-    // Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
-    Parser.prototype.parseOptionalNumber = function () {
-        var next = this.tok.peek();
-        if (next != null && /^[0-9]+$/.test(next))
-            return checkedParseInt(this.tok.take());
-        else
-            return 1;
-    };
-    return Parser;
-}());
-/*---- Tokenizer object ----*/
-// Tokenizes a formula into a stream of token strings.
-var Tokenizer = /** @class */ (function () {
-    function Tokenizer(str) {
-        this.str = str.replace(/\u2212/g, "-");
-        this.i = 0;
-        this.skipSpaces();
-    }
-    // Returns the index of the next character to tokenize.
-    Tokenizer.prototype.position = function () {
-        return this.i;
-    };
-    // Returns the next token as a string, or null if the end of the token stream is reached.
-    Tokenizer.prototype.peek = function () {
-        if (this.i == this.str.length) // End of stream
-            return null;
-        var match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.i));
-        if (match == null)
-            throw { message: "Invalid symbol", start: this.i };
-        return match[0];
-    };
-    // Returns the next token as a string and advances this tokenizer past the token.
-    Tokenizer.prototype.take = function () {
-        var result = this.peek();
-        if (result == null)
-            throw "Advancing beyond last token";
-        this.i += result.length;
-        this.skipSpaces();
-        return result;
-    };
-    // Takes the next token and checks that it matches the given string, or throws an exception.
-    Tokenizer.prototype.consume = function (s) {
-        if (this.take() != s)
-            throw "Token mismatch";
-    };
-    Tokenizer.prototype.skipSpaces = function () {
-        var match = /^[ \t]*/.exec(this.str.substring(this.i));
-        if (match === null)
-            throw "Assertion error";
-        this.i += match[0].length;
-    };
-    return Tokenizer;
-}());
-/*---- Matrix object ----*/
+/*---- Core number-processing fuctions ----*/
 // A matrix of integers.
 var Matrix = /** @class */ (function () {
     function Matrix(rows, cols) {
@@ -679,7 +583,101 @@ var Matrix = /** @class */ (function () {
     };
     return Matrix;
 }());
-/*---- Math functions (especially checked integer operations) ----*/
+// Returns a matrix based on the given equation object.
+function buildMatrix(eqn) {
+    var elems = eqn.getElements();
+    var lhs = eqn.getLeftSide();
+    var rhs = eqn.getRightSide();
+    var matrix = new Matrix(elems.length + 1, lhs.length + rhs.length + 1);
+    elems.forEach(function (elem, i) {
+        var j = 0;
+        for (var _i = 0, lhs_1 = lhs; _i < lhs_1.length; _i++) {
+            var term = lhs_1[_i];
+            matrix.set(i, j, term.countElement(elem));
+            j++;
+        }
+        for (var _a = 0, rhs_1 = rhs; _a < rhs_1.length; _a++) {
+            var term = rhs_1[_a];
+            matrix.set(i, j, -term.countElement(elem));
+            j++;
+        }
+    });
+    return matrix;
+}
+function solve(matrix) {
+    matrix.gaussJordanEliminate();
+    // Find row with more than one non-zero coefficient
+    var i;
+    for (i = 0; i < matrix.rowCount() - 1; i++) {
+        if (countNonzeroCoeffs(matrix, i) > 1)
+            break;
+    }
+    if (i == matrix.rowCount() - 1)
+        throw "All-zero solution"; // Unique solution with all coefficients zero
+    // Add an inhomogeneous equation
+    matrix.set(matrix.rowCount() - 1, i, 1);
+    matrix.set(matrix.rowCount() - 1, matrix.columnCount() - 1, 1);
+    matrix.gaussJordanEliminate();
+}
+function countNonzeroCoeffs(matrix, row) {
+    var count = 0;
+    for (var i = 0; i < matrix.columnCount(); i++) {
+        if (matrix.get(row, i) != 0)
+            count++;
+    }
+    return count;
+}
+function extractCoefficients(matrix) {
+    var rows = matrix.rowCount();
+    var cols = matrix.columnCount();
+    if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
+        throw "Multiple independent solutions";
+    var lcm = 1;
+    for (var i = 0; i < cols - 1; i++)
+        lcm = checkedMultiply(lcm / gcd(lcm, matrix.get(i, i)), matrix.get(i, i));
+    var coefs = [];
+    var allzero = true;
+    for (var i = 0; i < cols - 1; i++) {
+        var coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
+        coefs.push(coef);
+        allzero = allzero && coef == 0;
+    }
+    if (allzero)
+        throw "Assertion error: All-zero solution";
+    return coefs;
+}
+// Throws an exception if there's a problem, otherwise returns silently.
+function checkAnswer(eqn, coefs) {
+    if (coefs.length != eqn.getLeftSide().length + eqn.getRightSide().length)
+        throw "Assertion error: Mismatched length";
+    var allzero = true;
+    for (var _i = 0, coefs_1 = coefs; _i < coefs_1.length; _i++) {
+        var coef = coefs_1[_i];
+        if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
+            throw "Assertion error: Not an integer";
+        allzero = allzero && coef == 0;
+    }
+    if (allzero)
+        throw "Assertion error: All-zero solution";
+    for (var _a = 0, _b = eqn.getElements(); _a < _b.length; _a++) {
+        var elem = _b[_a];
+        var sum = 0;
+        var j = 0;
+        for (var _c = 0, _d = eqn.getLeftSide(); _c < _d.length; _c++) {
+            var term = _d[_c];
+            sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), coefs[j]));
+            j++;
+        }
+        for (var _e = 0, _f = eqn.getRightSide(); _e < _f.length; _e++) {
+            var term = _f[_e];
+            sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), -coefs[j]));
+            j++;
+        }
+        if (sum != 0)
+            throw "Assertion error: Incorrect balance";
+    }
+}
+/*---- Simple math functions ----*/
 var INT_MAX = 9007199254740992; // 2^53
 // Returns the given string parsed into a number, or throws an exception if the result is too large.
 function checkedParseInt(str) {
@@ -715,7 +713,7 @@ function gcd(x, y) {
     }
     return x;
 }
-/*---- Miscellaneous ----*/
+/*---- Miscellaneous code ----*/
 // Unicode character constants (because this script file's character encoding is unspecified)
 var MINUS = "\u2212"; // Minus sign
 function createElem(tagName, text) {
