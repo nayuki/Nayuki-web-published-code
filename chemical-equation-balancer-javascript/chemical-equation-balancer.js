@@ -686,23 +686,21 @@ function checkedParseInt(str) {
     var result = parseInt(str, 10);
     if (isNaN(result))
         throw "Not a number";
-    if (result <= -INT_MAX || result >= INT_MAX)
-        throw "Arithmetic overflow";
-    return result;
+    return checkOverflow(result);
 }
 // Returns the sum of the given integers, or throws an exception if the result is too large.
 function checkedAdd(x, y) {
-    var z = x + y;
-    if (z <= -INT_MAX || z >= INT_MAX)
-        throw "Arithmetic overflow";
-    return z;
+    return checkOverflow(x + y);
 }
 // Returns the product of the given integers, or throws an exception if the result is too large.
 function checkedMultiply(x, y) {
-    var z = x * y;
-    if (z <= -INT_MAX || z >= INT_MAX)
+    return checkOverflow(x * y);
+}
+// Throws an exception if the given integer is too large, otherwise returns it.
+function checkOverflow(x) {
+    if (Math.abs(x) >= INT_MAX)
         throw "Arithmetic overflow";
-    return z;
+    return x;
 }
 // Returns the greatest common divisor of the given integers.
 function gcd(x, y) {
