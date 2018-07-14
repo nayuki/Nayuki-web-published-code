@@ -288,59 +288,61 @@ function Equation(lhs, rhs) {
 
 // A term in a chemical equation. It has a list of groups or elements, and a charge.
 // For example: H3O^+, or e^-.
-function Term(items, charge) {
-	if (items.length == 0 && charge != -1)
-		throw "Invalid term";  // Electron case
+class Term {
+	constructor(items, charge) {
+		if (items.length == 0 && charge != -1)
+			throw "Invalid term";  // Electron case
+		this.items = items.clone();
+		this.charge = charge;
+	}
 	
-	items = items.clone();
+	getItems() { return this.items.clone(); }
 	
-	this.getItems = function() { return items.clone(); };
-	
-	this.getElements = function(resultSet) {
+	getElements(resultSet) {
 		resultSet.add("e");
-		items.forEach(function(item) {
+		this.items.forEach(function(item) {
 			item.getElements(resultSet);
 		});
-	};
+	}
 	
 	// Counts the number of times the given element (specified as a string) occurs in this term, taking groups and counts into account, returning an integer.
-	this.countElement = function(name) {
+	countElement(name) {
 		if (name == "e") {
-			return -charge;
+			return -this.charge;
 		} else {
 			var sum = 0;
-			items.forEach(function(item) {
+			this.items.forEach(function(item) {
 				sum = checkedAdd(sum, item.countElement(name));
 			});
 			return sum;
 		}
-	};
+	}
 	
 	// Returns an HTML element representing this term.
-	this.toHtml = function() {
+	toHtml() {
 		var node = document.createElement("span");
-		if (items.length == 0 && charge == -1) {
+		if (this.items.length == 0 && this.charge == -1) {
 			appendText("e", node);
 			var sup = document.createElement("sup");
 			appendText(MINUS, sup);
 			node.appendChild(sup);
 		} else {
-			items.forEach(function(item) {
+			this.items.forEach(function(item) {
 				node.appendChild(item.toHtml());
 			});
-			if (charge != 0) {
+			if (this.charge != 0) {
 				var sup = document.createElement("sup");
 				var s;
-				if (Math.abs(charge) == 1) s = "";
-				else s = Math.abs(charge).toString();
-				if (charge > 0) s += "+";
+				if (Math.abs(this.charge) == 1) s = "";
+				else s = Math.abs(this.charge).toString();
+				if (this.charge > 0) s += "+";
 				else s += MINUS;
 				appendText(s, sup);
 				node.appendChild(sup);
 			}
 		}
 		return node;
-	};
+	}
 }
 
 
