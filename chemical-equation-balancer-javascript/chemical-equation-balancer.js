@@ -252,20 +252,20 @@ var Parser = /** @class */ (function () {
 var Tokenizer = /** @class */ (function () {
     function Tokenizer(str) {
         this.str = str.replace(/\u2212/g, "-");
-        this.i = 0;
+        this.pos = 0;
         this.skipSpaces();
     }
     // Returns the index of the next character to tokenize.
     Tokenizer.prototype.position = function () {
-        return this.i;
+        return this.pos;
     };
     // Returns the next token as a string, or null if the end of the token stream is reached.
     Tokenizer.prototype.peek = function () {
-        if (this.i == this.str.length) // End of stream
+        if (this.pos == this.str.length) // End of stream
             return null;
-        var match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.i));
+        var match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.pos));
         if (match == null)
-            throw { message: "Invalid symbol", start: this.i };
+            throw { message: "Invalid symbol", start: this.pos };
         return match[0];
     };
     // Returns the next token as a string and advances this tokenizer past the token.
@@ -273,7 +273,7 @@ var Tokenizer = /** @class */ (function () {
         var result = this.peek();
         if (result == null)
             throw "Advancing beyond last token";
-        this.i += result.length;
+        this.pos += result.length;
         this.skipSpaces();
         return result;
     };
@@ -283,10 +283,10 @@ var Tokenizer = /** @class */ (function () {
             throw "Token mismatch";
     };
     Tokenizer.prototype.skipSpaces = function () {
-        var match = /^[ \t]*/.exec(this.str.substring(this.i));
+        var match = /^[ \t]*/.exec(this.str.substring(this.pos));
         if (match === null)
             throw "Assertion error";
-        this.i += match[0].length;
+        this.pos += match[0].length;
     };
     return Tokenizer;
 }());
@@ -296,16 +296,16 @@ var Tokenizer = /** @class */ (function () {
 var Equation = /** @class */ (function () {
     function Equation(lhs, rhs) {
         // Make defensive copies
-        this.lhs = lhs.slice();
-        this.rhs = rhs.slice();
+        this.leftSide = lhs.slice();
+        this.rightSide = rhs.slice();
     }
-    Equation.prototype.getLeftSide = function () { return this.lhs.slice(); };
-    Equation.prototype.getRightSide = function () { return this.rhs.slice(); };
+    Equation.prototype.getLeftSide = function () { return this.leftSide.slice(); };
+    Equation.prototype.getRightSide = function () { return this.rightSide.slice(); };
     // Returns an array of the names all of the elements used in this equation.
     // The array represents a set, so the items are in an arbitrary order and no item is repeated.
     Equation.prototype.getElements = function () {
         var result = new Set();
-        for (var _i = 0, _a = this.lhs.concat(this.rhs); _i < _a.length; _i++) {
+        for (var _i = 0, _a = this.leftSide.concat(this.rightSide); _i < _a.length; _i++) {
             var item = _a[_i];
             item.getElements(result);
         }
@@ -314,7 +314,7 @@ var Equation = /** @class */ (function () {
     // Returns an HTML element representing this equation.
     // 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
     Equation.prototype.toHtml = function (coefs) {
-        if (coefs !== undefined && coefs.length != this.lhs.length + this.rhs.length)
+        if (coefs !== undefined && coefs.length != this.leftSide.length + this.rightSide.length)
             throw "Mismatched number of coefficients";
         // Creates this kind of DOM node: <span class="className">text</span>
         function createSpan(text, className) {
@@ -341,9 +341,9 @@ var Equation = /** @class */ (function () {
                 j++;
             }
         }
-        termsToHtml(this.lhs);
+        termsToHtml(this.leftSide);
         node.appendChild(createSpan(" \u2192 ", "rightarrow"));
-        termsToHtml(this.rhs);
+        termsToHtml(this.rightSide);
         return node;
     };
     return Equation;
@@ -470,8 +470,8 @@ var Matrix = /** @class */ (function () {
     function Matrix(rows, cols) {
         if (rows < 0 || cols < 0)
             throw "Illegal argument";
-        this.rows = rows;
-        this.cols = cols;
+        this.numRows = rows;
+        this.numCols = cols;
         // Initialize with zeros
         var row = [];
         for (var j = 0; j < cols; j++)
@@ -481,24 +481,24 @@ var Matrix = /** @class */ (function () {
             this.cells.push(row.slice());
     }
     /* Accessor functions */
-    Matrix.prototype.rowCount = function () { return this.rows; };
-    Matrix.prototype.columnCount = function () { return this.cols; };
+    Matrix.prototype.rowCount = function () { return this.numRows; };
+    Matrix.prototype.columnCount = function () { return this.numCols; };
     // Returns the value of the given cell in the matrix, where r is the row and c is the column.
     Matrix.prototype.get = function (r, c) {
-        if (r < 0 || r >= this.rows || c < 0 || c >= this.cols)
+        if (r < 0 || r >= this.numRows || c < 0 || c >= this.numCols)
             throw "Index out of bounds";
         return this.cells[r][c];
     };
     // Sets the given cell in the matrix to the given value, where r is the row and c is the column.
     Matrix.prototype.set = function (r, c, val) {
-        if (r < 0 || r >= this.rows || c < 0 || c >= this.cols)
+        if (r < 0 || r >= this.numRows || c < 0 || c >= this.numCols)
             throw "Index out of bounds";
         this.cells[r][c] = val;
     };
     /* Private helper functions for gaussJordanEliminate() */
     // Swaps the two rows of the given indices in this matrix. The degenerate case of i == j is allowed.
     Matrix.prototype.swapRows = function (i, j) {
-        if (i < 0 || i >= this.rows || j < 0 || j >= this.rows)
+        if (i < 0 || i >= this.numRows || j < 0 || j >= this.numRows)
             throw "Index out of bounds";
         var temp = this.cells[i];
         this.cells[i] = this.cells[j];
@@ -551,29 +551,29 @@ var Matrix = /** @class */ (function () {
         var cells = this.cells = this.cells.map(Matrix.simplifyRow);
         // Compute row echelon form (REF)
         var numPivots = 0;
-        for (var i = 0; i < this.cols; i++) {
+        for (var i = 0; i < this.numCols; i++) {
             // Find pivot
             var pivotRow = numPivots;
-            while (pivotRow < this.rows && cells[pivotRow][i] == 0)
+            while (pivotRow < this.numRows && cells[pivotRow][i] == 0)
                 pivotRow++;
-            if (pivotRow == this.rows)
+            if (pivotRow == this.numRows)
                 continue;
             var pivot = cells[pivotRow][i];
             this.swapRows(numPivots, pivotRow);
             numPivots++;
             // Eliminate below
-            for (var j = numPivots; j < this.rows; j++) {
+            for (var j = numPivots; j < this.numRows; j++) {
                 var g = gcd(pivot, cells[j][i]);
                 cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][i] / g)));
             }
         }
         // Compute reduced row echelon form (RREF), but the leading coefficient need not be 1
-        for (var i = this.rows - 1; i >= 0; i--) {
+        for (var i = this.numRows - 1; i >= 0; i--) {
             // Find pivot
             var pivotCol = 0;
-            while (pivotCol < this.cols && cells[i][pivotCol] == 0)
+            while (pivotCol < this.numCols && cells[i][pivotCol] == 0)
                 pivotCol++;
-            if (pivotCol == this.cols)
+            if (pivotCol == this.numCols)
                 continue;
             var pivot = cells[i][pivotCol];
             // Eliminate above

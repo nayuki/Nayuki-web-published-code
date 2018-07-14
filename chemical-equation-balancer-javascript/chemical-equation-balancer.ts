@@ -277,27 +277,27 @@ class Parser {
 // Tokenizes a formula into a stream of token strings.
 class Tokenizer {
 	private str: string;
-	private i: number;
+	private pos: number;
 	
 	public constructor(str: string) {
 		this.str = str.replace(/\u2212/g, "-");
-		this.i = 0;
+		this.pos = 0;
 		this.skipSpaces();
 	}
 	
 	// Returns the index of the next character to tokenize.
 	public position(): number {
-		return this.i;
+		return this.pos;
 	}
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
 	public peek(): string|null {
-		if (this.i == this.str.length)  // End of stream
+		if (this.pos == this.str.length)  // End of stream
 			return null;
 		
-		let match: RegExpExecArray|null = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.i));
+		let match: RegExpExecArray|null = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.pos));
 		if (match == null)
-			throw {message: "Invalid symbol", start: this.i};
+			throw {message: "Invalid symbol", start: this.pos};
 		return match[0];
 	}
 	
@@ -306,7 +306,7 @@ class Tokenizer {
 		let result = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
-		this.i += result.length;
+		this.pos += result.length;
 		this.skipSpaces();
 		return result;
 	}
@@ -318,10 +318,10 @@ class Tokenizer {
 	}
 	
 	private skipSpaces(): void {
-		let match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.i));
+		let match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.pos));
 		if (match === null)
 			throw "Assertion error";
-		this.i += match[0].length;
+		this.pos += match[0].length;
 	}
 }
 
@@ -332,23 +332,23 @@ class Tokenizer {
 // A complete chemical equation. It has a left-hand side list of terms and a right-hand side list of terms.
 // For example: H2 + O2 -> H2O.
 class Equation {
-	private lhs: Array<Term>;
-	private rhs: Array<Term>;
+	private leftSide : Array<Term>;
+	private rightSide: Array<Term>;
 	
 	public constructor(lhs: Array<Term>, rhs: Array<Term>) {
 		// Make defensive copies
-		this.lhs = lhs.slice();
-		this.rhs = rhs.slice();
+		this.leftSide  = lhs.slice();
+		this.rightSide = rhs.slice();
 	}
 	
-	public getLeftSide (): Array<Term> { return this.lhs.slice(); }
-	public getRightSide(): Array<Term> { return this.rhs.slice(); }
+	public getLeftSide (): Array<Term> { return this.leftSide .slice(); }
+	public getRightSide(): Array<Term> { return this.rightSide.slice(); }
 	
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
 	public getElements(): Array<string> {
 		let result = new Set<string>();
-		for (let item of this.lhs.concat(this.rhs))
+		for (let item of this.leftSide.concat(this.rightSide))
 			item.getElements(result);
 		return Array.from(result);
 	}
@@ -356,7 +356,7 @@ class Equation {
 	// Returns an HTML element representing this equation.
 	// 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
 	public toHtml(coefs?: Array<number>): HTMLElement {
-		if (coefs !== undefined && coefs.length != this.lhs.length + this.rhs.length)
+		if (coefs !== undefined && coefs.length != this.leftSide.length + this.rightSide.length)
 			throw "Mismatched number of coefficients";
 		
 		// Creates this kind of DOM node: <span class="className">text</span>
@@ -384,9 +384,9 @@ class Equation {
 			}
 		}
 		
-		termsToHtml(this.lhs);
+		termsToHtml(this.leftSide );
 		node.appendChild(createSpan(" \u2192 ", "rightarrow"));
-		termsToHtml(this.rhs);
+		termsToHtml(this.rightSide);
 		
 		return node;
 	}
@@ -517,15 +517,15 @@ class ChemElem {
 
 // A matrix of integers.
 class Matrix {
-	private rows: number;
-	private cols: number;
+	private numRows: number;
+	private numCols: number;
 	private cells: Array<Array<number>>;
 	
 	public constructor(rows: number, cols: number) {
 		if (rows < 0 || cols < 0)
 			throw "Illegal argument";
-		this.rows = rows;
-		this.cols = cols;
+		this.numRows = rows;
+		this.numCols = cols;
 		
 		// Initialize with zeros
 		let row: Array<number> = [];
@@ -538,19 +538,19 @@ class Matrix {
 	
 	/* Accessor functions */
 	
-	public rowCount(): number { return this.rows; }
-	public columnCount(): number { return this.cols; }
+	public rowCount(): number { return this.numRows; }
+	public columnCount(): number { return this.numCols; }
 	
 	// Returns the value of the given cell in the matrix, where r is the row and c is the column.
 	public get(r: number, c: number): number {
-		if (r < 0 || r >= this.rows || c < 0 || c >= this.cols)
+		if (r < 0 || r >= this.numRows || c < 0 || c >= this.numCols)
 			throw "Index out of bounds";
 		return this.cells[r][c];
 	}
 	
 	// Sets the given cell in the matrix to the given value, where r is the row and c is the column.
 	public set(r: number, c: number, val: number): void {
-		if (r < 0 || r >= this.rows || c < 0 || c >= this.cols)
+		if (r < 0 || r >= this.numRows || c < 0 || c >= this.numCols)
 			throw "Index out of bounds";
 		this.cells[r][c] = val;
 	}
@@ -559,7 +559,7 @@ class Matrix {
 	
 	// Swaps the two rows of the given indices in this matrix. The degenerate case of i == j is allowed.
 	private swapRows(i: number, j: number): void {
-		if (i < 0 || i >= this.rows || j < 0 || j >= this.rows)
+		if (i < 0 || i >= this.numRows || j < 0 || j >= this.numRows)
 			throw "Index out of bounds";
 		let temp: Array<number> = this.cells[i];
 		this.cells[i] = this.cells[j];
@@ -614,31 +614,31 @@ class Matrix {
 		
 		// Compute row echelon form (REF)
 		let numPivots = 0;
-		for (let i = 0; i < this.cols; i++) {
+		for (let i = 0; i < this.numCols; i++) {
 			// Find pivot
 			let pivotRow = numPivots;
-			while (pivotRow < this.rows && cells[pivotRow][i] == 0)
+			while (pivotRow < this.numRows && cells[pivotRow][i] == 0)
 				pivotRow++;
-			if (pivotRow == this.rows)
+			if (pivotRow == this.numRows)
 				continue;
 			let pivot = cells[pivotRow][i];
 			this.swapRows(numPivots, pivotRow);
 			numPivots++;
 			
 			// Eliminate below
-			for (let j = numPivots; j < this.rows; j++) {
+			for (let j = numPivots; j < this.numRows; j++) {
 				let g = gcd(pivot, cells[j][i]);
 				cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][i] / g)));
 			}
 		}
 		
 		// Compute reduced row echelon form (RREF), but the leading coefficient need not be 1
-		for (let i = this.rows - 1; i >= 0; i--) {
+		for (let i = this.numRows - 1; i >= 0; i--) {
 			// Find pivot
 			let pivotCol = 0;
-			while (pivotCol < this.cols && cells[i][pivotCol] == 0)
+			while (pivotCol < this.numCols && cells[i][pivotCol] == 0)
 				pivotCol++;
-			if (pivotCol == this.cols)
+			if (pivotCol == this.numCols)
 				continue;
 			let pivot = cells[i][pivotCol];
 			
