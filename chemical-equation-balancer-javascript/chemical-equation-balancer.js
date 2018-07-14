@@ -621,52 +621,56 @@ function Tokenizer(str) {
 /*---- Matrix object ----*/
 
 // A matrix of integers.
-function Matrix(rows, cols) {
-	if (rows < 0 || cols < 0)
-		throw "Illegal argument";
-	
-	// Initialize with zeros
-	var row = [];
-	for (var j = 0; j < cols; j++)
-		row.push(0);
-	var cells = [];  // Main data (the matrix)
-	for (var i = 0; i < rows; i++)
-		cells.push(row.clone());
-	row = null;
+class Matrix {
+	constructor(rows, cols) {
+		if (rows < 0 || cols < 0)
+			throw "Illegal argument";
+		this.rows = rows;
+		this.cols = cols;
+		
+		// Initialize with zeros
+		var row = [];
+		for (var j = 0; j < cols; j++)
+			row.push(0);
+		this.cells = [];  // Main data (the matrix)
+		for (var i = 0; i < rows; i++)
+			this.cells.push(row.clone());
+		row = null;
+	}
 	
 	/* Accessor functions */
 	
-	this.rowCount    = function() { return rows; };
-	this.columnCount = function() { return cols; };
+	rowCount() { return this.rows; }
+	columnCount() { return this.cols; }
 	
 	// Returns the value of the given cell in the matrix, where r is the row and c is the column.
-	this.get = function(r, c) {
-		if (r < 0 || r >= rows || c < 0 || c >= cols)
+	get(r, c) {
+		if (r < 0 || r >= this.rows || c < 0 || c >= this.cols)
 			throw "Index out of bounds";
-		return cells[r][c];
-	};
+		return this.cells[r][c];
+	}
 	
 	// Sets the given cell in the matrix to the given value, where r is the row and c is the column.
-	this.set = function(r, c, val) {
-		if (r < 0 || r >= rows || c < 0 || c >= cols)
+	set(r, c, val) {
+		if (r < 0 || r >= this.rows || c < 0 || c >= this.cols)
 			throw "Index out of bounds";
-		cells[r][c] = val;
-	};
+		this.cells[r][c] = val;
+	}
 	
 	/* Private helper functions for gaussJordanEliminate() */
 	
 	// Swaps the two rows of the given indices in this matrix. The degenerate case of i == j is allowed.
-	function swapRows(i, j) {
-		if (i < 0 || i >= rows || j < 0 || j >= rows)
+	swapRows(i, j) {
+		if (i < 0 || i >= this.rows || j < 0 || j >= this.rows)
 			throw "Index out of bounds";
-		var temp = cells[i];
-		cells[i] = cells[j];
-		cells[j] = temp;
+		var temp = this.cells[i];
+		this.cells[i] = this.cells[j];
+		this.cells[j] = temp;
 	}
 	
 	// Returns a new row that is the sum of the two given rows. The rows are not indices. This object's data is unused.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
-	function addRows(x, y) {
+	static addRows(x, y) {
 		var z = [];
 		for (var i = 0; i < x.length; i++)
 			z.push(checkedAdd(x[i], y[i]));
@@ -675,7 +679,7 @@ function Matrix(rows, cols) {
 	
 	// Returns a new row that is the product of the given row with the given scalar. The row is is not an index. This object's data is unused.
 	// For example, multiplyRow([0, 1, 3], 4) = [0, 4, 12].
-	function multiplyRow(x, c) {
+	static multiplyRow(x, c) {
 		return x.map(function(val) {
 			return checkedMultiply(val, c);
 		});
@@ -683,7 +687,7 @@ function Matrix(rows, cols) {
 	
 	// Returns the GCD of all the numbers in the given row. The row is is not an index. This object's data is unused.
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
-	function gcdRow(x) {
+	static gcdRow(x) {
 		var result = 0;
 		x.forEach(function(val) {
 			result = gcd(val, result);
@@ -693,7 +697,7 @@ function Matrix(rows, cols) {
 	
 	// Returns a new row where the leading non-zero number (if any) is positive, and the GCD of the row is 0 or 1. This object's data is unused.
 	// For example, simplifyRow([0, -2, 2, 4]) = [0, 1, -1, -2].
-	function simplifyRow(x) {
+	static simplifyRow(x) {
 		var sign = 0;
 		for (var i = 0; i < x.length; i++) {
 			if (x[i] > 0) {
@@ -707,69 +711,69 @@ function Matrix(rows, cols) {
 		var y = x.clone();
 		if (sign == 0)
 			return y;
-		var g = gcdRow(x) * sign;
+		var g = Matrix.gcdRow(x) * sign;
 		for (var i = 0; i < y.length; i++)
 			y[i] /= g;
 		return y;
 	}
 	
 	// Changes this matrix to reduced row echelon form (RREF), except that each leading coefficient is not necessarily 1. Each row is simplified.
-	this.gaussJordanEliminate = function() {
+	gaussJordanEliminate() {
 		// Simplify all rows
-		cells = cells.map(simplifyRow);
+		var cells = this.cells = this.cells.map(Matrix.simplifyRow);
 		
 		// Compute row echelon form (REF)
 		var numPivots = 0;
-		for (var i = 0; i < cols; i++) {
+		for (var i = 0; i < this.cols; i++) {
 			// Find pivot
 			var pivotRow = numPivots;
-			while (pivotRow < rows && cells[pivotRow][i] == 0)
+			while (pivotRow < this.rows && cells[pivotRow][i] == 0)
 				pivotRow++;
-			if (pivotRow == rows)
+			if (pivotRow == this.rows)
 				continue;
 			var pivot = cells[pivotRow][i];
-			swapRows(numPivots, pivotRow);
+			this.swapRows(numPivots, pivotRow);
 			numPivots++;
 			
 			// Eliminate below
-			for (var j = numPivots; j < rows; j++) {
+			for (var j = numPivots; j < this.rows; j++) {
 				var g = gcd(pivot, cells[j][i]);
-				cells[j] = simplifyRow(addRows(multiplyRow(cells[j], pivot / g), multiplyRow(cells[i], -cells[j][i] / g)));
+				cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][i] / g)));
 			}
 		}
 		
 		// Compute reduced row echelon form (RREF), but the leading coefficient need not be 1
-		for (var i = rows - 1; i >= 0; i--) {
+		for (var i = this.rows - 1; i >= 0; i--) {
 			// Find pivot
 			var pivotCol = 0;
-			while (pivotCol < cols && cells[i][pivotCol] == 0)
+			while (pivotCol < this.cols && cells[i][pivotCol] == 0)
 				pivotCol++;
-			if (pivotCol == cols)
+			if (pivotCol == this.cols)
 				continue;
 			var pivot = cells[i][pivotCol];
 			
 			// Eliminate above
 			for (var j = i - 1; j >= 0; j--) {
 				var g = gcd(pivot, cells[j][pivotCol]);
-				cells[j] = simplifyRow(addRows(multiplyRow(cells[j], pivot / g), multiplyRow(cells[i], -cells[j][pivotCol] / g)));
+				cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][pivotCol] / g)));
 			}
 		}
-	};
+	}
 	
 	// Returns a string representation of this matrix, for debugging purposes.
-	this.toString = function() {
+	toString() {
 		var result = "[";
-		for (var i = 0; i < rows; i++) {
+		for (var i = 0; i < this.rows; i++) {
 			if (i != 0) result += "],\n";
 			result += "[";
-			for (var j = 0; j < cols; j++) {
+			for (var j = 0; j < this.cols; j++) {
 				if (j != 0) result += ", ";
-				result += cells[i][j];
+				result += this.cells[i][j];
 			}
 			result += "]";
 		}
 		return result + "]";
-	};
+	}
 }
 
 
