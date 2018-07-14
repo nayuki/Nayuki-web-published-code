@@ -199,11 +199,11 @@ function checkAnswer(eqn, coefs) {
 		throw "Assertion error: Mismatched length";
 	
 	let allzero = true;
-	coefs.forEach(coef => {
+	for (let coef of coefs) {
 		if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
 			throw "Assertion error: Not an integer";
 		allzero &= coef == 0;
-	});
+	}
 	if (allzero)
 		throw "Assertion error: All-zero solution";
 	
@@ -239,8 +239,8 @@ class Equation {
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
 	getElements() {
 		let result = new Set();
-		this.lhs.concat(this.rhs).forEach(item =>
-			item.getElements(result));
+		for (let item of this.lhs.concat(this.rhs))
+			item.getElements(result);
 		return Array.from(result);
 	}
 	
@@ -299,8 +299,8 @@ class Term {
 	
 	getElements(resultSet) {
 		resultSet.add("e");
-		this.items.forEach(item =>
-			item.getElements(resultSet));
+		for (let item of this.items)
+			item.getElements(resultSet);
 	}
 	
 	// Counts the number of times the given element (specified as a string) occurs in this term, taking groups and counts into account, returning an integer.
@@ -309,8 +309,8 @@ class Term {
 			return -this.charge;
 		} else {
 			let sum = 0;
-			this.items.forEach(item =>
-				sum = checkedAdd(sum, item.countElement(name)));
+			for (let item of this.items)
+				sum = checkedAdd(sum, item.countElement(name));
 			return sum;
 		}
 	}
@@ -324,8 +324,8 @@ class Term {
 			appendText(MINUS, sup);
 			node.appendChild(sup);
 		} else {
-			this.items.forEach(item =>
-				node.appendChild(item.toHtml()));
+			for (let item of this.items)
+				node.appendChild(item.toHtml());
 			if (this.charge != 0) {
 				let sup = document.createElement("sup");
 				let s;
@@ -357,14 +357,14 @@ class Group {
 	getCount() { return this.count; }
 	
 	getElements(resultSet) {
-		this.items.forEach(item =>
-			item.getElements(resultSet));
+		for (let item of this.items)
+			item.getElements(resultSet);
 	}
 	
 	countElement(name) {
 		let sum = 0;
-		this.items.forEach(item =>
-			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), this.count)));
+		for (let item of this.items)
+			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), this.count));
 		return sum;
 	}
 	
@@ -372,8 +372,8 @@ class Group {
 	toHtml() {
 		let node = document.createElement("span");
 		appendText("(", node);
-		this.items.forEach(item =>
-			node.appendChild(item.toHtml()));
+		for (let item of this.items)
+			node.appendChild(item.toHtml());
 		appendText(")", node);
 		if (this.count != 1) {
 			let sub = document.createElement("sub");
@@ -687,8 +687,8 @@ class Matrix {
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
 	static gcdRow(x) {
 		let result = 0;
-		x.forEach(val =>
-			result = gcd(val, result));
+		for (let val of x)
+			result = gcd(val, result);
 		return result;
 	}
 	
