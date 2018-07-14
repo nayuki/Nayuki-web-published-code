@@ -35,12 +35,12 @@ function balance(formulaStr: string): void {
 			
 			let start: number = e.start;
 			let end: number = "end" in e ? e.end : e.start;
-			while (end > start && (formulaStr.charAt(end - 1) == " " || formulaStr.charAt(end - 1) == "\t"))
+			while (end > start && [" ", "\t"].indexOf(formulaStr.charAt(end - 1)) != -1)
 				end--;  // Adjust position to eliminate whitespace
 			if (start == end)
 				end++;
 			
-			codeOutElem.textContent += formulaStr.substring(0, start);
+			codeOutElem.textContent += formulaStr.substr(0, start);
 			if (end <= formulaStr.length) {
 				codeOutElem.appendChild(createElem("u", formulaStr.substring(start, end)));
 				codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
@@ -275,7 +275,7 @@ class Equation {
 		}
 		
 		termsToHtml(this.lhs);
-		node.appendChild(createSpan(" " + RIGHT_ARROW + " ", "rightarrow"));
+		node.appendChild(createSpan(" \u2192 ", "rightarrow"));
 		termsToHtml(this.rhs);
 		
 		return node;
@@ -798,7 +798,6 @@ function gcd(x: number, y: number): number {
 
 // Unicode character constants (because this script file's character encoding is unspecified)
 const MINUS: string = "\u2212";        // Minus sign
-const RIGHT_ARROW: string = "\u2192";  // Right arrow
 
 
 function createElem(tagName: string, text?: string): HTMLElement {

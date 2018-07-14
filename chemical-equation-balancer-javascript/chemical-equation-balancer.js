@@ -30,11 +30,11 @@ function balance(formulaStr) {
             msgElem.textContent = "Syntax error: " + e.message;
             var start = e.start;
             var end = "end" in e ? e.end : e.start;
-            while (end > start && (formulaStr.charAt(end - 1) == " " || formulaStr.charAt(end - 1) == "\t"))
+            while (end > start && [" ", "\t"].indexOf(formulaStr.charAt(end - 1)) != -1)
                 end--; // Adjust position to eliminate whitespace
             if (start == end)
                 end++;
-            codeOutElem.textContent += formulaStr.substring(0, start);
+            codeOutElem.textContent += formulaStr.substr(0, start);
             if (end <= formulaStr.length) {
                 codeOutElem.appendChild(createElem("u", formulaStr.substring(start, end)));
                 codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
@@ -239,7 +239,7 @@ var Equation = /** @class */ (function () {
             }
         }
         termsToHtml(this.lhs);
-        node.appendChild(createSpan(" " + RIGHT_ARROW + " ", "rightarrow"));
+        node.appendChild(createSpan(" \u2192 ", "rightarrow"));
         termsToHtml(this.rhs);
         return node;
     };
@@ -708,7 +708,6 @@ function gcd(x, y) {
 /*---- Miscellaneous ----*/
 // Unicode character constants (because this script file's character encoding is unspecified)
 var MINUS = "\u2212"; // Minus sign
-var RIGHT_ARROW = "\u2192"; // Right arrow
 function createElem(tagName, text) {
     var result = document.createElement(tagName);
     if (text !== undefined)
