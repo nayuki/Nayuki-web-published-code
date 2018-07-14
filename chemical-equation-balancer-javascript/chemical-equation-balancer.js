@@ -22,7 +22,7 @@ function balance(formulaStr) {
 	appendText(" ", codeOutElem);
 	
 	// Parse equation
-	var eqn;
+	let eqn;
 	try {
 		eqn = parse(formulaStr);
 	} catch (e) {
@@ -32,15 +32,15 @@ function balance(formulaStr) {
 		} else if ("start" in e) {  // Error message object with start and possibly end character indices
 			setMessage("Syntax error: " + e.message);
 			
-			var start = e.start;
-			var end = "end" in e ? e.end : e.start;
+			let start = e.start;
+			let end = "end" in e ? e.end : e.start;
 			while (end > start && (formulaStr.charAt(end - 1) == " " || formulaStr.charAt(end - 1) == "\t"))
 				end--;  // Adjust position to eliminate whitespace
 			if (start == end)
 				end++;
 			
 			appendText(formulaStr.substring(0, start), codeOutElem);
-			var highlight = document.createElement("u");
+			let highlight = document.createElement("u");
 			if (end <= formulaStr.length) {
 				appendText(formulaStr.substring(start, end), highlight);
 				codeOutElem.appendChild(highlight);
@@ -57,9 +57,9 @@ function balance(formulaStr) {
 	}
 	
 	try {
-		var matrix = buildMatrix(eqn);                // Set up matrix
+		let matrix = buildMatrix(eqn);                // Set up matrix
 		solve(matrix);                                // Solve linear system
-		var coefs = extractCoefficients(matrix);      // Get coefficients
+		let coefs = extractCoefficients(matrix);      // Get coefficients
 		checkAnswer(eqn, coefs);                      // Self-test, should not fail
 		balancedElem.appendChild(eqn.toHtml(coefs));  // Display balanced equation
 	} catch (e) {
@@ -107,10 +107,10 @@ var RANDOM_DEMOS = [
 	"AB2 + AC3 + AD5 + AE7 + AF11 + AG13 + AH17 + AI19 + AJ23 = A + ABCDEFGHIJ",
 ];
 
-var lastRandomIndex = -1;
+let lastRandomIndex = -1;
 
 function random() {
-	var index;
+	let index;
 	do {
 		index = Math.floor(Math.random() * RANDOM_DEMOS.length);
 		index = Math.max(Math.min(index, RANDOM_DEMOS.length - 1), 0);
@@ -124,15 +124,15 @@ function random() {
 
 // Returns a matrix based on the given equation object.
 function buildMatrix(eqn) {
-	var elems = eqn.getElements();
-	var rows = elems.length + 1;
-	var cols = eqn.getLeftSide().length + eqn.getRightSide().length + 1;
-	var matrix = new Matrix(rows, cols);
-	for (var i = 0; i < elems.length; i++) {
-		var j = 0;
-		for (var k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
+	let elems = eqn.getElements();
+	let rows = elems.length + 1;
+	let cols = eqn.getLeftSide().length + eqn.getRightSide().length + 1;
+	let matrix = new Matrix(rows, cols);
+	for (let i = 0; i < elems.length; i++) {
+		let j = 0;
+		for (let k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
 			matrix.set(i, j,  lhs[k].countElement(elems[i]));
-		for (var k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
+		for (let k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
 			matrix.set(i, j, -rhs[k].countElement(elems[i]));
 	}
 	return matrix;
@@ -143,7 +143,7 @@ function solve(matrix) {
 	matrix.gaussJordanEliminate();
 	
 	// Find row with more than one non-zero coefficient
-	var i;
+	let i;
 	for (i = 0; i < matrix.rowCount() - 1; i++) {
 		if (countNonzeroCoeffs(matrix, i) > 1)
 			break;
@@ -160,8 +160,8 @@ function solve(matrix) {
 
 
 function countNonzeroCoeffs(matrix, row) {
-	var count = 0;
-	for (var i = 0; i < matrix.columnCount(); i++) {
+	let count = 0;
+	for (let i = 0; i < matrix.columnCount(); i++) {
 		if (matrix.get(row, i) != 0)
 			count++;
 	}
@@ -176,14 +176,14 @@ function extractCoefficients(matrix) {
 	if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
 		throw "Multiple independent solutions";
 	
-	var lcm = 1;
-	for (var i = 0; i < cols - 1; i++)
+	let lcm = 1;
+	for (let i = 0; i < cols - 1; i++)
 		lcm = checkedMultiply(lcm / gcd(lcm, matrix.get(i, i)), matrix.get(i, i));
 	
-	var coefs = [];
-	var allzero = true;
-	for (var i = 0; i < cols - 1; i++) {
-		var coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
+	let coefs = [];
+	let allzero = true;
+	for (let i = 0; i < cols - 1; i++) {
+		let coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
 		coefs.push(coef);
 		allzero &= coef == 0;
 	}
@@ -198,7 +198,7 @@ function checkAnswer(eqn, coefs) {
 	if (coefs.length != eqn.getLeftSide().length + eqn.getRightSide().length)
 		throw "Assertion error: Mismatched length";
 	
-	var allzero = true;
+	let allzero = true;
 	coefs.forEach(function(coef) {
 		if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
 			throw "Assertion error: Not an integer";
@@ -207,13 +207,13 @@ function checkAnswer(eqn, coefs) {
 	if (allzero)
 		throw "Assertion error: All-zero solution";
 	
-	var elems = eqn.getElements();
-	for (var i = 0; i < elems.length; i++) {
-		var sum = 0;
-		var j = 0;
-		for (var k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
+	let elems = eqn.getElements();
+	for (let i = 0; i < elems.length; i++) {
+		let sum = 0;
+		let j = 0;
+		for (let k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
 			sum = checkedAdd(sum, checkedMultiply(lhs[k].countElement(elems[i]),  coefs[j]));
-		for (var k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
+		for (let k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
 			sum = checkedAdd(sum, checkedMultiply(rhs[k].countElement(elems[i]), -coefs[j]));
 		if (sum != 0)
 			throw "Assertion error: Incorrect balance";
@@ -238,7 +238,7 @@ class Equation {
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
 	getElements() {
-		var result = new Set();
+		let result = new Set();
 		this.lhs.forEach(function(item) {
 			item.getElements(result);
 		});
@@ -256,19 +256,19 @@ class Equation {
 		
 		// Creates this kind of DOM node: <span class="className">text</span>
 		function createSpan(text, className) {
-			var span = document.createElement("span");
+			let span = document.createElement("span");
 			appendText(text, span);
 			span.className = className;
 			return span;
 		}
 		
-		var node = document.createElement("span");
+		let node = document.createElement("span");
 		
-		var j = 0;
+		let j = 0;
 		function termsToHtml(terms) {
-			var head = true;
-			for (var i = 0; i < terms.length; i++, j++) {
-				var coef = coefs !== undefined ? coefs[j] : 1;
+			let head = true;
+			for (let i = 0; i < terms.length; i++, j++) {
+				let coef = coefs !== undefined ? coefs[j] : 1;
 				if (coef != 0) {
 					if (head) head = false;
 					else node.appendChild(createSpan(" + ", "plus"));
@@ -312,7 +312,7 @@ class Term {
 		if (name == "e") {
 			return -this.charge;
 		} else {
-			var sum = 0;
+			let sum = 0;
 			this.items.forEach(function(item) {
 				sum = checkedAdd(sum, item.countElement(name));
 			});
@@ -322,10 +322,10 @@ class Term {
 	
 	// Returns an HTML element representing this term.
 	toHtml() {
-		var node = document.createElement("span");
+		let node = document.createElement("span");
 		if (this.items.length == 0 && this.charge == -1) {
 			appendText("e", node);
-			var sup = document.createElement("sup");
+			let sup = document.createElement("sup");
 			appendText(MINUS, sup);
 			node.appendChild(sup);
 		} else {
@@ -333,8 +333,8 @@ class Term {
 				node.appendChild(item.toHtml());
 			});
 			if (this.charge != 0) {
-				var sup = document.createElement("sup");
-				var s;
+				let sup = document.createElement("sup");
+				let s;
 				if (Math.abs(this.charge) == 1) s = "";
 				else s = Math.abs(this.charge).toString();
 				if (this.charge > 0) s += "+";
@@ -369,8 +369,8 @@ class Group {
 	}
 	
 	countElement(name) {
-		var sum = 0;
-		var count = this.count;
+		let sum = 0;
+		let count = this.count;
 		this.items.forEach(function(item) {
 			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), count));
 		});
@@ -379,14 +379,14 @@ class Group {
 	
 	// Returns an HTML element representing this group.
 	toHtml() {
-		var node = document.createElement("span");
+		let node = document.createElement("span");
 		appendText("(", node);
 		this.items.forEach(function(item) {
 			node.appendChild(item.toHtml());
 		});
 		appendText(")", node);
 		if (this.count != 1) {
-			var sub = document.createElement("sub");
+			let sub = document.createElement("sub");
 			appendText(this.count.toString(), sub);
 			node.appendChild(sub);
 		}
@@ -415,10 +415,10 @@ class Element {
 	
 	// Returns an HTML element representing this element.
 	toHtml() {
-		var node = document.createElement("span");
+		let node = document.createElement("span");
 		appendText(this.name, node);
 		if (this.count != 1) {
-			var sub = document.createElement("sub");
+			let sub = document.createElement("sub");
 			appendText(this.count.toString(), sub);
 			node.appendChild(sub);
 		}
@@ -431,19 +431,19 @@ class Element {
 
 // Parses the given formula string and returns an equation object, or throws an exception.
 function parse(formulaStr) {
-	var tokenizer = new Tokenizer(formulaStr);
+	let tokenizer = new Tokenizer(formulaStr);
 	return parseEquation(tokenizer);
 }
 
 
 // Parses and returns an equation.
 function parseEquation(tok) {
-	var lhs = [];
-	var rhs = [];
+	let lhs = [];
+	let rhs = [];
 	
 	lhs.push(parseTerm(tok));
 	while (true) {
-		var next = tok.peek();
+		let next = tok.peek();
 		if (next == "=") {
 			tok.consume("=");
 			break;
@@ -458,7 +458,7 @@ function parseEquation(tok) {
 	
 	rhs.push(parseTerm(tok));
 	while (true) {
-		var next = tok.peek();
+		let next = tok.peek();
 		if (next == null)
 			break;
 		else if (next == "+") {
@@ -474,12 +474,12 @@ function parseEquation(tok) {
 
 // Parses and returns a term.
 function parseTerm(tok) {
-	var startPosition = tok.position();
+	let startPosition = tok.position();
 	
 	// Parse groups and elements
-	var items = [];
+	let items = [];
 	while (true) {
-		var next = tok.peek();
+		let next = tok.peek();
 		if (next == null)
 			break;
 		else if (next == "(")
@@ -491,8 +491,8 @@ function parseTerm(tok) {
 	}
 	
 	// Parse optional charge
-	var charge = 0;
-	var next = tok.peek();
+	let charge = 0;
+	let next = tok.peek();
 	if (next != null && next == "^") {
 		tok.consume("^");
 		next = tok.peek();
@@ -512,8 +512,8 @@ function parseTerm(tok) {
 	}
 	
 	// Check if term is valid
-	var elems = new Set();
-	for (var i = 0; i < items.length; i++)
+	let elems = new Set();
+	for (let i = 0; i < items.length; i++)
 		items[i].getElements(elems);
 	elems = elems.toArray();  // List of all elements used in this term, with no repeats
 	if (items.length == 0) {
@@ -527,7 +527,7 @@ function parseTerm(tok) {
 		items = [];
 		charge = -1;
 	} else {  // Otherwise, a term must not contain an element that starts with lowercase
-		for (var i = 0; i < elems.length; i++) {
+		for (let i = 0; i < elems.length; i++) {
 			if (/^[a-z]+$/.test(elems[i]))
 				throw {message: 'Invalid element name "' + elems[i] + '"', start: startPosition, end: tok.position()};
 		}
@@ -539,11 +539,11 @@ function parseTerm(tok) {
 
 // Parses and returns a group.
 function parseGroup(tok) {
-	var startPosition = tok.position();
+	let startPosition = tok.position();
 	tok.consume("(");
-	var items = [];
+	let items = [];
 	while (true) {
-		var next = tok.peek();
+		let next = tok.peek();
 		if (next == null)
 			throw {message: "Element, group, or closing parenthesis expected", start: tok.position()};
 		else if (next == "(")
@@ -565,7 +565,7 @@ function parseGroup(tok) {
 
 // Parses and returns an element.
 function parseElement(tok) {
-	var name = tok.take();
+	let name = tok.take();
 	if (!/^[A-Za-z][a-z]*$/.test(name))
 		throw "Assertion error";
 	return new Element(name, parseOptionalNumber(tok));
@@ -574,7 +574,7 @@ function parseElement(tok) {
 
 // Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
 function parseOptionalNumber(tok) {
-	var next = tok.peek();
+	let next = tok.peek();
 	if (next != null && /^[0-9]+$/.test(next))
 		return checkedParseInt(tok.take());
 	else
@@ -602,7 +602,7 @@ class Tokenizer {
 		if (this.i == this.str.length)  // End of stream
 			return null;
 		
-		var match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.i));
+		let match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.i));
 		if (match == null)
 			throw {message: "Invalid symbol", start: this.i};
 		return match[0];
@@ -610,7 +610,7 @@ class Tokenizer {
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
 	take() {
-		var result = this.peek();
+		let result = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
 		this.i += result.length;
@@ -625,7 +625,7 @@ class Tokenizer {
 	}
 	
 	skipSpaces() {
-		var match = /^[ \t]*/.exec(this.str.substring(this.i));
+		let match = /^[ \t]*/.exec(this.str.substring(this.i));
 		this.i += match[0].length;
 	}
 }
@@ -642,11 +642,11 @@ class Matrix {
 		this.cols = cols;
 		
 		// Initialize with zeros
-		var row = [];
-		for (var j = 0; j < cols; j++)
+		let row = [];
+		for (let j = 0; j < cols; j++)
 			row.push(0);
 		this.cells = [];  // Main data (the matrix)
-		for (var i = 0; i < rows; i++)
+		for (let i = 0; i < rows; i++)
 			this.cells.push(row.clone());
 		row = null;
 	}
@@ -676,7 +676,7 @@ class Matrix {
 	swapRows(i, j) {
 		if (i < 0 || i >= this.rows || j < 0 || j >= this.rows)
 			throw "Index out of bounds";
-		var temp = this.cells[i];
+		let temp = this.cells[i];
 		this.cells[i] = this.cells[j];
 		this.cells[j] = temp;
 	}
@@ -684,8 +684,8 @@ class Matrix {
 	// Returns a new row that is the sum of the two given rows. The rows are not indices. This object's data is unused.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
 	static addRows(x, y) {
-		var z = [];
-		for (var i = 0; i < x.length; i++)
+		let z = [];
+		for (let i = 0; i < x.length; i++)
 			z.push(checkedAdd(x[i], y[i]));
 		return z;
 	}
@@ -701,7 +701,7 @@ class Matrix {
 	// Returns the GCD of all the numbers in the given row. The row is is not an index. This object's data is unused.
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
 	static gcdRow(x) {
-		var result = 0;
+		let result = 0;
 		x.forEach(function(val) {
 			result = gcd(val, result);
 		});
@@ -711,8 +711,8 @@ class Matrix {
 	// Returns a new row where the leading non-zero number (if any) is positive, and the GCD of the row is 0 or 1. This object's data is unused.
 	// For example, simplifyRow([0, -2, 2, 4]) = [0, 1, -1, -2].
 	static simplifyRow(x) {
-		var sign = 0;
-		for (var i = 0; i < x.length; i++) {
+		let sign = 0;
+		for (let i = 0; i < x.length; i++) {
 			if (x[i] > 0) {
 				sign = 1;
 				break;
@@ -721,11 +721,11 @@ class Matrix {
 				break;
 			}
 		}
-		var y = x.clone();
+		let y = x.clone();
 		if (sign == 0)
 			return y;
-		var g = Matrix.gcdRow(x) * sign;
-		for (var i = 0; i < y.length; i++)
+		let g = Matrix.gcdRow(x) * sign;
+		for (let i = 0; i < y.length; i++)
 			y[i] /= g;
 		return y;
 	}
@@ -733,41 +733,41 @@ class Matrix {
 	// Changes this matrix to reduced row echelon form (RREF), except that each leading coefficient is not necessarily 1. Each row is simplified.
 	gaussJordanEliminate() {
 		// Simplify all rows
-		var cells = this.cells = this.cells.map(Matrix.simplifyRow);
+		let cells = this.cells = this.cells.map(Matrix.simplifyRow);
 		
 		// Compute row echelon form (REF)
-		var numPivots = 0;
-		for (var i = 0; i < this.cols; i++) {
+		let numPivots = 0;
+		for (let i = 0; i < this.cols; i++) {
 			// Find pivot
-			var pivotRow = numPivots;
+			let pivotRow = numPivots;
 			while (pivotRow < this.rows && cells[pivotRow][i] == 0)
 				pivotRow++;
 			if (pivotRow == this.rows)
 				continue;
-			var pivot = cells[pivotRow][i];
+			let pivot = cells[pivotRow][i];
 			this.swapRows(numPivots, pivotRow);
 			numPivots++;
 			
 			// Eliminate below
-			for (var j = numPivots; j < this.rows; j++) {
-				var g = gcd(pivot, cells[j][i]);
+			for (let j = numPivots; j < this.rows; j++) {
+				let g = gcd(pivot, cells[j][i]);
 				cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][i] / g)));
 			}
 		}
 		
 		// Compute reduced row echelon form (RREF), but the leading coefficient need not be 1
-		for (var i = this.rows - 1; i >= 0; i--) {
+		for (let i = this.rows - 1; i >= 0; i--) {
 			// Find pivot
-			var pivotCol = 0;
+			let pivotCol = 0;
 			while (pivotCol < this.cols && cells[i][pivotCol] == 0)
 				pivotCol++;
 			if (pivotCol == this.cols)
 				continue;
-			var pivot = cells[i][pivotCol];
+			let pivot = cells[i][pivotCol];
 			
 			// Eliminate above
-			for (var j = i - 1; j >= 0; j--) {
-				var g = gcd(pivot, cells[j][pivotCol]);
+			for (let j = i - 1; j >= 0; j--) {
+				let g = gcd(pivot, cells[j][pivotCol]);
 				cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][pivotCol] / g)));
 			}
 		}
@@ -775,11 +775,11 @@ class Matrix {
 	
 	// Returns a string representation of this matrix, for debugging purposes.
 	toString() {
-		var result = "[";
-		for (var i = 0; i < this.rows; i++) {
+		let result = "[";
+		for (let i = 0; i < this.rows; i++) {
 			if (i != 0) result += "],\n";
 			result += "[";
-			for (var j = 0; j < this.cols; j++) {
+			for (let j = 0; j < this.cols; j++) {
 				if (j != 0) result += ", ";
 				result += this.cells[i][j];
 			}
@@ -794,7 +794,7 @@ class Matrix {
 
 function Set() {
 	// Storage for the set
-	var items = [];
+	let items = [];
 	
 	// Adds the given object to the set. Returns nothing.
 	this.add = function(obj) {
@@ -820,7 +820,7 @@ var INT_MAX = 9007199254740992;  // 2^53
 
 // Returns the given string parsed into a number, or throws an exception if the result is too large.
 function checkedParseInt(str) {
-	var result = parseInt(str, 10);
+	let result = parseInt(str, 10);
 	if (isNaN(result))
 		throw "Not a number";
 	if (result <= -INT_MAX || result >= INT_MAX)
@@ -830,7 +830,7 @@ function checkedParseInt(str) {
 
 // Returns the sum of the given integers, or throws an exception if the result is too large.
 function checkedAdd(x, y) {
-	var z = x + y;
+	let z = x + y;
 	if (z <= -INT_MAX || z >= INT_MAX)
 		throw "Arithmetic overflow";
 	return z;
@@ -838,7 +838,7 @@ function checkedAdd(x, y) {
 
 // Returns the product of the given integers, or throws an exception if the result is too large.
 function checkedMultiply(x, y) {
-	var z = x * y;
+	let z = x * y;
 	if (z <= -INT_MAX || z >= INT_MAX)
 		throw "Arithmetic overflow";
 	return z;
@@ -852,7 +852,7 @@ function gcd(x, y) {
 	x = Math.abs(x);
 	y = Math.abs(y);
 	while (y != 0) {
-		var z = x % y;
+		let z = x % y;
 		x = y;
 		y = z;
 	}
