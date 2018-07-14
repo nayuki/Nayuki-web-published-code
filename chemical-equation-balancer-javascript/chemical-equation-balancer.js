@@ -40,7 +40,7 @@ function balance(formulaStr) {
 				end++;
 			
 			appendText(formulaStr.substring(0, start), codeOutElem);
-			let highlight = document.createElement("u");
+			let highlight = createElem("u");
 			if (end <= formulaStr.length) {
 				appendText(formulaStr.substring(start, end), highlight);
 				codeOutElem.appendChild(highlight);
@@ -251,13 +251,12 @@ class Equation {
 		
 		// Creates this kind of DOM node: <span class="className">text</span>
 		function createSpan(text, className) {
-			let span = document.createElement("span");
-			appendText(text, span);
+			let span = createElem("span", text);
 			span.className = className;
 			return span;
 		}
 		
-		let node = document.createElement("span");
+		let node = createElem("span");
 		
 		let j = 0;
 		function termsToHtml(terms) {
@@ -316,24 +315,20 @@ class Term {
 	
 	// Returns an HTML element representing this term.
 	toHtml() {
-		let node = document.createElement("span");
+		let node = createElem("span");
 		if (this.items.length == 0 && this.charge == -1) {
 			appendText("e", node);
-			let sup = document.createElement("sup");
-			appendText(MINUS, sup);
-			node.appendChild(sup);
+			node.appendChild(createElem("sup", MINUS));
 		} else {
 			for (let item of this.items)
 				node.appendChild(item.toHtml());
 			if (this.charge != 0) {
-				let sup = document.createElement("sup");
 				let s;
 				if (Math.abs(this.charge) == 1) s = "";
 				else s = Math.abs(this.charge).toString();
 				if (this.charge > 0) s += "+";
 				else s += MINUS;
-				appendText(s, sup);
-				node.appendChild(sup);
+				node.appendChild(createElem("sup", s));
 			}
 		}
 		return node;
@@ -369,16 +364,13 @@ class Group {
 	
 	// Returns an HTML element representing this group.
 	toHtml() {
-		let node = document.createElement("span");
+		let node = createElem("span");
 		appendText("(", node);
 		for (let item of this.items)
 			node.appendChild(item.toHtml());
 		appendText(")", node);
-		if (this.count != 1) {
-			let sub = document.createElement("sub");
-			appendText(this.count.toString(), sub);
-			node.appendChild(sub);
-		}
+		if (this.count != 1)
+			node.appendChild(createElem("sub", this.count.toString()));
 		return node;
 	}
 }
@@ -404,13 +396,9 @@ class Element {
 	
 	// Returns an HTML element representing this element.
 	toHtml() {
-		let node = document.createElement("span");
-		appendText(this.name, node);
-		if (this.count != 1) {
-			let sub = document.createElement("sub");
-			appendText(this.count.toString(), sub);
-			node.appendChild(sub);
-		}
+		let node = createElem("span", this.name);
+		if (this.count != 1)
+			node.appendChild(createElem("sub", this.count.toString()));
 		return node;
 	}
 }
@@ -819,6 +807,14 @@ const RIGHT_ARROW = "\u2192";  // Right arrow
 // Sets the page's message element to the given string. Returns nothing.
 function setMessage(str) {
 	document.getElementById("message").textContent = str;
+}
+
+
+function createElem(tagName, text) {
+	let result = document.createElement(tagName);
+	if (text !== undefined)
+		result.textContent = text;
+	return result;
 }
 
 
