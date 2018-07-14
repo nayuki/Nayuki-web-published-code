@@ -15,8 +15,8 @@
 function balance(formulaStr) {
 	// Clear output
 	setMessage("");
-	var balancedElem = document.getElementById("balanced");
-	var codeOutElem  = document.getElementById("codeOutput");
+	const balancedElem = document.getElementById("balanced");
+	const codeOutElem  = document.getElementById("codeOutput");
 	clearChildren(balancedElem);
 	clearChildren(codeOutElem);
 	appendText(" ", codeOutElem);
@@ -75,7 +75,7 @@ function demo(formulaStr) {
 }
 
 
-var RANDOM_DEMOS = [
+const RANDOM_DEMOS = [
 	"H2 + O2 = H2O",
 	"Fe + O2 = Fe2O3",
 	"NH3 + O2 = N2 + H2O",
@@ -170,8 +170,8 @@ function countNonzeroCoeffs(matrix, row) {
 
 
 function extractCoefficients(matrix) {
-	var rows = matrix.rowCount();
-	var cols = matrix.columnCount();
+	const rows = matrix.rowCount();
+	const cols = matrix.columnCount();
 	
 	if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
 		throw "Multiple independent solutions";
@@ -816,7 +816,7 @@ function Set() {
 
 /*---- Math functions (especially checked integer operations) ----*/
 
-var INT_MAX = 9007199254740992;  // 2^53
+const INT_MAX = 9007199254740992;  // 2^53
 
 // Returns the given string parsed into a number, or throws an exception if the result is too large.
 function checkedParseInt(str) {
@@ -863,8 +863,8 @@ function gcd(x, y) {
 /*---- Miscellaneous ----*/
 
 // Unicode character constants (because this script file's character encoding is unspecified)
-var MINUS = "\u2212";        // Minus sign
-var RIGHT_ARROW = "\u2192";  // Right arrow
+const MINUS = "\u2212";        // Minus sign
+const RIGHT_ARROW = "\u2192";  // Right arrow
 
 
 // Monkey patching. Returns a shallow copy of this array. Usually used for making defensive copies.
