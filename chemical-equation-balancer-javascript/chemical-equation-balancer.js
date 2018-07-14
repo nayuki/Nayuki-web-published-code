@@ -125,14 +125,14 @@ function random() {
 // Returns a matrix based on the given equation object.
 function buildMatrix(eqn) {
 	let elems = eqn.getElements();
-	let rows = elems.length + 1;
-	let cols = eqn.getLeftSide().length + eqn.getRightSide().length + 1;
-	let matrix = new Matrix(rows, cols);
+	let lhs = eqn.getLeftSide();
+	let rhs = eqn.getRightSide();
+	let matrix = new Matrix(elems.length + 1, lhs.length + rhs.length + 1);
 	elems.forEach((elem, i) => {
 		let j = 0;
-		for (let k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
+		for (let k = 0; k < lhs.length; j++, k++)
 			matrix.set(i, j,  lhs[k].countElement(elem));
-		for (let k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
+		for (let k = 0; k < rhs.length; j++, k++)
 			matrix.set(i, j, -rhs[k].countElement(elem));
 	});
 	return matrix;
@@ -207,8 +207,7 @@ function checkAnswer(eqn, coefs) {
 	if (allzero)
 		throw "Assertion error: All-zero solution";
 	
-	let elems = eqn.getElements();
-	for (let elem of elems) {
+	for (let elem of eqn.getElements()) {
 		let sum = 0;
 		let j = 0;
 		for (let k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
@@ -697,21 +696,15 @@ class Matrix {
 	static simplifyRow(x) {
 		let sign = 0;
 		for (let val of x) {
-			if (val > 0) {
-				sign = 1;
-				break;
-			} else if (val < 0) {
-				sign = -1;
+			if (val != 0) {
+				sign = Math.sign(val);
 				break;
 			}
 		}
-		let y = x.slice();
 		if (sign == 0)
-			return y;
+			return x.slice();
 		let g = Matrix.gcdRow(x) * sign;
-		for (let i = 0; i < y.length; i++)
-			y[i] /= g;
-		return y;
+		return x.map(val => val / g);
 	}
 	
 	// Changes this matrix to reduced row echelon form (RREF), except that each leading coefficient is not necessarily 1. Each row is simplified.
