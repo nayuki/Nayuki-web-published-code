@@ -7,8 +7,9 @@
  */
 "use strict";
 /*---- Entry point functions from HTML GUI ----*/
+var formulaElem = document.getElementById("inputFormula");
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
-function balance(formulaStr) {
+function doBalance() {
     // Clear output
     var msgElem = document.getElementById("message");
     var balancedElem = document.getElementById("balanced");
@@ -20,6 +21,7 @@ function balance(formulaStr) {
         codeOutElem.removeChild(codeOutElem.firstChild);
     codeOutElem.textContent = " ";
     // Parse equation
+    var formulaStr = formulaElem.value;
     var eqn;
     try {
         eqn = new Parser(formulaStr).parseEquation();
@@ -61,9 +63,9 @@ function balance(formulaStr) {
     }
 }
 // Sets the input box to the given formula string and balances it. Returns nothing.
-function demo(formulaStr) {
-    document.getElementById("inputFormula").value = formulaStr;
-    balance(formulaStr);
+function doDemo(formulaStr) {
+    formulaElem.value = formulaStr;
+    doBalance();
 }
 var RANDOM_DEMOS = [
     "H2 + O2 = H2O",
@@ -97,14 +99,14 @@ var RANDOM_DEMOS = [
     "AB2 + AC3 + AD5 + AE7 + AF11 + AG13 + AH17 + AI19 + AJ23 = A + ABCDEFGHIJ",
 ];
 var lastRandomIndex = -1;
-function random() {
+function doRandom() {
     var index;
     do {
         index = Math.floor(Math.random() * RANDOM_DEMOS.length);
         index = Math.max(Math.min(index, RANDOM_DEMOS.length - 1), 0);
     } while (RANDOM_DEMOS.length >= 2 && index == lastRandomIndex);
     lastRandomIndex = index;
-    demo(RANDOM_DEMOS[index]);
+    doDemo(RANDOM_DEMOS[index]);
 }
 /*---- Text formula parser classes ----*/
 var Parser = /** @class */ (function () {

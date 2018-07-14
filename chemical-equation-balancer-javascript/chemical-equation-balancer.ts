@@ -11,8 +11,11 @@
 
 /*---- Entry point functions from HTML GUI ----*/
 
+const formulaElem = document.getElementById("inputFormula") as HTMLInputElement;
+
+
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
-function balance(formulaStr: string): void {
+function doBalance(): void {
 	// Clear output
 	const msgElem = document.getElementById("message") as HTMLElement;
 	const balancedElem = document.getElementById("balanced") as HTMLElement;
@@ -25,6 +28,7 @@ function balance(formulaStr: string): void {
 	codeOutElem.textContent = " ";
 	
 	// Parse equation
+	let formulaStr = formulaElem.value;
 	let eqn: Equation;
 	try {
 		eqn = new Parser(formulaStr).parseEquation();
@@ -68,9 +72,9 @@ function balance(formulaStr: string): void {
 
 
 // Sets the input box to the given formula string and balances it. Returns nothing.
-function demo(formulaStr: string): void {
-	(document.getElementById("inputFormula") as HTMLInputElement).value = formulaStr;
-	balance(formulaStr);
+function doDemo(formulaStr: string): void {
+	formulaElem.value = formulaStr;
+	doBalance();
 }
 
 
@@ -108,14 +112,14 @@ const RANDOM_DEMOS: Array<string> = [
 
 let lastRandomIndex: number = -1;
 
-function random(): void {
+function doRandom(): void {
 	let index: number;
 	do {
 		index = Math.floor(Math.random() * RANDOM_DEMOS.length);
 		index = Math.max(Math.min(index, RANDOM_DEMOS.length - 1), 0);
 	} while (RANDOM_DEMOS.length >= 2 && index == lastRandomIndex);
 	lastRandomIndex = index;
-	demo(RANDOM_DEMOS[index]);
+	doDemo(RANDOM_DEMOS[index]);
 }
 
 
