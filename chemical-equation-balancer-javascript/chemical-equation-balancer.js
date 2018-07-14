@@ -10,9 +10,10 @@
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function balance(formulaStr) {
     // Clear output
-    setMessage("");
+    var msgElem = document.getElementById("message");
     var balancedElem = document.getElementById("balanced");
     var codeOutElem = document.getElementById("codeOutput");
+    msgElem.textContent = "";
     clearChildren(balancedElem);
     clearChildren(codeOutElem);
     codeOutElem.textContent = " ";
@@ -23,10 +24,10 @@ function balance(formulaStr) {
     }
     catch (e) {
         if (typeof e == "string") { // Simple error message string
-            setMessage("Syntax error: " + e);
+            msgElem.textContent = "Syntax error: " + e;
         }
         else if ("start" in e) { // Error message object with start and possibly end character indices
-            setMessage("Syntax error: " + e.message);
+            msgElem.textContent = "Syntax error: " + e.message;
             var start = e.start;
             var end = "end" in e ? e.end : e.start;
             while (end > start && (formulaStr.charAt(end - 1) == " " || formulaStr.charAt(end - 1) == "\t"))
@@ -42,7 +43,7 @@ function balance(formulaStr) {
                 codeOutElem.appendChild(createElem("u", " "));
         }
         else {
-            setMessage("Assertion error");
+            msgElem.textContent = "Assertion error";
         }
         return;
     }
@@ -54,7 +55,7 @@ function balance(formulaStr) {
         balancedElem.appendChild(eqn.toHtml(coefs)); // Display balanced equation
     }
     catch (e) {
-        setMessage(e.toString());
+        msgElem.textContent = e.toString();
     }
 }
 // Sets the input box to the given formula string and balances it. Returns nothing.
@@ -708,10 +709,6 @@ function gcd(x, y) {
 // Unicode character constants (because this script file's character encoding is unspecified)
 var MINUS = "\u2212"; // Minus sign
 var RIGHT_ARROW = "\u2192"; // Right arrow
-// Sets the page's message element to the given string. Returns nothing.
-function setMessage(str) {
-    document.getElementById("message").textContent = str;
-}
 function createElem(tagName, text) {
     var result = document.createElement(tagName);
     if (text !== undefined)

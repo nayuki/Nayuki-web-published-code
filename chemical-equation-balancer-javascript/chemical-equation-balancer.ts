@@ -14,9 +14,10 @@
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function balance(formulaStr: string): void {
 	// Clear output
-	setMessage("");
+	const msgElem = document.getElementById("message") as HTMLElement;
 	const balancedElem = document.getElementById("balanced") as HTMLElement;
 	const codeOutElem  = document.getElementById("codeOutput") as HTMLElement;
+	msgElem.textContent = "";
 	clearChildren(balancedElem);
 	clearChildren(codeOutElem);
 	codeOutElem.textContent = " ";
@@ -27,10 +28,10 @@ function balance(formulaStr: string): void {
 		eqn = new Parser(formulaStr).parseEquation();
 	} catch (e) {
 		if (typeof e == "string") {  // Simple error message string
-			setMessage("Syntax error: " + e);
+			msgElem.textContent = "Syntax error: " + e;
 			
 		} else if ("start" in e) {  // Error message object with start and possibly end character indices
-			setMessage("Syntax error: " + e.message);
+			msgElem.textContent = "Syntax error: " + e.message;
 			
 			let start: number = e.start;
 			let end: number = "end" in e ? e.end : e.start;
@@ -47,7 +48,7 @@ function balance(formulaStr: string): void {
 				codeOutElem.appendChild(createElem("u", " "));
 			
 		} else {
-			setMessage("Assertion error");
+			msgElem.textContent = "Assertion error";
 		}
 		return;
 	}
@@ -59,7 +60,7 @@ function balance(formulaStr: string): void {
 		checkAnswer(eqn, coefs);                                 // Self-test, should not fail
 		balancedElem.appendChild(eqn.toHtml(coefs));             // Display balanced equation
 	} catch (e) {
-		setMessage(e.toString());
+		msgElem.textContent = e.toString();
 	}
 }
 
@@ -798,12 +799,6 @@ function gcd(x: number, y: number): number {
 // Unicode character constants (because this script file's character encoding is unspecified)
 const MINUS: string = "\u2212";        // Minus sign
 const RIGHT_ARROW: string = "\u2192";  // Right arrow
-
-
-// Sets the page's message element to the given string. Returns nothing.
-function setMessage(str: string): void {
-	(document.getElementById("message") as HTMLElement).textContent = str;
-}
 
 
 function createElem(tagName: string, text?: string): HTMLElement {
