@@ -24,7 +24,7 @@ function balance(formulaStr: string): void {
 	// Parse equation
 	let eqn: Equation;
 	try {
-		eqn = parse(formulaStr);
+		eqn = new Parser(formulaStr).parseEquation();
 	} catch (e) {
 		if (typeof e == "string") {  // Simple error message string
 			setMessage("Syntax error: " + e);
@@ -406,155 +406,156 @@ class ChemElem {
 }
 
 
-/*---- Parser functions ----*/
+/*---- Parser object ----*/
 
-// Parses the given formula string and returns an equation object, or throws an exception.
-function parse(formulaStr: string): Equation {
-	let tokenizer = new Tokenizer(formulaStr);
-	return parseEquation(tokenizer);
-}
-
-
-// Parses and returns an equation.
-function parseEquation(tok: Tokenizer): Equation {
-	let lhs: Array<Term> = [parseTerm(tok)];
-	while (true) {
-		let next: string|null = tok.peek();
-		if (next == "=") {
-			tok.consume("=");
-			break;
-		} else if (next == null) {
-			throw {message: "Plus or equal sign expected", start: tok.position()};
-		} else if (next == "+") {
-			tok.consume("+");
-			lhs.push(parseTerm(tok));
-		} else
-			throw {message: "Plus expected", start: tok.position()};
+class Parser {
+	private tok: Tokenizer;
+	
+	public constructor(formulaStr: string) {
+		this.tok = new Tokenizer(formulaStr);
 	}
 	
-	let rhs: Array<Term> = [parseTerm(tok)];
-	while (true) {
-		let next: string|null = tok.peek();
-		if (next == null)
-			break;
-		else if (next == "+") {
-			tok.consume("+");
-			rhs.push(parseTerm(tok));
-		} else
-			throw {message: "Plus or end expected", start: tok.position()};
-	}
-	
-	return new Equation(lhs, rhs);
-}
-
-
-// Parses and returns a term.
-function parseTerm(tok: Tokenizer): Term {
-	let startPosition: number = tok.position();
-	
-	// Parse groups and elements
-	let items: Array<ChemElem|Group> = [];
-	while (true) {
-		let next: string|null = tok.peek();
-		if (next == null)
-			break;
-		else if (next == "(")
-			items.push(parseGroup(tok));
-		else if (/^[A-Za-z][a-z]*$/.test(next))
-			items.push(parseElement(tok));
-		else
-			break;
-	}
-	
-	// Parse optional charge
-	let charge = 0;
-	let next: string|null = tok.peek();
-	if (next != null && next == "^") {
-		tok.consume("^");
-		next = tok.peek();
-		if (next == null)
-			throw {message: "Number or sign expected", start: tok.position()};
-		else
-			charge = parseOptionalNumber(tok);
-		
-		next = tok.peek();
-		if (next == "+")
-			charge = +charge;  // No-op
-		else if (next == "-")
-			charge = -charge;
-		else
-			throw {message: "Sign expected", start: tok.position()};
-		tok.take();  // Consume the sign
-	}
-	
-	// Check if term is valid
-	let elemSet = new Set<string>();
-	for (let item of items)
-		item.getElements(elemSet);
-	let elems = Array.from(elemSet);  // List of all elements used in this term, with no repeats
-	if (items.length == 0) {
-		throw {message: "Invalid term - empty", start: startPosition, end: tok.position()};
-	} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
-		if (items.length > 1)
-			throw {message: "Invalid term - electron needs to stand alone", start: startPosition, end: tok.position()};
-		else if (charge != 0 && charge != -1)
-			throw {message: "Invalid term - invalid charge for electron", start: startPosition, end: tok.position()};
-		// Tweak data
-		items = [];
-		charge = -1;
-	} else {  // Otherwise, a term must not contain an element that starts with lowercase
-		for (let elem of elems) {
-			if (/^[a-z]+$/.test(elem))
-				throw {message: 'Invalid element name "' + elem + '"', start: startPosition, end: tok.position()};
+	// Parses and returns an equation.
+	public parseEquation(): Equation {
+		let lhs: Array<Term> = [this.parseTerm()];
+		while (true) {
+			let next: string|null = this.tok.peek();
+			if (next == "=") {
+				this.tok.consume("=");
+				break;
+			} else if (next == null) {
+				throw {message: "Plus or equal sign expected", start: this.tok.position()};
+			} else if (next == "+") {
+				this.tok.consume("+");
+				lhs.push(this.parseTerm());
+			} else
+				throw {message: "Plus expected", start: this.tok.position()};
 		}
+		
+		let rhs: Array<Term> = [this.parseTerm()];
+		while (true) {
+			let next: string|null = this.tok.peek();
+			if (next == null)
+				break;
+			else if (next == "+") {
+				this.tok.consume("+");
+				rhs.push(this.parseTerm());
+			} else
+				throw {message: "Plus or end expected", start: this.tok.position()};
+		}
+		
+		return new Equation(lhs, rhs);
 	}
 	
-	return new Term(items, charge);
-}
-
-
-// Parses and returns a group.
-function parseGroup(tok: Tokenizer): Group {
-	let startPosition: number = tok.position();
-	tok.consume("(");
-	let items: Array<ChemElem|Group> = [];
-	while (true) {
-		let next: string|null = tok.peek();
-		if (next == null)
-			throw {message: "Element, group, or closing parenthesis expected", start: tok.position()};
-		else if (next == "(")
-			items.push(parseGroup(tok));
-		else if (/^[A-Za-z][a-z]*$/.test(next))
-			items.push(parseElement(tok));
-		else if (next == ")") {
-			tok.consume(")");
-			if (items.length == 0)
-				throw {message: "Empty group", start: startPosition, end: tok.position()};
-			break;
-		} else
-			throw {message: "Element, group, or closing parenthesis expected", start: tok.position()};
+	
+	// Parses and returns a term.
+	private parseTerm(): Term {
+		let startPosition: number = this.tok.position();
+		
+		// Parse groups and elements
+		let items: Array<ChemElem|Group> = [];
+		while (true) {
+			let next: string|null = this.tok.peek();
+			if (next == null)
+				break;
+			else if (next == "(")
+				items.push(this.parseGroup());
+			else if (/^[A-Za-z][a-z]*$/.test(next))
+				items.push(this.parseElement());
+			else
+				break;
+		}
+		
+		// Parse optional charge
+		let charge = 0;
+		let next: string|null = this.tok.peek();
+		if (next != null && next == "^") {
+			this.tok.consume("^");
+			next = this.tok.peek();
+			if (next == null)
+				throw {message: "Number or sign expected", start: this.tok.position()};
+			else
+				charge = this.parseOptionalNumber();
+			
+			next = this.tok.peek();
+			if (next == "+")
+				charge = +charge;  // No-op
+			else if (next == "-")
+				charge = -charge;
+			else
+				throw {message: "Sign expected", start: this.tok.position()};
+			this.tok.take();  // Consume the sign
+		}
+		
+		// Check if term is valid
+		let elemSet = new Set<string>();
+		for (let item of items)
+			item.getElements(elemSet);
+		let elems = Array.from(elemSet);  // List of all elements used in this term, with no repeats
+		if (items.length == 0) {
+			throw {message: "Invalid term - empty", start: startPosition, end: this.tok.position()};
+		} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
+			if (items.length > 1)
+				throw {message: "Invalid term - electron needs to stand alone", start: startPosition, end: this.tok.position()};
+			else if (charge != 0 && charge != -1)
+				throw {message: "Invalid term - invalid charge for electron", start: startPosition, end: this.tok.position()};
+			// Tweak data
+			items = [];
+			charge = -1;
+		} else {  // Otherwise, a term must not contain an element that starts with lowercase
+			for (let elem of elems) {
+				if (/^[a-z]+$/.test(elem))
+					throw {message: 'Invalid element name "' + elem + '"', start: startPosition, end: this.tok.position()};
+			}
+		}
+		
+		return new Term(items, charge);
 	}
 	
-	return new Group(items, parseOptionalNumber(tok));
-}
-
-
-// Parses and returns an element.
-function parseElement(tok: Tokenizer): ChemElem {
-	let name: string = tok.take();
-	if (!/^[A-Za-z][a-z]*$/.test(name))
-		throw "Assertion error";
-	return new ChemElem(name, parseOptionalNumber(tok));
-}
-
-
-// Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
-function parseOptionalNumber(tok: Tokenizer): number {
-	let next: string|null = tok.peek();
-	if (next != null && /^[0-9]+$/.test(next))
-		return checkedParseInt(tok.take());
-	else
-		return 1;
+	
+	// Parses and returns a group.
+	private parseGroup(): Group {
+		let startPosition: number = this.tok.position();
+		this.tok.consume("(");
+		let items: Array<ChemElem|Group> = [];
+		while (true) {
+			let next: string|null = this.tok.peek();
+			if (next == null)
+				throw {message: "Element, group, or closing parenthesis expected", start: this.tok.position()};
+			else if (next == "(")
+				items.push(this.parseGroup());
+			else if (/^[A-Za-z][a-z]*$/.test(next))
+				items.push(this.parseElement());
+			else if (next == ")") {
+				this.tok.consume(")");
+				if (items.length == 0)
+					throw {message: "Empty group", start: startPosition, end: this.tok.position()};
+				break;
+			} else
+				throw {message: "Element, group, or closing parenthesis expected", start: this.tok.position()};
+		}
+		
+		return new Group(items, this.parseOptionalNumber());
+	}
+	
+	
+	// Parses and returns an element.
+	private parseElement(): ChemElem {
+		let name: string = this.tok.take();
+		if (!/^[A-Za-z][a-z]*$/.test(name))
+			throw "Assertion error";
+		return new ChemElem(name, this.parseOptionalNumber());
+	}
+	
+	
+	// Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
+	private parseOptionalNumber(): number {
+		let next: string|null = this.tok.peek();
+		if (next != null && /^[0-9]+$/.test(next))
+			return checkedParseInt(this.tok.take());
+		else
+			return 1;
+	}
 }
 
 
