@@ -199,7 +199,7 @@ function checkAnswer(eqn, coefs) {
 		throw "Assertion error: Mismatched length";
 	
 	let allzero = true;
-	coefs.forEach(function(coef) {
+	coefs.forEach(coef => {
 		if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
 			throw "Assertion error: Not an integer";
 		allzero &= coef == 0;
@@ -239,12 +239,10 @@ class Equation {
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
 	getElements() {
 		let result = new Set();
-		this.lhs.forEach(function(item) {
-			item.getElements(result);
-		});
-		this.rhs.forEach(function(item) {
-			item.getElements(result);
-		});
+		this.lhs.forEach(item =>
+			item.getElements(result));
+		this.rhs.forEach(item =>
+			item.getElements(result));
 		return result.toArray();
 	}
 	
@@ -302,9 +300,8 @@ class Term {
 	
 	getElements(resultSet) {
 		resultSet.add("e");
-		this.items.forEach(function(item) {
-			item.getElements(resultSet);
-		});
+		this.items.forEach(item =>
+			item.getElements(resultSet));
 	}
 	
 	// Counts the number of times the given element (specified as a string) occurs in this term, taking groups and counts into account, returning an integer.
@@ -313,9 +310,8 @@ class Term {
 			return -this.charge;
 		} else {
 			let sum = 0;
-			this.items.forEach(function(item) {
-				sum = checkedAdd(sum, item.countElement(name));
-			});
+			this.items.forEach(item =>
+				sum = checkedAdd(sum, item.countElement(name)));
 			return sum;
 		}
 	}
@@ -329,9 +325,8 @@ class Term {
 			appendText(MINUS, sup);
 			node.appendChild(sup);
 		} else {
-			this.items.forEach(function(item) {
-				node.appendChild(item.toHtml());
-			});
+			this.items.forEach(item =>
+				node.appendChild(item.toHtml()));
 			if (this.charge != 0) {
 				let sup = document.createElement("sup");
 				let s;
@@ -363,17 +358,15 @@ class Group {
 	getCount() { return this.count; }
 	
 	getElements(resultSet) {
-		this.items.forEach(function(item) {
-			item.getElements(resultSet);
-		});
+		this.items.forEach(item =>
+			item.getElements(resultSet));
 	}
 	
 	countElement(name) {
 		let sum = 0;
 		let count = this.count;
-		this.items.forEach(function(item) {
-			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), count));
-		});
+		this.items.forEach(item =>
+			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), count)));
 		return sum;
 	}
 	
@@ -381,9 +374,8 @@ class Group {
 	toHtml() {
 		let node = document.createElement("span");
 		appendText("(", node);
-		this.items.forEach(function(item) {
-			node.appendChild(item.toHtml());
-		});
+		this.items.forEach(item =>
+			node.appendChild(item.toHtml()));
 		appendText(")", node);
 		if (this.count != 1) {
 			let sub = document.createElement("sub");
@@ -693,18 +685,16 @@ class Matrix {
 	// Returns a new row that is the product of the given row with the given scalar. The row is is not an index. This object's data is unused.
 	// For example, multiplyRow([0, 1, 3], 4) = [0, 4, 12].
 	static multiplyRow(x, c) {
-		return x.map(function(val) {
-			return checkedMultiply(val, c);
-		});
+		return x.map(val =>
+			checkedMultiply(val, c));
 	}
 	
 	// Returns the GCD of all the numbers in the given row. The row is is not an index. This object's data is unused.
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
 	static gcdRow(x) {
 		let result = 0;
-		x.forEach(function(val) {
-			result = gcd(val, result);
-		});
+		x.forEach(val =>
+			result = gcd(val, result));
 		return result;
 	}
 	
