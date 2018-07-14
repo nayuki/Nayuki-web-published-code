@@ -548,6 +548,8 @@ var Tokenizer = /** @class */ (function () {
     };
     Tokenizer.prototype.skipSpaces = function () {
         var match = /^[ \t]*/.exec(this.str.substring(this.i));
+        if (match === null)
+            throw "Assertion error";
         this.i += match[0].length;
     };
     return Tokenizer;

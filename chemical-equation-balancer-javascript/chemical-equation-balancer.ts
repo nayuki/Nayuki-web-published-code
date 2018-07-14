@@ -15,8 +15,8 @@
 function balance(formulaStr: string): void {
 	// Clear output
 	setMessage("");
-	const balancedElem = document.getElementById("balanced");
-	const codeOutElem  = document.getElementById("codeOutput");
+	const balancedElem = document.getElementById("balanced") as HTMLElement;
+	const codeOutElem  = document.getElementById("codeOutput") as HTMLElement;
 	clearChildren(balancedElem);
 	clearChildren(codeOutElem);
 	appendText(" ", codeOutElem);
@@ -587,7 +587,7 @@ class Tokenizer {
 	}
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
-	public peek(): string {
+	public peek(): string|null {
 		if (this.i == this.str.length)  // End of stream
 			return null;
 		
@@ -615,6 +615,8 @@ class Tokenizer {
 	
 	private skipSpaces(): void {
 		let match = /^[ \t]*/.exec(this.str.substring(this.i));
+		if (match === null)
+			throw "Assertion error";
 		this.i += match[0].length;
 	}
 }
@@ -825,7 +827,7 @@ const RIGHT_ARROW = "\u2192";  // Right arrow
 
 // Sets the page's message element to the given string. Returns nothing.
 function setMessage(str: string): void {
-	document.getElementById("message").textContent = str;
+	(document.getElementById("message") as HTMLElement).textContent = str;
 }
 
 
