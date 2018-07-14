@@ -746,3 +746,13 @@ function clearChildren(node) {
 function appendText(text, node) {
     node.appendChild(document.createTextNode(text));
 }
+// Polyfills, only valid for this application
+if (!("sign" in Math))
+    Math.sign = function (x) { return x > 0 ? 1 : (x < 0 ? -1 : 0); };
+if (!("from" in Array)) {
+    Array.from = function (set) {
+        var result = [];
+        set.forEach(function (obj) { return result.push(obj); });
+        return result;
+    };
+}

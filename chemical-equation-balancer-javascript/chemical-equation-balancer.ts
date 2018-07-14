@@ -850,3 +850,15 @@ function clearChildren(node: HTMLElement): void {
 function appendText(text: string, node: HTMLElement): void {
 	node.appendChild(document.createTextNode(text));
 }
+
+
+// Polyfills, only valid for this application
+if (!("sign" in Math))
+	(Math as any).sign = (x: number): number => x > 0 ? 1 : (x < 0 ? -1 : 0);
+if (!("from" in Array)) {
+	(Array as any).from = function<E>(set: Set<E>): Array<E> {
+		let result: Array<E> = [];
+		set.forEach(obj => result.push(obj));
+		return result;
+	};
+}
