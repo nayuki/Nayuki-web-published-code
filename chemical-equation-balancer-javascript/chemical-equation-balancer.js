@@ -239,9 +239,7 @@ class Equation {
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
 	getElements() {
 		let result = new Set();
-		this.lhs.forEach(item =>
-			item.getElements(result));
-		this.rhs.forEach(item =>
+		this.lhs.concat(this.rhs).forEach(item =>
 			item.getElements(result));
 		return Array.from(result);
 	}
@@ -265,15 +263,16 @@ class Equation {
 		let j = 0;
 		function termsToHtml(terms) {
 			let head = true;
-			for (let i = 0; i < terms.length; i++, j++) {
+			for (let term of terms) {
 				let coef = coefs !== undefined ? coefs[j] : 1;
 				if (coef != 0) {
 					if (head) head = false;
 					else node.appendChild(createSpan(" + ", "plus"));
 					if (coef != 1)
 						node.appendChild(createSpan(coef.toString().replace(/-/, MINUS), "coefficient"));
-					node.appendChild(terms[i].toHtml());
+					node.appendChild(term.toHtml());
 				}
+				j++;
 			}
 		}
 		
@@ -364,9 +363,8 @@ class Group {
 	
 	countElement(name) {
 		let sum = 0;
-		let count = this.count;
 		this.items.forEach(item =>
-			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), count)));
+			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), this.count)));
 		return sum;
 	}
 	
@@ -430,10 +428,7 @@ function parse(formulaStr) {
 
 // Parses and returns an equation.
 function parseEquation(tok) {
-	let lhs = [];
-	let rhs = [];
-	
-	lhs.push(parseTerm(tok));
+	let lhs = [parseTerm(tok)];
 	while (true) {
 		let next = tok.peek();
 		if (next == "=") {
@@ -448,7 +443,7 @@ function parseEquation(tok) {
 			throw {message: "Plus expected", start: tok.position()};
 	}
 	
-	rhs.push(parseTerm(tok));
+	let rhs = [parseTerm(tok)];
 	while (true) {
 		let next = tok.peek();
 		if (next == null)
@@ -640,7 +635,6 @@ class Matrix {
 		this.cells = [];  // Main data (the matrix)
 		for (let i = 0; i < rows; i++)
 			this.cells.push(row.slice());
-		row = null;
 	}
 	
 	/* Accessor functions */
@@ -673,7 +667,7 @@ class Matrix {
 		this.cells[j] = temp;
 	}
 	
-	// Returns a new row that is the sum of the two given rows. The rows are not indices. This object's data is unused.
+	// Returns a new row that is the sum of the two given rows. The rows are not indices.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
 	static addRows(x, y) {
 		let z = [];
@@ -682,14 +676,14 @@ class Matrix {
 		return z;
 	}
 	
-	// Returns a new row that is the product of the given row with the given scalar. The row is is not an index. This object's data is unused.
+	// Returns a new row that is the product of the given row with the given scalar. The row is is not an index.
 	// For example, multiplyRow([0, 1, 3], 4) = [0, 4, 12].
 	static multiplyRow(x, c) {
 		return x.map(val =>
 			checkedMultiply(val, c));
 	}
 	
-	// Returns the GCD of all the numbers in the given row. The row is is not an index. This object's data is unused.
+	// Returns the GCD of all the numbers in the given row. The row is is not an index.
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
 	static gcdRow(x) {
 		let result = 0;
@@ -698,7 +692,7 @@ class Matrix {
 		return result;
 	}
 	
-	// Returns a new row where the leading non-zero number (if any) is positive, and the GCD of the row is 0 or 1. This object's data is unused.
+	// Returns a new row where the leading non-zero number (if any) is positive, and the GCD of the row is 0 or 1.
 	// For example, simplifyRow([0, -2, 2, 4]) = [0, 1, -1, -2].
 	static simplifyRow(x) {
 		let sign = 0;
@@ -766,15 +760,11 @@ class Matrix {
 	// Returns a string representation of this matrix, for debugging purposes.
 	toString() {
 		let result = "[";
-		for (let i = 0; i < this.rows; i++) {
-			if (i != 0) result += ",\n ";
-			result += "[";
-			for (let j = 0; j < this.cols; j++) {
-				if (j != 0) result += ", ";
-				result += this.cells[i][j];
-			}
-			result += "]";
-		}
+		this.cells.forEach((row, i) => {
+			if (i > 0)
+				result += ",\n ";
+			result += "[" + row.join(", ") + "]";
+		});
 		return result + "]";
 	}
 }
