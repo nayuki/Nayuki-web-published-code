@@ -12,7 +12,7 @@
 /*---- Main functions, which are the entry points from the HTML code ----*/
 
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
-function balance(formulaStr) {
+function balance(formulaStr: string): void {
 	// Clear output
 	setMessage("");
 	const balancedElem = document.getElementById("balanced");
@@ -69,7 +69,7 @@ function balance(formulaStr) {
 
 
 // Sets the input box to the given formula string and balances it. Returns nothing.
-function demo(formulaStr) {
+function demo(formulaStr: string): void {
 	(document.getElementById("inputFormula") as HTMLInputElement).value = formulaStr;
 	balance(formulaStr);
 }
@@ -109,7 +109,7 @@ const RANDOM_DEMOS = [
 
 let lastRandomIndex = -1;
 
-function random() {
+function random(): void {
 	let index;
 	do {
 		index = Math.floor(Math.random() * RANDOM_DEMOS.length);
@@ -123,7 +123,7 @@ function random() {
 /* Core number-processing fuctions */
 
 // Returns a matrix based on the given equation object.
-function buildMatrix(eqn) {
+function buildMatrix(eqn: Equation): Matrix {
 	let elems = eqn.getElements();
 	let lhs = eqn.getLeftSide();
 	let rhs = eqn.getRightSide();
@@ -139,7 +139,7 @@ function buildMatrix(eqn) {
 }
 
 
-function solve(matrix) {
+function solve(matrix: Matrix): void {
 	matrix.gaussJordanEliminate();
 	
 	// Find row with more than one non-zero coefficient
@@ -159,7 +159,7 @@ function solve(matrix) {
 }
 
 
-function countNonzeroCoeffs(matrix, row) {
+function countNonzeroCoeffs(matrix: Matrix, row: number): number {
 	let count = 0;
 	for (let i = 0; i < matrix.columnCount(); i++) {
 		if (matrix.get(row, i) != 0)
@@ -169,7 +169,7 @@ function countNonzeroCoeffs(matrix, row) {
 }
 
 
-function extractCoefficients(matrix) {
+function extractCoefficients(matrix: Matrix): Array<number> {
 	const rows = matrix.rowCount();
 	const cols = matrix.columnCount();
 	
@@ -194,7 +194,7 @@ function extractCoefficients(matrix) {
 
 
 // Throws an exception if there's a problem, otherwise returns silently.
-function checkAnswer(eqn, coefs) {
+function checkAnswer(eqn: Equation, coefs: Array<number>): void {
 	if (coefs.length != eqn.getLeftSide().length + eqn.getRightSide().length)
 		throw "Assertion error: Mismatched length";
 	
@@ -253,7 +253,7 @@ class Equation {
 			throw "Mismatched number of coefficients";
 		
 		// Creates this kind of DOM node: <span class="className">text</span>
-		function createSpan(text, className) {
+		function createSpan(text: string, className: string): HTMLElement {
 			let span = createElem("span", text);
 			span.className = className;
 			return span;
@@ -262,7 +262,7 @@ class Equation {
 		let node = createElem("span");
 		
 		let j = 0;
-		function termsToHtml(terms) {
+		function termsToHtml(terms: Array<Term>): void {
 			let head = true;
 			for (let term of terms) {
 				let coef = coefs !== undefined ? coefs[j] : 1;
@@ -419,14 +419,14 @@ class ChemElem {
 /*---- Parser functions ----*/
 
 // Parses the given formula string and returns an equation object, or throws an exception.
-function parse(formulaStr) {
+function parse(formulaStr: string): Equation {
 	let tokenizer = new Tokenizer(formulaStr);
 	return parseEquation(tokenizer);
 }
 
 
 // Parses and returns an equation.
-function parseEquation(tok) {
+function parseEquation(tok: Tokenizer): Equation {
 	let lhs = [parseTerm(tok)];
 	while (true) {
 		let next = tok.peek();
@@ -459,7 +459,7 @@ function parseEquation(tok) {
 
 
 // Parses and returns a term.
-function parseTerm(tok) {
+function parseTerm(tok: Tokenizer): Term {
 	let startPosition = tok.position();
 	
 	// Parse groups and elements
@@ -524,7 +524,7 @@ function parseTerm(tok) {
 
 
 // Parses and returns a group.
-function parseGroup(tok) {
+function parseGroup(tok: Tokenizer): Group {
 	let startPosition = tok.position();
 	tok.consume("(");
 	let items = [];
@@ -550,7 +550,7 @@ function parseGroup(tok) {
 
 
 // Parses and returns an element.
-function parseElement(tok) {
+function parseElement(tok: Tokenizer): ChemElem {
 	let name = tok.take();
 	if (!/^[A-Za-z][a-z]*$/.test(name))
 		throw "Assertion error";
@@ -559,7 +559,7 @@ function parseElement(tok) {
 
 
 // Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
-function parseOptionalNumber(tok) {
+function parseOptionalNumber(tok: Tokenizer): number {
 	let next = tok.peek();
 	if (next != null && /^[0-9]+$/.test(next))
 		return checkedParseInt(tok.take());
@@ -775,7 +775,7 @@ class Matrix {
 const INT_MAX = 9007199254740992;  // 2^53
 
 // Returns the given string parsed into a number, or throws an exception if the result is too large.
-function checkedParseInt(str) {
+function checkedParseInt(str: string): number {
 	let result = parseInt(str, 10);
 	if (isNaN(result))
 		throw "Not a number";
@@ -785,7 +785,7 @@ function checkedParseInt(str) {
 }
 
 // Returns the sum of the given integers, or throws an exception if the result is too large.
-function checkedAdd(x, y) {
+function checkedAdd(x: number, y: number): number {
 	let z = x + y;
 	if (z <= -INT_MAX || z >= INT_MAX)
 		throw "Arithmetic overflow";
@@ -793,7 +793,7 @@ function checkedAdd(x, y) {
 }
 
 // Returns the product of the given integers, or throws an exception if the result is too large.
-function checkedMultiply(x, y) {
+function checkedMultiply(x: number, y: number): number {
 	let z = x * y;
 	if (z <= -INT_MAX || z >= INT_MAX)
 		throw "Arithmetic overflow";
@@ -802,7 +802,7 @@ function checkedMultiply(x, y) {
 
 
 // Returns the greatest common divisor of the given integers.
-function gcd(x, y) {
+function gcd(x: number, y: number): number {
 	if (typeof x != "number" || typeof y != "number" || isNaN(x) || isNaN(y))
 		throw "Invalid argument";
 	x = Math.abs(x);
@@ -824,12 +824,12 @@ const RIGHT_ARROW = "\u2192";  // Right arrow
 
 
 // Sets the page's message element to the given string. Returns nothing.
-function setMessage(str) {
+function setMessage(str: string): void {
 	document.getElementById("message").textContent = str;
 }
 
 
-function createElem(tagName, text?) {
+function createElem(tagName: string, text?: string): HTMLElement {
 	let result = document.createElement(tagName);
 	if (text !== undefined)
 		result.textContent = text;
@@ -838,13 +838,13 @@ function createElem(tagName, text?) {
 
 
 // Removes all the children of the given DOM node. Returns nothing.
-function clearChildren(node) {
+function clearChildren(node: HTMLElement): void {
 	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }
 
 
 // Creates a new text node with the given text and appends it to the given DOM node. Returns nothing.
-function appendText(text, node) {
+function appendText(text: string, node: HTMLElement): void {
 	node.appendChild(document.createTextNode(text));
 }
