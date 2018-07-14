@@ -22,7 +22,7 @@ function balance(formulaStr: string): void {
 	appendText(" ", codeOutElem);
 	
 	// Parse equation
-	let eqn;
+	let eqn: Equation;
 	try {
 		eqn = parse(formulaStr);
 	} catch (e) {
@@ -32,15 +32,15 @@ function balance(formulaStr: string): void {
 		} else if ("start" in e) {  // Error message object with start and possibly end character indices
 			setMessage("Syntax error: " + e.message);
 			
-			let start = e.start;
-			let end = "end" in e ? e.end : e.start;
+			let start: number = e.start;
+			let end: number = "end" in e ? e.end : e.start;
 			while (end > start && (formulaStr.charAt(end - 1) == " " || formulaStr.charAt(end - 1) == "\t"))
 				end--;  // Adjust position to eliminate whitespace
 			if (start == end)
 				end++;
 			
 			appendText(formulaStr.substring(0, start), codeOutElem);
-			let highlight = createElem("u");
+			let highlight: HTMLElement = createElem("u");
 			if (end <= formulaStr.length) {
 				appendText(formulaStr.substring(start, end), highlight);
 				codeOutElem.appendChild(highlight);
@@ -57,11 +57,11 @@ function balance(formulaStr: string): void {
 	}
 	
 	try {
-		let matrix = buildMatrix(eqn);                // Set up matrix
-		solve(matrix);                                // Solve linear system
-		let coefs = extractCoefficients(matrix);      // Get coefficients
-		checkAnswer(eqn, coefs);                      // Self-test, should not fail
-		balancedElem.appendChild(eqn.toHtml(coefs));  // Display balanced equation
+		let matrix: Matrix = buildMatrix(eqn);                   // Set up matrix
+		solve(matrix);                                           // Solve linear system
+		let coefs: Array<number> = extractCoefficients(matrix);  // Get coefficients
+		checkAnswer(eqn, coefs);                                 // Self-test, should not fail
+		balancedElem.appendChild(eqn.toHtml(coefs));             // Display balanced equation
 	} catch (e) {
 		setMessage(e.toString());
 	}
@@ -75,7 +75,7 @@ function demo(formulaStr: string): void {
 }
 
 
-const RANDOM_DEMOS = [
+const RANDOM_DEMOS: Array<string> = [
 	"H2 + O2 = H2O",
 	"Fe + O2 = Fe2O3",
 	"NH3 + O2 = N2 + H2O",
@@ -107,10 +107,10 @@ const RANDOM_DEMOS = [
 	"AB2 + AC3 + AD5 + AE7 + AF11 + AG13 + AH17 + AI19 + AJ23 = A + ABCDEFGHIJ",
 ];
 
-let lastRandomIndex = -1;
+let lastRandomIndex: number = -1;
 
 function random(): void {
-	let index;
+	let index: number;
 	do {
 		index = Math.floor(Math.random() * RANDOM_DEMOS.length);
 		index = Math.max(Math.min(index, RANDOM_DEMOS.length - 1), 0);
@@ -124,9 +124,9 @@ function random(): void {
 
 // Returns a matrix based on the given equation object.
 function buildMatrix(eqn: Equation): Matrix {
-	let elems = eqn.getElements();
-	let lhs = eqn.getLeftSide();
-	let rhs = eqn.getRightSide();
+	let elems: Array<string> = eqn.getElements();
+	let lhs: Array<Term> = eqn.getLeftSide();
+	let rhs: Array<Term> = eqn.getRightSide();
 	let matrix = new Matrix(elems.length + 1, lhs.length + rhs.length + 1);
 	elems.forEach((elem, i) => {
 		let j = 0;
@@ -170,8 +170,8 @@ function countNonzeroCoeffs(matrix: Matrix, row: number): number {
 
 
 function extractCoefficients(matrix: Matrix): Array<number> {
-	const rows = matrix.rowCount();
-	const cols = matrix.columnCount();
+	const rows: number = matrix.rowCount();
+	const cols: number = matrix.columnCount();
 	
 	if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
 		throw "Multiple independent solutions";
@@ -427,9 +427,9 @@ function parse(formulaStr: string): Equation {
 
 // Parses and returns an equation.
 function parseEquation(tok: Tokenizer): Equation {
-	let lhs = [parseTerm(tok)];
+	let lhs: Array<Term> = [parseTerm(tok)];
 	while (true) {
-		let next = tok.peek();
+		let next: string|null = tok.peek();
 		if (next == "=") {
 			tok.consume("=");
 			break;
@@ -442,9 +442,9 @@ function parseEquation(tok: Tokenizer): Equation {
 			throw {message: "Plus expected", start: tok.position()};
 	}
 	
-	let rhs = [parseTerm(tok)];
+	let rhs: Array<Term> = [parseTerm(tok)];
 	while (true) {
-		let next = tok.peek();
+		let next: string|null = tok.peek();
 		if (next == null)
 			break;
 		else if (next == "+") {
@@ -460,12 +460,12 @@ function parseEquation(tok: Tokenizer): Equation {
 
 // Parses and returns a term.
 function parseTerm(tok: Tokenizer): Term {
-	let startPosition = tok.position();
+	let startPosition: number = tok.position();
 	
 	// Parse groups and elements
 	let items: Array<ChemElem|Group> = [];
 	while (true) {
-		let next = tok.peek();
+		let next: string|null = tok.peek();
 		if (next == null)
 			break;
 		else if (next == "(")
@@ -478,7 +478,7 @@ function parseTerm(tok: Tokenizer): Term {
 	
 	// Parse optional charge
 	let charge = 0;
-	let next = tok.peek();
+	let next: string|null = tok.peek();
 	if (next != null && next == "^") {
 		tok.consume("^");
 		next = tok.peek();
@@ -525,11 +525,11 @@ function parseTerm(tok: Tokenizer): Term {
 
 // Parses and returns a group.
 function parseGroup(tok: Tokenizer): Group {
-	let startPosition = tok.position();
+	let startPosition: number = tok.position();
 	tok.consume("(");
 	let items: Array<ChemElem|Group> = [];
 	while (true) {
-		let next = tok.peek();
+		let next: string|null = tok.peek();
 		if (next == null)
 			throw {message: "Element, group, or closing parenthesis expected", start: tok.position()};
 		else if (next == "(")
@@ -551,7 +551,7 @@ function parseGroup(tok: Tokenizer): Group {
 
 // Parses and returns an element.
 function parseElement(tok: Tokenizer): ChemElem {
-	let name = tok.take();
+	let name: string = tok.take();
 	if (!/^[A-Za-z][a-z]*$/.test(name))
 		throw "Assertion error";
 	return new ChemElem(name, parseOptionalNumber(tok));
@@ -560,7 +560,7 @@ function parseElement(tok: Tokenizer): ChemElem {
 
 // Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
 function parseOptionalNumber(tok: Tokenizer): number {
-	let next = tok.peek();
+	let next: string|null = tok.peek();
 	if (next != null && /^[0-9]+$/.test(next))
 		return checkedParseInt(tok.take());
 	else
@@ -591,7 +591,7 @@ class Tokenizer {
 		if (this.i == this.str.length)  // End of stream
 			return null;
 		
-		let match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.i));
+		let match: RegExpExecArray|null = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.i));
 		if (match == null)
 			throw {message: "Invalid symbol", start: this.i};
 		return match[0];
@@ -614,7 +614,7 @@ class Tokenizer {
 	}
 	
 	private skipSpaces(): void {
-		let match = /^[ \t]*/.exec(this.str.substring(this.i));
+		let match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.i));
 		if (match === null)
 			throw "Assertion error";
 		this.i += match[0].length;
@@ -670,7 +670,7 @@ class Matrix {
 	private swapRows(i: number, j: number): void {
 		if (i < 0 || i >= this.rows || j < 0 || j >= this.rows)
 			throw "Index out of bounds";
-		let temp = this.cells[i];
+		let temp: Array<number> = this.cells[i];
 		this.cells[i] = this.cells[j];
 		this.cells[j] = temp;
 	}
@@ -712,14 +712,14 @@ class Matrix {
 		}
 		if (sign == 0)
 			return x.slice();
-		let g = Matrix.gcdRow(x) * sign;
+		let g: number = Matrix.gcdRow(x) * sign;
 		return x.map(val => val / g);
 	}
 	
 	// Changes this matrix to reduced row echelon form (RREF), except that each leading coefficient is not necessarily 1. Each row is simplified.
 	public gaussJordanEliminate(): void {
 		// Simplify all rows
-		let cells = this.cells = this.cells.map(Matrix.simplifyRow);
+		let cells: Array<Array<number>> = this.cells = this.cells.map(Matrix.simplifyRow);
 		
 		// Compute row echelon form (REF)
 		let numPivots = 0;
@@ -774,7 +774,7 @@ class Matrix {
 
 /*---- Math functions (especially checked integer operations) ----*/
 
-const INT_MAX = 9007199254740992;  // 2^53
+const INT_MAX: number = 9007199254740992;  // 2^53
 
 // Returns the given string parsed into a number, or throws an exception if the result is too large.
 function checkedParseInt(str: string): number {
@@ -821,8 +821,8 @@ function gcd(x: number, y: number): number {
 /*---- Miscellaneous ----*/
 
 // Unicode character constants (because this script file's character encoding is unspecified)
-const MINUS = "\u2212";        // Minus sign
-const RIGHT_ARROW = "\u2192";  // Right arrow
+const MINUS: string = "\u2212";        // Minus sign
+const RIGHT_ARROW: string = "\u2192";  // Right arrow
 
 
 // Sets the page's message element to the given string. Returns nothing.
