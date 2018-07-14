@@ -447,8 +447,12 @@ var ChemElem = /** @class */ (function () {
         this.name = name;
         this.count = count;
     }
-    ChemElem.prototype.getElements = function (resultSet) { resultSet.add(this.name); };
-    ChemElem.prototype.countElement = function (n) { return n == this.name ? this.count : 0; };
+    ChemElem.prototype.getElements = function (resultSet) {
+        resultSet.add(this.name);
+    };
+    ChemElem.prototype.countElement = function (n) {
+        return n == this.name ? this.count : 0;
+    };
     // Returns an HTML element representing this element.
     ChemElem.prototype.toHtml = function () {
         var node = createElem("span", this.name);

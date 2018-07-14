@@ -289,7 +289,6 @@ class Tokenizer {
 	public peek(): string|null {
 		if (this.pos == this.str.length)  // End of stream
 			return null;
-		
 		let match: RegExpExecArray|null = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.pos));
 		if (match == null)
 			throw {message: "Invalid symbol", start: this.pos};
@@ -366,8 +365,10 @@ class Equation {
 			for (let term of terms) {
 				let coef = coefs !== undefined ? coefs[j] : 1;
 				if (coef != 0) {
-					if (head) head = false;
-					else node.appendChild(createSpan(" + ", "plus"));
+					if (head)
+						head = false;
+					else
+						node.appendChild(createSpan(" + ", "plus"));
 					if (coef != 1)
 						node.appendChild(createSpan(coef.toString().replace(/-/, MINUS), "coefficient"));
 					node.appendChild(term.toHtml());
@@ -490,9 +491,13 @@ class ChemElem {
 		this.count = count;
 	}
 	
-	public getElements(resultSet: Set<string>): void { resultSet.add(this.name); }
+	public getElements(resultSet: Set<string>): void {
+		resultSet.add(this.name);
+	}
 	
-	public countElement(n: string): number { return n == this.name ? this.count : 0; }
+	public countElement(n: string): number {
+		return n == this.name ? this.count : 0;
+	}
 	
 	// Returns an HTML element representing this element.
 	public toHtml(): HTMLElement {
