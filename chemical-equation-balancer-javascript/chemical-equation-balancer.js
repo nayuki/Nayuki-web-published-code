@@ -14,8 +14,10 @@ function balance(formulaStr) {
     var balancedElem = document.getElementById("balanced");
     var codeOutElem = document.getElementById("codeOutput");
     msgElem.textContent = "";
-    clearChildren(balancedElem);
-    clearChildren(codeOutElem);
+    while (balancedElem.firstChild != null)
+        balancedElem.removeChild(balancedElem.firstChild);
+    while (codeOutElem.firstChild != null)
+        codeOutElem.removeChild(codeOutElem.firstChild);
     codeOutElem.textContent = " ";
     // Parse equation
     var eqn;
@@ -606,10 +608,18 @@ function buildMatrix(eqn) {
 }
 function solve(matrix) {
     matrix.gaussJordanEliminate();
+    function countNonzeroCoeffs(row) {
+        var count = 0;
+        for (var i_1 = 0; i_1 < matrix.columnCount(); i_1++) {
+            if (matrix.get(row, i_1) != 0)
+                count++;
+        }
+        return count;
+    }
     // Find row with more than one non-zero coefficient
     var i;
     for (i = 0; i < matrix.rowCount() - 1; i++) {
-        if (countNonzeroCoeffs(matrix, i) > 1)
+        if (countNonzeroCoeffs(i) > 1)
             break;
     }
     if (i == matrix.rowCount() - 1)
@@ -618,14 +628,6 @@ function solve(matrix) {
     matrix.set(matrix.rowCount() - 1, i, 1);
     matrix.set(matrix.rowCount() - 1, matrix.columnCount() - 1, 1);
     matrix.gaussJordanEliminate();
-}
-function countNonzeroCoeffs(matrix, row) {
-    var count = 0;
-    for (var i = 0; i < matrix.columnCount(); i++) {
-        if (matrix.get(row, i) != 0)
-            count++;
-    }
-    return count;
 }
 function extractCoefficients(matrix) {
     var rows = matrix.rowCount();
@@ -716,16 +718,12 @@ function gcd(x, y) {
 /*---- Miscellaneous code ----*/
 // Unicode character constants (because this script file's character encoding is unspecified)
 var MINUS = "\u2212"; // Minus sign
+// Returns a new DOM element with the given tag name, with the optional given text content.
 function createElem(tagName, text) {
     var result = document.createElement(tagName);
     if (text !== undefined)
         result.textContent = text;
     return result;
-}
-// Removes all the children of the given DOM node. Returns nothing.
-function clearChildren(node) {
-    while (node.firstChild != null)
-        node.removeChild(node.firstChild);
 }
 // Polyfills, only valid for this application
 if (!("sign" in Math))

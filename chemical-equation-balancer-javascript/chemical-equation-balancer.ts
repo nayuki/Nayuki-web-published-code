@@ -18,8 +18,10 @@ function balance(formulaStr: string): void {
 	const balancedElem = document.getElementById("balanced") as HTMLElement;
 	const codeOutElem  = document.getElementById("codeOutput") as HTMLElement;
 	msgElem.textContent = "";
-	clearChildren(balancedElem);
-	clearChildren(codeOutElem);
+	while (balancedElem.firstChild != null)
+		balancedElem.removeChild(balancedElem.firstChild);
+	while (codeOutElem.firstChild != null)
+		codeOutElem.removeChild(codeOutElem.firstChild);
 	codeOutElem.textContent = " ";
 	
 	// Parse equation
@@ -674,10 +676,19 @@ function buildMatrix(eqn: Equation): Matrix {
 function solve(matrix: Matrix): void {
 	matrix.gaussJordanEliminate();
 	
+	function countNonzeroCoeffs(row: number): number {
+		let count = 0;
+		for (let i = 0; i < matrix.columnCount(); i++) {
+			if (matrix.get(row, i) != 0)
+				count++;
+		}
+		return count;
+	}
+	
 	// Find row with more than one non-zero coefficient
 	let i;
 	for (i = 0; i < matrix.rowCount() - 1; i++) {
-		if (countNonzeroCoeffs(matrix, i) > 1)
+		if (countNonzeroCoeffs(i) > 1)
 			break;
 	}
 	if (i == matrix.rowCount() - 1)
@@ -688,16 +699,6 @@ function solve(matrix: Matrix): void {
 	matrix.set(matrix.rowCount() - 1, matrix.columnCount() - 1, 1);
 	
 	matrix.gaussJordanEliminate();
-}
-
-
-function countNonzeroCoeffs(matrix: Matrix, row: number): number {
-	let count = 0;
-	for (let i = 0; i < matrix.columnCount(); i++) {
-		if (matrix.get(row, i) != 0)
-			count++;
-	}
-	return count;
 }
 
 
@@ -809,18 +810,12 @@ function gcd(x: number, y: number): number {
 const MINUS: string = "\u2212";  // Minus sign
 
 
+// Returns a new DOM element with the given tag name, with the optional given text content.
 function createElem(tagName: string, text?: string): HTMLElement {
 	let result = document.createElement(tagName);
 	if (text !== undefined)
 		result.textContent = text;
 	return result;
-}
-
-
-// Removes all the children of the given DOM node. Returns nothing.
-function clearChildren(node: HTMLElement): void {
-	while (node.firstChild != null)
-		node.removeChild(node.firstChild);
 }
 
 
