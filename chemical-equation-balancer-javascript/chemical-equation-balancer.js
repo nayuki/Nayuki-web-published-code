@@ -389,29 +389,33 @@ function Group(items, count) {
 
 // A chemical element.
 // For example: Na, F2, Ace, Uuq6
-function Element(name, count) {
-	if (count < 1)
-		throw "Assertion error: Count must be a positive integer";
+class Element {
+	constructor(name, count) {
+		if (count < 1)
+			throw "Assertion error: Count must be a positive integer";
+		this.name = name;
+		this.count = count;
+	}
 	
-	this.getName = function() { return name; };
+	getName() { return this.name; }
 	
-	this.getCount = function() { return count; };
+	getCount() { return this.count; }
 	
-	this.getElements = function(resultSet) { resultSet.add(name); };
+	getElements(resultSet) { resultSet.add(this.name); }
 	
-	this.countElement = function(n) { return n == name ? count : 0; };
+	countElement(n) { return n == this.name ? this.count : 0; }
 	
 	// Returns an HTML element representing this element.
-	this.toHtml = function() {
+	toHtml() {
 		var node = document.createElement("span");
-		appendText(name, node);
-		if (count != 1) {
+		appendText(this.name, node);
+		if (this.count != 1) {
 			var sub = document.createElement("sub");
-			appendText(count.toString(), sub);
+			appendText(this.count.toString(), sub);
 			node.appendChild(sub);
 		}
 		return node;
-	};
+	}
 }
 
 
