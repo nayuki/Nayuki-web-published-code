@@ -346,44 +346,48 @@ function Term(items, charge) {
 
 // A group in a term. It has a list of groups or elements.
 // For example: (OH)3
-function Group(items, count) {
-	if (count < 1)
-		throw "Assertion error: Count must be a positive integer";
-	items = items.clone();
+class Group {
+	constructor(items, count) {
+		if (count < 1)
+			throw "Assertion error: Count must be a positive integer";
+		this.items = items.clone();
+		this.count = count;
+	}
 	
-	this.getItems = function() { return items.clone(); };
+	getItems() { return this.items.clone(); }
 	
-	this.getCount = function() { return count; };
+	getCount() { return this.count; }
 	
-	this.getElements = function(resultSet) {
-		items.forEach(function(item) {
+	getElements(resultSet) {
+		this.items.forEach(function(item) {
 			item.getElements(resultSet);
 		});
-	};
+	}
 	
-	this.countElement = function(name) {
+	countElement(name) {
 		var sum = 0;
-		items.forEach(function(item) {
+		var count = this.count;
+		this.items.forEach(function(item) {
 			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), count));
 		});
 		return sum;
-	};
+	}
 	
 	// Returns an HTML element representing this group.
-	this.toHtml = function() {
+	toHtml() {
 		var node = document.createElement("span");
 		appendText("(", node);
-		items.forEach(function(item) {
+		this.items.forEach(function(item) {
 			node.appendChild(item.toHtml());
 		});
 		appendText(")", node);
-		if (count != 1) {
+		if (this.count != 1) {
 			var sub = document.createElement("sub");
-			appendText(count.toString(), sub);
+			appendText(this.count.toString(), sub);
 			node.appendChild(sub);
 		}
 		return node;
-	};
+	}
 }
 
 
