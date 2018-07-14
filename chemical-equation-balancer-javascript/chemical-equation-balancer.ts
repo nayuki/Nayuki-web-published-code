@@ -127,10 +127,14 @@ function buildMatrix(eqn: Equation): Matrix {
 	let matrix = new Matrix(elems.length + 1, lhs.length + rhs.length + 1);
 	elems.forEach((elem, i) => {
 		let j = 0;
-		for (let k = 0; k < lhs.length; j++, k++)
-			matrix.set(i, j,  lhs[k].countElement(elem));
-		for (let k = 0; k < rhs.length; j++, k++)
-			matrix.set(i, j, -rhs[k].countElement(elem));
+		for (let term of lhs) {
+			matrix.set(i, j,  term.countElement(elem));
+			j++;
+		}
+		for (let term of rhs) {
+			matrix.set(i, j, -term.countElement(elem));
+			j++;
+		}
 	});
 	return matrix;
 }
@@ -207,10 +211,14 @@ function checkAnswer(eqn: Equation, coefs: Array<number>): void {
 	for (let elem of eqn.getElements()) {
 		let sum = 0;
 		let j = 0;
-		for (let k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
-			sum = checkedAdd(sum, checkedMultiply(lhs[k].countElement(elem),  coefs[j]));
-		for (let k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
-			sum = checkedAdd(sum, checkedMultiply(rhs[k].countElement(elem), -coefs[j]));
+		for (let term of eqn.getLeftSide()) {
+			sum = checkedAdd(sum, checkedMultiply(term.countElement(elem),  coefs[j]));
+			j++;
+		}
+		for (let term of eqn.getRightSide()) {
+			sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), -coefs[j]));
+			j++;
+		}
 		if (sum != 0)
 			throw "Assertion error: Incorrect balance";
 	}

@@ -113,10 +113,16 @@ function buildMatrix(eqn) {
     var matrix = new Matrix(elems.length + 1, lhs.length + rhs.length + 1);
     elems.forEach(function (elem, i) {
         var j = 0;
-        for (var k = 0; k < lhs.length; j++, k++)
-            matrix.set(i, j, lhs[k].countElement(elem));
-        for (var k = 0; k < rhs.length; j++, k++)
-            matrix.set(i, j, -rhs[k].countElement(elem));
+        for (var _i = 0, lhs_1 = lhs; _i < lhs_1.length; _i++) {
+            var term = lhs_1[_i];
+            matrix.set(i, j, term.countElement(elem));
+            j++;
+        }
+        for (var _a = 0, rhs_1 = rhs; _a < rhs_1.length; _a++) {
+            var term = rhs_1[_a];
+            matrix.set(i, j, -term.countElement(elem));
+            j++;
+        }
     });
     return matrix;
 }
@@ -179,10 +185,16 @@ function checkAnswer(eqn, coefs) {
         var elem = _b[_a];
         var sum = 0;
         var j = 0;
-        for (var k = 0, lhs = eqn.getLeftSide(); k < lhs.length; j++, k++)
-            sum = checkedAdd(sum, checkedMultiply(lhs[k].countElement(elem), coefs[j]));
-        for (var k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
-            sum = checkedAdd(sum, checkedMultiply(rhs[k].countElement(elem), -coefs[j]));
+        for (var _c = 0, _d = eqn.getLeftSide(); _c < _d.length; _c++) {
+            var term = _d[_c];
+            sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), coefs[j]));
+            j++;
+        }
+        for (var _e = 0, _f = eqn.getRightSide(); _e < _f.length; _e++) {
+            var term = _f[_e];
+            sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), -coefs[j]));
+            j++;
+        }
         if (sum != 0)
             throw "Assertion error: Incorrect balance";
     }
