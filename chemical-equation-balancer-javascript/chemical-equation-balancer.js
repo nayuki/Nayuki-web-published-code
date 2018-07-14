@@ -159,7 +159,7 @@ function extractCoefficients(matrix) {
     for (var i = 0; i < cols - 1; i++) {
         var coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
         coefs.push(coef);
-        allzero &= coef == 0;
+        allzero = allzero && coef == 0;
     }
     if (allzero)
         throw "Assertion error: All-zero solution";
@@ -174,7 +174,7 @@ function checkAnswer(eqn, coefs) {
         var coef = coefs_1[_i];
         if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
             throw "Assertion error: Not an integer";
-        allzero &= coef == 0;
+        allzero = allzero && coef == 0;
     }
     if (allzero)
         throw "Assertion error: All-zero solution";
@@ -204,7 +204,7 @@ var Equation = /** @class */ (function () {
     // Returns an array of the names all of the elements used in this equation.
     // The array represents a set, so the items are in an arbitrary order and no item is repeated.
     Equation.prototype.getElements = function () {
-        var result = new Set();
+        var result = new window.Set();
         for (var _i = 0, _a = this.lhs.concat(this.rhs); _i < _a.length; _i++) {
             var item = _a[_i];
             item.getElements(result);
@@ -445,7 +445,7 @@ function parseTerm(tok) {
         tok.take(); // Consume the sign
     }
     // Check if term is valid
-    var elems = new Set();
+    var elems = new window.Set();
     for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
         var item = items_1[_i];
         item.getElements(elems);

@@ -70,7 +70,7 @@ function balance(formulaStr) {
 
 // Sets the input box to the given formula string and balances it. Returns nothing.
 function demo(formulaStr) {
-	document.getElementById("inputFormula").value = formulaStr;
+	(document.getElementById("inputFormula") as HTMLInputElement).value = formulaStr;
 	balance(formulaStr);
 }
 
@@ -185,7 +185,7 @@ function extractCoefficients(matrix) {
 	for (let i = 0; i < cols - 1; i++) {
 		let coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
 		coefs.push(coef);
-		allzero &= coef == 0;
+		allzero = allzero && coef == 0;
 	}
 	if (allzero)
 		throw "Assertion error: All-zero solution";
@@ -202,7 +202,7 @@ function checkAnswer(eqn, coefs) {
 	for (let coef of coefs) {
 		if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
 			throw "Assertion error: Not an integer";
-		allzero &= coef == 0;
+		allzero = allzero && coef == 0;
 	}
 	if (allzero)
 		throw "Assertion error: All-zero solution";
@@ -240,10 +240,10 @@ class Equation {
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
 	public getElements() {
-		let result = new Set();
+		let result = new (window as any).Set();
 		for (let item of this.lhs.concat(this.rhs))
 			item.getElements(result);
-		return Array.from(result);
+		return (Array as any).from(result);
 	}
 	
 	// Returns an HTML element representing this equation.
@@ -498,10 +498,10 @@ function parseTerm(tok) {
 	}
 	
 	// Check if term is valid
-	let elems = new Set();
+	let elems = new (window as any).Set();
 	for (let item of items)
 		item.getElements(elems);
-	elems = Array.from(elems);  // List of all elements used in this term, with no repeats
+	elems = (Array as any).from(elems);  // List of all elements used in this term, with no repeats
 	if (items.length == 0) {
 		throw {message: "Invalid term - empty", start: startPosition, end: tok.position()};
 	} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
@@ -704,7 +704,7 @@ class Matrix {
 		let sign = 0;
 		for (let val of x) {
 			if (val != 0) {
-				sign = Math.sign(val);
+				sign = (Math as any).sign(val);
 				break;
 			}
 		}
@@ -829,7 +829,7 @@ function setMessage(str) {
 }
 
 
-function createElem(tagName, text) {
+function createElem(tagName, text?) {
 	let result = document.createElement(tagName);
 	if (text !== undefined)
 		result.textContent = text;
