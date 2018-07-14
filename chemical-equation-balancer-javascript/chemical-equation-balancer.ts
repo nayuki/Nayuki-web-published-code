@@ -299,8 +299,6 @@ class Term {
 		this.charge = charge;
 	}
 	
-	public getItems(): Array<ChemElem|Group> { return this.items.slice(); }
-	
 	public getElements(resultSet: Set<string>): void {
 		resultSet.add("e");
 		for (let item of this.items)
@@ -355,10 +353,6 @@ class Group {
 		this.count = count;
 	}
 	
-	public getItems(): Array<ChemElem|Group> { return this.items.slice(); }
-	
-	public getCount(): number { return this.count; }
-	
 	public getElements(resultSet: Set<string>): void {
 		for (let item of this.items)
 			item.getElements(resultSet);
@@ -397,10 +391,6 @@ class ChemElem {
 		this.name = name;
 		this.count = count;
 	}
-	
-	public getName(): string { return this.name; }
-	
-	public getCount(): number { return this.count; }
 	
 	public getElements(resultSet: Set<string>): void { resultSet.add(this.name); }
 	
@@ -757,17 +747,6 @@ class Matrix {
 				cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][pivotCol] / g)));
 			}
 		}
-	}
-	
-	// Returns a string representation of this matrix, for debugging purposes.
-	public toString(): string {
-		let result = "[";
-		this.cells.forEach((row, i) => {
-			if (i > 0)
-				result += ",\n ";
-			result += "[" + row.join(", ") + "]";
-		});
-		return result + "]";
 	}
 }
 

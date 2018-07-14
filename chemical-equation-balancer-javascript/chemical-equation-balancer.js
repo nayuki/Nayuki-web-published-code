@@ -257,7 +257,6 @@ var Term = /** @class */ (function () {
         this.items = items.slice();
         this.charge = charge;
     }
-    Term.prototype.getItems = function () { return this.items.slice(); };
     Term.prototype.getElements = function (resultSet) {
         resultSet.add("e");
         for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
@@ -317,8 +316,6 @@ var Group = /** @class */ (function () {
         this.items = items.slice();
         this.count = count;
     }
-    Group.prototype.getItems = function () { return this.items.slice(); };
-    Group.prototype.getCount = function () { return this.count; };
     Group.prototype.getElements = function (resultSet) {
         for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
             var item = _a[_i];
@@ -357,8 +354,6 @@ var ChemElem = /** @class */ (function () {
         this.name = name;
         this.count = count;
     }
-    ChemElem.prototype.getName = function () { return this.name; };
-    ChemElem.prototype.getCount = function () { return this.count; };
     ChemElem.prototype.getElements = function (resultSet) { resultSet.add(this.name); };
     ChemElem.prototype.countElement = function (n) { return n == this.name ? this.count : 0; };
     // Returns an HTML element representing this element.
@@ -672,16 +667,6 @@ var Matrix = /** @class */ (function () {
                 cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][pivotCol] / g)));
             }
         }
-    };
-    // Returns a string representation of this matrix, for debugging purposes.
-    Matrix.prototype.toString = function () {
-        var result = "[";
-        this.cells.forEach(function (row, i) {
-            if (i > 0)
-                result += ",\n ";
-            result += "[" + row.join(", ") + "]";
-        });
-        return result + "]";
     };
     return Matrix;
 }());
