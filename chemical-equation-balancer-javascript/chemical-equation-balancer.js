@@ -243,7 +243,7 @@ class Equation {
 			item.getElements(result));
 		this.rhs.forEach(item =>
 			item.getElements(result));
-		return result.toArray();
+		return Array.from(result);
 	}
 	
 	// Returns an HTML element representing this equation.
@@ -507,7 +507,7 @@ function parseTerm(tok) {
 	let elems = new Set();
 	for (let i = 0; i < items.length; i++)
 		items[i].getElements(elems);
-	elems = elems.toArray();  // List of all elements used in this term, with no repeats
+	elems = Array.from(elems);  // List of all elements used in this term, with no repeats
 	if (items.length == 0) {
 		throw {message: "Invalid term - empty", start: startPosition, end: tok.position()};
 	} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
@@ -777,30 +777,6 @@ class Matrix {
 		}
 		return result + "]";
 	}
-}
-
-
-/*---- Set object ----*/
-
-function Set() {
-	// Storage for the set
-	let items = [];
-	
-	// Adds the given object to the set. Returns nothing.
-	this.add = function(obj) {
-		if (items.indexOf(obj) == -1)
-			items.push(obj);
-	};
-	
-	// Tests if the given object is in the set, returning a Boolean.
-	this.contains = function(obj) {
-		return items.indexOf(obj) != -1;
-	};
-	
-	// Returns a new array containing the elements of this set in an arbitrary order, with no duplicates.
-	this.toArray = function() {
-		return items.clone();
-	};
 }
 
 
