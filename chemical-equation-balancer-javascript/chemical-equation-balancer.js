@@ -767,7 +767,7 @@ class Matrix {
 	toString() {
 		let result = "[";
 		for (let i = 0; i < this.rows; i++) {
-			if (i != 0) result += "],\n";
+			if (i != 0) result += ",\n ";
 			result += "[";
 			for (let j = 0; j < this.cols; j++) {
 				if (j != 0) result += ", ";
