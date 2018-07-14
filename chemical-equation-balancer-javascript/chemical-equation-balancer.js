@@ -573,48 +573,49 @@ function parseOptionalNumber(tok) {
 /*---- Tokenizer object ----*/
 
 // Tokenizes a formula into a stream of token strings.
-function Tokenizer(str) {
-	var i = 0;
+class Tokenizer {
+	constructor(str) {
+		this.str = str.replace(/\u2212/g, "-");
+		this.i = 0;
+		this.skipSpaces();
+	}
 	
 	// Returns the index of the next character to tokenize.
-	this.position = function() {
-		return i;
-	};
+	position() {
+		return this.i;
+	}
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
-	this.peek = function() {
-		if (i == str.length)  // End of stream
+	peek() {
+		if (this.i == this.str.length)  // End of stream
 			return null;
 		
-		var match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(str.substring(i));
+		var match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.i));
 		if (match == null)
-			throw {message: "Invalid symbol", start: i};
+			throw {message: "Invalid symbol", start: this.i};
 		return match[0];
-	};
+	}
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
-	this.take = function() {
+	take() {
 		var result = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
-		i += result.length;
-		skipSpaces();
+		this.i += result.length;
+		this.skipSpaces();
 		return result;
-	};
-	
-	// Takes the next token and checks that it matches the given string, or throws an exception.
-	this.consume = function(s) {
-		if (this.take() != s)
-			throw "Token mismatch";
-	};
-	
-	function skipSpaces() {
-		var match = /^[ \t]*/.exec(str.substring(i));
-		i += match[0].length;
 	}
 	
-	str = str.replace(/\u2212/g, "-");
-	skipSpaces();
+	// Takes the next token and checks that it matches the given string, or throws an exception.
+	consume(s) {
+		if (this.take() != s)
+			throw "Token mismatch";
+	}
+	
+	skipSpaces() {
+		var match = /^[ \t]*/.exec(this.str.substring(this.i));
+		this.i += match[0].length;
+	}
 }
 
 
