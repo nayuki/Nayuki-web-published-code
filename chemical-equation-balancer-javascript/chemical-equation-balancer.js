@@ -121,14 +121,14 @@ var Parser = /** @class */ (function () {
                 break;
             }
             else if (next == null) {
-                throw { message: "Plus or equal sign expected", start: this.tok.position() };
+                throw { message: "Plus or equal sign expected", start: this.tok.pos };
             }
             else if (next == "+") {
                 this.tok.consume("+");
                 lhs.push(this.parseTerm());
             }
             else
-                throw { message: "Plus expected", start: this.tok.position() };
+                throw { message: "Plus expected", start: this.tok.pos };
         }
         var rhs = [this.parseTerm()];
         while (true) {
@@ -140,13 +140,13 @@ var Parser = /** @class */ (function () {
                 rhs.push(this.parseTerm());
             }
             else
-                throw { message: "Plus or end expected", start: this.tok.position() };
+                throw { message: "Plus or end expected", start: this.tok.pos };
         }
         return new Equation(lhs, rhs);
     };
     // Parses and returns a term.
     Parser.prototype.parseTerm = function () {
-        var startPosition = this.tok.position();
+        var startPosition = this.tok.pos;
         // Parse groups and elements
         var items = [];
         while (true) {
@@ -167,7 +167,7 @@ var Parser = /** @class */ (function () {
             this.tok.consume("^");
             next = this.tok.peek();
             if (next == null)
-                throw { message: "Number or sign expected", start: this.tok.position() };
+                throw { message: "Number or sign expected", start: this.tok.pos };
             else
                 charge = this.parseOptionalNumber();
             next = this.tok.peek();
@@ -176,7 +176,7 @@ var Parser = /** @class */ (function () {
             else if (next == "-")
                 charge = -charge;
             else
-                throw { message: "Sign expected", start: this.tok.position() };
+                throw { message: "Sign expected", start: this.tok.pos };
             this.tok.take(); // Consume the sign
         }
         // Check if term is valid
@@ -187,13 +187,13 @@ var Parser = /** @class */ (function () {
         }
         var elems = Array.from(elemSet); // List of all elements used in this term, with no repeats
         if (items.length == 0) {
-            throw { message: "Invalid term - empty", start: startPosition, end: this.tok.position() };
+            throw { message: "Invalid term - empty", start: startPosition, end: this.tok.pos };
         }
         else if (elems.indexOf("e") != -1) { // If it's the special electron element
             if (items.length > 1)
-                throw { message: "Invalid term - electron needs to stand alone", start: startPosition, end: this.tok.position() };
+                throw { message: "Invalid term - electron needs to stand alone", start: startPosition, end: this.tok.pos };
             else if (charge != 0 && charge != -1)
-                throw { message: "Invalid term - invalid charge for electron", start: startPosition, end: this.tok.position() };
+                throw { message: "Invalid term - invalid charge for electron", start: startPosition, end: this.tok.pos };
             // Tweak data
             items = [];
             charge = -1;
@@ -202,20 +202,20 @@ var Parser = /** @class */ (function () {
             for (var _a = 0, elems_1 = elems; _a < elems_1.length; _a++) {
                 var elem = elems_1[_a];
                 if (/^[a-z]+$/.test(elem))
-                    throw { message: 'Invalid element name "' + elem + '"', start: startPosition, end: this.tok.position() };
+                    throw { message: 'Invalid element name "' + elem + '"', start: startPosition, end: this.tok.pos };
             }
         }
         return new Term(items, charge);
     };
     // Parses and returns a group.
     Parser.prototype.parseGroup = function () {
-        var startPosition = this.tok.position();
+        var startPosition = this.tok.pos;
         this.tok.consume("(");
         var items = [];
         while (true) {
             var next = this.tok.peek();
             if (next == null)
-                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.position() };
+                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.pos };
             else if (next == "(")
                 items.push(this.parseGroup());
             else if (/^[A-Za-z][a-z]*$/.test(next))
@@ -223,11 +223,11 @@ var Parser = /** @class */ (function () {
             else if (next == ")") {
                 this.tok.consume(")");
                 if (items.length == 0)
-                    throw { message: "Empty group", start: startPosition, end: this.tok.position() };
+                    throw { message: "Empty group", start: startPosition, end: this.tok.pos };
                 break;
             }
             else
-                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.position() };
+                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.pos };
         }
         return new Group(items, this.parseOptionalNumber());
     };
@@ -255,10 +255,6 @@ var Tokenizer = /** @class */ (function () {
         this.pos = 0;
         this.skipSpaces();
     }
-    // Returns the index of the next character to tokenize.
-    Tokenizer.prototype.position = function () {
-        return this.pos;
-    };
     // Returns the next token as a string, or null if the end of the token stream is reached.
     Tokenizer.prototype.peek = function () {
         if (this.pos == this.str.length) // End of stream
