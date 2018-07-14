@@ -312,13 +312,7 @@ var Equation = /** @class */ (function () {
     Equation.prototype.toHtml = function (coefs) {
         if (coefs !== undefined && coefs.length != this.leftSide.length + this.rightSide.length)
             throw "Mismatched number of coefficients";
-        // Creates this kind of DOM node: <span class="className">text</span>
-        function createSpan(text, className) {
-            var span = createElem("span", text);
-            span.className = className;
-            return span;
-        }
-        var node = createElem("span");
+        var node = document.createDocumentFragment();
         var j = 0;
         function termsToHtml(terms) {
             var head = true;
@@ -329,16 +323,16 @@ var Equation = /** @class */ (function () {
                     if (head)
                         head = false;
                     else
-                        node.appendChild(createSpan(" + ", "plus"));
+                        node.appendChild(createSpan("plus", " + "));
                     if (coef != 1)
-                        node.appendChild(createSpan(coef.toString().replace(/-/, MINUS), "coefficient"));
+                        node.appendChild(createSpan("coefficient", coef.toString().replace(/-/, MINUS)));
                     node.appendChild(term.toHtml());
                 }
                 j++;
             }
         }
         termsToHtml(this.leftSide);
-        node.appendChild(createSpan(" \u2192 ", "rightarrow"));
+        node.appendChild(createSpan("rightarrow", " \u2192 "));
         termsToHtml(this.rightSide);
         return node;
     };
@@ -376,7 +370,7 @@ var Term = /** @class */ (function () {
     };
     // Returns an HTML element representing this term.
     Term.prototype.toHtml = function () {
-        var node = createElem("span");
+        var node = createSpan("term");
         if (this.items.length == 0 && this.charge == -1) {
             node.textContent = "e";
             node.appendChild(createElem("sup", MINUS));
@@ -428,7 +422,7 @@ var Group = /** @class */ (function () {
     };
     // Returns an HTML element representing this group.
     Group.prototype.toHtml = function () {
-        var node = createElem("span", "(");
+        var node = createSpan("group", "(");
         for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
             var item = _a[_i];
             node.appendChild(item.toHtml());
@@ -457,7 +451,7 @@ var ChemElem = /** @class */ (function () {
     };
     // Returns an HTML element representing this element.
     ChemElem.prototype.toHtml = function () {
-        var node = createElem("span", this.name);
+        var node = createSpan("element", this.name);
         if (this.count != 1)
             node.appendChild(createElem("sub", this.count.toString()));
         return node;
@@ -721,6 +715,12 @@ function createElem(tagName, text) {
     var result = document.createElement(tagName);
     if (text !== undefined)
         result.textContent = text;
+    return result;
+}
+// Returns a new DOM node like this: <span class="cls">text</span>
+function createSpan(cls, text) {
+    var result = createElem("span", text);
+    result.className = cls;
     return result;
 }
 // Polyfills, only valid for this application

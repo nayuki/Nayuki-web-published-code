@@ -350,18 +350,11 @@ class Equation {
 	
 	// Returns an HTML element representing this equation.
 	// 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
-	public toHtml(coefs?: Array<number>): HTMLElement {
+	public toHtml(coefs?: Array<number>): DocumentFragment {
 		if (coefs !== undefined && coefs.length != this.leftSide.length + this.rightSide.length)
 			throw "Mismatched number of coefficients";
 		
-		// Creates this kind of DOM node: <span class="className">text</span>
-		function createSpan(text: string, className: string): HTMLElement {
-			let span = createElem("span", text);
-			span.className = className;
-			return span;
-		}
-		
-		let node = createElem("span");
+		let node = document.createDocumentFragment();
 		
 		let j = 0;
 		function termsToHtml(terms: Array<Term>): void {
@@ -372,9 +365,9 @@ class Equation {
 					if (head)
 						head = false;
 					else
-						node.appendChild(createSpan(" + ", "plus"));
+						node.appendChild(createSpan("plus", " + "));
 					if (coef != 1)
-						node.appendChild(createSpan(coef.toString().replace(/-/, MINUS), "coefficient"));
+						node.appendChild(createSpan("coefficient", coef.toString().replace(/-/, MINUS)));
 					node.appendChild(term.toHtml());
 				}
 				j++;
@@ -382,7 +375,7 @@ class Equation {
 		}
 		
 		termsToHtml(this.leftSide );
-		node.appendChild(createSpan(" \u2192 ", "rightarrow"));
+		node.appendChild(createSpan("rightarrow", " \u2192 "));
 		termsToHtml(this.rightSide);
 		
 		return node;
@@ -423,7 +416,7 @@ class Term {
 	
 	// Returns an HTML element representing this term.
 	public toHtml(): HTMLElement {
-		let node = createElem("span");
+		let node = createSpan("term");
 		if (this.items.length == 0 && this.charge == -1) {
 			node.textContent = "e";
 			node.appendChild(createElem("sup", MINUS));
@@ -471,7 +464,7 @@ class Group {
 	
 	// Returns an HTML element representing this group.
 	public toHtml(): HTMLElement {
-		let node = createElem("span", "(");
+		let node = createSpan("group", "(");
 		for (let item of this.items)
 			node.appendChild(item.toHtml());
 		node.appendChild(document.createTextNode(")"));
@@ -505,7 +498,7 @@ class ChemElem {
 	
 	// Returns an HTML element representing this element.
 	public toHtml(): HTMLElement {
-		let node = createElem("span", this.name);
+		let node = createSpan("element", this.name);
 		if (this.count != 1)
 			node.appendChild(createElem("sub", this.count.toString()));
 		return node;
@@ -813,6 +806,14 @@ function createElem(tagName: string, text?: string): HTMLElement {
 	let result = document.createElement(tagName);
 	if (text !== undefined)
 		result.textContent = text;
+	return result;
+}
+
+
+// Returns a new DOM node like this: <span class="cls">text</span>
+function createSpan(cls: string, text?: string): HTMLElement {
+	let result = createElem("span", text);
+	result.className = cls;
 	return result;
 }
 
