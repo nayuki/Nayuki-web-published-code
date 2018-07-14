@@ -204,7 +204,7 @@ var Equation = /** @class */ (function () {
     // Returns an array of the names all of the elements used in this equation.
     // The array represents a set, so the items are in an arbitrary order and no item is repeated.
     Equation.prototype.getElements = function () {
-        var result = new window.Set();
+        var result = new Set();
         for (var _i = 0, _a = this.lhs.concat(this.rhs); _i < _a.length; _i++) {
             var item = _a[_i];
             item.getElements(result);
@@ -445,12 +445,12 @@ function parseTerm(tok) {
         tok.take(); // Consume the sign
     }
     // Check if term is valid
-    var elems = new window.Set();
+    var elemSet = new Set();
     for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
         var item = items_1[_i];
-        item.getElements(elems);
+        item.getElements(elemSet);
     }
-    elems = Array.from(elems); // List of all elements used in this term, with no repeats
+    var elems = Array.from(elemSet); // List of all elements used in this term, with no repeats
     if (items.length == 0) {
         throw { message: "Invalid term - empty", start: startPosition, end: tok.position() };
     }

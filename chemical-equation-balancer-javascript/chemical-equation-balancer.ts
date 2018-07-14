@@ -240,10 +240,10 @@ class Equation {
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
 	public getElements(): Array<string> {
-		let result = new (window as any).Set();
+		let result = new Set<string>();
 		for (let item of this.lhs.concat(this.rhs))
 			item.getElements(result);
-		return (Array as any).from(result);
+		return Array.from(result);
 	}
 	
 	// Returns an HTML element representing this equation.
@@ -498,10 +498,10 @@ function parseTerm(tok: Tokenizer): Term {
 	}
 	
 	// Check if term is valid
-	let elems = new (window as any).Set();
+	let elemSet = new Set<string>();
 	for (let item of items)
-		item.getElements(elems);
-	elems = (Array as any).from(elems);  // List of all elements used in this term, with no repeats
+		item.getElements(elemSet);
+	let elems = Array.from(elemSet);  // List of all elements used in this term, with no repeats
 	if (items.length == 0) {
 		throw {message: "Invalid term - empty", start: startPosition, end: tok.position()};
 	} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
@@ -706,7 +706,7 @@ class Matrix {
 		let sign = 0;
 		for (let val of x) {
 			if (val != 0) {
-				sign = (Math as any).sign(val);
+				sign = Math.sign(val);
 				break;
 			}
 		}
