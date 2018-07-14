@@ -19,7 +19,7 @@ function balance(formulaStr: string): void {
 	const codeOutElem  = document.getElementById("codeOutput") as HTMLElement;
 	clearChildren(balancedElem);
 	clearChildren(codeOutElem);
-	appendText(" ", codeOutElem);
+	codeOutElem.textContent = " ";
 	
 	// Parse equation
 	let eqn: Equation;
@@ -39,16 +39,12 @@ function balance(formulaStr: string): void {
 			if (start == end)
 				end++;
 			
-			appendText(formulaStr.substring(0, start), codeOutElem);
-			let highlight: HTMLElement = createElem("u");
+			codeOutElem.textContent += formulaStr.substring(0, start);
 			if (end <= formulaStr.length) {
-				appendText(formulaStr.substring(start, end), highlight);
-				codeOutElem.appendChild(highlight);
-				appendText(formulaStr.substring(end, formulaStr.length), codeOutElem);
-			} else {
-				appendText(" ", highlight);
-				codeOutElem.appendChild(highlight);
-			}
+				codeOutElem.appendChild(createElem("u", formulaStr.substring(start, end)));
+				codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
+			} else
+				codeOutElem.appendChild(createElem("u", " "));
 			
 		} else {
 			setMessage("Assertion error");
@@ -321,7 +317,7 @@ class Term {
 	public toHtml(): HTMLElement {
 		let node = createElem("span");
 		if (this.items.length == 0 && this.charge == -1) {
-			appendText("e", node);
+			node.textContent = "e";
 			node.appendChild(createElem("sup", MINUS));
 		} else {
 			for (let item of this.items)
@@ -367,11 +363,10 @@ class Group {
 	
 	// Returns an HTML element representing this group.
 	public toHtml(): HTMLElement {
-		let node = createElem("span");
-		appendText("(", node);
+		let node = createElem("span", "(");
 		for (let item of this.items)
 			node.appendChild(item.toHtml());
-		appendText(")", node);
+		node.appendChild(document.createTextNode(")"));
 		if (this.count != 1)
 			node.appendChild(createElem("sub", this.count.toString()));
 		return node;
@@ -823,12 +818,6 @@ function createElem(tagName: string, text?: string): HTMLElement {
 function clearChildren(node: HTMLElement): void {
 	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
-}
-
-
-// Creates a new text node with the given text and appends it to the given DOM node. Returns nothing.
-function appendText(text: string, node: HTMLElement): void {
-	node.appendChild(document.createTextNode(text));
 }
 
 

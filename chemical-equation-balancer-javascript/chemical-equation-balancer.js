@@ -15,7 +15,7 @@ function balance(formulaStr) {
     var codeOutElem = document.getElementById("codeOutput");
     clearChildren(balancedElem);
     clearChildren(codeOutElem);
-    appendText(" ", codeOutElem);
+    codeOutElem.textContent = " ";
     // Parse equation
     var eqn;
     try {
@@ -33,17 +33,13 @@ function balance(formulaStr) {
                 end--; // Adjust position to eliminate whitespace
             if (start == end)
                 end++;
-            appendText(formulaStr.substring(0, start), codeOutElem);
-            var highlight = createElem("u");
+            codeOutElem.textContent += formulaStr.substring(0, start);
             if (end <= formulaStr.length) {
-                appendText(formulaStr.substring(start, end), highlight);
-                codeOutElem.appendChild(highlight);
-                appendText(formulaStr.substring(end, formulaStr.length), codeOutElem);
+                codeOutElem.appendChild(createElem("u", formulaStr.substring(start, end)));
+                codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
             }
-            else {
-                appendText(" ", highlight);
-                codeOutElem.appendChild(highlight);
-            }
+            else
+                codeOutElem.appendChild(createElem("u", " "));
         }
         else {
             setMessage("Assertion error");
@@ -282,7 +278,7 @@ var Term = /** @class */ (function () {
     Term.prototype.toHtml = function () {
         var node = createElem("span");
         if (this.items.length == 0 && this.charge == -1) {
-            appendText("e", node);
+            node.textContent = "e";
             node.appendChild(createElem("sup", MINUS));
         }
         else {
@@ -332,13 +328,12 @@ var Group = /** @class */ (function () {
     };
     // Returns an HTML element representing this group.
     Group.prototype.toHtml = function () {
-        var node = createElem("span");
-        appendText("(", node);
+        var node = createElem("span", "(");
         for (var _i = 0, _a = this.items; _i < _a.length; _i++) {
             var item = _a[_i];
             node.appendChild(item.toHtml());
         }
-        appendText(")", node);
+        node.appendChild(document.createTextNode(")"));
         if (this.count != 1)
             node.appendChild(createElem("sub", this.count.toString()));
         return node;
@@ -727,10 +722,6 @@ function createElem(tagName, text) {
 function clearChildren(node) {
     while (node.firstChild != null)
         node.removeChild(node.firstChild);
-}
-// Creates a new text node with the given text and appends it to the given DOM node. Returns nothing.
-function appendText(text, node) {
-    node.appendChild(document.createTextNode(text));
 }
 // Polyfills, only valid for this application
 if (!("sign" in Math))
