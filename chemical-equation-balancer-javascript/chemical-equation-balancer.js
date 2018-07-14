@@ -350,25 +350,25 @@ var Group = /** @class */ (function () {
 }());
 // A chemical element.
 // For example: Na, F2, Ace, Uuq6
-var Element = /** @class */ (function () {
-    function Element(name, count) {
+var ChemElem = /** @class */ (function () {
+    function ChemElem(name, count) {
         if (count < 1)
             throw "Assertion error: Count must be a positive integer";
         this.name = name;
         this.count = count;
     }
-    Element.prototype.getName = function () { return this.name; };
-    Element.prototype.getCount = function () { return this.count; };
-    Element.prototype.getElements = function (resultSet) { resultSet.add(this.name); };
-    Element.prototype.countElement = function (n) { return n == this.name ? this.count : 0; };
+    ChemElem.prototype.getName = function () { return this.name; };
+    ChemElem.prototype.getCount = function () { return this.count; };
+    ChemElem.prototype.getElements = function (resultSet) { resultSet.add(this.name); };
+    ChemElem.prototype.countElement = function (n) { return n == this.name ? this.count : 0; };
     // Returns an HTML element representing this element.
-    Element.prototype.toHtml = function () {
+    ChemElem.prototype.toHtml = function () {
         var node = createElem("span", this.name);
         if (this.count != 1)
             node.appendChild(createElem("sub", this.count.toString()));
         return node;
     };
-    return Element;
+    return ChemElem;
 }());
 /*---- Parser functions ----*/
 // Parses the given formula string and returns an equation object, or throws an exception.
@@ -501,7 +501,7 @@ function parseElement(tok) {
     var name = tok.take();
     if (!/^[A-Za-z][a-z]*$/.test(name))
         throw "Assertion error";
-    return new Element(name, parseOptionalNumber(tok));
+    return new ChemElem(name, parseOptionalNumber(tok));
 }
 // Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
 function parseOptionalNumber(tok) {

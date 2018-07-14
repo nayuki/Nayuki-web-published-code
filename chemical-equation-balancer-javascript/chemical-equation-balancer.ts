@@ -289,7 +289,7 @@ class Equation {
 // A term in a chemical equation. It has a list of groups or elements, and a charge.
 // For example: H3O^+, or e^-.
 class Term {
-	private items: Array<Element|Group>;
+	private items: Array<ChemElem|Group>;
 	private charge: number;
 	
 	public constructor(items, charge) {
@@ -345,7 +345,7 @@ class Term {
 // A group in a term. It has a list of groups or elements.
 // For example: (OH)3
 class Group {
-	private items: Array<Element|Group>;
+	private items: Array<ChemElem|Group>;
 	private count: number;
 	
 	public constructor(items, count) {
@@ -387,7 +387,7 @@ class Group {
 
 // A chemical element.
 // For example: Na, F2, Ace, Uuq6
-class Element {
+class ChemElem {
 	private name: string;
 	private count: number;
 	
@@ -554,7 +554,7 @@ function parseElement(tok) {
 	let name = tok.take();
 	if (!/^[A-Za-z][a-z]*$/.test(name))
 		throw "Assertion error";
-	return new Element(name, parseOptionalNumber(tok));
+	return new ChemElem(name, parseOptionalNumber(tok));
 }
 
 
