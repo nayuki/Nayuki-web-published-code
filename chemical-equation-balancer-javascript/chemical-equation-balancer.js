@@ -228,12 +228,12 @@ function checkAnswer(eqn, coefs) {
 class Equation {
 	constructor(lhs, rhs) {
 		// Make defensive copies
-		this.lhs = lhs.clone();
-		this.rhs = rhs.clone();
+		this.lhs = lhs.slice();
+		this.rhs = rhs.slice();
 	}
 	
-	getLeftSide () { return this.lhs.clone(); }
-	getRightSide() { return this.rhs.clone(); }
+	getLeftSide () { return this.lhs.slice(); }
+	getRightSide() { return this.rhs.slice(); }
 	
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
@@ -292,11 +292,11 @@ class Term {
 	constructor(items, charge) {
 		if (items.length == 0 && charge != -1)
 			throw "Invalid term";  // Electron case
-		this.items = items.clone();
+		this.items = items.slice();
 		this.charge = charge;
 	}
 	
-	getItems() { return this.items.clone(); }
+	getItems() { return this.items.slice(); }
 	
 	getElements(resultSet) {
 		resultSet.add("e");
@@ -349,11 +349,11 @@ class Group {
 	constructor(items, count) {
 		if (count < 1)
 			throw "Assertion error: Count must be a positive integer";
-		this.items = items.clone();
+		this.items = items.slice();
 		this.count = count;
 	}
 	
-	getItems() { return this.items.clone(); }
+	getItems() { return this.items.slice(); }
 	
 	getCount() { return this.count; }
 	
@@ -639,7 +639,7 @@ class Matrix {
 			row.push(0);
 		this.cells = [];  // Main data (the matrix)
 		for (let i = 0; i < rows; i++)
-			this.cells.push(row.clone());
+			this.cells.push(row.slice());
 		row = null;
 	}
 	
@@ -711,7 +711,7 @@ class Matrix {
 				break;
 			}
 		}
-		let y = x.clone();
+		let y = x.slice();
 		if (sign == 0)
 			return y;
 		let g = Matrix.gcdRow(x) * sign;
@@ -831,10 +831,6 @@ function gcd(x, y) {
 // Unicode character constants (because this script file's character encoding is unspecified)
 const MINUS = "\u2212";        // Minus sign
 const RIGHT_ARROW = "\u2192";  // Right arrow
-
-
-// Monkey patching. Returns a shallow copy of this array. Usually used for making defensive copies.
-Array.prototype.clone = Array.prototype.slice;
 
 
 // Sets the page's message element to the given string. Returns nothing.
