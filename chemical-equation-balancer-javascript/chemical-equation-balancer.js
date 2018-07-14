@@ -295,8 +295,6 @@ var Equation = /** @class */ (function () {
         this.leftSide = lhs.slice();
         this.rightSide = rhs.slice();
     }
-    Equation.prototype.getLeftSide = function () { return this.leftSide.slice(); };
-    Equation.prototype.getRightSide = function () { return this.rightSide.slice(); };
     // Returns an array of the names all of the elements used in this equation.
     // The array represents a set, so the items are in an arbitrary order and no item is repeated.
     Equation.prototype.getElements = function () {
@@ -584,8 +582,8 @@ var Matrix = /** @class */ (function () {
 // Returns a matrix based on the given equation object.
 function buildMatrix(eqn) {
     var elems = eqn.getElements();
-    var lhs = eqn.getLeftSide();
-    var rhs = eqn.getRightSide();
+    var lhs = eqn.leftSide;
+    var rhs = eqn.rightSide;
     var matrix = new Matrix(elems.length + 1, lhs.length + rhs.length + 1);
     elems.forEach(function (elem, i) {
         var j = 0;
@@ -646,7 +644,7 @@ function extractCoefficients(matrix) {
 }
 // Throws an exception if there's a problem, otherwise returns silently.
 function checkAnswer(eqn, coefs) {
-    if (coefs.length != eqn.getLeftSide().length + eqn.getRightSide().length)
+    if (coefs.length != eqn.leftSide.length + eqn.rightSide.length)
         throw "Assertion error: Mismatched length";
     var allzero = true;
     for (var _i = 0, coefs_1 = coefs; _i < coefs_1.length; _i++) {
@@ -661,12 +659,12 @@ function checkAnswer(eqn, coefs) {
         var elem = _b[_a];
         var sum = 0;
         var j = 0;
-        for (var _c = 0, _d = eqn.getLeftSide(); _c < _d.length; _c++) {
+        for (var _c = 0, _d = eqn.leftSide; _c < _d.length; _c++) {
             var term = _d[_c];
             sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), coefs[j]));
             j++;
         }
-        for (var _e = 0, _f = eqn.getRightSide(); _e < _f.length; _e++) {
+        for (var _e = 0, _f = eqn.rightSide; _e < _f.length; _e++) {
             var term = _f[_e];
             sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), -coefs[j]));
             j++;

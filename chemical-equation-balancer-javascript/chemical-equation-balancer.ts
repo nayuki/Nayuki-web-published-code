@@ -327,17 +327,14 @@ class Tokenizer {
 // A complete chemical equation. It has a left-hand side list of terms and a right-hand side list of terms.
 // For example: H2 + O2 -> H2O.
 class Equation {
-	private leftSide : Array<Term>;
-	private rightSide: Array<Term>;
+	public leftSide : Array<Term>;
+	public rightSide: Array<Term>;
 	
 	public constructor(lhs: Array<Term>, rhs: Array<Term>) {
 		// Make defensive copies
 		this.leftSide  = lhs.slice();
 		this.rightSide = rhs.slice();
 	}
-	
-	public getLeftSide (): Array<Term> { return this.leftSide .slice(); }
-	public getRightSide(): Array<Term> { return this.rightSide.slice(); }
 	
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
@@ -650,8 +647,8 @@ class Matrix {
 // Returns a matrix based on the given equation object.
 function buildMatrix(eqn: Equation): Matrix {
 	let elems: Array<string> = eqn.getElements();
-	let lhs: Array<Term> = eqn.getLeftSide();
-	let rhs: Array<Term> = eqn.getRightSide();
+	let lhs: Array<Term> = eqn.leftSide;
+	let rhs: Array<Term> = eqn.rightSide;
 	let matrix = new Matrix(elems.length + 1, lhs.length + rhs.length + 1);
 	elems.forEach((elem, i) => {
 		let j = 0;
@@ -723,7 +720,7 @@ function extractCoefficients(matrix: Matrix): Array<number> {
 
 // Throws an exception if there's a problem, otherwise returns silently.
 function checkAnswer(eqn: Equation, coefs: Array<number>): void {
-	if (coefs.length != eqn.getLeftSide().length + eqn.getRightSide().length)
+	if (coefs.length != eqn.leftSide.length + eqn.rightSide.length)
 		throw "Assertion error: Mismatched length";
 	
 	let allzero = true;
@@ -738,11 +735,11 @@ function checkAnswer(eqn: Equation, coefs: Array<number>): void {
 	for (let elem of eqn.getElements()) {
 		let sum = 0;
 		let j = 0;
-		for (let term of eqn.getLeftSide()) {
+		for (let term of eqn.leftSide) {
 			sum = checkedAdd(sum, checkedMultiply(term.countElement(elem),  coefs[j]));
 			j++;
 		}
-		for (let term of eqn.getRightSide()) {
+		for (let term of eqn.rightSide) {
 			sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), -coefs[j]));
 			j++;
 		}
