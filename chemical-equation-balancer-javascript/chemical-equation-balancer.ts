@@ -180,7 +180,7 @@ function extractCoefficients(matrix: Matrix): Array<number> {
 	for (let i = 0; i < cols - 1; i++)
 		lcm = checkedMultiply(lcm / gcd(lcm, matrix.get(i, i)), matrix.get(i, i));
 	
-	let coefs = [];
+	let coefs: Array<number> = [];
 	let allzero = true;
 	for (let i = 0; i < cols - 1; i++) {
 		let coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
@@ -463,7 +463,7 @@ function parseTerm(tok: Tokenizer): Term {
 	let startPosition = tok.position();
 	
 	// Parse groups and elements
-	let items = [];
+	let items: Array<ChemElem|Group> = [];
 	while (true) {
 		let next = tok.peek();
 		if (next == null)
@@ -527,7 +527,7 @@ function parseTerm(tok: Tokenizer): Term {
 function parseGroup(tok: Tokenizer): Group {
 	let startPosition = tok.position();
 	tok.consume("(");
-	let items = [];
+	let items: Array<ChemElem|Group> = [];
 	while (true) {
 		let next = tok.peek();
 		if (next == null)
@@ -635,7 +635,7 @@ class Matrix {
 		this.cols = cols;
 		
 		// Initialize with zeros
-		let row = [];
+		let row: Array<number> = [];
 		for (let j = 0; j < cols; j++)
 			row.push(0);
 		this.cells = [];  // Main data (the matrix)
@@ -676,7 +676,7 @@ class Matrix {
 	// Returns a new row that is the sum of the two given rows. The rows are not indices.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
 	private static addRows(x: Array<number>, y: Array<number>): Array<number> {
-		let z = [];
+		let z: Array<number> = [];
 		for (let i = 0; i < x.length; i++)
 			z.push(checkedAdd(x[i], y[i]));
 		return z;
