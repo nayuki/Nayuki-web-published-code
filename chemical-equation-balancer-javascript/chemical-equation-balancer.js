@@ -475,8 +475,6 @@ var Matrix = /** @class */ (function () {
             this.cells.push(row.slice());
     }
     /* Accessor functions */
-    Matrix.prototype.rowCount = function () { return this.numRows; };
-    Matrix.prototype.columnCount = function () { return this.numCols; };
     // Returns the value of the given cell in the matrix, where r is the row and c is the column.
     Matrix.prototype.get = function (r, c) {
         if (r < 0 || r >= this.numRows || c < 0 || c >= this.numCols)
@@ -604,7 +602,7 @@ function solve(matrix) {
     matrix.gaussJordanEliminate();
     function countNonzeroCoeffs(row) {
         var count = 0;
-        for (var i_1 = 0; i_1 < matrix.columnCount(); i_1++) {
+        for (var i_1 = 0; i_1 < matrix.numCols; i_1++) {
             if (matrix.get(row, i_1) != 0)
                 count++;
         }
@@ -612,20 +610,20 @@ function solve(matrix) {
     }
     // Find row with more than one non-zero coefficient
     var i;
-    for (i = 0; i < matrix.rowCount() - 1; i++) {
+    for (i = 0; i < matrix.numRows - 1; i++) {
         if (countNonzeroCoeffs(i) > 1)
             break;
     }
-    if (i == matrix.rowCount() - 1)
+    if (i == matrix.numRows - 1)
         throw "All-zero solution"; // Unique solution with all coefficients zero
     // Add an inhomogeneous equation
-    matrix.set(matrix.rowCount() - 1, i, 1);
-    matrix.set(matrix.rowCount() - 1, matrix.columnCount() - 1, 1);
+    matrix.set(matrix.numRows - 1, i, 1);
+    matrix.set(matrix.numRows - 1, matrix.numCols - 1, 1);
     matrix.gaussJordanEliminate();
 }
 function extractCoefficients(matrix) {
-    var rows = matrix.rowCount();
-    var cols = matrix.columnCount();
+    var rows = matrix.numRows;
+    var cols = matrix.numCols;
     if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
         throw "Multiple independent solutions";
     var lcm = 1;

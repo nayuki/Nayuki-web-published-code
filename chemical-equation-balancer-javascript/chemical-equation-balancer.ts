@@ -509,8 +509,8 @@ class ChemElem {
 
 // A matrix of integers.
 class Matrix {
-	private numRows: number;
-	private numCols: number;
+	public numRows: number;
+	public numCols: number;
 	private cells: Array<Array<number>>;
 	
 	public constructor(rows: number, cols: number) {
@@ -529,9 +529,6 @@ class Matrix {
 	}
 	
 	/* Accessor functions */
-	
-	public rowCount(): number { return this.numRows; }
-	public columnCount(): number { return this.numCols; }
 	
 	// Returns the value of the given cell in the matrix, where r is the row and c is the column.
 	public get(r: number, c: number): number {
@@ -670,7 +667,7 @@ function solve(matrix: Matrix): void {
 	
 	function countNonzeroCoeffs(row: number): number {
 		let count = 0;
-		for (let i = 0; i < matrix.columnCount(); i++) {
+		for (let i = 0; i < matrix.numCols; i++) {
 			if (matrix.get(row, i) != 0)
 				count++;
 		}
@@ -679,24 +676,24 @@ function solve(matrix: Matrix): void {
 	
 	// Find row with more than one non-zero coefficient
 	let i;
-	for (i = 0; i < matrix.rowCount() - 1; i++) {
+	for (i = 0; i < matrix.numRows - 1; i++) {
 		if (countNonzeroCoeffs(i) > 1)
 			break;
 	}
-	if (i == matrix.rowCount() - 1)
+	if (i == matrix.numRows - 1)
 		throw "All-zero solution";  // Unique solution with all coefficients zero
 	
 	// Add an inhomogeneous equation
-	matrix.set(matrix.rowCount() - 1, i, 1);
-	matrix.set(matrix.rowCount() - 1, matrix.columnCount() - 1, 1);
+	matrix.set(matrix.numRows - 1, i, 1);
+	matrix.set(matrix.numRows - 1, matrix.numCols - 1, 1);
 	
 	matrix.gaussJordanEliminate();
 }
 
 
 function extractCoefficients(matrix: Matrix): Array<number> {
-	const rows: number = matrix.rowCount();
-	const cols: number = matrix.columnCount();
+	const rows: number = matrix.numRows;
+	const cols: number = matrix.numCols;
 	
 	if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
 		throw "Multiple independent solutions";
