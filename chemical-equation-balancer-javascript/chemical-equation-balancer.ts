@@ -225,6 +225,9 @@ function checkAnswer(eqn, coefs) {
 // A complete chemical equation. It has a left-hand side list of terms and a right-hand side list of terms.
 // For example: H2 + O2 -> H2O.
 class Equation {
+	private lhs: Array<Term>;
+	private rhs: Array<Term>;
+	
 	constructor(lhs, rhs) {
 		// Make defensive copies
 		this.lhs = lhs.slice();
@@ -286,6 +289,9 @@ class Equation {
 // A term in a chemical equation. It has a list of groups or elements, and a charge.
 // For example: H3O^+, or e^-.
 class Term {
+	private items: Array<Element|Group>;
+	private charge: number;
+	
 	constructor(items, charge) {
 		if (items.length == 0 && charge != -1)
 			throw "Invalid term";  // Electron case
@@ -339,6 +345,9 @@ class Term {
 // A group in a term. It has a list of groups or elements.
 // For example: (OH)3
 class Group {
+	private items: Array<Element|Group>;
+	private count: number;
+	
 	constructor(items, count) {
 		if (count < 1)
 			throw "Assertion error: Count must be a positive integer";
@@ -379,6 +388,9 @@ class Group {
 // A chemical element.
 // For example: Na, F2, Ace, Uuq6
 class Element {
+	private name: string;
+	private count: number;
+	
 	constructor(name, count) {
 		if (count < 1)
 			throw "Assertion error: Count must be a positive integer";
@@ -560,6 +572,9 @@ function parseOptionalNumber(tok) {
 
 // Tokenizes a formula into a stream of token strings.
 class Tokenizer {
+	private str: string;
+	private i: number;
+	
 	constructor(str) {
 		this.str = str.replace(/\u2212/g, "-");
 		this.i = 0;
@@ -609,6 +624,10 @@ class Tokenizer {
 
 // A matrix of integers.
 class Matrix {
+	private rows: number;
+	private cols: number;
+	private cells: Array<Array<number>>;
+	
 	constructor(rows, cols) {
 		if (rows < 0 || cols < 0)
 			throw "Illegal argument";
