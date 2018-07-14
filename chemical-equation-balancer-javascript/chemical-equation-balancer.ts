@@ -228,18 +228,18 @@ class Equation {
 	private lhs: Array<Term>;
 	private rhs: Array<Term>;
 	
-	constructor(lhs, rhs) {
+	public constructor(lhs, rhs) {
 		// Make defensive copies
 		this.lhs = lhs.slice();
 		this.rhs = rhs.slice();
 	}
 	
-	getLeftSide () { return this.lhs.slice(); }
-	getRightSide() { return this.rhs.slice(); }
+	public getLeftSide () { return this.lhs.slice(); }
+	public getRightSide() { return this.rhs.slice(); }
 	
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
-	getElements() {
+	public getElements() {
 		let result = new Set();
 		for (let item of this.lhs.concat(this.rhs))
 			item.getElements(result);
@@ -248,7 +248,7 @@ class Equation {
 	
 	// Returns an HTML element representing this equation.
 	// 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
-	toHtml(coefs) {
+	public toHtml(coefs) {
 		if (coefs !== undefined && coefs.length != this.lhs.length + this.rhs.length)
 			throw "Mismatched number of coefficients";
 		
@@ -292,23 +292,23 @@ class Term {
 	private items: Array<Element|Group>;
 	private charge: number;
 	
-	constructor(items, charge) {
+	public constructor(items, charge) {
 		if (items.length == 0 && charge != -1)
 			throw "Invalid term";  // Electron case
 		this.items = items.slice();
 		this.charge = charge;
 	}
 	
-	getItems() { return this.items.slice(); }
+	public getItems() { return this.items.slice(); }
 	
-	getElements(resultSet) {
+	public getElements(resultSet) {
 		resultSet.add("e");
 		for (let item of this.items)
 			item.getElements(resultSet);
 	}
 	
 	// Counts the number of times the given element (specified as a string) occurs in this term, taking groups and counts into account, returning an integer.
-	countElement(name) {
+	public countElement(name) {
 		if (name == "e") {
 			return -this.charge;
 		} else {
@@ -320,7 +320,7 @@ class Term {
 	}
 	
 	// Returns an HTML element representing this term.
-	toHtml() {
+	public toHtml() {
 		let node = createElem("span");
 		if (this.items.length == 0 && this.charge == -1) {
 			appendText("e", node);
@@ -348,23 +348,23 @@ class Group {
 	private items: Array<Element|Group>;
 	private count: number;
 	
-	constructor(items, count) {
+	public constructor(items, count) {
 		if (count < 1)
 			throw "Assertion error: Count must be a positive integer";
 		this.items = items.slice();
 		this.count = count;
 	}
 	
-	getItems() { return this.items.slice(); }
+	public getItems() { return this.items.slice(); }
 	
-	getCount() { return this.count; }
+	public getCount() { return this.count; }
 	
-	getElements(resultSet) {
+	public getElements(resultSet) {
 		for (let item of this.items)
 			item.getElements(resultSet);
 	}
 	
-	countElement(name) {
+	public countElement(name) {
 		let sum = 0;
 		for (let item of this.items)
 			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), this.count));
@@ -372,7 +372,7 @@ class Group {
 	}
 	
 	// Returns an HTML element representing this group.
-	toHtml() {
+	public toHtml() {
 		let node = createElem("span");
 		appendText("(", node);
 		for (let item of this.items)
@@ -391,23 +391,23 @@ class Element {
 	private name: string;
 	private count: number;
 	
-	constructor(name, count) {
+	public constructor(name, count) {
 		if (count < 1)
 			throw "Assertion error: Count must be a positive integer";
 		this.name = name;
 		this.count = count;
 	}
 	
-	getName() { return this.name; }
+	public getName() { return this.name; }
 	
-	getCount() { return this.count; }
+	public getCount() { return this.count; }
 	
-	getElements(resultSet) { resultSet.add(this.name); }
+	public getElements(resultSet) { resultSet.add(this.name); }
 	
-	countElement(n) { return n == this.name ? this.count : 0; }
+	public countElement(n) { return n == this.name ? this.count : 0; }
 	
 	// Returns an HTML element representing this element.
-	toHtml() {
+	public toHtml() {
 		let node = createElem("span", this.name);
 		if (this.count != 1)
 			node.appendChild(createElem("sub", this.count.toString()));
@@ -575,19 +575,19 @@ class Tokenizer {
 	private str: string;
 	private i: number;
 	
-	constructor(str) {
+	public constructor(str) {
 		this.str = str.replace(/\u2212/g, "-");
 		this.i = 0;
 		this.skipSpaces();
 	}
 	
 	// Returns the index of the next character to tokenize.
-	position() {
+	public position() {
 		return this.i;
 	}
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
-	peek() {
+	public peek() {
 		if (this.i == this.str.length)  // End of stream
 			return null;
 		
@@ -598,7 +598,7 @@ class Tokenizer {
 	}
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
-	take() {
+	public take() {
 		let result = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
@@ -608,12 +608,12 @@ class Tokenizer {
 	}
 	
 	// Takes the next token and checks that it matches the given string, or throws an exception.
-	consume(s) {
+	public consume(s) {
 		if (this.take() != s)
 			throw "Token mismatch";
 	}
 	
-	skipSpaces() {
+	private skipSpaces() {
 		let match = /^[ \t]*/.exec(this.str.substring(this.i));
 		this.i += match[0].length;
 	}
@@ -628,7 +628,7 @@ class Matrix {
 	private cols: number;
 	private cells: Array<Array<number>>;
 	
-	constructor(rows, cols) {
+	public constructor(rows, cols) {
 		if (rows < 0 || cols < 0)
 			throw "Illegal argument";
 		this.rows = rows;
@@ -645,18 +645,18 @@ class Matrix {
 	
 	/* Accessor functions */
 	
-	rowCount() { return this.rows; }
-	columnCount() { return this.cols; }
+	public rowCount() { return this.rows; }
+	public columnCount() { return this.cols; }
 	
 	// Returns the value of the given cell in the matrix, where r is the row and c is the column.
-	get(r, c) {
+	public get(r, c) {
 		if (r < 0 || r >= this.rows || c < 0 || c >= this.cols)
 			throw "Index out of bounds";
 		return this.cells[r][c];
 	}
 	
 	// Sets the given cell in the matrix to the given value, where r is the row and c is the column.
-	set(r, c, val) {
+	public set(r, c, val) {
 		if (r < 0 || r >= this.rows || c < 0 || c >= this.cols)
 			throw "Index out of bounds";
 		this.cells[r][c] = val;
@@ -665,7 +665,7 @@ class Matrix {
 	/* Private helper functions for gaussJordanEliminate() */
 	
 	// Swaps the two rows of the given indices in this matrix. The degenerate case of i == j is allowed.
-	swapRows(i, j) {
+	private swapRows(i, j) {
 		if (i < 0 || i >= this.rows || j < 0 || j >= this.rows)
 			throw "Index out of bounds";
 		let temp = this.cells[i];
@@ -675,7 +675,7 @@ class Matrix {
 	
 	// Returns a new row that is the sum of the two given rows. The rows are not indices.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
-	static addRows(x, y) {
+	private static addRows(x, y) {
 		let z = [];
 		for (let i = 0; i < x.length; i++)
 			z.push(checkedAdd(x[i], y[i]));
@@ -684,14 +684,14 @@ class Matrix {
 	
 	// Returns a new row that is the product of the given row with the given scalar. The row is is not an index.
 	// For example, multiplyRow([0, 1, 3], 4) = [0, 4, 12].
-	static multiplyRow(x, c) {
+	private static multiplyRow(x, c) {
 		return x.map(val =>
 			checkedMultiply(val, c));
 	}
 	
 	// Returns the GCD of all the numbers in the given row. The row is is not an index.
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
-	static gcdRow(x) {
+	private static gcdRow(x) {
 		let result = 0;
 		for (let val of x)
 			result = gcd(val, result);
@@ -700,7 +700,7 @@ class Matrix {
 	
 	// Returns a new row where the leading non-zero number (if any) is positive, and the GCD of the row is 0 or 1.
 	// For example, simplifyRow([0, -2, 2, 4]) = [0, 1, -1, -2].
-	static simplifyRow(x) {
+	private static simplifyRow(x) {
 		let sign = 0;
 		for (let val of x) {
 			if (val != 0) {
@@ -715,7 +715,7 @@ class Matrix {
 	}
 	
 	// Changes this matrix to reduced row echelon form (RREF), except that each leading coefficient is not necessarily 1. Each row is simplified.
-	gaussJordanEliminate() {
+	public gaussJordanEliminate() {
 		// Simplify all rows
 		let cells = this.cells = this.cells.map(Matrix.simplifyRow);
 		
@@ -758,7 +758,7 @@ class Matrix {
 	}
 	
 	// Returns a string representation of this matrix, for debugging purposes.
-	toString() {
+	public toString() {
 		let result = "[";
 		this.cells.forEach((row, i) => {
 			if (i > 0)
