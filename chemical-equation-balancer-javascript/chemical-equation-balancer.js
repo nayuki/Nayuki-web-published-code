@@ -128,13 +128,13 @@ function buildMatrix(eqn) {
 	let rows = elems.length + 1;
 	let cols = eqn.getLeftSide().length + eqn.getRightSide().length + 1;
 	let matrix = new Matrix(rows, cols);
-	for (let i = 0; i < elems.length; i++) {
+	elems.forEach((elem, i) => {
 		let j = 0;
 		for (let k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
-			matrix.set(i, j,  lhs[k].countElement(elems[i]));
+			matrix.set(i, j,  lhs[k].countElement(elem));
 		for (let k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
-			matrix.set(i, j, -rhs[k].countElement(elems[i]));
-	}
+			matrix.set(i, j, -rhs[k].countElement(elem));
+	});
 	return matrix;
 }
 
@@ -208,13 +208,13 @@ function checkAnswer(eqn, coefs) {
 		throw "Assertion error: All-zero solution";
 	
 	let elems = eqn.getElements();
-	for (let i = 0; i < elems.length; i++) {
+	for (let elem of elems) {
 		let sum = 0;
 		let j = 0;
 		for (let k = 0, lhs = eqn.getLeftSide() ; k < lhs.length; j++, k++)
-			sum = checkedAdd(sum, checkedMultiply(lhs[k].countElement(elems[i]),  coefs[j]));
+			sum = checkedAdd(sum, checkedMultiply(lhs[k].countElement(elem),  coefs[j]));
 		for (let k = 0, rhs = eqn.getRightSide(); k < rhs.length; j++, k++)
-			sum = checkedAdd(sum, checkedMultiply(rhs[k].countElement(elems[i]), -coefs[j]));
+			sum = checkedAdd(sum, checkedMultiply(rhs[k].countElement(elem), -coefs[j]));
 		if (sum != 0)
 			throw "Assertion error: Incorrect balance";
 	}
@@ -500,8 +500,8 @@ function parseTerm(tok) {
 	
 	// Check if term is valid
 	let elems = new Set();
-	for (let i = 0; i < items.length; i++)
-		items[i].getElements(elems);
+	for (let item of items)
+		item.getElements(elems);
 	elems = Array.from(elems);  // List of all elements used in this term, with no repeats
 	if (items.length == 0) {
 		throw {message: "Invalid term - empty", start: startPosition, end: tok.position()};
@@ -514,9 +514,9 @@ function parseTerm(tok) {
 		items = [];
 		charge = -1;
 	} else {  // Otherwise, a term must not contain an element that starts with lowercase
-		for (let i = 0; i < elems.length; i++) {
-			if (/^[a-z]+$/.test(elems[i]))
-				throw {message: 'Invalid element name "' + elems[i] + '"', start: startPosition, end: tok.position()};
+		for (let elem of elems) {
+			if (/^[a-z]+$/.test(elem))
+				throw {message: 'Invalid element name "' + elem + '"', start: startPosition, end: tok.position()};
 		}
 	}
 	
@@ -696,11 +696,11 @@ class Matrix {
 	// For example, simplifyRow([0, -2, 2, 4]) = [0, 1, -1, -2].
 	static simplifyRow(x) {
 		let sign = 0;
-		for (let i = 0; i < x.length; i++) {
-			if (x[i] > 0) {
+		for (let val of x) {
+			if (val > 0) {
 				sign = 1;
 				break;
-			} else if (x[i] < 0) {
+			} else if (val < 0) {
 				sign = -1;
 				break;
 			}
