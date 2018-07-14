@@ -225,31 +225,33 @@ function checkAnswer(eqn, coefs) {
 
 // A complete chemical equation. It has a left-hand side list of terms and a right-hand side list of terms.
 // For example: H2 + O2 -> H2O.
-function Equation(lhs, rhs) {
-	// Make defensive copies
-	lhs = lhs.clone();
-	rhs = rhs.clone();
+class Equation {
+	constructor(lhs, rhs) {
+		// Make defensive copies
+		this.lhs = lhs.clone();
+		this.rhs = rhs.clone();
+	}
 	
-	this.getLeftSide  = function() { return lhs.clone(); };
-	this.getRightSide = function() { return rhs.clone(); };
+	getLeftSide () { return this.lhs.clone(); }
+	getRightSide() { return this.rhs.clone(); }
 	
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
-	this.getElements = function() {
+	getElements() {
 		var result = new Set();
-		lhs.forEach(function(item) {
+		this.lhs.forEach(function(item) {
 			item.getElements(result);
 		});
-		rhs.forEach(function(item) {
+		this.rhs.forEach(function(item) {
 			item.getElements(result);
 		});
 		return result.toArray();
-	};
+	}
 	
 	// Returns an HTML element representing this equation.
 	// 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
-	this.toHtml = function(coefs) {
-		if (coefs !== undefined && coefs.length != lhs.length + rhs.length)
+	toHtml(coefs) {
+		if (coefs !== undefined && coefs.length != this.lhs.length + this.rhs.length)
 			throw "Mismatched number of coefficients";
 		
 		// Creates this kind of DOM node: <span class="className">text</span>
@@ -277,12 +279,12 @@ function Equation(lhs, rhs) {
 			}
 		}
 		
-		termsToHtml(lhs);
+		termsToHtml(this.lhs);
 		node.appendChild(createSpan(" " + RIGHT_ARROW + " ", "rightarrow"));
-		termsToHtml(rhs);
+		termsToHtml(this.rhs);
 		
 		return node;
-	};
+	}
 }
 
 
