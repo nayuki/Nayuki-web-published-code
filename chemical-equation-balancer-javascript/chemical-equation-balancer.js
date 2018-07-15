@@ -119,14 +119,14 @@ var Parser = /** @class */ (function () {
         while (true) {
             var next = this.tok.peek();
             if (next == "=") {
-                this.tok.consume("=");
+                this.tok.consume(next);
                 break;
             }
             else if (next == null) {
                 throw { message: "Plus or equal sign expected", start: this.tok.pos };
             }
             else if (next == "+") {
-                this.tok.consume("+");
+                this.tok.consume(next);
                 lhs.push(this.parseTerm());
             }
             else
@@ -138,7 +138,7 @@ var Parser = /** @class */ (function () {
             if (next == null)
                 break;
             else if (next == "+") {
-                this.tok.consume("+");
+                this.tok.consume(next);
                 rhs.push(this.parseTerm());
             }
             else
@@ -166,7 +166,7 @@ var Parser = /** @class */ (function () {
         var charge = 0;
         var next = this.tok.peek();
         if (next != null && next == "^") {
-            this.tok.consume("^");
+            this.tok.consume(next);
             next = this.tok.peek();
             if (next == null)
                 throw { message: "Number or sign expected", start: this.tok.pos };
@@ -223,7 +223,7 @@ var Parser = /** @class */ (function () {
             else if (/^[A-Za-z][a-z]*$/.test(next))
                 items.push(this.parseElement());
             else if (next == ")") {
-                this.tok.consume(")");
+                this.tok.consume(next);
                 if (items.length == 0)
                     throw { message: "Empty group", start: startPosition, end: this.tok.pos };
                 break;
