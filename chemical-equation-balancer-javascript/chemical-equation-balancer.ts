@@ -168,7 +168,7 @@ class Parser {
 	
 	// Parses and returns a term.
 	private parseTerm(): Term {
-		let startPosition: number = this.tok.pos;
+		let startPos: number = this.tok.pos;
 		
 		// Parse groups and elements
 		let items: Array<ChemElem|Group> = [];
@@ -211,19 +211,19 @@ class Parser {
 			item.getElements(elemSet);
 		let elems = Array.from(elemSet);  // List of all elements used in this term, with no repeats
 		if (items.length == 0) {
-			throw {message: "Invalid term - empty", start: startPosition, end: this.tok.pos};
+			throw {message: "Invalid term - empty", start: startPos, end: this.tok.pos};
 		} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
 			if (items.length > 1)
-				throw {message: "Invalid term - electron needs to stand alone", start: startPosition, end: this.tok.pos};
+				throw {message: "Invalid term - electron needs to stand alone", start: startPos, end: this.tok.pos};
 			else if (charge != 0 && charge != -1)
-				throw {message: "Invalid term - invalid charge for electron", start: startPosition, end: this.tok.pos};
+				throw {message: "Invalid term - invalid charge for electron", start: startPos, end: this.tok.pos};
 			// Tweak data
 			items = [];
 			charge = -1;
 		} else {  // Otherwise, a term must not contain an element that starts with lowercase
 			for (let elem of elems) {
 				if (/^[a-z]+$/.test(elem))
-					throw {message: 'Invalid element name "' + elem + '"', start: startPosition, end: this.tok.pos};
+					throw {message: 'Invalid element name "' + elem + '"', start: startPos, end: this.tok.pos};
 			}
 		}
 		
@@ -233,7 +233,7 @@ class Parser {
 	
 	// Parses and returns a group.
 	private parseGroup(): Group {
-		let startPosition: number = this.tok.pos;
+		let startPos: number = this.tok.pos;
 		this.tok.consume("(");
 		let items: Array<ChemElem|Group> = [];
 		while (true) {
@@ -247,7 +247,7 @@ class Parser {
 			else if (next == ")") {
 				this.tok.consume(next);
 				if (items.length == 0)
-					throw {message: "Empty group", start: startPosition, end: this.tok.pos};
+					throw {message: "Empty group", start: startPos, end: this.tok.pos};
 				break;
 			} else
 				throw {message: "Element, group, or closing parenthesis expected", start: this.tok.pos};

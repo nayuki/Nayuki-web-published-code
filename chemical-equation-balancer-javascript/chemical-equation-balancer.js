@@ -148,7 +148,7 @@ var Parser = /** @class */ (function () {
     };
     // Parses and returns a term.
     Parser.prototype.parseTerm = function () {
-        var startPosition = this.tok.pos;
+        var startPos = this.tok.pos;
         // Parse groups and elements
         var items = [];
         while (true) {
@@ -189,13 +189,13 @@ var Parser = /** @class */ (function () {
         }
         var elems = Array.from(elemSet); // List of all elements used in this term, with no repeats
         if (items.length == 0) {
-            throw { message: "Invalid term - empty", start: startPosition, end: this.tok.pos };
+            throw { message: "Invalid term - empty", start: startPos, end: this.tok.pos };
         }
         else if (elems.indexOf("e") != -1) { // If it's the special electron element
             if (items.length > 1)
-                throw { message: "Invalid term - electron needs to stand alone", start: startPosition, end: this.tok.pos };
+                throw { message: "Invalid term - electron needs to stand alone", start: startPos, end: this.tok.pos };
             else if (charge != 0 && charge != -1)
-                throw { message: "Invalid term - invalid charge for electron", start: startPosition, end: this.tok.pos };
+                throw { message: "Invalid term - invalid charge for electron", start: startPos, end: this.tok.pos };
             // Tweak data
             items = [];
             charge = -1;
@@ -204,14 +204,14 @@ var Parser = /** @class */ (function () {
             for (var _a = 0, elems_1 = elems; _a < elems_1.length; _a++) {
                 var elem = elems_1[_a];
                 if (/^[a-z]+$/.test(elem))
-                    throw { message: 'Invalid element name "' + elem + '"', start: startPosition, end: this.tok.pos };
+                    throw { message: 'Invalid element name "' + elem + '"', start: startPos, end: this.tok.pos };
             }
         }
         return new Term(items, charge);
     };
     // Parses and returns a group.
     Parser.prototype.parseGroup = function () {
-        var startPosition = this.tok.pos;
+        var startPos = this.tok.pos;
         this.tok.consume("(");
         var items = [];
         while (true) {
@@ -225,7 +225,7 @@ var Parser = /** @class */ (function () {
             else if (next == ")") {
                 this.tok.consume(next);
                 if (items.length == 0)
-                    throw { message: "Empty group", start: startPosition, end: this.tok.pos };
+                    throw { message: "Empty group", start: startPos, end: this.tok.pos };
                 break;
             }
             else
