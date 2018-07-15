@@ -118,17 +118,16 @@ var Parser = /** @class */ (function () {
         var lhs = [this.parseTerm()];
         while (true) {
             var next = this.tok.peek();
-            if (next == "=") {
-                this.tok.consume(next);
-                break;
-            }
-            else if (next == null) {
-                throw { message: "Plus or equal sign expected", start: this.tok.pos };
-            }
-            else if (next == "+") {
+            if (next == "+") {
                 this.tok.consume(next);
                 lhs.push(this.parseTerm());
             }
+            else if (next == "=") {
+                this.tok.consume(next);
+                break;
+            }
+            else if (next == null)
+                throw { message: "Plus or equal sign expected", start: this.tok.pos };
             else
                 throw { message: "Plus expected", start: this.tok.pos };
         }
@@ -151,28 +150,27 @@ var Parser = /** @class */ (function () {
         var startPos = this.tok.pos;
         // Parse groups and elements
         var items = [];
+        var next;
         while (true) {
-            var next_1 = this.tok.peek();
-            if (next_1 == null)
-                break;
-            else if (next_1 == "(")
+            next = this.tok.peek();
+            if (next == "(")
                 items.push(this.parseGroup());
-            else if (/^[A-Za-z][a-z]*$/.test(next_1))
+            else if (next != null && /^[A-Za-z][a-z]*$/.test(next))
                 items.push(this.parseElement());
             else
                 break;
         }
         // Parse optional charge
         var charge = 0;
-        var next = this.tok.peek();
-        if (next != null && next == "^") {
+        if (next == "^") {
             this.tok.consume(next);
             next = this.tok.peek();
             if (next == null)
                 throw { message: "Number or sign expected", start: this.tok.pos };
-            else
+            else {
                 charge = this.parseOptionalNumber();
-            next = this.tok.peek();
+                next = this.tok.peek();
+            }
             if (next == "+")
                 charge = +charge; // No-op
             else if (next == "-")
@@ -216,11 +214,9 @@ var Parser = /** @class */ (function () {
         var items = [];
         while (true) {
             var next = this.tok.peek();
-            if (next == null)
-                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.pos };
-            else if (next == "(")
+            if (next == "(")
                 items.push(this.parseGroup());
-            else if (/^[A-Za-z][a-z]*$/.test(next))
+            else if (next != null && /^[A-Za-z][a-z]*$/.test(next))
                 items.push(this.parseElement());
             else if (next == ")") {
                 this.tok.consume(next);

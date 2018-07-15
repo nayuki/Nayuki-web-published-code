@@ -138,15 +138,15 @@ class Parser {
 		let lhs: Array<Term> = [this.parseTerm()];
 		while (true) {
 			let next: string|null = this.tok.peek();
-			if (next == "=") {
-				this.tok.consume(next);
-				break;
-			} else if (next == null) {
-				throw {message: "Plus or equal sign expected", start: this.tok.pos};
-			} else if (next == "+") {
+			if (next == "+") {
 				this.tok.consume(next);
 				lhs.push(this.parseTerm());
-			} else
+			} else if (next == "=") {
+				this.tok.consume(next);
+				break;
+			} else if (next == null)
+				throw {message: "Plus or equal sign expected", start: this.tok.pos};
+			else
 				throw {message: "Plus expected", start: this.tok.pos};
 		}
 		
@@ -161,7 +161,6 @@ class Parser {
 			} else
 				throw {message: "Plus or end expected", start: this.tok.pos};
 		}
-		
 		return new Equation(lhs, rhs);
 	}
 	
@@ -172,13 +171,12 @@ class Parser {
 		
 		// Parse groups and elements
 		let items: Array<ChemElem|Group> = [];
+		let next: string|null;
 		while (true) {
-			let next: string|null = this.tok.peek();
-			if (next == null)
-				break;
-			else if (next == "(")
+			next = this.tok.peek();
+			if (next == "(")
 				items.push(this.parseGroup());
-			else if (/^[A-Za-z][a-z]*$/.test(next))
+			else if (next != null && /^[A-Za-z][a-z]*$/.test(next))
 				items.push(this.parseElement());
 			else
 				break;
@@ -186,16 +184,16 @@ class Parser {
 		
 		// Parse optional charge
 		let charge = 0;
-		let next: string|null = this.tok.peek();
-		if (next != null && next == "^") {
+		if (next == "^") {
 			this.tok.consume(next);
 			next = this.tok.peek();
 			if (next == null)
 				throw {message: "Number or sign expected", start: this.tok.pos};
-			else
+			else {
 				charge = this.parseOptionalNumber();
+				next = this.tok.peek();
+			}
 			
-			next = this.tok.peek();
 			if (next == "+")
 				charge = +charge;  // No-op
 			else if (next == "-")
@@ -238,11 +236,9 @@ class Parser {
 		let items: Array<ChemElem|Group> = [];
 		while (true) {
 			let next: string|null = this.tok.peek();
-			if (next == null)
-				throw {message: "Element, group, or closing parenthesis expected", start: this.tok.pos};
-			else if (next == "(")
+			if (next == "(")
 				items.push(this.parseGroup());
-			else if (/^[A-Za-z][a-z]*$/.test(next))
+			else if (next != null && /^[A-Za-z][a-z]*$/.test(next))
 				items.push(this.parseElement());
 			else if (next == ")") {
 				this.tok.consume(next);
@@ -252,7 +248,6 @@ class Parser {
 			} else
 				throw {message: "Element, group, or closing parenthesis expected", start: this.tok.pos};
 		}
-		
 		return new Group(items, this.parseOptionalNumber());
 	}
 	
