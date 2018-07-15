@@ -144,10 +144,8 @@ class Parser {
 			} else if (next == "=") {
 				this.tok.consume(next);
 				break;
-			} else if (next == null)
+			} else
 				throw {message: "Plus or equal sign expected", start: this.tok.pos};
-			else
-				throw {message: "Plus expected", start: this.tok.pos};
 		}
 		
 		let rhs: Array<Term> = [this.parseTerm()];
@@ -171,19 +169,25 @@ class Parser {
 		
 		// Parse groups and elements
 		let items: Array<ChemElem|Group> = [];
+		let electron = false;
 		let next: string|null;
 		while (true) {
 			next = this.tok.peek();
 			if (next == "(")
 				items.push(this.parseGroup());
-			else if (next != null && /^[A-Za-z][a-z]*$/.test(next))
+			else if (next == "e") {
+				this.tok.consume(next);
+				electron = true;
+			} else if (next != null && /^[A-Z][a-z]*$/.test(next))
 				items.push(this.parseElement());
+			else if (next != null && /^[0-9]+$/.test(next))
+				throw {message: "Invalid term - number not expected", start: this.tok.pos};
 			else
 				break;
 		}
 		
 		// Parse optional charge
-		let charge = 0;
+		let charge: number|null = null;
 		if (next == "^") {
 			this.tok.consume(next);
 			next = this.tok.peek();
@@ -203,28 +207,20 @@ class Parser {
 			this.tok.take();  // Consume the sign
 		}
 		
-		// Check if term is valid
-		let elemSet = new Set<string>();
-		for (let item of items)
-			item.getElements(elemSet);
-		let elems = Array.from(elemSet);  // List of all elements used in this term, with no repeats
-		if (items.length == 0) {
-			throw {message: "Invalid term - empty", start: startPos, end: this.tok.pos};
-		} else if (elems.indexOf("e") != -1) {  // If it's the special electron element
-			if (items.length > 1)
+		// Check and postprocess term
+		if (electron) {
+			if (items.length > 0)
 				throw {message: "Invalid term - electron needs to stand alone", start: startPos, end: this.tok.pos};
-			else if (charge != 0 && charge != -1)
+			if (charge == null)  // Allow omitting the charge
+				charge = -1;
+			if (charge != -1)
 				throw {message: "Invalid term - invalid charge for electron", start: startPos, end: this.tok.pos};
-			// Tweak data
-			items = [];
-			charge = -1;
-		} else {  // Otherwise, a term must not contain an element that starts with lowercase
-			for (let elem of elems) {
-				if (/^[a-z]+$/.test(elem))
-					throw {message: 'Invalid element name "' + elem + '"', start: startPos, end: this.tok.pos};
-			}
+		} else {
+			if (items.length == 0)
+				throw {message: "Invalid term - empty", start: startPos, end: this.tok.pos};
+			if (charge == null)
+				charge = 0;
 		}
-		
 		return new Term(items, charge);
 	}
 	
@@ -238,7 +234,7 @@ class Parser {
 			let next: string|null = this.tok.peek();
 			if (next == "(")
 				items.push(this.parseGroup());
-			else if (next != null && /^[A-Za-z][a-z]*$/.test(next))
+			else if (next != null && /^[A-Z][a-z]*$/.test(next))
 				items.push(this.parseElement());
 			else if (next == ")") {
 				this.tok.consume(next);
@@ -255,7 +251,7 @@ class Parser {
 	// Parses and returns an element.
 	private parseElement(): ChemElem {
 		let name: string = this.tok.take();
-		if (!/^[A-Za-z][a-z]*$/.test(name))
+		if (!/^[A-Z][a-z]*$/.test(name))
 			throw "Assertion error";
 		return new ChemElem(name, this.parseOptionalNumber());
 	}
@@ -361,8 +357,12 @@ class Equation {
 						head = false;
 					else
 						node.appendChild(createSpan("plus", " + "));
-					if (coef != 1)
-						node.appendChild(createSpan("coefficient", coef.toString().replace(/-/, MINUS)));
+					if (coef != 1) {
+						let span = createSpan("coefficient", coef.toString().replace(/-/, MINUS));
+						if (coef < 0)
+							span.classList.add("negative");
+						node.appendChild(span);
+					}
 					node.appendChild(term.toHtml());
 				}
 				j++;
