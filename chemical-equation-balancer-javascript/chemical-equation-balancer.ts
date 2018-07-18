@@ -28,7 +28,7 @@ function doBalance(): void {
 	codeOutElem.textContent = " ";
 	
 	// Parse equation
-	let formulaStr = formulaElem.value;
+	let formulaStr: string = formulaElem.value;
 	let eqn: Equation;
 	try {
 		eqn = new Parser(formulaStr).parseEquation();
