@@ -53,14 +53,9 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	pub fn len(&self) -> usize {
 		let mut result = 0;
 		let mut node = &self.head;
-		loop {
-			match *node {
-				None => break,
-				Some(ref nd) => {
-					result |= 1 << nd.rank;
-					node = &nd.next;
-				},
-			}
+		while let Some(ref nd) = *node {
+			result |= 1 << nd.rank;
+			node = &nd.next;
 		}
 		result
 	}
@@ -93,10 +88,8 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 			let mut node = &mut self.head;
 			for index in 0u32 .. {
 				if index < minnodeindex {
-					match {node} {
-						&mut Some(ref mut nd) => node = &mut nd.next,
-						_ => unreachable!(),
-					}
+					let nd = node;
+					node = &mut nd.as_mut().unwrap().as_mut().next;
 				} else if index == minnodeindex {
 					let mut temp = *std::mem::replace(node, None).unwrap();
 					std::mem::swap(node, &mut temp.next);
@@ -118,7 +111,7 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 		let mut minvalue: &E;
 		let mut node: &Node<E>;
 		match self.head {
-			None => { return None; },
+			None => return None,
 			Some(ref nd) => {
 				minvalue = &nd.value;
 				node = nd;
@@ -126,17 +119,14 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 		};
 		
 		let mut minindex = 0;
-		for index in 1u32 .. {
-			match node.next {
-				None => break,
-				Some(ref next) => {
-					node = next.as_ref();
-					if node.value < *minvalue {
-						minvalue = &node.value;
-						minindex = index;
-					}
-				},
+		let mut index = 1u32;
+		while let Some(ref next) = node.next {
+			node = next.as_ref();
+			if node.value < *minvalue {
+				minvalue = &node.value;
+				minindex = index;
 			}
+			index += 1;
 		}
 		Some((minvalue, minindex))
 	}
@@ -192,9 +182,8 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
 	// For unit tests
 	pub fn check_structure(&self) {
-		match self.head {
-			Some(ref node) => node.check_structure(true, None),
-			_ => (),
+		if let Some(ref node) = self.head {
+			node.check_structure(true, None);
 		}
 	}
 	
@@ -250,21 +239,13 @@ impl <E: std::cmp::Ord> Node<E> {
 		
 		// Check children and non-main chains
 		if self.rank > 0 {
-			match self.down {
-				None => panic!("Down node absent"),
-				Some(ref down) => {
-					assert_eq!(down.rank, self.rank - 1, "Down node has invalid rank");
-					down.check_structure(false, Some(&self.value));
-				},
-			}
+			let down = self.down.as_ref().expect("Down node absent");
+			assert_eq!(down.rank, self.rank - 1, "Down node has invalid rank");
+			down.check_structure(false, Some(&self.value));
 			if !ismain {
-				match self.next {
-					None => panic!("Next node absent"),
-					Some(ref next) => {
-						assert_eq!(next.rank, self.rank - 1, "Next node has invalid rank");
-						next.check_structure(false, lowerbound);
-					},
-				}
+				let next = self.next.as_ref().expect("Next node absent");
+				assert_eq!(next.rank, self.rank - 1, "Next node has invalid rank");
+				next.check_structure(false, lowerbound);
 			}
 		} else {
 			assert!(self.down.is_none(), "Down node must be absent");
@@ -284,14 +265,9 @@ impl <E: std::cmp::Ord> Node<E> {
 
 fn reverse_nodes<E>(mut nodes: MaybeNode<E>) -> MaybeNode<E> {
 	let mut result: MaybeNode<E> = None;
-	loop {
-		match nodes {
-			None => break,
-			Some(mut node) => {
-				nodes = std::mem::replace(&mut node.next, result);
-				result = Some(node);
-			},
-		}
+	while let Some(mut node) = nodes {
+		nodes = std::mem::replace(&mut node.next, result);
+		result = Some(node);
 	}
 	result
 }

@@ -62,11 +62,8 @@ impl <E> AvlTreeList<E> {
 	
 	
 	pub fn append_at(&mut self, index: usize, vals: &mut Vec<E>) {
-		loop {
-			match vals.pop() {
-				None => break,
-				Some(val) => self.insert(index, val),
-			}
+		while let Some(val) = vals.pop() {
+			self.insert(index, val);
 		}
 	}
 	
@@ -158,20 +155,17 @@ impl <E> MaybeNode<E> {
 	
 	fn insert_at(mut self, index: usize, val: E) -> Self {
 		assert!(index <= self.size());
-		match self.0 {
-			None => {
-				return MaybeNode(Some(Box::new(Node::new(val))));
-			},
-			Some(ref mut bx) => {
-				let node = bx.as_mut();
-				let leftsize = node.left.size();
-				if index <= leftsize {
-					node.left = node.left.pop().insert_at(index, val);
-				} else {
-					node.right = node.right.pop().insert_at(index - leftsize - 1, val);
-				}
-				node.recalculate();
-			},
+		if self.0.is_none() {
+			return MaybeNode(Some(Box::new(Node::new(val))));
+		} else {
+			let node = self.node_mut();
+			let leftsize = node.left.size();
+			if index <= leftsize {
+				node.left = node.left.pop().insert_at(index, val);
+			} else {
+				node.right = node.right.pop().insert_at(index - leftsize - 1, val);
+			}
+			node.recalculate();
 		}
 		self.balance()
 	}
@@ -201,13 +195,13 @@ impl <E> MaybeNode<E> {
 		// Remove current node and return a child or nothing
 		let node = *self.0.unwrap();
 		*outval = Some(node.value);
-		return if node.left.0.is_some()  {
+		if node.left.0.is_some() {
 			node.left
-		} else if node.right.0.is_some()  {
+		} else if node.right.0.is_some() {
 			node.right
 		} else {
 			MaybeNode(None)
-		};
+		}
 	}
 	
 	
@@ -372,6 +366,8 @@ impl <E> Node<E> {
 	
 	
 	fn check_structure(&self) {
+		self.left .check_structure();
+		self.right.check_structure();
 		assert_eq!(self.height, std::cmp::max(self.left.height(), self.right.height()) + 1);
 		assert_eq!(self.size, self.left.size() + self.right.size() + 1);
 		assert!(self.get_balance().abs() <= 1);

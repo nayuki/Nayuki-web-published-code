@@ -62,7 +62,8 @@ impl DisjointSet {
 	pub fn new(numelems: usize) -> Self {
 		Self {
 			numberofsets: numelems,
-			nodes: (0 .. numelems).map(|i| DisjointSetNode{
+			nodes: (0 .. numelems).map(|i|
+				DisjointSetNode{
 					parent: i,
 					rank: 0,
 					size: 1,
