@@ -281,11 +281,11 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	
 	
 	public constructor(val: E, empty: AvlTreeListEmptyNode<E>) {
-		this.value = val;
+		this.value  = val;
 		this.height = 1;
 		this.size   = 1;
-		this.left  = empty;
-		this.right = empty;
+		this.left   = empty;
+		this.right  = empty;
 	}
 	
 	

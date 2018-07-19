@@ -343,11 +343,11 @@ impl <E> Node<E> {
 	
 	fn new(val: E) -> Self {
 		Self {
-			value: val,
+			value : val,
 			height: 1,
-			size: 1,
-			left: MaybeNode(None),
-			right: MaybeNode(None),
+			size  : 1,
+			left  : MaybeNode(None),
+			right : MaybeNode(None),
 		}
 	}
 	

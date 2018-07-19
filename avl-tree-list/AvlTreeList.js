@@ -248,18 +248,18 @@ function AvlTreeListNode() {
 	 */
 	if (arguments.length == 0) {
 		// For the singleton empty leaf node
-		this.value = null;
+		this.value  = null;
 		this.height = 0;
 		this.size   = 0;
-		this.left  = null;
-		this.right = null;
+		this.left   = null;
+		this.right  = null;
 	} else if (arguments.length == 1) {
 		// Normal non-leaf nodes
-		this.value = arguments[0];
+		this.value  = arguments[0];
 		this.height = 1;
 		this.size   = 1;
-		this.left  = AvlTreeListNode.EMPTY_LEAF;
-		this.right = AvlTreeListNode.EMPTY_LEAF;
+		this.left   = AvlTreeListNode.EMPTY_LEAF;
+		this.right  = AvlTreeListNode.EMPTY_LEAF;
 	} else
 		throw "Assertion error";
 }

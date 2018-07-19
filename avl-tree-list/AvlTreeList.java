@@ -145,22 +145,22 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		// For the singleton empty leaf node.
 		private Node() {
-			value = null;
+			value  = null;
 			height = 0;
 			size   = 0;
-			left  = null;
-			right = null;
+			left   = null;
+			right  = null;
 		}
 		
 		
 		// Normal non-leaf nodes.
 		@SuppressWarnings("unchecked")
 		private Node(E val) {
-			value = val;
+			value  = val;
 			height = 1;
 			size   = 1;
-			left  = (Node<E>)EMPTY_LEAF;
-			right = (Node<E>)EMPTY_LEAF;
+			left   = (Node<E>)EMPTY_LEAF;
+			right  = (Node<E>)EMPTY_LEAF;
 		}
 		
 		

@@ -114,8 +114,8 @@ class AvlTreeList(object):
 			if isleaf:  # For the singleton empty leaf node
 				self.height = 0
 				self.size   = 0
-				self.left  = None
-				self.right = None
+				self.left   = None
+				self.right  = None
 				
 			else:  # Normal non-leaf nodes
 				# The height of the tree rooted at this node. Empty nodes have height 0.
@@ -124,13 +124,13 @@ class AvlTreeList(object):
 				
 				# The number of non-empty nodes in the tree rooted at this node, including this node.
 				# Empty nodes have size 0. This node has size equal to left.size + right.size + 1.
-				self.size = 1
+				self.size   = 1
 				
 				# The root node of the left subtree.
-				self.left  = AvlTreeList.Node.EMPTY_LEAF
+				self.left   = AvlTreeList.Node.EMPTY_LEAF
 				
 				# The root node of the right subtree.
-				self.right = AvlTreeList.Node.EMPTY_LEAF
+				self.right  = AvlTreeList.Node.EMPTY_LEAF
 		
 		
 		def get_node_at(self, index):

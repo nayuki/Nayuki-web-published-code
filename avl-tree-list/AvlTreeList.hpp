@@ -150,29 +150,29 @@ class AvlTreeList final {
 		
 		// For the singleton empty leaf node.
 		private: Node() :
-			value(),  // Default constructor on type E
+			value (),  // Default constructor on type E
 			height(0),
 			size  (0),
-			left (nullptr),
-			right(nullptr) {}
+			left  (nullptr),
+			right (nullptr) {}
 		
 		
 		// Normal non-leaf nodes.
 		private: Node(const E &val) :
-			value(val),  // Copy constructor on type E
+			value (val),  // Copy constructor on type E
 			height(1),
 			size  (1),
-			left (&EMPTY_LEAF),
-			right(&EMPTY_LEAF) {}
+			left  (&EMPTY_LEAF),
+			right (&EMPTY_LEAF) {}
 		
 		
 		// Normal non-leaf nodes.
 		private: Node(E &&val) :
-			value(std::move(val)),  // Move constructor on type E
+			value (std::move(val)),  // Move constructor on type E
 			height(1),
 			size  (1),
-			left (&EMPTY_LEAF),
-			right(&EMPTY_LEAF) {}
+			left  (&EMPTY_LEAF),
+			right (&EMPTY_LEAF) {}
 		
 		
 		public: ~Node() {

@@ -131,21 +131,21 @@ public sealed class AvlTreeList<E> {
 		
 		// For the singleton empty leaf node.
 		private Node() {
-			Value = default(T);
+			Value  = default(T);
 			Height = 0;
 			Size   = 0;
-			Left  = null;
-			Right = null;
+			Left   = null;
+			Right  = null;
 		}
 		
 		
 		// Normal non-leaf nodes.
 		private Node(T val) {
-			Value = val;
+			Value  = val;
 			Height = 1;
 			Size   = 1;
-			Left  = (Node<T>)EmptyLeaf;
-			Right = (Node<T>)EmptyLeaf;
+			Left   = (Node<T>)EmptyLeaf;
+			Right  = (Node<T>)EmptyLeaf;
 		}
 		
 		
