@@ -182,24 +182,18 @@ class AvlTreeList(object):
 			elif self.left is EMPTY and self.right is not EMPTY:
 				return self.right
 			else:
-				# We can remove the successor or the predecessor
-				self.value = self._get_successor()
-				self.right = self.right.remove_at(0)
+				# Find successor node. (Using the predecessor is valid too.)
+				temp = self.right
+				while temp.left is not AvlTreeList.Node.EMPTY_LEAF:
+					temp = temp.left
+				self.value = temp.value  # Replace value by successor
+				self.right = self.right.remove_at(0)  # Remove successor node
 			self._recalculate()
 			return self._balance()
 		
 		
 		def __str__(self):
 			return "AvlTreeNode(size={}, height={}, val={})".format(self.size, self.height, self.value)
-		
-		
-		def _get_successor(self):
-			if self is AvlTreeList.Node.EMPTY_LEAF or self.right is AvlTreeList.Node.EMPTY_LEAF:
-				raise ValueError()
-			node = self.right
-			while node.left is not AvlTreeList.Node.EMPTY_LEAF:
-				node = node.left
-			return node.value
 		
 		
 		# Balances the subtree rooted at this node and returns the new root.

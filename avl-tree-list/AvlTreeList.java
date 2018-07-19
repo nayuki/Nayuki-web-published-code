@@ -220,9 +220,12 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 			else if (left == EMPTY_LEAF && right != EMPTY_LEAF)
 				return right;
 			else {
-				// We can remove the successor or the predecessor
-				value = getSuccessor();
-				right = right.removeAt(0);
+				// Find successor node. (Using the predecessor is valid too.)
+				Node<E> temp = right;
+				while (temp.left != EMPTY_LEAF)
+					temp = temp.left;
+				value = temp.value;  // Replace value by successor
+				right = right.removeAt(0);  // Remove successor node
 			}
 			recalculate();
 			return balance();
@@ -231,16 +234,6 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		public String toString() {
 			return String.format("AvlTreeNode(size=%d, height=%d, val=%s)", size, height, value);
-		}
-		
-		
-		private E getSuccessor() {
-			if (this == EMPTY_LEAF || right == EMPTY_LEAF)
-				throw new IllegalStateException();
-			Node<E> node = right;
-			while (node.left != EMPTY_LEAF)
-				node = node.left;
-			return node.value;
 		}
 		
 		

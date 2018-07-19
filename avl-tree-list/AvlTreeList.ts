@@ -344,22 +344,15 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 		else if (this.left.size == 0 && this.right.size != 0)
 			return this.right;
 		else {
-			// We can remove the successor or the predecessor
-			this.value = this.getSuccessor();
-			this.right = this.rightNode.removeAt(0);
+			// Find successor node. (Using the predecessor is valid too.)
+			let temp = this.rightNode;
+			while (temp.left.size != 0)
+				temp = temp.leftNode;
+			this.value = temp.value;  // Replace value by successor
+			this.right = this.rightNode.removeAt(0);  // Remove successor node
 		}
 		this.recalculate();
 		return this.balance();
-	}
-	
-	
-	private getSuccessor(): E {
-		if (this.right.size == 0)
-			throw "Illegal state";
-		let node = this.rightNode;
-		while (node.left.size != 0)
-			node = node.leftNode;
-		return node.value;
 	}
 	
 	

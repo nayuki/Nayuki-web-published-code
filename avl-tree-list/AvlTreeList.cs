@@ -202,24 +202,15 @@ public sealed class AvlTreeList<E> {
 			else if (Left == EmptyLeaf && Right != EmptyLeaf)
 				return Right;
 			else {
-				// We can remove the successor or the predecessor
-				Value = Successor;
-				Right = Right.RemoveAt(0);
+				// Find successor node. (Using the predecessor is valid too.)
+				Node<T> temp = Right;
+				while (temp.Left != EmptyLeaf)
+					temp = temp.Left;
+				Value = temp.Value;  // Replace value by successor
+				Right = Right.RemoveAt(0);  // Remove successor node
 			}
 			Recalculate();
 			return DoBalance();
-		}
-		
-		
-		private T Successor {
-			get {
-				if (this == EmptyLeaf || Right == EmptyLeaf)
-					throw new InvalidOperationException();
-				Node<T> node = Right;
-				while (node.Left != EmptyLeaf)
-					node = node.Left;
-				return node.Value;
-			}
 		}
 		
 		

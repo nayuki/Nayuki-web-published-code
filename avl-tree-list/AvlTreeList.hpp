@@ -263,23 +263,15 @@ class AvlTreeList final {
 				*toDelete = this;
 				return result;
 			} else {
-				// We can remove the successor or the predecessor
-				value = std::move(getSuccessor());
-				right = right->removeAt(0, toDelete);
+				// Find successor node. (Using the predecessor is valid too.)
+				Node *temp = right;
+				while (temp->left != &EMPTY_LEAF)
+					temp = temp->left;
+				value = std::move(temp->value);  // Replace value by successor
+				right = right->removeAt(0, toDelete);  // Remove successor node
 			}
 			recalculate();
 			return balance();
-		}
-		
-		
-		// Note: This returns a mutable value.
-		private: E &getSuccessor() {
-			if (this == &EMPTY_LEAF || right == &EMPTY_LEAF)
-				throw "Illegal state";
-			Node *node = right;
-			while (node->left != &EMPTY_LEAF)
-				node = node->left;
-			return node->value;
 		}
 		
 		

@@ -324,22 +324,15 @@ AvlTreeListNode.prototype.removeAt = function(index) {
 	else if (this.left === empty && this.right !== empty)
 		return this.right;
 	else {
-		// We can remove the successor or the predecessor
-		this.value = this.getSuccessor();
-		this.right = this.right.removeAt(0);
+		// Find successor node. (Using the predecessor is valid too.)
+		var temp = this.right;
+		while (temp.left != AvlTreeListNode.EMPTY_LEAF)
+			temp = temp.left;
+		this.value = temp.value;  // Replace value by successor
+		this.right = this.right.removeAt(0);  // Remove successor node
 	}
 	this.recalculate();
 	return this.balance();
-};
-
-
-AvlTreeListNode.prototype.getSuccessor = function() {
-	if (this === AvlTreeListNode.EMPTY_LEAF || this.right === AvlTreeListNode.EMPTY_LEAF)
-		throw "Illegal state";
-	var node = this.right;
-	while (node.left != AvlTreeListNode.EMPTY_LEAF)
-		node = node.left;
-	return node.value;
 };
 
 
