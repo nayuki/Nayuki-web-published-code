@@ -1,7 +1,7 @@
 /* 
  * Binary array set (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,7 +45,7 @@ class BinaryArraySet final {
 	/*---- Constructors ----*/
 	
 	// Runs in O(1) time
-	public: BinaryArraySet() :
+	public: explicit BinaryArraySet() :
 		values(),
 		length(0) {}
 	

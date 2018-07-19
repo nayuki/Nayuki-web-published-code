@@ -38,7 +38,7 @@ class AvlTreeList final {
 	private: Node *root;  // Never nullptr
 	
 	
-	public: AvlTreeList() :
+	public: explicit AvlTreeList() :
 		root(&Node::EMPTY_LEAF) {}
 	
 	
@@ -158,7 +158,7 @@ class AvlTreeList final {
 		
 		
 		// Normal non-leaf nodes.
-		private: Node(const E &val) :
+		private: explicit Node(const E &val) :
 			value (val),  // Copy constructor on type E
 			height(1),
 			size  (1),
@@ -167,7 +167,7 @@ class AvlTreeList final {
 		
 		
 		// Normal non-leaf nodes.
-		private: Node(E &&val) :
+		private: explicit Node(E &&val) :
 			value (std::move(val)),  // Move constructor on type E
 			height(1),
 			size  (1),

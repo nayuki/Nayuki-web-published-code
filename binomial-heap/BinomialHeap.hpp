@@ -46,7 +46,7 @@ class BinomialHeap final {
 	
 	/*---- Constructors ----*/
 	
-	public: BinomialHeap() {}
+	public: explicit BinomialHeap() {}
 	
 	
 	
