@@ -1,7 +1,7 @@
 <!--
   - AVL tree list test (JavaScript)
   - 
-  - Copyright (c) 2016 Project Nayuki. (MIT License)
+  - Copyright (c) 2018 Project Nayuki. (MIT License)
   - https://www.nayuki.io/page/avl-tree-list
   - 
   - Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,23 +29,9 @@
 	
 	<body>
 		<h1>AvlTreeListTest (JavaScript)</h1>
+		<ul id="results"></ul>
 		
 		<script type="application/javascript" src="AvlTreeList.js"></script>
 		<script type="application/javascript" src="AvlTreeListTest.js"></script>
-		
-		<script type="application/javascript">
-			document.write("\u003Cul>");
-			TEST_SUITE_FUNCTIONS.forEach(function(func) {
-				document.write("\u003Cli>" + func.name + ": ");
-				try {
-					func();
-					document.write("Pass");
-				} catch (e) {
-					document.write("Fail - " + e);
-				}
-				document.write("\u003C/li>");
-			});
-			document.write("\u003C/ul>");
-		</script>
 	</body>
 </html>

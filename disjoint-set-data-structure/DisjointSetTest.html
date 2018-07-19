@@ -33,19 +33,5 @@
 		
 		<script type="application/javascript" src="DisjointSet.js"></script>
 		<script type="application/javascript" src="DisjointSetTest.js"></script>
-		<script type="application/javascript">
-			TEST_SUITE_FUNCTIONS.forEach(function(func) {
-				var msg = func.name + ": ";
-				try {
-					func();
-					msg += "Pass";
-				} catch (e) {
-					msg += "Fail - " + e;
-				}
-				var li = document.createElement("li");
-				li.textContent = msg;
-				document.getElementById("results").appendChild(li);
-			});
-		</script>
 	</body>
 </html>

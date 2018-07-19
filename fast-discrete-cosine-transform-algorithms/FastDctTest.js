@@ -24,38 +24,9 @@
 "use strict";
 
 
-function main() {
-	var FUNCS = [
-		testFastDctLeeVsNaive,
-		testFastDctLeeInvertibility,
-		testFastDct8VsNaive,
-		testFastDctFftVsNaive,
-		testFastDctFftInvertibility,
-	];
-	var EPSILON = 1e-9;
-	
-	var i = 0;
-	function iterate() {
-		var msg;
-		if (i >= FUNCS.length)
-			msg = "Finished";
-		else {
-			msg = FUNCS[i].name + "(): ";
-			try {
-				FUNCS[i]();
-				msg += "Pass";
-			} catch (e) {
-				msg += "Fail - " + e;
-			}
-			i++;
-			setTimeout(iterate, 0);
-		}
-		var li = document.createElement("li");
-		li.textContent = msg;
-		document.getElementById("results").appendChild(li);
-	}
-	iterate();
-	
+/*---- Test suite ----*/
+
+var TEST_SUITE_FUNCS = [
 	
 	function testFastDctLeeVsNaive() {
 		for (var len = 1; len <= (1 << 11); len *= 2) {
@@ -71,9 +42,9 @@ function main() {
 			fastDctLee.inverseTransform(actual);
 			assertArrayEquals(expect, actual, EPSILON);
 		}
-	}
-
-
+	},
+	
+	
 	function testFastDctLeeInvertibility() {
 		for (var len = 1; len <= (1 << 17); len *= 2) {
 			var vector = randomVector(len);
@@ -84,9 +55,9 @@ function main() {
 				temp[i] /= len / 2.0;
 			assertArrayEquals(vector, temp, EPSILON);
 		}
-	}
-
-
+	},
+	
+	
 	function testFastDct8VsNaive() {
 		var vector = randomVector(8);
 		
@@ -104,9 +75,9 @@ function main() {
 		actual = vector.slice();
 		fastDct8.inverseTransform(actual);
 		assertArrayEquals(expect, actual, EPSILON);
-	}
-
-
+	},
+	
+	
 	function testFastDctFftVsNaive() {
 		for (var i = 0, prev = 0; i <= 100; i++) {
 			var len = Math.round(Math.pow(1000, i / 100.0));
@@ -125,9 +96,9 @@ function main() {
 			fastDctFft.inverseTransform(actual);
 			assertArrayEquals(expect, actual, EPSILON);
 		}
-	}
-
-
+	},
+	
+	
 	function testFastDctFftInvertibility() {
 		for (var i = 0, prev = 0; i <= 30; i++) {
 			var len = Math.round(Math.pow(30000, i / 30.0));
@@ -142,25 +113,32 @@ function main() {
 				temp[j] /= len / 2.0;
 			assertArrayEquals(vector, temp, EPSILON);
 		}
+	},
+	
+];
+
+
+
+/*---- Helper definitions ----*/
+
+var EPSILON = 1e-9;
+
+
+function assertArrayEquals(expect, actual, epsilon) {
+	if (expect.length != actual.length)
+		throw "Length mismatch";
+	for (var i = 0; i < expect.length; i++) {
+		if (Math.abs(expect[i] - actual[i]) > epsilon)
+			throw "Value mismatch";
 	}
+}
 
 
-	function assertArrayEquals(expect, actual, epsilon) {
-		if (expect.length != actual.length)
-			throw "Length mismatch";
-		for (var i = 0; i < expect.length; i++) {
-			if (Math.abs(expect[i] - actual[i]) > epsilon)
-				throw "Value mismatch";
-		}
-	}
-
-
-	function randomVector(len) {
-		var result = [];
-		for (var i = 0; i < len; i++)
-			result.push(Math.random() * 2 - 1);
-		return result;
-	}
+function randomVector(len) {
+	var result = [];
+	for (var i = 0; i < len; i++)
+		result.push(Math.random() * 2 - 1);
+	return result;
 }
 
 
@@ -197,4 +175,27 @@ var naiveDct = new function() {
 };
 
 
-main();
+
+(function() {
+	var i = 0;
+	function iterate() {
+		var msg;
+		if (i >= TEST_SUITE_FUNCS.length)
+			msg = "Finished";
+		else {
+			msg = TEST_SUITE_FUNCS[i].name + "(): ";
+			try {
+				TEST_SUITE_FUNCS[i]();
+				msg += "Pass";
+			} catch (e) {
+				msg += "Fail - " + e;
+			}
+			i++;
+			setTimeout(iterate, 0);
+		}
+		var li = document.createElement("li");
+		li.textContent = msg;
+		document.getElementById("results").appendChild(li);
+	}
+	iterate();
+})();

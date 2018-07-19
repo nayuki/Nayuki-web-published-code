@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,102 +26,99 @@
 
 /*---- Test suite ----*/
 
-function testNew() {
-	var ds = new DisjointSet(10);
-	assertEquals(10, ds.getNumberOfSets());
-	assertEquals(1, ds.getSizeOfSet(0));
-	assertEquals(1, ds.getSizeOfSet(2));
-	assertEquals(1, ds.getSizeOfSet(9));
-	assertTrue(ds.areInSameSet(0, 0));
-	assertFalse(ds.areInSameSet(0, 1));
-	assertFalse(ds.areInSameSet(9, 3));
-	ds.checkStructure();
-}
-
-
-function testMerge() {
-	var ds = new DisjointSet(10);
-	assertTrue(ds.mergeSets(0, 1));
-	ds.checkStructure();
-	assertEquals(9, ds.getNumberOfSets());
-	assertTrue(ds.areInSameSet(0, 1));
+var TEST_SUITE_FUNCS = [
 	
-	assertTrue(ds.mergeSets(2, 3));
-	ds.checkStructure();
-	assertEquals(8, ds.getNumberOfSets());
-	assertTrue(ds.areInSameSet(2, 3));
-	
-	assertFalse(ds.mergeSets(2, 3));
-	ds.checkStructure();
-	assertEquals(8, ds.getNumberOfSets());
-	assertFalse(ds.areInSameSet(0, 2));
-	
-	assertTrue(ds.mergeSets(0, 3));
-	ds.checkStructure();
-	assertEquals(7, ds.getNumberOfSets());
-	assertTrue(ds.areInSameSet(0, 2));
-	assertTrue(ds.areInSameSet(3, 0));
-	assertTrue(ds.areInSameSet(1, 3));
-}
-
-
-function testBigMerge() {
-	var maxRank = 20;
-	var trials = 10000;
-	
-	var numElems = 1 << maxRank;  // Grows exponentially
-	var ds = new DisjointSet(numElems);
-	for (var level = 0; level < maxRank; level++) {
-		var mergeStep = 1 << level;
-		var incrStep = mergeStep * 2;
-		for (var i = 0; i < numElems; i += incrStep) {
-			assertFalse(ds.areInSameSet(i, i + mergeStep));
-			assertTrue(ds.mergeSets(i, i + mergeStep));
-		}
-		// Now we have a bunch of sets of size 2^(level+1)
-		
-		// Do random tests
-		var mask = -incrStep;  // 0b11...100...00
-		for (var i = 0; i < trials; i++) {
-			var j = Math.floor(Math.random() * numElems);
-			var k = Math.floor(Math.random() * numElems);
-			var expect = (j & mask) == (k & mask);
-			assertTrue(expect == ds.areInSameSet(j, k));
-		}
-	}
-}
-
-
-function testAgainstNaiveRandomly() {
-	var trials = 100;
-	var iterations = 1000;
-	var numElems = 100;
-	
-	for (var i = 0; i < trials; i++) {
-		var nds = new NaiveDisjointSet(numElems);
-		var ds = new DisjointSet(numElems);
-		for (var j = 0; j < iterations; j++) {
-			var k = Math.floor(Math.random() * numElems);
-			var l = Math.floor(Math.random() * numElems);
-			assertEquals(nds.getSizeOfSet(k), ds.getSizeOfSet(k));
-			assertTrue(nds.areInSameSet(k, l) == ds.areInSameSet(k, l));
-			if (Math.random() < 0.1)
-				assertTrue(nds.mergeSets(k, l) == ds.mergeSets(k, l));
-			assertEquals(nds.getNumberOfSets(), ds.getNumberOfSets());
-			if (Math.random() < 0.001)
-				ds.checkStructure();
-		}
+	function testNew() {
+		var ds = new DisjointSet(10);
+		assertEquals(10, ds.getNumberOfSets());
+		assertEquals(1, ds.getSizeOfSet(0));
+		assertEquals(1, ds.getSizeOfSet(2));
+		assertEquals(1, ds.getSizeOfSet(9));
+		assertTrue(ds.areInSameSet(0, 0));
+		assertFalse(ds.areInSameSet(0, 1));
+		assertFalse(ds.areInSameSet(9, 3));
 		ds.checkStructure();
-	}
-}
-
-
-var TEST_SUITE_FUNCTIONS = [
-	testNew,
-	testMerge,
-	testBigMerge,
-	testAgainstNaiveRandomly,
+	},
+	
+	
+	function testMerge() {
+		var ds = new DisjointSet(10);
+		assertTrue(ds.mergeSets(0, 1));
+		ds.checkStructure();
+		assertEquals(9, ds.getNumberOfSets());
+		assertTrue(ds.areInSameSet(0, 1));
+		
+		assertTrue(ds.mergeSets(2, 3));
+		ds.checkStructure();
+		assertEquals(8, ds.getNumberOfSets());
+		assertTrue(ds.areInSameSet(2, 3));
+		
+		assertFalse(ds.mergeSets(2, 3));
+		ds.checkStructure();
+		assertEquals(8, ds.getNumberOfSets());
+		assertFalse(ds.areInSameSet(0, 2));
+		
+		assertTrue(ds.mergeSets(0, 3));
+		ds.checkStructure();
+		assertEquals(7, ds.getNumberOfSets());
+		assertTrue(ds.areInSameSet(0, 2));
+		assertTrue(ds.areInSameSet(3, 0));
+		assertTrue(ds.areInSameSet(1, 3));
+	},
+	
+	
+	function testBigMerge() {
+		var maxRank = 20;
+		var trials = 10000;
+		
+		var numElems = 1 << maxRank;  // Grows exponentially
+		var ds = new DisjointSet(numElems);
+		for (var level = 0; level < maxRank; level++) {
+			var mergeStep = 1 << level;
+			var incrStep = mergeStep * 2;
+			for (var i = 0; i < numElems; i += incrStep) {
+				assertFalse(ds.areInSameSet(i, i + mergeStep));
+				assertTrue(ds.mergeSets(i, i + mergeStep));
+			}
+			// Now we have a bunch of sets of size 2^(level+1)
+			
+			// Do random tests
+			var mask = -incrStep;  // 0b11...100...00
+			for (var i = 0; i < trials; i++) {
+				var j = Math.floor(Math.random() * numElems);
+				var k = Math.floor(Math.random() * numElems);
+				var expect = (j & mask) == (k & mask);
+				assertTrue(expect == ds.areInSameSet(j, k));
+			}
+		}
+	},
+	
+	
+	function testAgainstNaiveRandomly() {
+		var trials = 100;
+		var iterations = 1000;
+		var numElems = 100;
+		
+		for (var i = 0; i < trials; i++) {
+			var nds = new NaiveDisjointSet(numElems);
+			var ds = new DisjointSet(numElems);
+			for (var j = 0; j < iterations; j++) {
+				var k = Math.floor(Math.random() * numElems);
+				var l = Math.floor(Math.random() * numElems);
+				assertEquals(nds.getSizeOfSet(k), ds.getSizeOfSet(k));
+				assertTrue(nds.areInSameSet(k, l) == ds.areInSameSet(k, l));
+				if (Math.random() < 0.1)
+					assertTrue(nds.mergeSets(k, l) == ds.mergeSets(k, l));
+				assertEquals(nds.getNumberOfSets(), ds.getNumberOfSets());
+				if (Math.random() < 0.001)
+					ds.checkStructure();
+			}
+			ds.checkStructure();
+		}
+	},
+	
 ];
+
 
 
 /*---- Helper definitions ----*/
@@ -181,3 +178,28 @@ function assertFalse(cond) {
 function assertEquals(expect, actual) {
 	assertTrue(actual === expect)
 }
+
+
+(function() {
+	var i = 0;
+	function iterate() {
+		var msg;
+		if (i >= TEST_SUITE_FUNCS.length)
+			msg = "Finished";
+		else {
+			msg = TEST_SUITE_FUNCS[i].name + "(): ";
+			try {
+				TEST_SUITE_FUNCS[i]();
+				msg += "Pass";
+			} catch (e) {
+				msg += "Fail - " + e;
+			}
+			i++;
+			setTimeout(iterate, 0);
+		}
+		var li = document.createElement("li");
+		li.textContent = msg;
+		document.getElementById("results").appendChild(li);
+	}
+	iterate();
+})();
