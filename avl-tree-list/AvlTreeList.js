@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (JavaScript)
  * 
- * Copyright (c) 2016 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@
 function AvlTreeList() {
 	// 'root' is a private variable, and should not be read or written by code outside of this class.
 	// Invariant: The value is always an AvlTreeListNode object, never null.
-	this.root = AvlTreeListNode.emptyLeafNode;
+	this.root = AvlTreeListNode.EMPTY_LEAF;
 	
 	if (arguments.length == 1) {
 		var arr = arguments[0];
@@ -131,7 +131,7 @@ AvlTreeList.prototype.pop = function() {
 // For example: [a,b,c] -> clear() -> [].
 // Types: result is void.
 AvlTreeList.prototype.clear = function() {
-	this.root = AvlTreeListNode.emptyLeafNode;
+	this.root = AvlTreeListNode.EMPTY_LEAF;
 };
 
 
@@ -258,21 +258,21 @@ function AvlTreeListNode() {
 		this.value = arguments[0];
 		this.height = 1;
 		this.size   = 1;
-		this.left  = AvlTreeListNode.emptyLeafNode;
-		this.right = AvlTreeListNode.emptyLeafNode;
+		this.left  = AvlTreeListNode.EMPTY_LEAF;
+		this.right = AvlTreeListNode.EMPTY_LEAF;
 	} else
 		throw "Assertion error";
 }
 
 
 // (Static constant) A bit of a hack, but more elegant than using null values as leaf nodes.
-AvlTreeListNode.emptyLeafNode = new AvlTreeListNode();
+AvlTreeListNode.EMPTY_LEAF = new AvlTreeListNode();
 
 
 AvlTreeListNode.prototype.getNodeAt = function(index) {
 	if (index < 0 || index >= this.size)
 		throw "Assertion error";
-	if (this === AvlTreeListNode.emptyLeafNode)
+	if (this === AvlTreeListNode.EMPTY_LEAF)
 		throw "Illegal argument";
 	
 	var leftSize = this.left.size;
@@ -288,7 +288,7 @@ AvlTreeListNode.prototype.getNodeAt = function(index) {
 AvlTreeListNode.prototype.insertAt = function(index, obj) {
 	if (index < 0 || index > this.size)
 		throw "Assertion error";
-	if (this === AvlTreeListNode.emptyLeafNode) {
+	if (this === AvlTreeListNode.EMPTY_LEAF) {
 		if (index == 0)
 			return new AvlTreeListNode(obj);
 		else
@@ -308,7 +308,7 @@ AvlTreeListNode.prototype.insertAt = function(index, obj) {
 AvlTreeListNode.prototype.removeAt = function(index) {
 	if (index < 0 || index >= this.size)
 		throw "Assertion error";
-	var empty = AvlTreeListNode.emptyLeafNode;
+	var empty = AvlTreeListNode.EMPTY_LEAF;
 	if (this === empty)
 		throw "Illegal argument";
 	
@@ -334,10 +334,10 @@ AvlTreeListNode.prototype.removeAt = function(index) {
 
 
 AvlTreeListNode.prototype.getSuccessor = function() {
-	if (this === AvlTreeListNode.emptyLeafNode || this.right === AvlTreeListNode.emptyLeafNode)
+	if (this === AvlTreeListNode.EMPTY_LEAF || this.right === AvlTreeListNode.EMPTY_LEAF)
 		throw "Illegal state";
 	var node = this.right;
-	while (node.left != AvlTreeListNode.emptyLeafNode)
+	while (node.left != AvlTreeListNode.EMPTY_LEAF)
 		node = node.left;
 	return node.value;
 };
@@ -376,7 +376,7 @@ AvlTreeListNode.prototype.balance = function() {
  *   1   2    0   1
  */
 AvlTreeListNode.prototype.rotateLeft = function() {
-	if (this.right === AvlTreeListNode.emptyLeafNode)
+	if (this.right === AvlTreeListNode.EMPTY_LEAF)
 		throw "Illegal state";
 	var root = this.right;
 	this.right = root.left;
@@ -395,7 +395,7 @@ AvlTreeListNode.prototype.rotateLeft = function() {
  * 0   1          1   2
  */
 AvlTreeListNode.prototype.rotateRight = function() {
-	if (this.left === AvlTreeListNode.emptyLeafNode)
+	if (this.left === AvlTreeListNode.EMPTY_LEAF)
 		throw "Illegal state";
 	var root = this.left;
 	this.left = root.right;
@@ -409,7 +409,7 @@ AvlTreeListNode.prototype.rotateRight = function() {
 // Needs to be called every time the left or right subtree is changed.
 // Assumes the left and right subtrees have the correct values computed already.
 AvlTreeListNode.prototype.recalculate = function() {
-	if (this === AvlTreeListNode.emptyLeafNode)
+	if (this === AvlTreeListNode.EMPTY_LEAF)
 		throw "Assertion error";
 	if (this.left.height < 0 || this.right.height < 0)
 		throw "Assertion error";
@@ -429,7 +429,7 @@ AvlTreeListNode.prototype.getBalance = function() {
 
 // For unit tests, invokable by the main class.
 AvlTreeListNode.prototype.checkStructure = function() {
-	if (this === AvlTreeListNode.emptyLeafNode)
+	if (this === AvlTreeListNode.EMPTY_LEAF)
 		return;
 	this.left .checkStructure();
 	this.right.checkStructure();
@@ -449,7 +449,7 @@ AvlTreeListNode.prototype.checkStructure = function() {
 function AvlTreeListIterator(root) {
 	this.stack = [];
 	var node = root;
-	while (node != AvlTreeListNode.emptyLeafNode) {
+	while (node != AvlTreeListNode.EMPTY_LEAF) {
 		this.stack.push(node);
 		node = node.left;
 	}
@@ -468,7 +468,7 @@ AvlTreeListIterator.prototype.next = function() {
 	var node = this.stack.pop();
 	var result = node.value;
 	node = node.right;
-	while (node != AvlTreeListNode.emptyLeafNode) {
+	while (node != AvlTreeListNode.EMPTY_LEAF) {
 		this.stack.push(node);
 		node = node.left;
 	}

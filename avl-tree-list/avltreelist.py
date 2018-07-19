@@ -76,21 +76,21 @@ class AvlTreeList(object):
 	
 	
 	def clear(self):
-		self.root = AvlTreeList.Node.EMPTY_LEAF_NODE
+		self.root = AvlTreeList.Node.EMPTY_LEAF
 	
 	
 	# Note: Not fail-fast on concurrent modification.
 	def __iter__(self):
 		stack = []
 		node = self.root
-		while node is not AvlTreeList.Node.EMPTY_LEAF_NODE:
+		while node is not AvlTreeList.Node.EMPTY_LEAF:
 			stack.append(node)
 			node = node.left
 		while len(stack) > 0:
 			node = stack.pop()
 			yield node.value
 			node = node.right
-			while node is not AvlTreeList.Node.EMPTY_LEAF_NODE:
+			while node is not AvlTreeList.Node.EMPTY_LEAF:
 				stack.append(node)
 				node = node.left
 	
@@ -127,15 +127,15 @@ class AvlTreeList(object):
 				self.size = 1
 				
 				# The root node of the left subtree.
-				self.left  = AvlTreeList.Node.EMPTY_LEAF_NODE
+				self.left  = AvlTreeList.Node.EMPTY_LEAF
 				
 				# The root node of the right subtree.
-				self.right = AvlTreeList.Node.EMPTY_LEAF_NODE
+				self.right = AvlTreeList.Node.EMPTY_LEAF
 		
 		
 		def get_node_at(self, index):
 			assert 0 <= index < self.size
-			if self is AvlTreeList.Node.EMPTY_LEAF_NODE:
+			if self is AvlTreeList.Node.EMPTY_LEAF:
 				raise ValueError()
 			
 			leftsize = self.left.size
@@ -149,7 +149,7 @@ class AvlTreeList(object):
 		
 		def insert_at(self, index, obj):
 			assert 0 <= index <= self.size
-			if self is AvlTreeList.Node.EMPTY_LEAF_NODE:
+			if self is AvlTreeList.Node.EMPTY_LEAF:
 				if index == 0:
 					return AvlTreeList.Node(obj)
 				else:
@@ -166,7 +166,7 @@ class AvlTreeList(object):
 		
 		def remove_at(self, index):
 			assert 0 <= index < self.size
-			EMPTY = AvlTreeList.Node.EMPTY_LEAF_NODE
+			EMPTY = AvlTreeList.Node.EMPTY_LEAF
 			if self is EMPTY:
 				raise ValueError()
 			
@@ -194,10 +194,10 @@ class AvlTreeList(object):
 		
 		
 		def _get_successor(self):
-			if self is AvlTreeList.Node.EMPTY_LEAF_NODE or self.right is AvlTreeList.Node.EMPTY_LEAF_NODE:
+			if self is AvlTreeList.Node.EMPTY_LEAF or self.right is AvlTreeList.Node.EMPTY_LEAF:
 				raise ValueError()
 			node = self.right
-			while node.left is not AvlTreeList.Node.EMPTY_LEAF_NODE:
+			while node.left is not AvlTreeList.Node.EMPTY_LEAF:
 				node = node.left
 			return node.value
 		
@@ -229,7 +229,7 @@ class AvlTreeList(object):
 		#   1   2    0   1
 		# 
 		def _rotate_left(self):
-			if self.right is AvlTreeList.Node.EMPTY_LEAF_NODE:
+			if self.right is AvlTreeList.Node.EMPTY_LEAF:
 				raise ValueError()
 			root = self.right
 			self.right = root.left
@@ -247,7 +247,7 @@ class AvlTreeList(object):
 		# 0   1          1   2
 		# 
 		def _rotate_right(self):
-			if self.left is AvlTreeList.Node.EMPTY_LEAF_NODE:
+			if self.left is AvlTreeList.Node.EMPTY_LEAF:
 				raise ValueError()
 			root = self.left
 			self.left = root.right
@@ -260,7 +260,7 @@ class AvlTreeList(object):
 		# Needs to be called every time the left or right subtree is changed.
 		# Assumes the left and right subtrees have the correct values computed already.
 		def _recalculate(self):
-			assert self is not AvlTreeList.Node.EMPTY_LEAF_NODE
+			assert self is not AvlTreeList.Node.EMPTY_LEAF
 			assert self.left.height >= 0 and self.right.height >= 0
 			assert self.left.size >= 0 and self.right.size >= 0
 			self.height = max(self.left.height, self.right.height) + 1
@@ -274,7 +274,7 @@ class AvlTreeList(object):
 		
 		# For unit tests, invokable by the outer class.
 		def check_structure(self, visitednodes):
-			if self is AvlTreeList.Node.EMPTY_LEAF_NODE:
+			if self is AvlTreeList.Node.EMPTY_LEAF:
 				return
 			
 			if self in visitednodes:
@@ -292,4 +292,4 @@ class AvlTreeList(object):
 
 
 # Static initializer. A bit of a hack, but more elegant than using None values as leaf nodes.
-AvlTreeList.Node.EMPTY_LEAF_NODE = AvlTreeList.Node(None, True)
+AvlTreeList.Node.EMPTY_LEAF = AvlTreeList.Node(None, True)

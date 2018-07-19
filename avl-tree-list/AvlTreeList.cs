@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (C#)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -88,7 +88,7 @@ public sealed class AvlTreeList<E> {
 	
 	
 	public void Clear() {
-		root = Node<E>.EmptyLeafNode;
+		root = Node<E>.EmptyLeaf;
 	}
 	
 	
@@ -104,7 +104,7 @@ public sealed class AvlTreeList<E> {
 	private sealed class Node<T> {
 		
 		// A bit of a hack, but more elegant than using null values as leaf nodes.
-		public static readonly Node<T> EmptyLeafNode = new Node<T>();
+		public static readonly Node<T> EmptyLeaf = new Node<T>();
 		
 		
 		/*-- Fields --*/
@@ -144,8 +144,8 @@ public sealed class AvlTreeList<E> {
 			Value = val;
 			Height = 1;
 			Size   = 1;
-			Left  = (Node<T>)EmptyLeafNode;
-			Right = (Node<T>)EmptyLeafNode;
+			Left  = (Node<T>)EmptyLeaf;
+			Right = (Node<T>)EmptyLeaf;
 		}
 		
 		
@@ -153,7 +153,7 @@ public sealed class AvlTreeList<E> {
 		
 		public Node<T> GetNodeAt(int index) {
 			Debug.Assert(0 <= index && index < Size);
-			if (this == EmptyLeafNode)
+			if (this == EmptyLeaf)
 				throw new ArgumentException();
 			
 			int leftSize = Left.Size;
@@ -168,7 +168,7 @@ public sealed class AvlTreeList<E> {
 		
 		public Node<T> InsertAt(int index, T obj) {
 			Debug.Assert(0 <= index && index <= Size);
-			if (this == EmptyLeafNode) {
+			if (this == EmptyLeaf) {
 				if (index == 0)
 					return new Node<T>(obj);
 				else
@@ -187,7 +187,7 @@ public sealed class AvlTreeList<E> {
 		
 		public Node<T> RemoveAt(int index) {
 			Debug.Assert(0 <= index && index < Size);
-			if (this == EmptyLeafNode)
+			if (this == EmptyLeaf)
 				throw new ArgumentException();
 			
 			int leftSize = Left.Size;
@@ -195,11 +195,11 @@ public sealed class AvlTreeList<E> {
 				Left = Left.RemoveAt(index);
 			else if (index > leftSize)
 				Right = Right.RemoveAt(index - leftSize - 1);
-			else if (Left == EmptyLeafNode && Right == EmptyLeafNode)
-				return (Node<T>)EmptyLeafNode;
-			else if (Left != EmptyLeafNode && Right == EmptyLeafNode)
+			else if (Left == EmptyLeaf && Right == EmptyLeaf)
+				return (Node<T>)EmptyLeaf;
+			else if (Left != EmptyLeaf && Right == EmptyLeaf)
 				return Left;
-			else if (Left == EmptyLeafNode && Right != EmptyLeafNode)
+			else if (Left == EmptyLeaf && Right != EmptyLeaf)
 				return Right;
 			else {
 				// We can remove the successor or the predecessor
@@ -213,10 +213,10 @@ public sealed class AvlTreeList<E> {
 		
 		private T Successor {
 			get {
-				if (this == EmptyLeafNode || Right == EmptyLeafNode)
+				if (this == EmptyLeaf || Right == EmptyLeaf)
 					throw new InvalidOperationException();
 				Node<T> node = Right;
-				while (node.Left != EmptyLeafNode)
+				while (node.Left != EmptyLeaf)
 					node = node.Left;
 				return node.Value;
 			}
@@ -252,7 +252,7 @@ public sealed class AvlTreeList<E> {
 		 *   1   2    0   1
 		 */
 		private Node<T> RotateLeft() {
-			if (Right == EmptyLeafNode)
+			if (Right == EmptyLeaf)
 				throw new InvalidOperationException();
 			Node<T> root = this.Right;
 			this.Right = root.Left;
@@ -271,7 +271,7 @@ public sealed class AvlTreeList<E> {
 		 * 0   1          1   2
 		 */
 		private Node<T> RotateRight() {
-			if (Left == EmptyLeafNode)
+			if (Left == EmptyLeaf)
 				throw new InvalidOperationException();
 			Node<T> root = this.Left;
 			this.Left = root.Right;
@@ -285,7 +285,7 @@ public sealed class AvlTreeList<E> {
 		// Needs to be called every time the left or right subtree is changed.
 		// Assumes the left and right subtrees have the correct values computed already.
 		private void Recalculate() {
-			Debug.Assert(this != EmptyLeafNode);
+			Debug.Assert(this != EmptyLeaf);
 			Debug.Assert(Left.Height >= 0 && Right.Height >= 0);
 			Debug.Assert(Left.Size >= 0 && Right.Size >= 0);
 			Height = Math.Max(Left.Height, Right.Height) + 1;
@@ -303,7 +303,7 @@ public sealed class AvlTreeList<E> {
 		
 		// For unit tests, invokable by the outer class.
 		public void CheckStructure(ISet<Node<T>> visitedNodes) {
-			if (this == EmptyLeafNode)
+			if (this == EmptyLeaf)
 				return;
 			
 			if (visitedNodes.Contains(this))

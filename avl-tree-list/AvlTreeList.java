@@ -97,7 +97,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	@SuppressWarnings("unchecked")
 	public void clear() {
-		root = (Node<E>)Node.emptyLeafNode;
+		root = (Node<E>)Node.EMPTY_LEAF;
 	}
 	
 	
@@ -118,7 +118,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	private static final class Node<E> {
 		
 		// A bit of a hack, but more elegant than using null values as leaf nodes.
-		public static final Node<?> emptyLeafNode = new Node<Object>();
+		public static final Node<?> EMPTY_LEAF = new Node<Object>();
 		
 		
 		/*-- Fields --*/
@@ -159,8 +159,8 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 			value = val;
 			height = 1;
 			size   = 1;
-			left  = (Node<E>)emptyLeafNode;
-			right = (Node<E>)emptyLeafNode;
+			left  = (Node<E>)EMPTY_LEAF;
+			right = (Node<E>)EMPTY_LEAF;
 		}
 		
 		
@@ -168,7 +168,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		public Node<E> getNodeAt(int index) {
 			assert 0 <= index && index < size;
-			if (this == emptyLeafNode)
+			if (this == EMPTY_LEAF)
 				throw new IllegalArgumentException();
 			
 			int leftSize = left.size;
@@ -183,7 +183,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		public Node<E> insertAt(int index, E obj) {
 			assert 0 <= index && index <= size;
-			if (this == emptyLeafNode) {
+			if (this == EMPTY_LEAF) {
 				if (index == 0)
 					return new Node<>(obj);
 				else
@@ -203,7 +203,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		@SuppressWarnings("unchecked")
 		public Node<E> removeAt(int index) {
 			assert 0 <= index && index < size;
-			if (this == emptyLeafNode)
+			if (this == EMPTY_LEAF)
 				throw new IllegalArgumentException();
 			
 			int leftSize = left.size;
@@ -211,11 +211,11 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 				left = left.removeAt(index);
 			else if (index > leftSize)
 				right = right.removeAt(index - leftSize - 1);
-			else if (left == emptyLeafNode && right == emptyLeafNode)
-				return (Node<E>)emptyLeafNode;
-			else if (left != emptyLeafNode && right == emptyLeafNode)
+			else if (left == EMPTY_LEAF && right == EMPTY_LEAF)
+				return (Node<E>)EMPTY_LEAF;
+			else if (left != EMPTY_LEAF && right == EMPTY_LEAF)
 				return left;
-			else if (left == emptyLeafNode && right != emptyLeafNode)
+			else if (left == EMPTY_LEAF && right != EMPTY_LEAF)
 				return right;
 			else {
 				// We can remove the successor or the predecessor
@@ -233,10 +233,10 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		
 		private E getSuccessor() {
-			if (this == emptyLeafNode || right == emptyLeafNode)
+			if (this == EMPTY_LEAF || right == EMPTY_LEAF)
 				throw new IllegalStateException();
 			Node<E> node = right;
-			while (node.left != emptyLeafNode)
+			while (node.left != EMPTY_LEAF)
 				node = node.left;
 			return node.value;
 		}
@@ -271,7 +271,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		 *   1   2    0   1
 		 */
 		private Node<E> rotateLeft() {
-			if (right == emptyLeafNode)
+			if (right == EMPTY_LEAF)
 				throw new IllegalStateException();
 			Node<E> root = this.right;
 			this.right = root.left;
@@ -290,7 +290,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		 * 0   1          1   2
 		 */
 		private Node<E> rotateRight() {
-			if (left == emptyLeafNode)
+			if (left == EMPTY_LEAF)
 				throw new IllegalStateException();
 			Node<E> root = this.left;
 			this.left = root.right;
@@ -304,7 +304,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		// Needs to be called every time the left or right subtree is changed.
 		// Assumes the left and right subtrees have the correct values computed already.
 		private void recalculate() {
-			assert this != emptyLeafNode;
+			assert this != EMPTY_LEAF;
 			assert left.height >= 0 && right.height >= 0;
 			assert left.size >= 0 && right.size >= 0;
 			height = Math.max(left.height, right.height) + 1;
@@ -320,7 +320,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		// For unit tests, invokable by the outer class.
 		void checkStructure(Set<Node<E>> visitedNodes) {
-			if (this == emptyLeafNode)
+			if (this == EMPTY_LEAF)
 				return;
 			
 			if (visitedNodes.contains(this))
@@ -366,7 +366,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		private void initPath() {
 			stack.clear();
 			int idx = index;
-			for (Node<E> node = root; node != Node.emptyLeafNode; ) {
+			for (Node<E> node = root; node != Node.EMPTY_LEAF; ) {
 				assert 0 <= idx && idx <= node.size;
 				if (idx <= node.left.size) {
 					stack.push(node);
@@ -395,7 +395,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 			Node<E> node = stack.pop();
 			E result = node.value;
 			node = node.right;
-			while (node != Node.emptyLeafNode) {
+			while (node != Node.EMPTY_LEAF) {
 				stack.push(node);
 				node = node.left;
 			}

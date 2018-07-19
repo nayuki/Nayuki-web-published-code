@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,7 +39,7 @@ class AvlTreeList final {
 	
 	
 	public: AvlTreeList() :
-		root(&Node::emptyLeafNode) {}
+		root(&Node::EMPTY_LEAF) {}
 	
 	
 	public: ~AvlTreeList() {
@@ -109,9 +109,9 @@ class AvlTreeList final {
 	
 	
 	public: void clear() {
-		if (root != &Node::emptyLeafNode) {
+		if (root != &Node::EMPTY_LEAF) {
 			delete root;
-			root = &Node::emptyLeafNode;
+			root = &Node::EMPTY_LEAF;
 		}
 	}
 	
@@ -127,7 +127,7 @@ class AvlTreeList final {
 	private: class Node final {
 		
 		// A bit of a hack, but more elegant than using nullptr values as leaf nodes.
-		public: static Node emptyLeafNode;
+		public: static Node EMPTY_LEAF;
 		
 		
 		// The object stored at this node.
@@ -162,8 +162,8 @@ class AvlTreeList final {
 			value(val),  // Copy constructor on type E
 			height(1),
 			size  (1),
-			left (&emptyLeafNode),
-			right(&emptyLeafNode) {}
+			left (&EMPTY_LEAF),
+			right(&EMPTY_LEAF) {}
 		
 		
 		// Normal non-leaf nodes.
@@ -171,21 +171,21 @@ class AvlTreeList final {
 			value(std::move(val)),  // Move constructor on type E
 			height(1),
 			size  (1),
-			left (&emptyLeafNode),
-			right(&emptyLeafNode) {}
+			left (&EMPTY_LEAF),
+			right(&EMPTY_LEAF) {}
 		
 		
 		public: ~Node() {
-			if (left != &emptyLeafNode)
+			if (left != &EMPTY_LEAF)
 				delete left;
-			if (right != &emptyLeafNode)
+			if (right != &EMPTY_LEAF)
 				delete right;
 		}
 		
 		
 		public: Node *getNodeAt(std::size_t index) {
 			assert(index < size);
-			if (this == &emptyLeafNode)
+			if (this == &EMPTY_LEAF)
 				throw "Illegal argument";
 			
 			std::size_t leftSize = left->size;
@@ -200,7 +200,7 @@ class AvlTreeList final {
 		
 		public: Node *insertAt(std::size_t index, const E &obj) {
 			assert(index <= size);
-			if (this == &emptyLeafNode) {
+			if (this == &EMPTY_LEAF) {
 				if (index == 0)
 					return new Node(obj);
 				else
@@ -219,7 +219,7 @@ class AvlTreeList final {
 		
 		public: Node *insertAt(std::size_t index, E &&obj) {
 			assert(index <= size);
-			if (this == &emptyLeafNode) {
+			if (this == &EMPTY_LEAF) {
 				if (index == 0)
 					return new Node(std::move(obj));
 				else
@@ -238,7 +238,7 @@ class AvlTreeList final {
 		
 		public: Node *removeAt(std::size_t index, Node **toDelete) {
 			assert(index < size);
-			if (this == &emptyLeafNode)
+			if (this == &EMPTY_LEAF)
 				throw "Illegal argument";
 			
 			std::size_t leftSize = left->size;
@@ -246,17 +246,17 @@ class AvlTreeList final {
 				left = left->removeAt(index, toDelete);
 			else if (index > leftSize)
 				right = right->removeAt(index - leftSize - 1, toDelete);
-			else if (left == &emptyLeafNode && right == &emptyLeafNode) {
+			else if (left == &EMPTY_LEAF && right == &EMPTY_LEAF) {
 				assert(*toDelete == nullptr);
 				*toDelete = this;
-				return &emptyLeafNode;
-			} else if (left != &emptyLeafNode && right == &emptyLeafNode) {
+				return &EMPTY_LEAF;
+			} else if (left != &EMPTY_LEAF && right == &EMPTY_LEAF) {
 				Node *result = left;
 				left = nullptr;
 				assert(*toDelete == nullptr);
 				*toDelete = this;
 				return result;
-			} else if (left == &emptyLeafNode && right != &emptyLeafNode) {
+			} else if (left == &EMPTY_LEAF && right != &EMPTY_LEAF) {
 				Node *result = right;
 				right = nullptr;
 				assert(*toDelete == nullptr);
@@ -274,10 +274,10 @@ class AvlTreeList final {
 		
 		// Note: This returns a mutable value.
 		private: E &getSuccessor() {
-			if (this == &emptyLeafNode || right == &emptyLeafNode)
+			if (this == &EMPTY_LEAF || right == &EMPTY_LEAF)
 				throw "Illegal state";
 			Node *node = right;
-			while (node->left != &emptyLeafNode)
+			while (node->left != &EMPTY_LEAF)
 				node = node->left;
 			return node->value;
 		}
@@ -312,7 +312,7 @@ class AvlTreeList final {
 		 *   1   2    0   1
 		 */
 		private: Node *rotateLeft() {
-			if (right == &emptyLeafNode)
+			if (right == &EMPTY_LEAF)
 				throw "Illegal state";
 			Node *root = this->right;
 			this->right = root->left;
@@ -331,7 +331,7 @@ class AvlTreeList final {
 		 * 0   1          1   2
 		 */
 		private: Node *rotateRight() {
-			if (left == &emptyLeafNode)
+			if (left == &EMPTY_LEAF)
 				throw "Illegal state";
 			Node *root = this->left;
 			this->left = root->right;
@@ -345,7 +345,7 @@ class AvlTreeList final {
 		// Needs to be called every time the left or right subtree is changed.
 		// Assumes the left and right subtrees have the correct values computed already.
 		private: void recalculate() {
-			assert(this != &emptyLeafNode);
+			assert(this != &EMPTY_LEAF);
 			assert(left->height >= 0 && right->height >= 0);
 			assert(left->size >= 0 && right->size >= 0);
 			height = std::max(left->height, right->height) + 1;
@@ -361,7 +361,7 @@ class AvlTreeList final {
 		
 		// For unit tests, invokable by the outer class.
 		public: void checkStructure(std::set<const Node*> &visitedNodes) const {
-			if (this == &emptyLeafNode)
+			if (this == &EMPTY_LEAF)
 				return;
 			
 			if (visitedNodes.find(this) != visitedNodes.end())
@@ -384,4 +384,4 @@ class AvlTreeList final {
 
 
 template <typename E>
-typename AvlTreeList<E>::Node AvlTreeList<E>::Node::emptyLeafNode;
+typename AvlTreeList<E>::Node AvlTreeList<E>::Node::EMPTY_LEAF;
