@@ -392,7 +392,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	 */
 	private rotateLeft(): AvlTreeListInternalNode<E> {
 		if (this.right.size == 0)
-			throw "Illegal state";
+			throw "Assertion error";
 		let root = this.rightNode;
 		this.right = root.left;
 		root.left = this;
@@ -411,7 +411,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	 */
 	private rotateRight(): AvlTreeListInternalNode<E> {
 		if (this.left.size == 0)
-			throw "Illegal state";
+			throw "Assertion error";
 		let root = this.leftNode;
 		this.left = root.right;
 		root.right = this;

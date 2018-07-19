@@ -152,10 +152,7 @@ public sealed class AvlTreeList<E> {
 		/*-- Methods --*/
 		
 		public Node<T> GetNodeAt(int index) {
-			Debug.Assert(0 <= index && index < Size);
-			if (this == EmptyLeaf)
-				throw new ArgumentException();
-			
+			Debug.Assert(0 <= index && index < Size);  // Automatically implies this != EmptyLeaf, because EmptyLeaf.Size == 0
 			int leftSize = Left.Size;
 			if (index < leftSize)
 				return Left.GetNodeAt(index);
@@ -168,13 +165,8 @@ public sealed class AvlTreeList<E> {
 		
 		public Node<T> InsertAt(int index, T obj) {
 			Debug.Assert(0 <= index && index <= Size);
-			if (this == EmptyLeaf) {
-				if (index == 0)
-					return new Node<T>(obj);
-				else
-					throw new IndexOutOfRangeException();
-			}
-			
+			if (this == EmptyLeaf)  // Automatically implies index == 0, because EMPTY_LEAF.Size == 0
+				return new Node<T>(obj);
 			int leftSize = Left.Size;
 			if (index <= leftSize)
 				Left = Left.InsertAt(index, obj);
@@ -186,10 +178,7 @@ public sealed class AvlTreeList<E> {
 		
 		
 		public Node<T> RemoveAt(int index) {
-			Debug.Assert(0 <= index && index < Size);
-			if (this == EmptyLeaf)
-				throw new ArgumentException();
-			
+			Debug.Assert(0 <= index && index < Size);  // Automatically implies this != EmptyLeaf, because EmptyLeaf.Size == 0
 			int leftSize = Left.Size;
 			if (index < leftSize)
 				Left = Left.RemoveAt(index);
@@ -243,8 +232,7 @@ public sealed class AvlTreeList<E> {
 		 *   1   2    0   1
 		 */
 		private Node<T> RotateLeft() {
-			if (Right == EmptyLeaf)
-				throw new InvalidOperationException();
+			Debug.Assert(Right != EmptyLeaf);
 			Node<T> root = this.Right;
 			this.Right = root.Left;
 			root.Left = this;
@@ -262,8 +250,7 @@ public sealed class AvlTreeList<E> {
 		 * 0   1          1   2
 		 */
 		private Node<T> RotateRight() {
-			if (Left == EmptyLeaf)
-				throw new InvalidOperationException();
+			Debug.Assert(Left != EmptyLeaf);
 			Node<T> root = this.Left;
 			this.Left = root.Right;
 			root.Right = this;

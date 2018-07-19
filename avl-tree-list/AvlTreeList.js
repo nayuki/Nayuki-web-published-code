@@ -272,9 +272,7 @@ AvlTreeListNode.EMPTY_LEAF = new AvlTreeListNode();
 AvlTreeListNode.prototype.getNodeAt = function(index) {
 	if (index < 0 || index >= this.size)
 		throw "Assertion error";
-	if (this === AvlTreeListNode.EMPTY_LEAF)
-		throw "Illegal argument";
-	
+	// Automatically implies this != EMPTY_LEAF, because EMPTY_LEAF.size == 0
 	var leftSize = this.left.size;
 	if (index < leftSize)
 		return this.left.getNodeAt(index);
@@ -288,13 +286,8 @@ AvlTreeListNode.prototype.getNodeAt = function(index) {
 AvlTreeListNode.prototype.insertAt = function(index, obj) {
 	if (index < 0 || index > this.size)
 		throw "Assertion error";
-	if (this === AvlTreeListNode.EMPTY_LEAF) {
-		if (index == 0)
-			return new AvlTreeListNode(obj);
-		else
-			throw "Index out of bounds";
-	}
-	
+	if (this === AvlTreeListNode.EMPTY_LEAF)  // Automatically implies index == 0, because EMPTY_LEAF.size == 0
+		return new AvlTreeListNode(obj);
 	var leftSize = this.left.size;
 	if (index <= leftSize)
 		this.left = this.left.insertAt(index, obj);
@@ -308,10 +301,8 @@ AvlTreeListNode.prototype.insertAt = function(index, obj) {
 AvlTreeListNode.prototype.removeAt = function(index) {
 	if (index < 0 || index >= this.size)
 		throw "Assertion error";
+	// Automatically implies this != EMPTY_LEAF, because EMPTY_LEAF.size == 0
 	var empty = AvlTreeListNode.EMPTY_LEAF;
-	if (this === empty)
-		throw "Illegal argument";
-	
 	var leftSize = this.left.size;
 	if (index < leftSize)
 		this.left = this.left.removeAt(index);
@@ -370,7 +361,7 @@ AvlTreeListNode.prototype.balance = function() {
  */
 AvlTreeListNode.prototype.rotateLeft = function() {
 	if (this.right === AvlTreeListNode.EMPTY_LEAF)
-		throw "Illegal state";
+		throw "Assertion error";
 	var root = this.right;
 	this.right = root.left;
 	root.left = this;
@@ -389,7 +380,7 @@ AvlTreeListNode.prototype.rotateLeft = function() {
  */
 AvlTreeListNode.prototype.rotateRight = function() {
 	if (this.left === AvlTreeListNode.EMPTY_LEAF)
-		throw "Illegal state";
+		throw "Assertion error";
 	var root = this.left;
 	this.left = root.right;
 	root.right = this;

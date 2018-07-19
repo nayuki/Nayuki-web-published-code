@@ -155,7 +155,7 @@ impl <E> MaybeNode<E> {
 	
 	fn insert_at(mut self, index: usize, val: E) -> Self {
 		assert!(index <= self.size());
-		if self.0.is_none() {
+		if self.0.is_none() {  // Automatically implies index == 0, because MaybeNode(None).size() == 0
 			return MaybeNode(Some(Box::new(Node::new(val))));
 		} else {
 			let node = self.node_mut();

@@ -169,10 +169,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		/*-- Methods --*/
 		
 		public Node<E> getNodeAt(int index) {
-			assert 0 <= index && index < size;
-			if (this == EMPTY_LEAF)
-				throw new IllegalArgumentException();
-			
+			assert 0 <= index && index < size;  // Automatically implies this != EMPTY_LEAF, because EMPTY_LEAF.size == 0
 			int leftSize = left.size;
 			if (index < leftSize)
 				return left.getNodeAt(index);
@@ -185,13 +182,8 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		public Node<E> insertAt(int index, E obj) {
 			assert 0 <= index && index <= size;
-			if (this == EMPTY_LEAF) {
-				if (index == 0)
-					return new Node<>(obj);
-				else
-					throw new IndexOutOfBoundsException();
-			}
-			
+			if (this == EMPTY_LEAF)  // Automatically implies index == 0, because EMPTY_LEAF.size == 0
+				return new Node<>(obj);
 			int leftSize = left.size;
 			if (index <= leftSize)
 				left = left.insertAt(index, obj);
@@ -204,10 +196,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		@SuppressWarnings("unchecked")
 		public Node<E> removeAt(int index) {
-			assert 0 <= index && index < size;
-			if (this == EMPTY_LEAF)
-				throw new IllegalArgumentException();
-			
+			assert 0 <= index && index < size;  // Automatically implies this != EMPTY_LEAF, because EMPTY_LEAF.size == 0
 			int leftSize = left.size;
 			if (index < leftSize)
 				left = left.removeAt(index);
@@ -266,8 +255,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		 *   1   2    0   1
 		 */
 		private Node<E> rotateLeft() {
-			if (right == EMPTY_LEAF)
-				throw new IllegalStateException();
+			assert right != EMPTY_LEAF;
 			Node<E> root = this.right;
 			this.right = root.left;
 			root.left = this;
@@ -285,8 +273,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		 * 0   1          1   2
 		 */
 		private Node<E> rotateRight() {
-			if (left == EMPTY_LEAF)
-				throw new IllegalStateException();
+			assert left != EMPTY_LEAF;
 			Node<E> root = this.left;
 			this.left = root.right;
 			root.right = this;

@@ -184,10 +184,7 @@ class AvlTreeList final {
 		
 		
 		public: Node *getNodeAt(std::size_t index) {
-			assert(index < size);
-			if (this == &EMPTY_LEAF)
-				throw "Illegal argument";
-			
+			assert(index < size);  // Automatically implies this != &EMPTY_LEAF, because EMPTY_LEAF.size == 0
 			std::size_t leftSize = left->size;
 			if (index < leftSize)
 				return left->getNodeAt(index);
@@ -200,13 +197,8 @@ class AvlTreeList final {
 		
 		public: Node *insertAt(std::size_t index, const E &obj) {
 			assert(index <= size);
-			if (this == &EMPTY_LEAF) {
-				if (index == 0)
-					return new Node(obj);
-				else
-					throw "Index out of bounds";
-			}
-			
+			if (this == &EMPTY_LEAF)  // Automatically implies index == 0, because EMPTY_LEAF.size == 0
+				return new Node(obj);
 			std::size_t leftSize = left->size;
 			if (index <= leftSize)
 				left = left->insertAt(index, obj);
@@ -219,13 +211,8 @@ class AvlTreeList final {
 		
 		public: Node *insertAt(std::size_t index, E &&obj) {
 			assert(index <= size);
-			if (this == &EMPTY_LEAF) {
-				if (index == 0)
-					return new Node(std::move(obj));
-				else
-					throw "Index out of bounds";
-			}
-			
+			if (this == &EMPTY_LEAF)  // Automatically implies index == 0, because EMPTY_LEAF.size == 0
+				return new Node(std::move(obj));
 			std::size_t leftSize = left->size;
 			if (index <= leftSize)
 				left = left->insertAt(index, std::move(obj));
@@ -237,10 +224,7 @@ class AvlTreeList final {
 		
 		
 		public: Node *removeAt(std::size_t index, Node **toDelete) {
-			assert(index < size);
-			if (this == &EMPTY_LEAF)
-				throw "Illegal argument";
-			
+			assert(index < size);  // Automatically implies this != &EMPTY_LEAF, because EMPTY_LEAF.size == 0
 			std::size_t leftSize = left->size;
 			if (index < leftSize)
 				left = left->removeAt(index, toDelete);
@@ -304,8 +288,7 @@ class AvlTreeList final {
 		 *   1   2    0   1
 		 */
 		private: Node *rotateLeft() {
-			if (right == &EMPTY_LEAF)
-				throw "Illegal state";
+			assert(right != &EMPTY_LEAF);
 			Node *root = this->right;
 			this->right = root->left;
 			root->left = this;
@@ -323,8 +306,7 @@ class AvlTreeList final {
 		 * 0   1          1   2
 		 */
 		private: Node *rotateRight() {
-			if (left == &EMPTY_LEAF)
-				throw "Illegal state";
+			assert(left != &EMPTY_LEAF);
 			Node *root = this->left;
 			this->left = root->right;
 			root->right = this;

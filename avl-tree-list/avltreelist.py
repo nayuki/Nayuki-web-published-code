@@ -134,10 +134,7 @@ class AvlTreeList(object):
 		
 		
 		def get_node_at(self, index):
-			assert 0 <= index < self.size
-			if self is AvlTreeList.Node.EMPTY_LEAF:
-				raise ValueError()
-			
+			assert 0 <= index < self.size  # Automatically implies self != EMPTY_LEAF, because EMPTY_LEAF.size == 0
 			leftsize = self.left.size
 			if index < leftsize:
 				return self.left.get_node_at(index)
@@ -149,12 +146,8 @@ class AvlTreeList(object):
 		
 		def insert_at(self, index, obj):
 			assert 0 <= index <= self.size
-			if self is AvlTreeList.Node.EMPTY_LEAF:
-				if index == 0:
-					return AvlTreeList.Node(obj)
-				else:
-					raise IndexError()
-			
+			if self is AvlTreeList.Node.EMPTY_LEAF:  # Automatically implies index == 0, because EMPTY_LEAF.size == 0
+				return AvlTreeList.Node(obj)
 			leftsize = self.left.size
 			if index <= leftsize:
 				self.left = self.left.insert_at(index, obj)
@@ -165,11 +158,8 @@ class AvlTreeList(object):
 		
 		
 		def remove_at(self, index):
-			assert 0 <= index < self.size
+			assert 0 <= index < self.size  # Automatically implies self != EMPTY_LEAF, because EMPTY_LEAF.size == 0
 			EMPTY = AvlTreeList.Node.EMPTY_LEAF
-			if self is EMPTY:
-				raise ValueError()
-			
 			leftsize = self.left.size
 			if index < leftsize:
 				self.left = self.left.remove_at(index)
