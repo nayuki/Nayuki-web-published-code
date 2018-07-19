@@ -25,6 +25,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -181,17 +182,15 @@ class DisjointSet final {
 	}
 	
 	
-	// Notes: If S is an unsigned integer type, then x < 0 is always false, which may generate a warning.
-	// If S is a signed integer type, then x <= y is a mixed-signedness comparison, which may generate a warning.
-	// But for all types and values, these functions are safe and correct, despite possible warnings.
-	
 	private: static bool safeLessThan(S x, std::size_t y) {
-		return x < 0 || x < y;  // Safe despite warnings, see above
+		return (std::is_signed<S>::value && x < 0) ||
+			static_cast<typename std::make_unsigned<S>::type>(x) < y;
 	}
 	
 	
 	private: static bool safeLessEquals(S x, std::size_t y) {
-		return x < 0 || x <= y;  // Safe despite warnings, see above
+		return (std::is_signed<S>::value && x < 0) ||
+			static_cast<typename std::make_unsigned<S>::type>(x) <= y;
 	}
 	
 };

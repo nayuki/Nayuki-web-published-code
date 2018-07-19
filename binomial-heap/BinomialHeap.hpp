@@ -28,9 +28,6 @@
 #include <memory>
 #include <utility>
 
-using std::size_t;
-using std::unique_ptr;
-
 
 template <typename E>
 class BinomialHeap final {
@@ -40,7 +37,7 @@ class BinomialHeap final {
 	
 	/*---- Fields ----*/
 	
-	private: unique_ptr<Node> head;
+	private: std::unique_ptr<Node> head;
 	
 	
 	
@@ -57,10 +54,10 @@ class BinomialHeap final {
 	}
 	
 	
-	public: size_t size() const {
-		size_t result = 0;
+	public: std::size_t size() const {
+		std::size_t result = 0;
 		for (const Node *node = head.get(); node != nullptr; node = node->next.get()) {
-			size_t temp = safeLeftShift(1, node->rank);
+			std::size_t temp = safeLeftShift(1, node->rank);
 			if (temp == 0) {
 				// The result cannot be returned, however the data structure is still valid
 				throw "Size overflow";
@@ -103,8 +100,8 @@ class BinomialHeap final {
 		if (empty())
 			throw "Empty heap";
 		const E *min = nullptr;
-		unique_ptr<Node> *linkToMin = nullptr;
-		for (unique_ptr<Node> *link = &head; ; ) {
+		std::unique_ptr<Node> *linkToMin = nullptr;
+		for (std::unique_ptr<Node> *link = &head; ; ) {
 			Node *node = link->get();
 			if (node == nullptr)
 				break;
@@ -116,7 +113,7 @@ class BinomialHeap final {
 		}
 		assert(min != nullptr && linkToMin != nullptr);
 		
-		unique_ptr<Node> minNode = std::move(*linkToMin);
+		std::unique_ptr<Node> minNode = std::move(*linkToMin);
 		assert(min == &minNode->value);
 		linkToMin->swap(minNode->next);
 		mergeNodes(minNode->removeRoot());
@@ -132,13 +129,13 @@ class BinomialHeap final {
 	}
 	
 	
-	private: void mergeNodes(unique_ptr<Node> other) {
-		unique_ptr<Node> self = std::move(head);
-		unique_ptr<Node> *linkToTail = nullptr;
+	private: void mergeNodes(std::unique_ptr<Node> other) {
+		std::unique_ptr<Node> self = std::move(head);
+		std::unique_ptr<Node> *linkToTail = nullptr;
 		Node *tail = nullptr;
 		
 		while (!isNull(self) || !isNull(other)) {
-			unique_ptr<Node> node;
+			std::unique_ptr<Node> node;
 			if (isNull(other) || (!isNull(self) && self->rank <= other->rank)) {
 				node = std::move(self);
 				self.swap(node->next);
@@ -179,12 +176,12 @@ class BinomialHeap final {
 	}
 	
 	
-	private: static bool isNull(const unique_ptr<Node> &p) {
+	private: static bool isNull(const std::unique_ptr<Node> &p) {
 		return p.get() == nullptr;
 	}
 	
 	
-	private: static size_t safeLeftShift(size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
+	private: static std::size_t safeLeftShift(std::size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
 		if (shift < 0)
 			throw "Negative shift";
 		for (int i = 0; i < shift && val != 0; i++)
@@ -211,8 +208,8 @@ class BinomialHeap final {
 		public: E value;
 		public: signed char rank;
 		
-		public: unique_ptr<Node> down;
-		public: unique_ptr<Node> next;
+		public: std::unique_ptr<Node> down;
+		public: std::unique_ptr<Node> next;
 		
 		
 		/*-- Constructors --*/
@@ -231,10 +228,10 @@ class BinomialHeap final {
 		
 		/*-- Methods --*/
 		
-		public: unique_ptr<Node> removeRoot() {
+		public: std::unique_ptr<Node> removeRoot() {
 			assert(isNull(next));
-			unique_ptr<Node> node = std::move(down);
-			unique_ptr<Node> result;
+			std::unique_ptr<Node> node = std::move(down);
+			std::unique_ptr<Node> result;
 			while (!isNull(node)) {  // Reverse the order of nodes from descending rank to ascending rank
 				node->next.swap(result);
 				node.swap(result);
