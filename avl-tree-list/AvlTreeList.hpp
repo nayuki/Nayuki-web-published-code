@@ -338,9 +338,8 @@ class AvlTreeList final {
 			if (this == &EMPTY_LEAF)
 				return;
 			
-			if (visitedNodes.find(this) != visitedNodes.end())
+			if (!visitedNodes.insert(this).second)
 				throw "AVL tree structure violated: Not a tree";
-			visitedNodes.insert(this);
 			left ->checkStructure(visitedNodes);
 			right->checkStructure(visitedNodes);
 			

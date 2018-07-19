@@ -83,16 +83,15 @@ class AvlTreeList(object):
 	def __iter__(self):
 		stack = []
 		node = self.root
-		while node is not AvlTreeList.Node.EMPTY_LEAF:
-			stack.append(node)
-			node = node.left
-		while len(stack) > 0:
-			node = stack.pop()
-			yield node.value
-			node = node.right
+		while True:
 			while node is not AvlTreeList.Node.EMPTY_LEAF:
 				stack.append(node)
 				node = node.left
+			if len(stack) == 0:
+				break
+			node = stack.pop()
+			yield node.value
+			node = node.right
 	
 	
 	def __str__(self):

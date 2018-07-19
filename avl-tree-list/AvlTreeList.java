@@ -305,9 +305,8 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 			if (this == EMPTY_LEAF)
 				return;
 			
-			if (visitedNodes.contains(this))
+			if (!visitedNodes.add(this))
 				throw new AssertionError("AVL tree structure violated: Not a tree");
-			visitedNodes.add(this);
 			left .checkStructure(visitedNodes);
 			right.checkStructure(visitedNodes);
 			

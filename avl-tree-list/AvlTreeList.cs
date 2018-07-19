@@ -284,9 +284,8 @@ public sealed class AvlTreeList<E> {
 			if (this == EmptyLeaf)
 				return;
 			
-			if (visitedNodes.Contains(this))
+			if (!visitedNodes.Add(this))
 				throw new SystemException("AVL tree structure violated: Not a tree");
-			visitedNodes.Add(this);
 			Left .CheckStructure(visitedNodes);
 			Right.CheckStructure(visitedNodes);
 			
