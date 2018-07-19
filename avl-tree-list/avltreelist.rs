@@ -178,57 +178,36 @@ impl <E> MaybeNode<E> {
 	
 	
 	fn remove_at(mut self, index: usize, outval: &mut Option<E>) -> Self {
-		let mut done: bool;
-		
-		// Recursively find and remove a node
-		match self.0 {
-			None => unreachable!(),
-			Some(ref mut bx) => {
-				let node = bx.as_mut();
+		loop {  // Simulate goto
+			{  // Modify the current object
+				let node = self.node_mut();
 				let leftsize = node.left.size();
+				// Recursively find and remove a node
 				if index < leftsize {
 					node.left = node.left.pop().remove_at(index, outval);
-					done = true;
 				} else if index > leftsize {
 					node.right = node.right.pop().remove_at(index - leftsize - 1, outval);
-					done = true;
+				} else if node.left.0.is_some() && node.right.0.is_some() {
+					node.right = node.right.pop().remove_at(0, outval);  // Remove successor node
+					std::mem::swap(outval.as_mut().unwrap(), &mut node.value);  // Replace value by successor
 				} else {
-					done = false;
+					break;  // Go to footer
 				}
-			},
-		}
-		
-		// If current node needs removal but has both children
-		if !done {
-			if let Some(ref mut bx) = self.0 {
-				let node = bx.as_mut();
-				if node.left.size() > 0 && node.right.size() > 0 {
-					node.right = node.right.pop().remove_at(0, outval);
-					std::mem::swap(outval.as_mut().unwrap(), &mut node.value);
-					done = true;
-				}
+				node.recalculate();
 			}
-		}
-		
-		// Rebalance and return
-		if done {
-			self.node_mut().recalculate();
 			return self.balance();
 		}
 		
 		// Remove current node and return a child or nothing
-		if let Some(bx) = self.0 {
-			let node = *bx;
-			*outval = Some(node.value);
-			return if node.left.size() > 0 {
-				node.left
-			} else if node.right.size() > 0 {
-				node.right
-			} else {
-				MaybeNode(None)
-			};
-		}
-		unreachable!();
+		let node = *self.0.unwrap();
+		*outval = Some(node.value);
+		return if node.left.0.is_some()  {
+			node.left
+		} else if node.right.0.is_some()  {
+			node.right
+		} else {
+			MaybeNode(None)
+		};
 	}
 	
 	

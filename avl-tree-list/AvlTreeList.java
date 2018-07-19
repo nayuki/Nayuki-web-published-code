@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
@@ -47,6 +48,7 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	public AvlTreeList(Collection<? extends E> coll) {
 		this();
+		Objects.requireNonNull(coll);
 		addAll(coll);
 	}
 	
@@ -391,7 +393,6 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		public E next() {
 			if (!hasNext())
 				throw new NoSuchElementException();
-			
 			Node<E> node = stack.pop();
 			E result = node.value;
 			node = node.right;

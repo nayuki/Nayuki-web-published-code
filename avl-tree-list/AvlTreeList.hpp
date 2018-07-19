@@ -264,7 +264,7 @@ class AvlTreeList final {
 				return result;
 			} else {
 				// We can remove the successor or the predecessor
-				std::swap(value, getSuccessor());
+				value = std::move(getSuccessor());
 				right = right->removeAt(0, toDelete);
 			}
 			recalculate();

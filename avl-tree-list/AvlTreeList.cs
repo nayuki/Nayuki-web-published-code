@@ -144,8 +144,8 @@ public sealed class AvlTreeList<E> {
 			Value  = val;
 			Height = 1;
 			Size   = 1;
-			Left   = (Node<T>)EmptyLeaf;
-			Right  = (Node<T>)EmptyLeaf;
+			Left   = EmptyLeaf;
+			Right  = EmptyLeaf;
 		}
 		
 		
@@ -196,7 +196,7 @@ public sealed class AvlTreeList<E> {
 			else if (index > leftSize)
 				Right = Right.RemoveAt(index - leftSize - 1);
 			else if (Left == EmptyLeaf && Right == EmptyLeaf)
-				return (Node<T>)EmptyLeaf;
+				return EmptyLeaf;
 			else if (Left != EmptyLeaf && Right == EmptyLeaf)
 				return Left;
 			else if (Left == EmptyLeaf && Right != EmptyLeaf)
