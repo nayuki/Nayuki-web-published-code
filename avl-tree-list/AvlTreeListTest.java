@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -352,6 +352,40 @@ public final class AvlTreeListTest {
 			assertEquals(i * i, (int)iter.next());
 		}
 		assertFalse(iter.hasNext());
+	}
+	
+	
+	@Test public void testIteratorRemove() {
+		final int TRIALS = 1000;
+		Random rand = new Random();
+		for (int i = 0; i < TRIALS; i++) {
+			
+			List<Integer> list0 = new ArrayList<>();
+			List<Integer> list1 = newList();
+			int len = rand.nextInt(1000);
+			for (int j = 0; j < len; j++) {
+				int val = rand.nextInt();
+				list0.add(val);
+				list1.add(val);
+			}
+			
+			double prob = rand.nextDouble();
+			Iterator<?> iter0 = list0.iterator();
+			Iterator<?> iter1 = list1.iterator();
+			while (iter0.hasNext()) {
+				assertTrue(iter1.hasNext());
+				iter0.next();
+				iter1.next();
+				if (rand.nextDouble() < prob) {
+					iter0.remove();
+					iter1.remove();
+				}
+			}
+			assertFalse(iter1.hasNext());
+			
+			assertEquals(list0.size(), list1.size());
+			assertEquals(list0, list1);
+		}
 	}
 	
 	

@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -348,24 +348,42 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 		
 		/*-- Fields --*/
 		
+		private int index;
 		private Stack<Node<E>> stack;
 		
 		
 		/*-- Constructors --*/
 		
 		public Iter() {
+			index = 0;
 			stack = new Stack<>();
-			Node<E> node = root;
-			while (node != Node.emptyLeafNode) {
-				stack.push(node);
-				node = node.left;
-			}
+			initPath();
 		}
 		
 		
 		/*-- Methods --*/
 		
+		private void initPath() {
+			stack.clear();
+			int idx = index;
+			for (Node<E> node = root; node != Node.emptyLeafNode; ) {
+				assert 0 <= idx && idx <= node.size;
+				if (idx <= node.left.size) {
+					stack.push(node);
+					if (idx < node.left.size)
+						node = node.left;
+					else
+						break;
+				} else {
+					idx -= node.left.size + 1;
+					node = node.right;
+				}
+			}
+		}
+		
+		
 		public boolean hasNext() {
+			assert stack.isEmpty() == (index == root.size);
 			return !stack.isEmpty();
 		}
 		
@@ -381,12 +399,15 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 				stack.push(node);
 				node = node.left;
 			}
+			index++;
 			return result;
 		}
 		
 		
 		public void remove() {
-			throw new UnsupportedOperationException();
+			index--;
+			AvlTreeList.this.remove(index);
+			initPath();
 		}
 		
 	}
