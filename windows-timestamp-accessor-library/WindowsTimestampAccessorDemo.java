@@ -1,7 +1,7 @@
 /* 
  * Windows timestamp accessor demo (Java)
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
@@ -23,8 +23,7 @@ public final class WindowsTimestampAccessorDemo {
 	 *   - Modification time = 2014-09-21 12:34:56.789000 UTC
 	 */
 	public static void main(String[] args) throws IOException, InterruptedException {
-		WindowsTimestampAccessor wt = new WindowsTimestampAccessor();
-		try {
+		try (WindowsTimestampAccessor wt = new WindowsTimestampAccessor()) {
 			File file;
 			long ticks;
 			
@@ -56,8 +55,6 @@ public final class WindowsTimestampAccessorDemo {
 			wt.setCreationTime(file, WindowsTimestampAccessor.datetimeToTicks(2014, 9, 21, 1, 23, 45, 0));
 			wt.setModificationTime(file, WindowsTimestampAccessor.datetimeToTicks(2014, 9, 21, 12, 34, 56, 789000));
 			
-		} finally {
-			wt.dispose();
 		}
 	}
 	
