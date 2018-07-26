@@ -320,20 +320,20 @@ function parseSequent(tok) {
 			tok.consume(TURNSTILE);
 			break;
 		} else if (next == null)
-			throw {message: "Comma or turnstile expected", position: tok.position()};
+			throw {message: "Comma or turnstile expected", position: tok.pos};
 		else {
 			if (expectComma) {
 				if (next == ",")
 					tok.consume(",");
 				else
-					throw {message: "Comma expected", position: tok.position()};
+					throw {message: "Comma expected", position: tok.pos};
 				if (tok.peek() == null)
-					throw {message: "Term expected", position: tok.position()};
+					throw {message: "Term expected", position: tok.pos};
 			} else {
 				if (tok.peek() != ",")
 					expectComma = true;
 				else
-					throw {message: "Term or turnstile expected", position: tok.position()};
+					throw {message: "Term or turnstile expected", position: tok.pos};
 			}
 			let term = parseTerm(tok);
 			if (term != null)
@@ -348,20 +348,20 @@ function parseSequent(tok) {
 		if (next == null)
 			break;
 		else if (next == TURNSTILE)
-			throw {message: "Turnstile not expected", position: tok.position()};
+			throw {message: "Turnstile not expected", position: tok.pos};
 		else {
 			if (expectComma) {
 				if (next == ",")
 					tok.consume(",");
 				else
-					throw {message: "Comma expected", position: tok.position()};
+					throw {message: "Comma expected", position: tok.pos};
 				if (tok.peek() == null)
-					throw {message: "Term expected", position: tok.position()};
+					throw {message: "Term expected", position: tok.pos};
 			} else {
 				if (tok.peek() != ",")
 					expectComma = true;
 				else
-					throw {message: "Term or end expected", position: tok.position()};
+					throw {message: "Term or end expected", position: tok.pos};
 			}
 			let term = parseTerm(tok);
 			if (term != null)
@@ -413,12 +413,12 @@ function parseTerm(tok) {
 	
 	function checkBeforePushingUnary() {
 		if (!(stack.length == 0 || typeof stack[stack.length - 1] == "string"))  // Check that top item is not a term
-			throw {message: "Unexpected item", position: tok.position()};
+			throw {message: "Unexpected item", position: tok.pos};
 	}
 	
 	function checkBeforePushingBinary() {
 		if (stack.length == 0 || typeof stack[stack.length - 1] == "string")  // Check that top item is a term
-			throw {message: "Unexpected item", position: tok.position()};
+			throw {message: "Unexpected item", position: tok.pos};
 	}
 	
 	while (true) {
@@ -456,13 +456,13 @@ function parseTerm(tok) {
 		} else if (next == ")") {
 			finalReduce();
 			if (stack.length < 2 || stack[stack.length - 2] != "(")
-				throw {message: "Binary operator without second operand", position: tok.position()};
+				throw {message: "Binary operator without second operand", position: tok.pos};
 			tok.consume(")");
 			stack.splice(stack.length - 2, 1);
 			reduce();
 		
 		} else if (next == EMPTY)
-			throw {message: "Empty not expected", position: tok.position()};
+			throw {message: "Empty not expected", position: tok.pos};
 		else
 			throw "Assertion error";
 	}
@@ -471,9 +471,9 @@ function parseTerm(tok) {
 	if (stack.length == 1)
 		return stack[0];
 	else if (stack.length == 0)
-		throw {message: "Blank term", position: tok.position()};
+		throw {message: "Blank term", position: tok.pos};
 	else
-		throw {message: "Binary operator without second operand", position: tok.position()};
+		throw {message: "Binary operator without second operand", position: tok.pos};
 }
 
 
@@ -485,11 +485,6 @@ class Tokenizer {
 		this.str = str;
 		this.pos = 0;
 		this.skipSpaces();
-	}
-	
-	// Returns the index of the next character to tokenize.
-	position() {
-		return this.pos;
 	}
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
