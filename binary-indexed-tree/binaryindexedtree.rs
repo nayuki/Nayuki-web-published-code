@@ -25,6 +25,7 @@ extern crate num_traits;
 use std;
 
 
+#[derive(Clone)]
 pub struct BinaryIndexedTree<T> {
 	
 	sum_tree: Vec<T>,

@@ -35,7 +35,7 @@ public final class BinaryIndexedTreeTest {
 		for (int len = 0; len < SIZELIMIT; len++) {
 			
 			BinaryIndexedTree bt = new BinaryIndexedTree(len);
-			assertEquals(len, bt.getLength());
+			assertEquals(len, bt.length());
 			assertEquals(0, bt.getTotal());
 			
 			for (int i = 0; i < CHECKS; i++) {
@@ -82,7 +82,7 @@ public final class BinaryIndexedTreeTest {
 				}
 			}
 			
-			assertEquals(len, bt.getLength());
+			assertEquals(len, bt.length());
 			assertEquals(len, bt.getTotal());
 			for (int i = 0; i < CHECKS; i++) {
 				assertEquals(1, bt.get(rand.nextInt(len)));
@@ -118,7 +118,7 @@ public final class BinaryIndexedTreeTest {
 			}
 			
 			BinaryIndexedTree bt = new BinaryIndexedTree(vals);
-			assertEquals(len, bt.getLength());
+			assertEquals(len, bt.length());
 			assertEquals(cums[len], bt.getTotal());
 			
 			for (int j = 0; j < CHECKS; j++) {
