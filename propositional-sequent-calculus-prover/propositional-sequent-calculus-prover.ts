@@ -16,9 +16,9 @@ function doProve(inputSequent: string): void {
 		while (node.firstChild != null)
 			node.removeChild(node.firstChild);
 	}
-	let msgElem     = document.getElementById("message");
-	let codeOutElem = document.getElementById("codeOutput");
-	let proofElem   = document.getElementById("proof");
+	let msgElem     = document.getElementById("message"   ) as HTMLElement;
+	let codeOutElem = document.getElementById("codeOutput") as HTMLElement;
+	let proofElem   = document.getElementById("proof"     ) as HTMLElement;
 	clearChildren(msgElem);
 	clearChildren(codeOutElem);
 	clearChildren(proofElem);
@@ -221,9 +221,9 @@ class Term {
 			if (this.type == "NOT")
 				s += NOT + (this.left as Term).toString(false);
 			else if (this.type == "AND")
-				s += (this.left as Term).toString(false) + " " + AND + " " + this.right.toString(false);
+				s += (this.left as Term).toString(false) + " " + AND + " " + (this.right as Term).toString(false);
 			else if (this.type == "OR")
-				s += (this.left as Term).toString(false) + " " + OR + " " + this.right.toString(false);
+				s += (this.left as Term).toString(false) + " " + OR + " " + (this.right as Term).toString(false);
 			else
 				throw "Assertion error";
 			s += isRoot ? "" : ")";
@@ -266,7 +266,7 @@ function prove(sequent: Sequent): Tree {
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		} else if (type == "AND") {
-			left.splice(i, 1, term.getLeft() as Term, term.getRight());
+			left.splice(i, 1, term.getLeft() as Term, term.getRight() as Term);
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		}
@@ -282,7 +282,7 @@ function prove(sequent: Sequent): Tree {
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		} else if (type == "OR") {
-			right.splice(i, 1, term.getLeft() as Term, term.getRight());
+			right.splice(i, 1, term.getLeft() as Term, term.getRight() as Term);
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		}
@@ -295,7 +295,7 @@ function prove(sequent: Sequent): Tree {
 			left.splice(i, 1, term.getLeft() as Term);
 			let seq0 = new Sequent(left, right);
 			left = left.slice();
-			left.splice(i, 1, term.getRight());
+			left.splice(i, 1, term.getRight() as Term);
 			let seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
@@ -306,7 +306,7 @@ function prove(sequent: Sequent): Tree {
 			right.splice(i, 1, term.getLeft() as Term);
 			let seq0 = new Sequent(left, right);
 			right = right.slice();
-			right.splice(i, 1, term.getRight());
+			right.splice(i, 1, term.getRight() as Term);
 			let seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
@@ -536,7 +536,9 @@ class Tokenizer {
 	}
 	
 	private skipSpaces(): void {
-		let match = /^[ \t]*/.exec(this.str.substring(this.pos));
+		let match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.pos));
+		if (match === null)
+			throw "Assertion error";
 		this.pos += match[0].length;
 	}
 }
