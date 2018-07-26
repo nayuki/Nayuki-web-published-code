@@ -483,23 +483,23 @@ function parseTerm(tok) {
 class Tokenizer {
 	constructor(str) {
 		this.str = str;
-		this.i = 0;
+		this.pos = 0;
 		this.skipSpaces();
 	}
 	
 	// Returns the index of the next character to tokenize.
 	position() {
-		return this.i;
+		return this.pos;
 	}
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
 	peek() {
-		if (this.i == this.str.length)  // End of stream
+		if (this.pos == this.str.length)  // End of stream
 			return null;
 		
-		let match = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.i));
+		let match = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.pos));
 		if (match == null)
-			throw {message: "Invalid symbol", position: this.i};
+			throw {message: "Invalid symbol", position: this.pos};
 		
 		// Normalize notation
 		let token = match[0];
@@ -515,7 +515,7 @@ class Tokenizer {
 		let result = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
-		this.i += result.length;
+		this.pos += result.length;
 		this.skipSpaces();
 		return result;
 	}
@@ -527,8 +527,8 @@ class Tokenizer {
 	}
 	
 	skipSpaces() {
-		let match = /^[ \t]*/.exec(this.str.substring(this.i));
-		this.i += match[0].length;
+		let match = /^[ \t]*/.exec(this.str.substring(this.pos));
+		this.pos += match[0].length;
 	}
 }
 
