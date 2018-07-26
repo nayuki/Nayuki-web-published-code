@@ -35,23 +35,22 @@ function doProve(inputSequent: string): void {
 		proofElem.appendChild(Tree.toHtml([proof]));
 		
 	} catch (e) {
-		if (typeof e == "string") {
+		if (typeof e == "string")
 			appendText(msgElem, "Error: " + e);
-		} else if ("position" in e) {
+		else if ("position" in e) {
 			appendText(msgElem, "Syntax error: " + e.message);
-			appendText(codeOutElem, inputSequent.substring(0, e.position));
+			appendText(codeOutElem, inputSequent.substr(0, e.position));
 			let highlight = document.createElement("u");
 			if (e.position < inputSequent.length) {
 				appendText(highlight, inputSequent.substr(e.position, 1));
 				codeOutElem.appendChild(highlight);
-				appendText(codeOutElem, inputSequent.substring(e.position + 1, inputSequent.length));
+				appendText(codeOutElem, inputSequent.substr(e.position + 1));
 			} else {
 				appendText(highlight, " ");
 				codeOutElem.appendChild(highlight);
 			}
-		} else {
+		} else
 			appendText(msgElem, "Error: " + e);
-		}
 	}
 }
 
