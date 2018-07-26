@@ -80,10 +80,8 @@ class Tree {
 		
 		if (this.sequent == "Fail")
 			li.textContent = this.sequent;
-		else {
-			this.sequent.toHtml().forEach(
-				elem => li.appendChild(elem));
-		}
+		else
+			li.appendChild(this.sequent.toHtml());
 		
 		if (this.left != null)
 			li.appendChild(this.left.toHtml());
@@ -127,7 +125,7 @@ class Sequent {
 	
 	// Returns an array of DOM nodes representing this sequent.
 	// The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
-	public toHtml(): Array<Node> {
+	public toHtml(): DocumentFragment {
 		// Creates this kind of DOM node: <span class="className">text</span>
 		function createSpan(text: string, className: string): HTMLElement {
 			let span = document.createElement("span");
@@ -136,27 +134,27 @@ class Sequent {
 			return span;
 		}
 		
-		let result: Array<Node> = [];
+		let result = document.createDocumentFragment();
 		
 		if (this.left.length == 0)
-			result.push(document.createTextNode(EMPTY));
+			result.appendChild(document.createTextNode(EMPTY));
 		else {
 			this.left.forEach((term, i) => {
 				if (i > 0)
-					result.push(createSpan(", ", "comma"));
-				result.push(document.createTextNode(term.toString(true)));
+					result.appendChild(createSpan(", ", "comma"));
+				result.appendChild(document.createTextNode(term.toString(true)));
 			});
 		}
 		
-		result.push(createSpan(" " + TURNSTILE + " ", "turnstile"));
+		result.appendChild(createSpan(" " + TURNSTILE + " ", "turnstile"));
 		
 		if (this.right.length == 0)
-			result.push(document.createTextNode(EMPTY));
+			result.appendChild(document.createTextNode(EMPTY));
 		else {
 			this.right.forEach((term, i) => {
 				if (i > 0)
-					result.push(createSpan(", ", "comma"));
-				result.push(document.createTextNode(term.toString(true)));
+					result.appendChild(createSpan(", ", "comma"));
+				result.appendChild(document.createTextNode(term.toString(true)));
 			});
 		}
 		
@@ -321,12 +319,9 @@ function prove(sequent: Sequent): Tree {
 /* Parser functions */
 
 function parseSequent(tok: Tokenizer): Sequent {
-	let lhs: Array<Term> = [];
-	let rhs: Array<Term> = [];
-	
 	// Parse left side
-	let expectComma = false;
-	while (true) {
+	let lhs: Array<Term> = [];
+	for (let expectComma = false; ; ) {
 		let next: string|null = tok.peek();
 		if (next == TURNSTILE) {
 			tok.consume(TURNSTILE);
@@ -354,8 +349,8 @@ function parseSequent(tok: Tokenizer): Sequent {
 	}
 	
 	// Parse right side
-	expectComma = false;
-	while (true) {
+	let rhs: Array<Term> = [];
+	for (let expectComma = false; ; ) {
 		let next: string|null = tok.peek();
 		if (next == null)
 			break;

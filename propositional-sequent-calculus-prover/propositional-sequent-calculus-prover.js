@@ -69,9 +69,8 @@ var Tree = /** @class */ (function () {
         var li = document.createElement("li");
         if (this.sequent == "Fail")
             li.textContent = this.sequent;
-        else {
-            this.sequent.toHtml().forEach(function (elem) { return li.appendChild(elem); });
-        }
+        else
+            li.appendChild(this.sequent.toHtml());
         if (this.left != null)
             li.appendChild(this.left.toHtml());
         if (this.right != null)
@@ -115,24 +114,24 @@ var Sequent = /** @class */ (function () {
             span.className = className;
             return span;
         }
-        var result = [];
+        var result = document.createDocumentFragment();
         if (this.left.length == 0)
-            result.push(document.createTextNode(EMPTY));
+            result.appendChild(document.createTextNode(EMPTY));
         else {
             this.left.forEach(function (term, i) {
                 if (i > 0)
-                    result.push(createSpan(", ", "comma"));
-                result.push(document.createTextNode(term.toString(true)));
+                    result.appendChild(createSpan(", ", "comma"));
+                result.appendChild(document.createTextNode(term.toString(true)));
             });
         }
-        result.push(createSpan(" " + TURNSTILE + " ", "turnstile"));
+        result.appendChild(createSpan(" " + TURNSTILE + " ", "turnstile"));
         if (this.right.length == 0)
-            result.push(document.createTextNode(EMPTY));
+            result.appendChild(document.createTextNode(EMPTY));
         else {
             this.right.forEach(function (term, i) {
                 if (i > 0)
-                    result.push(createSpan(", ", "comma"));
-                result.push(document.createTextNode(term.toString(true)));
+                    result.appendChild(createSpan(", ", "comma"));
+                result.appendChild(document.createTextNode(term.toString(true)));
             });
         }
         return result;
@@ -271,11 +270,9 @@ function prove(sequent) {
 }
 /* Parser functions */
 function parseSequent(tok) {
-    var lhs = [];
-    var rhs = [];
     // Parse left side
-    var expectComma = false;
-    while (true) {
+    var lhs = [];
+    for (var expectComma = false;;) {
         var next = tok.peek();
         if (next == TURNSTILE) {
             tok.consume(TURNSTILE);
@@ -304,8 +301,8 @@ function parseSequent(tok) {
         }
     }
     // Parse right side
-    expectComma = false;
-    while (true) {
+    var rhs = [];
+    for (var expectComma = false;;) {
         var next = tok.peek();
         if (next == null)
             break;
