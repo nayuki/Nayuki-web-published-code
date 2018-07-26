@@ -65,7 +65,7 @@ class Tree {
 	 *   left: Zeroth child tree or null.
 	 *   right: First child tree or null. (Requires left to be not null.)
 	 */
-	public constructor(sequent, left, right) {
+	public constructor(sequent: Sequent|"Fail", left: Tree|null, right: Tree|null) {
 		if (typeof sequent == "string" && sequent != "Fail" || left == null && right != null)
 			throw "Invalid value";
 		this.sequent = sequent;
@@ -105,7 +105,7 @@ class Sequent {
 	 *   left : Array of zero or more terms.
 	 *   right: Array of zero or more terms.
 	 */
-	public constructor(left, right) {
+	public constructor(left: Array<Term>, right: Array<Term>) {
 		this.left  = left .slice();
 		this.right = right.slice();
 	}
@@ -185,7 +185,7 @@ class Term {
 	 * - type = "AND", left = left argument term, right = right argument term
 	 * - type = "OR" , left = left argument term, right = right argument term
 	 */
-	public constructor(type, left, right?) {
+	public constructor(type: "var"|"NOT"|"AND"|"OR", left: Term|string, right?: Term|null) {
 		if (!(type == "var" || type == "NOT" || type == "AND" || type == "OR"))
 			throw "Invalid type";
 		if ((type == "var" || type == "NOT") && right != null || (type == "AND" || type == "OR") && right == null)
@@ -495,7 +495,7 @@ class Tokenizer {
 	public str: string;
 	public pos: number;
 	
-	public constructor(str) {
+	public constructor(str: string) {
 		this.str = str;
 		this.pos = 0;
 		this.skipSpaces();
