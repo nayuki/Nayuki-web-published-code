@@ -174,54 +174,59 @@ function Sequent(left, right) {
 }
 
 
-/* 
- * Constructs a term. Valid options:
- * - type = "var", left = string name       , right = null
- * - type = "NOT", left = sole argument term, right = null
- * - type = "AND", left = left argument term, right = right argument term
- * - type = "OR" , left = left argument term, right = right argument term
- */
-function Term(type, left, right) {
-	if (!(type == "var" || type == "NOT" || type == "AND" || type == "OR"))
-		throw "Invalid type";
-	if ((type == "var" || type == "NOT") && right != null || (type == "AND" || type == "OR") && right == null)
-		throw "Invalid value";
+class Term {
+	/* 
+	 * Constructs a term. Valid options:
+	 * - type = "var", left = string name       , right = null
+	 * - type = "NOT", left = sole argument term, right = null
+	 * - type = "AND", left = left argument term, right = right argument term
+	 * - type = "OR" , left = left argument term, right = right argument term
+	 */
+	constructor(type, left, right) {
+		if (!(type == "var" || type == "NOT" || type == "AND" || type == "OR"))
+			throw "Invalid type";
+		if ((type == "var" || type == "NOT") && right != null || (type == "AND" || type == "OR") && right == null)
+			throw "Invalid value";
+		this.type = type;
+		this.left = left;
+		this.right = right;
+	}
 	
-	this.getType = function() {
-		return type;
-	};
+	getType() {
+		return this.type;
+	}
 	
-	this.getLeft = function() {
-		return left;
-	};
+	getLeft() {
+		return this.left;
+	}
 	
-	this.getRight = function() {
-		if (type == "var" || type == "NOT")
+	getRight() {
+		if (this.type == "var" || this.type == "NOT")
 			throw "No such value";
-		return right;
-	};
+		return this.right;
+	}
 	
 	// Returns a string representation of this term, e.g.: "(A ∧ (¬B)) ∨ C".
 	// isRoot is an argument for internal use only.
-	this.toString = function(isRoot) {
-		if (type == "var")
-			return left;
+	toString(isRoot) {
+		if (this.type == "var")
+			return this.left;
 		else {
 			if (isRoot === undefined)
 				isRoot = true;
 			var s = isRoot ? "" : "(";
-			if (type == "NOT")
-				s += NOT + left.toString(false);
-			else if (type == "AND")
-				s += left.toString(false) + " " + AND + " " + right.toString(false);
-			else if (type == "OR")
-				s += left.toString(false) + " " + OR + " " + right.toString(false);
+			if (this.type == "NOT")
+				s += NOT + this.left.toString(false);
+			else if (this.type == "AND")
+				s += this.left.toString(false) + " " + AND + " " + this.right.toString(false);
+			else if (this.type == "OR")
+				s += this.left.toString(false) + " " + OR + " " + this.right.toString(false);
 			else
 				throw "Assertion error";
 			s += isRoot ? "" : ")";
 			return s;
 		}
-	};
+	}
 }
 
 
