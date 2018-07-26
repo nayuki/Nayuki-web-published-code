@@ -12,6 +12,10 @@
 function doProve(inputSequent) {
 	document.getElementById("inputSequent").value = inputSequent;
 	
+	function clearChildren(node) {
+		while (node.firstChild != null)
+			node.removeChild(node.firstChild);
+	}
 	var msgElem     = document.getElementById("message");
 	var codeOutElem = document.getElementById("codeOutput");
 	var proofElem   = document.getElementById("proof");
@@ -85,9 +89,8 @@ class Tree {
 		if (this.sequent == "Fail")
 			li.textContent = this.sequent;
 		else {
-			this.sequent.toHtml().forEach(function(elem) {
-				li.appendChild(elem);
-			});
+			this.sequent.toHtml().forEach(
+				elem => li.appendChild(elem));
 		}
 		
 		if (this.left != null)
@@ -125,19 +128,13 @@ class Sequent {
 		var s = "";
 		if (this.left.length == 0)
 			s += EMPTY;
-		else {
-			s += this.left[0].toString();
-			for (var i = 1; i < this.left.length; i++)
-				s += ", " + this.left[i].toString();
-		}
+		else
+			s += this.left.map(t => t.toString()).join(", ");
 		s += " " + TURNSTILE + " ";
 		if (this.right.length == 0)
 			s += EMPTY;
-		else {
-			s += this.right[0].toString();
-			for (var i = 1; i < this.right.length; i++)
-				s += ", " + this.right[i].toString();
-		}
+		else
+			s += this.right.map(t => t.toString()).join(", ");
 		return s;
 	}
 	
@@ -157,11 +154,11 @@ class Sequent {
 		if (this.left.length == 0)
 			result.push(document.createTextNode(EMPTY));
 		else {
-			result.push(document.createTextNode(this.left[0].toString()));
-			for (var i = 1; i < this.left.length; i++) {
-				result.push(createSpan(", ", "comma"));
-				result.push(document.createTextNode(this.left[i].toString()));
-			}
+			this.left.forEach((term, i) => {
+				if (i > 0)
+					result.push(createSpan(", ", "comma"));
+				result.push(document.createTextNode(term.toString()));
+			});
 		}
 		
 		result.push(createSpan(" " + TURNSTILE + " ", "turnstile"));
@@ -169,11 +166,11 @@ class Sequent {
 		if (this.right.length == 0)
 			result.push(document.createTextNode(EMPTY));
 		else {
-			result.push(document.createTextNode(this.right[0].toString()));
-			for (var i = 1; i < this.right.length; i++) {
-				result.push(createSpan(", ", "comma"));
-				result.push(document.createTextNode(this.right[i].toString()));
-			}
+			this.right.forEach((term, i) => {
+				if (i > 0)
+					result.push(createSpan(", ", "comma"));
+				result.push(document.createTextNode(term.toString()));
+			});
 		}
 		
 		return result;
@@ -245,11 +242,11 @@ function prove(sequent) {
 	
 	// Try to find a variable that is common to both sides, to try to derive an axiom.
 	// This uses a dumb O(n^2) algorithm, but can theoretically be sped up by a hash table or such.
-	for (var i = 0; i < left.length; i++) {
-		if (left[i].getType() == "var") {
-			var name = left[i].getLeft();
-			for (var j = 0; j < right.length; j++) {
-				if (right[j].getType() == "var" && right[j].getLeft() == name) {
+	for (var lt of left) {
+		if (lt.getType() == "var") {
+			var name = lt.getLeft();
+			for (var rt of right) {
+				if (rt.getType() == "var" && rt.getLeft() == name) {
 					if (left.length > 1 || right.length > 1) {
 						var axiom = new Tree(new Sequent([new Term("var", name)], [new Term("var", name)]), null, null);
 						return new Tree(sequent, axiom, null);
@@ -556,10 +553,3 @@ var EMPTY     = "\u2205";
 var NOT       = "\u00AC";
 var AND       = "\u2227";
 var OR        = "\u2228";
-
-
-// Removes all the children of the given DOM node.
-function clearChildren(node) {
-	while (node.firstChild != null)
-		node.removeChild(node.firstChild);
-}
