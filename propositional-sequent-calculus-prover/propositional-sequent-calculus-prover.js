@@ -102,15 +102,15 @@ function Tree(sequent, left, right) {
  *   right: Array of zero or more terms.
  */
 function Sequent(left, right) {
-	left  = left .clone();
-	right = right.clone();
+	left  = left .slice();
+	right = right.slice();
 	
 	this.getLeft = function() {
-		return left.clone();
+		return left.slice();
 	};
 	
 	this.getRight = function() {
-		return right.clone();
+		return right.slice();
 	};
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
@@ -286,7 +286,7 @@ function prove(sequent) {
 		if (term.getType() == "OR") {
 			left.splice(i, 1, term.getLeft());
 			var seq0 = new Sequent(left, right);
-			left = left.clone();
+			left = left.slice();
 			left.splice(i, 1, term.getRight());
 			var seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
@@ -297,7 +297,7 @@ function prove(sequent) {
 		if (term.getType() == "AND") {
 			right.splice(i, 1, term.getLeft());
 			var seq0 = new Sequent(left, right);
-			right = right.clone();
+			right = right.slice();
 			right.splice(i, 1, term.getRight());
 			var seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
@@ -549,7 +549,3 @@ function clearChildren(node) {
 	while (node.firstChild != null)
 		node.removeChild(node.firstChild);
 }
-
-
-// Monkey patching. Returns a shallow copy of this array. Usually used for making defensive copies.
-Array.prototype.clone = Array.prototype.slice;
