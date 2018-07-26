@@ -23,7 +23,7 @@ function doProve(inputSequent) {
         var sequent = parseSequent(new Tokenizer(inputSequent));
         proof = prove(sequent);
         msgElem.appendChild(document.createTextNode("Proof:"));
-        proofElem.appendChild(proof.toHtml());
+        proofElem.appendChild(Tree.toHtml([proof]));
     }
     catch (e) {
         if (typeof e == "string") {
@@ -66,17 +66,21 @@ var Tree = /** @class */ (function () {
         this.sequent = sequent;
         this.children = children;
     }
-    // Returns a DOM node representing this proof tree.
-    Tree.prototype.toHtml = function () {
+    Tree.toHtml = function (trees) {
+        if (trees.length == 0)
+            return document.createDocumentFragment();
         var ul = document.createElement("ul");
-        var li = document.createElement("li");
-        if (this.sequent == "Fail")
-            li.textContent = this.sequent;
-        else {
-            li.appendChild(this.sequent.toHtml());
-            this.children.forEach(function (child) { return li.appendChild(child.toHtml()); });
-        }
-        ul.appendChild(li);
+        trees.forEach(function (tree) {
+            var li = document.createElement("li");
+            if (tree.sequent === "Fail")
+                li.textContent = "Fail";
+            else {
+                li.appendChild(tree.sequent.toHtml());
+                li.appendChild(Tree.toHtml(tree.children));
+                ul.appendChild(li);
+            }
+            ul.appendChild(li);
+        });
         return ul;
     };
     return Tree;

@@ -28,7 +28,7 @@ function doProve(inputSequent: string): void {
 		let sequent: Sequent = parseSequent(new Tokenizer(inputSequent));
 		proof = prove(sequent);
 		msgElem.appendChild(document.createTextNode("Proof:"));
-		proofElem.appendChild(proof.toHtml());
+		proofElem.appendChild(Tree.toHtml([proof]));
 		
 	} catch (e) {
 		if (typeof e == "string") {
@@ -71,18 +71,21 @@ class Tree {
 		this.children = children;
 	}
 	
-	// Returns a DOM node representing this proof tree.
-	public toHtml(): HTMLElement {
+	public static toHtml(trees: Array<Tree>): HTMLElement|DocumentFragment {
+		if (trees.length == 0)
+			return document.createDocumentFragment();
 		let ul = document.createElement("ul");
-		let li = document.createElement("li");
-		if (this.sequent == "Fail")
-			li.textContent = this.sequent;
-		else {
-			li.appendChild(this.sequent.toHtml());
-			this.children.forEach(
-				child => li.appendChild(child.toHtml()));
-		}
-		ul.appendChild(li);
+		trees.forEach(tree => {
+			let li = document.createElement("li");
+			if (tree.sequent === "Fail")
+				li.textContent = "Fail";
+			else {
+				li.appendChild(tree.sequent.toHtml());
+				li.appendChild(Tree.toHtml(tree.children));
+				ul.appendChild(li);
+			}
+			ul.appendChild(li);
+		});
 		return ul;
 	}
 }
