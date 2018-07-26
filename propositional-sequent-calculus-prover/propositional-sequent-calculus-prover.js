@@ -273,7 +273,7 @@ function parseSequent(tok) {
     for (var expectComma = false;;) {
         var next = tok.peek();
         if (next == TURNSTILE) {
-            tok.consume(TURNSTILE);
+            tok.consume(next);
             break;
         }
         else if (next == null)
@@ -281,7 +281,7 @@ function parseSequent(tok) {
         else {
             if (expectComma) {
                 if (next == ",")
-                    tok.consume(",");
+                    tok.consume(next);
                 else
                     throw { message: "Comma expected", position: tok.pos };
                 if (tok.peek() == null)
@@ -309,7 +309,7 @@ function parseSequent(tok) {
         else {
             if (expectComma) {
                 if (next == ",")
-                    tok.consume(",");
+                    tok.consume(next);
                 else
                     throw { message: "Comma expected", position: tok.pos };
                 if (tok.peek() == null)
@@ -422,7 +422,7 @@ function parseTerm(tok) {
             finalReduce();
             if (stack.length < 2 || stack[stack.length - 2] != "(")
                 throw { message: "Binary operator without second operand", position: tok.pos };
-            tok.consume(")");
+            tok.consume(next);
             stack.splice(stack.length - 2, 1);
             reduce();
         }
