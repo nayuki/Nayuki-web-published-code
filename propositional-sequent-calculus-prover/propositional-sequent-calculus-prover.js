@@ -69,18 +69,6 @@ class Tree {
 		this.right = right;
 	}
 	
-	getSequent() {
-		return this.sequent;
-	}
-	
-	getLeft() {
-		return this.left;
-	}
-	
-	getRight() {
-		return this.right;
-	}
-	
 	// Returns a DOM node representing this proof tree.
 	toHtml() {
 		let ul = document.createElement("ul");
