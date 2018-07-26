@@ -23,9 +23,9 @@ function doProve(inputSequent: string): void {
 	clearChildren(codeOutElem);
 	clearChildren(proofElem);
 	
-	let proof;
+	let proof: Tree;
 	try {
-		let sequent = parseSequent(new Tokenizer(inputSequent));
+		let sequent: Sequent = parseSequent(new Tokenizer(inputSequent));
 		proof = prove(sequent);
 		msgElem.appendChild(document.createTextNode("Proof:"));
 		proofElem.appendChild(proof.toHtml());
@@ -335,7 +335,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 	// Parse left side
 	let expectComma = false;
 	while (true) {
-		let next = tok.peek();
+		let next: string|null = tok.peek();
 		if (next == TURNSTILE) {
 			tok.consume(TURNSTILE);
 			break;
@@ -355,7 +355,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 				else
 					throw {message: "Term or turnstile expected", position: tok.pos};
 			}
-			let term = parseTerm(tok);
+			let term: Term|null = parseTerm(tok);
 			if (term != null)
 				lhs.push(term);
 		}
@@ -364,7 +364,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 	// Parse right side
 	expectComma = false;
 	while (true) {
-		let next = tok.peek();
+		let next: string|null = tok.peek();
 		if (next == null)
 			break;
 		else if (next == TURNSTILE)
@@ -383,7 +383,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 				else
 					throw {message: "Term or end expected", position: tok.pos};
 			}
-			let term = parseTerm(tok);
+			let term: Term|null = parseTerm(tok);
 			if (term != null)
 				rhs.push(term);
 		}
@@ -452,7 +452,7 @@ function parseTerm(tok: Tokenizer): Term|null {
 	}
 	
 	while (true) {
-		let next = tok.peek();
+		let next: string|null = tok.peek();
 		if (next == null || next == TURNSTILE || next == ",")
 			break;
 		
@@ -529,12 +529,12 @@ class Tokenizer {
 		if (this.pos == this.str.length)  // End of stream
 			return null;
 		
-		let match = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.pos));
+		let match: RegExpExecArray|null = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.pos));
 		if (match == null)
 			throw {message: "Invalid symbol", position: this.pos};
 		
 		// Normalize notation
-		let token = match[0];
+		let token: string = match[0];
 		if      (token == "!") token = NOT;
 		else if (token == "&") token = AND;
 		else if (token == "|") token = OR;
@@ -544,7 +544,7 @@ class Tokenizer {
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
 	public take(): string {
-		let result = this.peek();
+		let result: string|null = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
 		this.pos += result.length;
