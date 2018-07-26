@@ -91,12 +91,6 @@ var Sequent = /** @class */ (function () {
         this.left = left.slice();
         this.right = right.slice();
     }
-    Sequent.prototype.getLeft = function () {
-        return this.left.slice();
-    };
-    Sequent.prototype.getRight = function () {
-        return this.right.slice();
-    };
     // Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
     Sequent.prototype.toString = function () {
         var s = "";
@@ -198,8 +192,8 @@ var OrTerm = /** @class */ (function () {
 }());
 /* Sequent prover */
 function prove(sequent) {
-    var left = sequent.getLeft();
-    var right = sequent.getRight();
+    var left = sequent.left.slice();
+    var right = sequent.right.slice();
     // Try to find a variable that is common to both sides, to try to derive an axiom.
     // This uses a dumb O(n^2) algorithm, but can theoretically be sped up by a hash table or such.
     for (var _i = 0, left_1 = left; _i < left_1.length; _i++) {

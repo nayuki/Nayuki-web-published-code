@@ -110,14 +110,6 @@ class Sequent {
 		this.right = right.slice();
 	}
 	
-	public getLeft(): Array<Term> {
-		return this.left.slice();
-	}
-	
-	public getRight(): Array<Term> {
-		return this.right.slice();
-	}
-	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
 	public toString(): string {
 		let s = "";
@@ -247,8 +239,8 @@ class OrTerm implements Term {
 /* Sequent prover */
 
 function prove(sequent: Sequent): Tree {
-	let left  = sequent.getLeft();
-	let right = sequent.getRight();
+	let left  = sequent.left .slice();
+	let right = sequent.right.slice();
 	
 	// Try to find a variable that is common to both sides, to try to derive an axiom.
 	// This uses a dumb O(n^2) algorithm, but can theoretically be sped up by a hash table or such.
