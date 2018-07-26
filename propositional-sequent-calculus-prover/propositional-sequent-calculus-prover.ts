@@ -65,7 +65,7 @@ class Tree {
 	 *   left: Zeroth child tree or null.
 	 *   right: First child tree or null. (Requires left to be not null.)
 	 */
-	constructor(sequent, left, right) {
+	public constructor(sequent, left, right) {
 		if (typeof sequent == "string" && sequent != "Fail" || left == null && right != null)
 			throw "Invalid value";
 		this.sequent = sequent;
@@ -74,7 +74,7 @@ class Tree {
 	}
 	
 	// Returns a DOM node representing this proof tree.
-	toHtml(): HTMLElement {
+	public toHtml(): HTMLElement {
 		let ul = document.createElement("ul");
 		let li = document.createElement("li");
 		
@@ -105,21 +105,21 @@ class Sequent {
 	 *   left : Array of zero or more terms.
 	 *   right: Array of zero or more terms.
 	 */
-	constructor(left, right) {
+	public constructor(left, right) {
 		this.left  = left .slice();
 		this.right = right.slice();
 	}
 	
-	getLeft(): Array<Term> {
+	public getLeft(): Array<Term> {
 		return this.left.slice();
 	}
 	
-	getRight(): Array<Term> {
+	public getRight(): Array<Term> {
 		return this.right.slice();
 	}
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
-	toString(): string {
+	public toString(): string {
 		let s = "";
 		if (this.left.length == 0)
 			s += EMPTY;
@@ -135,7 +135,7 @@ class Sequent {
 	
 	// Returns an array of DOM nodes representing this sequent.
 	// The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
-	toHtml(): Array<HTMLElement> {
+	public toHtml(): Array<HTMLElement> {
 		// Creates this kind of DOM node: <span class="className">text</span>
 		function createSpan(text: string, className: string): HTMLElement {
 			let span = document.createElement("span");
@@ -185,7 +185,7 @@ class Term {
 	 * - type = "AND", left = left argument term, right = right argument term
 	 * - type = "OR" , left = left argument term, right = right argument term
 	 */
-	constructor(type, left, right?) {
+	public constructor(type, left, right?) {
 		if (!(type == "var" || type == "NOT" || type == "AND" || type == "OR"))
 			throw "Invalid type";
 		if ((type == "var" || type == "NOT") && right != null || (type == "AND" || type == "OR") && right == null)
@@ -195,15 +195,15 @@ class Term {
 		this.right = right;
 	}
 	
-	getType(): "var"|"NOT"|"AND"|"OR" {
+	public getType(): "var"|"NOT"|"AND"|"OR" {
 		return this.type;
 	}
 	
-	getLeft(): Term|string {
+	public getLeft(): Term|string {
 		return this.left;
 	}
 	
-	getRight(): Term|null {
+	public getRight(): Term|null {
 		if (this.type == "var" || this.type == "NOT")
 			throw "No such value";
 		return this.right;
@@ -211,7 +211,7 @@ class Term {
 	
 	// Returns a string representation of this term, e.g.: "(A ∧ (¬B)) ∨ C".
 	// isRoot is an argument for internal use only.
-	toString(isRoot?: boolean): string {
+	public toString(isRoot?: boolean): string {
 		if (this.type == "var")
 			return this.left;
 		else {
@@ -495,14 +495,14 @@ class Tokenizer {
 	public str: string;
 	public pos: number;
 	
-	constructor(str) {
+	public constructor(str) {
 		this.str = str;
 		this.pos = 0;
 		this.skipSpaces();
 	}
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
-	peek(): string|null {
+	public peek(): string|null {
 		if (this.pos == this.str.length)  // End of stream
 			return null;
 		
@@ -520,7 +520,7 @@ class Tokenizer {
 	}
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
-	take(): string {
+	public take(): string {
 		let result = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
@@ -530,12 +530,12 @@ class Tokenizer {
 	}
 	
 	// Takes the next token and checks that it matches the given string, or throws an exception.
-	consume(s: string): void {
+	public consume(s: string): void {
 		if (this.take() != s)
 			throw "Token mismatch";
 	}
 	
-	skipSpaces(): void {
+	private skipSpaces(): void {
 		let match = /^[ \t]*/.exec(this.str.substring(this.pos));
 		this.pos += match[0].length;
 	}
