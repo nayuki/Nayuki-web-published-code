@@ -106,8 +106,8 @@ class Sequent {
 	 *   right: Array of zero or more terms.
 	 */
 	public constructor(left: Array<Term>, right: Array<Term>) {
-		this.left  = left .slice();
-		this.right = right.slice();
+		this.left  = left ;
+		this.right = right;
 	}
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".

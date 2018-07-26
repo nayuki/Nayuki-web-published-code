@@ -88,8 +88,8 @@ var Sequent = /** @class */ (function () {
      *   right: Array of zero or more terms.
      */
     function Sequent(left, right) {
-        this.left = left.slice();
-        this.right = right.slice();
+        this.left = left;
+        this.right = right;
     }
     // Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
     Sequent.prototype.toString = function () {
