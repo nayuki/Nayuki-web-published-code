@@ -56,8 +56,7 @@ function doProve(inputSequent: string): void {
 
 class Tree {
 	public sequent: Sequent|"Fail";
-	public left   : Tree|null;
-	public right  : Tree|null;
+	public children: Array<Tree>;  // Length 0, 1, or 2
 	
 	/* 
 	 * Constructs a proof tree. Has zero, one, or two children.
@@ -65,29 +64,24 @@ class Tree {
 	 *   left: Zeroth child tree or null.
 	 *   right: First child tree or null. (Requires left to be not null.)
 	 */
-	public constructor(sequent: Sequent|"Fail", left: Tree|null, right: Tree|null) {
-		if (typeof sequent == "string" && sequent != "Fail" || left == null && right != null)
+	public constructor(sequent: Sequent|"Fail", ...children: Array<Tree>) {
+		if (typeof sequent == "string" && sequent != "Fail" || children.length > 2)
 			throw "Invalid value";
 		this.sequent = sequent;
-		this.left = left;
-		this.right = right;
+		this.children = children;
 	}
 	
 	// Returns a DOM node representing this proof tree.
 	public toHtml(): HTMLElement {
 		let ul = document.createElement("ul");
 		let li = document.createElement("li");
-		
 		if (this.sequent == "Fail")
 			li.textContent = this.sequent;
-		else
+		else {
 			li.appendChild(this.sequent.toHtml());
-		
-		if (this.left != null)
-			li.appendChild(this.left.toHtml());
-		if (this.right != null)
-			li.appendChild(this.right.toHtml());
-		
+			this.children.forEach(
+				child => li.appendChild(child.toHtml()));
+		}
 		ul.appendChild(li);
 		return ul;
 	}
@@ -244,10 +238,10 @@ function prove(sequent: Sequent): Tree {
 			for (let rt of right) {
 				if (rt instanceof VarTerm && rt.name == name) {
 					if (left.length > 1 || right.length > 1) {
-						let axiom = new Tree(new Sequent([new VarTerm(name)], [new VarTerm(name)]), null, null);
-						return new Tree(sequent, axiom, null);
+						let axiom = new Tree(new Sequent([new VarTerm(name)], [new VarTerm(name)]));
+						return new Tree(sequent, axiom);
 					} else  // Already in the form X ⊦ X
-						return new Tree(sequent, null, null);
+						return new Tree(sequent);
 				}
 			}
 		}
@@ -260,11 +254,11 @@ function prove(sequent: Sequent): Tree {
 			left.splice(i, 1);
 			right.push(term.child);
 			let seq = new Sequent(left, right);
-			return new Tree(sequent, prove(seq), null);
+			return new Tree(sequent, prove(seq));
 		} else if (term instanceof AndTerm) {
 			left.splice(i, 1, term.left, term.right);
 			let seq = new Sequent(left, right);
-			return new Tree(sequent, prove(seq), null);
+			return new Tree(sequent, prove(seq));
 		}
 	}
 	
@@ -275,11 +269,11 @@ function prove(sequent: Sequent): Tree {
 			right.splice(i, 1);
 			left.push(term.child);
 			let seq = new Sequent(left, right);
-			return new Tree(sequent, prove(seq), null);
+			return new Tree(sequent, prove(seq));
 		} else if (term instanceof OrTerm) {
 			right.splice(i, 1, term.left, term.right);
 			let seq = new Sequent(left, right);
-			return new Tree(sequent, prove(seq), null);
+			return new Tree(sequent, prove(seq));
 		}
 	}
 	
@@ -308,7 +302,7 @@ function prove(sequent: Sequent): Tree {
 	}
 	
 	// No operators remaining, and not an axiom
-	return new Tree(sequent, new Tree("Fail", null, null), null);
+	return new Tree(sequent, new Tree("Fail"));
 }
 
 

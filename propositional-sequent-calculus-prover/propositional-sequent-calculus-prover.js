@@ -56,12 +56,15 @@ var Tree = /** @class */ (function () {
      *   left: Zeroth child tree or null.
      *   right: First child tree or null. (Requires left to be not null.)
      */
-    function Tree(sequent, left, right) {
-        if (typeof sequent == "string" && sequent != "Fail" || left == null && right != null)
+    function Tree(sequent) {
+        var children = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            children[_i - 1] = arguments[_i];
+        }
+        if (typeof sequent == "string" && sequent != "Fail" || children.length > 2)
             throw "Invalid value";
         this.sequent = sequent;
-        this.left = left;
-        this.right = right;
+        this.children = children;
     }
     // Returns a DOM node representing this proof tree.
     Tree.prototype.toHtml = function () {
@@ -69,12 +72,10 @@ var Tree = /** @class */ (function () {
         var li = document.createElement("li");
         if (this.sequent == "Fail")
             li.textContent = this.sequent;
-        else
+        else {
             li.appendChild(this.sequent.toHtml());
-        if (this.left != null)
-            li.appendChild(this.left.toHtml());
-        if (this.right != null)
-            li.appendChild(this.right.toHtml());
+            this.children.forEach(function (child) { return li.appendChild(child.toHtml()); });
+        }
         ul.appendChild(li);
         return ul;
     };
@@ -201,11 +202,11 @@ function prove(sequent) {
                 var rt = right_1[_a];
                 if (rt instanceof VarTerm && rt.name == name_1) {
                     if (left.length > 1 || right.length > 1) {
-                        var axiom = new Tree(new Sequent([new VarTerm(name_1)], [new VarTerm(name_1)]), null, null);
-                        return new Tree(sequent, axiom, null);
+                        var axiom = new Tree(new Sequent([new VarTerm(name_1)], [new VarTerm(name_1)]));
+                        return new Tree(sequent, axiom);
                     }
                     else // Already in the form X ⊦ X
-                        return new Tree(sequent, null, null);
+                        return new Tree(sequent);
                 }
             }
         }
@@ -217,12 +218,12 @@ function prove(sequent) {
             left.splice(i, 1);
             right.push(term.child);
             var seq = new Sequent(left, right);
-            return new Tree(sequent, prove(seq), null);
+            return new Tree(sequent, prove(seq));
         }
         else if (term instanceof AndTerm) {
             left.splice(i, 1, term.left, term.right);
             var seq = new Sequent(left, right);
-            return new Tree(sequent, prove(seq), null);
+            return new Tree(sequent, prove(seq));
         }
     }
     // Try to find an easy operator on right side
@@ -232,12 +233,12 @@ function prove(sequent) {
             right.splice(i, 1);
             left.push(term.child);
             var seq = new Sequent(left, right);
-            return new Tree(sequent, prove(seq), null);
+            return new Tree(sequent, prove(seq));
         }
         else if (term instanceof OrTerm) {
             right.splice(i, 1, term.left, term.right);
             var seq = new Sequent(left, right);
-            return new Tree(sequent, prove(seq), null);
+            return new Tree(sequent, prove(seq));
         }
     }
     // Try to find a hard operator (OR on left side, AND on right side)
@@ -264,7 +265,7 @@ function prove(sequent) {
         }
     }
     // No operators remaining, and not an axiom
-    return new Tree(sequent, new Tree("Fail", null, null), null);
+    return new Tree(sequent, new Tree("Fail"));
 }
 /* Parser functions */
 function parseSequent(tok) {
