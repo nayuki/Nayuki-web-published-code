@@ -110,17 +110,13 @@ class Sequent {
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
 	public toString(): string {
-		let s = "";
-		if (this.left.length == 0)
-			s += EMPTY;
-		else
-			s += this.left.map(t => t.toString(true)).join(", ");
-		s += " " + TURNSTILE + " ";
-		if (this.right.length == 0)
-			s += EMPTY;
-		else
-			s += this.right.map(t => t.toString(true)).join(", ");
-		return s;
+		function formatTerms(terms: Array<Term>): string {
+			if (terms.length == 0)
+				return EMPTY;
+			else
+				return terms.map(t => t.toString(true)).join(", ");
+		}
+		return formatTerms(this.left) + " " + TURNSTILE + " " + formatTerms(this.right);
 	}
 	
 	// Returns an array of DOM nodes representing this sequent.

@@ -92,17 +92,13 @@ var Sequent = /** @class */ (function () {
     }
     // Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
     Sequent.prototype.toString = function () {
-        var s = "";
-        if (this.left.length == 0)
-            s += EMPTY;
-        else
-            s += this.left.map(function (t) { return t.toString(true); }).join(", ");
-        s += " " + TURNSTILE + " ";
-        if (this.right.length == 0)
-            s += EMPTY;
-        else
-            s += this.right.map(function (t) { return t.toString(true); }).join(", ");
-        return s;
+        function formatTerms(terms) {
+            if (terms.length == 0)
+                return EMPTY;
+            else
+                return terms.map(function (t) { return t.toString(true); }).join(", ");
+        }
+        return formatTerms(this.left) + " " + TURNSTILE + " " + formatTerms(this.right);
     };
     // Returns an array of DOM nodes representing this sequent.
     // The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
