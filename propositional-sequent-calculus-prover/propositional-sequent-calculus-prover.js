@@ -16,16 +16,16 @@ function doProve(inputSequent) {
 		while (node.firstChild != null)
 			node.removeChild(node.firstChild);
 	}
-	var msgElem     = document.getElementById("message");
-	var codeOutElem = document.getElementById("codeOutput");
-	var proofElem   = document.getElementById("proof");
+	let msgElem     = document.getElementById("message");
+	let codeOutElem = document.getElementById("codeOutput");
+	let proofElem   = document.getElementById("proof");
 	clearChildren(msgElem);
 	clearChildren(codeOutElem);
 	clearChildren(proofElem);
 	
-	var proof;
+	let proof;
 	try {
-		var sequent = parseSequent(new Tokenizer(inputSequent));
+		let sequent = parseSequent(new Tokenizer(inputSequent));
 		proof = prove(sequent);
 		msgElem.appendChild(document.createTextNode("Proof:"));
 		proofElem.appendChild(proof.toHtml());
@@ -36,7 +36,7 @@ function doProve(inputSequent) {
 		} else if ("position" in e) {
 			msgElem.appendChild(document.createTextNode("Syntax error: " + e.message));
 			codeOutElem.appendChild(document.createTextNode(inputSequent.substring(0, e.position)));
-			var highlight = document.createElement("u");
+			let highlight = document.createElement("u");
 			if (e.position < inputSequent.length) {
 				highlight.appendChild(document.createTextNode(inputSequent.substr(e.position, 1)));
 				codeOutElem.appendChild(highlight);
@@ -83,8 +83,8 @@ class Tree {
 	
 	// Returns a DOM node representing this proof tree.
 	toHtml() {
-		var ul = document.createElement("ul");
-		var li = document.createElement("li");
+		let ul = document.createElement("ul");
+		let li = document.createElement("li");
 		
 		if (this.sequent == "Fail")
 			li.textContent = this.sequent;
@@ -125,7 +125,7 @@ class Sequent {
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
 	toString() {
-		var s = "";
+		let s = "";
 		if (this.left.length == 0)
 			s += EMPTY;
 		else
@@ -143,13 +143,13 @@ class Sequent {
 	toHtml() {
 		// Creates this kind of DOM node: <span class="className">text</span>
 		function createSpan(text, className) {
-			var span = document.createElement("span");
+			let span = document.createElement("span");
 			span.textContent = text;
 			span.className = className;
 			return span;
 		}
 		
-		var result = [];
+		let result = [];
 		
 		if (this.left.length == 0)
 			result.push(document.createTextNode(EMPTY));
@@ -218,7 +218,7 @@ class Term {
 		else {
 			if (isRoot === undefined)
 				isRoot = true;
-			var s = isRoot ? "" : "(";
+			let s = isRoot ? "" : "(";
 			if (this.type == "NOT")
 				s += NOT + this.left.toString(false);
 			else if (this.type == "AND")
@@ -237,18 +237,18 @@ class Term {
 /* Sequent prover */
 
 function prove(sequent) {
-	var left  = sequent.getLeft();
-	var right = sequent.getRight();
+	let left  = sequent.getLeft();
+	let right = sequent.getRight();
 	
 	// Try to find a variable that is common to both sides, to try to derive an axiom.
 	// This uses a dumb O(n^2) algorithm, but can theoretically be sped up by a hash table or such.
-	for (var lt of left) {
+	for (let lt of left) {
 		if (lt.getType() == "var") {
-			var name = lt.getLeft();
-			for (var rt of right) {
+			let name = lt.getLeft();
+			for (let rt of right) {
 				if (rt.getType() == "var" && rt.getLeft() == name) {
 					if (left.length > 1 || right.length > 1) {
-						var axiom = new Tree(new Sequent([new Term("var", name)], [new Term("var", name)]), null, null);
+						let axiom = new Tree(new Sequent([new Term("var", name)], [new Term("var", name)]), null, null);
 						return new Tree(sequent, axiom, null);
 					} else  // Already in the form X ⊦ X
 						return new Tree(sequent, null, null);
@@ -258,57 +258,57 @@ function prove(sequent) {
 	}
 	
 	// Try to find an easy operator on left side
-	for (var i = 0; i < left.length; i++) {
-		var term = left[i];
-		var type = term.getType();
+	for (let i = 0; i < left.length; i++) {
+		let term = left[i];
+		let type = term.getType();
 		if (type == "NOT") {
 			left.splice(i, 1);
 			right.push(term.getLeft());
-			var seq = new Sequent(left, right);
+			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		} else if (type == "AND") {
 			left.splice(i, 1, term.getLeft(), term.getRight());
-			var seq = new Sequent(left, right);
+			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		}
 	}
 	
 	// Try to find an easy operator on right side
-	for (var i = 0; i < right.length; i++) {
-		var term = right[i];
-		var type = term.getType();
+	for (let i = 0; i < right.length; i++) {
+		let term = right[i];
+		let type = term.getType();
 		if (type == "NOT") {
 			right.splice(i, 1);
 			left.push(term.getLeft());
-			var seq = new Sequent(left, right);
+			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		} else if (type == "OR") {
 			right.splice(i, 1, term.getLeft(), term.getRight());
-			var seq = new Sequent(left, right);
+			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		}
 	}
 	
 	// Try to find a hard operator (OR on left side, AND on right side)
-	for (var i = 0; i < left.length; i++) {
-		var term = left[i];
+	for (let i = 0; i < left.length; i++) {
+		let term = left[i];
 		if (term.getType() == "OR") {
 			left.splice(i, 1, term.getLeft());
-			var seq0 = new Sequent(left, right);
+			let seq0 = new Sequent(left, right);
 			left = left.slice();
 			left.splice(i, 1, term.getRight());
-			var seq1 = new Sequent(left, right);
+			let seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
 	}
-	for (var i = 0; i < right.length; i++) {
-		var term = right[i];
+	for (let i = 0; i < right.length; i++) {
+		let term = right[i];
 		if (term.getType() == "AND") {
 			right.splice(i, 1, term.getLeft());
-			var seq0 = new Sequent(left, right);
+			let seq0 = new Sequent(left, right);
 			right = right.slice();
 			right.splice(i, 1, term.getRight());
-			var seq1 = new Sequent(left, right);
+			let seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
 	}
@@ -321,13 +321,13 @@ function prove(sequent) {
 /* Parser functions */
 
 function parseSequent(tok) {
-	var lhs = [];
-	var rhs = [];
+	let lhs = [];
+	let rhs = [];
 	
 	// Parse left side
-	var expectComma = false;
+	let expectComma = false;
 	while (true) {
-		var next = tok.peek();
+		let next = tok.peek();
 		if (next == TURNSTILE) {
 			tok.consume(TURNSTILE);
 			break;
@@ -347,7 +347,7 @@ function parseSequent(tok) {
 				else
 					throw {message: "Term or turnstile expected", position: tok.position()};
 			}
-			var term = parseTerm(tok);
+			let term = parseTerm(tok);
 			if (term != null)
 				lhs.push(term);
 		}
@@ -356,7 +356,7 @@ function parseSequent(tok) {
 	// Parse right side
 	expectComma = false;
 	while (true) {
-		var next = tok.peek();
+		let next = tok.peek();
 		if (next == null)
 			break;
 		else if (next == TURNSTILE)
@@ -375,7 +375,7 @@ function parseSequent(tok) {
 				else
 					throw {message: "Term or end expected", position: tok.position()};
 			}
-			var term = parseTerm(tok);
+			let term = parseTerm(tok);
 			if (term != null)
 				rhs.push(term);
 		}
@@ -393,18 +393,18 @@ function parseTerm(tok) {
 	}
 	
 	// Mutant LR parser with deferred reductions
-	var stack = [];  // The stack consists of terms (variables/subexpressions) and strings (operators)
+	let stack = [];  // The stack consists of terms (variables/subexpressions) and strings (operators)
 	
 	function reduce() {
 		while (true) {
 			if (stack.length >= 2 && stack[stack.length - 2] == NOT) {
-				var term = stack.pop();
+				let term = stack.pop();
 				stack.pop();  // NOT
 				stack.push(new Term("NOT", term));
 			} else if (stack.length >= 3 && stack[stack.length - 2] == AND) {
-				var right = stack.pop();
+				let right = stack.pop();
 				stack.pop();  // AND
-				var left = stack.pop();
+				let left = stack.pop();
 				stack.push(new Term("AND", left, right));
 			} else
 				break;
@@ -414,9 +414,9 @@ function parseTerm(tok) {
 	function finalReduce() {
 		while (true) {
 			if (stack.length >= 3 && stack[stack.length - 2] == OR) {
-				var right = stack.pop();
+				let right = stack.pop();
 				stack.pop();  // OR
-				var left = stack.pop();
+				let left = stack.pop();
 				stack.push(new Term("OR", left, right));
 			} else
 				break;
@@ -434,7 +434,7 @@ function parseTerm(tok) {
 	}
 	
 	while (true) {
-		var next = tok.peek();
+		let next = tok.peek();
 		if (next == null || next == TURNSTILE || next == ",")
 			break;
 		
@@ -454,9 +454,9 @@ function parseTerm(tok) {
 		} else if (next == OR) {
 			checkBeforePushingBinary();
 			if (stack.length >= 3 && stack[stack.length - 2] == OR) {  // Precedence magic
-				var right = stack.pop();
+				let right = stack.pop();
 				stack.pop();  // OR
-				var left = stack.pop();
+				let left = stack.pop();
 				stack.push(new Term("OR", left, right));
 			}
 			stack.push(tok.take());
@@ -509,12 +509,12 @@ class Tokenizer {
 		if (this.i == this.str.length)  // End of stream
 			return null;
 		
-		var match = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.i));
+		let match = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.i));
 		if (match == null)
 			throw {message: "Invalid symbol", position: this.i};
 		
 		// Normalize notation
-		var token = match[0];
+		let token = match[0];
 		if      (token == "!") token = NOT;
 		else if (token == "&") token = AND;
 		else if (token == "|") token = OR;
@@ -524,7 +524,7 @@ class Tokenizer {
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
 	take() {
-		var result = this.peek();
+		let result = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
 		this.i += result.length;
@@ -539,7 +539,7 @@ class Tokenizer {
 	}
 	
 	skipSpaces() {
-		var match = /^[ \t]*/.exec(this.str.substring(this.i));
+		let match = /^[ \t]*/.exec(this.str.substring(this.i));
 		this.i += match[0].length;
 	}
 }
@@ -548,8 +548,8 @@ class Tokenizer {
 /* Miscellaneous */
 
 // Unicode character constants (because this script file's character encoding is unspecified)
-var TURNSTILE = "\u22A6";
-var EMPTY     = "\u2205";
-var NOT       = "\u00AC";
-var AND       = "\u2227";
-var OR        = "\u2228";
+const TURNSTILE = "\u22A6";
+const EMPTY     = "\u2205";
+const NOT       = "\u00AC";
+const AND       = "\u2227";
+const OR        = "\u2228";
