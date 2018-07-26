@@ -55,6 +55,10 @@ function doProve(inputSequent) {
 /* Data types */
 
 class Tree {
+	public sequent: Sequent|"Fail";
+	public left   : Tree|null;
+	public right  : Tree|null;
+	
 	/* 
 	 * Constructs a proof tree. Has zero, one, or two children.
 	 *   sequent: The value at this node - either a sequent or the string "Fail".
@@ -93,6 +97,9 @@ class Tree {
 
 
 class Sequent {
+	public left : Array<Term>;
+	public right: Array<Term>;
+	
 	/* 
 	 * Constructs a sequent.
 	 *   left : Array of zero or more terms.
@@ -167,6 +174,10 @@ class Sequent {
 
 
 class Term {
+	public type: "var"|"NOT"|"AND"|"OR";
+	public left: Term|string;
+	public right: Term|null;
+	
 	/* 
 	 * Constructs a term. Valid options:
 	 * - type = "var", left = string name       , right = null
@@ -481,6 +492,9 @@ function parseTerm(tok) {
 
 // Tokenizes a formula into a stream of token strings.
 class Tokenizer {
+	public str: string;
+	public pos: number;
+	
 	constructor(str) {
 		this.str = str;
 		this.pos = 0;
