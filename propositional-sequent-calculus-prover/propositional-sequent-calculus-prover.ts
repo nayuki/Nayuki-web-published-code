@@ -9,10 +9,10 @@
 "use strict";
 
 
-function doProve(inputSequent) {
+function doProve(inputSequent: string): void {
 	(document.getElementById("inputSequent") as HTMLInputElement).value = inputSequent;
 	
-	function clearChildren(node) {
+	function clearChildren(node: HTMLElement) {
 		while (node.firstChild != null)
 			node.removeChild(node.firstChild);
 	}
@@ -74,7 +74,7 @@ class Tree {
 	}
 	
 	// Returns a DOM node representing this proof tree.
-	toHtml() {
+	toHtml(): HTMLElement {
 		let ul = document.createElement("ul");
 		let li = document.createElement("li");
 		
@@ -110,16 +110,16 @@ class Sequent {
 		this.right = right.slice();
 	}
 	
-	getLeft() {
+	getLeft(): Array<Term> {
 		return this.left.slice();
 	}
 	
-	getRight() {
+	getRight(): Array<Term> {
 		return this.right.slice();
 	}
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
-	toString() {
+	toString(): string {
 		let s = "";
 		if (this.left.length == 0)
 			s += EMPTY;
@@ -135,9 +135,9 @@ class Sequent {
 	
 	// Returns an array of DOM nodes representing this sequent.
 	// The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
-	toHtml() {
+	toHtml(): Array<HTMLElement> {
 		// Creates this kind of DOM node: <span class="className">text</span>
-		function createSpan(text, className) {
+		function createSpan(text: string, className: string): HTMLElement {
 			let span = document.createElement("span");
 			span.textContent = text;
 			span.className = className;
@@ -195,15 +195,15 @@ class Term {
 		this.right = right;
 	}
 	
-	getType() {
+	getType(): "var"|"NOT"|"AND"|"OR" {
 		return this.type;
 	}
 	
-	getLeft() {
+	getLeft(): Term|string {
 		return this.left;
 	}
 	
-	getRight() {
+	getRight(): Term|null {
 		if (this.type == "var" || this.type == "NOT")
 			throw "No such value";
 		return this.right;
@@ -211,7 +211,7 @@ class Term {
 	
 	// Returns a string representation of this term, e.g.: "(A ∧ (¬B)) ∨ C".
 	// isRoot is an argument for internal use only.
-	toString(isRoot?) {
+	toString(isRoot?: boolean): string {
 		if (this.type == "var")
 			return this.left;
 		else {
@@ -235,7 +235,7 @@ class Term {
 
 /* Sequent prover */
 
-function prove(sequent) {
+function prove(sequent: Sequent): Tree {
 	let left  = sequent.getLeft();
 	let right = sequent.getRight();
 	
@@ -319,7 +319,7 @@ function prove(sequent) {
 
 /* Parser functions */
 
-function parseSequent(tok) {
+function parseSequent(tok: Tokenizer): Sequent {
 	let lhs = [];
 	let rhs = [];
 	
@@ -385,7 +385,7 @@ function parseSequent(tok) {
 
 
 // Parses and returns a term, or null if the leading token is the empty symbol.
-function parseTerm(tok) {
+function parseTerm(tok: Tokenizer): Term|null {
 	if (tok.peek() == EMPTY) {
 		tok.consume(EMPTY);
 		return null;
@@ -394,7 +394,7 @@ function parseTerm(tok) {
 	// Mutant LR parser with deferred reductions
 	let stack = [];  // The stack consists of terms (variables/subexpressions) and strings (operators)
 	
-	function reduce() {
+	function reduce(): void {
 		while (true) {
 			if (stack.length >= 2 && stack[stack.length - 2] == NOT) {
 				let term = stack.pop();
@@ -410,7 +410,7 @@ function parseTerm(tok) {
 		}
 	}
 	
-	function finalReduce() {
+	function finalReduce(): void {
 		while (true) {
 			if (stack.length >= 3 && stack[stack.length - 2] == OR) {
 				let right = stack.pop();
@@ -422,12 +422,12 @@ function parseTerm(tok) {
 		}
 	}
 	
-	function checkBeforePushingUnary() {
+	function checkBeforePushingUnary(): void {
 		if (!(stack.length == 0 || typeof stack[stack.length - 1] == "string"))  // Check that top item is not a term
 			throw {message: "Unexpected item", position: tok.pos};
 	}
 	
-	function checkBeforePushingBinary() {
+	function checkBeforePushingBinary(): void {
 		if (stack.length == 0 || typeof stack[stack.length - 1] == "string")  // Check that top item is a term
 			throw {message: "Unexpected item", position: tok.pos};
 	}
@@ -502,7 +502,7 @@ class Tokenizer {
 	}
 	
 	// Returns the next token as a string, or null if the end of the token stream is reached.
-	peek() {
+	peek(): string|null {
 		if (this.pos == this.str.length)  // End of stream
 			return null;
 		
@@ -520,7 +520,7 @@ class Tokenizer {
 	}
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
-	take() {
+	take(): string {
 		let result = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
@@ -530,12 +530,12 @@ class Tokenizer {
 	}
 	
 	// Takes the next token and checks that it matches the given string, or throws an exception.
-	consume(s) {
+	consume(s: string): void {
 		if (this.take() != s)
 			throw "Token mismatch";
 	}
 	
-	skipSpaces() {
+	skipSpaces(): void {
 		let match = /^[ \t]*/.exec(this.str.substring(this.pos));
 		this.pos += match[0].length;
 	}
