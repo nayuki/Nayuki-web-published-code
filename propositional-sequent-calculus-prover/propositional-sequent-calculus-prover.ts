@@ -124,12 +124,12 @@ class Sequent {
 		if (this.left.length == 0)
 			s += EMPTY;
 		else
-			s += this.left.map(t => t.toString()).join(", ");
+			s += this.left.map(t => t.toString(true)).join(", ");
 		s += " " + TURNSTILE + " ";
 		if (this.right.length == 0)
 			s += EMPTY;
 		else
-			s += this.right.map(t => t.toString()).join(", ");
+			s += this.right.map(t => t.toString(true)).join(", ");
 		return s;
 	}
 	
@@ -152,7 +152,7 @@ class Sequent {
 			this.left.forEach((term, i) => {
 				if (i > 0)
 					result.push(createSpan(", ", "comma"));
-				result.push(document.createTextNode(term.toString()));
+				result.push(document.createTextNode(term.toString(true)));
 			});
 		}
 		
@@ -164,7 +164,7 @@ class Sequent {
 			this.right.forEach((term, i) => {
 				if (i > 0)
 					result.push(createSpan(", ", "comma"));
-				result.push(document.createTextNode(term.toString()));
+				result.push(document.createTextNode(term.toString(true)));
 			});
 		}
 		
@@ -173,62 +173,73 @@ class Sequent {
 }
 
 
-class Term {
-	public type: "var"|"NOT"|"AND"|"OR";
-	public left: Term|string;
-	public right: Term|null;
-	
-	/* 
-	 * Constructs a term. Valid options:
-	 * - type = "var", left = string name       , right = null
-	 * - type = "NOT", left = sole argument term, right = null
-	 * - type = "AND", left = left argument term, right = right argument term
-	 * - type = "OR" , left = left argument term, right = right argument term
-	 */
-	public constructor(type: "var"|"NOT"|"AND"|"OR", left: Term|string, right?: Term|null) {
-		if (!(type == "var" || type == "NOT" || type == "AND" || type == "OR"))
-			throw "Invalid type";
-		if ((type == "var" || type == "NOT") && right != null || (type == "AND" || type == "OR") && right == null)
-			throw "Invalid value";
-		this.type = type;
-		this.left = left;
-		this.right = right !== undefined ? right : null;
-	}
-	
-	public getType(): "var"|"NOT"|"AND"|"OR" {
-		return this.type;
-	}
-	
-	public getLeft(): Term|string {
-		return this.left;
-	}
-	
-	public getRight(): Term|null {
-		if (this.type == "var" || this.type == "NOT")
-			throw "No such value";
-		return this.right;
-	}
-	
+interface Term {
 	// Returns a string representation of this term, e.g.: "(A ∧ (¬B)) ∨ C".
-	// isRoot is an argument for internal use only.
-	public toString(isRoot?: boolean): string {
-		if (this.type == "var")
-			return (this.left as string);
-		else {
-			if (isRoot === undefined)
-				isRoot = true;
-			let s = isRoot ? "" : "(";
-			if (this.type == "NOT")
-				s += NOT + (this.left as Term).toString(false);
-			else if (this.type == "AND")
-				s += (this.left as Term).toString(false) + " " + AND + " " + (this.right as Term).toString(false);
-			else if (this.type == "OR")
-				s += (this.left as Term).toString(false) + " " + OR + " " + (this.right as Term).toString(false);
-			else
-				throw "Assertion error";
-			s += isRoot ? "" : ")";
-			return s;
-		}
+	toString(isRoot?: boolean): string;
+}
+
+
+class VarTerm implements Term {
+	public name: string;
+	
+	public constructor(name: string) {
+		this.name = name;
+	}
+	
+	public toString(isRoot: boolean = false): string {
+		return this.name;
+	}
+}
+
+
+class NotTerm implements Term {
+	public child: Term;
+	
+	public constructor(child: Term) {
+		this.child = child;
+	}
+	
+	public toString(isRoot: boolean = false): string {
+		let s = NOT + this.child.toString();
+		if (!isRoot)
+			s = "(" + s + ")";
+		return s;
+	}
+}
+
+
+class AndTerm implements Term {
+	public left : Term;
+	public right: Term;
+	
+	public constructor(left: Term, right: Term) {
+		this.left  = left ;
+		this.right = right;
+	}
+	
+	public toString(isRoot: boolean = false): string {
+		let s = this.left.toString() + " " + AND + " " + this.right.toString();
+		if (!isRoot)
+			s = "(" + s + ")";
+		return s;
+	}
+}
+
+
+class OrTerm implements Term {
+	public left : Term;
+	public right: Term;
+	
+	public constructor(left: Term, right: Term) {
+		this.left  = left ;
+		this.right = right;
+	}
+	
+	public toString(isRoot: boolean = false): string {
+		let s = this.left.toString() + " " + OR + " " + this.right.toString();
+		if (!isRoot)
+			s = "(" + s + ")";
+		return s;
 	}
 }
 
@@ -242,12 +253,12 @@ function prove(sequent: Sequent): Tree {
 	// Try to find a variable that is common to both sides, to try to derive an axiom.
 	// This uses a dumb O(n^2) algorithm, but can theoretically be sped up by a hash table or such.
 	for (let lt of left) {
-		if (lt.getType() == "var") {
-			let name = lt.getLeft();
+		if (lt instanceof VarTerm) {
+			let name = lt.name;
 			for (let rt of right) {
-				if (rt.getType() == "var" && rt.getLeft() == name) {
+				if (rt instanceof VarTerm && rt.name == name) {
 					if (left.length > 1 || right.length > 1) {
-						let axiom = new Tree(new Sequent([new Term("var", name)], [new Term("var", name)]), null, null);
+						let axiom = new Tree(new Sequent([new VarTerm(name)], [new VarTerm(name)]), null, null);
 						return new Tree(sequent, axiom, null);
 					} else  // Already in the form X ⊦ X
 						return new Tree(sequent, null, null);
@@ -259,14 +270,13 @@ function prove(sequent: Sequent): Tree {
 	// Try to find an easy operator on left side
 	for (let i = 0; i < left.length; i++) {
 		let term = left[i];
-		let type = term.getType();
-		if (type == "NOT") {
+		if (term instanceof NotTerm) {
 			left.splice(i, 1);
-			right.push(term.getLeft() as Term);
+			right.push(term.child);
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
-		} else if (type == "AND") {
-			left.splice(i, 1, term.getLeft() as Term, term.getRight() as Term);
+		} else if (term instanceof AndTerm) {
+			left.splice(i, 1, term.left, term.right);
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		}
@@ -275,14 +285,13 @@ function prove(sequent: Sequent): Tree {
 	// Try to find an easy operator on right side
 	for (let i = 0; i < right.length; i++) {
 		let term = right[i];
-		let type = term.getType();
-		if (type == "NOT") {
+		if (term instanceof NotTerm) {
 			right.splice(i, 1);
-			left.push(term.getLeft() as Term);
+			left.push(term.child);
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
-		} else if (type == "OR") {
-			right.splice(i, 1, term.getLeft() as Term, term.getRight() as Term);
+		} else if (term instanceof OrTerm) {
+			right.splice(i, 1, term.left, term.right);
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		}
@@ -291,22 +300,22 @@ function prove(sequent: Sequent): Tree {
 	// Try to find a hard operator (OR on left side, AND on right side)
 	for (let i = 0; i < left.length; i++) {
 		let term = left[i];
-		if (term.getType() == "OR") {
-			left.splice(i, 1, term.getLeft() as Term);
+		if (term instanceof OrTerm) {
+			left.splice(i, 1, term.left);
 			let seq0 = new Sequent(left, right);
 			left = left.slice();
-			left.splice(i, 1, term.getRight() as Term);
+			left.splice(i, 1, term.right);
 			let seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
 	}
 	for (let i = 0; i < right.length; i++) {
 		let term = right[i];
-		if (term.getType() == "AND") {
-			right.splice(i, 1, term.getLeft() as Term);
+		if (term instanceof AndTerm) {
+			right.splice(i, 1, term.left);
 			let seq0 = new Sequent(left, right);
 			right = right.slice();
-			right.splice(i, 1, term.getRight() as Term);
+			right.splice(i, 1, term.right);
 			let seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
@@ -398,19 +407,19 @@ function parseTerm(tok: Tokenizer): Term|null {
 		while (true) {
 			if (stack.length >= 2 && stack[stack.length - 2] == NOT) {
 				let term = stack.pop();
-				if (!(term instanceof Term))
+				if (term === undefined)
 					throw "Assertion error";
 				stack.pop();  // NOT
-				stack.push(new Term("NOT", term));
+				stack.push(new NotTerm(term));
 			} else if (stack.length >= 3 && stack[stack.length - 2] == AND) {
 				let right = stack.pop();
-				if (!(right instanceof Term))
+				if (right === undefined)
 					throw "Assertion error";
 				stack.pop();  // AND
 				let left = stack.pop();
-				if (!(left instanceof Term))
+				if (left === undefined)
 					throw "Assertion error";
-				stack.push(new Term("AND", left, right));
+				stack.push(new AndTerm(left, right));
 			} else
 				break;
 		}
@@ -420,13 +429,13 @@ function parseTerm(tok: Tokenizer): Term|null {
 		while (true) {
 			if (stack.length >= 3 && stack[stack.length - 2] == OR) {
 				let right = stack.pop();
-				if (!(right instanceof Term))
+				if (right === undefined)
 					throw "Assertion error";
 				stack.pop();  // OR
 				let left = stack.pop();
-				if (!(left instanceof Term))
+				if (left === undefined)
 					throw "Assertion error";
-				stack.push(new Term("OR", left, right));
+				stack.push(new OrTerm(left, right));
 			} else
 				break;
 		}
@@ -449,7 +458,7 @@ function parseTerm(tok: Tokenizer): Term|null {
 		
 		else if (/^[A-Za-z][A-Za-z0-9]*$/.test(next)) {  // Variable
 			checkBeforePushingUnary();
-			stack.push(new Term("var", tok.take()));
+			stack.push(new VarTerm(tok.take()));
 			reduce();
 			
 		} else if (next == NOT) {
@@ -464,13 +473,13 @@ function parseTerm(tok: Tokenizer): Term|null {
 			checkBeforePushingBinary();
 			if (stack.length >= 3 && stack[stack.length - 2] == OR) {  // Precedence magic
 				let right = stack.pop();
-				if (!(right instanceof Term))
+				if (right === undefined)
 					throw "Assertion error";
 				stack.pop();  // OR
 				let left = stack.pop();
-				if (!(left instanceof Term))
+				if (left === undefined)
 					throw "Assertion error";
-				stack.push(new Term("OR", left, right));
+				stack.push(new OrTerm(left, right));
 			}
 			stack.push(tok.take());
 			
