@@ -18,33 +18,36 @@ function doProve(inputSequent) {
     clearChildren(msgElem);
     clearChildren(codeOutElem);
     clearChildren(proofElem);
+    function appendText(node, text) {
+        node.appendChild(document.createTextNode(text));
+    }
     var proof;
     try {
         var seq = parseSequent(new Tokenizer(inputSequent));
         proof = prove(seq);
-        msgElem.appendChild(document.createTextNode("Proof:"));
+        appendText(msgElem, "Proof:");
         proofElem.appendChild(Tree.toHtml([proof]));
     }
     catch (e) {
         if (typeof e == "string") {
-            msgElem.appendChild(document.createTextNode("Error: " + e));
+            appendText(msgElem, "Error: " + e);
         }
         else if ("position" in e) {
-            msgElem.appendChild(document.createTextNode("Syntax error: " + e.message));
-            codeOutElem.appendChild(document.createTextNode(inputSequent.substring(0, e.position)));
+            appendText(msgElem, "Syntax error: " + e.message);
+            appendText(codeOutElem, inputSequent.substring(0, e.position));
             var highlight = document.createElement("u");
             if (e.position < inputSequent.length) {
-                highlight.appendChild(document.createTextNode(inputSequent.substr(e.position, 1)));
+                appendText(highlight, inputSequent.substr(e.position, 1));
                 codeOutElem.appendChild(highlight);
-                codeOutElem.appendChild(document.createTextNode(inputSequent.substring(e.position + 1, inputSequent.length)));
+                appendText(codeOutElem, inputSequent.substring(e.position + 1, inputSequent.length));
             }
             else {
-                highlight.appendChild(document.createTextNode(" "));
+                appendText(highlight, " ");
                 codeOutElem.appendChild(highlight);
             }
         }
         else {
-            msgElem.appendChild(document.createTextNode("Error: " + e));
+            appendText(msgElem, "Error: " + e);
         }
     }
 }
