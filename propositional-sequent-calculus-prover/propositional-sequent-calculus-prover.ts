@@ -10,7 +10,7 @@
 
 
 function doProve(inputSequent) {
-	document.getElementById("inputSequent").value = inputSequent;
+	(document.getElementById("inputSequent") as HTMLInputElement).value = inputSequent;
 	
 	function clearChildren(node) {
 		while (node.firstChild != null)
@@ -185,7 +185,7 @@ class Term {
 	 * - type = "AND", left = left argument term, right = right argument term
 	 * - type = "OR" , left = left argument term, right = right argument term
 	 */
-	constructor(type, left, right) {
+	constructor(type, left, right?) {
 		if (!(type == "var" || type == "NOT" || type == "AND" || type == "OR"))
 			throw "Invalid type";
 		if ((type == "var" || type == "NOT") && right != null || (type == "AND" || type == "OR") && right == null)
@@ -211,7 +211,7 @@ class Term {
 	
 	// Returns a string representation of this term, e.g.: "(A ∧ (¬B)) ∨ C".
 	// isRoot is an argument for internal use only.
-	toString(isRoot) {
+	toString(isRoot?) {
 		if (this.type == "var")
 			return this.left;
 		else {
@@ -313,7 +313,7 @@ function prove(sequent) {
 	}
 	
 	// No operators remaining, and not an axiom
-	return new Tree(sequent, new Tree("Fail", null, null), null, null);
+	return new Tree(sequent, new Tree("Fail", null, null), null);
 }
 
 

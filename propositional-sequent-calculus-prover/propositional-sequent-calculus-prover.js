@@ -275,7 +275,7 @@ function prove(sequent) {
         }
     }
     // No operators remaining, and not an axiom
-    return new Tree(sequent, new Tree("Fail", null, null), null, null);
+    return new Tree(sequent, new Tree("Fail", null, null), null);
 }
 /* Parser functions */
 function parseSequent(tok) {
