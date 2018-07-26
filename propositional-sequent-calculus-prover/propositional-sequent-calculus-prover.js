@@ -50,49 +50,54 @@ function doProve(inputSequent) {
 
 /* Data types */
 
-/* 
- * Constructs a proof tree. Has zero, one, or two children.
- *   sequent: The value at this node - either a sequent or the string "Fail".
- *   left: Zeroth child tree or null.
- *   right: First child tree or null. (Requires left to be not null.)
- */
-function Tree(sequent, left, right) {
-	if (typeof sequent == "string" && sequent != "Fail" || left == null && right != null)
-		throw "Invalid value";
+class Tree {
+	/* 
+	 * Constructs a proof tree. Has zero, one, or two children.
+	 *   sequent: The value at this node - either a sequent or the string "Fail".
+	 *   left: Zeroth child tree or null.
+	 *   right: First child tree or null. (Requires left to be not null.)
+	 */
+	constructor(sequent, left, right) {
+		if (typeof sequent == "string" && sequent != "Fail" || left == null && right != null)
+			throw "Invalid value";
+		this.sequent = sequent;
+		this.left = left;
+		this.right = right;
+	}
 	
-	this.getSequent = function() {
-		return sequent;
-	};
+	getSequent() {
+		return this.sequent;
+	}
 	
-	this.getLeft = function() {
-		return left;
-	};
+	getLeft() {
+		return this.left;
+	}
 	
-	this.getRight = function() {
-		return right;
-	};
+	getRight() {
+		return this.right;
+	}
 	
 	// Returns a DOM node representing this proof tree.
-	this.toHtml = function() {
+	toHtml() {
 		var ul = document.createElement("ul");
 		var li = document.createElement("li");
 		
-		if (sequent == "Fail")
-			li.textContent = sequent;
+		if (this.sequent == "Fail")
+			li.textContent = this.sequent;
 		else {
-			sequent.toHtml().forEach(function(elem) {
+			this.sequent.toHtml().forEach(function(elem) {
 				li.appendChild(elem);
 			});
 		}
 		
-		if (left != null)
-			li.appendChild(left.toHtml());
-		if (right != null)
-			li.appendChild(right.toHtml());
+		if (this.left != null)
+			li.appendChild(this.left.toHtml());
+		if (this.right != null)
+			li.appendChild(this.right.toHtml());
 		
 		ul.appendChild(li);
 		return ul;
-	};
+	}
 }
 
 
