@@ -122,38 +122,38 @@ class Sequent {
 	// Returns an array of DOM nodes representing this sequent.
 	// The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
 	public toHtml(): DocumentFragment {
-		// Creates this kind of DOM node: <span class="className">text</span>
-		function createSpan(text: string, className: string): HTMLElement {
-			let span = document.createElement("span");
-			span.textContent = text;
-			span.className = className;
-			return span;
-		}
-		
 		let result = document.createDocumentFragment();
 		
+		function appendText(text: string) {
+			result.appendChild(document.createTextNode(text));
+		}
+		function appendSpan(text: string, clsName: string) {
+			let elem = document.createElement("span");
+			elem.textContent = text;
+			elem.className = clsName;
+			result.appendChild(elem);
+		}
+		
 		if (this.left.length == 0)
-			result.appendChild(document.createTextNode(EMPTY));
+			appendText(EMPTY);
 		else {
 			this.left.forEach((term, i) => {
 				if (i > 0)
-					result.appendChild(createSpan(", ", "comma"));
-				result.appendChild(document.createTextNode(term.toString(true)));
+					appendSpan(", ", "comma");
+				appendText(term.toString(true));
 			});
 		}
-		
-		result.appendChild(createSpan(" " + TURNSTILE + " ", "turnstile"));
+		appendSpan(" " + TURNSTILE + " ", "turnstile");
 		
 		if (this.right.length == 0)
-			result.appendChild(document.createTextNode(EMPTY));
+			appendText(EMPTY);
 		else {
 			this.right.forEach((term, i) => {
 				if (i > 0)
-					result.appendChild(createSpan(", ", "comma"));
-				result.appendChild(document.createTextNode(term.toString(true)));
+					appendSpan(", ", "comma");
+				appendText(term.toString(true));
 			});
 		}
-		
 		return result;
 	}
 }

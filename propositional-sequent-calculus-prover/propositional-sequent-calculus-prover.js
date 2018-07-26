@@ -103,31 +103,33 @@ var Sequent = /** @class */ (function () {
     // Returns an array of DOM nodes representing this sequent.
     // The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
     Sequent.prototype.toHtml = function () {
-        // Creates this kind of DOM node: <span class="className">text</span>
-        function createSpan(text, className) {
-            var span = document.createElement("span");
-            span.textContent = text;
-            span.className = className;
-            return span;
-        }
         var result = document.createDocumentFragment();
+        function appendText(text) {
+            result.appendChild(document.createTextNode(text));
+        }
+        function appendSpan(text, clsName) {
+            var elem = document.createElement("span");
+            elem.textContent = text;
+            elem.className = clsName;
+            result.appendChild(elem);
+        }
         if (this.left.length == 0)
-            result.appendChild(document.createTextNode(EMPTY));
+            appendText(EMPTY);
         else {
             this.left.forEach(function (term, i) {
                 if (i > 0)
-                    result.appendChild(createSpan(", ", "comma"));
-                result.appendChild(document.createTextNode(term.toString(true)));
+                    appendSpan(", ", "comma");
+                appendText(term.toString(true));
             });
         }
-        result.appendChild(createSpan(" " + TURNSTILE + " ", "turnstile"));
+        appendSpan(" " + TURNSTILE + " ", "turnstile");
         if (this.right.length == 0)
-            result.appendChild(document.createTextNode(EMPTY));
+            appendText(EMPTY);
         else {
             this.right.forEach(function (term, i) {
                 if (i > 0)
-                    result.appendChild(createSpan(", ", "comma"));
-                result.appendChild(document.createTextNode(term.toString(true)));
+                    appendSpan(", ", "comma");
+                appendText(term.toString(true));
             });
         }
         return result;
