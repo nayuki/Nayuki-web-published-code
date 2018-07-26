@@ -135,7 +135,7 @@ class Sequent {
 	
 	// Returns an array of DOM nodes representing this sequent.
 	// The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
-	public toHtml(): Array<HTMLElement> {
+	public toHtml(): Array<Node> {
 		// Creates this kind of DOM node: <span class="className">text</span>
 		function createSpan(text: string, className: string): HTMLElement {
 			let span = document.createElement("span");
@@ -144,7 +144,7 @@ class Sequent {
 			return span;
 		}
 		
-		let result = [];
+		let result: Array<Node> = [];
 		
 		if (this.left.length == 0)
 			result.push(document.createTextNode(EMPTY));
@@ -213,17 +213,17 @@ class Term {
 	// isRoot is an argument for internal use only.
 	public toString(isRoot?: boolean): string {
 		if (this.type == "var")
-			return this.left;
+			return (this.left as string);
 		else {
 			if (isRoot === undefined)
 				isRoot = true;
 			let s = isRoot ? "" : "(";
 			if (this.type == "NOT")
-				s += NOT + this.left.toString(false);
+				s += NOT + (this.left as Term).toString(false);
 			else if (this.type == "AND")
-				s += this.left.toString(false) + " " + AND + " " + this.right.toString(false);
+				s += (this.left as Term).toString(false) + " " + AND + " " + this.right.toString(false);
 			else if (this.type == "OR")
-				s += this.left.toString(false) + " " + OR + " " + this.right.toString(false);
+				s += (this.left as Term).toString(false) + " " + OR + " " + this.right.toString(false);
 			else
 				throw "Assertion error";
 			s += isRoot ? "" : ")";
@@ -262,11 +262,11 @@ function prove(sequent: Sequent): Tree {
 		let type = term.getType();
 		if (type == "NOT") {
 			left.splice(i, 1);
-			right.push(term.getLeft());
+			right.push(term.getLeft() as Term);
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		} else if (type == "AND") {
-			left.splice(i, 1, term.getLeft(), term.getRight());
+			left.splice(i, 1, term.getLeft() as Term, term.getRight());
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		}
@@ -278,11 +278,11 @@ function prove(sequent: Sequent): Tree {
 		let type = term.getType();
 		if (type == "NOT") {
 			right.splice(i, 1);
-			left.push(term.getLeft());
+			left.push(term.getLeft() as Term);
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		} else if (type == "OR") {
-			right.splice(i, 1, term.getLeft(), term.getRight());
+			right.splice(i, 1, term.getLeft() as Term, term.getRight());
 			let seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq), null);
 		}
@@ -292,7 +292,7 @@ function prove(sequent: Sequent): Tree {
 	for (let i = 0; i < left.length; i++) {
 		let term = left[i];
 		if (term.getType() == "OR") {
-			left.splice(i, 1, term.getLeft());
+			left.splice(i, 1, term.getLeft() as Term);
 			let seq0 = new Sequent(left, right);
 			left = left.slice();
 			left.splice(i, 1, term.getRight());
@@ -303,7 +303,7 @@ function prove(sequent: Sequent): Tree {
 	for (let i = 0; i < right.length; i++) {
 		let term = right[i];
 		if (term.getType() == "AND") {
-			right.splice(i, 1, term.getLeft());
+			right.splice(i, 1, term.getLeft() as Term);
 			let seq0 = new Sequent(left, right);
 			right = right.slice();
 			right.splice(i, 1, term.getRight());
@@ -320,8 +320,8 @@ function prove(sequent: Sequent): Tree {
 /* Parser functions */
 
 function parseSequent(tok: Tokenizer): Sequent {
-	let lhs = [];
-	let rhs = [];
+	let lhs: Array<Term> = [];
+	let rhs: Array<Term> = [];
 	
 	// Parse left side
 	let expectComma = false;
@@ -392,7 +392,7 @@ function parseTerm(tok: Tokenizer): Term|null {
 	}
 	
 	// Mutant LR parser with deferred reductions
-	let stack = [];  // The stack consists of terms (variables/subexpressions) and strings (operators)
+	let stack: Array<Term|string> = [];  // The stack consists of terms (variables/subexpressions) and strings (operators)
 	
 	function reduce(): void {
 		while (true) {
@@ -480,7 +480,7 @@ function parseTerm(tok: Tokenizer): Term|null {
 	finalReduce();
 	
 	if (stack.length == 1)
-		return stack[0];
+		return (stack[0] as Term);
 	else if (stack.length == 0)
 		throw {message: "Blank term", position: tok.pos};
 	else
