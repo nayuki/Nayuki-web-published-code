@@ -160,7 +160,7 @@ var Term = /** @class */ (function () {
             throw "Invalid value";
         this.type = type;
         this.left = left;
-        this.right = right;
+        this.right = right !== undefined ? right : null;
     }
     Term.prototype.getType = function () {
         return this.type;
@@ -353,13 +353,19 @@ function parseTerm(tok) {
         while (true) {
             if (stack.length >= 2 && stack[stack.length - 2] == NOT) {
                 var term = stack.pop();
+                if (!(term instanceof Term))
+                    throw "Assertion error";
                 stack.pop(); // NOT
                 stack.push(new Term("NOT", term));
             }
             else if (stack.length >= 3 && stack[stack.length - 2] == AND) {
                 var right = stack.pop();
+                if (!(right instanceof Term))
+                    throw "Assertion error";
                 stack.pop(); // AND
                 var left = stack.pop();
+                if (!(left instanceof Term))
+                    throw "Assertion error";
                 stack.push(new Term("AND", left, right));
             }
             else
@@ -370,8 +376,12 @@ function parseTerm(tok) {
         while (true) {
             if (stack.length >= 3 && stack[stack.length - 2] == OR) {
                 var right = stack.pop();
+                if (!(right instanceof Term))
+                    throw "Assertion error";
                 stack.pop(); // OR
                 var left = stack.pop();
+                if (!(left instanceof Term))
+                    throw "Assertion error";
                 stack.push(new Term("OR", left, right));
             }
             else
@@ -407,8 +417,12 @@ function parseTerm(tok) {
             checkBeforePushingBinary();
             if (stack.length >= 3 && stack[stack.length - 2] == OR) { // Precedence magic
                 var right = stack.pop();
+                if (!(right instanceof Term))
+                    throw "Assertion error";
                 stack.pop(); // OR
                 var left = stack.pop();
+                if (!(left instanceof Term))
+                    throw "Assertion error";
                 stack.push(new Term("OR", left, right));
             }
             stack.push(tok.take());

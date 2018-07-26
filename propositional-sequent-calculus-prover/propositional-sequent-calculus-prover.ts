@@ -192,7 +192,7 @@ class Term {
 			throw "Invalid value";
 		this.type = type;
 		this.left = left;
-		this.right = right;
+		this.right = right !== undefined ? right : null;
 	}
 	
 	public getType(): "var"|"NOT"|"AND"|"OR" {
@@ -398,12 +398,18 @@ function parseTerm(tok: Tokenizer): Term|null {
 		while (true) {
 			if (stack.length >= 2 && stack[stack.length - 2] == NOT) {
 				let term = stack.pop();
+				if (!(term instanceof Term))
+					throw "Assertion error";
 				stack.pop();  // NOT
 				stack.push(new Term("NOT", term));
 			} else if (stack.length >= 3 && stack[stack.length - 2] == AND) {
 				let right = stack.pop();
+				if (!(right instanceof Term))
+					throw "Assertion error";
 				stack.pop();  // AND
 				let left = stack.pop();
+				if (!(left instanceof Term))
+					throw "Assertion error";
 				stack.push(new Term("AND", left, right));
 			} else
 				break;
@@ -414,8 +420,12 @@ function parseTerm(tok: Tokenizer): Term|null {
 		while (true) {
 			if (stack.length >= 3 && stack[stack.length - 2] == OR) {
 				let right = stack.pop();
+				if (!(right instanceof Term))
+					throw "Assertion error";
 				stack.pop();  // OR
 				let left = stack.pop();
+				if (!(left instanceof Term))
+					throw "Assertion error";
 				stack.push(new Term("OR", left, right));
 			} else
 				break;
@@ -454,8 +464,12 @@ function parseTerm(tok: Tokenizer): Term|null {
 			checkBeforePushingBinary();
 			if (stack.length >= 3 && stack[stack.length - 2] == OR) {  // Precedence magic
 				let right = stack.pop();
+				if (!(right instanceof Term))
+					throw "Assertion error";
 				stack.pop();  // OR
 				let left = stack.pop();
+				if (!(left instanceof Term))
+					throw "Assertion error";
 				stack.push(new Term("OR", left, right));
 			}
 			stack.push(tok.take());
