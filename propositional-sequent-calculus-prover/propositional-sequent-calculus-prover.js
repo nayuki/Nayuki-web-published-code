@@ -20,8 +20,8 @@ function doProve(inputSequent) {
     clearChildren(proofElem);
     var proof;
     try {
-        var sequent = parseSequent(new Tokenizer(inputSequent));
-        proof = prove(sequent);
+        var seq = parseSequent(new Tokenizer(inputSequent));
+        proof = prove(seq);
         msgElem.appendChild(document.createTextNode("Proof:"));
         proofElem.appendChild(Tree.toHtml([proof]));
     }
@@ -201,16 +201,13 @@ function prove(sequent) {
     for (var _i = 0, left_1 = left; _i < left_1.length; _i++) {
         var lt = left_1[_i];
         if (lt instanceof VarTerm) {
-            var name_1 = lt.name;
             for (var _a = 0, right_1 = right; _a < right_1.length; _a++) {
                 var rt = right_1[_a];
-                if (rt instanceof VarTerm && rt.name == name_1) {
-                    if (left.length > 1 || right.length > 1) {
-                        var axiom = new Tree(new Sequent([new VarTerm(name_1)], [new VarTerm(name_1)]));
-                        return new Tree(sequent, axiom);
-                    }
-                    else // Already in the form X ⊦ X
+                if (rt instanceof VarTerm && rt.name == lt.name) {
+                    if (left.length == 1 && right.length == 1) // Already in the form X ⊦ X
                         return new Tree(sequent);
+                    var axiom = new Tree(new Sequent([lt], [rt]));
+                    return new Tree(sequent, axiom);
                 }
             }
         }
@@ -448,8 +445,8 @@ function parseTerm(tok) {
 // Tokenizes a formula into a stream of token strings.
 var Tokenizer = /** @class */ (function () {
     function Tokenizer(str) {
-        this.str = str;
         this.pos = 0;
+        this.str = str;
         this.skipSpaces();
     }
     // Returns the next token as a string, or null if the end of the token stream is reached.

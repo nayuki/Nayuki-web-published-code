@@ -25,8 +25,8 @@ function doProve(inputSequent: string): void {
 	
 	let proof: Tree;
 	try {
-		let sequent: Sequent = parseSequent(new Tokenizer(inputSequent));
-		proof = prove(sequent);
+		let seq: Sequent = parseSequent(new Tokenizer(inputSequent));
+		proof = prove(seq);
 		msgElem.appendChild(document.createTextNode("Proof:"));
 		proofElem.appendChild(Tree.toHtml([proof]));
 		
@@ -237,14 +237,12 @@ function prove(sequent: Sequent): Tree {
 	// This uses a dumb O(n^2) algorithm, but can theoretically be sped up by a hash table or such.
 	for (let lt of left) {
 		if (lt instanceof VarTerm) {
-			let name = lt.name;
 			for (let rt of right) {
-				if (rt instanceof VarTerm && rt.name == name) {
-					if (left.length > 1 || right.length > 1) {
-						let axiom = new Tree(new Sequent([new VarTerm(name)], [new VarTerm(name)]));
-						return new Tree(sequent, axiom);
-					} else  // Already in the form X ⊦ X
+				if (rt instanceof VarTerm && rt.name == lt.name) {
+					if (left.length == 1 && right.length == 1)  // Already in the form X ⊦ X
 						return new Tree(sequent);
+					let axiom = new Tree(new Sequent([lt], [rt]));
+					return new Tree(sequent, axiom);
 				}
 			}
 		}
@@ -496,11 +494,10 @@ function parseTerm(tok: Tokenizer): Term|null {
 // Tokenizes a formula into a stream of token strings.
 class Tokenizer {
 	public str: string;
-	public pos: number;
+	public pos: number = 0;
 	
 	public constructor(str: string) {
 		this.str = str;
-		this.pos = 0;
 		this.skipSpaces();
 	}
 	
