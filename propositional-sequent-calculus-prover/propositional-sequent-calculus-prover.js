@@ -96,47 +96,49 @@ function Tree(sequent, left, right) {
 }
 
 
-/* 
- * Constructs a sequent.
- *   left : Array of zero or more terms.
- *   right: Array of zero or more terms.
- */
-function Sequent(left, right) {
-	left  = left .slice();
-	right = right.slice();
+class Sequent {
+	/* 
+	 * Constructs a sequent.
+	 *   left : Array of zero or more terms.
+	 *   right: Array of zero or more terms.
+	 */
+	constructor(left, right) {
+		this.left  = left .slice();
+		this.right = right.slice();
+	}
 	
-	this.getLeft = function() {
-		return left.slice();
-	};
+	getLeft() {
+		return this.left.slice();
+	}
 	
-	this.getRight = function() {
-		return right.slice();
-	};
+	getRight() {
+		return this.right.slice();
+	}
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
-	this.toString = function() {
+	toString() {
 		var s = "";
-		if (left.length == 0)
+		if (this.left.length == 0)
 			s += EMPTY;
 		else {
-			s += left[0].toString();
-			for (var i = 1; i < left.length; i++)
-				s += ", " + left[i].toString();
+			s += this.left[0].toString();
+			for (var i = 1; i < this.left.length; i++)
+				s += ", " + this.left[i].toString();
 		}
 		s += " " + TURNSTILE + " ";
-		if (right.length == 0)
+		if (this.right.length == 0)
 			s += EMPTY;
 		else {
-			s += right[0].toString();
-			for (var i = 1; i < right.length; i++)
-				s += ", " + right[i].toString();
+			s += this.right[0].toString();
+			for (var i = 1; i < this.right.length; i++)
+				s += ", " + this.right[i].toString();
 		}
 		return s;
-	};
+	}
 	
 	// Returns an array of DOM nodes representing this sequent.
 	// The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
-	this.toHtml = function() {
+	toHtml() {
 		// Creates this kind of DOM node: <span class="className">text</span>
 		function createSpan(text, className) {
 			var span = document.createElement("span");
@@ -147,30 +149,30 @@ function Sequent(left, right) {
 		
 		var result = [];
 		
-		if (left.length == 0)
+		if (this.left.length == 0)
 			result.push(document.createTextNode(EMPTY));
 		else {
-			result.push(document.createTextNode(left[0].toString()));
-			for (var i = 1; i < left.length; i++) {
+			result.push(document.createTextNode(this.left[0].toString()));
+			for (var i = 1; i < this.left.length; i++) {
 				result.push(createSpan(", ", "comma"));
-				result.push(document.createTextNode(left[i].toString()));
+				result.push(document.createTextNode(this.left[i].toString()));
 			}
 		}
 		
 		result.push(createSpan(" " + TURNSTILE + " ", "turnstile"));
 		
-		if (right.length == 0)
+		if (this.right.length == 0)
 			result.push(document.createTextNode(EMPTY));
 		else {
-			result.push(document.createTextNode(right[0].toString()));
-			for (var i = 1; i < right.length; i++) {
+			result.push(document.createTextNode(this.right[0].toString()));
+			for (var i = 1; i < this.right.length; i++) {
 				result.push(createSpan(", ", "comma"));
-				result.push(document.createTextNode(right[i].toString()));
+				result.push(document.createTextNode(this.right[i].toString()));
 			}
 		}
 		
 		return result;
-	};
+	}
 }
 
 
