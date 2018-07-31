@@ -1,5 +1,5 @@
 /*
- * Propositional sequent calculus prover
+ * Propositional sequent calculus prover (compiled from TypeScript)
  *
  * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
