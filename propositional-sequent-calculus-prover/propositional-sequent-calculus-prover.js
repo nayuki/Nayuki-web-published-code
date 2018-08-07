@@ -339,23 +339,20 @@ function parseTerm(tok) {
     }
     // Mutant LR parser with deferred reductions
     var stack = []; // The stack consists of terms (variables/subexpressions) and strings (operators)
+    function isTerm(x) {
+        return typeof x != "string";
+    }
     function reduce() {
         while (true) {
             if (stack.length >= 2 && stack[stack.length - 2] == NOT) {
                 var term = stack.pop();
-                if (term === undefined)
-                    throw "Assertion error";
                 stack.pop(); // NOT
                 stack.push(new NotTerm(term));
             }
-            else if (stack.length >= 3 && stack[stack.length - 2] == AND) {
+            else if (stack.length >= 3 && isTerm(stack[stack.length - 1]) && stack[stack.length - 2] == AND && isTerm(stack[stack.length - 3])) {
                 var right = stack.pop();
-                if (right === undefined)
-                    throw "Assertion error";
                 stack.pop(); // AND
                 var left = stack.pop();
-                if (left === undefined)
-                    throw "Assertion error";
                 stack.push(new AndTerm(left, right));
             }
             else
@@ -363,27 +360,19 @@ function parseTerm(tok) {
         }
     }
     function finalReduce() {
-        while (true) {
-            if (stack.length >= 3 && stack[stack.length - 2] == OR) {
-                var right = stack.pop();
-                if (right === undefined)
-                    throw "Assertion error";
-                stack.pop(); // OR
-                var left = stack.pop();
-                if (left === undefined)
-                    throw "Assertion error";
-                stack.push(new OrTerm(left, right));
-            }
-            else
-                break;
+        while (stack.length >= 3 && isTerm(stack[stack.length - 1]) && stack[stack.length - 2] == OR && isTerm(stack[stack.length - 3])) {
+            var right = stack.pop();
+            stack.pop(); // OR
+            var left = stack.pop();
+            stack.push(new OrTerm(left, right));
         }
     }
     function checkBeforePushingUnary() {
-        if (!(stack.length == 0 || typeof stack[stack.length - 1] == "string")) // Check that top item is not a term
+        if (stack.length > 0 && isTerm(stack[stack.length - 1]))
             throw { message: "Unexpected item", position: tok.pos };
     }
     function checkBeforePushingBinary() {
-        if (stack.length == 0 || typeof stack[stack.length - 1] == "string") // Check that top item is a term
+        if (stack.length == 0 || !isTerm(stack[stack.length - 1]))
             throw { message: "Unexpected item", position: tok.pos };
     }
     while (true) {
@@ -405,16 +394,7 @@ function parseTerm(tok) {
         }
         else if (next == OR) {
             checkBeforePushingBinary();
-            if (stack.length >= 3 && stack[stack.length - 2] == OR) { // Precedence magic
-                var right = stack.pop();
-                if (right === undefined)
-                    throw "Assertion error";
-                stack.pop(); // OR
-                var left = stack.pop();
-                if (left === undefined)
-                    throw "Assertion error";
-                stack.push(new OrTerm(left, right));
-            }
+            finalReduce();
             stack.push(tok.take());
         }
         else if (next == "(") { // Subformula
@@ -435,12 +415,12 @@ function parseTerm(tok) {
             throw "Assertion error";
     }
     finalReduce();
-    if (stack.length == 1)
+    if (stack.length == 1 && isTerm(stack[0]))
         return stack[0];
     else if (stack.length == 0)
         throw { message: "Blank term", position: tok.pos };
     else
-        throw { message: "Binary operator without second operand", position: tok.pos };
+        throw { message: "Expected more", position: tok.pos };
 }
 /* Tokenizer object */
 // Tokenizes a formula into a stream of token strings.
