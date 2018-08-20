@@ -102,21 +102,19 @@ public final class BasicAvlTreeSet<E extends Comparable<? super E>> {
 		private Node<E> rotateLeft() {
 			Node<E> root = this.right;
 			this.right = root.left;
-			root.left = this;
-			this.recalculate();
+			root.left = this.recalculate();
 			return root.recalculate();
 		}
 		
 		private Node<E> rotateRight() {
 			Node<E> root = this.left;
 			this.left = root.right;
-			root.right = this;
-			this.recalculate();
+			root.right = this.recalculate();
 			return root.recalculate();
 		}
 		
 		private Node<E> recalculate() {
-			height = (Math.max(left.height, right.height) + 1);
+			height = Math.max(left.height, right.height) + 1;
 			return this;
 		}
 		
