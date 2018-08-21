@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,6 +25,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <stdexcept>
 #include "FftRealPair.hpp"
 
 using std::size_t;
@@ -38,7 +39,7 @@ static size_t reverseBits(size_t x, int n);
 void Fft::transform(vector<double> &real, vector<double> &imag) {
 	size_t n = real.size();
 	if (n != imag.size())
-		throw "Mismatched lengths";
+		throw std::invalid_argument("Mismatched lengths");
 	if (n == 0)
 		return;
 	else if ((n & (n - 1)) == 0)  // Is power of 2
@@ -57,12 +58,12 @@ void Fft::transformRadix2(vector<double> &real, vector<double> &imag) {
 	// Length variables
 	size_t n = real.size();
 	if (n != imag.size())
-		throw "Mismatched lengths";
+		throw std::invalid_argument("Mismatched lengths");
 	int levels = 0;  // Compute levels = floor(log2(n))
 	for (size_t temp = n; temp > 1U; temp >>= 1)
 		levels++;
 	if (static_cast<size_t>(1U) << levels != n)
-		throw "Length is not a power of 2";
+		throw std::domain_error("Length is not a power of 2");
 	
 	// Trignometric tables
 	vector<double> cosTable(n / 2);
@@ -106,11 +107,11 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
 	size_t n = real.size();
 	if (n != imag.size())
-		throw "Mismatched lengths";
+		throw std::invalid_argument("Mismatched lengths");
 	size_t m = 1;
 	while (m / 2 <= n) {
 		if (m > SIZE_MAX / 2)
-			throw "Vector too large";
+			throw std::length_error("Vector too large");
 		m *= 2;
 	}
 	
@@ -154,7 +155,7 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 void Fft::convolve(const vector<double> &x, const vector<double> &y, vector<double> &out) {
 	size_t n = x.size();
 	if (n != y.size() || n != out.size())
-		throw "Mismatched lengths";
+		throw std::invalid_argument("Mismatched lengths");
 	vector<double> outimag(n);
 	convolve(x, vector<double>(n), y, vector<double>(n), out, outimag);
 }
@@ -168,7 +169,7 @@ void Fft::convolve(
 	size_t n = xreal.size();
 	if (n != ximag.size() || n != yreal.size() || n != yimag.size()
 			|| n != outreal.size() || n != outimag.size())
-		throw "Mismatched lengths";
+		throw std::invalid_argument("Mismatched lengths");
 	
 	vector<double> xr = xreal;
 	vector<double> xi = ximag;

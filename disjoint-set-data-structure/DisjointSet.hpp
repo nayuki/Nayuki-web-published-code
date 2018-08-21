@@ -25,6 +25,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <stdexcept>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -71,9 +72,9 @@ class DisjointSet final {
 	public: explicit DisjointSet(S numElems) :
 			numSets(numElems) {
 		if (numElems < 0)
-			throw "Number of elements must be non-negative";
+			throw std::domain_error("Number of elements must be non-negative");
 		if (!safeLessEquals(numElems, SIZE_MAX))
-			throw "Number of elements too large";
+			throw std::length_error("Number of elements too large");
 		nodes.reserve(static_cast<std::size_t>(numElems));
 		for (S i = 0; i < numElems; i++)
 			nodes.push_back(Node{i, 0, 1});
@@ -155,11 +156,11 @@ class DisjointSet final {
 			ok &= 0 <= node.size && safeLessEquals(node.size, nodes.size());
 			ok &= (!isRepr && node.size == 0) || (isRepr && node.size >= (static_cast<S>(1) << node.rank));
 			if (!ok)
-				throw "Assertion error";
+				throw std::logic_error("Assertion error");
 			i++;
 		}
 		if (!(0 <= numSets && numSets == numRepr && safeLessEquals(numSets, nodes.size())))
-			throw "Assertion error";
+			throw std::logic_error("Assertion error");
 	}
 	
 	

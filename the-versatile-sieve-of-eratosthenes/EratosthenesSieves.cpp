@@ -1,9 +1,10 @@
 /* 
  * Variants of the sieve of Eratosthenes (C++)
- * by Project Nayuki, 2017. Public domain.
+ * by Project Nayuki, 2018. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
+#include <stdexcept>
 #include "EratosthenesSieves.hpp"
 
 using std::uint32_t;
@@ -17,7 +18,7 @@ static uint32_t floorSqrt(uint32_t x);
 
 std::vector<bool> sievePrimeness(uint32_t limit) {
 	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
-		throw "Limit too large";
+		throw std::length_error("Limit too large");
 	
 	std::vector<bool> result(limit + 1, true);
 	result.at(0) = false;
@@ -39,7 +40,7 @@ std::vector<bool> sievePrimeness(uint32_t limit) {
 
 std::vector<uint32_t> sieveSmallestPrimeFactor(uint32_t limit) {
 	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
-		throw "Limit too large";
+		throw std::length_error("Limit too large");
 	
 	std::vector<uint32_t> result(limit + 1, 0);
 	if (limit > 0)
@@ -64,7 +65,7 @@ std::vector<uint32_t> sieveSmallestPrimeFactor(uint32_t limit) {
 
 std::vector<uint32_t> sieveTotient(uint32_t limit) {
 	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
-		throw "Limit too large";
+		throw std::length_error("Limit too large");
 	
 	std::vector<uint32_t> result(limit + 1);
 	for (uint32_t i = 0; i <= limit; i++)
@@ -85,7 +86,7 @@ std::vector<uint32_t> sieveTotient(uint32_t limit) {
 
 std::vector<uint32_t> sieveOmega(uint32_t limit) {
 	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
-		throw "Limit too large";
+		throw std::length_error("Limit too large");
 	
 	std::vector<uint32_t> result(limit + 1, 0);
 	for (uint32_t i = 2; i <= limit; i++) {
@@ -103,7 +104,7 @@ std::vector<uint32_t> sieveOmega(uint32_t limit) {
 
 std::vector<uint32_t> sieveRadical(uint32_t limit) {
 	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
-		throw "Limit too large";
+		throw std::length_error("Limit too large");
 
 	std::vector<uint32_t> result(limit + 1, 1);
 	result.at(0) = 0;

@@ -24,6 +24,7 @@
 #pragma once
 
 #include <cstddef>
+#include <stdexcept>
 #include <vector>
 
 
@@ -68,7 +69,7 @@ class BinaryIndexedTree final {
 	
 	public: T operator[](std::size_t index) const {
 		if (!(0 <= index && index < sumTree.size()))
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		T result = sumTree.at(index);
 		// For each consecutive 1 in the lowest order bits of index
 		for (std::size_t i = 1; (index & i) != 0; i <<= 1)
@@ -79,14 +80,14 @@ class BinaryIndexedTree final {
 	
 	public: void set(std::size_t index, T val) {
 		if (!(0 <= index && index < sumTree.size()))
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		add(index, val - (*this)[index]);
 	}
 	
 	
 	public: void add(std::size_t index, T delta) {
 		if (!(0 <= index && index < sumTree.size()))
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		do {
 			sumTree.at(index) += delta;
 			index |= index + 1;  // Set lowest 0 bit; strictly increasing
@@ -101,7 +102,7 @@ class BinaryIndexedTree final {
 	
 	public: T getPrefixSum(std::size_t end) const {
 		if (!(0 <= end && end <= sumTree.size()))
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		T result = T();
 		while (end > 0) {
 			result += sumTree.at(end - 1);
@@ -113,7 +114,7 @@ class BinaryIndexedTree final {
 	
 	public: T getRangeSum(std::size_t start, std::size_t end) const {
 		if (!(0 <= start && start <= end && end <= sumTree.size()))
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		return getPrefixSum(end) - getPrefixSum(start);
 	}
 	

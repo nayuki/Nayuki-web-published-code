@@ -26,6 +26,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -122,7 +123,7 @@ class BinaryArraySet final {
 	
 	private: void insertHelper(std::vector<E> &&toPut) {
 		if (length == SIZE_MAX)
-			throw "Maximum size reached";
+			throw std::length_error("Maximum size reached");
 		for (std::size_t i = 0; ; i++) {
 			if (i >= values.size()) {
 				values.push_back(std::move(toPut));
@@ -136,7 +137,7 @@ class BinaryArraySet final {
 			
 			// Merge two sorted arrays
 			if (vals.size() != toPut.size() || vals.size() > SIZE_MAX / 2)
-				throw "Assertion error";
+				throw std::logic_error("Assertion error");
 			std::vector<E> next;
 			next.reserve(vals.size() * 2);
 			std::size_t j = 0;
@@ -167,19 +168,19 @@ class BinaryArraySet final {
 		std::size_t sum = 0;
 		for (std::size_t i = 0; i < values.size(); i++) {
 			if (i >= std::numeric_limits<std::size_t>::digits)
-				throw "Vector too long";
+				throw std::logic_error("Vector too long");
 			const std::vector<E> &vals = values.at(i);
 			std::size_t len = vals.size();
 			if (len != 0 && len != static_cast<std::size_t>(1) << i)
-				throw "Invalid sub-vector length";
+				throw std::logic_error("Invalid sub-vector length");
 			for (std::size_t j = 1; j < len; j++) {
 				if (vals[j - 1] >= vals[j])
-					throw "Invalid ordering of elements in array";
+					throw std::logic_error("Invalid ordering of elements in array");
 			}
 			sum += len;
 		}
 		if (sum != length)
-			throw "Size mismatch between counter and sub-vectors";
+			throw std::logic_error("Size mismatch between counter and sub-vectors");
 	}
 	
 };

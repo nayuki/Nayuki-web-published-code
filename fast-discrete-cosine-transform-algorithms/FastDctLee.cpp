@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,7 @@
  */
 
 #include <cmath>
+#include <stdexcept>
 #include "FastDctLee.hpp"
 
 using std::size_t;
@@ -41,7 +42,7 @@ void FastDctLee::transform(vector<double> &vec) {
 
 void FastDctLee::transform(double vec[], size_t len) {
 	if (len > 0 && (len & (len - 1)) != 0)
-		throw "Invalid length";  // Length is not power of 2
+		throw std::domain_error("Invalid length");  // Length is not power of 2
 	vector<double> temp(len);
 	forwardTransform(vec, temp.data(), len);
 }
@@ -77,7 +78,7 @@ void FastDctLee::inverseTransform(vector<double> &vec) {
 
 void FastDctLee::inverseTransform(double vec[], size_t len) {
 	if (len > 0 && (len & (len - 1)) != 0)
-		throw "Invalid length";  // Length is not power of 2
+		throw std::domain_error("Invalid length");  // Length is not power of 2
 	vec[0] /= 2;
 	vector<double> temp(len);
 	::inverseTransform(vec, temp.data(), len);

@@ -28,6 +28,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <set>
+#include <stdexcept>
 #include <utility>
 
 
@@ -59,14 +60,14 @@ class AvlTreeList final {
 	
 	public: E &operator[](std::size_t index) {
 		if (index >= size())
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		return root->getNodeAt(index)->value;
 	}
 	
 	
 	public: const E &operator[](std::size_t index) const {
 		if (index >= size())
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		return root->getNodeAt(index)->value;
 	}
 	
@@ -83,25 +84,25 @@ class AvlTreeList final {
 	
 	public: void insert(std::size_t index, const E &val) {
 		if (index > size())  // Different constraint than the other methods
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		if (size() == SIZE_MAX)
-			throw "Maximum size reached";
+			throw std::length_error("Maximum size reached");
 		root = root->insertAt(index, val);
 	}
 	
 	
 	public: void insert(std::size_t index, E &&val) {
 		if (index > size())  // Different constraint than the other methods
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		if (size() == SIZE_MAX)
-			throw "Maximum size reached";
+			throw std::length_error("Maximum size reached");
 		root = root->insertAt(index, std::move(val));
 	}
 	
 	
 	public: void erase(std::size_t index) {
 		if (index >= size())
-			throw "Index out of bounds";
+			throw std::out_of_range("Index out of bounds");
 		Node *toDelete = nullptr;
 		root = root->removeAt(index, &toDelete);
 		delete toDelete;
@@ -339,16 +340,16 @@ class AvlTreeList final {
 				return;
 			
 			if (!visitedNodes.insert(this).second)
-				throw "AVL tree structure violated: Not a tree";
+				throw std::logic_error("AVL tree structure violated: Not a tree");
 			left ->checkStructure(visitedNodes);
 			right->checkStructure(visitedNodes);
 			
 			if (height != std::max(left->height, right->height) + 1)
-				throw "AVL tree structure violated: Incorrect cached height";
+				throw std::logic_error("AVL tree structure violated: Incorrect cached height");
 			if (size != left->size + right->size + 1)
-				throw "AVL tree structure violated: Incorrect cached size";
+				throw std::logic_error("AVL tree structure violated: Incorrect cached size");
 			if (std::abs(getBalance()) > 1)
-				throw "AVL tree structure violated: Height imbalance";
+				throw std::logic_error("AVL tree structure violated: Height imbalance");
 		}
 		
 	};

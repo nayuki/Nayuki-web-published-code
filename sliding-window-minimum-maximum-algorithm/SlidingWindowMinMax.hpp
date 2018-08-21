@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,6 +25,7 @@
 
 #include <cstddef>
 #include <deque>
+#include <stdexcept>
 #include <vector>
 
 
@@ -33,7 +34,7 @@
 template <typename E>
 std::vector<E> computeSlidingWindowMinOrMax(const std::vector<E> &array, std::size_t window, bool maximize) {
 	if (window == 0)
-		throw "Window size must be positive";
+		throw std::domain_error("Window size must be positive");
 	
 	std::vector<E> result;
 	std::deque<E> deque;
@@ -94,12 +95,12 @@ class SlidingWindowMinMax final {
 	
 	public: void removeHead(const E &val) {
 		if (val < minDeque.front())
-			throw "Wrong value";
+			throw std::invalid_argument("Wrong value");
 		else if (val == minDeque.front())
 			minDeque.pop_front();
 		
 		if (val > maxDeque.front())
-			throw "Wrong value";
+			throw std::invalid_argument("Wrong value");
 		if (val == maxDeque.front())
 			maxDeque.pop_front();
 	}

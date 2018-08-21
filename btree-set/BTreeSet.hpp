@@ -29,6 +29,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -55,9 +56,9 @@ class BTreeSet final {
 			minKeys(degree - 1),
 			maxKeys(degree <= UINT32_MAX / 2 ? degree * 2 - 1 : 0) {  // Avoid overflow
 		if (degree < 2)
-			throw "Degree must be at least 2";
+			throw std::domain_error("Degree must be at least 2");
 		if (degree > UINT32_MAX / 2)  // In other words, need maxChildren <= UINT32_MAX
-			throw "Degree too large";
+			throw std::domain_error("Degree too large");
 		clear();
 	}
 	
@@ -120,7 +121,7 @@ class BTreeSet final {
 			
 			if (node->isLeaf()) {  // Simple insertion into leaf
 				if (count == SIZE_MAX)
-					throw "Maximum size reached";
+					throw std::length_error("Maximum size reached");
 				node->keys.insert(node->keys.begin() + index, val);
 				count++;
 				return;  // Successfully inserted
@@ -211,19 +212,19 @@ class BTreeSet final {
 		// Check size and root node properties
 		if (root.get() == nullptr || (count > maxKeys && root->isLeaf())
 				|| (count <= minKeys * 2 && (!root->isLeaf() || root->keys.size() != count)))
-			throw "Invalid size or root type";
+			throw std::logic_error("Invalid size or root type");
 		
 		// Calculate height by descending into one branch
 		int height = 0;
 		for (const Node *node = root.get(); !node->isLeaf(); node = node->children.at(0).get()) {
 			if (height == INT_MAX)
-				throw "Integer overflow";
+				throw std::logic_error("Integer overflow");
 			height++;
 		}
 		
 		// Check all nodes and total size
 		if (root->checkStructure(minKeys, maxKeys, true, height, nullptr, nullptr) != count)
-			throw "Size mismatch";
+			throw std::logic_error("Size mismatch");
 	}
 	
 	
@@ -348,7 +349,7 @@ class BTreeSet final {
 				this->mergeChildren(minKeys, index);
 				return child;
 			} else
-				throw "Impossible condition";
+				throw std::logic_error("Impossible condition");
 		}
 		
 		
@@ -409,13 +410,13 @@ class BTreeSet final {
 			// Check basic fields
 			const std::size_t numKeys = keys.size();
 			if (isLeaf() != (leafDepth == 0))
-				throw "Incorrect leaf/internal node type";
+				throw std::logic_error("Incorrect leaf/internal node type");
 			if (numKeys > maxKeys)
-				throw "Invalid number of keys";
+				throw std::logic_error("Invalid number of keys");
 			if (isRoot && !isLeaf() && numKeys == 0)
-				throw "Invalid number of keys";
+				throw std::logic_error("Invalid number of keys");
 			if (!isRoot && numKeys < minKeys)
-				throw "Invalid number of keys";
+				throw std::logic_error("Invalid number of keys");
 			
 			// Check keys for strict increasing order
 			for (std::size_t i = 0; i < numKeys; i++) {
@@ -424,21 +425,21 @@ class BTreeSet final {
 				fail |= i >= 1 && key <= keys.at(i - 1);
 				fail |= i == numKeys - 1 && max != nullptr && key >= *max;
 				if (fail)
-					throw "Invalid key ordering";
+					throw std::logic_error("Invalid key ordering");
 			}
 			
 			// Check children recursively and count keys in this subtree
 			std::size_t count = numKeys;
 			if (!isLeaf()) {
 				if (children.size() != numKeys + 1)
-					throw "Invalid number of children";
+					throw std::logic_error("Invalid number of children");
 				// Check children pointers and recurse
 				for (std::size_t i = 0; i < children.size(); i++) {
 					std::size_t temp = children.at(i)->checkStructure(
 						minKeys, maxKeys, false, leafDepth - 1,
 						(i == 0 ? min : &keys.at(i - 1)), (i == numKeys ? max : &keys.at(i)));
 					if (SIZE_MAX - temp < count)
-						throw "Size overflow";
+						throw std::logic_error("Size overflow");
 					count += temp;
 				}
 			}

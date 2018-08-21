@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,6 +25,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <stdexcept>
 #include "FftComplex.hpp"
 
 using std::complex;
@@ -63,7 +64,7 @@ void Fft::transformRadix2(vector<complex<double> > &vec) {
 	for (size_t temp = n; temp > 1U; temp >>= 1)
 		levels++;
 	if (static_cast<size_t>(1U) << levels != n)
-		throw "Length is not a power of 2";
+		throw std::domain_error("Length is not a power of 2");
 	
 	// Trignometric table
 	vector<complex<double> > expTable(n / 2);
@@ -100,7 +101,7 @@ void Fft::transformBluestein(vector<complex<double> > &vec) {
 	size_t m = 1;
 	while (m / 2 <= n) {
 		if (m > SIZE_MAX / 2)
-			throw "Vector too large";
+			throw std::length_error("Vector too large");
 		m *= 2;
 	}
 	
@@ -140,7 +141,7 @@ void Fft::convolve(
 	
 	size_t n = xvec.size();
 	if (n != yvec.size() || n != outvec.size())
-		throw "Mismatched lengths";
+		throw std::domain_error("Mismatched lengths");
 	vector<complex<double> > xv = xvec;
 	vector<complex<double> > yv = yvec;
 	transform(xv);

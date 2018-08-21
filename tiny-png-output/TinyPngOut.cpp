@@ -21,6 +21,7 @@
 
 #include <cassert>
 #include <limits>
+#include <stdexcept>
 #include "TinyPngOut.hpp"
 
 using std::uint8_t;
@@ -42,17 +43,17 @@ TinyPngOut::TinyPngOut(uint32_t w, uint32_t h, std::ostream &out) :
 	
 	// Check arguments
 	if (width == 0 || height == 0)
-		throw "Zero width or height";
+		throw std::domain_error("Zero width or height");
 	
 	// Compute and check data siezs
 	uint64_t lineSz = static_cast<uint64_t>(width) * 3 + 1;
 	if (lineSz > UINT32_MAX)
-		throw "Image too large";
+		throw std::length_error("Image too large");
 	lineSize = static_cast<uint32_t>(lineSz);
 	
 	uint64_t uncompRm = lineSize * height;
 	if (uncompRm > UINT32_MAX)
-		throw "Image too large";
+		throw std::length_error("Image too large");
 	uncompRemain = static_cast<uint32_t>(uncompRm);
 	
 	uint32_t numBlocks = uncompRemain / DEFLATE_MAX_BLOCK_SIZE;
@@ -62,7 +63,7 @@ TinyPngOut::TinyPngOut(uint32_t w, uint32_t h, std::ostream &out) :
 	uint64_t idatSize = static_cast<uint64_t>(numBlocks) * 5 + 6;
 	idatSize += uncompRemain;
 	if (idatSize > static_cast<uint32_t>(INT32_MAX))
-		throw "Image too large";
+		throw std::length_error("Image too large");
 	
 	// Write header (not a pure header, but a couple of things concatenated together)
 	uint8_t header[] = {  // 43 bytes long
@@ -96,13 +97,13 @@ TinyPngOut::TinyPngOut(uint32_t w, uint32_t h, std::ostream &out) :
 
 void TinyPngOut::write(const uint8_t pixels[], size_t count) {
 	if (count > SIZE_MAX / 3)
-		throw "Invalid argument";
+		throw std::length_error("Invalid argument");
 	count *= 3;  // Convert pixel count to byte count
 	while (count > 0) {
 		if (pixels == nullptr)
-			throw "Null pointer";
+			throw std::invalid_argument("Null pointer");
 		if (positionY >= height)
-			throw "All image pixels already written";
+			throw std::logic_error("All image pixels already written");
 		
 		if (deflateFilled == 0) {  // Start DEFLATE block
 			uint16_t size = DEFLATE_MAX_BLOCK_SIZE;

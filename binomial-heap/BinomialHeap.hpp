@@ -26,6 +26,7 @@
 #include <cassert>
 #include <cstddef>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 
@@ -60,7 +61,7 @@ class BinomialHeap final {
 			std::size_t temp = safeLeftShift(1, node->rank);
 			if (temp == 0) {
 				// The result cannot be returned, however the data structure is still valid
-				throw "Size overflow";
+				throw std::overflow_error("Size overflow");
 			}
 			result |= temp;
 		}
@@ -85,7 +86,7 @@ class BinomialHeap final {
 	
 	public: const E &top() const {
 		if (empty())
-			throw "Empty heap";
+			throw std::logic_error("Empty heap");
 		const E *result = nullptr;
 		for (const Node *node = head.get(); node != nullptr; node = node->next.get()) {
 			if (result == nullptr || node->value < *result)
@@ -98,7 +99,7 @@ class BinomialHeap final {
 	
 	public: E pop() {
 		if (empty())
-			throw "Empty heap";
+			throw std::logic_error("Empty heap");
 		const E *min = nullptr;
 		std::unique_ptr<Node> *linkToMin = nullptr;
 		for (std::unique_ptr<Node> *link = &head; ; ) {
@@ -124,7 +125,7 @@ class BinomialHeap final {
 	// Moves all the values in the given heap into this heap
 	public: void merge(BinomialHeap<E> &other) {
 		if (&other == this)
-			throw "Merging with self";
+			throw std::invalid_argument("Merging with self");
 		mergeNodes(std::move(other.head));
 	}
 	
@@ -170,7 +171,7 @@ class BinomialHeap final {
 				tail->down = std::move(node);
 				tail->rank++;
 			} else
-				throw "Assertion error";
+				throw std::logic_error("Assertion error");
 			assert(isNull(node));
 		}
 	}
@@ -183,7 +184,7 @@ class BinomialHeap final {
 	
 	private: static std::size_t safeLeftShift(std::size_t val, int shift) {  // Avoids undefined behavior, e.g. 1 << 999
 		if (shift < 0)
-			throw "Negative shift";
+			throw std::domain_error("Negative shift");
 		for (int i = 0; i < shift && val != 0; i++)
 			val <<= 1;
 		return val;
@@ -244,27 +245,27 @@ class BinomialHeap final {
 		public: void checkStructure(bool isMain, const E *lowerBound) const {
 			// Basic checks
 			if (isMain != (lowerBound == nullptr))
-				throw "Assertion error: Invalid arguments";
+				throw std::logic_error("Assertion error: Invalid arguments");
 			if (!isMain && value < *lowerBound)
-				throw "Assertion error: Min-heap property violated";
+				throw std::logic_error("Assertion error: Min-heap property violated");
 			
 			// Check children and non-main chain
 			if (rank > 0) {
 				if (isNull(down) || down->rank != rank - 1)
-					throw "Assertion error: Down node absent or has invalid rank";
+					throw std::logic_error("Assertion error: Down node absent or has invalid rank");
 				down->checkStructure(false, &value);
 				if (!isMain) {
 					if (isNull(next) || next->rank != rank - 1)
-						throw "Assertion error: Next node absent or has invalid rank";
+						throw std::logic_error("Assertion error: Next node absent or has invalid rank");
 					next->checkStructure(false, lowerBound);
 				}
 			} else if (!isNull(down))
-				throw "Assertion error: Down node must be absent";
+				throw std::logic_error("Assertion error: Down node must be absent");
 			
 			// Check main chain
 			if (isMain && !isNull(next)) {
 				if (next->rank <= rank)
-					throw "Assertion error: Next node has invalid rank";
+					throw std::logic_error("Assertion error: Next node has invalid rank");
 				next->checkStructure(true, nullptr);
 			}
 		}
