@@ -14,10 +14,13 @@ using std::uint32_t;
 static uint32_t floorSqrt(uint32_t x);
 
 
+static constexpr uint32_t LIMIT_MAX = UINT32_MAX < SIZE_MAX ? UINT32_MAX : static_cast<uint32_t>(SIZE_MAX);
+
+
 /*---- Function definitions ----*/
 
 std::vector<bool> sievePrimeness(uint32_t limit) {
-	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
+	if (limit >= LIMIT_MAX)
 		throw std::length_error("Limit too large");
 	
 	std::vector<bool> result(limit + 1, true);
@@ -39,7 +42,7 @@ std::vector<bool> sievePrimeness(uint32_t limit) {
 
 
 std::vector<uint32_t> sieveSmallestPrimeFactor(uint32_t limit) {
-	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
+	if (limit >= LIMIT_MAX)
 		throw std::length_error("Limit too large");
 	
 	std::vector<uint32_t> result(limit + 1, 0);
@@ -64,7 +67,7 @@ std::vector<uint32_t> sieveSmallestPrimeFactor(uint32_t limit) {
 
 
 std::vector<uint32_t> sieveTotient(uint32_t limit) {
-	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
+	if (limit >= LIMIT_MAX)
 		throw std::length_error("Limit too large");
 	
 	std::vector<uint32_t> result(limit + 1);
@@ -85,7 +88,7 @@ std::vector<uint32_t> sieveTotient(uint32_t limit) {
 
 
 std::vector<uint32_t> sieveOmega(uint32_t limit) {
-	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
+	if (limit >= LIMIT_MAX)
 		throw std::length_error("Limit too large");
 	
 	std::vector<uint32_t> result(limit + 1, 0);
@@ -103,7 +106,7 @@ std::vector<uint32_t> sieveOmega(uint32_t limit) {
 
 
 std::vector<uint32_t> sieveRadical(uint32_t limit) {
-	if (limit >= UINT32_MAX || limit >= SIZE_MAX)
+	if (limit >= LIMIT_MAX)
 		throw std::length_error("Limit too large");
 
 	std::vector<uint32_t> result(limit + 1, 1);

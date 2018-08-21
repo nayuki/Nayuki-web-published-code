@@ -19,6 +19,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <cassert>
 #include <limits>
 #include <stdexcept>
@@ -136,8 +137,8 @@ void TinyPngOut::write(const uint8_t pixels[], size_t count) {
 				n = static_cast<uint16_t>(lineSize - positionX);
 			if (count < n)
 				n = static_cast<uint16_t>(count);
-			if (std::numeric_limits<std::streamsize>::max() < static_cast<int32_t>(n))
-				n = static_cast<uint16_t>(std::numeric_limits<std::streamsize>::max());
+			if (static_cast<std::make_unsigned<std::streamsize>::type>(std::numeric_limits<std::streamsize>::max()) < std::numeric_limits<decltype(n)>::max())
+				n = std::min(n, static_cast<decltype(n)>(std::numeric_limits<std::streamsize>::max()));
 			assert(n > 0);
 			output.write(reinterpret_cast<const char*>(pixels), static_cast<std::streamsize>(n));
 			
