@@ -4,6 +4,8 @@
  * https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
 
+"use strict";
+
 
 /* Basic version */
 /* 

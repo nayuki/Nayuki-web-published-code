@@ -4,6 +4,8 @@
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
 
+"use strict";
+
 
 /* 
  * Computes the discrete Fourier transform (DFT) of the given complex vector.

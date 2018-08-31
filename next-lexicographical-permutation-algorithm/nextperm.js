@@ -1,8 +1,10 @@
 /* 
  * Next lexicographical permutation algorithm (JavaScript)
- * by Project Nayuki, 2014. Public domain.
+ * by Project Nayuki, 2018. Public domain.
  * https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
+
+"use strict";
 
 
 /* Basic version */

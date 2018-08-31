@@ -1,8 +1,10 @@
 /* 
  * Discrete Fourier transform (JavaScript)
- * by Project Nayuki, 2017. Public domain.
+ * by Project Nayuki, 2018. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
+
+"use strict";
 
 
 /* 
