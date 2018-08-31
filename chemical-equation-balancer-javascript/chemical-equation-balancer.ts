@@ -473,14 +473,11 @@ class Group {
 // A chemical element.
 // For example: Na, F2, Ace, Uuq6
 class ChemElem {
-	private name: string;
-	private count: number;
-	
-	public constructor(name: string, count: number) {
+	public constructor(
+			private name: string,
+			private count: number) {
 		if (count < 1)
 			throw "Assertion error: Count must be a positive integer";
-		this.name = name;
-		this.count = count;
 	}
 	
 	public getElements(resultSet: Set<string>): void {
@@ -506,22 +503,20 @@ class ChemElem {
 
 // A matrix of integers.
 class Matrix {
-	public numRows: number;
-	public numCols: number;
 	private cells: Array<Array<number>>;
 	
-	public constructor(rows: number, cols: number) {
-		if (rows < 0 || cols < 0)
+	public constructor(
+			public numRows: number,
+			public numCols: number) {
+		if (numRows < 0 || numCols < 0)
 			throw "Illegal argument";
-		this.numRows = rows;
-		this.numCols = cols;
 		
 		// Initialize with zeros
 		let row: Array<number> = [];
-		for (let j = 0; j < cols; j++)
+		for (let j = 0; j < numCols; j++)
 			row.push(0);
 		this.cells = [];  // Main data (the matrix)
-		for (let i = 0; i < rows; i++)
+		for (let i = 0; i < numRows; i++)
 			this.cells.push(row.slice());
 	}
 	

@@ -51,20 +51,17 @@ function doProve(inputSequent) {
 }
 /* Data types */
 var Tree = /** @class */ (function () {
-    /*
-     * Constructs a proof tree. Has zero, one, or two children.
-     *   sequent: The value at this node - either a sequent or the string "Fail".
-     *   left: Zeroth child tree or null.
-     *   right: First child tree or null. (Requires left to be not null.)
-     */
-    function Tree(sequent) {
+    // Constructs a proof tree. Has zero, one, or two children.
+    function Tree(
+    // The value at this node - either a sequent or the string "Fail".
+    sequent) {
         var children = [];
         for (var _i = 1; _i < arguments.length; _i++) {
             children[_i - 1] = arguments[_i];
         }
+        this.sequent = sequent;
         if (typeof sequent == "string" && sequent != "Fail" || children.length > 2)
             throw "Invalid value";
-        this.sequent = sequent;
         this.children = children;
     }
     Tree.toHtml = function (trees) {
@@ -87,12 +84,12 @@ var Tree = /** @class */ (function () {
     return Tree;
 }());
 var Sequent = /** @class */ (function () {
-    /*
-     * Constructs a sequent.
-     *   left : Array of zero or more terms.
-     *   right: Array of zero or more terms.
-     */
-    function Sequent(left, right) {
+    // Constructs a sequent.
+    function Sequent(
+    // Zero or more terms.
+    left, 
+    // Zero or more terms.
+    right) {
         this.left = left;
         this.right = right;
     }
@@ -426,8 +423,8 @@ function parseTerm(tok) {
 // Tokenizes a formula into a stream of token strings.
 var Tokenizer = /** @class */ (function () {
     function Tokenizer(str) {
-        this.pos = 0;
         this.str = str;
+        this.pos = 0;
         this.skipSpaces();
     }
     // Returns the next token as a string, or null if the end of the token stream is reached.

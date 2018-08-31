@@ -58,19 +58,16 @@ function doProve(inputSequent: string): void {
 /* Data types */
 
 class Tree {
-	public sequent: Sequent|"Fail";
-	public children: Array<Tree>;  // Length 0, 1, or 2
+	public children: Array<Tree>;  // Length 0, 1, or 2.
 	
-	/* 
-	 * Constructs a proof tree. Has zero, one, or two children.
-	 *   sequent: The value at this node - either a sequent or the string "Fail".
-	 *   left: Zeroth child tree or null.
-	 *   right: First child tree or null. (Requires left to be not null.)
-	 */
-	public constructor(sequent: Sequent|"Fail", ...children: Array<Tree>) {
+	// Constructs a proof tree. Has zero, one, or two children.
+	public constructor(
+			// The value at this node - either a sequent or the string "Fail".
+			public sequent: Sequent|"Fail",
+			...children: Array<Tree>) {
+		
 		if (typeof sequent == "string" && sequent != "Fail" || children.length > 2)
 			throw "Invalid value";
-		this.sequent = sequent;
 		this.children = children;
 	}
 	
@@ -95,18 +92,12 @@ class Tree {
 
 
 class Sequent {
-	public left : Array<Term>;
-	public right: Array<Term>;
-	
-	/* 
-	 * Constructs a sequent.
-	 *   left : Array of zero or more terms.
-	 *   right: Array of zero or more terms.
-	 */
-	public constructor(left: Array<Term>, right: Array<Term>) {
-		this.left  = left ;
-		this.right = right;
-	}
+	// Constructs a sequent.
+	public constructor(
+		// Zero or more terms.
+		public left: Array<Term>,
+		// Zero or more terms.
+		public right: Array<Term>) {}
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
 	public toString(): string {
@@ -166,11 +157,8 @@ interface Term {
 
 
 class VarTerm implements Term {
-	public name: string;
-	
-	public constructor(name: string) {
-		this.name = name;
-	}
+	public constructor(
+		public name: string) {}
 	
 	public toString(isRoot: boolean = false): string {
 		return this.name;
@@ -179,11 +167,8 @@ class VarTerm implements Term {
 
 
 class NotTerm implements Term {
-	public child: Term;
-	
-	public constructor(child: Term) {
-		this.child = child;
-	}
+	public constructor(
+		public child: Term) {}
 	
 	public toString(isRoot: boolean = false): string {
 		let s = NOT + this.child.toString();
@@ -195,13 +180,9 @@ class NotTerm implements Term {
 
 
 class AndTerm implements Term {
-	public left : Term;
-	public right: Term;
-	
-	public constructor(left: Term, right: Term) {
-		this.left  = left ;
-		this.right = right;
-	}
+	public constructor(
+		public left: Term,
+		public right: Term) {}
 	
 	public toString(isRoot: boolean = false): string {
 		let s = this.left.toString() + " " + AND + " " + this.right.toString();
@@ -213,13 +194,9 @@ class AndTerm implements Term {
 
 
 class OrTerm implements Term {
-	public left : Term;
-	public right: Term;
-	
-	public constructor(left: Term, right: Term) {
-		this.left  = left ;
-		this.right = right;
-	}
+	public constructor(
+		public left: Term,
+		public right: Term) {}
 	
 	public toString(isRoot: boolean = false): string {
 		let s = this.left.toString() + " " + OR + " " + this.right.toString();
@@ -478,11 +455,10 @@ function parseTerm(tok: Tokenizer): Term|null {
 
 // Tokenizes a formula into a stream of token strings.
 class Tokenizer {
-	public str: string;
 	public pos: number = 0;
 	
-	public constructor(str: string) {
-		this.str = str;
+	public constructor(
+			public str: string) {
 		this.skipSpaces();
 	}
 	

@@ -432,10 +432,10 @@ var Group = /** @class */ (function () {
 // For example: Na, F2, Ace, Uuq6
 var ChemElem = /** @class */ (function () {
     function ChemElem(name, count) {
-        if (count < 1)
-            throw "Assertion error: Count must be a positive integer";
         this.name = name;
         this.count = count;
+        if (count < 1)
+            throw "Assertion error: Count must be a positive integer";
     }
     ChemElem.prototype.getElements = function (resultSet) {
         resultSet.add(this.name);
@@ -455,17 +455,17 @@ var ChemElem = /** @class */ (function () {
 /*---- Core number-processing fuctions ----*/
 // A matrix of integers.
 var Matrix = /** @class */ (function () {
-    function Matrix(rows, cols) {
-        if (rows < 0 || cols < 0)
+    function Matrix(numRows, numCols) {
+        this.numRows = numRows;
+        this.numCols = numCols;
+        if (numRows < 0 || numCols < 0)
             throw "Illegal argument";
-        this.numRows = rows;
-        this.numCols = cols;
         // Initialize with zeros
         var row = [];
-        for (var j = 0; j < cols; j++)
+        for (var j = 0; j < numCols; j++)
             row.push(0);
         this.cells = []; // Main data (the matrix)
-        for (var i = 0; i < rows; i++)
+        for (var i = 0; i < numRows; i++)
             this.cells.push(row.slice());
     }
     /* Accessor functions */
