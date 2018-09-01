@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2017 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
+ * https://www.nayuki.io/page/paneldepon-puzzle-solver-javascript
  */
 
 import java.io.BufferedReader;
