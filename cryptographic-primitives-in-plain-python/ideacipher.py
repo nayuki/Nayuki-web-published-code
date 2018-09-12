@@ -1,7 +1,7 @@
 # 
 # The IDEA (International Data Encryption Algorithm) block cipher.
 # 
-# Copyright (c) 2015 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,8 +42,8 @@ def decrypt(block, key, printdebug=False):
 
 def _crypt(block, key, direction, printdebug):
 	# Check input arguments
-	assert type(block) == list and len(block) == 8
-	assert type(key) == list and len(key) == 16
+	assert isinstance(block, list) and len(block) == 8
+	assert isinstance(key, list) and len(key) == 16
 	assert direction in ("encrypt", "decrypt")
 	if printdebug: print("ideacipher.{}(block = {}, key = {})".format(direction, cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
 	
@@ -114,7 +114,7 @@ def _expand_key_schedule(key):
 # Given an encryption key schedule, this computes and returns the
 # decryption key schedule as a tuple containing 52 elements of uint16.
 def _invert_key_schedule(keysch):
-	assert type(keysch) == tuple and len(keysch) % 6 == 4
+	assert isinstance(keysch, tuple) and len(keysch) % 6 == 4
 	result = []
 	result.append(_reciprocal(keysch[-4]))
 	result.append(_negate(keysch[-3]))

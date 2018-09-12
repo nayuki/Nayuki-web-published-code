@@ -2,7 +2,7 @@
 # The AES (Advanced Encryption Standard) block cipher. It is described in FIPS Publication 197.
 # All three key lengths (128, 192, 256 bits) are supported.
 # 
-# Copyright (c) 2015 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,8 +31,8 @@ import cryptocommon
 # the given key (16/24/32-element bytelist), returning a new 16-element bytelist.
 def encrypt(block, key, printdebug=False):
 	# Check input arguments
-	assert type(block) == list and len(block) == 16
-	assert type(key) == list and len(key) in (16, 24, 32)
+	assert isinstance(block, list) and len(block) == 16
+	assert isinstance(key, list) and len(key) in (16, 24, 32)
 	if printdebug: print("aescipher.encrypt(block = {}, key = {})".format(cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
 	
 	# Compute key schedule from key
@@ -69,8 +69,8 @@ def encrypt(block, key, printdebug=False):
 # the given key (16/24/32-element bytelist), returning a new 16-element bytelist.
 def decrypt(block, key, printdebug=False):
 	# Check input arguments
-	assert type(block) == list and len(block) == 16
-	assert type(key) == list and len(key) in (16, 24, 32)
+	assert isinstance(block, list) and len(block) == 16
+	assert isinstance(key, list) and len(key) in (16, 24, 32)
 	if printdebug: print("aescipher.decrypt(block = {}, key = {})".format(cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
 	
 	# Compute key schedule from key
@@ -109,7 +109,7 @@ def decrypt(block, key, printdebug=False):
 def _expand_key_schedule(key):
 	# Initialize key schedule with the verbatim key
 	nk = len(key) // 4  # Number of 32-bit words in original key
-	assert type(key) == list and nk in (4, 6, 8)
+	assert isinstance(key, list) and nk in (4, 6, 8)
 	schedule = list(key)
 	
 	# Extend the key schedule by blending previous values

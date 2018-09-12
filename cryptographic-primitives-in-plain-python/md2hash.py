@@ -1,7 +1,7 @@
 # 
 # The MD2 hash function. It is described in RFC 1319.
 # 
-# Copyright (c) 2015 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,7 +29,7 @@ import cryptocommon
 # Computes the hash of the given bytelist message, returning a new 16-element bytelist.
 def hash(message, printdebug=False):
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	assert type(message) == list
+	assert isinstance(message, list)
 	msg = list(message)
 	if printdebug: print("md2.hash(message = {} bytes)".format(len(message)))
 	
@@ -61,9 +61,9 @@ def hash(message, printdebug=False):
 
 def _compress(block, state, checksum, printdebug):
 	# Check argument types and lengths
-	assert type(block) == tuple and len(block) == _BLOCK_SIZE
-	assert type(state) == tuple and len(state) == 48
-	assert type(checksum) == tuple and len(checksum) == 16
+	assert isinstance(block, tuple) and len(block) == _BLOCK_SIZE
+	assert isinstance(state, tuple) and len(state) == 48
+	assert isinstance(checksum, tuple) and len(checksum) == 16
 	
 	# Copy the block into the state
 	newstate = list(state)

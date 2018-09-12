@@ -2,7 +2,7 @@
 # This program tests the implementations of all the known cryptographic hash functions.
 # Run with no arguments. For Python 2 and 3.
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -125,17 +125,17 @@ class HashTest(unittest.TestCase):
 	
 	def _check_hash_function(self, func, cases):
 		global num_test_cases
-		assert type(cases) == list
+		assert isinstance(cases, list)
 		
 		for (expecthash, messagestr) in cases:
-			assert type(expecthash) == str
-			assert type(messagestr) == str
+			assert isinstance(expecthash, str)
+			assert isinstance(messagestr, str)
 			
 			msgbytelist = asciistr_to_bytelist(messagestr)
 			actualhashbytelist = func(msgbytelist)
 			expectedhashbytelist = hexstr_to_bytelist(expecthash)
 			
-			assert type(actualhashbytelist) == list
+			assert isinstance(actualhashbytelist, list)
 			self.assertEqual(actualhashbytelist, expectedhashbytelist)
 			num_test_cases += 1
 	

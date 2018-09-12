@@ -1,7 +1,7 @@
 # 
 # The SHA-1 hash function. It is described in FIPS Publication 180.
 # 
-# Copyright (c) 2015 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,7 +29,7 @@ import cryptocommon
 # Computes the hash of the given bytelist message, returning a new 20-element bytelist.
 def hash(message, printdebug=False):
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	assert type(message) == list
+	assert isinstance(message, list)
 	msg = list(message)
 	if printdebug: print("sha1.hash(message = {} bytes)".format(len(message)))
 	
@@ -69,8 +69,8 @@ def hash(message, printdebug=False):
 # Requirement: All elements of block and state must be uint32.
 def _compress(block, state, printdebug):
 	# Check argument types and lengths
-	assert type(block) == tuple and len(block) == _BLOCK_SIZE
-	assert type(state) == tuple and len(state) == 5
+	assert isinstance(block, tuple) and len(block) == _BLOCK_SIZE
+	assert isinstance(state, tuple) and len(state) == 5
 	
 	# Alias shorter names for readability
 	mask32 = cryptocommon.UINT32_MASK

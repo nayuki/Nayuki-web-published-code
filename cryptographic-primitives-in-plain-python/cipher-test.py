@@ -2,7 +2,7 @@
 # This program tests the implementations of all the known cryptographic ciphers.
 # Run with no arguments. For Python 2 and 3.
 # 
-# Copyright (c) 2016 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -626,12 +626,12 @@ class CipherTest(unittest.TestCase):
 	
 	def _check_cipher(self, encfunc, decfunc, cases):
 		global num_test_cases
-		assert type(cases) == list
+		assert isinstance(cases, list)
 		
 		for (plaintexthex, keyhex, expectedciphertexthex) in cases:
-			assert type(keyhex) == str
-			assert type(plaintexthex) == str
-			assert type(expectedciphertexthex) == str
+			assert isinstance(keyhex, str)
+			assert isinstance(plaintexthex, str)
+			assert isinstance(expectedciphertexthex, str)
 			
 			keybytelist = hexstr_to_bytelist(keyhex)
 			plaintextbytelist = hexstr_to_bytelist(plaintexthex)
@@ -639,8 +639,8 @@ class CipherTest(unittest.TestCase):
 			expectedciphertextbytelist = hexstr_to_bytelist(expectedciphertexthex)
 			decryptedbytelist = decfunc(actualciphertextbytelist, keybytelist)
 			
-			assert type(actualciphertextbytelist) == list
-			assert type(decryptedbytelist) == list
+			assert isinstance(actualciphertextbytelist, list)
+			assert isinstance(decryptedbytelist, list)
 			self.assertEqual(actualciphertextbytelist, expectedciphertextbytelist)
 			self.assertEqual(decryptedbytelist, plaintextbytelist)
 			num_test_cases += 1

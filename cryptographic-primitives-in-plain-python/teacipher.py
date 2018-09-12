@@ -1,7 +1,7 @@
 # 
 # The TEA (Tiny Encryption Algorithm) block cipher.
 # 
-# Copyright (c) 2015 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,8 +30,8 @@ import cryptocommon
 # the given key (16-element bytelist), returning a new 8-element bytelist.
 def encrypt(block, key, printdebug=False):
 	# Check input arguments
-	assert type(block) == list and len(block) == 8
-	assert type(key) == list and len(key) == 16
+	assert isinstance(block, list) and len(block) == 8
+	assert isinstance(key, list) and len(key) == 16
 	if printdebug: print("teacipher.encrypt(block = {}, key = {})".format(cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
 	
 	# Pack key and block bytes into lists of uint32 in big endian
@@ -63,8 +63,8 @@ def encrypt(block, key, printdebug=False):
 # the given key (16-element bytelist), returning a new 8-element bytelist.
 def decrypt(block, key, printdebug=False):
 	# Check input arguments
-	assert type(block) == list and len(block) == 8
-	assert type(key) == list and len(key) == 16
+	assert isinstance(block, list) and len(block) == 8
+	assert isinstance(key, list) and len(key) == 16
 	if printdebug: print("teacipher.decrypt(block = {}, key = {})".format(cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
 	
 	# Pack key and block bytes into lists of uint32 in big endian
