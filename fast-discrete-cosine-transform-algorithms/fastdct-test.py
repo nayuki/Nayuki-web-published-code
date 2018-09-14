@@ -68,7 +68,7 @@ class FastDctTest(unittest.TestCase):
 	def test_fast_dct_fft_vs_naive(self):
 		prev = 0
 		for i in range(100 + 1):
-			n = round(1000**(i / 100.0))
+			n = int(round(1000**(i / 100.0)))
 			if n <= prev:
 				continue
 			prev = n
@@ -86,7 +86,7 @@ class FastDctTest(unittest.TestCase):
 	def test_fast_dct_fft_invertibility(self):
 		prev = 0
 		for i in range(30 + 1):
-			n = round(10000**(i / 30.0))
+			n = int(round(10000**(i / 30.0)))
 			if n <= prev:
 				continue
 			prev = n
