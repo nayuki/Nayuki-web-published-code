@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C#)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -91,7 +91,6 @@ public sealed class FastDctTest {
 	private static void TestFastDctFftVsNaive() {
 		for (int i = 0, prev = 0; i <= 100; i++) {
 			int len = (int)Math.Round(Math.Pow(3000, i / 100.0));
-			len = i;
 			if (len <= prev)
 				continue;
 			prev = len;
