@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -65,14 +65,14 @@ public final class FastDctTest {
 		
 		double[] expect = NaiveDct.transform(vector);
 		for (int i = 0; i < expect.length; i++)
-			expect[i] /= Math.sqrt(4 * (i == 0 ? 2 : 1));
+			expect[i] /= i == 0 ? Math.sqrt(8) : 2;
 		double[] actual = vector.clone();
 		FastDct8.transform(actual);
 		Assert.assertArrayEquals(expect, actual, EPSILON);
 		
 		expect = vector.clone();
 		for (int i = 0; i < expect.length; i++)
-			expect[i] /= Math.sqrt(4 / (i == 0 ? 2 : 1));
+			expect[i] /= i == 0 ? Math.sqrt(2) : 2;
 		expect = NaiveDct.inverseTransform(expect);
 		actual = vector.clone();
 		FastDct8.inverseTransform(actual);

@@ -81,7 +81,7 @@ fn test_fast_dct8_vs_naive() {
 	
 	let mut expect = naive_dct::transform(&vector);
 	for i in 0 .. expect.len() {
-		expect[i] /= (4.0f64 * (if i == 0 { 2.0 } else { 1.0 })).sqrt();
+		expect[i] /= if i == 0 { (8.0f64).sqrt() } else { 2.0 };
 	}
 	let mut actual = vector.clone();
 	fast_dct8::transform(&mut actual);
@@ -89,7 +89,7 @@ fn test_fast_dct8_vs_naive() {
 	
 	let mut expect = vector.clone();
 	for i in 0 .. expect.len() {
-		expect[i] /= (4.0f64 / (if i == 0 { 2.0 } else { 1.0 })).sqrt();
+		expect[i] /= if i == 0 { (2.0f64).sqrt() } else { 2.0 };
 	}
 	let expect = naive_dct::inverse_transform(&mut expect);
 	let mut actual = vector.clone();

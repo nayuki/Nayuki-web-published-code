@@ -53,12 +53,12 @@ class FastDctTest(unittest.TestCase):
 		vector = FastDctTest.random_vector(8)
 		
 		expect = naivedct.transform(vector)
-		expect = [(val / math.sqrt(4 * (2 if (i == 0) else 1)))
+		expect = [(val / (math.sqrt(8) if (i == 0) else 2))
 			for (i, val) in enumerate(expect)]
 		actual = fastdct8.transform(vector)
 		self.assertListAlmostEqual(actual, expect)
 		
-		expect = [(val / math.sqrt(4 / (2 if (i == 0) else 1)))
+		expect = [(val / (math.sqrt(2) if (i == 0) else 2))
 			for (i, val) in enumerate(vector)]
 		expect = naivedct.inverse_transform(expect)
 		actual = fastdct8.inverse_transform(vector)

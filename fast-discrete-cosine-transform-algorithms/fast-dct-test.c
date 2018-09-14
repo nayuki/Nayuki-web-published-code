@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -103,7 +103,7 @@ static void testFastDct8VsNaive(void) {
 	
 	double *expect = NaiveDct_transform(vector, len);
 	for (size_t i = 0; i < len; i++)
-		expect[i] /= sqrt(4 * (i == 0 ? 2 : 1));
+		expect[i] /= i == 0 ? sqrt(8) : 2;
 	double *actual = calloc(len, sizeof(double));
 	memcpy(actual, vector, len * sizeof(double));
 	FastDct8_transform(actual);
@@ -113,7 +113,7 @@ static void testFastDct8VsNaive(void) {
 	
 	double *temp = calloc(len, sizeof(double));
 	for (size_t i = 0; i < len; i++)
-		temp[i] = vector[i] / sqrt(4 / (i == 0 ? 2 : 1));
+		temp[i] = vector[i] / (i == 0 ? sqrt(2) : 2);
 	expect = NaiveDct_inverseTransform(temp, len);
 	free(temp);
 	actual = calloc(len, sizeof(double));

@@ -63,14 +63,14 @@ var TEST_SUITE_FUNCS = [
 		
 		var expect = naiveDct.transform(vector);
 		for (var i = 0; i < expect.length; i++)
-			expect[i] /= Math.sqrt(4 * (i == 0 ? 2 : 1));
+			expect[i] /= i == 0 ? Math.sqrt(8) : 2;
 		var actual = vector.slice();
 		fastDct8.transform(actual);
 		assertArrayEquals(expect, actual, EPSILON);
 		
 		expect = vector.slice();
 		for (var i = 0; i < expect.length; i++)
-			expect[i] /= Math.sqrt(4 / (i == 0 ? 2 : 1));
+			expect[i] /= i == 0 ? Math.sqrt(2) : 2;
 		expect = naiveDct.inverseTransform(expect);
 		actual = vector.slice();
 		fastDct8.inverseTransform(actual);

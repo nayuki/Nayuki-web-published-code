@@ -101,14 +101,14 @@ static void testFastDct8VsNaive() {
 	{
 		vector<double> expect = NaiveDct::transform(vec);
 		for (size_t i = 0; i < vec.size(); i++)
-			expect.at(i) /= std::sqrt(4 * (i == 0 ? 2 : 1));
+			expect.at(i) /= i == 0 ? std::sqrt(8) : 2;
 		vector<double> actual = vec;
 		FastDct8::transform(actual.data());
 		assertArrayEquals(expect, actual, EPSILON);
 	} {
 		vector<double> temp = vec;
 		for (size_t i = 0; i < vec.size(); i++)
-			temp.at(i) /= std::sqrt(4 / (i == 0 ? 2 : 1));
+			temp.at(i) /= i == 0 ? std::sqrt(2) : 2;
 		const vector<double> expect = NaiveDct::inverseTransform(temp);
 		vector<double> actual = vec;
 		FastDct8::inverseTransform(actual.data());

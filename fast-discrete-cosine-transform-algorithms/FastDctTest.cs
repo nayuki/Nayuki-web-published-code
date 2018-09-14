@@ -73,14 +73,14 @@ public sealed class FastDctTest {
 		
 		double[] expect = NaiveDct.Transform(vector);
 		for (int i = 0; i < expect.Length; i++)
-			expect[i] /= Math.Sqrt(4 * (i == 0 ? 2 : 1));
+			expect[i] /= i == 0 ? Math.Sqrt(8) : 2;
 		double[] actual = (double[])vector.Clone();
 		FastDct8.Transform(actual);
 		AssertArrayEquals(expect, actual, EPSILON);
 		
 		expect = (double[])vector.Clone();
 		for (int i = 0; i < expect.Length; i++)
-			expect[i] /= Math.Sqrt(4 / (i == 0 ? 2 : 1));
+			expect[i] /= i == 0 ? Math.Sqrt(2) : 2;
 		expect = NaiveDct.InverseTransform(expect);
 		actual = (double[])vector.Clone();
 		FastDct8.InverseTransform(actual);
