@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -89,8 +89,8 @@ static void testFastDctLeeInvertibility() {
 		vector<double> temp = vec;
 		FastDctLee::transform(temp);
 		FastDctLee::inverseTransform(temp);
-		for (size_t i = 0; i < len; i++)
-			temp.at(i) /= len / 2.0;
+		for (double &x : temp)
+			x /= len / 2.0;
 		assertArrayEquals(vec, temp, EPSILON);
 	}
 }
@@ -152,8 +152,8 @@ static void testFastDctFftInvertibility() {
 		vector<double> temp = vec;
 		FastDctFft::transform(temp);
 		FastDctFft::inverseTransform(temp);
-		for (size_t i = 0; i < len; i++)
-			temp.at(i) /= len / 2.0;
+		for (double &x : temp)
+			x /= len / 2.0;
 		assertArrayEquals(vec, temp, EPSILON);
 	}
 }

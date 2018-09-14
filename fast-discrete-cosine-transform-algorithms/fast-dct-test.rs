@@ -67,8 +67,8 @@ fn test_fast_dct_lee_invertibility() {
 		let mut temp = vector.clone();
 		fast_dct_lee::transform(&mut temp);
 		fast_dct_lee::inverse_transform(&mut temp);
-		for i in 0 .. temp.len() {
-			temp[i] /= (len as f64) / 2.0;
+		for x in temp.iter_mut() {
+			*x /= (len as f64) / 2.0;
 		}
 		assert_array_equals(&vector, &temp, EPSILON);
 		len *= 2;
@@ -133,8 +133,8 @@ fn test_fast_dct_fft_invertibility() {
 		let mut temp = vector.clone();
 		fast_dct_fft::transform(&mut temp);
 		fast_dct_fft::inverse_transform(&mut temp);
-		for j in 0 .. temp.len() {
-			temp[j] /= (len as f64) / 2.0;
+		for x in temp.iter_mut() {
+			*x /= (len as f64) / 2.0;
 		}
 		assert_array_equals(&vector, &temp, EPSILON);
 	}
