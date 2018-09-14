@@ -97,18 +97,17 @@ static void testFastDctLeeInvertibility() {
 
 
 static void testFastDct8VsNaive() {
-	size_t len = 8;
-	const vector<double> vec = randomVector(len);
+	const vector<double> vec = randomVector(8);
 	{
 		vector<double> expect = NaiveDct::transform(vec);
-		for (size_t i = 0; i < len; i++)
+		for (size_t i = 0; i < vec.size(); i++)
 			expect.at(i) /= std::sqrt(4 * (i == 0 ? 2 : 1));
 		vector<double> actual = vec;
 		FastDct8::transform(actual.data());
 		assertArrayEquals(expect, actual, EPSILON);
 	} {
 		vector<double> temp = vec;
-		for (size_t i = 0; i < len; i++)
+		for (size_t i = 0; i < vec.size(); i++)
 			temp.at(i) /= std::sqrt(4 / (i == 0 ? 2 : 1));
 		const vector<double> expect = NaiveDct::inverseTransform(temp);
 		vector<double> actual = vec;

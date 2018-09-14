@@ -1,7 +1,7 @@
 # 
 # Fast discrete cosine transform algorithms (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2018 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,12 +50,11 @@ class FastDctTest(unittest.TestCase):
 	
 	
 	def test_fast_dct8_vs_naive(self):
-		n = 8
-		vector = FastDctTest.random_vector(n)
+		vector = FastDctTest.random_vector(8)
 		
 		expect = naivedct.transform(vector)
-		for i in range(n):
-			expect[i] /= math.sqrt(4 * (2 if (i == 0) else 1))
+		expect = [(val / math.sqrt(4 * (2 if (i == 0) else 1)))
+			for (i, val) in enumerate(expect)]
 		actual = fastdct8.transform(vector)
 		self.assertListAlmostEqual(actual, expect)
 		
