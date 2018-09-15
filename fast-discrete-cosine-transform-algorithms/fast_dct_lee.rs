@@ -76,7 +76,7 @@ pub fn inverse_transform(vector: &mut [f64]) {
 
 fn inverse_transform_recursive(vector: &mut [f64], temp: &mut [f64]) {
 	// Algorithm by Byeong Gi Lee, 1984. For details, see:
-	// http://tsp7.snu.ac.kr/int_jour/IJ_2.pdf
+	// https://www.nayuki.io/res/fast-discrete-cosine-transform-algorithms/lee-new-algo-discrete-cosine-transform.pdf
 	let len: usize = vector.len();
 	if len == 1 {
 		return;

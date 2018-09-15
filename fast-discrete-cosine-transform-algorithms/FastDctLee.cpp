@@ -70,7 +70,7 @@ static void forwardTransform(double vec[], double temp[], size_t len) {
 
 
 // DCT type III, unscaled. Algorithm by Byeong Gi Lee, 1984.
-// See: http://tsp7.snu.ac.kr/int_jour/IJ_2.pdf
+// See: https://www.nayuki.io/res/fast-discrete-cosine-transform-algorithms/lee-new-algo-discrete-cosine-transform.pdf
 void FastDctLee::inverseTransform(vector<double> &vec) {
 	inverseTransform(vec.data(), vec.size());
 }

@@ -69,7 +69,7 @@ static void forwardTransform(double vector[], double temp[], size_t len) {
 
 
 // DCT type III, unscaled. Algorithm by Byeong Gi Lee, 1984.
-// See: http://tsp7.snu.ac.kr/int_jour/IJ_2.pdf
+// See: https://www.nayuki.io/res/fast-discrete-cosine-transform-algorithms/lee-new-algo-discrete-cosine-transform.pdf
 bool FastDctLee_inverseTransform(double vector[], size_t len) {
 	if (len > 0 && (len & (len - 1)) != 0)
 		return false;  // Length is not power of 2

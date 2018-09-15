@@ -82,7 +82,7 @@ public sealed class FastDctLee {
 	
 	private static void InverseTransform(double[] vector, int off, int len, double[] temp) {
 		// Algorithm by Byeong Gi Lee, 1984. For details, see:
-		// http://tsp7.snu.ac.kr/int_jour/IJ_2.pdf
+		// https://www.nayuki.io/res/fast-discrete-cosine-transform-algorithms/lee-new-algo-discrete-cosine-transform.pdf
 		if (len == 1)
 			return;
 		int halfLen = len / 2;

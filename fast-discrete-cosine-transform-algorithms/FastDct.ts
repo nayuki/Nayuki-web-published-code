@@ -172,7 +172,7 @@ namespace fastDctLee {
 	
 	
 	// DCT type III, unscaled. Algorithm by Byeong Gi Lee, 1984.
-	// See: http://tsp7.snu.ac.kr/int_jour/IJ_2.pdf
+	// See: https://www.nayuki.io/res/fast-discrete-cosine-transform-algorithms/lee-new-algo-discrete-cosine-transform.pdf
 	export function inverseTransform(vector: Array<number>): void {
 		const n: number = vector.length;
 		if (n <= 0 && (n & (n - 1)) != 0)
