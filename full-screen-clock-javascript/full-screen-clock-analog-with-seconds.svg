@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!--
+  - Full screen clock (analog with seconds)
+  - Copyright (c) 2018 Project Nayuki
+  - 
+  - https://www.nayuki.io/page/full-screen-clock-javascript
+  -->
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="-1 -1 2 2" style="background-color:#000000" stroke="none" fill="none">
+	<defs>
+		<circle id="hour-mark" cx="0" cy="-0.95" r="0.04"/>
+	</defs>
+	<g id="hour-marks" fill="#FFFFFF"/>
+	
+	<g id="hands" stroke="#FFFFFF" stroke-linecap="round" style="display:none">
+		<line id="hour-hand"   x1="0" y1="0" x2="0" y2="-0.50" stroke-width="0.11"/>
+		<line id="minute-hand" x1="0" y1="0" x2="0" y2="-0.75" stroke-width="0.07"/>
+		<line id="second-hand" x1="0" y1="0" x2="0" y2="-0.85" stroke-width="0.04"/>
+	</g>
+	
+	
+	<script type="application/javascript">
+	<![CDATA[
+	"use strict";
+	
+	function initialize() {
+		for (var i = 0; i < 12; i++) {
+			var elem = document.createElementNS(document.documentElement.namespaceURI, "use");
+			elem.setAttribute("href", "#hour-mark");
+			rotateElem(elem, i / 12 * 360);
+			document.getElementById("hour-marks").appendChild(elem);
+		}
+		updateClock();
+		document.getElementById("hands").removeAttribute("style");
+	}
+	
+	function updateClock() {
+		var d = new Date();
+		rotateElem(document.getElementById("hour-hand"),
+			(d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600) / 12 * 360);
+		rotateElem(document.getElementById("minute-hand"),
+			(d.getMinutes() + d.getSeconds() / 60) / 60 * 360);
+		rotateElem(document.getElementById("second-hand"),
+			d.getSeconds() / 60 * 360);
+		setTimeout(updateClock, 1000 - d.getTime() % 1000 + 20);
+	}
+	
+	function rotateElem(elem, degrees) {
+		elem.setAttribute("transform", "rotate(" + degrees + ")");
+	}
+	
+	initialize();
+	]]>
+	</script>
+</svg>
