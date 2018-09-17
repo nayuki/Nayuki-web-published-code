@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,16 @@
 #include <stddef.h>
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 bool FastDctLee_transform(double vector[], size_t len);
 
 bool FastDctLee_inverseTransform(double vector[], size_t len);
+
+
+#ifdef __cplusplus
+}
+#endif

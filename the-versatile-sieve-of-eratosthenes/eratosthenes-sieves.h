@@ -1,6 +1,6 @@
 /* 
  * Variants of the sieve of Eratosthenes (C)
- * by Project Nayuki, 2016. Public domain.
+ * by Project Nayuki, 2018. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -8,6 +8,11 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 // Given an integer limit, this returns a list of Booleans
@@ -33,3 +38,8 @@ uint32_t *sieve_omega(uint32_t limit);
 // Given an integer limit, this returns a list of integers where result[k]
 // is the product of the unique prime factors (radical function) of k.
 uint32_t *sieve_radical(uint32_t limit);
+
+
+#ifdef __cplusplus
+}
+#endif

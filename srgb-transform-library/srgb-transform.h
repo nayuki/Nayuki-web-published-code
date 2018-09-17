@@ -1,7 +1,7 @@
 /* 
  * sRGB transform (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/srgb-transform-library
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,6 +24,11 @@
 #pragma once
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 float srgb_to_linear_float(float x);
 double srgb_to_linear_double(double x);
 extern const float SRGB_8BIT_TO_LINEAR_FLOAT[1 << 8];
@@ -32,3 +37,8 @@ extern const double SRGB_8BIT_TO_LINEAR_DOUBLE[1 << 8];
 float linear_to_srgb_float(float x);
 double linear_to_srgb_double(double x);
 int linear_to_srgb_8bit(double x);
+
+
+#ifdef __cplusplus
+}
+#endif

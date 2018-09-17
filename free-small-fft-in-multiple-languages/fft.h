@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,6 +25,11 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /* 
@@ -70,3 +75,8 @@ bool Fft_convolveReal(const double x[], const double y[], double out[], size_t n
  * Returns true if successful, false otherwise (out of memory).
  */
 bool Fft_convolveComplex(const double xreal[], const double ximag[], const double yreal[], const double yimag[], double outreal[], double outimag[], size_t n);
+
+
+#ifdef __cplusplus
+}
+#endif
