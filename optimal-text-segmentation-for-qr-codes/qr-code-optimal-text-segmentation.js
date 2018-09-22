@@ -135,7 +135,7 @@ var app;
                 target.style.removeProperty("transition");
             }
         });
-        target.offsetLeft; // Read property to force reflow in Firefox
+        target.clientHeight; // Read property to force reflow in Firefox
         target.style.height = newHeight + "px";
         return false;
     }
@@ -275,8 +275,8 @@ var app;
             if (mode == "BYTE") {
                 this.numChars = 0;
                 this.text = "";
-                for (var i = 0; i < codePoints.length; i++) {
-                    var c = codePoints[i];
+                for (var _i = 0, codePoints_1 = codePoints; _i < codePoints_1.length; _i++) {
+                    var c = codePoints_1[_i];
                     this.numChars += countUtf8Bytes(c);
                     if (c < 0x10000)
                         this.text += String.fromCharCode(c);
@@ -311,8 +311,8 @@ var app;
     // version. The result is infinity if a segment has too many characters to fit its length field.
     function getTotalBits(segs, version) {
         var result = 0;
-        for (var i = 0; i < segs.length; i++) {
-            var seg = segs[i];
+        for (var _i = 0, segs_1 = segs; _i < segs_1.length; _i++) {
+            var seg = segs_1[_i];
             var ccbits = getNumCharCountBits(seg.mode, version);
             if (seg.numChars >= (1 << ccbits))
                 return Infinity; // The segment's length doesn't fit the field's bit width

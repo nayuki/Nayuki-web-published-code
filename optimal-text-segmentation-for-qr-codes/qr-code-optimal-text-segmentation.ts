@@ -154,7 +154,7 @@ namespace app {
 				target.style.removeProperty("transition");
 			}
 		});
-		target.offsetLeft;  // Read property to force reflow in Firefox
+		target.clientHeight;  // Read property to force reflow in Firefox
 		target.style.height = newHeight + "px";
 		return false;
 	}
@@ -331,8 +331,7 @@ namespace app {
 			if (mode == "BYTE") {
 				this.numChars = 0;
 				this.text = "";
-				for (let i = 0; i < codePoints.length; i++) {
-					const c = codePoints[i];
+				for (const c of codePoints) {
 					this.numChars += countUtf8Bytes(c);
 					if (c < 0x10000)
 						this.text += String.fromCharCode(c);
@@ -369,8 +368,7 @@ namespace app {
 	// version. The result is infinity if a segment has too many characters to fit its length field.
 	function getTotalBits(segs: Array<Segment>, version: number): number {
 		let result: number = 0;
-		for (let i = 0; i < segs.length; i++) {
-			const seg: Segment = segs[i];
+		for (const seg of segs) {
 			const ccbits: number = getNumCharCountBits(seg.mode, version);
 			if (seg.numChars >= (1 << ccbits))
 				return Infinity;  // The segment's length doesn't fit the field's bit width
