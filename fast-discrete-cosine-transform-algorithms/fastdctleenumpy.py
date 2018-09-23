@@ -21,56 +21,55 @@
 #   Software.
 # 
 
-import math
+import numpy
 
 
 # DCT type II, unscaled. Algorithm by Byeong Gi Lee, 1984.
 # See: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.3056&rep=rep1&type=pdf#page=34
 def transform(vector):
-	n = len(vector)
+	if vector.ndim != 1:
+		raise ValueError()
+	n = vector.size
 	if n == 1:
-		return list(vector)
+		return vector.copy()
 	elif n == 0 or n % 2 != 0:
 		raise ValueError()
 	else:
 		half = n // 2
-		alpha = [(vector[i] + vector[-(i + 1)]) for i in range(half)]
-		beta  = [(vector[i] - vector[-(i + 1)]) / (math.cos((i + 0.5) * math.pi / n) * 2.0)
-			for i in range(half)]
+		gamma = vector[ : half]
+		delta = vector[n - 1 : half - 1 : -1]
+		alpha = (gamma + delta)
+		beta  = (gamma - delta) / (numpy.cos(numpy.arange(0.5, half + 0.5) * (numpy.pi / n)) * 2.0)
 		alpha = transform(alpha)
 		beta  = transform(beta )
-		result = []
-		for i in range(half - 1):
-			result.append(alpha[i])
-			result.append(beta[i] + beta[i + 1])
-		result.append(alpha[-1])
-		result.append(beta [-1])
+		result = numpy.zeros_like(vector)
+		result[0 : : 2] = alpha
+		result[1 : : 2] = beta
+		result[1 : n - 1 : 2] += beta[1 : ]
 		return result
 
 
 # DCT type III, unscaled. Algorithm by Byeong Gi Lee, 1984.
 # See: https://www.nayuki.io/res/fast-discrete-cosine-transform-algorithms/lee-new-algo-discrete-cosine-transform.pdf
 def inverse_transform(vector, root=True):
+	if vector.ndim != 1:
+		raise ValueError()
 	if root:
-		vector = list(vector)
+		vector = vector.copy()
 		vector[0] /= 2.0
-	n = len(vector)
+	n = vector.size
 	if n == 1:
 		return vector
 	elif n == 0 or n % 2 != 0:
 		raise ValueError()
 	else:
 		half = n // 2
-		alpha = [vector[0]]
-		beta  = [vector[1]]
-		for i in range(2, n, 2):
-			alpha.append(vector[i])
-			beta.append(vector[i - 1] + vector[i + 1])
+		alpha = vector[0 : : 2].copy()
+		beta  = vector[1 : : 2].copy()
+		beta[1 : ] += vector[1 : n - 1 : 2]
 		inverse_transform(alpha, False)
 		inverse_transform(beta , False)
-		for i in range(half):
-			x = alpha[i]
-			y = beta[i] / (math.cos((i + 0.5) * math.pi / n) * 2)
-			vector[i] = x + y
-			vector[-(i + 1)] = x - y
+		beta /= numpy.cos(numpy.arange(0.5, half + 0.5) * (numpy.pi / n)) * 2.0
+		vector[ : half] = alpha + beta
+		vector[n - 1 : half - 1 : -1] = alpha - beta
 		return vector
