@@ -38,10 +38,8 @@ def transform(vector):
 		half = n // 2
 		gamma = vector[ : half]
 		delta = vector[n - 1 : half - 1 : -1]
-		alpha = (gamma + delta)
-		beta  = (gamma - delta) / (numpy.cos(numpy.arange(0.5, half + 0.5) * (numpy.pi / n)) * 2.0)
-		alpha = transform(alpha)
-		beta  = transform(beta )
+		alpha = transform(gamma + delta)
+		beta  = transform((gamma - delta) / (numpy.cos(numpy.arange(0.5, half + 0.5) * (numpy.pi / n)) * 2.0))
 		result = numpy.zeros_like(vector)
 		result[0 : : 2] = alpha
 		result[1 : : 2] = beta
