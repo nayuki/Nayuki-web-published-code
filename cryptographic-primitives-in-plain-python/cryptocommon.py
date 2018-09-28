@@ -43,6 +43,13 @@ def rotate_right_uint32(value, amount):
 
 
 # 'value' must be uint64, 'amount' must be in the range [0, 64), and the result is uint64.
+def rotate_left_uint64(value, amount):
+	assert 0 <= value <= UINT64_MASK
+	assert 0 <= amount < 64
+	return ((value << amount) | (value >> (64 - amount))) & UINT64_MASK
+
+
+# 'value' must be uint64, 'amount' must be in the range [0, 64), and the result is uint64.
 def rotate_right_uint64(value, amount):
 	assert 0 <= value <= UINT64_MASK
 	assert 0 <= amount < 64
