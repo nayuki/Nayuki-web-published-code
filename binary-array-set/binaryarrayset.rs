@@ -65,12 +65,8 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	
 	// Runs in O((log n)^2) time
 	pub fn contains(&self, val: &E) -> bool {
-		for vals in &self.values {
-			if vals.binary_search(val).is_ok() {
-				return true;
-			}
-		}
-		false
+		self.values.iter().any(
+			|vals| vals.binary_search(val).is_ok())
 	}
 	
 	
@@ -89,17 +85,12 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	// Runs in amortized O(1) time, worst-case O(n) time
 	pub fn insert_unique(&mut self, val: E) {
 		assert!(self.size < std::usize::MAX, "Maximum size reached");
+		self.size += 1;
 		let mut toput: Vec<E> = vec![val];
-		for i in 0usize .. {
-			if i >= self.values.len() {
-				self.values.push(toput);
-				break;
-			}
-			
-			let vals: &mut Vec<E> = &mut self.values[i];
+		for vals in &mut self.values {
 			if vals.is_empty() {
 				*vals = toput;
-				break;
+				return;
 			}
 			
 			// Merge two sorted arrays
@@ -107,7 +98,7 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 			assert!(vals.len() <= std::usize::MAX / 2);
 			toput = BinaryArraySet::merge_vecs(vals, &mut toput);
 		}
-		self.size += 1;
+		self.values.push(toput);
 	}
 	
 	

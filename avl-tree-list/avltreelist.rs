@@ -33,7 +33,7 @@ pub struct AvlTreeList<E> {
 impl <E> AvlTreeList<E> {
 	
 	pub fn new() -> Self {
-		AvlTreeList {
+		Self {
 			root: MaybeNode(None),
 		}
 	}
@@ -185,7 +185,7 @@ impl <E> MaybeNode<E> {
 					node.right = node.right.pop().remove_at(0, outval);  // Remove successor node
 					std::mem::swap(outval.as_mut().unwrap(), &mut node.value);  // Replace value by successor
 				} else {
-					break;  // Go to footer
+					break;  // Don't recalculate
 				}
 				node.recalculate();
 			}
@@ -246,8 +246,7 @@ impl <E> MaybeNode<E> {
 		{
 			let selfnode = self.node_mut();
 			root = selfnode.right.pop();
-			let rootnode = root.node_mut();
-			std::mem::swap(&mut selfnode.right, &mut rootnode.left);
+			std::mem::swap(&mut selfnode.right, &mut root.node_mut().left);
 			selfnode.recalculate();
 		} {
 			let rootnode = root.node_mut();
@@ -270,8 +269,7 @@ impl <E> MaybeNode<E> {
 		{
 			let selfnode = self.node_mut();
 			root = selfnode.left.pop();
-			let rootnode = root.node_mut();
-			std::mem::swap(&mut selfnode.left, &mut rootnode.right);
+			std::mem::swap(&mut selfnode.left, &mut root.node_mut().right);
 			selfnode.recalculate();
 		} {
 			let rootnode = root.node_mut();
