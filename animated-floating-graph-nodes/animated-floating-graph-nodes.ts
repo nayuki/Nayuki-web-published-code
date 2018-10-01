@@ -9,17 +9,17 @@
 "use strict";
 
 
-/*---- Configurable constants ----*/
-
-let idealNumNodes: number = NaN;
-let maxExtraEdges: number = NaN;
-let radiiWeightPower: number = NaN;
-let driftSpeed: number = NaN;
-let repulsionForce: number = NaN;
-let BORDER_FADE: number = -0.02;
-let FADE_IN_RATE: number  = 0.06;  // In the range (0.0, 1.0]
-let FADE_OUT_RATE: number = 0.03;  // In the range (0.0, 1.0]
-let FRAME_INTERVAL: number = 20;  // In milliseconds
+namespace config {
+	export let idealNumNodes   : number = NaN;
+	export let maxExtraEdges   : number = NaN;
+	export let radiiWeightPower: number = NaN;
+	export let driftSpeed      : number = NaN;
+	export let repulsionForce  : number = NaN;
+	export let borderFade      : number = -0.02;
+	export let fadeInPerFrame  : number = 0.06;  // In the range (0.0, 1.0]
+	export let fadeOutPerFrame : number = 0.03;  // In the range (0.0, 1.0]
+	export let frameIntervalMs : number = 20;
+}
 
 
 /*---- Major functions ----*/
@@ -73,7 +73,7 @@ function initialize(): void {
 	redrawOutput(svgElem, nodes, edges);
 	
 	// Periodically execute stepFrame() to create animation
-	setInterval(stepFrame, FRAME_INTERVAL);
+	setInterval(stepFrame, config.frameIntervalMs);
 }
 
 
@@ -94,18 +94,18 @@ function initInputHandlers() {
 	}
 	
 	setAndCall("number-nodes", val =>
-		idealNumNodes = Math.round(val));
+		config.idealNumNodes = Math.round(val));
 	setAndCall("extra-edges", val =>
-		maxExtraEdges = Math.round(val / 100 * idealNumNodes));
+		config.maxExtraEdges = Math.round(val / 100 * config.idealNumNodes));
 	setAndCall("network-style", val =>
-		radiiWeightPower = val);
+		config.radiiWeightPower = val);
 	setAndCall("drift-speed", val => {
 		if (!isNaN(val))
-			driftSpeed = val * 0.0001;
+			config.driftSpeed = val * 0.0001;
 	});
 	setAndCall("repulsion-force", val => {
 		if (!isNaN(val))
-			repulsionForce = val * 0.000001;
+			config.repulsionForce = val * 0.000001;
 	});
 }
 
@@ -121,23 +121,24 @@ function updateNodes(relWidth: number, relHeight: number, nodes: Array<GNode>): 
 	let newNodes: Array<GNode> = [];
 	for (let node of nodes) {
 		// Move based on velocity
-		node.posX += node.velX * driftSpeed;
-		node.posY += node.velY * driftSpeed;
+		node.posX += node.velX * config.driftSpeed;
+		node.posY += node.velY * config.driftSpeed;
 		// Randomly perturb velocity, with damping
 		node.velX = node.velX * 0.99 + (Math.random() - 0.5) * 0.3;
 		node.velY = node.velY * 0.99 + (Math.random() - 0.5) * 0.3;
 		
 		// Fade out nodes near the borders of the space or exceeding the target number of nodes
-		let interior = BORDER_FADE < node.posX && node.posX < relWidth - BORDER_FADE &&
-				BORDER_FADE < node.posY && node.posY < relHeight - BORDER_FADE;
-		node.fade(newNodes.length < idealNumNodes && interior);
+		let border: number = config.borderFade;
+		let interior: boolean = border < node.posX && node.posX < relWidth - border &&
+				border < node.posY && node.posY < relHeight - border;
+		node.fade(newNodes.length < config.idealNumNodes && interior);
 		// Only keep visible nodes
 		if (node.opacity > 0)
 			newNodes.push(node);
 	}
 	
 	// Add new nodes to fade in
-	while (newNodes.length < idealNumNodes) {
+	while (newNodes.length < config.idealNumNodes) {
 		newNodes.push(new GNode(
 			Math.random() * relWidth, Math.random() * relHeight,  // Position X and Y
 			(Math.pow(Math.random(), 5) + 0.35) * 0.015,  // Radius skewing toward smaller values
@@ -165,7 +166,7 @@ function doForceField(nodes: Array<GNode>): void {
 			let distSqr: number = dx * dx + dy * dy;
 			// Notes: The factor 1/sqrt(distSqr) is to make (dx, dy) into a unit vector.
 			// 1/distSqr is the inverse square law, with a smoothing constant added to prevent singularity.
-			let factor: number = repulsionForce / (Math.sqrt(distSqr) * (distSqr + 0.00001));
+			let factor: number = config.repulsionForce / (Math.sqrt(distSqr) * (distSqr + 0.00001));
 			dx *= factor;
 			dy *= factor;
 			a.dPosX += dx;
@@ -189,7 +190,7 @@ function updateEdges(nodes: Array<GNode>, edges: Array<GEdge>): Array<GEdge> {
 	let allEdges: Array<[number,number,number]> = calcAllEdgeWeights(nodes);
 	let idealEdges: Array<GEdge> = calcSpanningTree(allEdges, nodes);
 	for (let [_, i, j] of allEdges) {
-		if (idealEdges.length >= nodes.length - 1 + maxExtraEdges)
+		if (idealEdges.length >= nodes.length - 1 + config.maxExtraEdges)
 			break;
 		let edge = new GEdge(nodes[i], nodes[j]);  // Convert data formats
 		if (!containsEdge(idealEdges, edge))
@@ -206,7 +207,7 @@ function updateEdges(nodes: Array<GNode>, edges: Array<GEdge>): Array<GEdge> {
 	
 	// If there is room for new edges, add some missing spanning tree edges (higher priority), then extra edges
 	for (let edge of idealEdges) {
-		if (newEdges.length >= nodes.length - 1 + maxExtraEdges)
+		if (newEdges.length >= nodes.length - 1 + config.maxExtraEdges)
 			break;
 		if (!containsEdge(newEdges, edge))
 			newEdges.push(edge);
@@ -274,7 +275,7 @@ function calcAllEdgeWeights(nodes: Array<GNode>): Array<[number,number,number]> 
 		for (let j = 0; j < i; j++) {
 			let b: GNode = nodes[j];
 			let weight: number = Math.hypot(a.posX - b.posX, a.posY - b.posY);  // Euclidean distance
-			weight /= Math.pow(a.radius * b.radius, radiiWeightPower);  // Give discount based on node radii
+			weight /= Math.pow(a.radius * b.radius, config.radiiWeightPower);  // Give discount based on node radii
 			result.push([weight, i, j]);
 		}
 	}
@@ -321,8 +322,8 @@ class GObject {
 	
 	public fade(fadeIn: boolean): void {
 		this.opacity = fadeIn ?
-			Math.min(this.opacity + FADE_IN_RATE , 1.0) :
-			Math.max(this.opacity - FADE_OUT_RATE, 0.0);
+			Math.min(this.opacity + config.fadeInPerFrame , 1.0) :
+			Math.max(this.opacity - config.fadeOutPerFrame, 0.0);
 	}
 }
 
