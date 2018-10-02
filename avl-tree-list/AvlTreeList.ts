@@ -28,7 +28,7 @@
 
 class AvlTreeList<E> {
 	
-	private root: AvlTreeListNode<E>;
+	private root: AvlTreeListNode<E> = new AvlTreeListEmptyNode<E>();
 	
 	
 	// Constructs a new AVL tree list. If called with no arguments, this creates a blank list.
@@ -37,7 +37,6 @@ class AvlTreeList<E> {
 	//   let a = new AvlTreeList<boolean>();  // Blank, zero-length list
 	//   let b = new AvlTreeList<number>([2,7,1,8]);  // Has the four elements 2,7,1,8
 	public constructor(arr?: Array<E>) {
-		this.root = new AvlTreeListEmptyNode<E>();
 		if (arguments.length == 1 && arr !== undefined)
 			arr.forEach((val: E) => this.push(val));
 		else if (arguments.length != 0)
@@ -102,7 +101,7 @@ class AvlTreeList<E> {
 	public shift(): E {
 		if (this.length == 0)
 			throw "List is empty";
-		let result = this.get(0);
+		let result: E = this.get(0);
 		this.remove(0);
 		return result;
 	}
@@ -242,9 +241,9 @@ interface AvlTreeListNode<E> {
 
 class AvlTreeListEmptyNode<E> implements AvlTreeListNode<E> {
 	
-	public height = 0;
+	public readonly height = 0;
 	
-	public size = 0;
+	public readonly size = 0;
 	
 	
 	public insertAt<E>(index: number, obj: E): AvlTreeListInternalNode<E> {
@@ -262,16 +261,12 @@ class AvlTreeListEmptyNode<E> implements AvlTreeListNode<E> {
 
 class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	
-	// The object stored at this node. Can be any JavaScript type.
-	// Public for the sake of AvlTreeList.
-	public value: E;
-	
 	// This node has height equal to max(left.height, right.height) + 1.
-	public height: number;
+	public height: number = 1;
 	
 	// This node has size equal to left.size + right.size + 1.
 	// Public for the sake of AvlTreeList.
-	public size: number;
+	public size: number = 1;
 	
 	// The root node of the left  subtree. Public for the sake of AvlTreeListIterator.
 	public left : AvlTreeListNode<E>;
@@ -280,12 +275,13 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	public right: AvlTreeListNode<E>;
 	
 	
-	public constructor(val: E, empty: AvlTreeListEmptyNode<E>) {
-		this.value  = val;
-		this.height = 1;
-		this.size   = 1;
-		this.left   = empty;
-		this.right  = empty;
+	public constructor(
+			// The object stored at this node. Can be any JavaScript type.
+			// Public for the sake of AvlTreeList.
+			public value: E,
+			empty: AvlTreeListEmptyNode<E>) {
+		this.left  = empty;
+		this.right = empty;
 	}
 	
 	

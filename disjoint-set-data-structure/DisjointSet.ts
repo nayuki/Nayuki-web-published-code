@@ -110,7 +110,7 @@ class DisjointSet {
 	}
 	
 	
-	// (Private) Returns the representative element for the set containing the given element. This method is also
+	// Returns the representative element for the set containing the given element. This method is also
 	// known as "find" in the literature. Also performs path compression, which alters the internal state to
 	// improve the speed of future queries, but has no externally visible effect on the values returned.
 	private getRepr(elemIndex: number): number {
