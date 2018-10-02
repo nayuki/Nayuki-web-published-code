@@ -475,7 +475,7 @@ namespace app {
 		}
 		
 		
-		public toString() {
+		public toString(): string {
 			return this.data.toString();
 		}
 		

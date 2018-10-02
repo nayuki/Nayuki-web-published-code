@@ -28,8 +28,8 @@ namespace app {
 	
 	
 	// Sets event handlers for form input elements, and sets configuration variables.
-	function initInputHandlers(graph: Graph) {
-		function setAndCall(elemId: string, func: (val: number) => void) {
+	function initInputHandlers(graph: Graph): void {
+		function setAndCall(elemId: string, func: (val: number) => void): void {
 			let handler: () => void;
 			let elem = document.getElementById(elemId);
 			if (elem instanceof HTMLInputElement) {

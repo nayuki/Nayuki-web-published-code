@@ -12,7 +12,7 @@
 function doProve(inputSequent: string): void {
 	(document.getElementById("inputSequent") as HTMLInputElement).value = inputSequent;
 	
-	function clearChildren(node: HTMLElement) {
+	function clearChildren(node: HTMLElement): void {
 		while (node.firstChild != null)
 			node.removeChild(node.firstChild);
 	}
@@ -115,10 +115,10 @@ class Sequent {
 	public toHtml(): DocumentFragment {
 		let result = document.createDocumentFragment();
 		
-		function appendText(text: string) {
+		function appendText(text: string): void {
 			result.appendChild(document.createTextNode(text));
 		}
-		function appendSpan(text: string, clsName: string) {
+		function appendSpan(text: string, clsName: string): void {
 			let elem = document.createElement("span");
 			elem.textContent = text;
 			elem.className = clsName;
@@ -361,7 +361,7 @@ function parseTerm(tok: Tokenizer): Term|null {
 	// Mutant LR parser with deferred reductions
 	let stack: Array<Term|string> = [];  // The stack consists of terms (variables/subexpressions) and strings (operators)
 	
-	function isTerm(x: Term|string) {
+	function isTerm(x: Term|string): boolean {
 		return typeof x != "string";
 	}
 	
