@@ -38,8 +38,8 @@ function calc() {
 		recurrenceText += "Invalid value for \\(k\\)";
 	else if (isNaN(i))
 		recurrenceText += "Invalid value for \\(i\\)";
-	else if (a <= 0)
-		recurrenceText += "\\(a\\) must be positive";
+	else if (a < 0)
+		recurrenceText += "\\(a\\) must be non-negative";
 	else if (b <= 1)
 		recurrenceText += "\\(b\\) must be greater than 1";
 	else if (k < 0)
@@ -55,7 +55,7 @@ function calc() {
 	}
 	
 	var p = Math.log(a) / Math.log(b);
-	var result = "\\(T(n) \\: \\in \\: \u0398(";
+	var result = "\\(T \\: \u2208 \\: \u0398(";
 	if (floatEquals(p, k))
 		result += formatPolyLog(k, i + 1);
 	else if (p < k)
@@ -75,7 +75,7 @@ function calc() {
 }
 
 
-function MathElem(id) {
+function MathElem(id) {  // A container class
 	var containerElem = document.getElementById(id);
 	var nextText = null;
 	

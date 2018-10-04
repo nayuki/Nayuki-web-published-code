@@ -187,6 +187,10 @@ namespace app {
 	}
 	
 	
+	// Returns a list of zero or more segments to represent the given Unicode text string.
+	// The resulting list optimally minimizes the total encoded bit length, subjected to the constraints
+	// in the given {error correction level, minimum version number, maximum version number}.
+	// This function can utilize all four text encoding modes: numeric, alphanumeric, byte, and kanji.
 	function makeSegmentsOptimally(codePoints: Array<number>, ecl: number,
 			minVersion: number, maxVersion: number):
 			[number,Array<Segment>]|null {
@@ -214,6 +218,7 @@ namespace app {
 	}
 	
 	
+	// Returns a list of segments that is optimal for the given text at the given version number.
 	function makeSegmentsOptimallyForVersion(codePoints: Array<number>, version: number): Array<Segment> {
 		if (codePoints.length == 0)
 			return [];
@@ -222,6 +227,7 @@ namespace app {
 	}
 	
 	
+	// Returns an array representing the optimal mode per code point based on the given text and version.
 	function computeCharacterModes(codePoints: Array<number>, version: number): Array<Mode> {
 		if (codePoints.length == 0)
 			throw "Empty string";
@@ -242,11 +248,11 @@ namespace app {
 		let prevCosts: Array<number> = headCosts.slice();
 		
 		// Calculate costs using dynamic programming
-		codePoints.forEach((c, i) => {
+		codePoints.forEach((c: number, i: number) => {
 			let cModes: Array<Mode|null> = modeTypes.map(_ => null);
 			
 			let curCosts: Array<number> = modeTypes.map(_ => Infinity);
-			{  // Always extend a bytes segment
+			{  // Always extend a byte mode segment
 				curCosts[0] = prevCosts[0] + countUtf8Bytes(c) * 8 * 6;
 				cModes[0] = modeTypes[0];
 			}
@@ -289,14 +295,17 @@ namespace app {
 		// Get optimal mode for each code point by tracing backwards
 		let result: Array<Mode> = [];
 		for (let i = codePoints.length - 1; i >= 0; i--) {
-			curModeIndex = modeTypes.indexOf(charModes[i][curModeIndex]);
-			result.push(modeTypes[curModeIndex]);
+			let curMode = charModes[i][curModeIndex];
+			curModeIndex = modeTypes.indexOf(curMode);
+			result.push(curMode);
 		}
 		result.reverse();
 		return result;
 	}
 	
 	
+	// Returns a list of segments based on the given text and modes, such that
+	// consecutive code points in the same mode are put into the same segment.
 	function splitIntoSegments(codePoints: Array<number>, charModes: Array<Mode>): Array<Segment> {
 		if (codePoints.length == 0)
 			throw "Empty string";
@@ -381,7 +390,7 @@ namespace app {
 	
 	/*---- Low-level computation functions ----*/
 	
-	// Converts the given UTF-16 string to a new array of Unicode code points (effectively UTF-32 / UCS-4).
+	// Returns an array of Unicode code points (effectively UTF-32 / UCS-4) representing the given UTF-16 string.
 	function toCodePoints(s: string): Array<number> {
 		let result: Array<number> = [];
 		for (let i = 0; i < s.length; i++) {
