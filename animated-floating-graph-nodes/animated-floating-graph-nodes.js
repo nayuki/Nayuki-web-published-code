@@ -55,7 +55,7 @@ var app;
             return graph.idealNumNodes = Math.round(val);
         });
         setAndCall("extra-edges", function (val) {
-            return graph.maxExtraEdges = Math.round(val / 100 * graph.idealNumNodes);
+            return graph.extraEdgeProportion = val / 100;
         });
         setAndCall("network-style", function (val) {
             return graph.radiiWeightPower = val;
@@ -74,7 +74,7 @@ var app;
         function Graph() {
             // Configuration
             this.idealNumNodes = NaN;
-            this.maxExtraEdges = NaN;
+            this.extraEdgeProportion = NaN;
             this.radiiWeightPower = NaN;
             this.driftSpeed = NaN;
             this.repulsionForce = NaN;
@@ -84,6 +84,7 @@ var app;
             // State
             this.relWidth = NaN;
             this.relHeight = NaN;
+            this.frameNumber = NaN;
             this.nodes = [];
             this.edges = [];
         }
@@ -95,33 +96,20 @@ var app;
             return this;
         };
         Graph.prototype.initGraph = function () {
-            // Generate initial nodes
             this.nodes = [];
-            this.updateNodes();
-            // Spread out nodes to avoid ugly clumping
-            for (var i = 0; i < 300; i++)
-                this.doForceField();
-            // Generate spanning tree of edges
             this.edges = [];
-            this.updateEdges();
-            // Make everything render immediately instead of fading in
-            for (var _i = 0, _a = this.nodes; _i < _a.length; _i++) {
-                var node = _a[_i];
-                node.opacity = 1;
-            }
-            for (var _b = 0, _c = this.edges; _b < _c.length; _b++) {
-                var edge = _c[_b];
-                edge.opacity = 1;
-            }
+            this.frameNumber = 0;
         };
         Graph.prototype.stepFrame = function () {
             this.updateNodes();
             this.updateEdges();
+            this.frameNumber++;
         };
         // Updates, adds, and remove nodes according to the animation rules.
         Graph.prototype.updateNodes = function () {
             // Update each node's position, velocity, opacity. Remove fully transparent nodes.
             var newNodes = [];
+            var curIdealNumNodes = Math.min(Math.floor(this.frameNumber / 3), this.idealNumNodes);
             for (var _i = 0, _a = this.nodes; _i < _a.length; _i++) {
                 var node = _a[_i];
                 // Move based on velocity
@@ -132,14 +120,14 @@ var app;
                 node.velY = node.velY * 0.99 + (Math.random() - 0.5) * 0.3;
                 // Fade out nodes near the borders of the rectangle, or exceeding the target number of nodes
                 var insideness = Math.min(node.posX, this.relWidth - node.posX, node.posY, this.relHeight - node.posY);
-                node.fade(newNodes.length < this.idealNumNodes && insideness > this.borderFade ?
+                node.fade(newNodes.length < curIdealNumNodes && insideness > this.borderFade ?
                     this.fadeInPerFrame : this.fadeOutPerFrame);
                 // Only keep visible nodes
                 if (node.opacity > 0)
                     newNodes.push(node);
             }
             // Add new nodes to fade in
-            while (newNodes.length < this.idealNumNodes) {
+            while (newNodes.length < curIdealNumNodes) {
                 newNodes.push(new GNode(Math.random() * this.relWidth, Math.random() * this.relHeight, // Position X and Y
                 (Math.pow(Math.random(), 5) + 0.35) * 0.015, // Radius skewing toward smaller values
                 0.0, 0.0)); // Velocity
@@ -182,10 +170,11 @@ var app;
         Graph.prototype.updateEdges = function () {
             // Calculate array of spanning tree edges, then add some extra low-weight edges
             var allEdges = this.calcAllEdgeWeights();
+            var idealNumEdges = Math.round((this.nodes.length - 1) * (1 + this.extraEdgeProportion));
             var idealEdges = this.calcSpanningTree(allEdges);
             for (var _i = 0, allEdges_1 = allEdges; _i < allEdges_1.length; _i++) {
                 var _a = allEdges_1[_i], _ = _a[0], i = _a[1], j = _a[2];
-                if (idealEdges.length >= this.nodes.length - 1 + this.maxExtraEdges)
+                if (idealEdges.length >= idealNumEdges)
                     break;
                 var edge = new GEdge(this.nodes[i], this.nodes[j]); // Convert data formats
                 if (!Graph.containsEdge(idealEdges, edge))
@@ -203,7 +192,7 @@ var app;
             // If there's room for new edges, add some missing spanning tree edges (higher priority), then extra edges
             for (var _d = 0, idealEdges_1 = idealEdges; _d < idealEdges_1.length; _d++) {
                 var edge = idealEdges_1[_d];
-                if (newEdges.length >= this.nodes.length - 1 + this.maxExtraEdges)
+                if (newEdges.length >= idealNumEdges)
                     break;
                 if (!Graph.containsEdge(newEdges, edge))
                     newEdges.push(edge);

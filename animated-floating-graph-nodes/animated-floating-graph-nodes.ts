@@ -46,7 +46,7 @@ namespace app {
 		setAndCall("number-nodes", val =>
 			graph.idealNumNodes = Math.round(val));
 		setAndCall("extra-edges", val =>
-			graph.maxExtraEdges = Math.round(val / 100 * graph.idealNumNodes));
+			graph.extraEdgeProportion = val / 100);
 		setAndCall("network-style", val =>
 			graph.radiiWeightPower = val);
 		setAndCall("drift-speed", val => {
@@ -67,7 +67,7 @@ namespace app {
 		
 		// Configuration
 		public idealNumNodes   : number = NaN;
-		public maxExtraEdges   : number = NaN;
+		public extraEdgeProportion: number = NaN;
 		public radiiWeightPower: number = NaN;
 		public driftSpeed      : number = NaN;
 		public repulsionForce  : number = NaN;
@@ -78,6 +78,7 @@ namespace app {
 		// State
 		protected relWidth : number = NaN;
 		protected relHeight: number = NaN;
+		private frameNumber: number = NaN;
 		protected nodes: Array<GNode> = [];
 		protected edges: Array<GEdge> = [];
 		
@@ -92,29 +93,16 @@ namespace app {
 		
 		
 		public initGraph(): void {
-			// Generate initial nodes
 			this.nodes = [];
-			this.updateNodes();
-			
-			// Spread out nodes to avoid ugly clumping
-			for (let i = 0; i < 300; i++)
-				this.doForceField();
-			
-			// Generate spanning tree of edges
 			this.edges = [];
-			this.updateEdges();
-			
-			// Make everything render immediately instead of fading in
-			for (let node of this.nodes)
-				node.opacity = 1;
-			for (let edge of this.edges)
-				edge.opacity = 1;
+			this.frameNumber = 0;
 		}
 		
 		
 		public stepFrame(): void {
 			this.updateNodes();
 			this.updateEdges();
+			this.frameNumber++;
 		}
 		
 		
@@ -122,6 +110,7 @@ namespace app {
 		private updateNodes(): void {
 			// Update each node's position, velocity, opacity. Remove fully transparent nodes.
 			let newNodes: Array<GNode> = [];
+			let curIdealNumNodes = Math.min(Math.floor(this.frameNumber / 3), this.idealNumNodes);
 			for (let node of this.nodes) {
 				// Move based on velocity
 				node.posX += node.velX * this.driftSpeed;
@@ -133,7 +122,7 @@ namespace app {
 				// Fade out nodes near the borders of the rectangle, or exceeding the target number of nodes
 				let insideness = Math.min(node.posX, this.relWidth - node.posX,
 					node.posY, this.relHeight - node.posY);
-				node.fade(newNodes.length < this.idealNumNodes && insideness > this.borderFade ?
+				node.fade(newNodes.length < curIdealNumNodes && insideness > this.borderFade ?
 					this.fadeInPerFrame : this.fadeOutPerFrame);
 				// Only keep visible nodes
 				if (node.opacity > 0)
@@ -141,7 +130,7 @@ namespace app {
 			}
 			
 			// Add new nodes to fade in
-			while (newNodes.length < this.idealNumNodes) {
+			while (newNodes.length < curIdealNumNodes) {
 				newNodes.push(new GNode(
 					Math.random() * this.relWidth, Math.random() * this.relHeight,  // Position X and Y
 					(Math.pow(Math.random(), 5) + 0.35) * 0.015,  // Radius skewing toward smaller values
@@ -189,9 +178,10 @@ namespace app {
 		private updateEdges(): void {
 			// Calculate array of spanning tree edges, then add some extra low-weight edges
 			let allEdges: Array<[number,number,number]> = this.calcAllEdgeWeights();
+			let idealNumEdges = Math.round((this.nodes.length - 1) * (1 + this.extraEdgeProportion));
 			let idealEdges: Array<GEdge> = this.calcSpanningTree(allEdges);
 			for (let [_, i, j] of allEdges) {
-				if (idealEdges.length >= this.nodes.length - 1 + this.maxExtraEdges)
+				if (idealEdges.length >= idealNumEdges)
 					break;
 				let edge = new GEdge(this.nodes[i], this.nodes[j]);  // Convert data formats
 				if (!Graph.containsEdge(idealEdges, edge))
@@ -209,7 +199,7 @@ namespace app {
 			
 			// If there's room for new edges, add some missing spanning tree edges (higher priority), then extra edges
 			for (let edge of idealEdges) {
-				if (newEdges.length >= this.nodes.length - 1 + this.maxExtraEdges)
+				if (newEdges.length >= idealNumEdges)
 					break;
 				if (!Graph.containsEdge(newEdges, edge))
 					newEdges.push(edge);
