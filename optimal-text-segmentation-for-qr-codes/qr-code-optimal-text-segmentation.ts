@@ -187,10 +187,10 @@ namespace app {
 	}
 	
 	
-	// Returns a list of zero or more segments to represent the given Unicode text string.
-	// The resulting list optimally minimizes the total encoded bit length, subjected to the constraints
-	// in the given {error correction level, minimum version number, maximum version number}.
-	// This function can utilize all four text encoding modes: numeric, alphanumeric, byte, and kanji.
+	// Returns a new array of zero or more segments to represent the given Unicode text string.
+	// The resulting array optimally minimizes the total encoded bit length, subjected to the
+	// constraints in the given {error correction level, minimum version number, maximum version number}.
+	// This function can utilize all four text encoding modes: numeric, alphanumeric, byte (UTF-8), and kanji.
 	function makeSegmentsOptimally(codePoints: Array<number>, ecl: number,
 			minVersion: number, maxVersion: number):
 			[number,Array<Segment>]|null {
@@ -218,7 +218,7 @@ namespace app {
 	}
 	
 	
-	// Returns a list of segments that is optimal for the given text at the given version number.
+	// Returns a new array of segments that is optimal for the given text at the given version number.
 	function makeSegmentsOptimallyForVersion(codePoints: Array<number>, version: number): Array<Segment> {
 		if (codePoints.length == 0)
 			return [];
@@ -227,7 +227,7 @@ namespace app {
 	}
 	
 	
-	// Returns an array representing the optimal mode per code point based on the given text and version.
+	// Returns a new array representing the optimal mode per code point based on the given text and version.
 	function computeCharacterModes(codePoints: Array<number>, version: number): Array<Mode> {
 		if (codePoints.length == 0)
 			throw "Empty string";
@@ -304,7 +304,7 @@ namespace app {
 	}
 	
 	
-	// Returns a list of segments based on the given text and modes, such that
+	// Returns a new array of segments based on the given text and modes, such that
 	// consecutive code points in the same mode are put into the same segment.
 	function splitIntoSegments(codePoints: Array<number>, charModes: Array<Mode>): Array<Segment> {
 		if (codePoints.length == 0)
@@ -390,7 +390,8 @@ namespace app {
 	
 	/*---- Low-level computation functions ----*/
 	
-	// Returns an array of Unicode code points (effectively UTF-32 / UCS-4) representing the given UTF-16 string.
+	// Returns a new array of Unicode code points (effectively
+	// UTF-32 / UCS-4) representing the given UTF-16 string.
 	function toCodePoints(s: string): Array<number> {
 		let result: Array<number> = [];
 		for (let i = 0; i < s.length; i++) {
@@ -421,7 +422,8 @@ namespace app {
 	}
 	
 	
-	// Returns the bit width of the segment character count field for the given mode at the given version number.
+	// Returns the bit width of the character count field for a segment
+	// in the given mode in a QR Code at the given version number.
 	function getNumCharCountBits(mode: Mode, version: number): number {
 		if (version < 1 || version > 40)
 			throw "Invalid version";

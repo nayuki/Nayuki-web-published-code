@@ -32,7 +32,7 @@
  *   - Function encodeSegments(list<QrSegment> segs, QrCode.Ecc ecl,
  *         int minVersion=1, int maxVersion=40, mask=-1, boostEcl=true) -> QrCode
  *   - Constants int MIN_VERSION, MAX_VERSION
- *   - Constructor QrCode(list<int> datacodewords, int mask, int version, QrCode.Ecc ecl)
+ *   - Constructor QrCode(int version, QrCode.Ecc ecl, list<byte> dataCodewords, int mask)
  *   - Fields int version, size, mask
  *   - Field QrCode.Ecc errorCorrectionLevel
  *   - Method getModule(int x, int y) -> bool
@@ -42,7 +42,7 @@
  *     - Constants LOW, MEDIUM, QUARTILE, HIGH
  *     - Field int ordinal
  * - Class QrSegment:
- *   - Function makeBytes(list<int> data) -> QrSegment
+ *   - Function makeBytes(list<byte> data) -> QrSegment
  *   - Function makeNumeric(str data) -> QrSegment
  *   - Function makeAlphanumeric(str data) -> QrSegment
  *   - Function makeSegments(str text) -> list<QrSegment>
@@ -50,7 +50,7 @@
  *   - Constructor QrSegment(QrSegment.Mode mode, int numChars, list<int> bitData)
  *   - Field QrSegment.Mode mode
  *   - Field int numChars
- *   - Method getBits() -> list<int>
+ *   - Method getData() -> list<int>
  *   - Constants RegExp NUMERIC_REGEX, ALPHANUMERIC_REGEX
  *   - Enum Mode:
  *     - Constants NUMERIC, ALPHANUMERIC, BYTE, KANJI, ECI
@@ -60,42 +60,56 @@ var qrcodegen = new function() {
 	/*---- QR Code symbol class ----*/
 	
 	/* 
-	 * A class that represents an immutable square grid of black and white cells for a QR Code symbol,
-	 * with associated static functions to create a QR Code from user-supplied textual or binary data.
-	 * This class covers the QR Code model 2 specification, supporting all versions (sizes)
-	 * from 1 to 40, all 4 error correction levels.
-	 * This constructor creates a new QR Code symbol with the given version number, error correction level, binary data array,
-	 * and mask number. mask = -1 is for automatic choice, or 0 to 7 for fixed choice. This is a cumbersome low-level constructor
-	 * that should not be invoked directly by the user. To go one level up, see the QrCode.encodeSegments() function.
+	 * A class that represents a QR Code symbol, which is a type of two-dimension barcode.
+	 * Invented by Denso Wave and described in the ISO/IEC 18004 standard.
+	 * Instances of this class represent an immutable square grid of black and white cells.
+	 * The class provides static factory functions to create a QR Code from text or binary data.
+	 * The class covers the QR Code Model 2 specification, supporting all versions (sizes)
+	 * from 1 to 40, all 4 error correction levels, and 4 character encoding modes.
+	 * 
+	 * Ways to create a QR Code object:
+	 * - High level: Take the payload data and call QrCode.encodeText() or QrCode.encodeBinary().
+	 * - Mid level: Custom-make the list of segments and call QrCode.encodeSegments().
+	 * - Low level: Custom-make the array of data codeword bytes (including
+	 *   segment headers and final padding, excluding error correction codewords),
+	 *   supply the appropriate version number, and call the QrCode() constructor.
+	 * (Note that all ways require supplying the desired error correction level.)
+	 * 
+	 * This constructor creates a new QR Code with the given version number,
+	 * error correction level, data codeword bytes, and mask number.
+	 * This is a low-level API that most users should not use directly.
+	 * A mid-level API is the encodeSegments() function.
 	 */
-	this.QrCode = function(datacodewords, mask, version, errCorLvl) {
+	this.QrCode = function(version, errCorLvl, dataCodewords, mask) {
 		
-		/*---- Constructor ----*/
+		/*---- Constructor (low level) ----*/
 		
-		// Check arguments and handle simple scalar fields
-		if (mask < -1 || mask > 7)
-			throw "Mask value out of range";
+		// Check scalar arguments
 		if (version < MIN_VERSION || version > MAX_VERSION)
 			throw "Version value out of range";
+		if (mask < -1 || mask > 7)
+			throw "Mask value out of range";
+		if (!(errCorLvl instanceof Ecc))
+			throw "QrCode.Ecc expected";
 		var size = version * 4 + 17;
 		
 		// Initialize both grids to be size*size arrays of Boolean false
 		var row = [];
 		for (var i = 0; i < size; i++)
 			row.push(false);
-		var modules = [];
+		var modules    = [];  // Initially all white
 		var isFunction = [];
 		for (var i = 0; i < size; i++) {
-			modules.push(row.slice());
+			modules   .push(row.slice());
 			isFunction.push(row.slice());
 		}
 		
-		// Handle grid fields, draw function patterns, draw all codewords
+		// Compute ECC, draw modules
 		drawFunctionPatterns();
-		var allCodewords = addEccAndInterleave(datacodewords);
+		var allCodewords = addEccAndInterleave(dataCodewords);
 		drawCodewords(allCodewords);
 		
-		// Handle masking
+		// Do masking
 		if (mask == -1) {  // Automatically choose best mask
 			var minPenalty = Infinity;
 			for (var i = 0; i < 8; i++) {
@@ -113,31 +127,33 @@ var qrcodegen = new function() {
 			throw "Assertion error";
 		drawFormatBits(mask);  // Overwrite old format bits
 		applyMask(mask);  // Apply the final choice of mask
+		
 		isFunction = null;
 		
 		
 		/*---- Read-only instance properties ----*/
 		
-		// This QR Code symbol's version number, which is always between 1 and 40 (inclusive).
+		// The version number of this QR Code, which is between 1 and 40 (inclusive).
+		// This determines the size of this barcode.
 		Object.defineProperty(this, "version", {value:version});
 		
-		// The width and height of this QR Code symbol, measured in modules.
-		// Always equal to version * 4 + 17, in the range 21 to 177.
+		// The width and height of this QR Code, measured in modules, between
+		// 21 and 177 (inclusive). This is equal to version * 4 + 17.
 		Object.defineProperty(this, "size", {value:size});
 		
-		// The error correction level used in this QR Code symbol.
+		// The error correction level used in this QR Code.
 		Object.defineProperty(this, "errorCorrectionLevel", {value:errCorLvl});
 		
-		// The mask pattern used in this QR Code symbol, in the range 0 to 7 (i.e. unsigned 3-bit integer).
-		// Note that even if the constructor was called with automatic masking requested
-		// (mask = -1), the resulting object will still have a mask value between 0 and 7.
+		// The index of the mask pattern used in this QR Code, which is between 0 and 7 (inclusive).
+		// Even if a QR Code is created with automatic masking requested (mask = -1),
+		// the resulting object still has a mask value between 0 and 7.
 		Object.defineProperty(this, "mask", {value:mask});
 		
 		
 		/*---- Accessor methods ----*/
 		
-		// (Public) Returns the color of the module (pixel) at the given coordinates, which is either
-		// false for white or true for black. The top left corner has the coordinates (x=0, y=0).
+		// Returns the color of the module (pixel) at the given coordinates, which is false
+		// for white or true for black. The top left corner has the coordinates (x=0, y=0).
 		// If the given coordinates are out of bounds, then false (white) is returned.
 		this.getModule = function(x, y) {
 			return 0 <= x && x < size && 0 <= y && y < size && modules[y][x];
@@ -146,9 +162,10 @@ var qrcodegen = new function() {
 		
 		/*---- Public instance methods ----*/
 		
-		// Draws this QR Code symbol with the given module scale and number of modules onto the given HTML canvas element.
-		// The canvas will be resized to a width and height of (this.size + border * 2) * scale. The painted image will be purely
-		// black and white with no transparent regions. The scale must be a positive integer, and the border must be a non-negative integer.
+		// Draws this QR Code, with the given module scale and border modules, onto the given HTML
+		// canvas element. The canvas's width and height is resized to (this.size + border * 2) * scale.
+		// The drawn image is be purely black and white, and fully opaque.
+		// The scale must be a positive integer and the border must be a non-negative integer.
 		this.drawCanvas = function(scale, border, canvas) {
 			if (scale <= 0 || border < 0)
 				throw "Value out of range";
@@ -164,8 +181,8 @@ var qrcodegen = new function() {
 			}
 		};
 		
-		// Returns a string of SVG XML code representing an image of this QR Code symbol with the given
-		// number of border modules. Note that Unix newlines (\n) are always used, regardless of the platform.
+		// Returns a string of SVG code for an image depicting this QR Code, with the given number
+		// of border modules. The string always uses Unix newlines (\n), regardless of the platform.
 		this.toSvgString = function(border) {
 			if (border < 0)
 				throw "Border must be non-negative";
@@ -276,10 +293,10 @@ var qrcodegen = new function() {
 		// Draws a 9*9 finder pattern including the border separator,
 		// with the center module at (x, y). Modules can be out of bounds.
 		function drawFinderPattern(x, y) {
-			for (var i = -4; i <= 4; i++) {
-				for (var j = -4; j <= 4; j++) {
-					var dist = Math.max(Math.abs(i), Math.abs(j));  // Chebyshev/infinity norm
-					var xx = x + j, yy = y + i;
+			for (var dy = -4; dy <= 4; dy++) {
+				for (var dx = -4; dx <= 4; dx++) {
+					var dist = Math.max(Math.abs(dx), Math.abs(dy));  // Chebyshev/infinity norm
+					var xx = x + dx, yy = y + dy;
 					if (0 <= xx && xx < size && 0 <= yy && yy < size)
 						setFunctionModule(xx, yy, dist != 2 && dist != 4);
 				}
@@ -290,9 +307,9 @@ var qrcodegen = new function() {
 		// Draws a 5*5 alignment pattern, with the center module
 		// at (x, y). All modules must be in bounds.
 		function drawAlignmentPattern(x, y) {
-			for (var i = -2; i <= 2; i++) {
-				for (var j = -2; j <= 2; j++)
-					setFunctionModule(x + j, y + i, Math.max(Math.abs(i), Math.abs(j)) != 1);
+			for (var dy = -2; dy <= 2; dy++) {
+				for (var dx = -2; dx <= 2; dx++)
+					setFunctionModule(x + dx, y + dy, Math.max(Math.abs(dx), Math.abs(dy)) != 1);
 			}
 		}
 		
@@ -348,7 +365,7 @@ var qrcodegen = new function() {
 		
 		
 		// Draws the given sequence of 8-bit codewords (data and error correction) onto the entire
-		// data area of this QR Code symbol. Function modules need to be marked off before this is called.
+		// data area of this QR Code. Function modules need to be marked off before this is called.
 		function drawCodewords(data) {
 			if (data.length != Math.floor(QrCode.getNumRawDataModules(version) / 8))
 				throw "Invalid argument";
@@ -380,7 +397,7 @@ var qrcodegen = new function() {
 		// The function modules must be marked and the codeword bits must be drawn
 		// before masking. Due to the arithmetic of XOR, calling applyMask() with
 		// the same mask value a second time will undo the mask. A final well-formed
-		// QR Code symbol needs exactly one (not zero, two, etc.) mask applied.
+		// QR Code needs exactly one (not zero, two, etc.) mask applied.
 		function applyMask(mask) {
 			if (mask < 0 || mask > 7)
 				throw "Mask value out of range";
@@ -398,7 +415,8 @@ var qrcodegen = new function() {
 						case 7:  invert = ((x + y) % 2 + x * y % 3) % 2 == 0;                break;
 						default:  throw "Assertion error";
 					}
-					modules[y][x] ^= invert & !isFunction[y][x];
+					if (!isFunction[y][x] && invert)
+						modules[y][x] = !modules[y][x];
 				}
 			}
 		}
@@ -509,10 +527,10 @@ var qrcodegen = new function() {
 	};
 	
 	
-	/*---- Public static factory functions for QrCode ----*/
+	/*---- Static factory functions (high level) for QrCode ----*/
 	
 	/* 
-	 * Returns a QR Code symbol representing the given Unicode text string at the given error correction level.
+	 * Returns a QR Code representing the given Unicode text string at the given error correction level.
 	 * As a conservative upper bound, this function is guaranteed to succeed for strings that have 738 or fewer
 	 * Unicode code points (not UTF-16 code units) if the low error correction level is used. The smallest possible
 	 * QR Code version is automatically chosen for the output. The ECC level of the result may be higher than the
@@ -525,7 +543,7 @@ var qrcodegen = new function() {
 	
 	
 	/* 
-	 * Returns a QR Code symbol representing the given binary data string at the given error correction level.
+	 * Returns a QR Code representing the given binary data at the given error correction level.
 	 * This function always encodes using the binary segment mode, not any text mode. The maximum number of
 	 * bytes allowed is 2953. The smallest possible QR Code version is automatically chosen for the output.
 	 * The ECC level of the result may be higher than the ecl argument if it can be done without increasing the version.
@@ -536,12 +554,18 @@ var qrcodegen = new function() {
 	};
 	
 	
+	/*---- Static factory functions (mid level) for QrCode ----*/
+	
 	/* 
-	 * Returns a QR Code symbol representing the given segments with the given encoding parameters.
-	 * The smallest possible QR Code version within the given range is automatically chosen for the output.
+	 * Returns a QR Code representing the given segments with the given encoding parameters.
+	 * The smallest possible QR Code version within the given range is automatically
+	 * chosen for the output. Iff boostEcl is true, then the ECC level of the result
+	 * may be higher than the ecl argument if it can be done without increasing the
+	 * version. The mask number is either between 0 to 7 (inclusive) to force that
+	 * mask, or -1 to automatically choose an appropriate mask (which may be slow).
 	 * This function allows the user to create a custom sequence of segments that switches
-	 * between modes (such as alphanumeric and binary) to encode text more efficiently.
-	 * This function is considered to be lower level than simply encoding text or binary data.
+	 * between modes (such as alphanumeric and byte) to encode text in less space.
+	 * This is a mid-level API; the high-level API is encodeText() and encodeBinary().
 	 */
 	this.QrCode.encodeSegments = function(segs, ecl, minVersion, maxVersion, mask, boostEcl) {
 		if (minVersion == undefined) minVersion = MIN_VERSION;
@@ -573,7 +597,7 @@ var qrcodegen = new function() {
 		segs.forEach(function(seg) {
 			bb.appendBits(seg.mode.modeBits, 4);
 			bb.appendBits(seg.numChars, seg.mode.numCharCountBits(version));
-			seg.getBits().forEach(function(bit) {
+			seg.getData().forEach(function(bit) {
 				bb.push(bit);
 			});
 		});
@@ -593,17 +617,17 @@ var qrcodegen = new function() {
 		for (var padByte = 0xEC; bb.length < dataCapacityBits; padByte ^= 0xEC ^ 0x11)
 			bb.appendBits(padByte, 8);
 		
-		// Create the QR Code symbol
-		return new this(bb.getBytes(), mask, version, ecl);
+		// Pack bits into bytes in big endian
+		var dataCodewords = [];
+		while (dataCodewords.length * 8 < bb.length)
+			dataCodewords.push(0);
+		bb.forEach(function(bit, i) {
+			dataCodewords[i >>> 3] |= bit << (7 - (i & 7));
+		});
+		
+		// Create the QR Code object
+		return new this(version, ecl, dataCodewords, mask);
 	};
-	
-	
-	/*---- Public constants for QrCode ----*/
-	
-	var MIN_VERSION =  1;
-	var MAX_VERSION = 40;
-	Object.defineProperty(this.QrCode, "MIN_VERSION", {value:MIN_VERSION});
-	Object.defineProperty(this.QrCode, "MAX_VERSION", {value:MAX_VERSION});
 	
 	
 	/*---- Private static helper functions for QrCode ----*/
@@ -638,7 +662,12 @@ var qrcodegen = new function() {
 	};
 	
 	
-	/*---- Private tables of constants for QrCode ----*/
+	/*---- Constants and tables for QrCode ----*/
+	
+	var MIN_VERSION =  1;  // The minimum version number supported in the QR Code Model 2 standard
+	var MAX_VERSION = 40;  // The maximum version number supported in the QR Code Model 2 standard
+	Object.defineProperty(this.QrCode, "MIN_VERSION", {value:MIN_VERSION});
+	Object.defineProperty(this.QrCode, "MAX_VERSION", {value:MAX_VERSION});
 	
 	// For use in getPenaltyScore(), when evaluating which mask is best.
 	QrCode.PENALTY_N1 =  3;
@@ -668,14 +697,13 @@ var qrcodegen = new function() {
 	/*---- Public helper enumeration ----*/
 	
 	/* 
-	 * Represents the error correction level used in a QR Code symbol.
+	 * The error correction level in a QR Code symbol. Immutable.
 	 */
 	this.QrCode.Ecc = {
-		// Constants declared in ascending order of error protection
-		LOW     : new Ecc(0, 1),
-		MEDIUM  : new Ecc(1, 0),
-		QUARTILE: new Ecc(2, 3),
-		HIGH    : new Ecc(3, 2),
+		LOW     : new Ecc(0, 1),  // The QR Code can tolerate about  7% erroneous codewords
+		MEDIUM  : new Ecc(1, 0),  // The QR Code can tolerate about 15% erroneous codewords
+		QUARTILE: new Ecc(2, 3),  // The QR Code can tolerate about 25% erroneous codewords
+		HIGH    : new Ecc(3, 2),  // The QR Code can tolerate about 30% erroneous codewords
 	};
 	
 	
@@ -693,34 +721,48 @@ var qrcodegen = new function() {
 	/*---- Data segment class ----*/
 	
 	/* 
-	 * Represents a segment of character data, binary data, or control data
-	 * to be put into a QR Code symbol. Instances of this class are immutable.
+	 * A segment of character/binary/control data in a QR Code symbol.
+	 * Instances of this class are immutable.
+	 * The mid-level way to create a segment is to take the payload data
+	 * and call a static factory function such as QrSegment.makeNumeric().
+	 * The low-level way to create a segment is to custom-make the bit buffer
+	 * and call the QrSegment() constructor with appropriate values.
 	 * This segment class imposes no length restrictions, but QR Codes have restrictions.
 	 * Even in the most favorable conditions, a QR Code can only hold 7089 characters of data.
 	 * Any segment longer than this is meaningless for the purpose of generating QR Codes.
+	 * This constructor creates a QR Code segment with the given attributes and data.
+	 * The character count (numChars) must agree with the mode and the bit buffer length,
+	 * but the constraint isn't checked. The given bit buffer is cloned and stored.
 	 */
 	this.QrSegment = function(mode, numChars, bitData) {
+		/*---- Constructor (low level) ----*/
 		if (numChars < 0 || !(mode instanceof Mode))
 			throw "Invalid argument";
+		
+		// The data bits of this segment. Accessed through getData().
 		bitData = bitData.slice();  // Make defensive copy
 		
-		// The mode indicator for this segment.
+		// The mode indicator of this segment.
 		Object.defineProperty(this, "mode", {value:mode});
 		
-		// The length of this segment's unencoded data, measured in characters. Always zero or positive.
+		// The length of this segment's unencoded data. Measured in characters for
+		// numeric/alphanumeric/kanji mode, bytes for byte mode, and 0 for ECI mode.
+		// Always zero or positive. Not the same as the data's bit length.
 		Object.defineProperty(this, "numChars", {value:numChars});
 		
-		// Returns a copy of all bits, which is an array of 0s and 1s.
-		this.getBits = function() {
+		// Returns a new copy of the data bits of this segment.
+		this.getData = function() {
 			return bitData.slice();  // Make defensive copy
 		};
 	};
 	
 	
-	/*---- Public static factory functions for QrSegment ----*/
+	/*---- Static factory functions (mid level) for QrSegment ----*/
 	
 	/* 
-	 * Returns a segment representing the given binary data encoded in byte mode.
+	 * Returns a segment representing the given binary data encoded in
+	 * byte mode. All input byte arrays are acceptable. Any text string
+	 * can be converted to UTF-8 bytes and encoded as a byte mode segment.
 	 */
 	this.QrSegment.makeBytes = function(data) {
 		var bb = new BitBuffer();
@@ -791,12 +833,14 @@ var qrcodegen = new function() {
 	 */
 	this.QrSegment.makeEci = function(assignVal) {
 		var bb = new BitBuffer();
-		if (0 <= assignVal && assignVal < (1 << 7))
+		if (assignVal < 0)
+			throw "ECI assignment value out of range";
+		else if (assignVal < (1 << 7))
 			bb.appendBits(assignVal, 8);
-		else if ((1 << 7) <= assignVal && assignVal < (1 << 14)) {
+		else if (assignVal < (1 << 14)) {
 			bb.appendBits(2, 2);
 			bb.appendBits(assignVal, 14);
-		} else if ((1 << 14) <= assignVal && assignVal < 1000000) {
+		} else if (assignVal < 1000000) {
 			bb.appendBits(6, 3);
 			bb.appendBits(assignVal, 21);
 		} else
@@ -814,7 +858,7 @@ var qrcodegen = new function() {
 			var ccbits = seg.mode.numCharCountBits(version);
 			if (seg.numChars >= (1 << ccbits))
 				return Infinity;  // The segment's length doesn't fit the field's bit width
-			result += 4 + ccbits + seg.getBits().length;
+			result += 4 + ccbits + seg.getData().length;
 		}
 		return result;
 	};
@@ -824,20 +868,26 @@ var qrcodegen = new function() {
 	
 	var QrSegment = {};  // Private object to assign properties to. Not the same object as 'this.QrSegment'.
 	
-	// (Public) Can test whether a string is encodable in numeric mode (such as by using QrSegment.makeNumeric()).
+	// (Public) Describes precisely all strings that are encodable in numeric mode.
+	// To test whether a string s is encodable: var ok = NUMERIC_REGEX.test(s);
+	// A string is encodable iff each character is in the range 0 to 9.
 	this.QrSegment.NUMERIC_REGEX = /^[0-9]*$/;
 	
-	// (Public) Can test whether a string is encodable in alphanumeric mode (such as by using QrSegment.makeAlphanumeric()).
+	// (Public) Describes precisely all strings that are encodable in alphanumeric mode.
+	// To test whether a string s is encodable: var ok = ALPHANUMERIC_REGEX.test(s);
+	// A string is encodable iff each character is in the following set: 0 to 9, A to Z
+	// (uppercase only), space, dollar, percent, asterisk, plus, hyphen, period, slash, colon.
 	this.QrSegment.ALPHANUMERIC_REGEX = /^[A-Z0-9 $%*+.\/:-]*$/;
 	
-	// (Private) The set of all legal characters in alphanumeric mode, where each character value maps to the index in the string.
+	// (Private) The set of all legal characters in alphanumeric mode,
+	// where each character value maps to the index in the string.
 	QrSegment.ALPHANUMERIC_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
 	
 	
 	/*---- Public helper enumeration ----*/
 	
 	/* 
-	 * Represents the mode field of a segment. Immutable.
+	 * Describes how a segment's data bits are interpreted. Immutable.
 	 */
 	this.QrSegment.Mode = {  // Constants
 		NUMERIC     : new Mode(0x1, [10, 12, 14]),
@@ -853,7 +903,8 @@ var qrcodegen = new function() {
 		// (Package-private) The mode indicator bits, which is a uint4 value (range 0 to 15).
 		Object.defineProperty(this, "modeBits", {value:mode});
 		
-		// (Package-private) Returns the bit width of the segment character count field for this mode object at the given version number.
+		// (Package-private) Returns the bit width of the character count field for a segment in
+		// this mode in a QR Code at the given version number. The result is in the range [0, 16].
 		this.numCharCountBits = function(ver) {
 			return ccbits[Math.floor((ver + 7) / 17)];
 		};
@@ -949,25 +1000,14 @@ var qrcodegen = new function() {
 	
 	
 	/* 
-	 * A private helper class that represents an appendable sequence of bits.
-	 * This constructor creates an empty bit buffer (length 0).
+	 * A private helper class that represents an appendable sequence of bits (0s and 1s).
+	 * Mainly used by QrSegment. This constructor creates an empty bit buffer (length 0).
 	 */
 	function BitBuffer() {
+		Array.call(this);
 		
-		// Packs this buffer's bits into bytes in big endian,
-		// padding with '0' bit values, and returns the new array.
-		this.getBytes = function() {
-			var result = [];
-			while (result.length * 8 < this.length)
-				result.push(0);
-			this.forEach(function(bit, i) {
-				result[i >>> 3] |= bit << (7 - (i & 7));
-			});
-			return result;
-		};
-		
-		// Appends the given number of low bits of the given value
-		// to this sequence. Requires 0 <= val < 2^len.
+		// Appends the given number of low-order bits of the given value
+		// to this buffer. Requires 0 <= len <= 31 and 0 <= val < 2^len.
 		this.appendBits = function(val, len) {
 			if (len < 0 || len > 31 || val >>> len != 0)
 				throw "Value out of range";
@@ -977,5 +1017,6 @@ var qrcodegen = new function() {
 	}
 	
 	BitBuffer.prototype = Object.create(Array.prototype);
+	BitBuffer.prototype.constructor = BitBuffer;
 	
 };
