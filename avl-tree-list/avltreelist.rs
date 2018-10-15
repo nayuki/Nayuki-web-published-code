@@ -372,3 +372,69 @@ impl <E> Node<E> {
 	}
 	
 }
+
+
+
+/*---- Helper struct: AVL tree iterator ----*/
+
+impl <'a, E> IntoIterator for &'a AvlTreeList<E> {
+	type Item = &'a E;
+	type IntoIter = Iter<'a, E>;
+	
+	fn into_iter(self) -> Self::IntoIter {
+		Iter::<E>::new(&self.root)
+	}
+}
+
+
+pub struct Iter<'a, E:'a> {
+	count: usize,
+	stack: Vec<&'a Node<E>>,
+}
+
+
+impl <'a, E> Iter<'a, E> {
+	fn new(root: &'a MaybeNode<E>) -> Self {
+		let mut stack = Vec::<&'a Node<E>>::new();
+		let mut maybenode: &MaybeNode<E> = root;
+		while maybenode.0.is_some() {
+			let node: &Node<E> = maybenode.node_ref();
+			stack.push(node);
+			maybenode = &node.left;
+		}
+		Self {
+			count: root.size(),
+			stack: stack,
+		}
+	}
+}
+
+
+impl <'a, E> Iterator for Iter<'a, E> {
+	type Item = &'a E;
+	
+	fn next(&mut self) -> Option<Self::Item> {
+		if self.stack.is_empty() {
+			return None;
+		}
+		let node: &Node<E> = self.stack.pop().unwrap();
+		let mut maybenode: &MaybeNode<E> = &node.right;
+		while maybenode.0.is_some() {
+			let node: &Node<E> = maybenode.node_ref();
+			self.stack.push(node);
+			maybenode = &node.left;
+		}
+		self.count -= 1;
+		Some(&node.value)
+	}
+	
+	
+	fn size_hint(&self) -> (usize,Option<usize>) {
+		(self.count, Some(self.count))
+	}
+	
+	fn count(self) -> usize {
+		self.count
+	}
+	
+}

@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,6 +41,7 @@ fn main() {
 	test_insert_many_everywhere();
 	test_remove();
 	test_clear();
+	test_iterator();
 	test_against_rust_vec_randomly();
 }
 
@@ -191,8 +192,8 @@ fn test_insert_many_beginning() {
 		list.push(i);
 	}
 	
-	for i in 0 .. n {
-		assert_eq!(list[i as usize], i);
+	for (i, x) in (0i32 .. ).zip(list.into_iter()) {
+		assert_eq!(*x, i);
 	}
 }
 
@@ -205,8 +206,8 @@ fn test_insert_many_end() {
 		list.insert(0, i);
 	}
 	
-	for i in 0 .. n {
-		assert_eq!(list[i as usize], i);
+	for (i, x) in (0i32 .. ).zip(list.into_iter()) {
+		assert_eq!(*x, i);
 	}
 }
 
@@ -226,8 +227,8 @@ fn test_insert_many_everywhere() {
 		}
 	}
 	
-	for i in 0 .. list.len() {
-		assert_eq!(list[i], i as i32);
+	for (i, x) in (0i32 .. ).zip(list.into_iter()) {
+		assert_eq!(*x, i);
 	}
 }
 
@@ -308,6 +309,20 @@ fn test_clear() {
 	assert_eq!(list[0], - 1);
 	assert_eq!(list[1], - 8);
 	assert_eq!(list[2], -27);
+}
+
+
+fn test_iterator() {
+	let mut list = AvlTreeList::<i32>::new();
+	for i in 0 .. 50 {
+		list.push(i * i);
+	}
+	
+	let mut iter = list.into_iter();
+	for i in 0 .. 50 {
+		assert_eq!(*iter.next().unwrap(), i * i);
+	}
+	assert_eq!(iter.next(), None);
 }
 
 
