@@ -134,3 +134,69 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	}
 	
 }
+
+
+
+/*---- Helper struct ----*/
+
+impl <'a, E> IntoIterator for &'a BinaryArraySet<E> {
+	type Item = &'a E;
+	type IntoIter = Iter<'a, E>;
+	
+	fn into_iter(self) -> Self::IntoIter {
+		Iter::<E>::new(&self)
+	}
+}
+
+
+#[derive(Clone)]
+pub struct Iter<'a, E:'a> {
+	values: &'a Vec<Vec<E>>,
+	index: usize,
+	subindex: usize,
+	count: usize,
+}
+
+
+impl <'a, E> Iter<'a, E> {
+	// Runs in O(log n) time
+	fn new(set: &'a BinaryArraySet<E>) -> Self {
+		Self {
+			values: &set.values,
+			index: set.values.iter().position(|x| !x.is_empty())
+				.unwrap_or(set.values.len()),
+			subindex: 0,
+			count: set.size,
+		}
+	}
+}
+
+
+impl <'a, E> Iterator for Iter<'a, E> {
+	type Item = &'a E;
+	
+	// Runs in amortized O(1) time, worst-case O(log n) time
+	fn next(&mut self) -> Option<Self::Item> {
+		if self.index >= self.values.len() {
+			return None;
+		}
+		let result: &E = &self.values[self.index][self.subindex];
+		self.subindex += 1;
+		while self.index < self.values.len() && self.subindex >= self.values[self.index].len() {
+			self.subindex = 0;
+			self.index += 1;
+		}
+		self.count -= 1;
+		Some(result)
+	}
+	
+	
+	fn size_hint(&self) -> (usize,Option<usize>) {
+		(self.count, Some(self.count))
+	}
+	
+	fn count(self) -> usize {
+		self.count
+	}
+	
+}

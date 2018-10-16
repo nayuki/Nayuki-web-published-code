@@ -387,6 +387,7 @@ impl <'a, E> IntoIterator for &'a AvlTreeList<E> {
 }
 
 
+#[derive(Clone)]
 pub struct Iter<'a, E:'a> {
 	count: usize,
 	stack: Vec<&'a Node<E>>,
@@ -394,19 +395,25 @@ pub struct Iter<'a, E:'a> {
 
 
 impl <'a, E> Iter<'a, E> {
+	
 	fn new(root: &'a MaybeNode<E>) -> Self {
-		let mut stack = Vec::<&'a Node<E>>::new();
-		let mut maybenode: &MaybeNode<E> = root;
+		let mut result = Self {
+			count: root.size(),
+			stack: Vec::new(),
+		};
+		result.push_left_path(root);
+		result
+	}
+	
+	
+	fn push_left_path(&mut self, mut maybenode: &'a MaybeNode<E>) {
 		while maybenode.0.is_some() {
 			let node: &Node<E> = maybenode.node_ref();
-			stack.push(node);
+			self.stack.push(node);
 			maybenode = &node.left;
 		}
-		Self {
-			count: root.size(),
-			stack: stack,
-		}
 	}
+	
 }
 
 
@@ -418,12 +425,7 @@ impl <'a, E> Iterator for Iter<'a, E> {
 			return None;
 		}
 		let node: &Node<E> = self.stack.pop().unwrap();
-		let mut maybenode: &MaybeNode<E> = &node.right;
-		while maybenode.0.is_some() {
-			let node: &Node<E> = maybenode.node_ref();
-			self.stack.push(node);
-			maybenode = &node.left;
-		}
+		self.push_left_path(&node.right);
 		self.count -= 1;
 		Some(&node.value)
 	}

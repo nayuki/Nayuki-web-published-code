@@ -1,7 +1,7 @@
 /* 
  * Binary array set test (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,6 +31,7 @@ fn main() {
 	test_blank();
 	test_add_0();
 	test_add_1();
+	test_iterator();
 	test_against_rust_set_randomly();
 }
 
@@ -71,6 +72,22 @@ fn test_add_1() {
 }
 
 
+fn test_iterator() {
+	let mut set = binaryarrayset::BinaryArraySet::<i32>::new();
+	for i in 1i32 .. 101 {
+		set.insert((i - 1) * (i - 1));
+		
+		let mut list: Vec<i32> = set.into_iter().cloned().collect();
+		list.sort();
+		assert_eq!(list.len(), i as usize);
+		
+		for j in 0 .. i {
+			assert_eq!(j * j, list[j as usize]);
+		}
+	}
+}
+
+
 // Comprehensively tests all the defined methods
 fn test_against_rust_set_randomly() {
 	let trials = 100_000;
@@ -90,6 +107,13 @@ fn test_against_rust_set_randomly() {
 			set0.clear();
 			set1.clear();
 			size = 0;
+			
+		} else if op < 3 {  // Check iterator fully
+			let mut list0: Vec<i32> = set0.     iter().cloned().collect();
+			let mut list1: Vec<i32> = set1.into_iter().cloned().collect();
+			list0.sort();
+			list1.sort();
+			assert_eq!(list0, list1);
 			
 		} else if op < 70 {  // Insert
 			let n = opcountdist.ind_sample(&mut rng);
