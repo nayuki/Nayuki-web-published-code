@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2018 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,40 +24,36 @@
 
 // Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
 // If the pattern is found, this returns the index of the start of the earliest match in 'text'. Otherwise None is returned.
-fn kmp_search(pattern: &[char], text: &[char]) -> Option<usize> {
+fn kmp_search(pattern: &str, text: &str) -> Option<usize> {
 	if pattern.is_empty() {
 		return Some(0);  // Immediate match
 	}
 	
 	// Compute longest suffix-prefix table
-	let mut lsp = Vec::<usize>::with_capacity(pattern.len());
-	for c in pattern {
-		let newval = match lsp.last() {
-			None => 0,  // Base case
-			Some(prevval) => {
-				// Start by assuming we're extending the previous LSP
-				let mut j: usize = *prevval;
-				while j > 0 && *c != pattern[j] {
-					j = lsp[j - 1];
-				}
-				if *c == pattern[j] {
-					j += 1;
-				}
-				j
-			},
-		};
-		lsp.push(newval);
+	let pattbytes: &[u8] = pattern.as_bytes();
+	let mut lsp = Vec::<usize>::with_capacity(pattbytes.len());
+	lsp.push(0);
+	for b in &pattbytes[1 .. ] {
+		// Start by assuming we're extending the previous LSP
+		let mut j: usize = *lsp.last().unwrap();
+		while j > 0 && *b != pattbytes[j] {
+			j = lsp[j - 1];
+		}
+		if *b == pattbytes[j] {
+			j += 1;
+		}
+		lsp.push(j);
 	}
 	
 	// Walk through text string
 	let mut j: usize = 0;  // The number of chars matched in pattern
-	for (i, c) in text.iter().enumerate() {
-		while j > 0 && *c != pattern[j] {
+	for (i, b) in text.as_bytes().iter().enumerate() {
+		while j > 0 && *b != pattbytes[j] {
 			j = lsp[j - 1];  // Fall back in the pattern
 		}
-		if *c == pattern[j] {
+		if *b == pattbytes[j] {
 			j += 1;  // Next char matched, increment position
-			if j == pattern.len() {
+			if j == pattbytes.len() {
 				return Some(i - (j - 1));
 			}
 		}
