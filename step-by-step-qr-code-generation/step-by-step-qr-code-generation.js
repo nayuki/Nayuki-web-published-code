@@ -8,6 +8,46 @@
 "use strict";
 var app;
 (function (app) {
+    let hiddenSteps = [];
+    function initialize() {
+        let sectionHeaders = document.querySelectorAll("article > div > h3");
+        for (let header of sectionHeaders) {
+            header.appendChild(document.createTextNode(" "));
+            let button = document.createElement("input");
+            button.type = "button";
+            button.value = "Hide";
+            button.onclick = () => {
+                header.parentNode.style.display = "none";
+                let stepNum = /^\d+(?=\. )/.exec(header.textContent)[0];
+                hiddenSteps.push([parseInt(stepNum, 10), header]);
+                redrawUnhideSteps();
+            };
+            header.appendChild(button);
+        }
+    }
+    function redrawUnhideSteps() {
+        hiddenSteps.sort((x, y) => x[0] - y[0]);
+        let pElem = getElem("unhide-steps");
+        while (pElem.children.length > 0)
+            pElem.removeChild(pElem.children[0]);
+        if (hiddenSteps.length == 0) {
+            pElem.style.display = "none";
+            return;
+        }
+        pElem.style.removeProperty("display");
+        for (let [stepNum, header] of hiddenSteps) {
+            pElem.appendChild(document.createTextNode(" "));
+            let button = document.createElement("input");
+            button.type = "button";
+            button.value = stepNum.toString();
+            button.onclick = () => {
+                header.parentNode.style.removeProperty("display");
+                hiddenSteps = hiddenSteps.filter(x => x[0] != stepNum);
+                redrawUnhideSteps();
+            };
+            pElem.appendChild(button);
+        }
+    }
     function doGenerate(ev) {
         ev.preventDefault();
         function toCodePoints(s) {
@@ -31,7 +71,24 @@ var app;
         const textStr = getElem("input-text").value;
         const text = toCodePoints(textStr);
         const mode = doStep0(text);
-        const seg = doStep1(text, mode);
+        const segs = [doStep1(text, mode)];
+        let errCorrLvl;
+        if (getInput("errcorlvl-low").checked)
+            errCorrLvl = QrCode.Ecc.LOW;
+        else if (getInput("errcorlvl-medium").checked)
+            errCorrLvl = QrCode.Ecc.MEDIUM;
+        else if (getInput("errcorlvl-quartile").checked)
+            errCorrLvl = QrCode.Ecc.QUARTILE;
+        else if (getInput("errcorlvl-high").checked)
+            errCorrLvl = QrCode.Ecc.HIGH;
+        else
+            throw "Assertion error";
+        const minVer = parseInt(getInput("force-min-version").value, 10);
+        const version = doStep2(segs, errCorrLvl, minVer);
+        if (version == -1)
+            return;
+        const dataCodewords = doStep3(segs, version, errCorrLvl);
+        const allCodewords = doStep4(dataCodewords, version, errCorrLvl);
     }
     app.doGenerate = doGenerate;
     function doStep0(text) {
@@ -65,14 +122,11 @@ var app;
             allKanji = allKanji && cells[6];
             for (let cell of cells) {
                 let td = document.createElement("td");
-                if (typeof cell == "string")
-                    td.textContent = cell;
-                else if (typeof cell == "boolean") {
-                    td.textContent = cell ? "Yes" : "No";
+                if (typeof cell == "boolean") {
                     td.classList.add(cell ? "true" : "false");
+                    cell = cell ? "Yes" : "No";
                 }
-                else
-                    throw "Assertion error";
+                td.textContent = cell;
                 tr.appendChild(td);
             }
             tbody.appendChild(tr);
@@ -189,6 +243,194 @@ var app;
         });
         return new QrSegment(mode, numChars, bitData);
     }
+    function doStep2(segs, ecl, minVer) {
+        let trs = document.querySelectorAll("#segment-size tbody tr");
+        [1, 10, 27].forEach((ver, i) => {
+            let numBits = QrSegment.getTotalBits(segs, ver);
+            let numCodewords = Math.ceil(numBits / 8);
+            let tds = trs[i].querySelectorAll("td");
+            tds[1].textContent = numBits.toString();
+            tds[2].textContent = numCodewords.toString();
+        });
+        const ERRCORRLVLS = [QrCode.Ecc.LOW, QrCode.Ecc.MEDIUM, QrCode.Ecc.QUARTILE, QrCode.Ecc.HIGH];
+        let tbody = clearChildren("#codewords-per-version tbody");
+        let result = -1;
+        for (let ver = 1; ver <= 40; ver++) {
+            let tr = document.createElement("tr");
+            let td = document.createElement("td");
+            td.textContent = ver.toString();
+            tr.appendChild(td);
+            let numCodewords = Math.ceil(QrSegment.getTotalBits(segs, ver) / 8);
+            ERRCORRLVLS.forEach((e, i) => {
+                let td = document.createElement("td");
+                let capacityCodewords = QrCode.getNumDataCodewords(ver, e);
+                td.textContent = capacityCodewords.toString();
+                if (e == ecl) {
+                    if (numCodewords <= capacityCodewords) {
+                        td.classList.add("true");
+                        if (result == -1 && ver >= minVer)
+                            result = ver;
+                    }
+                    else
+                        td.classList.add("false");
+                }
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        }
+        getElem("chosen-version").textContent = result != -1 ? result.toString() : "Cannot fit any version";
+        return result;
+    }
+    function doStep3(segs, ver, ecl) {
+        let allBits = [];
+        let tbody = clearChildren("#segment-and-padding-bits tbody");
+        function addRow(name, bits) {
+            bits.forEach(b => allBits.push(b));
+            let tr = document.createElement("tr");
+            let cells = [
+                name,
+                bits.join(""),
+                bits.length.toString(),
+                allBits.length.toString(),
+            ];
+            cells.forEach(s => {
+                let td = document.createElement("td");
+                td.textContent = s;
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        }
+        segs.forEach((seg, i) => {
+            addRow(`Segment ${i} mode`, intToBits(seg.mode.modeBits, 4));
+            addRow(`Segment ${i} count`, intToBits(seg.numChars, seg.mode.numCharCountBits(ver)));
+            addRow(`Segment ${i} data`, seg.bitData);
+        });
+        let capacityBits = QrCode.getNumDataCodewords(ver, ecl) * 8;
+        addRow("Terminator", [0, 0, 0, 0].slice(0, Math.min(4, capacityBits - allBits.length)));
+        addRow("Bit padding", [0, 0, 0, 0, 0, 0, 0].slice(0, (8 - allBits.length % 8) % 8));
+        let bytePad = [];
+        for (let i = 0, n = (capacityBits - allBits.length) / 8; i < n; i++) {
+            if (i % 2 == 0)
+                bytePad.push(1, 1, 1, 0, 1, 1, 0, 0);
+            else
+                bytePad.push(0, 0, 0, 1, 0, 0, 0, 1);
+        }
+        addRow("Byte padding", bytePad);
+        queryElem("#full-bitstream span").textContent = allBits.join("");
+        let result = [];
+        for (let i = 0; i < allBits.length; i += 8) {
+            let b = 0;
+            for (let j = 0; j < 8; j++)
+                b = (b << 1) | allBits[i + j];
+            result.push(b);
+        }
+        getElem("all-data-codewords").textContent = result.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+        return result;
+    }
+    function doStep4(data, ver, ecl) {
+        let numBlocks = QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
+        let blockEccLen = QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver];
+        let rawCodewords = Math.floor(QrCode.getNumRawDataModules(ver) / 8);
+        let numShortBlocks = numBlocks - rawCodewords % numBlocks;
+        let shortBlockLen = Math.floor(rawCodewords / numBlocks);
+        let tds = document.querySelectorAll("#block-stats td:nth-child(2)");
+        tds[0].textContent = data.length.toString();
+        tds[1].textContent = numBlocks.toString();
+        tds[2].textContent = (shortBlockLen - blockEccLen).toString();
+        tds[3].textContent = numShortBlocks < numBlocks ? (shortBlockLen - blockEccLen + 1).toString() : "N/A";
+        tds[4].textContent = blockEccLen.toString();
+        tds[5].textContent = numShortBlocks.toString();
+        tds[6].textContent = (numBlocks - numShortBlocks).toString();
+        let blocks = [];
+        let rs = new ReedSolomonGenerator(blockEccLen);
+        for (let i = 0, k = 0; i < numBlocks; i++) {
+            let dat = data.slice(k, k + shortBlockLen - blockEccLen + (i < numShortBlocks ? 0 : 1));
+            k += dat.length;
+            let ecc = rs.getRemainder(dat);
+            if (i < numShortBlocks)
+                dat.push(0);
+            blocks.push(dat.concat(ecc));
+        }
+        {
+            let thead = document.querySelector("#blocks-and-ecc thead");
+            if (thead.children.length >= 2)
+                thead.removeChild(thead.children[1]);
+            thead.querySelectorAll("th")[1].colSpan = numBlocks;
+            let tr = document.createElement("tr");
+            blocks.forEach((_, i) => {
+                let th = document.createElement("th");
+                th.textContent = i.toString();
+                tr.appendChild(th);
+            });
+            thead.appendChild(tr);
+        }
+        {
+            let tbody = clearChildren("#blocks-and-ecc tbody");
+            let verticalTh = document.createElement("th");
+            verticalTh.textContent = "Codeword index";
+            verticalTh.rowSpan = shortBlockLen; // Not final value; work around Firefox bug
+            for (let i = 0; i < shortBlockLen + 1; i++) {
+                let tr = document.createElement("tr");
+                tr.className = i < shortBlockLen + 1 - blockEccLen ? "data" : "ecc";
+                if (i == 0)
+                    tr.appendChild(verticalTh);
+                let th = document.createElement("th");
+                th.textContent = i.toString();
+                tr.appendChild(th);
+                blocks.forEach((block, j) => {
+                    let td = document.createElement("td");
+                    if (i != shortBlockLen - blockEccLen || j >= numShortBlocks)
+                        td.textContent = block[i].toString(16).toUpperCase().padStart(2, "0");
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            }
+            tbody.clientHeight; // Read property to force reflow in Firefox
+            verticalTh.rowSpan = shortBlockLen + 1;
+        }
+        let result = [];
+        for (let i = 0; i < blocks[0].length; i++) {
+            for (let j = 0; j < blocks.length; j++) {
+                if (i != shortBlockLen - blockEccLen || j >= numShortBlocks)
+                    result.push(blocks[j][i]);
+            }
+        }
+        getElem("interleaved-codewords").textContent = result.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+        return result;
+    }
+    class QrCode {
+        static getNumRawDataModules(ver) {
+            if (ver < QrCode.MIN_VERSION || ver > QrCode.MAX_VERSION)
+                throw "Version number out of range";
+            let result = (16 * ver + 128) * ver + 64;
+            if (ver >= 2) {
+                let numAlign = Math.floor(ver / 7) + 2;
+                result -= (25 * numAlign - 10) * numAlign - 55;
+                if (ver >= 7)
+                    result -= 36;
+            }
+            return result;
+        }
+        static getNumDataCodewords(ver, ecl) {
+            return Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
+                QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] *
+                    QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
+        }
+    }
+    QrCode.MIN_VERSION = 1;
+    QrCode.MAX_VERSION = 40;
+    QrCode.ECC_CODEWORDS_PER_BLOCK = [
+        [-1, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+        [-1, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],
+        [-1, 13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+        [-1, 17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+    ];
+    QrCode.NUM_ERROR_CORRECTION_BLOCKS = [
+        [-1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25],
+        [-1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49],
+        [-1, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68],
+        [-1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81],
+    ];
     class QrSegment {
         constructor(mode, numChars, bitData) {
             this.mode = mode;
@@ -196,9 +438,73 @@ var app;
             this.bitData = bitData;
             if (numChars < 0)
                 throw "Invalid argument";
-            this.bitData = bitData.slice();
+        }
+        static getTotalBits(segs, version) {
+            let result = 0;
+            for (let seg of segs) {
+                let ccbits = seg.mode.numCharCountBits(version);
+                if (seg.numChars >= (1 << ccbits))
+                    return Infinity;
+                result += 4 + ccbits + seg.bitData.length;
+            }
+            return result;
         }
     }
+    class ReedSolomonGenerator {
+        constructor(degree) {
+            this.coefficients = [];
+            if (degree < 1 || degree > 255)
+                throw "Degree out of range";
+            let coefs = this.coefficients;
+            for (let i = 0; i < degree - 1; i++)
+                coefs.push(0);
+            coefs.push(1);
+            let root = 1;
+            for (let i = 0; i < degree; i++) {
+                for (let j = 0; j < coefs.length; j++) {
+                    coefs[j] = ReedSolomonGenerator.multiply(coefs[j], root);
+                    if (j + 1 < coefs.length)
+                        coefs[j] ^= coefs[j + 1];
+                }
+                root = ReedSolomonGenerator.multiply(root, 0x02);
+            }
+        }
+        getRemainder(data) {
+            let result = this.coefficients.map(_ => 0);
+            for (let b of data) {
+                let factor = b ^ result.shift();
+                result.push(0);
+                for (let i = 0; i < result.length; i++)
+                    result[i] ^= ReedSolomonGenerator.multiply(this.coefficients[i], factor);
+            }
+            return result;
+        }
+        static multiply(x, y) {
+            if (x >>> 8 != 0 || y >>> 8 != 0)
+                throw "Byte out of range";
+            let z = 0;
+            for (let i = 7; i >= 0; i--) {
+                z = (z << 1) ^ ((z >>> 7) * 0x11D);
+                z ^= ((y >>> i) & 1) * x;
+            }
+            if (z >>> 8 != 0)
+                throw "Assertion error";
+            return z;
+        }
+    }
+    (function (QrCode) {
+        class Ecc {
+            constructor(ordinal, formatBits) {
+                this.ordinal = ordinal;
+                this.formatBits = formatBits;
+            }
+        }
+        Ecc.LOW = new Ecc(0, 1);
+        Ecc.MEDIUM = new Ecc(1, 0);
+        Ecc.QUARTILE = new Ecc(2, 3);
+        Ecc.HIGH = new Ecc(3, 2);
+        QrCode.Ecc = Ecc;
+    })(QrCode || (QrCode = {}));
     (function (QrSegment) {
         class Mode {
             constructor(modeBits, numBitsCharCount) {
@@ -272,6 +578,14 @@ var app;
         else {
             return String.fromCharCode(0xD800 | ((cp - 0x10000) >>> 10), 0xDC00 | ((cp - 0x10000) & 0x3FF));
         }
+    }
+    function intToBits(val, len) {
+        if (len < 0 || len > 31 || val >>> len != 0)
+            throw "Value out of range";
+        let result = [];
+        for (let i = len - 1; i >= 0; i--)
+            result.push((val >>> i) & 1);
+        return result;
     }
     // Polyfill
     if (!("padStart" in String.prototype)) {
@@ -411,4 +725,5 @@ var app;
         "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
         "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
         "0000000000000000000000000000000000000000000000000000000000000000A7FDFFFFFFFFFFFEFFFFFFF30000000000000000000000000000000082000000";
+    initialize();
 })(app || (app = {}));
