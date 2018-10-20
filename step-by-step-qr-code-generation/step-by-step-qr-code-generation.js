@@ -8,45 +8,81 @@
 "use strict";
 var app;
 (function (app) {
-    let hiddenSteps = [];
     function initialize() {
+        const MASK_DEPENDENT_SVGS = [
+            "mask-pattern",
+            "masked-qr-code",
+            "masked-qr-with-format",
+        ];
+        for (let id of MASK_DEPENDENT_SVGS)
+            cloneSvgPerMask(id);
+        let select = getElem("show-mask");
+        function showMask() {
+            for (let id of MASK_DEPENDENT_SVGS) {
+                for (let i = 0; i < 8; i++) {
+                    let elem = document.getElementById(`${id}-${i}`);
+                    elem.setAttribute("style", i == select.selectedIndex ? "" : "display:none");
+                }
+            }
+        }
+        select.onchange = showMask;
+        showMask();
+    }
+    let stepHider;
+    (function (stepHider) {
+        let hidden = [];
+        let unhideP = getElem("unhide-steps");
+        // Initialization
         let sectionHeaders = document.querySelectorAll("article > div > h3");
         for (let header of sectionHeaders) {
             header.appendChild(document.createTextNode(" "));
+            let stepStr = /^\d+(?=\. )/.exec(header.textContent)[0];
             let button = document.createElement("input");
             button.type = "button";
             button.value = "Hide";
             button.onclick = () => {
                 header.parentNode.style.display = "none";
-                let stepNum = /^\d+(?=\. )/.exec(header.textContent)[0];
-                hiddenSteps.push([parseInt(stepNum, 10), header]);
-                redrawUnhideSteps();
+                hidden.push([parseInt(stepStr, 10), header]);
+                hidden.sort((x, y) => x[0] - y[0]);
+                redraw();
             };
             header.appendChild(button);
         }
-    }
-    function redrawUnhideSteps() {
-        hiddenSteps.sort((x, y) => x[0] - y[0]);
-        let pElem = getElem("unhide-steps");
-        while (pElem.children.length > 0)
-            pElem.removeChild(pElem.children[0]);
-        if (hiddenSteps.length == 0) {
-            pElem.style.display = "none";
-            return;
+        function redraw() {
+            while (unhideP.children.length > 0)
+                unhideP.removeChild(unhideP.children[0]);
+            if (hidden.length == 0) {
+                unhideP.style.display = "none";
+                return;
+            }
+            unhideP.style.removeProperty("display");
+            for (let [stepNum, header] of hidden) {
+                unhideP.appendChild(document.createTextNode(" "));
+                let button = document.createElement("input");
+                button.type = "button";
+                button.value = stepNum.toString();
+                button.onclick = () => {
+                    header.parentNode.style.removeProperty("display");
+                    hidden = hidden.filter(x => x[0] != stepNum);
+                    redraw();
+                };
+                unhideP.appendChild(button);
+            }
         }
-        pElem.style.removeProperty("display");
-        for (let [stepNum, header] of hiddenSteps) {
-            pElem.appendChild(document.createTextNode(" "));
-            let button = document.createElement("input");
-            button.type = "button";
-            button.value = stepNum.toString();
-            button.onclick = () => {
-                header.parentNode.style.removeProperty("display");
-                hiddenSteps = hiddenSteps.filter(x => x[0] != stepNum);
-                redrawUnhideSteps();
-            };
-            pElem.appendChild(button);
+    })(stepHider || (stepHider = {}));
+    function cloneSvgPerMask(id) {
+        let svg = document.getElementById(id);
+        if (!(svg instanceof Element))
+            throw "Assertion error";
+        let parent = svg.parentNode;
+        if (!(parent instanceof HTMLElement))
+            throw "Assertion error";
+        for (let i = 0; i < 8; i++) {
+            let node = svg.cloneNode();
+            node.setAttribute("id", `${node.getAttribute("id")}-${i}`);
+            parent.insertBefore(node, svg);
         }
+        parent.removeChild(svg);
     }
     function doGenerate(ev) {
         ev.preventDefault();
@@ -92,6 +128,7 @@ var app;
         const qr = new QrCode(version, errCorrLvl);
         doStep5(qr);
         doStep6(qr, allCodewords);
+        let masks = doStep7(qr);
     }
     app.doGenerate = doGenerate;
     function doStep0(text) {
@@ -424,8 +461,51 @@ var app;
             verInfoContainer.style.removeProperty("display");
     }
     function doStep6(qr, allCodewords) {
-        qr.drawCodewords(allCodewords);
+        const zigZagScan = qr.makeZigZagScan();
+        let zigZagSvg = document.getElementById("zig-zag-scan");
+        drawQrToSvg(qr, zigZagSvg);
+        {
+            let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
+            let s = "";
+            for (let [x, y] of zigZagScan)
+                s += (s == "" ? "M" : "L") + (x + 0.5) + "," + (y + 0.5);
+            path.setAttribute("d", s);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "#000000");
+            path.setAttribute("stroke-width", "0.10");
+            path.setAttribute("stroke-linecap", "round");
+            path.setAttribute("stroke-linejoin", "round");
+            zigZagSvg.appendChild(path);
+        }
+        {
+            let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
+            let s = "";
+            for (let [x, y] of zigZagScan)
+                s += `M${x + 0.5},${y + 0.5}h0`;
+            path.setAttribute("d", s);
+            path.setAttribute("fill", "none");
+            path.setAttribute("stroke", "#000000");
+            path.setAttribute("stroke-width", "0.40");
+            path.setAttribute("stroke-linecap", "round");
+            zigZagSvg.appendChild(path);
+        }
+        qr.drawCodewords(allCodewords, zigZagScan);
         drawQrToSvg(qr, document.getElementById("codewords-and-remainder"));
+    }
+    function doStep7(qr) {
+        let result = [];
+        for (let i = 0; i < 8; i++) {
+            const mask = qr.makeMask(i);
+            result.push(mask);
+            drawQrToSvg(mask, document.getElementById("mask-pattern-" + i));
+            qr.applyMask(mask);
+            qr.drawFormatBits(-1);
+            drawQrToSvg(qr, document.getElementById("masked-qr-code-" + i));
+            qr.drawFormatBits(i);
+            drawQrToSvg(qr, document.getElementById("masked-qr-with-format-" + i));
+            qr.applyMask(mask);
+        }
+        return result;
     }
     function drawQrToSvg(qr, svg) {
         svg.setAttribute("viewBox", `0 0 ${qr.size} ${qr.size}`);
@@ -578,10 +658,8 @@ var app;
                 this.modules[b][a] = new FunctionModule(bt);
             }
         }
-        drawCodewords(data) {
-            if (data.length != Math.floor(QrCode.getNumRawDataModules(this.version) / 8))
-                throw "Invalid argument";
-            let i = 0;
+        makeZigZagScan() {
+            let result = [];
             for (let right = this.size - 1; right >= 1; right -= 2) {
                 if (right == 6)
                     right = 5;
@@ -590,19 +668,74 @@ var app;
                         let x = right - j;
                         let upward = ((right + 1) & 2) == 0;
                         let y = upward ? this.size - 1 - vert : vert;
-                        if (this.modules[x][y] instanceof UnfilledModule) {
-                            if (i < data.length * 8) {
-                                this.modules[x][y] = new CodewordModule(getBit(data[i >>> 3], 7 - (i & 7)));
-                                i++;
-                            }
-                            else
-                                this.modules[x][y] = new RemainderModule();
-                        }
+                        if (this.modules[x][y] instanceof UnfilledModule)
+                            result.push([x, y]);
                     }
                 }
             }
-            if (i != data.length * 8)
-                throw "Assertion error";
+            return result;
+        }
+        drawCodewords(data, zigZagScan) {
+            if (data.length != Math.floor(QrCode.getNumRawDataModules(this.version) / 8))
+                throw "Invalid argument";
+            zigZagScan.forEach((xy, i) => {
+                let [x, y] = xy;
+                if (i < data.length * 8) {
+                    this.modules[x][y] = new CodewordModule(getBit(data[i >>> 3], 7 - (i & 7)));
+                    i++;
+                }
+                else
+                    this.modules[x][y] = new RemainderModule();
+            });
+        }
+        makeMask(mask) {
+            let result = new QrCode(this.version, this.errorCorrectionLevel);
+            for (let x = 0; x < this.size; x++) {
+                for (let y = 0; y < this.size; y++) {
+                    let invert;
+                    switch (mask) {
+                        case 0:
+                            invert = (x + y) % 2 == 0;
+                            break;
+                        case 1:
+                            invert = y % 2 == 0;
+                            break;
+                        case 2:
+                            invert = x % 3 == 0;
+                            break;
+                        case 3:
+                            invert = (x + y) % 3 == 0;
+                            break;
+                        case 4:
+                            invert = (Math.floor(x / 3) + Math.floor(y / 2)) % 2 == 0;
+                            break;
+                        case 5:
+                            invert = x * y % 2 + x * y % 3 == 0;
+                            break;
+                        case 6:
+                            invert = (x * y % 2 + x * y % 3) % 2 == 0;
+                            break;
+                        case 7:
+                            invert = ((x + y) % 2 + x * y % 3) % 2 == 0;
+                            break;
+                        default: throw "Assertion error";
+                    }
+                    if (!(this.modules[x][y] instanceof FunctionModule))
+                        result.modules[x][y] = new FilledModule(invert);
+                }
+            }
+            return result;
+        }
+        applyMask(mask) {
+            for (let x = 0; x < this.size; x++) {
+                for (let y = 0; y < this.size; y++) {
+                    let a = mask.modules[x][y];
+                    if (a instanceof FilledModule) {
+                        let b = this.modules[x][y];
+                        b.color = b.color != a.color;
+                    }
+                }
+            }
         }
     }
     QrCode.MIN_VERSION = 1;
