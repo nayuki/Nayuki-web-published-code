@@ -118,8 +118,7 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 						Ordering::Less    => {},
 					}
 				}
-				let nd = node;
-				node = nd.children[index].as_mut();
+				node = {node}.children[index].as_mut();
 				isroot = false;
 			}
 		}
@@ -164,13 +163,11 @@ impl <E: std::cmp::Ord> BTreeSet<E> {
 					} else {  // Merge key and right node into left node, then recurse
 						node.merge_children(self.min_keys, index);
 						// Index known due to merging; no need to search
-						let nd = node;
-						node = nd.children[index].as_mut();
+						node = {node}.children[index].as_mut();
 						index = self.min_keys;
 					}
 				} else {  // Key might be found in some child
-					let nd = node;
-					node = nd.ensure_child_remove(self.min_keys, index);
+					node = {node}.ensure_child_remove(self.min_keys, index);
 					let (f, i) = node.search(val);
 					found = f;
 					index = i;
@@ -367,8 +364,7 @@ impl <E: std::cmp::Ord> Node<E> {
 			if node.is_leaf() {
 				return node.keys.remove(0)
 			} else {
-				let nd = node;
-				node = nd.ensure_child_remove(minkeys, 0);
+				node = {node}.ensure_child_remove(minkeys, 0);
 			}
 		}
 	}
@@ -384,8 +380,7 @@ impl <E: std::cmp::Ord> Node<E> {
 				return node.keys.pop().unwrap();
 			} else {
 				let end = node.children.len() - 1;
-				let nd = node;
-				node = nd.ensure_child_remove(minkeys, end);
+				node = {node}.ensure_child_remove(minkeys, end);
 			}
 		}
 	}

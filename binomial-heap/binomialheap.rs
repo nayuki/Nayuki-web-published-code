@@ -83,17 +83,17 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 			Some(x) => x.1,
 		};
 		
-		let mut minnode: Option<Node<E>> = None;
+		let mut minnode: Node<E>;
 		{
-			let mut node = &mut self.head;
-			for index in 0u32 .. {
+			let mut node: &mut MaybeNode<E> = &mut self.head;
+			let mut index: u32 = 0;
+			loop {
 				if index < minnodeindex {
-					let nd = node;
-					node = &mut nd.as_mut().unwrap().as_mut().next;
+					node = &mut {node}.as_mut().unwrap().as_mut().next;
+					index += 1;
 				} else if index == minnodeindex {
-					let mut temp = *std::mem::replace(node, None).unwrap();
-					std::mem::swap(node, &mut temp.next);
-					minnode = Some(temp);
+					minnode = *std::mem::replace(node, None).unwrap();
+					std::mem::swap(node, &mut minnode.next);
 					break;
 				} else {
 					unreachable!();
@@ -101,7 +101,6 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 			}
 		}
 		
-		let mut minnode = minnode.unwrap();
 		self.merge_nodes(minnode.remove_root());
 		Some(minnode.value)
 	}
