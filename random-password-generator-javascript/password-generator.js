@@ -182,7 +182,7 @@ function getPasswordCharacterSet() {
 		if (0xD800 <= c && c < 0xDC00 && i + 1 < rawCharset.length) {  // High surrogate
 			var d = rawCharset.charCodeAt(i + 1);
 			if (0xDC00 <= d && d < 0xE000) {  // Low surrogate
-				var s = rawCharset.substr(i, 2);
+				var s = rawCharset.substring(i, i + 2);
 				i++;
 				if (charset.indexOf(s) == -1)
 					charset.push(s);

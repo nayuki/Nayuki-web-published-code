@@ -299,7 +299,7 @@ function lineDiff(pixels, width, height, x0, x1) {
 function formatWithThousandsSeparators(n) {
 	var s = n.toString();
 	for (var i = s.length - 3; i > 0; i -= 3)
-		s = s.substr(0, i) + " " + s.substring(i);
+		s = s.substring(0, i) + " " + s.substring(i);
 	return s;
 }
 

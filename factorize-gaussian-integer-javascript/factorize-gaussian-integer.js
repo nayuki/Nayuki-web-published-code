@@ -35,7 +35,7 @@ function doFactor() {
 		else {
 			var varElem = document.createElement("var");
 			varElem.textContent = "i";
-			appendTextNode(outElem, s.substr(0, s.length - 1));
+			appendTextNode(outElem, s.substring(0, s.length - 1));
 			outElem.appendChild(varElem);
 		}
 	}

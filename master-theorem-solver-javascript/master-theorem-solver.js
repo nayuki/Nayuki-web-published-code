@@ -49,7 +49,7 @@ function calc() {
 	else
 		recurrenceText = "\\(T(n) \\: = \\: " + (a != 1 ? a : "") + " \\: T(n" + (b != 1 ? " / " + b : "") + ") \\, + \\, \u0398(" + formatPolyLog(k, i) + ").\\)";
 	recurrenceMath.render(recurrenceText);
-	if (recurrenceText.substr(0, 6) == "Error:") {
+	if (recurrenceText.substring(0, 6) == "Error:") {
 		solutionMath.render("");
 		return;
 	}

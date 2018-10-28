@@ -38,7 +38,7 @@ function doBalance() {
                 end--; // Adjust position to eliminate whitespace
             if (start == end)
                 end++;
-            codeOutElem.textContent += formulaStr.substr(0, start);
+            codeOutElem.textContent += formulaStr.substring(0, start);
             if (end <= formulaStr.length) {
                 codeOutElem.appendChild(createElem("u", formulaStr.substring(start, end)));
                 codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
