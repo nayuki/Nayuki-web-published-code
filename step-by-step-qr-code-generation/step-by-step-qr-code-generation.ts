@@ -24,7 +24,7 @@ namespace app {
 	
 	namespace maskShower {
 		
-		const MASK_DEPENDENT_ELEMS = [
+		const MASK_DEPENDENT_ELEMS: Array<string> = [
 			"mask-pattern",
 			"masked-qr-code",
 			"masked-qr-with-format",
@@ -38,8 +38,22 @@ namespace app {
 		
 		export let selectElem = getElem("show-mask") as HTMLSelectElement;
 		
-		for (let id of MASK_DEPENDENT_ELEMS)
-			cloneElemPerMask(id);
+		for (let id of MASK_DEPENDENT_ELEMS) {
+			let elem = document.getElementById(id);
+			if (!(elem instanceof Element))
+				throw "Assertion error";
+			let parent = elem.parentNode;
+			if (!(parent instanceof HTMLElement))
+				throw "Assertion error";
+			for (let i = 0; i < 8; i++) {
+				let node = elem.cloneNode(true) as Element;
+				node.setAttribute("class", `${node.getAttribute("class")} ${node.getAttribute("id")}`);
+				node.setAttribute("id", `${node.getAttribute("id")}-${i}`);
+				parent.insertBefore(node, elem);
+			}
+			parent.removeChild(elem);
+		}
+		
 		selectElem.onchange = showMask;
 		showMask();
 		
@@ -53,71 +67,49 @@ namespace app {
 		}
 		
 	}
-		
 	
 	
 	namespace stepHider {
-		
-		let hidden: Array<[int,HTMLElement]> = [];
-		let unhideP = getElem("unhide-steps");
-		
-		// Initialization
-		let sectionHeaders = document.querySelectorAll("article div.section h3");
-		for (let header of sectionHeaders) {
-			header.appendChild(document.createTextNode(" "));
-			let stepStr: string = (/^\d+(?=\. )/.exec(header.textContent as string) as RegExpExecArray)[0];
+		let headings = document.querySelectorAll("article section h3");
+		let showHideP = getElem("show-hide-steps");
+		for (let heading of headings) {
+			let parent = heading.parentNode as HTMLElement;
+			let stepStr: string = (/^\d+(?=\. )/.exec(heading.textContent as string) as RegExpExecArray)[0];
+			
+			let label = document.createElement("label");
+			let checkbox = document.createElement("input");
+			checkbox.type = "checkbox";
+			checkbox.checked=true;
+			checkbox.id = "step" + stepStr;
+			function onChange() {
+				if (checkbox.checked) {
+					parent.style.removeProperty("display");
+					label.classList.add("checked");
+				} else {
+					parent.style.display = "none";
+					label.classList.remove("checked");
+				}
+			}
+			checkbox.onchange = onChange;
+			onChange();
+			
+			label.htmlFor = checkbox.id;
+			label.appendChild(checkbox);
+			let span = document.createElement("span");
+			span.textContent = stepStr;
+			label.appendChild(span);
+			showHideP.appendChild(label);
+			
+			
 			let button = document.createElement("input");
 			button.type = "button";
 			button.value = "Hide";
 			button.onclick = () => {
-				(header.parentNode as HTMLElement).style.display = "none";
-				hidden.push([parseInt(stepStr, 10), header as HTMLElement]);
-				hidden.sort((x, y) => x[0] - y[0]);
-				redraw();
-			}
-			header.appendChild(button);
+				checkbox.checked = false;
+				onChange();
+			};
+			parent.insertBefore(button, heading);
 		}
-		
-		
-		function redraw(): void {
-			while (unhideP.children.length > 0)
-				unhideP.removeChild(unhideP.children[0]);
-			if (hidden.length == 0) {
-				unhideP.style.display = "none";
-				return;
-			}
-			unhideP.style.removeProperty("display");
-			for (let [stepNum, header] of hidden) {
-				unhideP.appendChild(document.createTextNode(" "));
-				let button = document.createElement("input");
-				button.type = "button";
-				button.value = stepNum.toString();
-				button.onclick = () => {
-					(header.parentNode as HTMLElement).style.removeProperty("display");
-					hidden = hidden.filter(x => x[0] != stepNum);
-					redraw();
-				};
-				unhideP.appendChild(button);
-			}
-		}
-		
-	}
-	
-	
-	function cloneElemPerMask(id: string): void {
-		let elem = document.getElementById(id);
-		if (!(elem instanceof Element))
-			throw "Assertion error";
-		let parent = elem.parentNode;
-		if (!(parent instanceof HTMLElement))
-			throw "Assertion error";
-		for (let i = 0; i < 8; i++) {
-			let node = elem.cloneNode(true) as Element;
-			node.setAttribute("class", `${node.getAttribute("class")} ${node.getAttribute("id")}`);
-			node.setAttribute("id", `${node.getAttribute("id")}-${i}`);
-			parent.insertBefore(node, elem);
-		}
-		parent.removeChild(elem);
 	}
 	
 	
@@ -265,7 +257,7 @@ namespace app {
 	
 	
 	function doStep1(text: Array<int>, mode: QrSegment.Mode): QrSegment {
-		getElem("data-segment-chars").className = mode.name.toLowerCase();
+		getElem("data-segment-chars").className = mode.name.toLowerCase() + " " + "possibly-long";
 		
 		let bitData: Array<bit> = [];
 		let numChars = text.length;

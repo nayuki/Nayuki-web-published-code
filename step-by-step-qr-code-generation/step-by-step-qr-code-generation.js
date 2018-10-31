@@ -25,8 +25,21 @@ var app;
             "black-white-balance",
         ];
         maskShower.selectElem = getElem("show-mask");
-        for (let id of MASK_DEPENDENT_ELEMS)
-            cloneElemPerMask(id);
+        for (let id of MASK_DEPENDENT_ELEMS) {
+            let elem = document.getElementById(id);
+            if (!(elem instanceof Element))
+                throw "Assertion error";
+            let parent = elem.parentNode;
+            if (!(parent instanceof HTMLElement))
+                throw "Assertion error";
+            for (let i = 0; i < 8; i++) {
+                let node = elem.cloneNode(true);
+                node.setAttribute("class", `${node.getAttribute("class")} ${node.getAttribute("id")}`);
+                node.setAttribute("id", `${node.getAttribute("id")}-${i}`);
+                parent.insertBefore(node, elem);
+            }
+            parent.removeChild(elem);
+        }
         maskShower.selectElem.onchange = showMask;
         showMask();
         function showMask() {
@@ -41,61 +54,44 @@ var app;
     })(maskShower || (maskShower = {}));
     let stepHider;
     (function (stepHider) {
-        let hidden = [];
-        let unhideP = getElem("unhide-steps");
-        // Initialization
-        let sectionHeaders = document.querySelectorAll("article div.section h3");
-        for (let header of sectionHeaders) {
-            header.appendChild(document.createTextNode(" "));
-            let stepStr = /^\d+(?=\. )/.exec(header.textContent)[0];
+        let headings = document.querySelectorAll("article section h3");
+        let showHideP = getElem("show-hide-steps");
+        for (let heading of headings) {
+            let parent = heading.parentNode;
+            let stepStr = /^\d+(?=\. )/.exec(heading.textContent)[0];
+            let label = document.createElement("label");
+            let checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = true;
+            checkbox.id = "step" + stepStr;
+            function onChange() {
+                if (checkbox.checked) {
+                    parent.style.removeProperty("display");
+                    label.classList.add("checked");
+                }
+                else {
+                    parent.style.display = "none";
+                    label.classList.remove("checked");
+                }
+            }
+            checkbox.onchange = onChange;
+            onChange();
+            label.htmlFor = checkbox.id;
+            label.appendChild(checkbox);
+            let span = document.createElement("span");
+            span.textContent = stepStr;
+            label.appendChild(span);
+            showHideP.appendChild(label);
             let button = document.createElement("input");
             button.type = "button";
             button.value = "Hide";
             button.onclick = () => {
-                header.parentNode.style.display = "none";
-                hidden.push([parseInt(stepStr, 10), header]);
-                hidden.sort((x, y) => x[0] - y[0]);
-                redraw();
+                checkbox.checked = false;
+                onChange();
             };
-            header.appendChild(button);
-        }
-        function redraw() {
-            while (unhideP.children.length > 0)
-                unhideP.removeChild(unhideP.children[0]);
-            if (hidden.length == 0) {
-                unhideP.style.display = "none";
-                return;
-            }
-            unhideP.style.removeProperty("display");
-            for (let [stepNum, header] of hidden) {
-                unhideP.appendChild(document.createTextNode(" "));
-                let button = document.createElement("input");
-                button.type = "button";
-                button.value = stepNum.toString();
-                button.onclick = () => {
-                    header.parentNode.style.removeProperty("display");
-                    hidden = hidden.filter(x => x[0] != stepNum);
-                    redraw();
-                };
-                unhideP.appendChild(button);
-            }
+            parent.insertBefore(button, heading);
         }
     })(stepHider || (stepHider = {}));
-    function cloneElemPerMask(id) {
-        let elem = document.getElementById(id);
-        if (!(elem instanceof Element))
-            throw "Assertion error";
-        let parent = elem.parentNode;
-        if (!(parent instanceof HTMLElement))
-            throw "Assertion error";
-        for (let i = 0; i < 8; i++) {
-            let node = elem.cloneNode(true);
-            node.setAttribute("class", `${node.getAttribute("class")} ${node.getAttribute("id")}`);
-            node.setAttribute("id", `${node.getAttribute("id")}-${i}`);
-            parent.insertBefore(node, elem);
-        }
-        parent.removeChild(elem);
-    }
     function doGenerate(ev) {
         if (ev !== undefined)
             ev.preventDefault();
@@ -235,7 +231,7 @@ var app;
         return result;
     }
     function doStep1(text, mode) {
-        getElem("data-segment-chars").className = mode.name.toLowerCase();
+        getElem("data-segment-chars").className = mode.name.toLowerCase() + " " + "possibly-long";
         let bitData = [];
         let numChars = text.length;
         let tbody = clearChildren("#data-segment-chars tbody");
