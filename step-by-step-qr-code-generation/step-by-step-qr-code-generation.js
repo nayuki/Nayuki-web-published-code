@@ -9,6 +9,10 @@
 var app;
 (function (app) {
     function initialize() {
+        doGenerate();
+    }
+    let maskShower;
+    (function (maskShower) {
         const MASK_DEPENDENT_ELEMS = [
             "mask-pattern",
             "masked-qr-code",
@@ -20,26 +24,27 @@ var app;
             "vertical-false-finders",
             "black-white-balance",
         ];
+        maskShower.selectElem = getElem("show-mask");
         for (let id of MASK_DEPENDENT_ELEMS)
             cloneElemPerMask(id);
-        let select = getElem("show-mask");
+        maskShower.selectElem.onchange = showMask;
+        showMask();
         function showMask() {
             for (let id of MASK_DEPENDENT_ELEMS) {
                 for (let i = 0; i < 8; i++) {
                     let elem = document.getElementById(`${id}-${i}`);
-                    elem.setAttribute("style", i == select.selectedIndex ? "" : "display:none");
+                    elem.setAttribute("style", i == maskShower.selectElem.selectedIndex ? "" : "display:none");
                 }
             }
         }
-        select.onchange = showMask;
-        showMask();
-    }
+        maskShower.showMask = showMask;
+    })(maskShower || (maskShower = {}));
     let stepHider;
     (function (stepHider) {
         let hidden = [];
         let unhideP = getElem("unhide-steps");
         // Initialization
-        let sectionHeaders = document.querySelectorAll("article > div > h3");
+        let sectionHeaders = document.querySelectorAll("article div.section h3");
         for (let header of sectionHeaders) {
             header.appendChild(document.createTextNode(" "));
             let stepStr = /^\d+(?=\. )/.exec(header.textContent)[0];
@@ -92,7 +97,8 @@ var app;
         parent.removeChild(elem);
     }
     function doGenerate(ev) {
-        ev.preventDefault();
+        if (ev !== undefined)
+            ev.preventDefault();
         function toCodePoints(s) {
             let result = [];
             for (let i = 0; i < s.length; i++) {
@@ -136,11 +142,24 @@ var app;
         doStep5(qr);
         doStep6(qr, allCodewords);
         let masks = doStep7(qr);
-        let penalties = doStep8(qr, masks);
-        let bestMask = doStep9(penalties);
-        qr.applyMask(masks[bestMask]);
-        qr.drawFormatBits(bestMask);
+        let penalties = masks.map((mask, i) => {
+            qr.applyMask(mask);
+            qr.drawFormatBits(i);
+            let result = qr.computePenalties();
+            qr.applyMask(mask);
+            return result;
+        });
+        doStep8(qr, masks, penalties);
+        let chosenMask = doStep9(penalties);
+        let forceMask = parseInt(getInput("force-mask-pattern").value, 10);
+        if (forceMask != -1)
+            chosenMask = forceMask;
+        qr.applyMask(masks[chosenMask]);
+        qr.drawFormatBits(chosenMask);
+        qr.clearNewFlags();
         drawQrToSvg(qr, document.getElementById("output-qr-code"));
+        maskShower.selectElem.selectedIndex = chosenMask;
+        maskShower.showMask();
     }
     app.doGenerate = doGenerate;
     function doStep0(text) {
@@ -203,36 +222,20 @@ var app;
         }
         let modeStr;
         let result;
-        if (text.length == 0) {
-            modeStr = "Byte";
+        if (text.length == 0)
             result = QrSegment.Mode.BYTE;
-        }
-        else if (allNumeric) {
-            modeStr = "Numeric";
+        else if (allNumeric)
             result = QrSegment.Mode.NUMERIC;
-        }
-        else if (allAlphanum) {
-            modeStr = "Alphanumeric";
+        else if (allAlphanum)
             result = QrSegment.Mode.ALPHANUMERIC;
-        }
-        else {
-            modeStr = "Byte";
+        else
             result = QrSegment.Mode.BYTE;
-        }
-        getElem("chosen-segment-mode").textContent = modeStr;
+        getElem("chosen-segment-mode").textContent = result.name;
         // Kanji mode encoding is not supported due to big conversion table
         return result;
     }
     function doStep1(text, mode) {
-        let table = getElem("data-segment-chars");
-        if (mode == QrSegment.Mode.NUMERIC)
-            table.className = "numeric";
-        else if (mode == QrSegment.Mode.ALPHANUMERIC)
-            table.className = "alphanumeric";
-        else if (mode == QrSegment.Mode.BYTE)
-            table.className = "byte";
-        else
-            throw "Assertion error";
+        getElem("data-segment-chars").className = mode.name.toLowerCase();
         let bitData = [];
         let numChars = text.length;
         let tbody = clearChildren("#data-segment-chars tbody");
@@ -293,6 +296,9 @@ var app;
             });
             tbody.appendChild(tr);
         });
+        getElem("segment-mode").textContent = mode.name.toString();
+        getElem("segment-count").textContent = numChars + " " + (mode == QrSegment.Mode.BYTE ? "bytes" : "characters");
+        getElem("segment-data").textContent = bitData.length + " bits long";
         return new QrSegment(mode, numChars, bitData);
     }
     function doStep2(segs, ecl, minVer) {
@@ -462,10 +468,13 @@ var app;
     function doStep5(qr) {
         qr.drawTimingPatterns();
         drawQrToSvg(qr, document.getElementById("timing-patterns"));
+        qr.clearNewFlags();
         qr.drawFinderPatterns();
         drawQrToSvg(qr, document.getElementById("finder-patterns"));
+        qr.clearNewFlags();
         qr.drawAlignmentPatterns();
         drawQrToSvg(qr, document.getElementById("alignment-patterns"));
+        qr.clearNewFlags();
         let alignPatContainer = getElem("alignment-patterns-container");
         if (qr.version == 1)
             alignPatContainer.style.display = "none";
@@ -473,8 +482,10 @@ var app;
             alignPatContainer.style.removeProperty("display");
         qr.drawFormatBits(-1);
         drawQrToSvg(qr, document.getElementById("dummy-format-bits"));
+        qr.clearNewFlags();
         qr.drawVersionInformation();
         drawQrToSvg(qr, document.getElementById("version-information"));
+        qr.clearNewFlags();
         let verInfoContainer = getElem("version-information-container");
         if (qr.version < 7)
             verInfoContainer.style.display = "none";
@@ -486,240 +497,115 @@ var app;
         let zigZagSvg = document.getElementById("zig-zag-scan");
         drawQrToSvg(qr, zigZagSvg);
         {
-            let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
             let s = "";
             for (let [x, y] of zigZagScan)
                 s += (s == "" ? "M" : "L") + (x + 0.5) + "," + (y + 0.5);
+            let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
+            path.setAttribute("class", "zigzag-line");
             path.setAttribute("d", s);
-            path.setAttribute("fill", "none");
-            path.setAttribute("stroke", "#000000");
-            path.setAttribute("stroke-width", "0.10");
-            path.setAttribute("stroke-linecap", "round");
-            path.setAttribute("stroke-linejoin", "round");
             zigZagSvg.appendChild(path);
         }
         {
-            let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
             let s = "";
             for (let [x, y] of zigZagScan)
                 s += `M${x + 0.5},${y + 0.5}h0`;
+            let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
+            path.setAttribute("class", "zigzag-dots");
             path.setAttribute("d", s);
-            path.setAttribute("fill", "none");
-            path.setAttribute("stroke", "#000000");
-            path.setAttribute("stroke-width", "0.40");
-            path.setAttribute("stroke-linecap", "round");
             zigZagSvg.appendChild(path);
         }
         qr.drawCodewords(allCodewords, zigZagScan);
+        qr.clearNewFlags();
         drawQrToSvg(qr, document.getElementById("codewords-and-remainder"));
     }
     function doStep7(qr) {
         let result = [];
         for (let i = 0; i < 8; i++) {
             const mask = qr.makeMask(i);
+            mask.clearNewFlags();
             result.push(mask);
             drawQrToSvg(mask, document.getElementById("mask-pattern-" + i));
             qr.applyMask(mask);
             qr.drawFormatBits(-1);
+            qr.clearNewFlags();
             drawQrToSvg(qr, document.getElementById("masked-qr-code-" + i));
             qr.drawFormatBits(i);
             drawQrToSvg(qr, document.getElementById("masked-qr-with-format-" + i));
             qr.applyMask(mask);
+            qr.clearNewFlags();
         }
         return result;
     }
-    function doStep8(qr, masks) {
-        let result = [];
-        masks.forEach((mask, i) => {
-            qr.applyMask(mask);
+    function doStep8(qr, masks, penalties) {
+        function getAndDrawSvg(name, i) {
+            let svg = document.getElementById(`${name}-${i}`);
+            drawQrToSvg(qr, svg);
+            let group = document.createElementNS(svg.namespaceURI, "g");
+            svg.appendChild(group);
+            return [svg, group];
+        }
+        function appendRect(container, x, y, width, height) {
+            let rect = document.createElementNS(container.namespaceURI, "rect");
+            rect.setAttribute("x", x.toString());
+            rect.setAttribute("y", y.toString());
+            rect.setAttribute("width", width.toString());
+            rect.setAttribute("height", height.toString());
+            rect.setAttribute("rx", "0.5");
+            rect.setAttribute("ry", "0.5");
+            container.appendChild(rect);
+        }
+        for (let i = 0; i < masks.length; i++) {
+            qr.applyMask(masks[i]);
             qr.drawFormatBits(i);
-            let penalties = [0, 0, 0, 0];
-            let colors = [];
-            for (let inCol of qr.modules) {
-                let outCol = [];
-                for (let cell of inCol) {
-                    if (!(cell instanceof FilledModule))
-                        throw "Assertion error";
-                    outCol.push(cell.color);
-                }
-                colors.push(outCol);
+            qr.clearNewFlags();
+            const penaltyInfo = penalties[i];
+            {
+                let [svg, group] = getAndDrawSvg("horizontal-runs", i);
+                penaltyInfo.horizontalRuns.forEach(run => appendRect(group, run.startX, run.startY, run.runLength, 1));
             }
             {
-                let svg = document.getElementById("horizontal-runs-" + i);
-                drawQrToSvg(qr, svg);
-                let group = document.createElementNS(svg.namespaceURI, "g");
-                svg.appendChild(group);
-                for (let y = 0; y < qr.size; y++) {
-                    let run = 0;
-                    let color = colors[0][y];
-                    for (let x = 0;; x++) {
-                        if (x < qr.size && colors[x][y] == color)
-                            run++;
-                        else {
-                            if (run >= 5) {
-                                penalties[0] += QrCode.PENALTY_N1 + run - 5;
-                                let rect = document.createElementNS(svg.namespaceURI, "rect");
-                                rect.setAttribute("x", (x - run).toString());
-                                rect.setAttribute("y", y.toString());
-                                rect.setAttribute("width", run.toString());
-                                rect.setAttribute("height", "1");
-                                group.appendChild(rect);
-                            }
-                            if (x >= qr.size)
-                                break;
-                            color = colors[x][y];
-                            run = 1;
-                        }
-                    }
-                }
+                let [svg, group] = getAndDrawSvg("vertical-runs", i);
+                penaltyInfo.verticalRuns.forEach(run => appendRect(group, run.startX, run.startY, 1, run.runLength));
             }
             {
-                let svg = document.getElementById("vertical-runs-" + i);
-                drawQrToSvg(qr, svg);
-                let group = document.createElementNS(svg.namespaceURI, "g");
-                svg.appendChild(group);
-                for (let x = 0; x < qr.size; x++) {
-                    let run = 0;
-                    let color = colors[x][0];
-                    for (let y = 0;; y++) {
-                        if (y < qr.size && colors[x][y] == color)
-                            run++;
-                        else {
-                            if (run >= 5) {
-                                penalties[0] += QrCode.PENALTY_N1 + run - 5;
-                                let rect = document.createElementNS(svg.namespaceURI, "rect");
-                                rect.setAttribute("x", x.toString());
-                                rect.setAttribute("y", (y - run).toString());
-                                rect.setAttribute("width", "1");
-                                rect.setAttribute("height", run.toString());
-                                group.appendChild(rect);
-                            }
-                            if (y >= qr.size)
-                                break;
-                            color = colors[x][y];
-                            run = 1;
-                        }
-                    }
-                }
+                let [svg, group] = getAndDrawSvg("two-by-two-boxes", i);
+                penaltyInfo.twoByTwoBoxes.forEach(([x, y]) => appendRect(group, x, y, 2, 2));
             }
             {
-                let svg = document.getElementById("two-by-two-boxes-" + i);
-                drawQrToSvg(qr, svg);
-                let group = document.createElementNS(svg.namespaceURI, "g");
-                svg.appendChild(group);
-                for (let x = 0; x < qr.size - 1; x++) {
-                    for (let y = 0; y < qr.size - 1; y++) {
-                        let c = colors[x][y];
-                        if (c == colors[x][y + 1] && c == colors[x + 1][y] && c == colors[x + 1][y + 1]) {
-                            penalties[1] += QrCode.PENALTY_N2;
-                            let rect = document.createElementNS(svg.namespaceURI, "rect");
-                            rect.setAttribute("x", x.toString());
-                            rect.setAttribute("y", y.toString());
-                            rect.setAttribute("width", "2");
-                            rect.setAttribute("height", "2");
-                            group.appendChild(rect);
-                        }
-                    }
-                }
+                let [svg, group] = getAndDrawSvg("horizontal-false-finders", i);
+                penaltyInfo.horizontalFalseFinders.forEach(run => appendRect(group, run.startX, run.startY, run.runLength, 1));
             }
             {
-                let svg = document.getElementById("horizontal-false-finders-" + i);
-                drawQrToSvg(qr, svg);
-                let group = document.createElementNS(svg.namespaceURI, "g");
-                svg.appendChild(group);
-                for (let y = 0; y < qr.size; y++) {
-                    let line = colors.map(col => col[y] ? 1 : 0).join("");
-                    for (let offset = 0;;) {
-                        offset = line.indexOf("1011101", offset);
-                        if (offset == -1)
-                            break;
-                        let start = offset;
-                        if (start >= 4 && line.substring(start - 4, start) == "0000")
-                            start -= 4;
-                        let end = offset + 7;
-                        if (line.length - end >= 4 && line.substring(end, end + 4) == "0000")
-                            end += 4;
-                        if (end - start >= 11) {
-                            penalties[2] += QrCode.PENALTY_N3;
-                            let rect = document.createElementNS(svg.namespaceURI, "rect");
-                            rect.setAttribute("x", start.toString());
-                            rect.setAttribute("y", y.toString());
-                            rect.setAttribute("width", (end - start).toString());
-                            rect.setAttribute("height", "1");
-                            group.appendChild(rect);
-                        }
-                        offset++;
-                    }
-                }
-            }
-            {
-                let svg = document.getElementById("vertical-false-finders-" + i);
-                drawQrToSvg(qr, svg);
-                let group = document.createElementNS(svg.namespaceURI, "g");
-                svg.appendChild(group);
-                for (let x = 0; x < qr.size; x++) {
-                    let line = colors[x].map(cell => cell ? 1 : 0).join("");
-                    for (let offset = 0;;) {
-                        offset = line.indexOf("1011101", offset);
-                        if (offset == -1)
-                            break;
-                        let start = offset;
-                        if (start >= 4 && line.substring(start - 4, start) == "0000")
-                            start -= 4;
-                        let end = offset + 7;
-                        if (line.length - end >= 4 && line.substring(end, end + 4) == "0000")
-                            end += 4;
-                        if (end - start >= 11) {
-                            penalties[2] += QrCode.PENALTY_N3;
-                            let rect = document.createElementNS(svg.namespaceURI, "rect");
-                            rect.setAttribute("x", x.toString());
-                            rect.setAttribute("y", start.toString());
-                            rect.setAttribute("width", "1");
-                            rect.setAttribute("height", (end - start).toString());
-                            group.appendChild(rect);
-                        }
-                        offset++;
-                    }
-                }
+                let [svg, group] = getAndDrawSvg("vertical-false-finders", i);
+                penaltyInfo.verticalFalseFinders.forEach(run => appendRect(group, run.startX, run.startY, 1, run.runLength));
             }
             {
                 let tds = document.querySelectorAll(`#black-white-balance-${i} td:nth-child(2)`);
-                tds[0].textContent = qr.size.toString();
                 let total = qr.size * qr.size;
+                let black = penaltyInfo.numBlackModules;
+                let percentBlack = black * 100 / total;
+                tds[0].textContent = qr.size.toString();
                 tds[1].textContent = total.toString();
-                let black = 0;
-                for (const col of colors) {
-                    for (const c of col)
-                        black += c ? 1 : 0;
-                }
                 tds[2].textContent = (total - black).toString();
                 tds[3].textContent = black.toString();
-                tds[4].textContent = (black * 100 / total).toFixed(3) + "%";
-                let k = 0;
-                while (Math.abs(black * 20 - total * 10) > (k + 1) * total)
-                    k++;
-                penalties[3] += k * QrCode.PENALTY_N4;
+                tds[4].textContent = percentBlack.toFixed(3) + "%";
+                tds[5].textContent = (percentBlack - 50).toFixed(3).replace(/-/, "\u2212") + "%";
             }
-            qr.applyMask(mask);
-            result.push(penalties);
-        });
-        qr.drawFormatBits(-1);
-        return result;
+            qr.applyMask(masks[i]);
+        }
     }
     function doStep9(penalties) {
         let tbody = clearChildren("#select-best-mask");
         let result = -1;
         let minPenalty = Infinity;
-        penalties.forEach((pen, maskNum) => {
-            let sum = 0;
-            for (let x of pen)
-                sum += x;
-            if (sum < minPenalty) {
-                minPenalty = sum;
+        penalties.forEach((penaltyInfo, maskNum) => {
+            let totalPoints = sum(penaltyInfo.penaltyPoints);
+            if (totalPoints < minPenalty) {
+                minPenalty = totalPoints;
                 result = maskNum;
             }
             let tr = document.createElement("tr");
-            let cells = [maskNum].concat(pen).concat([sum]);
+            let cells = [maskNum].concat(penaltyInfo.penaltyPoints).concat([totalPoints]);
             cells.forEach((val, i) => {
                 let elem = document.createElement(i == 0 ? "th" : "td");
                 elem.textContent = val.toString();
@@ -728,10 +614,13 @@ var app;
             tbody.appendChild(tr);
         });
         getElem("lowest-penalty-mask").textContent = result.toString();
+        tbody.children[result].classList.add("true");
         return result;
     }
     function drawQrToSvg(qr, svg) {
-        svg.setAttribute("viewBox", `0 0 ${qr.size} ${qr.size}`);
+        const EXTRA_BORDER = 0.2;
+        const a = -EXTRA_BORDER, b = qr.size + EXTRA_BORDER * 2;
+        svg.setAttribute("viewBox", `${a} ${a} ${b} ${b}`);
         while (svg.firstChild !== null)
             svg.removeChild(svg.firstChild);
         let hasUnfilled = qr.modules.some(col => col.some(cell => cell instanceof UnfilledModule));
@@ -765,6 +654,31 @@ var app;
         blackPath.setAttribute("class", "black");
         blackPath.setAttribute("d", blacks);
         svg.appendChild(blackPath);
+        let news = "";
+        for (let x = 0; x <= qr.size; x++) {
+            for (let y = 0; y <= qr.size; y++) {
+                if (y < qr.size) {
+                    let a = x > 0 ? qr.modules[x - 1][y] : new UnfilledModule();
+                    let b = x < qr.size ? qr.modules[x][y] : new UnfilledModule();
+                    let c = a instanceof FilledModule ? a.isNew : false;
+                    let d = b instanceof FilledModule ? b.isNew : false;
+                    if (c != d)
+                        news += `M${x},${y}v1`;
+                }
+                if (x < qr.size) {
+                    let a = y > 0 ? qr.modules[x][y - 1] : new UnfilledModule();
+                    let b = y < qr.size ? qr.modules[x][y] : new UnfilledModule();
+                    let c = a instanceof FilledModule ? a.isNew : false;
+                    let d = b instanceof FilledModule ? b.isNew : false;
+                    if (c != d)
+                        news += `M${x},${y}h1`;
+                }
+            }
+        }
+        let newPath = document.createElementNS(svg.namespaceURI, "path");
+        newPath.setAttribute("class", "new");
+        newPath.setAttribute("d", news);
+        svg.appendChild(newPath);
     }
     class QrCode {
         constructor(version, errorCorrectionLevel) {
@@ -794,6 +708,15 @@ var app;
             return Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
                 QrCode.ECC_CODEWORDS_PER_BLOCK[ecl.ordinal][ver] *
                     QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
+        }
+        clearNewFlags() {
+            for (let x = 0; x < this.size; x++) {
+                for (let y = 0; y < this.size; y++) {
+                    let m = this.modules[x][y];
+                    if (m instanceof FilledModule)
+                        m.isNew = false;
+                }
+            }
         }
         drawTimingPatterns() {
             for (let i = 0; i < this.size; i++) {
@@ -960,6 +883,104 @@ var app;
                 }
             }
         }
+        computePenalties() {
+            function addRunToHistory(run, history) {
+                history.pop();
+                history.unshift(run);
+            }
+            function hasFinderLikePattern(runHistory) {
+                const n = runHistory[1];
+                return n > 0 && runHistory[2] == n && runHistory[4] == n && runHistory[5] == n
+                    && runHistory[3] == n * 3 && Math.max(runHistory[0], runHistory[6]) >= n * 4;
+            }
+            let penalties = [0, 0, 0, 0];
+            const colors = this.modules.map(column => column.map(cell => cell instanceof FilledModule && cell.color));
+            let horzRuns = [];
+            let horzFinders = [];
+            for (let y = 0; y < this.size; y++) {
+                let runHistory = [0, 0, 0, 0, 0, 0, 0];
+                let color = false;
+                let runLen = 0;
+                for (let x = 0;; x++) {
+                    if (x < this.size && colors[x][y] == color)
+                        runLen++;
+                    else {
+                        if (runLen >= 5) {
+                            penalties[0] += QrCode.PENALTY_N1 + runLen - 5;
+                            horzRuns.push(new LinearRun(x - runLen, y, runLen));
+                        }
+                        addRunToHistory(runLen, runHistory);
+                        if (x >= this.size && color) {
+                            addRunToHistory(0, runHistory);
+                            color = false;
+                        }
+                        if (!color && hasFinderLikePattern(runHistory)) {
+                            penalties[2] += QrCode.PENALTY_N3;
+                            let n = sum(runHistory);
+                            horzFinders.push(new LinearRun(x - n, y, n));
+                        }
+                        if (x >= this.size)
+                            break;
+                        color = colors[x][y];
+                        runLen = 1;
+                    }
+                }
+            }
+            let vertRuns = [];
+            let vertFinders = [];
+            for (let x = 0; x < this.size; x++) {
+                let runHistory = [0, 0, 0, 0, 0, 0, 0];
+                let color = false;
+                let runLen = 0;
+                for (let y = 0;; y++) {
+                    if (y < this.size && colors[x][y] == color)
+                        runLen++;
+                    else {
+                        if (runLen >= 5) {
+                            penalties[0] += QrCode.PENALTY_N1 + runLen - 5;
+                            vertRuns.push(new LinearRun(x, y - runLen, runLen));
+                        }
+                        addRunToHistory(runLen, runHistory);
+                        if (y >= this.size && color) {
+                            addRunToHistory(0, runHistory);
+                            color = false;
+                        }
+                        if (!color && hasFinderLikePattern(runHistory)) {
+                            penalties[2] += QrCode.PENALTY_N3;
+                            let n = sum(runHistory);
+                            vertFinders.push(new LinearRun(x, y - n, n));
+                        }
+                        if (y >= this.size)
+                            break;
+                        color = colors[x][y];
+                        runLen = 1;
+                    }
+                }
+            }
+            let twoByTwos = [];
+            for (let x = 0; x < this.size - 1; x++) {
+                for (let y = 0; y < this.size - 1; y++) {
+                    let c = colors[x][y];
+                    if (c == colors[x + 1][y] && c == colors[x][y + 1] && c == colors[x + 1][y + 1]) {
+                        penalties[1] += QrCode.PENALTY_N2;
+                        twoByTwos.push([x, y]);
+                    }
+                }
+            }
+            let black = 0;
+            for (let column of colors) {
+                for (let color of column) {
+                    if (color)
+                        black++;
+                }
+            }
+            let total = this.size * this.size;
+            let k = 0;
+            while (Math.abs(black * 20 - total * 10) > (k + 1) * total)
+                k++;
+            penalties[3] += k * QrCode.PENALTY_N4;
+            return new PenaltyInfo(horzRuns, vertRuns, twoByTwos, horzFinders, vertFinders, black, penalties);
+        }
     }
     QrCode.MIN_VERSION = 1;
     QrCode.MAX_VERSION = 40;
@@ -988,6 +1009,7 @@ var app;
         constructor(color) {
             super();
             this.color = color;
+            this.isNew = true;
         }
     }
     class FunctionModule extends FilledModule {
@@ -1079,21 +1101,40 @@ var app;
         Ecc.HIGH = new Ecc(3, 2);
         QrCode.Ecc = Ecc;
     })(QrCode || (QrCode = {}));
+    class PenaltyInfo {
+        constructor(horizontalRuns, verticalRuns, twoByTwoBoxes, horizontalFalseFinders, verticalFalseFinders, numBlackModules, penaltyPoints) {
+            this.horizontalRuns = horizontalRuns;
+            this.verticalRuns = verticalRuns;
+            this.twoByTwoBoxes = twoByTwoBoxes;
+            this.horizontalFalseFinders = horizontalFalseFinders;
+            this.verticalFalseFinders = verticalFalseFinders;
+            this.numBlackModules = numBlackModules;
+            this.penaltyPoints = penaltyPoints;
+        }
+    }
+    class LinearRun {
+        constructor(startX, startY, runLength) {
+            this.startX = startX;
+            this.startY = startY;
+            this.runLength = runLength;
+        }
+    }
     (function (QrSegment) {
         class Mode {
-            constructor(modeBits, numBitsCharCount) {
+            constructor(modeBits, numBitsCharCount, name) {
                 this.modeBits = modeBits;
                 this.numBitsCharCount = numBitsCharCount;
+                this.name = name;
             }
             numCharCountBits(ver) {
                 return this.numBitsCharCount[Math.floor((ver + 7) / 17)];
             }
         }
-        Mode.NUMERIC = new Mode(0x1, [10, 12, 14]);
-        Mode.ALPHANUMERIC = new Mode(0x2, [9, 11, 13]);
-        Mode.BYTE = new Mode(0x4, [8, 16, 16]);
-        Mode.KANJI = new Mode(0x8, [8, 10, 12]);
-        Mode.ECI = new Mode(0x7, [0, 0, 0]);
+        Mode.NUMERIC = new Mode(0x1, [10, 12, 14], "Numeric");
+        Mode.ALPHANUMERIC = new Mode(0x2, [9, 11, 13], "Alphanumeric");
+        Mode.BYTE = new Mode(0x4, [8, 16, 16], "Byte");
+        Mode.KANJI = new Mode(0x8, [8, 10, 12], "Kanji");
+        Mode.ECI = new Mode(0x7, [0, 0, 0], "ECI");
         QrSegment.Mode = Mode;
     })(QrSegment || (QrSegment = {}));
     /*---- Simple utilities ----*/
@@ -1125,20 +1166,6 @@ var app;
             elem.removeChild(elem.firstChild);
         return elem;
     }
-    /*
-    function createElement(tagName, text) {
-        var result = document.createElement(tagName);
-        if (text !== undefined)
-            result.appendChild(document.createTextNode(text));
-        return result;
-    }
-    
-    
-    function setText(elemOrId, text) {
-        elemOrId = clearChildren(elemOrId);
-        elemOrId.appendChild(document.createTextNode(text));
-    }
-    */
     function codePointToUtf8(cp) {
         if (cp < 0)
             throw "Invalid code point";
@@ -1177,6 +1204,12 @@ var app;
     }
     function getBit(x, i) {
         return ((x >>> i) & 1) != 0;
+    }
+    function sum(arr) {
+        let result = 0;
+        for (const x of arr)
+            result += x;
+        return result;
     }
     const ALPHANUMERIC_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
     const KANJI_BIT_SET = "0000000000000000000000010000000000000000C811350000000800000008000000000000000000000000000000000000000000000000000000000000000000" +

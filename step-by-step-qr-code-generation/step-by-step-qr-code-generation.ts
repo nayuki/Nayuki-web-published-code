@@ -18,6 +18,12 @@ namespace app {
 	
 	
 	function initialize(): void {
+		doGenerate();
+	}
+	
+	
+	namespace maskShower {
+		
 		const MASK_DEPENDENT_ELEMS = [
 			"mask-pattern",
 			"masked-qr-code",
@@ -29,21 +35,25 @@ namespace app {
 			"vertical-false-finders",
 			"black-white-balance",
 		];
+		
+		export let selectElem = getElem("show-mask") as HTMLSelectElement;
+		
 		for (let id of MASK_DEPENDENT_ELEMS)
 			cloneElemPerMask(id);
+		selectElem.onchange = showMask;
+		showMask();
 		
-		let select = getElem("show-mask") as HTMLSelectElement;
-		function showMask(): void {
+		export function showMask(): void {
 			for (let id of MASK_DEPENDENT_ELEMS) {
 				for (let i = 0; i < 8; i++) {
 					let elem = document.getElementById(`${id}-${i}`) as Element;
-					elem.setAttribute("style", i == select.selectedIndex ? "" : "display:none");
+					elem.setAttribute("style", i == selectElem.selectedIndex ? "" : "display:none");
 				}
 			}
 		}
-		select.onchange = showMask;
-		showMask();
+		
 	}
+		
 	
 	
 	namespace stepHider {
@@ -52,7 +62,7 @@ namespace app {
 		let unhideP = getElem("unhide-steps");
 		
 		// Initialization
-		let sectionHeaders = document.querySelectorAll("article > div > h3");
+		let sectionHeaders = document.querySelectorAll("article div.section h3");
 		for (let header of sectionHeaders) {
 			header.appendChild(document.createTextNode(" "));
 			let stepStr: string = (/^\d+(?=\. )/.exec(header.textContent as string) as RegExpExecArray)[0];
@@ -111,8 +121,9 @@ namespace app {
 	}
 	
 	
-	export function doGenerate(ev: Event) {
-		ev.preventDefault();
+	export function doGenerate(ev?: Event) {
+		if (ev !== undefined)
+			ev.preventDefault();
 		
 		function toCodePoints(s: string): Array<int> {
 			let result: Array<int> = [];
@@ -147,17 +158,31 @@ namespace app {
 		const version: int = doStep2(segs, errCorrLvl, minVer);
 		if (version == -1)
 			return;
+		
 		const dataCodewords: Array<byte> = doStep3(segs, version, errCorrLvl);
 		const allCodewords: Array<byte> = doStep4(dataCodewords, version, errCorrLvl);
 		const qr = new QrCode(version, errCorrLvl);
 		doStep5(qr);
 		doStep6(qr, allCodewords);
 		let masks: Array<QrCode> = doStep7(qr);
-		let penalties: Array<[int,int,int,int]> = doStep8(qr, masks);
-		let bestMask = doStep9(penalties);
-		qr.applyMask(masks[bestMask]);
-		qr.drawFormatBits(bestMask);
+		let penalties: Array<PenaltyInfo> = masks.map((mask, i) => {
+			qr.applyMask(mask);
+			qr.drawFormatBits(i);
+			let result = qr.computePenalties();
+			qr.applyMask(mask);
+			return result;
+		});
+		doStep8(qr, masks, penalties);
+		let chosenMask: int = doStep9(penalties);
+		let forceMask: int = parseInt(getInput("force-mask-pattern").value, 10);
+		if (forceMask != -1)
+			chosenMask = forceMask;
+		qr.applyMask(masks[chosenMask]);
+		qr.drawFormatBits(chosenMask);
+		qr.clearNewFlags();
 		drawQrToSvg(qr, document.getElementById("output-qr-code") as Element);
+		maskShower.selectElem.selectedIndex = chosenMask;
+		maskShower.showMask();
 	}
 	
 	
@@ -225,35 +250,22 @@ namespace app {
 		
 		let modeStr: string;
 		let result: QrSegment.Mode;
-		if (text.length == 0) {
-			modeStr = "Byte";
+		if (text.length == 0)
 			result = QrSegment.Mode.BYTE;
-		} else if (allNumeric) {
-			modeStr = "Numeric";
+		else if (allNumeric)
 			result = QrSegment.Mode.NUMERIC;
-		} else if (allAlphanum) {
-			modeStr = "Alphanumeric";
+		else if (allAlphanum)
 			result = QrSegment.Mode.ALPHANUMERIC;
-		} else {
-			modeStr = "Byte";
+		else
 			result = QrSegment.Mode.BYTE;
-		}
-		getElem("chosen-segment-mode").textContent = modeStr;
+		getElem("chosen-segment-mode").textContent = result.name;
 		// Kanji mode encoding is not supported due to big conversion table
 		return result;
 	}
 	
 	
 	function doStep1(text: Array<int>, mode: QrSegment.Mode): QrSegment {
-		let table = getElem("data-segment-chars");
-		if (mode == QrSegment.Mode.NUMERIC)
-			table.className = "numeric";
-		else if (mode == QrSegment.Mode.ALPHANUMERIC)
-			table.className = "alphanumeric";
-		else if (mode == QrSegment.Mode.BYTE)
-			table.className = "byte";
-		else
-			throw "Assertion error";
+		getElem("data-segment-chars").className = mode.name.toLowerCase();
 		
 		let bitData: Array<bit> = [];
 		let numChars = text.length;
@@ -313,6 +325,10 @@ namespace app {
 			});
 			tbody.appendChild(tr);
 		});
+		
+		getElem("segment-mode" ).textContent = mode.name.toString();
+		getElem("segment-count").textContent = numChars + " " + (mode == QrSegment.Mode.BYTE ? "bytes" : "characters");
+		getElem("segment-data" ).textContent = bitData.length + " bits long";
 		return new QrSegment(mode, numChars, bitData);
 	}
 	
@@ -499,21 +515,26 @@ namespace app {
 	function doStep5(qr: QrCode): void {
 		qr.drawTimingPatterns();
 		drawQrToSvg(qr, document.getElementById("timing-patterns") as Element);
+		qr.clearNewFlags();
 		
 		qr.drawFinderPatterns();
 		drawQrToSvg(qr, document.getElementById("finder-patterns") as Element);
+		qr.clearNewFlags();
 		
 		qr.drawAlignmentPatterns();
 		drawQrToSvg(qr, document.getElementById("alignment-patterns") as Element);
+		qr.clearNewFlags();
 		let alignPatContainer = getElem("alignment-patterns-container");
 		if (qr.version == 1) alignPatContainer.style.display = "none";
 		else alignPatContainer.style.removeProperty("display");
 		
 		qr.drawFormatBits(-1);
 		drawQrToSvg(qr, document.getElementById("dummy-format-bits") as Element);
+		qr.clearNewFlags();
 		
 		qr.drawVersionInformation();
 		drawQrToSvg(qr, document.getElementById("version-information") as Element);
+		qr.clearNewFlags();
 		let verInfoContainer = getElem("version-information-container");
 		if (qr.version < 7) verInfoContainer.style.display = "none";
 		else verInfoContainer.style.removeProperty("display");
@@ -525,31 +546,25 @@ namespace app {
 		let zigZagSvg = document.getElementById("zig-zag-scan") as Element;
 		drawQrToSvg(qr, zigZagSvg);
 		{
-			let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
 			let s = "";
 			for (let [x, y] of zigZagScan)
 				s += (s == "" ? "M" : "L") + (x + 0.5) + "," + (y + 0.5);
+			let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
+			path.setAttribute("class", "zigzag-line");
 			path.setAttribute("d", s);
-			path.setAttribute("fill", "none");
-			path.setAttribute("stroke", "#000000");
-			path.setAttribute("stroke-width", "0.10");
-			path.setAttribute("stroke-linecap", "round");
-			path.setAttribute("stroke-linejoin", "round");
 			zigZagSvg.appendChild(path);
 		} {
-			let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
 			let s = "";
 			for (let [x, y] of zigZagScan)
 				s += `M${x+0.5},${y+0.5}h0`;
+			let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
+			path.setAttribute("class", "zigzag-dots");
 			path.setAttribute("d", s);
-			path.setAttribute("fill", "none");
-			path.setAttribute("stroke", "#000000");
-			path.setAttribute("stroke-width", "0.40");
-			path.setAttribute("stroke-linecap", "round");
 			zigZagSvg.appendChild(path);
 		}
 		
 		qr.drawCodewords(allCodewords, zigZagScan);
+		qr.clearNewFlags();
 		drawQrToSvg(qr, document.getElementById("codewords-and-remainder") as Element);
 	}
 	
@@ -558,211 +573,98 @@ namespace app {
 		let result: Array<QrCode> = [];
 		for (let i = 0; i < 8; i++) {
 			const mask = qr.makeMask(i);
+			mask.clearNewFlags();
 			result.push(mask);
 			drawQrToSvg(mask, document.getElementById("mask-pattern-" + i) as Element);
+			
 			qr.applyMask(mask);
 			qr.drawFormatBits(-1);
+			qr.clearNewFlags();
 			drawQrToSvg(qr, document.getElementById("masked-qr-code-" + i) as Element);
+			
 			qr.drawFormatBits(i);
 			drawQrToSvg(qr, document.getElementById("masked-qr-with-format-" + i) as Element);
 			qr.applyMask(mask);
+			qr.clearNewFlags();
 		}
 		return result;
 	}
 	
 	
-	function doStep8(qr: QrCode, masks: Array<QrCode>): Array<[int,int,int,int]> {
-		let result: Array<[int,int,int,int]> = [];
-		masks.forEach((mask, i) => {
-			qr.applyMask(mask);
+	function doStep8(qr: QrCode, masks: Array<QrCode>, penalties: Array<PenaltyInfo>): void {
+		function getAndDrawSvg(name: string, i: int): [Element,Element] {
+			let svg = document.getElementById(`${name}-${i}`) as Element;
+			drawQrToSvg(qr, svg);
+			let group = document.createElementNS(svg.namespaceURI, "g");
+			svg.appendChild(group);
+			return [svg, group];
+		}
+		
+		function appendRect(container: Element, x: int, y: int, width: int, height: int): void {
+			let rect = document.createElementNS(container.namespaceURI, "rect");
+			rect.setAttribute("x", x.toString());
+			rect.setAttribute("y", y.toString());
+			rect.setAttribute("width", width.toString());
+			rect.setAttribute("height", height.toString());
+			rect.setAttribute("rx", "0.5");
+			rect.setAttribute("ry", "0.5");
+			container.appendChild(rect);
+		}
+		
+		for (let i = 0; i < masks.length; i++) {
+			qr.applyMask(masks[i]);
 			qr.drawFormatBits(i);
-			let penalties: [int,int,int,int] = [0, 0, 0, 0];
-			
-			let colors: Array<Array<boolean>> = [];
-			for (let inCol of qr.modules) {
-				let outCol: Array<boolean> = [];
-				for (let cell of inCol) {
-					if (!(cell instanceof FilledModule))
-						throw "Assertion error";
-					outCol.push(cell.color);
-				}
-				colors.push(outCol);
-			}
-			
+			qr.clearNewFlags();
+			const penaltyInfo = penalties[i];
 			{
-				let svg = document.getElementById("horizontal-runs-" + i) as Element;
-				drawQrToSvg(qr, svg);
-				let group = document.createElementNS(svg.namespaceURI, "g");
-				svg.appendChild(group);
-				for (let y = 0; y < qr.size; y++) {
-					let run = 0;
-					let color = colors[0][y];
-					for (let x = 0; ; x++) {
-						if (x < qr.size && colors[x][y] == color)
-							run++;
-						else {
-							if (run >= 5) {
-								penalties[0] += QrCode.PENALTY_N1 + run - 5;
-								let rect = document.createElementNS(svg.namespaceURI, "rect");
-								rect.setAttribute("x", (x - run).toString());
-								rect.setAttribute("y", y.toString());
-								rect.setAttribute("width", run.toString());
-								rect.setAttribute("height", "1");
-								group.appendChild(rect);
-							}
-							if (x >= qr.size)
-								break;
-							color = colors[x][y];
-							run = 1;
-						}
-					}
-				}
+				let [svg, group] = getAndDrawSvg("horizontal-runs", i);
+				penaltyInfo.horizontalRuns.forEach(
+					run => appendRect(group, run.startX, run.startY, run.runLength, 1));
 			} {
-				let svg = document.getElementById("vertical-runs-" + i) as Element;
-				drawQrToSvg(qr, svg);
-				let group = document.createElementNS(svg.namespaceURI, "g");
-				svg.appendChild(group);
-				for (let x = 0; x < qr.size; x++) {
-					let run = 0;
-					let color = colors[x][0];
-					for (let y = 0; ; y++) {
-						if (y < qr.size && colors[x][y] == color)
-							run++;
-						else {
-							if (run >= 5) {
-								penalties[0] += QrCode.PENALTY_N1 + run - 5;
-								let rect = document.createElementNS(svg.namespaceURI, "rect");
-								rect.setAttribute("x", x.toString());
-								rect.setAttribute("y", (y - run).toString());
-								rect.setAttribute("width", "1");
-								rect.setAttribute("height", run.toString());
-								group.appendChild(rect);
-							}
-							if (y >= qr.size)
-								break;
-							color = colors[x][y];
-							run = 1;
-						}
-					}
-				}
+				let [svg, group] = getAndDrawSvg("vertical-runs", i);
+				penaltyInfo.verticalRuns.forEach(
+					run => appendRect(group, run.startX, run.startY, 1, run.runLength));
 			} {
-				let svg = document.getElementById("two-by-two-boxes-" + i) as Element;
-				drawQrToSvg(qr, svg);
-				let group = document.createElementNS(svg.namespaceURI, "g");
-				svg.appendChild(group);
-				for (let x = 0; x < qr.size - 1; x++) {
-					for (let y = 0; y < qr.size - 1; y++) {
-						let c = colors[x][y];
-						if (c == colors[x][y + 1] && c == colors[x + 1][y] && c == colors[x + 1][y + 1]) {
-							penalties[1] += QrCode.PENALTY_N2;
-							let rect = document.createElementNS(svg.namespaceURI, "rect");
-							rect.setAttribute("x", x.toString());
-							rect.setAttribute("y", y.toString());
-							rect.setAttribute("width", "2");
-							rect.setAttribute("height", "2");
-							group.appendChild(rect);
-						}
-					}
-				}
+				let [svg, group] = getAndDrawSvg("two-by-two-boxes", i);
+				penaltyInfo.twoByTwoBoxes.forEach(
+					([x, y]) => appendRect(group, x, y, 2, 2));
 			} {
-				let svg = document.getElementById("horizontal-false-finders-" + i) as Element;
-				drawQrToSvg(qr, svg);
-				let group = document.createElementNS(svg.namespaceURI, "g");
-				svg.appendChild(group);
-				for (let y = 0; y < qr.size; y++) {
-					let line: string = colors.map(col => col[y] ? 1 : 0).join("");
-					for (let offset = 0; ; ) {
-						offset = line.indexOf("1011101", offset);
-						if (offset == -1)
-							break;
-						let start = offset;
-						if (start >= 4 && line.substring(start - 4, start) == "0000")
-							start -= 4;
-						let end = offset + 7;
-						if (line.length - end >= 4 && line.substring(end, end + 4) == "0000")
-							end += 4;
-						if (end - start >= 11) {
-							penalties[2] += QrCode.PENALTY_N3;
-							let rect = document.createElementNS(svg.namespaceURI, "rect");
-							rect.setAttribute("x", start.toString());
-							rect.setAttribute("y", y.toString());
-							rect.setAttribute("width", (end - start).toString());
-							rect.setAttribute("height", "1");
-							group.appendChild(rect);
-						}
-						offset++;
-					}
-				}
+				let [svg, group] = getAndDrawSvg("horizontal-false-finders", i);
+				penaltyInfo.horizontalFalseFinders.forEach(
+					run => appendRect(group, run.startX, run.startY, run.runLength, 1));
 			} {
-				let svg = document.getElementById("vertical-false-finders-" + i) as Element;
-				drawQrToSvg(qr, svg);
-				let group = document.createElementNS(svg.namespaceURI, "g");
-				svg.appendChild(group);
-				for (let x = 0; x < qr.size; x++) {
-					let line: string = colors[x].map(cell => cell ? 1 : 0).join("");
-					for (let offset = 0; ; ) {
-						offset = line.indexOf("1011101", offset);
-						if (offset == -1)
-							break;
-						let start = offset;
-						if (start >= 4 && line.substring(start - 4, start) == "0000")
-							start -= 4;
-						let end = offset + 7;
-						if (line.length - end >= 4 && line.substring(end, end + 4) == "0000")
-							end += 4;
-						if (end - start >= 11) {
-							penalties[2] += QrCode.PENALTY_N3;
-							let rect = document.createElementNS(svg.namespaceURI, "rect");
-							rect.setAttribute("x", x.toString());
-							rect.setAttribute("y", start.toString());
-							rect.setAttribute("width", "1");
-							rect.setAttribute("height", (end - start).toString());
-							group.appendChild(rect);
-						}
-						offset++;
-					}
-				}
+				let [svg, group] = getAndDrawSvg("vertical-false-finders", i);
+				penaltyInfo.verticalFalseFinders.forEach(
+					run => appendRect(group, run.startX, run.startY, 1, run.runLength));
 			} {
 				let tds = document.querySelectorAll(`#black-white-balance-${i} td:nth-child(2)`);
-				tds[0].textContent = qr.size.toString();
 				let total = qr.size * qr.size;
+				let black = penaltyInfo.numBlackModules;
+				let percentBlack = black * 100 / total;
+				tds[0].textContent = qr.size.toString();
 				tds[1].textContent = total.toString();
-				let black = 0;
-				for (const col of colors) {
-					for (const c of col)
-						black += c ? 1 : 0;
-				}
 				tds[2].textContent = (total - black).toString();
 				tds[3].textContent = black.toString();
-				tds[4].textContent = (black * 100 / total).toFixed(3) + "%";
-				let k = 0;
-				while (Math.abs(black * 20 - total * 10) > (k + 1) * total)
-					k++;
-				penalties[3] += k * QrCode.PENALTY_N4;
+				tds[4].textContent = percentBlack.toFixed(3) + "%";
+				tds[5].textContent = (percentBlack - 50).toFixed(3).replace(/-/, "\u2212") + "%";
 			}
-			
-			qr.applyMask(mask);
-			result.push(penalties);
-		});
-		qr.drawFormatBits(-1);
-		return result;
+			qr.applyMask(masks[i]);
+		}
 	}
 	
 	
-	function doStep9(penalties: Array<[int,int,int,int]>): int {
+	function doStep9(penalties: Array<PenaltyInfo>): int {
 		let tbody = clearChildren("#select-best-mask");
 		let result = -1;
 		let minPenalty = Infinity;
-		penalties.forEach((pen, maskNum) => {
-			let sum = 0;
-			for (let x of pen)
-				sum += x;
-			if (sum < minPenalty) {
-				minPenalty = sum;
+		penalties.forEach((penaltyInfo, maskNum) => {
+			let totalPoints = sum(penaltyInfo.penaltyPoints);
+			if (totalPoints < minPenalty) {
+				minPenalty = totalPoints;
 				result = maskNum;
 			}
 			let tr = document.createElement("tr");
-			let cells: Array<number> = [maskNum].concat(pen).concat([sum]);
+			let cells: Array<int> = [maskNum].concat(penaltyInfo.penaltyPoints).concat([totalPoints]);
 			cells.forEach((val, i) => {
 				let elem = document.createElement(i == 0 ? "th" : "td");
 				elem.textContent = val.toString();
@@ -771,12 +673,16 @@ namespace app {
 			tbody.appendChild(tr);
 		});
 		getElem("lowest-penalty-mask").textContent = result.toString();
+		tbody.children[result].classList.add("true");
 		return result;
 	}
 	
 	
 	function drawQrToSvg(qr: QrCode, svg: Element): void {
-		svg.setAttribute("viewBox", `0 0 ${qr.size} ${qr.size}`);
+		const EXTRA_BORDER: number = 0.2;
+		const a = -EXTRA_BORDER, b = qr.size + EXTRA_BORDER * 2;
+		svg.setAttribute("viewBox", `${a} ${a} ${b} ${b}`);
+		
 		while (svg.firstChild !== null)
 			svg.removeChild(svg.firstChild);
 		let hasUnfilled: boolean = qr.modules.some(
@@ -809,6 +715,32 @@ namespace app {
 		blackPath.setAttribute("class", "black");
 		blackPath.setAttribute("d", blacks);
 		svg.appendChild(blackPath);
+		
+		let news = "";
+		for (let x = 0; x <= qr.size; x++) {
+			for (let y = 0; y <= qr.size; y++) {
+				if (y < qr.size) {
+					let a: Module = x > 0 ? qr.modules[x - 1][y]   : new UnfilledModule();
+					let b: Module = x < qr.size ? qr.modules[x][y] : new UnfilledModule();
+					let c: boolean = a instanceof FilledModule ? a.isNew : false;
+					let d: boolean = b instanceof FilledModule ? b.isNew : false;
+					if (c != d)
+						news += `M${x},${y}v1`;
+				}
+				if (x < qr.size) {
+					let a: Module = y > 0 ? qr.modules[x][y - 1]   : new UnfilledModule();
+					let b: Module = y < qr.size ? qr.modules[x][y] : new UnfilledModule();
+					let c: boolean = a instanceof FilledModule ? a.isNew : false;
+					let d: boolean = b instanceof FilledModule ? b.isNew : false;
+					if (c != d)
+						news += `M${x},${y}h1`;
+				}
+			}
+		}
+		let newPath = document.createElementNS(svg.namespaceURI, "path");
+		newPath.setAttribute("class", "new");
+		newPath.setAttribute("d", news);
+		svg.appendChild(newPath);
 	}
 	
 	
@@ -849,6 +781,17 @@ namespace app {
 			return Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
 				QrCode.ECC_CODEWORDS_PER_BLOCK    [ecl.ordinal][ver] *
 				QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
+		}
+		
+		
+		public clearNewFlags(): void {
+			for (let x = 0; x < this.size; x++) {
+				for (let y = 0; y < this.size; y++) {
+					let m = this.modules[x][y];
+					if (m instanceof FilledModule)
+						m.isNew = false;
+				}
+			}
 		}
 		
 		
@@ -905,30 +848,30 @@ namespace app {
 		
 		
 		public drawFormatBits(mask: int): void {
-				let bits: int = 0;
-				if (mask != -1) {
-					const data: int = this.errorCorrectionLevel.formatBits << 3 | mask;
-					let rem: int = data;
-					for (let i = 0; i < 10; i++)
-						rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
-					bits = (data << 10 | rem) ^ 0x5412;  // uint15
-				}
-				if (bits >>> 15 != 0)
-					throw "Assertion error";
-				
-				for (let i = 0; i <= 5; i++)
-					this.modules[8][i] = new FunctionModule(getBit(bits, i));
-				this.modules[8][7] = new FunctionModule(getBit(bits, 6));
-				this.modules[8][8] = new FunctionModule(getBit(bits, 7));
-				this.modules[7][8] = new FunctionModule(getBit(bits, 8));
-				for (let i = 9; i < 15; i++)
-					this.modules[14 - i][8] = new FunctionModule(getBit(bits, i));
-				
-				for (let i = 0; i < 8; i++)
-					this.modules[this.size - 1 - i][8] = new FunctionModule(getBit(bits, i));
-				for (let i = 8; i < 15; i++)
-					this.modules[8][this.size - 15 + i] = new FunctionModule(getBit(bits, i));
-				this.modules[8][this.size - 8] = new FunctionModule(true);
+			let bits: int = 0;
+			if (mask != -1) {
+				const data: int = this.errorCorrectionLevel.formatBits << 3 | mask;
+				let rem: int = data;
+				for (let i = 0; i < 10; i++)
+					rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+				bits = (data << 10 | rem) ^ 0x5412;  // uint15
+			}
+			if (bits >>> 15 != 0)
+				throw "Assertion error";
+			
+			for (let i = 0; i <= 5; i++)
+				this.modules[8][i] = new FunctionModule(getBit(bits, i));
+			this.modules[8][7] = new FunctionModule(getBit(bits, 6));
+			this.modules[8][8] = new FunctionModule(getBit(bits, 7));
+			this.modules[7][8] = new FunctionModule(getBit(bits, 8));
+			for (let i = 9; i < 15; i++)
+				this.modules[14 - i][8] = new FunctionModule(getBit(bits, i));
+			
+			for (let i = 0; i < 8; i++)
+				this.modules[this.size - 1 - i][8] = new FunctionModule(getBit(bits, i));
+			for (let i = 8; i < 15; i++)
+				this.modules[8][this.size - 15 + i] = new FunctionModule(getBit(bits, i));
+			this.modules[8][this.size - 8] = new FunctionModule(true);
 		}
 		
 		
@@ -1023,6 +966,115 @@ namespace app {
 		}
 		
 		
+		public computePenalties(): PenaltyInfo {
+			function addRunToHistory(run: int, history: Array<int>): void {
+				history.pop();
+				history.unshift(run);
+			}
+			
+			function hasFinderLikePattern(runHistory: Array<int>): boolean {
+				const n: int = runHistory[1];
+				return n > 0 && runHistory[2] == n && runHistory[4] == n && runHistory[5] == n
+					&& runHistory[3] == n * 3 && Math.max(runHistory[0], runHistory[6]) >= n * 4;
+			}
+			
+			let penalties: [int,int,int,int] = [0, 0, 0, 0];
+			const colors: Array<Array<boolean>> = this.modules.map(
+				column => column.map(cell => cell instanceof FilledModule && cell.color));
+			
+			let horzRuns   : Array<LinearRun> = [];
+			let horzFinders: Array<LinearRun> = [];
+			for (let y = 0; y < this.size; y++) {
+				let runHistory = [0,0,0,0,0,0,0];
+				let color = false;
+				let runLen = 0;
+				for (let x = 0; ; x++) {
+					if (x < this.size && colors[x][y] == color)
+						runLen++;
+					else {
+						if (runLen >= 5) {
+							penalties[0] += QrCode.PENALTY_N1 + runLen - 5;
+							horzRuns.push(new LinearRun(x - runLen, y, runLen));
+						}
+						addRunToHistory(runLen, runHistory);
+						if (x >= this.size && color) {
+							addRunToHistory(0, runHistory);
+							color = false;
+						}
+						if (!color && hasFinderLikePattern(runHistory)) {
+							penalties[2] += QrCode.PENALTY_N3;
+							let n = sum(runHistory);
+							horzFinders.push(new LinearRun(x - n, y, n));
+						}
+						if (x >= this.size)
+							break;
+						color = colors[x][y];
+						runLen = 1;
+					}
+				}
+			}
+			
+			let vertRuns   : Array<LinearRun> = [];
+			let vertFinders: Array<LinearRun> = [];
+			for (let x = 0; x < this.size; x++) {
+				let runHistory = [0,0,0,0,0,0,0];
+				let color = false;
+				let runLen = 0;
+				for (let y = 0; ; y++) {
+					if (y < this.size && colors[x][y] == color)
+						runLen++;
+					else {
+						if (runLen >= 5) {
+							penalties[0] += QrCode.PENALTY_N1 + runLen - 5;
+							vertRuns.push(new LinearRun(x, y - runLen, runLen));
+						}
+						addRunToHistory(runLen, runHistory);
+						if (y >= this.size && color) {
+							addRunToHistory(0, runHistory);
+							color = false;
+						}
+						if (!color && hasFinderLikePattern(runHistory)) {
+							penalties[2] += QrCode.PENALTY_N3;
+							let n = sum(runHistory);
+							vertFinders.push(new LinearRun(x, y - n, n));
+						}
+						if (y >= this.size)
+							break;
+						color = colors[x][y];
+						runLen = 1;
+					}
+				}
+			}
+			
+			let twoByTwos: Array<[int,int]> = [];
+			for (let x = 0; x < this.size - 1; x++) {
+				for (let y = 0; y < this.size - 1; y++) {
+					let c: boolean = colors[x][y];
+					if (c == colors[x + 1][y] && c == colors[x][y + 1] && c == colors[x + 1][y + 1]) {
+						penalties[1] += QrCode.PENALTY_N2;
+						twoByTwos.push([x, y]);
+					}
+				}
+			}
+			
+			let black: int = 0;
+			for (let column of colors) {
+				for (let color of column) {
+					if (color)
+						black++;
+				}
+			}
+			let total: int = this.size * this.size;
+			let k = 0;
+			while (Math.abs(black * 20 - total * 10) > (k + 1) * total)
+				k++;
+			penalties[3] += k * QrCode.PENALTY_N4;
+			
+			return new PenaltyInfo(horzRuns, vertRuns, twoByTwos,
+				horzFinders, vertFinders, black, penalties);
+		}
+		
+		
 		public static readonly MIN_VERSION: int =  1;
 		public static readonly MAX_VERSION: int = 40;
 		
@@ -1058,6 +1110,8 @@ namespace app {
 	
 	
 	class FilledModule extends Module {
+		public isNew: boolean = true;
+		
 		public constructor(
 				public color: boolean) {
 			super();
@@ -1096,7 +1150,7 @@ namespace app {
 		}
 		
 		public static getTotalBits(segs: Array<QrSegment>, version: int): number {
-			let result: number = 0;
+			let result: int = 0;
 			for (let seg of segs) {
 				let ccbits: int = seg.mode.numCharCountBits(version);
 				if (seg.numChars >= (1 << ccbits))
@@ -1176,17 +1230,38 @@ namespace app {
 	}
 	
 	
+	class PenaltyInfo {
+		constructor(
+			public readonly horizontalRuns: Array<LinearRun>,
+			public readonly verticalRuns: Array<LinearRun>,
+			public readonly twoByTwoBoxes: Array<[int,int]>,
+			public readonly horizontalFalseFinders: Array<LinearRun>,
+			public readonly verticalFalseFinders: Array<LinearRun>,
+			public readonly numBlackModules: int,
+			public readonly penaltyPoints: [int,int,int,int]) {}
+	}
+	
+	
+	class LinearRun {
+		constructor(
+			public readonly startX: int,
+			public readonly startY: int,
+			public readonly runLength: int) {}
+	}
+	
+	
 	namespace QrSegment {
 		export class Mode {
-			public static readonly NUMERIC      = new Mode(0x1, [10, 12, 14]);
-			public static readonly ALPHANUMERIC = new Mode(0x2, [ 9, 11, 13]);
-			public static readonly BYTE         = new Mode(0x4, [ 8, 16, 16]);
-			public static readonly KANJI        = new Mode(0x8, [ 8, 10, 12]);
-			public static readonly ECI          = new Mode(0x7, [ 0,  0,  0]);
+			public static readonly NUMERIC      = new Mode(0x1, [10, 12, 14], "Numeric"     );
+			public static readonly ALPHANUMERIC = new Mode(0x2, [ 9, 11, 13], "Alphanumeric");
+			public static readonly BYTE         = new Mode(0x4, [ 8, 16, 16], "Byte"        );
+			public static readonly KANJI        = new Mode(0x8, [ 8, 10, 12], "Kanji"       );
+			public static readonly ECI          = new Mode(0x7, [ 0,  0,  0], "ECI"         );
 			
 			private constructor(
 				public readonly modeBits: int,
-				private readonly numBitsCharCount: [int,int,int]) {}
+				private readonly numBitsCharCount: [int,int,int],
+				public readonly name: string) {}
 			
 			public numCharCountBits(ver: int): int {
 				return this.numBitsCharCount[Math.floor((ver + 7) / 17)];
@@ -1234,21 +1309,6 @@ namespace app {
 	}
 	
 	
-	/*
-	function createElement(tagName, text) {
-		var result = document.createElement(tagName);
-		if (text !== undefined)
-			result.appendChild(document.createTextNode(text));
-		return result;
-	}
-	
-	
-	function setText(elemOrId, text) {
-		elemOrId = clearChildren(elemOrId);
-		elemOrId.appendChild(document.createTextNode(text));
-	}
-	*/
-	
 	function codePointToUtf8(cp: int): Array<byte> {
 		if (cp < 0)
 			throw "Invalid code point";
@@ -1291,6 +1351,14 @@ namespace app {
 	
 	function getBit(x: int, i: int): boolean {
 		return ((x >>> i) & 1) != 0;
+	}
+	
+	
+	function sum(arr: Array<int>): int {
+		let result: int = 0;
+		for (const x of arr)
+			result += x;
+		return result;
 	}
 	
 	
