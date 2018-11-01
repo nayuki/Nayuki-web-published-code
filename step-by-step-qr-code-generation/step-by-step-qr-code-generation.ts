@@ -17,8 +17,54 @@ namespace app {
 	
 	
 	
+	/*---- HTML UI initialization ----*/
+	
 	function initialize(): void {
+		initShowHideSteps();
 		doGenerate();
+	}
+	
+	
+	function initShowHideSteps(): void {
+		let headings = document.querySelectorAll("article section h3");
+		let showHideP = getElem("show-hide-steps");
+		for (let heading of headings) {
+			let parent = heading.parentNode as HTMLElement;
+			let stepStr: string = (/^\d+(?=\. )/.exec(heading.textContent as string) as RegExpExecArray)[0];
+			
+			let label = document.createElement("label");
+			let checkbox = document.createElement("input");
+			checkbox.type = "checkbox";
+			checkbox.checked=true;
+			checkbox.id = "step" + stepStr;
+			let onChange = () => {
+				if (checkbox.checked) {
+					parent.style.removeProperty("display");
+					label.classList.add("checked");
+				} else {
+					parent.style.display = "none";
+					label.classList.remove("checked");
+				}
+			};
+			checkbox.onchange = onChange;
+			onChange();
+			
+			label.htmlFor = checkbox.id;
+			label.appendChild(checkbox);
+			let span = document.createElement("span");
+			span.textContent = stepStr;
+			label.appendChild(span);
+			showHideP.appendChild(label);
+			
+			let button = document.createElement("input");
+			button.type = "button";
+			button.value = "Hide";
+			button.onclick = () => {
+				checkbox.checked = false;
+				onChange();
+			};
+			parent.insertBefore(button, heading);
+		}
 	}
 	
 	
@@ -69,49 +115,8 @@ namespace app {
 	}
 	
 	
-	namespace stepHider {
-		let headings = document.querySelectorAll("article section h3");
-		let showHideP = getElem("show-hide-steps");
-		for (let heading of headings) {
-			let parent = heading.parentNode as HTMLElement;
-			let stepStr: string = (/^\d+(?=\. )/.exec(heading.textContent as string) as RegExpExecArray)[0];
-			
-			let label = document.createElement("label");
-			let checkbox = document.createElement("input");
-			checkbox.type = "checkbox";
-			checkbox.checked=true;
-			checkbox.id = "step" + stepStr;
-			function onChange() {
-				if (checkbox.checked) {
-					parent.style.removeProperty("display");
-					label.classList.add("checked");
-				} else {
-					parent.style.display = "none";
-					label.classList.remove("checked");
-				}
-			}
-			checkbox.onchange = onChange;
-			onChange();
-			
-			label.htmlFor = checkbox.id;
-			label.appendChild(checkbox);
-			let span = document.createElement("span");
-			span.textContent = stepStr;
-			label.appendChild(span);
-			showHideP.appendChild(label);
-			
-			
-			let button = document.createElement("input");
-			button.type = "button";
-			button.value = "Hide";
-			button.onclick = () => {
-				checkbox.checked = false;
-				onChange();
-			};
-			parent.insertBefore(button, heading);
-		}
-	}
 	
+	/*---- Main application ----*/
 	
 	export function doGenerate(ev?: Event) {
 		if (ev !== undefined)
@@ -137,14 +142,14 @@ namespace app {
 		
 		const textStr: string = (getElem("input-text") as HTMLTextAreaElement).value;
 		const text: Array<int> = toCodePoints(textStr);
-		const mode: QrSegment.Mode = doStep0(text);
+		const mode: SegmentMode = doStep0(text);
 		const segs: Array<QrSegment> = [doStep1(text, mode)];
 		
-		let errCorrLvl: QrCode.Ecc;
-		if      (getInput("errcorlvl-low"     ).checked)  errCorrLvl = QrCode.Ecc.LOW     ;
-		else if (getInput("errcorlvl-medium"  ).checked)  errCorrLvl = QrCode.Ecc.MEDIUM  ;
-		else if (getInput("errcorlvl-quartile").checked)  errCorrLvl = QrCode.Ecc.QUARTILE;
-		else if (getInput("errcorlvl-high"    ).checked)  errCorrLvl = QrCode.Ecc.HIGH    ;
+		let errCorrLvl: ErrorCorrectionLevel;
+		if      (getInput("errcorlvl-low"     ).checked)  errCorrLvl = ErrorCorrectionLevel.LOW     ;
+		else if (getInput("errcorlvl-medium"  ).checked)  errCorrLvl = ErrorCorrectionLevel.MEDIUM  ;
+		else if (getInput("errcorlvl-quartile").checked)  errCorrLvl = ErrorCorrectionLevel.QUARTILE;
+		else if (getInput("errcorlvl-high"    ).checked)  errCorrLvl = ErrorCorrectionLevel.HIGH    ;
 		else  throw "Assertion error";
 		const minVer: int = parseInt(getInput("force-min-version").value, 10);
 		const version: int = doStep2(segs, errCorrLvl, minVer);
@@ -152,7 +157,7 @@ namespace app {
 			return;
 		
 		const dataCodewords: Array<byte> = doStep3(segs, version, errCorrLvl);
-		const allCodewords: Array<byte> = doStep4(dataCodewords, version, errCorrLvl);
+		const allCodewords : Array<byte> = doStep4(dataCodewords, version, errCorrLvl);
 		const qr = new QrCode(version, errCorrLvl);
 		doStep5(qr);
 		doStep6(qr, allCodewords);
@@ -178,7 +183,7 @@ namespace app {
 	}
 	
 	
-	function doStep0(text: Array<int>): QrSegment.Mode {
+	function doStep0(text: Array<int>): SegmentMode {
 		getElem("num-code-points").textContent = text.length.toString();
 		
 		function isNumeric(cp: int): boolean {
@@ -241,22 +246,22 @@ namespace app {
 		}
 		
 		let modeStr: string;
-		let result: QrSegment.Mode;
+		let result: SegmentMode;
 		if (text.length == 0)
-			result = QrSegment.Mode.BYTE;
+			result = SegmentMode.BYTE;
 		else if (allNumeric)
-			result = QrSegment.Mode.NUMERIC;
+			result = SegmentMode.NUMERIC;
 		else if (allAlphanum)
-			result = QrSegment.Mode.ALPHANUMERIC;
+			result = SegmentMode.ALPHANUMERIC;
 		else
-			result = QrSegment.Mode.BYTE;
+			result = SegmentMode.BYTE;
 		getElem("chosen-segment-mode").textContent = result.name;
 		// Kanji mode encoding is not supported due to big conversion table
 		return result;
 	}
 	
 	
-	function doStep1(text: Array<int>, mode: QrSegment.Mode): QrSegment {
+	function doStep1(text: Array<int>, mode: SegmentMode): QrSegment {
 		getElem("data-segment-chars").className = mode.name.toLowerCase() + " " + "possibly-long";
 		
 		let bitData: Array<bit> = [];
@@ -268,7 +273,7 @@ namespace app {
 			let rowSpan: int = 0;
 			let combined: string = "";
 			let bits: string = "";
-			if (mode == QrSegment.Mode.NUMERIC) {
+			if (mode == SegmentMode.NUMERIC) {
 				if (i % 3 == 0) {
 					rowSpan = Math.min(3, text.length - i);
 					let s: string = text.slice(i, i + rowSpan).map(c => String.fromCharCode(c)).join("");
@@ -276,7 +281,7 @@ namespace app {
 					combined = temp.toString(10).padStart(rowSpan, "0");
 					bits = temp.toString(2).padStart(rowSpan * 3 + 1, "0");
 				}
-			} else if (mode == QrSegment.Mode.ALPHANUMERIC) {
+			} else if (mode == SegmentMode.ALPHANUMERIC) {
 				let temp: int = ALPHANUMERIC_CHARSET.indexOf(String.fromCharCode(cp));
 				decValue = temp.toString(10);
 				if (i % 2 == 0) {
@@ -288,7 +293,7 @@ namespace app {
 					combined = temp.toString(10);
 					bits = temp.toString(2).padStart(rowSpan * 5 + 1, "0");
 				}
-			} else if (mode == QrSegment.Mode.BYTE) {
+			} else if (mode == SegmentMode.BYTE) {
 				rowSpan = 1;
 				let temp: Array<byte> = codePointToUtf8(cp);
 				hexValues = temp.map(c => c.toString(16).toUpperCase().padStart(2, "0")).join(" ");
@@ -319,13 +324,13 @@ namespace app {
 		});
 		
 		getElem("segment-mode" ).textContent = mode.name.toString();
-		getElem("segment-count").textContent = numChars + " " + (mode == QrSegment.Mode.BYTE ? "bytes" : "characters");
+		getElem("segment-count").textContent = numChars + " " + (mode == SegmentMode.BYTE ? "bytes" : "characters");
 		getElem("segment-data" ).textContent = bitData.length + " bits long";
 		return new QrSegment(mode, numChars, bitData);
 	}
 	
 	
-	function doStep2(segs: Array<QrSegment>, ecl: QrCode.Ecc, minVer: int): int {
+	function doStep2(segs: Array<QrSegment>, ecl: ErrorCorrectionLevel, minVer: int): int {
 		let trs = document.querySelectorAll("#segment-size tbody tr");
 		[1, 10, 27].forEach((ver, i) => {
 			let numBits = QrSegment.getTotalBits(segs, ver);
@@ -335,7 +340,12 @@ namespace app {
 			tds[2].textContent = numCodewords < Infinity ? numCodewords.toString() : "Not encodable";
 		});
 		
-		const ERRCORRLVLS = [QrCode.Ecc.LOW, QrCode.Ecc.MEDIUM, QrCode.Ecc.QUARTILE, QrCode.Ecc.HIGH];
+		const ERRCORRLVLS = [
+			ErrorCorrectionLevel.LOW,
+			ErrorCorrectionLevel.MEDIUM,
+			ErrorCorrectionLevel.QUARTILE,
+			ErrorCorrectionLevel.HIGH
+		];
 		let tbody = clearChildren("#codewords-per-version tbody");
 		let result: int = -1;
 		for (let ver = 1; ver <= 40; ver++) {
@@ -365,7 +375,7 @@ namespace app {
 	}
 	
 	
-	function doStep3(segs: Array<QrSegment>, ver: int, ecl: QrCode.Ecc): Array<byte> {
+	function doStep3(segs: Array<QrSegment>, ver: int, ecl: ErrorCorrectionLevel): Array<byte> {
 		let allBits: Array<bit> = [];
 		let tbody = clearChildren("#segment-and-padding-bits tbody");
 		function addRow(name: string, bits: Array<bit>): void {
@@ -405,19 +415,14 @@ namespace app {
 		
 		queryElem("#full-bitstream span").textContent = allBits.join("");
 		let result: Array<byte> = [];
-		for (let i = 0; i < allBits.length; i += 8) {
-			let b = 0;
-			for (let j = 0; j < 8; j++)
-				b = (b << 1) | allBits[i + j];
-			result.push(b);
-		}
-		getElem("all-data-codewords").textContent = result.map(
-			b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+		for (let i = 0; i < allBits.length; i += 8)
+			result.push(parseInt(allBits.slice(i, i + 8).join(""), 2));
+		getElem("all-data-codewords").textContent = result.map(byteToHex).join(" ");
 		return result;
 	}
 	
 	
-	function doStep4(data: Array<byte>, ver: int, ecl: QrCode.Ecc): Array<byte> {
+	function doStep4(data: Array<byte>, ver: int, ecl: ErrorCorrectionLevel): Array<byte> {
 		let numBlocks: int = QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
 		let blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK  [ecl.ordinal][ver];
 		let rawCodewords: int = Math.floor(QrCode.getNumRawDataModules(ver) / 8);
@@ -444,7 +449,7 @@ namespace app {
 		}
 		
 		{
-			let thead = document.querySelector("#blocks-and-ecc thead") as HTMLElement;
+			let thead = queryElem("#blocks-and-ecc thead");
 			if (thead.children.length >= 2)
 				thead.removeChild(thead.children[1]);
 			(thead.querySelectorAll("th")[1] as HTMLTableHeaderCellElement).colSpan = numBlocks;
@@ -471,7 +476,7 @@ namespace app {
 				blocks.forEach((block, j) => {
 					let td = document.createElement("td");
 					if (i != shortBlockLen - blockEccLen || j >= numShortBlocks)
-						td.textContent = block[i].toString(16).toUpperCase().padStart(2, "0");
+						td.textContent = byteToHex(block[i]);
 					tr.appendChild(td);
 				});
 				tbody.appendChild(tr);
@@ -490,14 +495,12 @@ namespace app {
 		
 		let output = clearChildren("#interleaved-codewords");
 		let span = document.createElement("span");
-		span.textContent = result.slice(0, data.length).map(
-			b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+		span.textContent = result.slice(0, data.length).map(byteToHex).join(" ");
 		span.className = "data";
 		output.appendChild(span);
 		output.appendChild(document.createTextNode(" "));
 		span = document.createElement("span");
-		span.textContent = result.slice(data.length).map(
-			b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+		span.textContent = result.slice(data.length).map(byteToHex).join(" ");
 		span.className = "ecc";
 		output.appendChild(span);
 		return result;
@@ -745,7 +748,7 @@ namespace app {
 		
 		public constructor(
 				public readonly version: int,
-				public readonly errorCorrectionLevel: QrCode.Ecc) {
+				public readonly errorCorrectionLevel: ErrorCorrectionLevel) {
 			this.size = version * 4 + 17;
 			let column: Array<Module> = [];
 			for (let i = 0; i < this.size; i++)
@@ -769,7 +772,7 @@ namespace app {
 		}
 		
 		
-		public static getNumDataCodewords(ver: int, ecl: QrCode.Ecc): int {
+		public static getNumDataCodewords(ver: int, ecl: ErrorCorrectionLevel): int {
 			return Math.floor(QrCode.getNumRawDataModules(ver) / 8) -
 				QrCode.ECC_CODEWORDS_PER_BLOCK    [ecl.ordinal][ver] *
 				QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
@@ -789,8 +792,8 @@ namespace app {
 		
 		public drawTimingPatterns(): void {
 			for (let i = 0; i < this.size; i++) {
-				this.modules[6][i] = new FunctionModule(i % 2 == 0);
-				this.modules[i][6] = new FunctionModule(i % 2 == 0);
+				this.modules[6][i] = new TimingModule(i % 2 == 0);
+				this.modules[i][6] = new TimingModule(i % 2 == 0);
 			}
 		}
 		
@@ -807,8 +810,12 @@ namespace app {
 						let dist: int = Math.max(Math.abs(dx), Math.abs(dy));
 						let x: int = cx + dx;
 						let y: int = cy + dy;
-						if (0 <= x && x < this.size && 0 <= y && y < this.size)
-							this.modules[x][y] = new FunctionModule(dist != 2 && dist != 4);
+						if (!(0 <= x && x < this.size && 0 <= y && y < this.size))
+							continue;
+						if (dist <= 3)
+							this.modules[x][y] = new FinderModule(dist != 2 && dist != 4);
+						else
+							this.modules[x][y] = new SeparatorModule();
 					}
 				}
 			}
@@ -816,23 +823,23 @@ namespace app {
 		
 		
 		public drawAlignmentPatterns(): void {
+			if (this.version == 1)
+				return;
 			let alignPatPos: Array<int> = [];
-			if (this.version >= 2) {
-				let numAlign: int = Math.floor(this.version / 7) + 2;
-				let step: int = (this.version == 32) ? 26 :
-					Math.ceil((this.size - 13) / (numAlign*2 - 2)) * 2;
-				alignPatPos = [6];
-				for (let pos = this.size - 7; alignPatPos.length < numAlign; pos -= step)
-					alignPatPos.splice(1, 0, pos);
-			}
+			let numAlign: int = Math.floor(this.version / 7) + 2;
+			let step: int = (this.version == 32) ? 26 :
+				Math.ceil((this.size - 13) / (numAlign*2 - 2)) * 2;
+			alignPatPos = [6];
+			for (let pos = this.size - 7; alignPatPos.length < numAlign; pos -= step)
+				alignPatPos.splice(1, 0, pos);
 			
 			alignPatPos.forEach((cx, i) => {
 				alignPatPos.forEach((cy, j) => {
-					if (i == 0 && j == 0 || i == 0 && j == alignPatPos.length - 1 || i == alignPatPos.length - 1 && j == 0)
+					if (i == 0 && j == 0 || i == 0 && j == numAlign - 1 || i == numAlign - 1 && j == 0)
 						return;
 					for (let dy = -2; dy <= 2; dy++) {
 						for (let dx = -2; dx <= 2; dx++)
-							this.modules[cx + dx][cy + dy] = new FunctionModule(Math.max(Math.abs(dx), Math.abs(dy)) != 1);
+							this.modules[cx + dx][cy + dy] = new AlignmentModule(Math.max(Math.abs(dx), Math.abs(dy)) != 1);
 					}
 				});
 			});
@@ -852,18 +859,18 @@ namespace app {
 				throw "Assertion error";
 			
 			for (let i = 0; i <= 5; i++)
-				this.modules[8][i] = new FunctionModule(getBit(bits, i));
-			this.modules[8][7] = new FunctionModule(getBit(bits, 6));
-			this.modules[8][8] = new FunctionModule(getBit(bits, 7));
-			this.modules[7][8] = new FunctionModule(getBit(bits, 8));
+				this.modules[8][i] = new FormatInfoModule(QrCode.getBit(bits, i));
+			this.modules[8][7] = new FormatInfoModule(QrCode.getBit(bits, 6));
+			this.modules[8][8] = new FormatInfoModule(QrCode.getBit(bits, 7));
+			this.modules[7][8] = new FormatInfoModule(QrCode.getBit(bits, 8));
 			for (let i = 9; i < 15; i++)
-				this.modules[14 - i][8] = new FunctionModule(getBit(bits, i));
+				this.modules[14 - i][8] = new FormatInfoModule(QrCode.getBit(bits, i));
 			
 			for (let i = 0; i < 8; i++)
-				this.modules[this.size - 1 - i][8] = new FunctionModule(getBit(bits, i));
+				this.modules[this.size - 1 - i][8] = new FormatInfoModule(QrCode.getBit(bits, i));
 			for (let i = 8; i < 15; i++)
-				this.modules[8][this.size - 15 + i] = new FunctionModule(getBit(bits, i));
-			this.modules[8][this.size - 8] = new FunctionModule(true);
+				this.modules[8][this.size - 15 + i] = new FormatInfoModule(QrCode.getBit(bits, i));
+			this.modules[8][this.size - 8] = new BlackModule();
 		}
 		
 		
@@ -879,11 +886,11 @@ namespace app {
 				throw "Assertion error";
 			
 			for (let i = 0; i < 18; i++) {
-				let bt: boolean = getBit(bits, i);
+				let bt: boolean = QrCode.getBit(bits, i);
 				let a: int = this.size - 11 + i % 3;
 				let b: int = Math.floor(i / 3);
-				this.modules[a][b] = new FunctionModule(bt);
-				this.modules[b][a] = new FunctionModule(bt);
+				this.modules[a][b] = new VersionInfoModule(bt);
+				this.modules[b][a] = new VersionInfoModule(bt);
 			}
 		}
 		
@@ -913,7 +920,7 @@ namespace app {
 			zigZagScan.forEach((xy, i) => {
 				let [x, y] = xy;
 				if (i < data.length * 8) {
-					this.modules[x][y] = new CodewordModule(getBit(data[i >>> 3], 7 - (i & 7)));
+					this.modules[x][y] = new CodewordModule(QrCode.getBit(data[i >>> 3], 7 - (i & 7)));
 					i++;
 				} else
 					this.modules[x][y] = new RemainderModule();
@@ -1065,6 +1072,11 @@ namespace app {
 			return new PenaltyInfo(horzRuns, vertRuns, twoByTwos,
 				horzFinders, vertFinders, black, penalties);
 		}
+	
+	
+		private static getBit(x: int, i: int): boolean {
+			return ((x >>> i) & 1) != 0;
+		}
 		
 		
 		public static readonly MIN_VERSION: int =  1;
@@ -1093,9 +1105,9 @@ namespace app {
 	
 	
 	
-	/*---- Module class and subclasses ----*/
+	/*---- Module class hierarchy ----*/
 	
-	class Module {}
+	abstract class Module {}
 	
 	
 	class UnfilledModule extends Module {}
@@ -1111,9 +1123,58 @@ namespace app {
 	}
 	
 	
-	class FunctionModule extends FilledModule {
+	abstract class FunctionModule extends FilledModule {
 		public constructor(color: boolean) {
 			super(color);
+		}
+	}
+	
+	
+	class FinderModule extends FunctionModule {
+		public constructor(color: boolean) {
+			super(color);
+		}
+	}
+	
+	
+	class SeparatorModule extends FunctionModule {
+		public constructor() {
+			super(false);
+		}
+	}
+	
+	
+	class AlignmentModule extends FunctionModule {
+		public constructor(color: boolean) {
+			super(color);
+		}
+	}
+	
+	
+	class FormatInfoModule extends FunctionModule {
+		public constructor(color: boolean) {
+			super(color);
+		}
+	}
+	
+	
+	class VersionInfoModule extends FunctionModule {
+		public constructor(color: boolean) {
+			super(color);
+		}
+	}
+	
+	
+	class TimingModule extends FunctionModule {
+		public constructor(color: boolean) {
+			super(color);
+		}
+	}
+	
+	
+	class BlackModule extends FunctionModule {
+		public constructor() {
+			super(true);
 		}
 	}
 	
@@ -1134,7 +1195,7 @@ namespace app {
 	
 	class QrSegment {
 		public constructor(
-				public readonly mode: QrSegment.Mode,
+				public readonly mode: SegmentMode,
 				public readonly numChars: int,
 				public readonly bitData: Array<bit>) {
 			if (numChars < 0)
@@ -1208,20 +1269,19 @@ namespace app {
 	}
 	
 	
-	namespace QrCode {
-		export class Ecc {
-			public static readonly LOW      = new Ecc(0, 1);
-			public static readonly MEDIUM   = new Ecc(1, 0);
-			public static readonly QUARTILE = new Ecc(2, 3);
-			public static readonly HIGH     = new Ecc(3, 2);
-			
-			private constructor(
-				public readonly ordinal: int,
-				public readonly formatBits: int) {}
-		}
+	class ErrorCorrectionLevel {
+		public static readonly LOW      = new ErrorCorrectionLevel(0, 1);
+		public static readonly MEDIUM   = new ErrorCorrectionLevel(1, 0);
+		public static readonly QUARTILE = new ErrorCorrectionLevel(2, 3);
+		public static readonly HIGH     = new ErrorCorrectionLevel(3, 2);
+		
+		private constructor(
+			public readonly ordinal: int,
+			public readonly formatBits: int) {}
 	}
 	
 	
+	// For QrCode.computePenalties().
 	class PenaltyInfo {
 		constructor(
 			public readonly horizontalRuns: Array<LinearRun>,
@@ -1234,6 +1294,7 @@ namespace app {
 	}
 	
 	
+	// For QrCode.computePenalties().
 	class LinearRun {
 		constructor(
 			public readonly startX: int,
@@ -1242,22 +1303,20 @@ namespace app {
 	}
 	
 	
-	namespace QrSegment {
-		export class Mode {
-			public static readonly NUMERIC      = new Mode(0x1, [10, 12, 14], "Numeric"     );
-			public static readonly ALPHANUMERIC = new Mode(0x2, [ 9, 11, 13], "Alphanumeric");
-			public static readonly BYTE         = new Mode(0x4, [ 8, 16, 16], "Byte"        );
-			public static readonly KANJI        = new Mode(0x8, [ 8, 10, 12], "Kanji"       );
-			public static readonly ECI          = new Mode(0x7, [ 0,  0,  0], "ECI"         );
-			
-			private constructor(
-				public readonly modeBits: int,
-				private readonly numBitsCharCount: [int,int,int],
-				public readonly name: string) {}
-			
-			public numCharCountBits(ver: int): int {
-				return this.numBitsCharCount[Math.floor((ver + 7) / 17)];
-			}
+	class SegmentMode {
+		public static readonly NUMERIC      = new SegmentMode(0x1, [10, 12, 14], "Numeric"     );
+		public static readonly ALPHANUMERIC = new SegmentMode(0x2, [ 9, 11, 13], "Alphanumeric");
+		public static readonly BYTE         = new SegmentMode(0x4, [ 8, 16, 16], "Byte"        );
+		public static readonly KANJI        = new SegmentMode(0x8, [ 8, 10, 12], "Kanji"       );
+		public static readonly ECI          = new SegmentMode(0x7, [ 0,  0,  0], "ECI"         );
+		
+		private constructor(
+			public readonly modeBits: int,
+			private readonly numBitsCharCount: [int,int,int],
+			public readonly name: string) {}
+		
+		public numCharCountBits(ver: int): int {
+			return this.numBitsCharCount[Math.floor((ver + 7) / 17)];
 		}
 	}
 	
@@ -1331,6 +1390,11 @@ namespace app {
 	}
 	
 	
+	function byteToHex(val: byte): string {
+		return val.toString(16).toUpperCase().padStart(2, "0");
+	}
+	
+	
 	function intToBits(val: int, len: int): Array<bit> {
 		if (len < 0 || len > 31 || val >>> len != 0)
 			throw "Value out of range";
@@ -1338,11 +1402,6 @@ namespace app {
 		for (let i = len - 1; i >= 0; i--)
 			result.push((val >>> i) & 1);
 		return result;
-	}
-	
-	
-	function getBit(x: int, i: int): boolean {
-		return ((x >>> i) & 1) != 0;
 	}
 	
 	

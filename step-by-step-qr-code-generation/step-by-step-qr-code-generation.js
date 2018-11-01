@@ -8,8 +8,49 @@
 "use strict";
 var app;
 (function (app) {
+    /*---- HTML UI initialization ----*/
     function initialize() {
+        initShowHideSteps();
         doGenerate();
+    }
+    function initShowHideSteps() {
+        let headings = document.querySelectorAll("article section h3");
+        let showHideP = getElem("show-hide-steps");
+        for (let heading of headings) {
+            let parent = heading.parentNode;
+            let stepStr = /^\d+(?=\. )/.exec(heading.textContent)[0];
+            let label = document.createElement("label");
+            let checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = true;
+            checkbox.id = "step" + stepStr;
+            let onChange = () => {
+                if (checkbox.checked) {
+                    parent.style.removeProperty("display");
+                    label.classList.add("checked");
+                }
+                else {
+                    parent.style.display = "none";
+                    label.classList.remove("checked");
+                }
+            };
+            checkbox.onchange = onChange;
+            onChange();
+            label.htmlFor = checkbox.id;
+            label.appendChild(checkbox);
+            let span = document.createElement("span");
+            span.textContent = stepStr;
+            label.appendChild(span);
+            showHideP.appendChild(label);
+            let button = document.createElement("input");
+            button.type = "button";
+            button.value = "Hide";
+            button.onclick = () => {
+                checkbox.checked = false;
+                onChange();
+            };
+            parent.insertBefore(button, heading);
+        }
     }
     let maskShower;
     (function (maskShower) {
@@ -52,46 +93,7 @@ var app;
         }
         maskShower.showMask = showMask;
     })(maskShower || (maskShower = {}));
-    let stepHider;
-    (function (stepHider) {
-        let headings = document.querySelectorAll("article section h3");
-        let showHideP = getElem("show-hide-steps");
-        for (let heading of headings) {
-            let parent = heading.parentNode;
-            let stepStr = /^\d+(?=\. )/.exec(heading.textContent)[0];
-            let label = document.createElement("label");
-            let checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.checked = true;
-            checkbox.id = "step" + stepStr;
-            function onChange() {
-                if (checkbox.checked) {
-                    parent.style.removeProperty("display");
-                    label.classList.add("checked");
-                }
-                else {
-                    parent.style.display = "none";
-                    label.classList.remove("checked");
-                }
-            }
-            checkbox.onchange = onChange;
-            onChange();
-            label.htmlFor = checkbox.id;
-            label.appendChild(checkbox);
-            let span = document.createElement("span");
-            span.textContent = stepStr;
-            label.appendChild(span);
-            showHideP.appendChild(label);
-            let button = document.createElement("input");
-            button.type = "button";
-            button.value = "Hide";
-            button.onclick = () => {
-                checkbox.checked = false;
-                onChange();
-            };
-            parent.insertBefore(button, heading);
-        }
-    })(stepHider || (stepHider = {}));
+    /*---- Main application ----*/
     function doGenerate(ev) {
         if (ev !== undefined)
             ev.preventDefault();
@@ -119,13 +121,13 @@ var app;
         const segs = [doStep1(text, mode)];
         let errCorrLvl;
         if (getInput("errcorlvl-low").checked)
-            errCorrLvl = QrCode.Ecc.LOW;
+            errCorrLvl = ErrorCorrectionLevel.LOW;
         else if (getInput("errcorlvl-medium").checked)
-            errCorrLvl = QrCode.Ecc.MEDIUM;
+            errCorrLvl = ErrorCorrectionLevel.MEDIUM;
         else if (getInput("errcorlvl-quartile").checked)
-            errCorrLvl = QrCode.Ecc.QUARTILE;
+            errCorrLvl = ErrorCorrectionLevel.QUARTILE;
         else if (getInput("errcorlvl-high").checked)
-            errCorrLvl = QrCode.Ecc.HIGH;
+            errCorrLvl = ErrorCorrectionLevel.HIGH;
         else
             throw "Assertion error";
         const minVer = parseInt(getInput("force-min-version").value, 10);
@@ -219,13 +221,13 @@ var app;
         let modeStr;
         let result;
         if (text.length == 0)
-            result = QrSegment.Mode.BYTE;
+            result = SegmentMode.BYTE;
         else if (allNumeric)
-            result = QrSegment.Mode.NUMERIC;
+            result = SegmentMode.NUMERIC;
         else if (allAlphanum)
-            result = QrSegment.Mode.ALPHANUMERIC;
+            result = SegmentMode.ALPHANUMERIC;
         else
-            result = QrSegment.Mode.BYTE;
+            result = SegmentMode.BYTE;
         getElem("chosen-segment-mode").textContent = result.name;
         // Kanji mode encoding is not supported due to big conversion table
         return result;
@@ -241,7 +243,7 @@ var app;
             let rowSpan = 0;
             let combined = "";
             let bits = "";
-            if (mode == QrSegment.Mode.NUMERIC) {
+            if (mode == SegmentMode.NUMERIC) {
                 if (i % 3 == 0) {
                     rowSpan = Math.min(3, text.length - i);
                     let s = text.slice(i, i + rowSpan).map(c => String.fromCharCode(c)).join("");
@@ -250,7 +252,7 @@ var app;
                     bits = temp.toString(2).padStart(rowSpan * 3 + 1, "0");
                 }
             }
-            else if (mode == QrSegment.Mode.ALPHANUMERIC) {
+            else if (mode == SegmentMode.ALPHANUMERIC) {
                 let temp = ALPHANUMERIC_CHARSET.indexOf(String.fromCharCode(cp));
                 decValue = temp.toString(10);
                 if (i % 2 == 0) {
@@ -263,7 +265,7 @@ var app;
                     bits = temp.toString(2).padStart(rowSpan * 5 + 1, "0");
                 }
             }
-            else if (mode == QrSegment.Mode.BYTE) {
+            else if (mode == SegmentMode.BYTE) {
                 rowSpan = 1;
                 let temp = codePointToUtf8(cp);
                 hexValues = temp.map(c => c.toString(16).toUpperCase().padStart(2, "0")).join(" ");
@@ -293,7 +295,7 @@ var app;
             tbody.appendChild(tr);
         });
         getElem("segment-mode").textContent = mode.name.toString();
-        getElem("segment-count").textContent = numChars + " " + (mode == QrSegment.Mode.BYTE ? "bytes" : "characters");
+        getElem("segment-count").textContent = numChars + " " + (mode == SegmentMode.BYTE ? "bytes" : "characters");
         getElem("segment-data").textContent = bitData.length + " bits long";
         return new QrSegment(mode, numChars, bitData);
     }
@@ -306,7 +308,12 @@ var app;
             tds[1].textContent = numBits < Infinity ? numBits.toString() : "Not encodable";
             tds[2].textContent = numCodewords < Infinity ? numCodewords.toString() : "Not encodable";
         });
-        const ERRCORRLVLS = [QrCode.Ecc.LOW, QrCode.Ecc.MEDIUM, QrCode.Ecc.QUARTILE, QrCode.Ecc.HIGH];
+        const ERRCORRLVLS = [
+            ErrorCorrectionLevel.LOW,
+            ErrorCorrectionLevel.MEDIUM,
+            ErrorCorrectionLevel.QUARTILE,
+            ErrorCorrectionLevel.HIGH
+        ];
         let tbody = clearChildren("#codewords-per-version tbody");
         let result = -1;
         for (let ver = 1; ver <= 40; ver++) {
@@ -372,13 +379,9 @@ var app;
         addRow("Byte padding", bytePad);
         queryElem("#full-bitstream span").textContent = allBits.join("");
         let result = [];
-        for (let i = 0; i < allBits.length; i += 8) {
-            let b = 0;
-            for (let j = 0; j < 8; j++)
-                b = (b << 1) | allBits[i + j];
-            result.push(b);
-        }
-        getElem("all-data-codewords").textContent = result.map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+        for (let i = 0; i < allBits.length; i += 8)
+            result.push(parseInt(allBits.slice(i, i + 8).join(""), 2));
+        getElem("all-data-codewords").textContent = result.map(byteToHex).join(" ");
         return result;
     }
     function doStep4(data, ver, ecl) {
@@ -406,7 +409,7 @@ var app;
             blocks.push(dat.concat(ecc));
         }
         {
-            let thead = document.querySelector("#blocks-and-ecc thead");
+            let thead = queryElem("#blocks-and-ecc thead");
             if (thead.children.length >= 2)
                 thead.removeChild(thead.children[1]);
             thead.querySelectorAll("th")[1].colSpan = numBlocks;
@@ -434,7 +437,7 @@ var app;
                 blocks.forEach((block, j) => {
                     let td = document.createElement("td");
                     if (i != shortBlockLen - blockEccLen || j >= numShortBlocks)
-                        td.textContent = block[i].toString(16).toUpperCase().padStart(2, "0");
+                        td.textContent = byteToHex(block[i]);
                     tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
@@ -451,12 +454,12 @@ var app;
         }
         let output = clearChildren("#interleaved-codewords");
         let span = document.createElement("span");
-        span.textContent = result.slice(0, data.length).map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+        span.textContent = result.slice(0, data.length).map(byteToHex).join(" ");
         span.className = "data";
         output.appendChild(span);
         output.appendChild(document.createTextNode(" "));
         span = document.createElement("span");
-        span.textContent = result.slice(data.length).map(b => b.toString(16).toUpperCase().padStart(2, "0")).join(" ");
+        span.textContent = result.slice(data.length).map(byteToHex).join(" ");
         span.className = "ecc";
         output.appendChild(span);
         return result;
@@ -716,8 +719,8 @@ var app;
         }
         drawTimingPatterns() {
             for (let i = 0; i < this.size; i++) {
-                this.modules[6][i] = new FunctionModule(i % 2 == 0);
-                this.modules[i][6] = new FunctionModule(i % 2 == 0);
+                this.modules[6][i] = new TimingModule(i % 2 == 0);
+                this.modules[i][6] = new TimingModule(i % 2 == 0);
             }
         }
         drawFinderPatterns() {
@@ -732,29 +735,33 @@ var app;
                         let dist = Math.max(Math.abs(dx), Math.abs(dy));
                         let x = cx + dx;
                         let y = cy + dy;
-                        if (0 <= x && x < this.size && 0 <= y && y < this.size)
-                            this.modules[x][y] = new FunctionModule(dist != 2 && dist != 4);
+                        if (!(0 <= x && x < this.size && 0 <= y && y < this.size))
+                            continue;
+                        if (dist <= 3)
+                            this.modules[x][y] = new FinderModule(dist != 2 && dist != 4);
+                        else
+                            this.modules[x][y] = new SeparatorModule();
                     }
                 }
             }
         }
         drawAlignmentPatterns() {
+            if (this.version == 1)
+                return;
             let alignPatPos = [];
-            if (this.version >= 2) {
-                let numAlign = Math.floor(this.version / 7) + 2;
-                let step = (this.version == 32) ? 26 :
-                    Math.ceil((this.size - 13) / (numAlign * 2 - 2)) * 2;
-                alignPatPos = [6];
-                for (let pos = this.size - 7; alignPatPos.length < numAlign; pos -= step)
-                    alignPatPos.splice(1, 0, pos);
-            }
+            let numAlign = Math.floor(this.version / 7) + 2;
+            let step = (this.version == 32) ? 26 :
+                Math.ceil((this.size - 13) / (numAlign * 2 - 2)) * 2;
+            alignPatPos = [6];
+            for (let pos = this.size - 7; alignPatPos.length < numAlign; pos -= step)
+                alignPatPos.splice(1, 0, pos);
             alignPatPos.forEach((cx, i) => {
                 alignPatPos.forEach((cy, j) => {
-                    if (i == 0 && j == 0 || i == 0 && j == alignPatPos.length - 1 || i == alignPatPos.length - 1 && j == 0)
+                    if (i == 0 && j == 0 || i == 0 && j == numAlign - 1 || i == numAlign - 1 && j == 0)
                         return;
                     for (let dy = -2; dy <= 2; dy++) {
                         for (let dx = -2; dx <= 2; dx++)
-                            this.modules[cx + dx][cy + dy] = new FunctionModule(Math.max(Math.abs(dx), Math.abs(dy)) != 1);
+                            this.modules[cx + dx][cy + dy] = new AlignmentModule(Math.max(Math.abs(dx), Math.abs(dy)) != 1);
                     }
                 });
             });
@@ -771,17 +778,17 @@ var app;
             if (bits >>> 15 != 0)
                 throw "Assertion error";
             for (let i = 0; i <= 5; i++)
-                this.modules[8][i] = new FunctionModule(getBit(bits, i));
-            this.modules[8][7] = new FunctionModule(getBit(bits, 6));
-            this.modules[8][8] = new FunctionModule(getBit(bits, 7));
-            this.modules[7][8] = new FunctionModule(getBit(bits, 8));
+                this.modules[8][i] = new FormatInfoModule(QrCode.getBit(bits, i));
+            this.modules[8][7] = new FormatInfoModule(QrCode.getBit(bits, 6));
+            this.modules[8][8] = new FormatInfoModule(QrCode.getBit(bits, 7));
+            this.modules[7][8] = new FormatInfoModule(QrCode.getBit(bits, 8));
             for (let i = 9; i < 15; i++)
-                this.modules[14 - i][8] = new FunctionModule(getBit(bits, i));
+                this.modules[14 - i][8] = new FormatInfoModule(QrCode.getBit(bits, i));
             for (let i = 0; i < 8; i++)
-                this.modules[this.size - 1 - i][8] = new FunctionModule(getBit(bits, i));
+                this.modules[this.size - 1 - i][8] = new FormatInfoModule(QrCode.getBit(bits, i));
             for (let i = 8; i < 15; i++)
-                this.modules[8][this.size - 15 + i] = new FunctionModule(getBit(bits, i));
-            this.modules[8][this.size - 8] = new FunctionModule(true);
+                this.modules[8][this.size - 15 + i] = new FormatInfoModule(QrCode.getBit(bits, i));
+            this.modules[8][this.size - 8] = new BlackModule();
         }
         drawVersionInformation() {
             if (this.version < 7)
@@ -793,11 +800,11 @@ var app;
             if (bits >>> 18 != 0)
                 throw "Assertion error";
             for (let i = 0; i < 18; i++) {
-                let bt = getBit(bits, i);
+                let bt = QrCode.getBit(bits, i);
                 let a = this.size - 11 + i % 3;
                 let b = Math.floor(i / 3);
-                this.modules[a][b] = new FunctionModule(bt);
-                this.modules[b][a] = new FunctionModule(bt);
+                this.modules[a][b] = new VersionInfoModule(bt);
+                this.modules[b][a] = new VersionInfoModule(bt);
             }
         }
         makeZigZagScan() {
@@ -823,7 +830,7 @@ var app;
             zigZagScan.forEach((xy, i) => {
                 let [x, y] = xy;
                 if (i < data.length * 8) {
-                    this.modules[x][y] = new CodewordModule(getBit(data[i >>> 3], 7 - (i & 7)));
+                    this.modules[x][y] = new CodewordModule(QrCode.getBit(data[i >>> 3], 7 - (i & 7)));
                     i++;
                 }
                 else
@@ -977,6 +984,9 @@ var app;
             penalties[3] += k * QrCode.PENALTY_N4;
             return new PenaltyInfo(horzRuns, vertRuns, twoByTwos, horzFinders, vertFinders, black, penalties);
         }
+        static getBit(x, i) {
+            return ((x >>> i) & 1) != 0;
+        }
     }
     QrCode.MIN_VERSION = 1;
     QrCode.MAX_VERSION = 40;
@@ -996,7 +1006,7 @@ var app;
         [-1, 1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68],
         [-1, 1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81],
     ];
-    /*---- Module class and subclasses ----*/
+    /*---- Module class hierarchy ----*/
     class Module {
     }
     class UnfilledModule extends Module {
@@ -1011,6 +1021,41 @@ var app;
     class FunctionModule extends FilledModule {
         constructor(color) {
             super(color);
+        }
+    }
+    class FinderModule extends FunctionModule {
+        constructor(color) {
+            super(color);
+        }
+    }
+    class SeparatorModule extends FunctionModule {
+        constructor() {
+            super(false);
+        }
+    }
+    class AlignmentModule extends FunctionModule {
+        constructor(color) {
+            super(color);
+        }
+    }
+    class FormatInfoModule extends FunctionModule {
+        constructor(color) {
+            super(color);
+        }
+    }
+    class VersionInfoModule extends FunctionModule {
+        constructor(color) {
+            super(color);
+        }
+    }
+    class TimingModule extends FunctionModule {
+        constructor(color) {
+            super(color);
+        }
+    }
+    class BlackModule extends FunctionModule {
+        constructor() {
+            super(true);
         }
     }
     class CodewordModule extends FilledModule {
@@ -1084,19 +1129,17 @@ var app;
             return z;
         }
     }
-    (function (QrCode) {
-        class Ecc {
-            constructor(ordinal, formatBits) {
-                this.ordinal = ordinal;
-                this.formatBits = formatBits;
-            }
+    class ErrorCorrectionLevel {
+        constructor(ordinal, formatBits) {
+            this.ordinal = ordinal;
+            this.formatBits = formatBits;
         }
-        Ecc.LOW = new Ecc(0, 1);
-        Ecc.MEDIUM = new Ecc(1, 0);
-        Ecc.QUARTILE = new Ecc(2, 3);
-        Ecc.HIGH = new Ecc(3, 2);
-        QrCode.Ecc = Ecc;
-    })(QrCode || (QrCode = {}));
+    }
+    ErrorCorrectionLevel.LOW = new ErrorCorrectionLevel(0, 1);
+    ErrorCorrectionLevel.MEDIUM = new ErrorCorrectionLevel(1, 0);
+    ErrorCorrectionLevel.QUARTILE = new ErrorCorrectionLevel(2, 3);
+    ErrorCorrectionLevel.HIGH = new ErrorCorrectionLevel(3, 2);
+    // For QrCode.computePenalties().
     class PenaltyInfo {
         constructor(horizontalRuns, verticalRuns, twoByTwoBoxes, horizontalFalseFinders, verticalFalseFinders, numBlackModules, penaltyPoints) {
             this.horizontalRuns = horizontalRuns;
@@ -1108,6 +1151,7 @@ var app;
             this.penaltyPoints = penaltyPoints;
         }
     }
+    // For QrCode.computePenalties().
     class LinearRun {
         constructor(startX, startY, runLength) {
             this.startX = startX;
@@ -1115,24 +1159,21 @@ var app;
             this.runLength = runLength;
         }
     }
-    (function (QrSegment) {
-        class Mode {
-            constructor(modeBits, numBitsCharCount, name) {
-                this.modeBits = modeBits;
-                this.numBitsCharCount = numBitsCharCount;
-                this.name = name;
-            }
-            numCharCountBits(ver) {
-                return this.numBitsCharCount[Math.floor((ver + 7) / 17)];
-            }
+    class SegmentMode {
+        constructor(modeBits, numBitsCharCount, name) {
+            this.modeBits = modeBits;
+            this.numBitsCharCount = numBitsCharCount;
+            this.name = name;
         }
-        Mode.NUMERIC = new Mode(0x1, [10, 12, 14], "Numeric");
-        Mode.ALPHANUMERIC = new Mode(0x2, [9, 11, 13], "Alphanumeric");
-        Mode.BYTE = new Mode(0x4, [8, 16, 16], "Byte");
-        Mode.KANJI = new Mode(0x8, [8, 10, 12], "Kanji");
-        Mode.ECI = new Mode(0x7, [0, 0, 0], "ECI");
-        QrSegment.Mode = Mode;
-    })(QrSegment || (QrSegment = {}));
+        numCharCountBits(ver) {
+            return this.numBitsCharCount[Math.floor((ver + 7) / 17)];
+        }
+    }
+    SegmentMode.NUMERIC = new SegmentMode(0x1, [10, 12, 14], "Numeric");
+    SegmentMode.ALPHANUMERIC = new SegmentMode(0x2, [9, 11, 13], "Alphanumeric");
+    SegmentMode.BYTE = new SegmentMode(0x4, [8, 16, 16], "Byte");
+    SegmentMode.KANJI = new SegmentMode(0x8, [8, 10, 12], "Kanji");
+    SegmentMode.ECI = new SegmentMode(0x7, [0, 0, 0], "ECI");
     /*---- Simple utilities ----*/
     function getElem(id) {
         const result = document.getElementById(id);
@@ -1190,6 +1231,9 @@ var app;
             return String.fromCharCode(0xD800 | ((cp - 0x10000) >>> 10), 0xDC00 | ((cp - 0x10000) & 0x3FF));
         }
     }
+    function byteToHex(val) {
+        return val.toString(16).toUpperCase().padStart(2, "0");
+    }
     function intToBits(val, len) {
         if (len < 0 || len > 31 || val >>> len != 0)
             throw "Value out of range";
@@ -1197,9 +1241,6 @@ var app;
         for (let i = len - 1; i >= 0; i--)
             result.push((val >>> i) & 1);
         return result;
-    }
-    function getBit(x, i) {
-        return ((x >>> i) & 1) != 0;
     }
     function sum(arr) {
         let result = 0;
