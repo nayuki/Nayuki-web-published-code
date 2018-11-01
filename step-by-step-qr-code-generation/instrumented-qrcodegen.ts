@@ -19,21 +19,7 @@ type int = number;
 
 class QrCode {
 	
-	public readonly size: int;
-	public modules: Array<Array<Module>> = [];
-	
-	
-	public constructor(
-			public readonly version: int,
-			public readonly errorCorrectionLevel: ErrorCorrectionLevel) {
-		this.size = version * 4 + 17;
-		let column: Array<Module> = [];
-		for (let i = 0; i < this.size; i++)
-			column.push(new UnfilledModule());
-		for (let i = 0; i < this.size; i++)
-			this.modules.push(column.slice());
-	}
-	
+	/*-- Static functions --*/
 	
 	public static getNumRawDataModules(ver: int): int {
 		if (ver < QrCode.MIN_VERSION || ver > QrCode.MAX_VERSION)
@@ -56,10 +42,35 @@ class QrCode {
 	}
 	
 	
-	public clearNewFlags(): void {
+	/*-- Fields and constructor --*/
+	
+	public readonly size: int;  // The side length of this QR Code.
+	public modules: Array<Array<Module>> = [];  // Has dimensions of size * size.
+	
+	
+	// Creates a QR Code containing a grid of initially unfilled modules.
+	public constructor(
+			public readonly version: int,
+			public readonly errorCorrectionLevel: ErrorCorrectionLevel) {
+		if (version < QrCode.MIN_VERSION || version > QrCode.MAX_VERSION)
+			throw "Version number out of range";
+		this.size = version * 4 + 17;
+		
 		for (let x = 0; x < this.size; x++) {
-			for (let y = 0; y < this.size; y++) {
-				let m = this.modules[x][y];
+			let column: Array<Module> = [];
+			for (let y = 0; y < this.size; y++)
+				column.push(new UnfilledModule());
+			this.modules.push(column);
+		}
+	}
+	
+	
+	/*-- Methods --*/
+	
+	// Modifies modules in this QR Code.
+	public clearNewFlags(): void {
+		for (let column of this.modules) {
+			for (let m of column) {
 				if (m instanceof FilledModule)
 					m.isNew = false;
 			}
@@ -67,14 +78,16 @@ class QrCode {
 	}
 	
 	
+	// Modifies modules in this QR Code.
 	public drawTimingPatterns(): void {
 		for (let i = 0; i < this.size; i++) {
-			this.modules[6][i] = new TimingModule(i % 2 == 0);
-			this.modules[i][6] = new TimingModule(i % 2 == 0);
+			this.modules[6][i] = new FunctionModule(FunctionModuleType.TIMING, i % 2 == 0);
+			this.modules[i][6] = new FunctionModule(FunctionModuleType.TIMING, i % 2 == 0);
 		}
 	}
 	
 	
+	// Modifies modules in this QR Code.
 	public drawFinderPatterns(): void {
 		const centers: Array<[int,int]> = [
 			[3, 3],
@@ -84,45 +97,47 @@ class QrCode {
 		for (const [cx, cy] of centers) {
 			for (let dy = -4; dy <= 4; dy++) {
 				for (let dx = -4; dx <= 4; dx++) {
-					let dist: int = Math.max(Math.abs(dx), Math.abs(dy));
-					let x: int = cx + dx;
-					let y: int = cy + dy;
-					if (!(0 <= x && x < this.size && 0 <= y && y < this.size))
-						continue;
-					if (dist <= 3)
-						this.modules[x][y] = new FinderModule(dist != 2 && dist != 4);
-					else
-						this.modules[x][y] = new SeparatorModule();
+					const dist: int = Math.max(Math.abs(dx), Math.abs(dy));
+					const x: int = cx + dx;
+					const y: int = cy + dy;
+					if (0 <= x && x < this.size && 0 <= y && y < this.size) {
+						this.modules[x][y] = new FunctionModule(
+							dist <= 3 ? FunctionModuleType.FINDER : FunctionModuleType.SEPARATOR,
+							dist != 2 && dist != 4);
+					}
 				}
 			}
 		}
 	}
 	
 	
+	// Modifies modules in this QR Code.
 	public drawAlignmentPatterns(): void {
 		if (this.version == 1)
 			return;
-		let alignPatPos: Array<int> = [];
-		let numAlign: int = Math.floor(this.version / 7) + 2;
-		let step: int = (this.version == 32) ? 26 :
+		let positions: Array<int> = [6];
+		const numAlign: int = Math.floor(this.version / 7) + 2;
+		const step: int = (this.version == 32) ? 26 :
 			Math.ceil((this.size - 13) / (numAlign*2 - 2)) * 2;
-		alignPatPos = [6];
-		for (let pos = this.size - 7; alignPatPos.length < numAlign; pos -= step)
-			alignPatPos.splice(1, 0, pos);
+		for (let pos = this.size - 7; positions.length < numAlign; pos -= step)
+			positions.splice(1, 0, pos);
 		
-		alignPatPos.forEach((cx, i) => {
-			alignPatPos.forEach((cy, j) => {
+		positions.forEach((cx, i) => {
+			positions.forEach((cy, j) => {
 				if (i == 0 && j == 0 || i == 0 && j == numAlign - 1 || i == numAlign - 1 && j == 0)
 					return;
 				for (let dy = -2; dy <= 2; dy++) {
-					for (let dx = -2; dx <= 2; dx++)
-						this.modules[cx + dx][cy + dy] = new AlignmentModule(Math.max(Math.abs(dx), Math.abs(dy)) != 1);
+					for (let dx = -2; dx <= 2; dx++) {
+						this.modules[cx + dx][cy + dy] = new FunctionModule(
+							FunctionModuleType.ALIGNMENT, Math.max(Math.abs(dx), Math.abs(dy)) != 1);
+					}
 				}
 			});
 		});
 	}
 	
 	
+	// Modifies modules in this QR Code.
 	public drawFormatBits(mask: int): void {
 		let bits: int = 0;
 		if (mask != -1) {
@@ -130,27 +145,32 @@ class QrCode {
 			let rem: int = data;
 			for (let i = 0; i < 10; i++)
 				rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
-			bits = (data << 10 | rem) ^ 0x5412;  // uint15
+			bits = (data << 10 | rem) ^ 0x5412;
 		}
 		if (bits >>> 15 != 0)
 			throw "Assertion error";
 		
+		let setFormatInfoModule = (x: int, y: int, bitIndex: int) => {
+			this.modules[x][y] = new FunctionModule(FunctionModuleType.FORMAT_INFO, QrCode.getBit(bits, bitIndex));
+		};
+		
 		for (let i = 0; i <= 5; i++)
-			this.modules[8][i] = new FormatInfoModule(QrCode.getBit(bits, i));
-		this.modules[8][7] = new FormatInfoModule(QrCode.getBit(bits, 6));
-		this.modules[8][8] = new FormatInfoModule(QrCode.getBit(bits, 7));
-		this.modules[7][8] = new FormatInfoModule(QrCode.getBit(bits, 8));
+			setFormatInfoModule(8, i, i);
+		setFormatInfoModule(8, 7, 6);
+		setFormatInfoModule(8, 8, 7);
+		setFormatInfoModule(7, 8, 8);
 		for (let i = 9; i < 15; i++)
-			this.modules[14 - i][8] = new FormatInfoModule(QrCode.getBit(bits, i));
+			setFormatInfoModule(14 - i, 8, i);
 		
 		for (let i = 0; i < 8; i++)
-			this.modules[this.size - 1 - i][8] = new FormatInfoModule(QrCode.getBit(bits, i));
+			setFormatInfoModule(this.size - 1 - i, 8, i);
 		for (let i = 8; i < 15; i++)
-			this.modules[8][this.size - 15 + i] = new FormatInfoModule(QrCode.getBit(bits, i));
-		this.modules[8][this.size - 8] = new BlackModule();
+			setFormatInfoModule(8, this.size - 15 + i, i);
+		this.modules[8][this.size - 8] = new FunctionModule(FunctionModuleType.BLACK, true);
 	}
 	
 	
+	// Modifies modules in this QR Code.
 	public drawVersionInformation(): void {
 		if (this.version < 7)
 			return;
@@ -163,15 +183,98 @@ class QrCode {
 			throw "Assertion error";
 		
 		for (let i = 0; i < 18; i++) {
-			let bt: boolean = QrCode.getBit(bits, i);
-			let a: int = this.size - 11 + i % 3;
-			let b: int = Math.floor(i / 3);
-			this.modules[a][b] = new VersionInfoModule(bt);
-			this.modules[b][a] = new VersionInfoModule(bt);
+			const color: boolean = QrCode.getBit(bits, i);
+			const a: int = this.size - 11 + i % 3;
+			const b: int = Math.floor(i / 3);
+			this.modules[a][b] = new FunctionModule(FunctionModuleType.VERSION_INFO, color);
+			this.modules[b][a] = new FunctionModule(FunctionModuleType.VERSION_INFO, color);
 		}
 	}
 	
 	
+	// Reads the argument array but doesn't change it, changes
+	// the underlying codeword objects, and returns a new array.
+	// Reads this QR Code's version and ECL, but doesn't change its state.
+	public splitIntoBlocks(data: Array<DataCodeword>): Array<Array<DataCodeword>> {
+		const numBlocks: int = QrCode.NUM_ERROR_CORRECTION_BLOCKS[this.errorCorrectionLevel.ordinal][this.version];
+		const blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK  [this.errorCorrectionLevel.ordinal][this.version];
+		const rawCodewords: int = Math.floor(QrCode.getNumRawDataModules(this.version) / 8);
+		const numShortBlocks: int = numBlocks - rawCodewords % numBlocks;
+		const shortBlockLen: int = Math.floor(rawCodewords / numBlocks);
+		
+		let result: Array<Array<DataCodeword>> = [];
+		for (let blockIndex = 0, off = 0; blockIndex < numBlocks; blockIndex++) {
+			const end: int = off + shortBlockLen - blockEccLen + (blockIndex < numShortBlocks ? 0 : 1);
+			let block: Array<DataCodeword> = data.slice(off, end);
+			block.forEach((cw, indexInBlock) => {
+				cw.blockIndex = blockIndex;
+				cw.indexInBlock = indexInBlock;
+			});
+			result.push(block);
+			off = end;
+		}
+		return result;
+	}
+	
+	
+	// Reads the argument array but doesn't change it, changes
+	// the underlying codeword objects, and returns a new array.
+	// Reads this QR Code's version and ECL, but doesn't change its state.
+	public computeEccForBlocks(blocks: Array<Array<DataCodeword>>): Array<Array<EccCodeword>> {
+		const blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK[this.errorCorrectionLevel.ordinal][this.version];
+		const shortBlockDataLen: int = blocks[0].length;
+		const rs = new ReedSolomonGenerator(blockEccLen);
+		let preInterleaveIndex = 0;
+		
+		return blocks.map((block, blockIndex) => {
+			for (let cw of block) {
+				cw.preInterleaveIndex = preInterleaveIndex;
+				preInterleaveIndex++;
+			}
+			
+			const blockBytes: Array<byte> = block.map(cw => cw.value);
+			const eccBytes: Array<byte> = rs.getRemainder(blockBytes);
+			return eccBytes.map((b, i) => {
+				let cw = new EccCodeword(b);
+				cw.preInterleaveIndex = preInterleaveIndex;
+				preInterleaveIndex++;
+				cw.blockIndex = blockIndex;
+				cw.indexInBlock = shortBlockDataLen + 1 + i;
+				return cw;
+			});
+		});
+	}
+	
+	
+	// Reads the argument arrays but doesn't change them, changes
+	// the underlying codeword objects, and returns a new array.
+	// Doesn't read or change this QR Code's state.
+	public interleaveBlocks(data: Array<Array<DataCodeword>>, ecc: Array<Array<EccCodeword>>): Array<Codeword> {
+		const blockEccLen: int = ecc[0].length;
+		const maxBlockDataLen: int = data[data.length - 1].length;
+		let result: Array<Codeword> = [];
+		for (let i = 0; i < maxBlockDataLen; i++) {
+			data.forEach(block => {
+				if (i < block.length) {
+					let cw = block[i];
+					cw.postInterleaveIndex = result.length;
+					result.push(cw);
+				}
+			});
+		}
+		for (let i = 0; i < blockEccLen; i++) {
+			ecc.forEach(block => {
+				let cw = block[i];
+				cw.postInterleaveIndex = result.length;
+				result.push(cw);
+			});
+		}
+		return result;
+	}
+	
+	
+	// Can only be called after all function modules have been drawn.
+	// Reads this QR Code's modules, but doesn't change them.
 	public makeZigZagScan(): Array<[int,int]> {
 		let result: Array<[int,int]> = [];
 		for (let right = this.size - 1; right >= 1; right -= 2) {
@@ -179,10 +282,10 @@ class QrCode {
 				right = 5;
 			for (let vert = 0; vert < this.size; vert++) {
 				for (let j = 0; j < 2; j++) {
-					let x: int = right - j;
-					let upward: boolean = ((right + 1) & 2) == 0;
-					let y: int = upward ? this.size - 1 - vert : vert;
-					if (this.modules[x][y] instanceof UnfilledModule)
+					const x: int = right - j;
+					const upward: boolean = ((right + 1) & 2) == 0;
+					const y: int = upward ? this.size - 1 - vert : vert;
+					if (!(this.modules[x][y] instanceof FunctionModule))
 						result.push([x, y]);
 				}
 			}
@@ -191,13 +294,14 @@ class QrCode {
 	}
 	
 	
-	public drawCodewords(data: Array<byte>, zigZagScan: Array<[int,int]>): void {
-		if (data.length != Math.floor(QrCode.getNumRawDataModules(this.version) / 8))
+	// Modifies this QR Code's modules.
+	public drawCodewords(codewords: Array<Codeword>, zigZagScan: Array<[int,int]>): void {
+		if (codewords.length != Math.floor(QrCode.getNumRawDataModules(this.version) / 8))
 			throw "Invalid argument";
-		zigZagScan.forEach((xy, i) => {
-			let [x, y] = xy;
-			if (i < data.length * 8) {
-				this.modules[x][y] = new CodewordModule(QrCode.getBit(data[i >>> 3], 7 - (i & 7)));
+		zigZagScan.forEach(([x, y], i) => {
+			if (i < codewords.length * 8) {
+				let cw: Codeword = codewords[i >>> 3];
+				this.modules[x][y] = new CodewordModule(QrCode.getBit(cw.value, 7 - (i & 7)));
 				i++;
 			} else
 				this.modules[x][y] = new RemainderModule();
@@ -205,6 +309,8 @@ class QrCode {
 	}
 	
 	
+	// Can only be called after all function modules have been drawn.
+	// Reads this QR Code's modules, but doesn't change them.
 	public makeMask(mask: int): QrCode {
 		let result = new QrCode(this.version, this.errorCorrectionLevel);
 		for (let x = 0; x < this.size; x++) {
@@ -222,19 +328,21 @@ class QrCode {
 					default:  throw "Assertion error";
 				}
 				if (!(this.modules[x][y] instanceof FunctionModule))
-					result.modules[x][y] = new FilledModule(invert);
+					result.modules[x][y] = new MaskModule(invert);
 			}
 		}
 		return result;
 	}
 	
 	
+	// Can only be called after all codeword modules have been drawn.
+	// Modifies this QR Code's modules.
 	public applyMask(mask: QrCode): void {
 		for (let x = 0; x < this.size; x++) {
 			for (let y = 0; y < this.size; y++) {
-				let a = mask.modules[x][y];
-				if (a instanceof FilledModule) {
-					let b = this.modules[x][y] as FilledModule;
+				const a = mask.modules[x][y];
+				let   b = this.modules[x][y];
+				if (a instanceof MaskModule && b instanceof FilledModule) {
 					b.color = b.color != a.color;
 				}
 			}
@@ -242,6 +350,8 @@ class QrCode {
 	}
 	
 	
+	// Can only be called after all modules have been drawn.
+	// Reads this QR Code's modules, but doesn't change them.
 	public computePenalties(): PenaltyInfo {
 		function addRunToHistory(run: int, history: Array<int>): void {
 			history.pop();
@@ -256,7 +366,8 @@ class QrCode {
 		
 		let penalties: [int,int,int,int] = [0, 0, 0, 0];
 		const colors: Array<Array<boolean>> = this.modules.map(
-			column => column.map(cell => cell instanceof FilledModule && cell.color));
+			column => column.map(
+				cell => cell instanceof FilledModule && cell.color));
 		
 		let horzRuns   : Array<LinearRun> = [];
 		let horzFinders: Array<LinearRun> = [];
@@ -279,7 +390,7 @@ class QrCode {
 					}
 					if (!color && hasFinderLikePattern(runHistory)) {
 						penalties[2] += QrCode.PENALTY_N3;
-						let n = sumArray(runHistory);
+						const n = sumArray(runHistory);
 						horzFinders.push(new LinearRun(x - n, y, n));
 					}
 					if (x >= this.size)
@@ -311,7 +422,7 @@ class QrCode {
 					}
 					if (!color && hasFinderLikePattern(runHistory)) {
 						penalties[2] += QrCode.PENALTY_N3;
-						let n = sumArray(runHistory);
+						const n = sumArray(runHistory);
 						vertFinders.push(new LinearRun(x, y - n, n));
 					}
 					if (y >= this.size)
@@ -325,7 +436,7 @@ class QrCode {
 		let twoByTwos: Array<[int,int]> = [];
 		for (let x = 0; x < this.size - 1; x++) {
 			for (let y = 0; y < this.size - 1; y++) {
-				let c: boolean = colors[x][y];
+				const c: boolean = colors[x][y];
 				if (c == colors[x + 1][y] && c == colors[x][y + 1] && c == colors[x + 1][y + 1]) {
 					penalties[1] += QrCode.PENALTY_N2;
 					twoByTwos.push([x, y]);
@@ -334,13 +445,13 @@ class QrCode {
 		}
 		
 		let black: int = 0;
-		for (let column of colors) {
-			for (let color of column) {
+		for (const column of colors) {
+			for (const color of column) {
 				if (color)
 					black++;
 			}
 		}
-		let total: int = this.size * this.size;
+		const total: int = this.size * this.size;
 		let k = 0;
 		while (Math.abs(black * 20 - total * 10) > (k + 1) * total)
 			k++;
@@ -349,20 +460,22 @@ class QrCode {
 		return new PenaltyInfo(horzRuns, vertRuns, twoByTwos,
 			horzFinders, vertFinders, black, penalties);
 	}
-
-
+	
+	
 	private static getBit(x: int, i: int): boolean {
 		return ((x >>> i) & 1) != 0;
 	}
 	
 	
+	/*-- Constants and tables --*/
+	
 	public static readonly MIN_VERSION: int =  1;
 	public static readonly MAX_VERSION: int = 40;
 	
-	public static readonly PENALTY_N1: int =  3;
-	public static readonly PENALTY_N2: int =  3;
-	public static readonly PENALTY_N3: int = 40;
-	public static readonly PENALTY_N4: int = 10;
+	private static readonly PENALTY_N1: int =  3;
+	private static readonly PENALTY_N2: int =  3;
+	private static readonly PENALTY_N3: int = 40;
+	private static readonly PENALTY_N4: int = 10;
 	
 	public static readonly ECC_CODEWORDS_PER_BLOCK: Array<Array<int>> = [
 		[-1,  7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
@@ -401,6 +514,41 @@ class ErrorCorrectionLevel {
 
 
 
+abstract class Codeword {
+	
+	public preInterleaveIndex : int = -1;
+	public blockIndex         : int = -1;
+	public indexInBlock       : int = -1;
+	public postInterleaveIndex: int = -1;
+	
+	
+	public constructor(
+			public readonly value: byte) {
+		if (value < 0 || value > 255)
+			throw "Invalid value";
+	}
+	
+}
+
+
+class DataCodeword extends Codeword {
+	public preEccIndex: int = -1;
+	
+	public constructor(value: byte) {
+		super(value);
+	}
+}
+
+
+class EccCodeword extends Codeword {
+	public constructor(value: byte) {
+		super(value);
+	}
+}
+
+
+
+// Computation for QrCode.computeEccForBlocks().
 class ReedSolomonGenerator {
 	
 	private readonly coefficients: Array<byte> = [];
@@ -429,11 +577,11 @@ class ReedSolomonGenerator {
 	
 	public getRemainder(data: Array<byte>): Array<byte> {
 		let result: Array<byte> = this.coefficients.map(_ => 0);
-		for (let b of data) {
-			let factor: byte = b ^ (result.shift() as int);
+		for (const b of data) {
+			let factor: byte = b ^ (result.shift() as byte);
 			result.push(0);
-			for (let i = 0; i < result.length; i++)
-				result[i] ^= ReedSolomonGenerator.multiply(this.coefficients[i], factor);
+			this.coefficients.forEach((coef, i) =>
+				result[i] ^= ReedSolomonGenerator.multiply(coef, factor));
 		}
 		return result;
 	}
@@ -497,7 +645,7 @@ abstract class Module {}
 class UnfilledModule extends Module {}
 
 
-class FilledModule extends Module {
+abstract class FilledModule extends Module {
 	public isNew: boolean = true;
 	
 	public constructor(
@@ -507,59 +655,19 @@ class FilledModule extends Module {
 }
 
 
-abstract class FunctionModule extends FilledModule {
-	public constructor(color: boolean) {
+class FunctionModule extends FilledModule {
+	public constructor(
+			public readonly type: FunctionModuleType,
+			color: boolean) {
 		super(color);
 	}
 }
 
 
-class FinderModule extends FunctionModule {
-	public constructor(color: boolean) {
-		super(color);
-	}
-}
-
-
-class SeparatorModule extends FunctionModule {
-	public constructor() {
-		super(false);
-	}
-}
-
-
-class AlignmentModule extends FunctionModule {
-	public constructor(color: boolean) {
-		super(color);
-	}
-}
-
-
-class FormatInfoModule extends FunctionModule {
-	public constructor(color: boolean) {
-		super(color);
-	}
-}
-
-
-class VersionInfoModule extends FunctionModule {
-	public constructor(color: boolean) {
-		super(color);
-	}
-}
-
-
-class TimingModule extends FunctionModule {
-	public constructor(color: boolean) {
-		super(color);
-	}
-}
-
-
-class BlackModule extends FunctionModule {
-	public constructor() {
-		super(true);
-	}
+enum FunctionModuleType {
+	
+	FINDER, SEPARATOR, TIMING, ALIGNMENT, FORMAT_INFO, VERSION_INFO, BLACK
+	
 }
 
 
@@ -577,19 +685,17 @@ class RemainderModule extends FilledModule {
 }
 
 
+class MaskModule extends FilledModule {
+	public constructor(color: boolean) {
+		super(color);
+	}
+}
+
+
 
 /*---- Segment classes ----*/
 
 class QrSegment {
-	
-	public constructor(
-			public readonly mode: SegmentMode,
-			public readonly numChars: int,
-			public readonly bitData: Array<bit>) {
-		if (numChars < 0)
-			throw "Invalid argument";
-	}
-	
 	
 	public static getTotalBits(segs: Array<QrSegment>, version: int): number {
 		let result: int = 0;
@@ -602,10 +708,20 @@ class QrSegment {
 		return result;
 	}
 	
+	
+	public constructor(
+			public readonly mode: SegmentMode,
+			public readonly numChars: int,
+			public readonly bitData: Array<bit>) {
+		if (numChars < 0)
+			throw "Invalid argument";
+	}
+	
 }
 
 
 
+// An enum type.
 class SegmentMode {
 	
 	public static readonly NUMERIC      = new SegmentMode(0x1, [10, 12, 14], "Numeric"     );
@@ -625,6 +741,8 @@ class SegmentMode {
 		return this.numBitsCharCount[Math.floor((ver + 7) / 17)];
 	}
 	
+	
+	/*-- Character testing --*/
 	
 	public static isNumeric(cp: int): boolean {
 		return "0".charCodeAt(0) <= cp && cp <= "9".charCodeAt(0);

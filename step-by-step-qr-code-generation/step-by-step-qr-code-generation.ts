@@ -30,7 +30,7 @@ namespace app {
 		let showHideP = getElem("show-hide-steps");
 		for (let heading of headings) {
 			let parent = heading.parentNode as HTMLElement;
-			let stepStr: string = (/^\d+(?=\. )/.exec(heading.textContent as string) as RegExpExecArray)[0];
+			const stepStr: string = (/^\d+(?=\. )/.exec(heading.textContent as string) as RegExpExecArray)[0];
 			
 			let label = document.createElement("label");
 			let checkbox = document.createElement("input");
@@ -84,7 +84,7 @@ namespace app {
 		
 		export let selectElem = getElem("show-mask") as HTMLSelectElement;
 		
-		for (let id of MASK_DEPENDENT_ELEMS) {
+		for (const id of MASK_DEPENDENT_ELEMS) {
 			let elem = document.getElementById(id);
 			if (!(elem instanceof Element))
 				throw "Assertion error";
@@ -93,8 +93,8 @@ namespace app {
 				throw "Assertion error";
 			for (let i = 0; i < 8; i++) {
 				let node = elem.cloneNode(true) as Element;
-				node.setAttribute("class", `${node.getAttribute("class")} ${node.getAttribute("id")}`);
-				node.setAttribute("id", `${node.getAttribute("id")}-${i}`);
+				node.setAttribute("id", `${id}-${i}`);
+				node.setAttribute("class", `${node.getAttribute("class")} ${id}`);
 				parent.insertBefore(node, elem);
 			}
 			parent.removeChild(elem);
@@ -104,7 +104,7 @@ namespace app {
 		showMask();
 		
 		export function showMask(): void {
-			for (let id of MASK_DEPENDENT_ELEMS) {
+			for (const id of MASK_DEPENDENT_ELEMS) {
 				for (let i = 0; i < 8; i++) {
 					let elem = document.getElementById(`${id}-${i}`) as Element;
 					elem.setAttribute("style", i == selectElem.selectedIndex ? "" : "display:none");
@@ -122,38 +122,33 @@ namespace app {
 		if (ev !== undefined)
 			ev.preventDefault();
 		
+		// Get input values
 		const textStr: string = (getElem("input-text") as HTMLTextAreaElement).value;
-		const text: Array<CodePoint> = CodePoint.toArray(textStr);
-		const mode: SegmentMode = doStep0(text);
-		const segs: Array<QrSegment> = [doStep1(text, mode)];
-		
+		const minVer : int = parseInt(getInput("force-min-version" ).value, 10);
+		let forceMask: int = parseInt(getInput("force-mask-pattern").value, 10);
 		let errCorrLvl: ErrorCorrectionLevel;
 		if      (getInput("errcorlvl-low"     ).checked)  errCorrLvl = ErrorCorrectionLevel.LOW     ;
 		else if (getInput("errcorlvl-medium"  ).checked)  errCorrLvl = ErrorCorrectionLevel.MEDIUM  ;
 		else if (getInput("errcorlvl-quartile").checked)  errCorrLvl = ErrorCorrectionLevel.QUARTILE;
 		else if (getInput("errcorlvl-high"    ).checked)  errCorrLvl = ErrorCorrectionLevel.HIGH    ;
 		else  throw "Assertion error";
-		const minVer: int = parseInt(getInput("force-min-version").value, 10);
+		
+		const text: Array<CodePoint> = CodePoint.toArray(textStr);
+		const mode: SegmentMode = doStep0(text);
+		const segs: Array<QrSegment> = [doStep1(text, mode)];
 		const version: int = doStep2(segs, errCorrLvl, minVer);
 		if (version == -1)
 			return;
 		
-		const dataCodewords: Array<byte> = doStep3(segs, version, errCorrLvl);
-		const allCodewords : Array<byte> = doStep4(dataCodewords, version, errCorrLvl);
+		const dataCodewords: Array<DataCodeword> = doStep3(segs, version, errCorrLvl);
 		const qr = new QrCode(version, errCorrLvl);
+		const allCodewords: Array<Codeword> = doStep4(qr, dataCodewords);
 		doStep5(qr);
 		doStep6(qr, allCodewords);
+		
 		let masks: Array<QrCode> = doStep7(qr);
-		let penalties: Array<PenaltyInfo> = masks.map((mask, i) => {
-			qr.applyMask(mask);
-			qr.drawFormatBits(i);
-			let result = qr.computePenalties();
-			qr.applyMask(mask);
-			return result;
-		});
-		doStep8(qr, masks, penalties);
+		let penalties: Array<PenaltyInfo> = doStep8(qr, masks);
 		let chosenMask: int = doStep9(penalties);
-		let forceMask: int = parseInt(getInput("force-mask-pattern").value, 10);
 		if (forceMask != -1)
 			chosenMask = forceMask;
 		qr.applyMask(masks[chosenMask]);
@@ -173,7 +168,7 @@ namespace app {
 		let tbody = clearChildren("#character-analysis tbody");
 		text.forEach((cp, i) => {
 			let tr = document.createElement("tr");
-			let cells: Array<string|boolean> = [
+			const cells: Array<string|boolean> = [
 				i.toString(),
 				cp.utf16,
 				"U+" + cp.utf32.toString(16).toUpperCase(),
@@ -198,13 +193,13 @@ namespace app {
 		});
 		
 		tbody = clearChildren("#character-mode-summary tbody");
-		let data: Array<[string,boolean]> = [
+		const data: Array<[string,boolean]> = [
 			["Numeric"     , allNumeric ],
 			["Alphanumeric", allAlphanum],
 			["Byte"        , true       ],
 			["Kanji"       , allKanji   ],
 		];
-		for (let row of data) {
+		for (const row of data) {
 			let tr = document.createElement("tr");
 			let td = document.createElement("td");
 			td.textContent = row[0];
@@ -216,7 +211,6 @@ namespace app {
 			tbody.appendChild(tr);
 		}
 		
-		let modeStr: string;
 		let result: SegmentMode;
 		if (text.length == 0)
 			result = SegmentMode.BYTE;
@@ -233,10 +227,10 @@ namespace app {
 	
 	
 	function doStep1(text: Array<CodePoint>, mode: SegmentMode): QrSegment {
-		getElem("data-segment-chars").className = mode.name.toLowerCase() + " " + "possibly-long";
+		getElem("data-segment-chars").className = mode.name.toLowerCase() + " possibly-long";
 		
 		let bitData: Array<bit> = [];
-		let numChars = text.length;
+		let numChars: int = text.length;
 		let tbody = clearChildren("#data-segment-chars tbody");
 		text.forEach((cp, i) => {
 			let hexValues: string = "";
@@ -247,8 +241,8 @@ namespace app {
 			if (mode == SegmentMode.NUMERIC) {
 				if (i % 3 == 0) {
 					rowSpan = Math.min(3, text.length - i);
-					let s: string = text.slice(i, i + rowSpan).map(c => c.utf16).join("");
-					let temp: int = parseInt(s, 10);
+					const s: string = text.slice(i, i + rowSpan).map(c => c.utf16).join("");
+					const temp: int = parseInt(s, 10);
 					combined = temp.toString(10).padStart(rowSpan, "0");
 					bits = temp.toString(2).padStart(rowSpan * 3 + 1, "0");
 				}
@@ -266,13 +260,13 @@ namespace app {
 				}
 			} else if (mode == SegmentMode.BYTE) {
 				rowSpan = 1;
-				let temp: Array<byte> = cp.utf8;
+				const temp: Array<byte> = cp.utf8;
 				hexValues = temp.map(c => c.toString(16).toUpperCase().padStart(2, "0")).join(" ");
 				bits      = temp.map(c => c.toString( 2).toUpperCase().padStart(8, "0")).join("" );
 				numChars += temp.length - 1;
 			} else
 				throw "Assertion error";
-			for (let c of bits)
+			for (const c of bits)
 				bitData.push(parseInt(c, 2));
 			
 			let cells: Array<string> = [
@@ -304,8 +298,8 @@ namespace app {
 	function doStep2(segs: Array<QrSegment>, ecl: ErrorCorrectionLevel, minVer: int): int {
 		let trs = document.querySelectorAll("#segment-size tbody tr");
 		[1, 10, 27].forEach((ver, i) => {
-			let numBits = QrSegment.getTotalBits(segs, ver);
-			let numCodewords = Math.ceil(numBits / 8);
+			const numBits = QrSegment.getTotalBits(segs, ver);
+			const numCodewords = Math.ceil(numBits / 8);
 			let tds = trs[i].querySelectorAll("td");
 			tds[1].textContent = numBits < Infinity ? numBits.toString() : "Not encodable";
 			tds[2].textContent = numCodewords < Infinity ? numCodewords.toString() : "Not encodable";
@@ -325,9 +319,9 @@ namespace app {
 			td.textContent = ver.toString();
 			tr.appendChild(td);
 			let numCodewords = Math.ceil(QrSegment.getTotalBits(segs, ver) / 8);
-			ERRCORRLVLS.forEach((e, i) => {
+			ERRCORRLVLS.forEach(e => {
 				let td = document.createElement("td");
-				let capacityCodewords: int = QrCode.getNumDataCodewords(ver, e);
+				const capacityCodewords: int = QrCode.getNumDataCodewords(ver, e);
 				td.textContent = capacityCodewords.toString();
 				if (e == ecl) {
 					if (numCodewords <= capacityCodewords) {
@@ -346,13 +340,13 @@ namespace app {
 	}
 	
 	
-	function doStep3(segs: Array<QrSegment>, ver: int, ecl: ErrorCorrectionLevel): Array<byte> {
+	function doStep3(segs: Array<QrSegment>, ver: int, ecl: ErrorCorrectionLevel): Array<DataCodeword> {
 		let allBits: Array<bit> = [];
 		let tbody = clearChildren("#segment-and-padding-bits tbody");
 		function addRow(name: string, bits: Array<bit>): void {
 			bits.forEach(b => allBits.push(b));
 			let tr = document.createElement("tr");
-			let cells: Array<string> = [
+			const cells: Array<string> = [
 				name,
 				bits.join(""),
 				bits.length.toString(),
@@ -372,7 +366,7 @@ namespace app {
 			addRow(`Segment ${i} data`, seg.bitData);
 		});
 		
-		let capacityBits: int = QrCode.getNumDataCodewords(ver, ecl) * 8;
+		const capacityBits: int = QrCode.getNumDataCodewords(ver, ecl) * 8;
 		addRow("Terminator", [0,0,0,0].slice(0, Math.min(4, capacityBits - allBits.length)));
 		addRow("Bit padding", [0,0,0,0,0,0,0].slice(0, (8 - allBits.length % 8) % 8));
 		let bytePad: Array<bit> = [];
@@ -385,20 +379,23 @@ namespace app {
 		addRow("Byte padding", bytePad);
 		
 		queryElem("#full-bitstream span").textContent = allBits.join("");
-		let result: Array<byte> = [];
-		for (let i = 0; i < allBits.length; i += 8)
-			result.push(parseInt(allBits.slice(i, i + 8).join(""), 2));
-		getElem("all-data-codewords").textContent = result.map(byteToHex).join(" ");
+		let result: Array<DataCodeword> = [];
+		for (let i = 0; i < allBits.length; i += 8) {
+			let cw = new DataCodeword(parseInt(allBits.slice(i, i + 8).join(""), 2));
+			cw.preEccIndex = i / 8;
+			result.push(cw);
+		}
+		getElem("all-data-codewords").textContent = result.map(cw => byteToHex(cw.value)).join(" ");
 		return result;
 	}
 	
 	
-	function doStep4(data: Array<byte>, ver: int, ecl: ErrorCorrectionLevel): Array<byte> {
-		let numBlocks: int = QrCode.NUM_ERROR_CORRECTION_BLOCKS[ecl.ordinal][ver];
-		let blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK  [ecl.ordinal][ver];
-		let rawCodewords: int = Math.floor(QrCode.getNumRawDataModules(ver) / 8);
-		let numShortBlocks: int = numBlocks - rawCodewords % numBlocks;
-		let shortBlockLen: int = Math.floor(rawCodewords / numBlocks);
+	function doStep4(qr: QrCode, data: Array<DataCodeword>): Array<Codeword> {
+		const numBlocks: int = QrCode.NUM_ERROR_CORRECTION_BLOCKS[qr.errorCorrectionLevel.ordinal][qr.version];
+		const blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK  [qr.errorCorrectionLevel.ordinal][qr.version];
+		const rawCodewords: int = Math.floor(QrCode.getNumRawDataModules(qr.version) / 8);
+		const numShortBlocks: int = numBlocks - rawCodewords % numBlocks;
+		const shortBlockLen: int = Math.floor(rawCodewords / numBlocks);
 		let tds = document.querySelectorAll("#block-stats td:nth-child(2)");
 		tds[0].textContent = data.length.toString();
 		tds[1].textContent = numBlocks.toString();
@@ -408,70 +405,65 @@ namespace app {
 		tds[5].textContent = numShortBlocks.toString();
 		tds[6].textContent = (numBlocks - numShortBlocks).toString();
 		
-		let blocks: Array<Array<byte>> = [];
-		let rs = new ReedSolomonGenerator(blockEccLen);
-		for (let i = 0, k = 0; i < numBlocks; i++) {
-			let dat: Array<byte> = data.slice(k, k + shortBlockLen - blockEccLen + (i < numShortBlocks ? 0 : 1));
-			k += dat.length;
-			let ecc: Array<byte> = rs.getRemainder(dat);
-			if (i < numShortBlocks)
-				dat.push(0);
-			blocks.push(dat.concat(ecc));
-		}
-		
+		let dataBlocks: Array<Array<DataCodeword>> = qr.splitIntoBlocks(data);
+		let eccBlocks: Array<Array<EccCodeword>> = qr.computeEccForBlocks(dataBlocks);
 		{
 			let thead = queryElem("#blocks-and-ecc thead");
 			if (thead.children.length >= 2)
 				thead.removeChild(thead.children[1]);
 			(thead.querySelectorAll("th")[1] as HTMLTableHeaderCellElement).colSpan = numBlocks;
 			let tr = document.createElement("tr");
-			blocks.forEach((_, i) => {
+			for (let i = 0; i < numBlocks; i++) {
 				let th = document.createElement("th");
 				th.textContent = i.toString();
 				tr.appendChild(th);
-			});
+			}
 			thead.appendChild(tr);
 		} {
 			let tbody = clearChildren("#blocks-and-ecc tbody");
 			let verticalTh = document.createElement("th");
-			verticalTh.textContent = "Codeword index";
+			verticalTh.textContent = "Codeword index within block";
 			verticalTh.rowSpan = shortBlockLen;  // Not final value; work around Firefox bug
 			for (let i = 0; i < shortBlockLen + 1; i++) {
+				const isDataRow: boolean = i < shortBlockLen + 1 - blockEccLen;
 				let tr = document.createElement("tr");
-				tr.className = i < shortBlockLen + 1 - blockEccLen ? "data" : "ecc";
+				tr.className = isDataRow ? "data" : "ecc";
+				
 				if (i == 0)
 					tr.appendChild(verticalTh);
 				let th = document.createElement("th");
 				th.textContent = i.toString();
 				tr.appendChild(th);
-				blocks.forEach((block, j) => {
-					let td = document.createElement("td");
-					if (i != shortBlockLen - blockEccLen || j >= numShortBlocks)
-						td.textContent = byteToHex(block[i]);
-					tr.appendChild(td);
-				});
+				
+				if (isDataRow) {
+					dataBlocks.forEach(block => {
+						let td = document.createElement("td");
+						if (i < block.length)
+							td.textContent = byteToHex(block[i].value);
+						tr.appendChild(td);
+					});
+				} else {
+					eccBlocks.forEach(block => {
+						let td = document.createElement("td");
+						td.textContent = byteToHex(block[i - (shortBlockLen + 1 - blockEccLen)].value);
+						tr.appendChild(td);
+					});
+				}
 				tbody.appendChild(tr);
 			}
 			tbody.clientHeight;  // Read property to force reflow in Firefox
 			verticalTh.rowSpan = shortBlockLen + 1;
 		}
 		
-		let result: Array<byte> = [];
-		for (let i = 0; i < blocks[0].length; i++) {
-			for (let j = 0; j < blocks.length; j++) {
-				if (i != shortBlockLen - blockEccLen || j >= numShortBlocks)
-					result.push(blocks[j][i]);
-			}
-		}
-		
+		let result: Array<Codeword> = qr.interleaveBlocks(dataBlocks, eccBlocks);
 		let output = clearChildren("#interleaved-codewords");
 		let span = document.createElement("span");
-		span.textContent = result.slice(0, data.length).map(byteToHex).join(" ");
+		span.textContent = result.slice(0, data.length).map(cw => byteToHex(cw.value)).join(" ");
 		span.className = "data";
 		output.appendChild(span);
 		output.appendChild(document.createTextNode(" "));
 		span = document.createElement("span");
-		span.textContent = result.slice(data.length).map(byteToHex).join(" ");
+		span.textContent = result.slice(data.length).map(cw => byteToHex(cw.value)).join(" ");
 		span.className = "ecc";
 		output.appendChild(span);
 		return result;
@@ -507,13 +499,13 @@ namespace app {
 	}
 	
 	
-	function doStep6(qr: QrCode, allCodewords: Array<byte>): void {
+	function doStep6(qr: QrCode, allCodewords: Array<Codeword>): void {
 		const zigZagScan: Array<[int,int]> = qr.makeZigZagScan();
 		let zigZagSvg = document.getElementById("zig-zag-scan") as Element;
 		drawQrToSvg(qr, zigZagSvg);
 		{
 			let s = "";
-			for (let [x, y] of zigZagScan)
+			for (const [x, y] of zigZagScan)
 				s += (s == "" ? "M" : "L") + (x + 0.5) + "," + (y + 0.5);
 			let path = document.createElementNS(zigZagSvg.namespaceURI, "path");
 			path.setAttribute("class", "zigzag-line");
@@ -538,7 +530,7 @@ namespace app {
 	function doStep7(qr: QrCode): Array<QrCode> {
 		let result: Array<QrCode> = [];
 		for (let i = 0; i < 8; i++) {
-			const mask = qr.makeMask(i);
+			let mask = qr.makeMask(i);
 			mask.clearNewFlags();
 			result.push(mask);
 			drawQrToSvg(mask, document.getElementById("mask-pattern-" + i) as Element);
@@ -557,7 +549,7 @@ namespace app {
 	}
 	
 	
-	function doStep8(qr: QrCode, masks: Array<QrCode>, penalties: Array<PenaltyInfo>): void {
+	function doStep8(qr: QrCode, masks: Array<QrCode>): Array<PenaltyInfo> {
 		function getAndDrawSvg(name: string, i: int): [Element,Element] {
 			let svg = document.getElementById(`${name}-${i}`) as Element;
 			drawQrToSvg(qr, svg);
@@ -577,36 +569,36 @@ namespace app {
 			container.appendChild(rect);
 		}
 		
-		for (let i = 0; i < masks.length; i++) {
-			qr.applyMask(masks[i]);
-			qr.drawFormatBits(i);
+		return masks.map((mask, maskIndex) => {
+			qr.applyMask(mask);
+			qr.drawFormatBits(maskIndex);
 			qr.clearNewFlags();
-			const penaltyInfo = penalties[i];
+			const penaltyInfo = qr.computePenalties();
 			{
-				let [svg, group] = getAndDrawSvg("horizontal-runs", i);
+				let [svg, group] = getAndDrawSvg("horizontal-runs", maskIndex);
 				penaltyInfo.horizontalRuns.forEach(
 					run => appendRect(group, run.startX, run.startY, run.runLength, 1));
 			} {
-				let [svg, group] = getAndDrawSvg("vertical-runs", i);
+				let [svg, group] = getAndDrawSvg("vertical-runs", maskIndex);
 				penaltyInfo.verticalRuns.forEach(
 					run => appendRect(group, run.startX, run.startY, 1, run.runLength));
 			} {
-				let [svg, group] = getAndDrawSvg("two-by-two-boxes", i);
+				let [svg, group] = getAndDrawSvg("two-by-two-boxes", maskIndex);
 				penaltyInfo.twoByTwoBoxes.forEach(
 					([x, y]) => appendRect(group, x, y, 2, 2));
 			} {
-				let [svg, group] = getAndDrawSvg("horizontal-false-finders", i);
+				let [svg, group] = getAndDrawSvg("horizontal-false-finders", maskIndex);
 				penaltyInfo.horizontalFalseFinders.forEach(
 					run => appendRect(group, run.startX, run.startY, run.runLength, 1));
 			} {
-				let [svg, group] = getAndDrawSvg("vertical-false-finders", i);
+				let [svg, group] = getAndDrawSvg("vertical-false-finders", maskIndex);
 				penaltyInfo.verticalFalseFinders.forEach(
 					run => appendRect(group, run.startX, run.startY, 1, run.runLength));
 			} {
-				let tds = document.querySelectorAll(`#black-white-balance-${i} td:nth-child(2)`);
-				let total = qr.size * qr.size;
-				let black = penaltyInfo.numBlackModules;
-				let percentBlack = black * 100 / total;
+				let tds = document.querySelectorAll(`#black-white-balance-${maskIndex} td:nth-child(2)`);
+				const total = qr.size * qr.size;
+				const black = penaltyInfo.numBlackModules;
+				const percentBlack = black * 100 / total;
 				tds[0].textContent = qr.size.toString();
 				tds[1].textContent = total.toString();
 				tds[2].textContent = (total - black).toString();
@@ -614,8 +606,9 @@ namespace app {
 				tds[4].textContent = percentBlack.toFixed(3) + "%";
 				tds[5].textContent = (percentBlack - 50).toFixed(3).replace(/-/, "\u2212") + "%";
 			}
-			qr.applyMask(masks[i]);
-		}
+			qr.applyMask(mask);
+			return penaltyInfo;
+		});
 	}
 	
 	
@@ -624,7 +617,7 @@ namespace app {
 		let result = -1;
 		let minPenalty = Infinity;
 		penalties.forEach((penaltyInfo, maskNum) => {
-			let totalPoints = sumArray(penaltyInfo.penaltyPoints);
+			const totalPoints = sumArray(penaltyInfo.penaltyPoints);
 			if (totalPoints < minPenalty) {
 				minPenalty = totalPoints;
 				result = maskNum;
@@ -651,7 +644,7 @@ namespace app {
 		
 		while (svg.firstChild !== null)
 			svg.removeChild(svg.firstChild);
-		let hasUnfilled: boolean = qr.modules.some(
+		const hasUnfilled: boolean = qr.modules.some(
 			col => col.some(cell => cell instanceof UnfilledModule));
 		if (hasUnfilled) {
 			let rect = document.createElementNS(svg.namespaceURI, "rect");
@@ -674,33 +667,27 @@ namespace app {
 			});
 		});
 		let whitePath = document.createElementNS(svg.namespaceURI, "path");
-		whitePath.setAttribute("class", "white");
-		whitePath.setAttribute("d", whites);
-		svg.appendChild(whitePath);
 		let blackPath = document.createElementNS(svg.namespaceURI, "path");
+		whitePath.setAttribute("class", "white");
 		blackPath.setAttribute("class", "black");
+		whitePath.setAttribute("d", whites);
 		blackPath.setAttribute("d", blacks);
+		svg.appendChild(whitePath);
 		svg.appendChild(blackPath);
 		
+		function isModuleNew(x: int, y: int) {
+			if (!(0 <= x && x < qr.size && 0 <= y && y < qr.size))
+				return false;
+			const m = qr.modules[x][y];
+			return m instanceof FilledModule && m.isNew;
+		}
 		let news = "";
 		for (let x = 0; x <= qr.size; x++) {
 			for (let y = 0; y <= qr.size; y++) {
-				if (y < qr.size) {
-					let a: Module = x > 0 ? qr.modules[x - 1][y]   : new UnfilledModule();
-					let b: Module = x < qr.size ? qr.modules[x][y] : new UnfilledModule();
-					let c: boolean = a instanceof FilledModule ? a.isNew : false;
-					let d: boolean = b instanceof FilledModule ? b.isNew : false;
-					if (c != d)
-						news += `M${x},${y}v1`;
-				}
-				if (x < qr.size) {
-					let a: Module = y > 0 ? qr.modules[x][y - 1]   : new UnfilledModule();
-					let b: Module = y < qr.size ? qr.modules[x][y] : new UnfilledModule();
-					let c: boolean = a instanceof FilledModule ? a.isNew : false;
-					let d: boolean = b instanceof FilledModule ? b.isNew : false;
-					if (c != d)
-						news += `M${x},${y}h1`;
-				}
+				if (isModuleNew(x - 1, y) != isModuleNew(x, y))
+					news += `M${x},${y}v1`;
+				if (isModuleNew(x, y - 1) != isModuleNew(x, y))
+					news += `M${x},${y}h1`;
 			}
 		}
 		let newPath = document.createElementNS(svg.namespaceURI, "path");
@@ -714,7 +701,7 @@ namespace app {
 	/*---- Simple utility functions ----*/
 	
 	function getElem(id: string): HTMLElement {
-		const result: HTMLElement|null = document.getElementById(id);
+		const result = document.getElementById(id);
 		if (result instanceof HTMLElement)
 			return result;
 		throw "Assertion error";
@@ -722,7 +709,7 @@ namespace app {
 	
 	
 	function getInput(id: string): HTMLInputElement {
-		const result: HTMLElement = getElem(id);
+		const result = getElem(id);
 		if (result instanceof HTMLInputElement)
 			return result;
 		throw "Assertion error";
@@ -730,7 +717,7 @@ namespace app {
 	
 	
 	function queryElem(q: string): HTMLElement {
-		let result = document.querySelector(q);
+		const result = document.querySelector(q);
 		if (result instanceof HTMLElement)
 			return result;
 		throw "Assertion error";
