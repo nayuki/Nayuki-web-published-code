@@ -1,9 +1,9 @@
 /* 
- * Step-by-step QR Code generation
+ * Creating a QR Code step by step
  * 
  * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * https://www.nayuki.io/
+ * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
 
 "use strict";

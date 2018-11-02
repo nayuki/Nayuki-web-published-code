@@ -1,9 +1,9 @@
 /*
- * Step-by-step QR Code generation (compiled from TypeScript)
+ * Creating a QR Code step by step (compiled from TypeScript)
  *
  * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * https://www.nayuki.io/
+ * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
 "use strict";
 var __extends = (this && this.__extends) || (function () {
