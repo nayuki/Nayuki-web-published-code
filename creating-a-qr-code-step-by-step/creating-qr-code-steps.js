@@ -1226,6 +1226,7 @@ var app;
         output.appendChild(document.createTextNode(" "));
         span = appendNewElem(output, "span", result.slice(data.length).map(function (cw) { return byteToHex(cw.value); }).join(" "));
         span.className = "ecc";
+        queryElem("#final-bit-sequence span").textContent = result.map(function (cw) { return cw.value.toString(2).padStart(8, "0"); }).join("");
         return result;
     }
     function doStep5(qr) {
