@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (C#)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -42,7 +42,7 @@ public sealed class SmallestEnclosingCircle {
 		}
 		
 		// Progressively add points to circle or recompute circle
-		Circle c = new Circle(new Point(0, 0), -1);
+		Circle c = Circle.INVALID;
 		for (int i = 0; i < shuffled.Count; i++) {
 			Point p = shuffled[i];
 			if (c.r < 0 || !c.Contains(p))
@@ -71,8 +71,8 @@ public sealed class SmallestEnclosingCircle {
 	// Two boundary points known
 	private static Circle MakeCircleTwoPoints(List<Point> points, Point p, Point q) {
 		Circle circ = MakeDiameter(p, q);
-		Circle left = new Circle(new Point(0, 0), -1);
-		Circle right = new Circle(new Point(0, 0), -1);
+		Circle left  = Circle.INVALID;
+		Circle right = Circle.INVALID;
 		
 		// For each point not in the two-point circle
 		Point pq = q.Subtract(p);
@@ -113,12 +113,12 @@ public sealed class SmallestEnclosingCircle {
 		// Mathematical algorithm from Wikipedia: Circumscribed circle
 		double ox = (Math.Min(Math.Min(a.x, b.x), c.x) + Math.Max(Math.Min(a.x, b.x), c.x)) / 2;
 		double oy = (Math.Min(Math.Min(a.y, b.y), c.y) + Math.Max(Math.Min(a.y, b.y), c.y)) / 2;
-		double ax = a.x - ox, ay = a.y - oy;
-		double bx = b.x - ox, by = b.y - oy;
-		double cx = c.x - ox, cy = c.y - oy;
+		double ax = a.x - ox,  ay = a.y - oy;
+		double bx = b.x - ox,  by = b.y - oy;
+		double cx = c.x - ox,  cy = c.y - oy;
 		double d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 		if (d == 0)
-			return new Circle(new Point(0, 0), -1);
+			return Circle.INVALID;
 		double x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
 		double y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
 		Point p = new Point(ox + x, oy + y);
@@ -131,6 +131,8 @@ public sealed class SmallestEnclosingCircle {
 
 
 public struct Circle {
+	
+	public static readonly Circle INVALID = new Circle(new Point(0, 0), -1);
 	
 	private const double MULTIPLICATIVE_EPSILON = 1 + 1e-14;
 	

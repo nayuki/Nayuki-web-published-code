@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (C++)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -27,6 +27,8 @@
 
 using std::size_t;
 using std::vector;
+using std::max;
+using std::min;
 
 
 /*---- Members of struct Point ----*/
@@ -69,7 +71,7 @@ bool Circle::contains(const vector<Point> &ps) const {
 
 /*---- Smallest enclosing circle algorithm ----*/
 
-static Circle makeSmallestEnclosingCircleOnePoint(const vector<Point> &points, size_t end, const Point &p);
+static Circle makeSmallestEnclosingCircleOnePoint (const vector<Point> &points, size_t end, const Point &p);
 static Circle makeSmallestEnclosingCircleTwoPoints(const vector<Point> &points, size_t end, const Point &p, const Point &q);
 
 static std::default_random_engine randGen((std::random_device())());
@@ -82,7 +84,7 @@ Circle makeSmallestEnclosingCircle(const vector<Point> &points) {
 	std::shuffle(shuffled.begin(), shuffled.end(), randGen);
 	
 	// Progressively add points to circle or recompute circle
-	Circle c(Circle::INVALID);
+	Circle c = Circle::INVALID;
 	for (size_t i = 0; i < shuffled.size(); i++) {
 		const Point &p = shuffled.at(i);
 		if (c.r < 0 || !c.contains(p))
@@ -111,7 +113,7 @@ static Circle makeSmallestEnclosingCircleOnePoint(const vector<Point> &points, s
 // Two boundary points known
 static Circle makeSmallestEnclosingCircleTwoPoints(const vector<Point> &points, size_t end, const Point &p, const Point &q) {
 	Circle circ = makeDiameter(p, q);
-	Circle left = Circle::INVALID;
+	Circle left  = Circle::INVALID;
 	Circle right = Circle::INVALID;
 	
 	// For each point not in the two-point circle
@@ -146,23 +148,23 @@ static Circle makeSmallestEnclosingCircleTwoPoints(const vector<Point> &points, 
 
 Circle makeDiameter(const Point &a, const Point &b) {
 	Point c{(a.x + b.x) / 2, (a.y + b.y) / 2};
-	return Circle{c, std::max(c.distance(a), c.distance(b))};
+	return Circle{c, max(c.distance(a), c.distance(b))};
 }
 
 
 Circle makeCircumcircle(const Point &a, const Point &b, const Point &c) {
 	// Mathematical algorithm from Wikipedia: Circumscribed circle
-	double ox = (std::min(std::min(a.x, b.x), c.x) + std::max(std::min(a.x, b.x), c.x)) / 2;
-	double oy = (std::min(std::min(a.y, b.y), c.y) + std::max(std::min(a.y, b.y), c.y)) / 2;
-	double ax = a.x - ox, ay = a.y - oy;
-	double bx = b.x - ox, by = b.y - oy;
-	double cx = c.x - ox, cy = c.y - oy;
+	double ox = (min(min(a.x, b.x), c.x) + max(min(a.x, b.x), c.x)) / 2;
+	double oy = (min(min(a.y, b.y), c.y) + max(min(a.y, b.y), c.y)) / 2;
+	double ax = a.x - ox,  ay = a.y - oy;
+	double bx = b.x - ox,  by = b.y - oy;
+	double cx = c.x - ox,  cy = c.y - oy;
 	double d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 	if (d == 0)
 		return Circle::INVALID;
 	double x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
 	double y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
 	Point p{ox + x, oy + y};
-	double r = std::max(std::max(p.distance(a), p.distance(b)), p.distance(c));
+	double r = max(max(p.distance(a), p.distance(b)), p.distance(c));
 	return Circle{p, r};
 }

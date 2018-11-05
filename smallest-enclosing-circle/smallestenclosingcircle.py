@@ -1,7 +1,7 @@
 # 
 # Smallest enclosing circle - Library (Python)
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2018 Project Nayuki
 # https://www.nayuki.io/page/smallest-enclosing-circle
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -58,7 +58,7 @@ def _make_circle_one_point(points, p):
 # Two boundary points known
 def _make_circle_two_points(points, p, q):
 	circ = make_diameter(p, q)
-	left = None
+	left  = None
 	right = None
 	px, py = p
 	qx, qy = q
@@ -89,33 +89,30 @@ def _make_circle_two_points(points, p, q):
 		return left if (left[2] <= right[2]) else right
 
 
-def make_circumcircle(p0, p1, p2):
+def make_diameter(a, b):
+	cx = (a[0] + b[0]) / 2.0
+	cy = (a[1] + b[1]) / 2.0
+	r0 = math.hypot(cx - a[0], cy - a[1])
+	r1 = math.hypot(cx - b[0], cy - b[1])
+	return (cx, cy, max(r0, r1))
+
+
+def make_circumcircle(a, b, c):
 	# Mathematical algorithm from Wikipedia: Circumscribed circle
-	ax, ay = p0
-	bx, by = p1
-	cx, cy = p2
-	ox = (min(ax, bx, cx) + max(ax, bx, cx)) / 2.0
-	oy = (min(ay, by, cy) + max(ay, by, cy)) / 2.0
-	ax -= ox; ay -= oy
-	bx -= ox; by -= oy
-	cx -= ox; cy -= oy
+	ox = (min(a[0], b[0], c[0]) + max(a[0], b[0], c[0])) / 2.0
+	oy = (min(a[1], b[1], c[1]) + max(a[1], b[1], c[1])) / 2.0
+	ax = a[0] - ox;  ay = a[1] - oy
+	bx = b[0] - ox;  by = b[1] - oy
+	cx = c[0] - ox;  cy = c[1] - oy
 	d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2.0
 	if d == 0.0:
 		return None
 	x = ox + ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
 	y = oy + ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
-	ra = math.hypot(x - p0[0], y - p0[1])
-	rb = math.hypot(x - p1[0], y - p1[1])
-	rc = math.hypot(x - p2[0], y - p2[1])
+	ra = math.hypot(x - a[0], y - a[1])
+	rb = math.hypot(x - b[0], y - b[1])
+	rc = math.hypot(x - c[0], y - c[1])
 	return (x, y, max(ra, rb, rc))
-
-
-def make_diameter(p0, p1):
-	cx = (p0[0] + p1[0]) / 2.0
-	cy = (p0[1] + p1[1]) / 2.0
-	r0 = math.hypot(cx - p0[0], cy - p0[1])
-	r1 = math.hypot(cx - p1[0], cy - p1[1])
-	return (cx, cy, max(r0, r1))
 
 
 _MULTIPLICATIVE_EPSILON = 1 + 1e-14

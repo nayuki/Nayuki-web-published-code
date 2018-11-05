@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -42,11 +42,10 @@ function makeCircle(points) {
 	
 	// Progressively add points to circle or recompute circle
 	var c = null;
-	for (var i = 0; i < shuffled.length; i++) {
-		var p = shuffled[i];
-		if (c == null || !isInCircle(c, p))
+	shuffled.forEach(function(p, i) {
+		if (c === null || !isInCircle(c, p))
 			c = makeCircleOnePoint(shuffled.slice(0, i + 1), p);
-	}
+	});
 	return c;
 }
 
@@ -54,15 +53,14 @@ function makeCircle(points) {
 // One boundary point known
 function makeCircleOnePoint(points, p) {
 	var c = {x: p.x, y: p.y, r: 0};
-	for (var i = 0; i < points.length; i++) {
-		var q = points[i];
+	points.forEach(function(q, i) {
 		if (!isInCircle(c, q)) {
 			if (c.r == 0)
 				c = makeDiameter(p, q);
 			else
 				c = makeCircleTwoPoints(points.slice(0, i + 1), p, q);
 		}
-	}
+	});
 	return c;
 }
 
@@ -81,56 +79,53 @@ function makeCircleTwoPoints(points, p, q) {
 		// Form a circumcircle and classify it on left or right side
 		var cross = crossProduct(p.x, p.y, q.x, q.y, r.x, r.y);
 		var c = makeCircumcircle(p, q, r);
-		if (c == null)
+		if (c === null)
 			return;
-		else if (cross > 0 && (left == null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) > crossProduct(p.x, p.y, q.x, q.y, left.x, left.y)))
+		else if (cross > 0 && (left === null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) > crossProduct(p.x, p.y, q.x, q.y, left.x, left.y)))
 			left = c;
-		else if (cross < 0 && (right == null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) < crossProduct(p.x, p.y, q.x, q.y, right.x, right.y)))
+		else if (cross < 0 && (right === null || crossProduct(p.x, p.y, q.x, q.y, c.x, c.y) < crossProduct(p.x, p.y, q.x, q.y, right.x, right.y)))
 			right = c;
 	});
 	
 	// Select which circle to return
-	if (left == null && right == null)
+	if (left === null && right === null)
 		return circ;
-	else if (left == null && right != null)
+	else if (left === null && right !== null)
 		return right;
-	else if (left != null && right == null)
+	else if (left !== null && right === null)
 		return left;
-	else if (left != null && right != null)
+	else if (left !== null && right !== null)
 		return left.r <= right.r ? left : right;
 	else
 		throw "Assertion error";
 }
 
 
-function makeCircumcircle(p0, p1, p2) {
+function makeDiameter(a, b) {
+	var cx = (a.x + b.x) / 2;
+	var cy = (a.y + b.y) / 2;
+	var r0 = distance(cx, cy, a.x, a.y);
+	var r1 = distance(cx, cy, b.x, b.y);
+	return {x: cx, y: cy, r: Math.max(r0, r1)};
+}
+
+
+function makeCircumcircle(a, b, c) {
 	// Mathematical algorithm from Wikipedia: Circumscribed circle
-	var ax = p0.x,  ay = p0.y;
-	var bx = p1.x,  by = p1.y;
-	var cx = p2.x,  cy = p2.y;
-	var ox = (Math.min(ax, bx, cx) + Math.max(ax, bx, cx)) / 2;
-	var oy = (Math.min(ay, by, cy) + Math.max(ay, by, cy)) / 2;
-	ax -= ox;  ay -= oy;
-	bx -= ox;  by -= oy;
-	cx -= ox;  cy -= oy;
+	var ox = (Math.min(a.x, b.x, c.x) + Math.max(a.x, b.x, c.x)) / 2;
+	var oy = (Math.min(a.y, b.y, c.y) + Math.max(a.y, b.y, c.y)) / 2;
+	var ax = a.x - ox,  ay = a.y - oy;
+	var bx = b.x - ox,  by = b.y - oy;
+	var cx = c.x - ox,  cy = c.y - oy;
 	var d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 	if (d == 0)
 		return null;
 	var x = ox + ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
 	var y = oy + ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
-	var ra = distance(x, y, p0.x, p0.y);
-	var rb = distance(x, y, p1.x, p1.y);
-	var rc = distance(x, y, p2.x, p2.y);
+	var ra = distance(x, y, a.x, a.y);
+	var rb = distance(x, y, b.x, b.y);
+	var rc = distance(x, y, c.x, c.y);
 	return {x: x, y: y, r: Math.max(ra, rb, rc)};
-}
-
-
-function makeDiameter(p0, p1) {
-	var x = (p0.x + p1.x) / 2;
-	var y = (p0.y + p1.y) / 2;
-	var r0 = distance(x, y, p0.x, p0.y);
-	var r1 = distance(x, y, p1.x, p1.y);
-	return {x: x, y: y, r: Math.max(r0, r1)};
 }
 
 
@@ -139,7 +134,7 @@ function makeDiameter(p0, p1) {
 var MULTIPLICATIVE_EPSILON = 1 + 1e-14;
 
 function isInCircle(c, p) {
-	return c != null && distance(p.x, p.y, c.x, c.y) <= c.r * MULTIPLICATIVE_EPSILON;
+	return c !== null && distance(p.x, p.y, c.x, c.y) <= c.r * MULTIPLICATIVE_EPSILON;
 }
 
 
