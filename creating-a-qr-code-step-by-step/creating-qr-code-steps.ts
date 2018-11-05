@@ -21,7 +21,54 @@ namespace app {
 	
 	function initialize(): void {
 		initShowHideSteps();
-		doGenerate();
+		initShowExamples();
+	}
+	
+	
+	function initShowExamples(): void {
+		const EXAMPLES: Array<[string,string,ErrorCorrectionLevel,int,int]> = [
+			["(N/A \u2013 custom input)", ""                                               , ErrorCorrectionLevel.LOW     ,  1, -1],
+			["Hello world"              , "Hello, world! 123"                              , ErrorCorrectionLevel.LOW     ,  1, -1],
+			["Alphanumeric mode"        , "PROJECT NAYUKI"                                 , ErrorCorrectionLevel.HIGH    ,  1,  3],
+			["Numeric mode"             , "31415926535897932384626433832795028841971693993", ErrorCorrectionLevel.QUARTILE,  1,  0],
+			["Variable-length UTF-8"    , "a\u0409\uC707\uD83D\uDE31"                      , ErrorCorrectionLevel.MEDIUM  ,  1,  1],
+			["Kanji mode charset"       , "\u300C\u9B54\u6CD5\u5C11\u5973\u307E\u3069\u304B\u2606\u30DE\u30AE\u30AB\u300D\u3063\u3066\u3001\u3000" +
+			                              "\u0418\u0410\u0418\u3000\uFF44\uFF45\uFF53\uFF55\u3000\u03BA\u03B1\uFF1F", ErrorCorrectionLevel.HIGH, 1, 6],
+			["Force white area"         , "00000.UFF7THUFF7000001F8F7THUFF7UF00000000UFF7UFF7F7UFF7UF00000000UFF7UEUFF7T*000005F7UFF7UEUFF7UFF500000001F7T*00000.UFF7UF7QF7" +
+			                              "SK000.QOM:UPUFF7UFEA0000001+F7UFF7THUFF7UFEA0000001+F7UEUFF7UE0000003ZUFF7UF7QF7UFF7SK000000F7UF", ErrorCorrectionLevel.LOW, 1, 2],
+			["Force black area"         , "963780963783060422602361783060204414120483523180722843312481903540481542120481909180722841190481903542103542120483523" +
+			                              "180722843312481903540481542120481909180722783060240828240963809421660240963819481903536436843301180647542120487542481" +
+			                              "903542210843301178993542120481888481903536436843301180647542120487542481903542210843301", ErrorCorrectionLevel.LOW, 1, 4],
+		];
+		
+		let selectElem = getElem("show-example") as HTMLSelectElement;
+		for (const [name,text,ecl,minVer,mask] of EXAMPLES)
+			appendNewElem(selectElem, "option", name);
+		selectElem.selectedIndex = 1;
+		function selectChanged(): void {
+			const [_, text, ecl, minVer, mask] = EXAMPLES[selectElem.selectedIndex];
+			(getElem("input-text") as HTMLTextAreaElement).value = text;
+			getInput("force-min-version" ).value = minVer.toString();
+			getInput("force-mask-pattern").value = mask.toString();
+			if      (ecl == ErrorCorrectionLevel.LOW     )  getInput("errcorlvl-low"     ).checked = true;
+			else if (ecl == ErrorCorrectionLevel.MEDIUM  )  getInput("errcorlvl-medium"  ).checked = true;
+			else if (ecl == ErrorCorrectionLevel.QUARTILE)  getInput("errcorlvl-quartile").checked = true;
+			else if (ecl == ErrorCorrectionLevel.HIGH    )  getInput("errcorlvl-high"    ).checked = true;
+			else  throw "Assertion error";
+			doGenerate();
+		}
+		selectElem.onchange = selectChanged;
+		selectChanged();
+		
+		function resetSelect(): void {
+			selectElem.selectedIndex = 0;
+		}
+		let inputs = document.querySelectorAll("#input-table textarea, #input-table input[type=number]");
+		for (let elem of inputs)
+			(elem as HTMLInputElement).oninput = resetSelect;
+		inputs = document.querySelectorAll("#input-table input[type=radio]");
+		for (let elem of inputs)
+			(elem as HTMLInputElement).onchange = resetSelect;
 	}
 	
 	

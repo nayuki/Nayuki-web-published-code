@@ -831,7 +831,61 @@ var app;
     /*---- HTML UI initialization ----*/
     function initialize() {
         initShowHideSteps();
-        doGenerate();
+        initShowExamples();
+    }
+    function initShowExamples() {
+        var EXAMPLES = [
+            ["(N/A \u2013 custom input)", "", ErrorCorrectionLevel.LOW, 1, -1],
+            ["Hello world", "Hello, world! 123", ErrorCorrectionLevel.LOW, 1, -1],
+            ["Alphanumeric mode", "PROJECT NAYUKI", ErrorCorrectionLevel.HIGH, 1, 3],
+            ["Numeric mode", "31415926535897932384626433832795028841971693993", ErrorCorrectionLevel.QUARTILE, 1, 0],
+            ["Variable-length UTF-8", "a\u0409\uC707\uD83D\uDE31", ErrorCorrectionLevel.MEDIUM, 1, 1],
+            ["Kanji mode charset", "\u300C\u9B54\u6CD5\u5C11\u5973\u307E\u3069\u304B\u2606\u30DE\u30AE\u30AB\u300D\u3063\u3066\u3001\u3000" +
+                    "\u0418\u0410\u0418\u3000\uFF44\uFF45\uFF53\uFF55\u3000\u03BA\u03B1\uFF1F", ErrorCorrectionLevel.HIGH, 1, 6],
+            ["Force white area", "00000.UFF7THUFF7000001F8F7THUFF7UF00000000UFF7UFF7F7UFF7UF00000000UFF7UEUFF7T*000005F7UFF7UEUFF7UFF500000001F7T*00000.UFF7UF7QF7" +
+                    "SK000.QOM:UPUFF7UFEA0000001+F7UFF7THUFF7UFEA0000001+F7UEUFF7UE0000003ZUFF7UF7QF7UFF7SK000000F7UF", ErrorCorrectionLevel.LOW, 1, 2],
+            ["Force black area", "963780963783060422602361783060204414120483523180722843312481903540481542120481909180722841190481903542103542120483523" +
+                    "180722843312481903540481542120481909180722783060240828240963809421660240963819481903536436843301180647542120487542481" +
+                    "903542210843301178993542120481888481903536436843301180647542120487542481903542210843301", ErrorCorrectionLevel.LOW, 1, 4],
+        ];
+        var selectElem = getElem("show-example");
+        for (var _i = 0, EXAMPLES_1 = EXAMPLES; _i < EXAMPLES_1.length; _i++) {
+            var _a = EXAMPLES_1[_i], name_1 = _a[0], text = _a[1], ecl = _a[2], minVer = _a[3], mask = _a[4];
+            appendNewElem(selectElem, "option", name_1);
+        }
+        selectElem.selectedIndex = 1;
+        function selectChanged() {
+            var _a = EXAMPLES[selectElem.selectedIndex], _ = _a[0], text = _a[1], ecl = _a[2], minVer = _a[3], mask = _a[4];
+            getElem("input-text").value = text;
+            getInput("force-min-version").value = minVer.toString();
+            getInput("force-mask-pattern").value = mask.toString();
+            if (ecl == ErrorCorrectionLevel.LOW)
+                getInput("errcorlvl-low").checked = true;
+            else if (ecl == ErrorCorrectionLevel.MEDIUM)
+                getInput("errcorlvl-medium").checked = true;
+            else if (ecl == ErrorCorrectionLevel.QUARTILE)
+                getInput("errcorlvl-quartile").checked = true;
+            else if (ecl == ErrorCorrectionLevel.HIGH)
+                getInput("errcorlvl-high").checked = true;
+            else
+                throw "Assertion error";
+            doGenerate();
+        }
+        selectElem.onchange = selectChanged;
+        selectChanged();
+        function resetSelect() {
+            selectElem.selectedIndex = 0;
+        }
+        var inputs = document.querySelectorAll("#input-table textarea, #input-table input[type=number]");
+        for (var _b = 0, inputs_1 = inputs; _b < inputs_1.length; _b++) {
+            var elem = inputs_1[_b];
+            elem.oninput = resetSelect;
+        }
+        inputs = document.querySelectorAll("#input-table input[type=radio]");
+        for (var _c = 0, inputs_2 = inputs; _c < inputs_2.length; _c++) {
+            var elem = inputs_2[_c];
+            elem.onchange = resetSelect;
+        }
     }
     function initShowHideSteps() {
         var headings = document.querySelectorAll("article section h3");
