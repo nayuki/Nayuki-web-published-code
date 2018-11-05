@@ -13,6 +13,7 @@ namespace app {
 	
 	/*---- Preamble definitions ----*/
 	
+	type int = number;
 	type Mode = "BYTE" | "NUMERIC" | "ALPHANUMERIC" | "KANJI";
 	
 	
@@ -46,29 +47,29 @@ namespace app {
 	
 	
 	export function textChanged(): void {
-		const text: string = userTextInputElem.value;
-		if (text != demoTextElem.value)
+		const textStr: string = userTextInputElem.value;
+		if (textStr != demoTextElem.value)
 			demoTextElem.selectedIndex = 0;  // Indicates custom input
-		const minVersion: number = parseInt(getInput("minimum-version").value, 10);
-		const errCorrLvl: number = (getElem("error-correction-level") as HTMLSelectElement).selectedIndex;
+		const minVersion: int = parseInt(getInput("minimum-version").value, 10);
+		let errCorrLvl: int;
+		if      (getInput("errcorlvl-low"     ).checked)  errCorrLvl = 0;
+		else if (getInput("errcorlvl-medium"  ).checked)  errCorrLvl = 1;
+		else if (getInput("errcorlvl-quartile").checked)  errCorrLvl = 2;
+		else if (getInput("errcorlvl-high"    ).checked)  errCorrLvl = 3;
+		else  throw "Assertion error";
 		
 		// Handle code points
-		const cps: Array<number> = toCodePoints(text);
-		{
-			let n: number = 0;
-			for (let cp of cps)
-				n += countUtf8Bytes(cp) * 8;
-			setText("num-code-points", cps.length);
-		}
+		const codePoints: Array<CodePoint> = CodePoint.toArray(textStr);
+		setText("num-code-points", codePoints.length);
 		
 		// Process the byte-only segmentation algorithm
-		const byteOnlyInfo = makeSingleByteSegment(cps, errCorrLvl, minVersion, 40);
+		const byteOnlyInfo = makeSingleByteSegment(codePoints, errCorrLvl, minVersion, 40);
 		if (byteOnlyInfo === null) {
 			setText("qr-code-version-byte-only", "Too long");
 			setText("num-segments-byte-only", "N/A");
 			setText("total-segment-bits-byte-only", "N/A");
 		} else {
-			let [version, segs] = byteOnlyInfo;
+			const [version, segs] = byteOnlyInfo;
 			setText("qr-code-version-byte-only", version);
 			setText("num-segments-byte-only", segs.length);
 			setText("total-segment-bits-byte-only", getTotalBits(segs, version));
@@ -83,27 +84,27 @@ namespace app {
 			tableOut.removeChild(tableOut.firstChild);
 		
 		// Process the optimal segmentation algorithm
-		const optimalInfo = makeSegmentsOptimally(cps, errCorrLvl, minVersion, 40);
+		const optimalInfo = makeSegmentsOptimally(codePoints, errCorrLvl, minVersion, 40);
 		if (optimalInfo === null) {
 			setText("qr-code-version-optimal", "Too long");
 			setText("num-segments-optimal", "N/A");
 			setText("total-segment-bits-optimal", "N/A");
 		} else {
-			let [version, segs] = optimalInfo;
+			const [version, segs] = optimalInfo;
 			setText("qr-code-version-optimal", version);
 			setText("num-segments-optimal", segs.length);
 			setText("total-segment-bits-optimal", getTotalBits(segs, version));
 			
-			segs.forEach((seg: Segment, i: number) => {
-				const span = document.createElement("span");
+			segs.forEach((seg: Segment, i: int) => {
+				let span = document.createElement("span");
 				span.textContent = seg.text;
 				span.classList.add(seg.mode.toLowerCase());
 				span.title = "Segment index: " + i;
 				textOut.appendChild(span);
 				
-				const tr = document.createElement("tr");
+				let tr = document.createElement("tr");
 				tr.classList.add(seg.mode.toLowerCase());
-				let cells: Array<string|number> = [
+				const cells: Array<string|int> = [
 					i,
 					seg.mode.charAt(0) + seg.mode.substring(1).toLowerCase(),
 					getTotalBits([seg], version) - seg.numDataBits,
@@ -112,7 +113,7 @@ namespace app {
 					seg.numChars,
 					seg.text,
 				];
-				for (let s of cells) {
+				for (const s of cells) {
 					const td = document.createElement("td");
 					td.textContent = s.toString();
 					tr.appendChild(td);
@@ -128,22 +129,22 @@ namespace app {
 			setText("total-segment-bits-savings", INFINITY);
 		} else {
 			setText("qr-code-version-savings", byteOnlyInfo[0] - optimalInfo[0]);
-			let byteOnlyBits = getTotalBits(byteOnlyInfo[1], byteOnlyInfo[0]);
-			let optimalBits  = getTotalBits(optimalInfo [1], optimalInfo [0]);
+			const byteOnlyBits = getTotalBits(byteOnlyInfo[1], byteOnlyInfo[0]);
+			const optimalBits  = getTotalBits(optimalInfo [1], optimalInfo [0]);
 			setText("total-segment-bits-savings", `${byteOnlyBits - optimalBits} (${(optimalBits / byteOnlyBits).toFixed(2)}\u00D7)`);
 		}
 	}
 	
 	
 	export function revealElement(link: HTMLElement, targetId: string): boolean {
-		const linkParent = link.parentNode as HTMLElement;
+		let linkParent = link.parentNode as HTMLElement;
 		while (link.firstChild != null)
 			linkParent.appendChild(link.firstChild);
 		linkParent.removeChild(link);
 		
-		const target = getElem(targetId);
+		let target = getElem(targetId);
 		target.style.removeProperty("display");
-		let newHeight: number = target.clientHeight;
+		const newHeight: number = target.clientHeight;
 		target.style.height = "0px";
 		target.style.overflow = "hidden";
 		target.style.transition = "height 0.5s ease-in-out";
@@ -163,9 +164,9 @@ namespace app {
 	
 	/*---- High-level computation functions ----*/
 	
-	function makeSingleByteSegment(codePoints: Array<number>, ecl: number,
-			minVersion: number, maxVersion: number):
-			[number,Array<Segment>]|null {
+	function makeSingleByteSegment(text: Array<CodePoint>, ecl: int,
+			minVersion: int, maxVersion: int):
+			[int,Array<Segment>]|null {
 		
 		if (!(0 <= ecl && ecl <= 3))
 			throw "Invalid error correction level";
@@ -173,11 +174,11 @@ namespace app {
 			throw "Invalid version range";
 		
 		// Iterate through version numbers, and make tentative segments
-		let segs: Array<Segment> = [new Segment(codePoints, "BYTE")];
+		const segs: Array<Segment> = [new Segment(text, "BYTE")];
 		for (let version = minVersion; version <= maxVersion; version++) {
 			// Check if the segments fit
-			let dataCapacityBits: number = NUM_DATA_CODEWORDS[version][ecl] * 8;
-			let dataUsedBits: number = getTotalBits(segs, version);
+			const dataCapacityBits: int = NUM_DATA_CODEWORDS[version][ecl] * 8;
+			const dataUsedBits: number = getTotalBits(segs, version);
 			if (dataUsedBits <= dataCapacityBits)
 				return [version, segs];
 		}
@@ -191,9 +192,9 @@ namespace app {
 	// The resulting array optimally minimizes the total encoded bit length, subjected to the
 	// constraints in the given {error correction level, minimum version number, maximum version number}.
 	// This function can utilize all four text encoding modes: numeric, alphanumeric, byte (UTF-8), and kanji.
-	function makeSegmentsOptimally(codePoints: Array<number>, ecl: number,
-			minVersion: number, maxVersion: number):
-			[number,Array<Segment>]|null {
+	function makeSegmentsOptimally(text: Array<CodePoint>, ecl: int,
+			minVersion: int, maxVersion: int):
+			[int,Array<Segment>]|null {
 		
 		if (!(0 <= ecl && ecl <= 3))
 			throw "Invalid error correction level";
@@ -204,11 +205,11 @@ namespace app {
 		let segs: Array<Segment> = [];  // Dummy initial value
 		for (let version = minVersion; version <= maxVersion; version++) {
 			if (version == minVersion || version == 10 || version == 27)
-				segs = makeSegmentsOptimallyForVersion(codePoints, version);
+				segs = makeSegmentsOptimallyForVersion(text, version);
 			
 			// Check if the segments fit
-			let dataCapacityBits: number = NUM_DATA_CODEWORDS[version][ecl] * 8;
-			let dataUsedBits: number = getTotalBits(segs, version);
+			const dataCapacityBits: int = NUM_DATA_CODEWORDS[version][ecl] * 8;
+			const dataUsedBits: number = getTotalBits(segs, version);
 			if (dataUsedBits <= dataCapacityBits)
 				return [version, segs];
 		}
@@ -219,22 +220,22 @@ namespace app {
 	
 	
 	// Returns a new array of segments that is optimal for the given text at the given version number.
-	function makeSegmentsOptimallyForVersion(codePoints: Array<number>, version: number): Array<Segment> {
-		if (codePoints.length == 0)
+	function makeSegmentsOptimallyForVersion(text: Array<CodePoint>, version: int): Array<Segment> {
+		if (text.length == 0)
 			return [];
-		const charModes = computeCharacterModes(codePoints, version);
-		return splitIntoSegments(codePoints, charModes);
+		const charModes = computeCharacterModes(text, version);
+		return splitIntoSegments(text, charModes);
 	}
 	
 	
 	// Returns a new array representing the optimal mode per code point based on the given text and version.
-	function computeCharacterModes(codePoints: Array<number>, version: number): Array<Mode> {
-		if (codePoints.length == 0)
+	function computeCharacterModes(text: Array<CodePoint>, version: int): Array<Mode> {
+		if (text.length == 0)
 			throw "Empty string";
 		const modeTypes: Array<Mode> = ["BYTE", "ALPHANUMERIC", "NUMERIC", "KANJI"];
 		
 		// Segment header sizes, measured in 1/6 bits
-		const headCosts: Array<number> = modeTypes.map(mode =>
+		const headCosts: Array<int> = modeTypes.map(mode =>
 			(4 + getNumCharCountBits(mode, version)) * 6);
 		
 		// charModes[i][j] represents the mode to encode the code point at
@@ -245,27 +246,27 @@ namespace app {
 		// At the beginning of each iteration of the loop below,
 		// prevCosts[j] is the exact minimum number of 1/6 bits needed to
 		// encode the entire string prefix of length i, and end in modeTypes[j]
-		let prevCosts: Array<number> = headCosts.slice();
+		let prevCosts: Array<int> = headCosts.slice();
 		
 		// Calculate costs using dynamic programming
-		codePoints.forEach((c: number, i: number) => {
+		text.forEach((c: CodePoint, i: int) => {
 			let cModes: Array<Mode|null> = modeTypes.map(_ => null);
 			
-			let curCosts: Array<number> = modeTypes.map(_ => Infinity);
+			let curCosts: Array<int> = modeTypes.map(_ => Infinity);
 			{  // Always extend a byte mode segment
-				curCosts[0] = prevCosts[0] + countUtf8Bytes(c) * 8 * 6;
+				curCosts[0] = prevCosts[0] + c.utf8.length * 8 * 6;
 				cModes[0] = modeTypes[0];
 			}
 			// Extend a segment if possible
-			if (isAlphanumeric(c)) {
+			if (isAlphanumeric(c.utf32)) {
 				curCosts[1] = prevCosts[1] + 33;  // 5.5 bits per alphanumeric char
 				cModes[1] = modeTypes[1];
 			}
-			if (isNumeric(c)) {
+			if (isNumeric(c.utf32)) {
 				curCosts[2] = prevCosts[2] + 20;  // 3.33 bits per digit
 				cModes[2] = modeTypes[2];
 			}
-			if (isKanji(c)) {
+			if (isKanji(c.utf32)) {
 				curCosts[3] = prevCosts[3] + 78;  // 13 bits per Shift JIS char
 				cModes[3] = modeTypes[3];
 			}
@@ -286,7 +287,7 @@ namespace app {
 		});
 		
 		// Find optimal ending mode
-		let curModeIndex: number = 0;
+		let curModeIndex: int = 0;
 		modeTypes.forEach((mode, i) => {
 			if (prevCosts[i] < prevCosts[curModeIndex])
 				curModeIndex = i;
@@ -294,8 +295,8 @@ namespace app {
 		
 		// Get optimal mode for each code point by tracing backwards
 		let result: Array<Mode> = [];
-		for (let i = codePoints.length - 1; i >= 0; i--) {
-			let curMode = charModes[i][curModeIndex];
+		for (let i = text.length - 1; i >= 0; i--) {
+			const curMode = charModes[i][curModeIndex];
 			curModeIndex = modeTypes.indexOf(curMode);
 			result.push(curMode);
 		}
@@ -306,21 +307,21 @@ namespace app {
 	
 	// Returns a new array of segments based on the given text and modes, such that
 	// consecutive code points in the same mode are put into the same segment.
-	function splitIntoSegments(codePoints: Array<number>, charModes: Array<Mode>): Array<Segment> {
-		if (codePoints.length == 0)
+	function splitIntoSegments(text: Array<CodePoint>, charModes: Array<Mode>): Array<Segment> {
+		if (text.length == 0)
 			throw "Empty string";
-		if (codePoints.length != charModes.length)
+		if (text.length != charModes.length)
 			throw "Mismatched lengths";
 		let result: Array<Segment> = [];
 		
 		// Accumulate run of modes
 		let curMode: Mode = charModes[0];
-		let start: number = 0;
+		let start: int = 0;
 		for (let i = 1; ; i++) {
-			if (i < codePoints.length && charModes[i] == curMode)
+			if (i < text.length && charModes[i] == curMode)
 				continue;
-			result.push(new Segment(codePoints.slice(start, i), curMode));
-			if (i >= codePoints.length)
+			result.push(new Segment(text.slice(start, i), curMode));
+			if (i >= text.length)
 				return result;
 			curMode = charModes[i];
 			start = i;
@@ -329,41 +330,31 @@ namespace app {
 	
 	
 	class Segment {
-		public readonly numChars: number;
+		public readonly numChars: int;
 		public readonly text: string;
-		public readonly numDataBits: number;
+		public readonly numDataBits: int;
 		
 		public constructor(
-			codePoints: Array<number>,
-			public readonly mode: Mode) {
+				text: Array<CodePoint>,
+				public readonly mode: Mode) {
 			
+			this.text = text.map(c => c.utf16).join("");
 			if (mode == "BYTE") {
 				this.numChars = 0;
-				this.text = "";
-				for (const c of codePoints) {
-					this.numChars += countUtf8Bytes(c);
-					if (c < 0x10000)
-						this.text += String.fromCharCode(c);
-					else {
-						this.text += String.fromCharCode(
-							0xD800 | ((c - 0x10000) >>> 10),
-							0xDC00 | ((c - 0x10000) & 0x3FF));
-					}
-				}
+				for (const c of text)
+					this.numChars += c.utf8.length;
 				this.numDataBits = this.numChars * 8;
 			} else {
-				const n = codePoints.length;
-				this.numChars = n;
-				this.text = codePoints.map(cp => String.fromCharCode(cp)).join("");
+				this.numChars = text.length;
 				switch (mode) {
 					case "NUMERIC":
-						this.numDataBits = Math.ceil(n * 10 / 3);
+						this.numDataBits = Math.ceil(this.numChars * 10 / 3);
 						break;
 					case "ALPHANUMERIC":
-						this.numDataBits = Math.ceil(n * 11 / 2);
+						this.numDataBits = Math.ceil(this.numChars * 11 / 2);
 						break;
 					case "KANJI":
-						this.numDataBits = n * 13;
+						this.numDataBits = this.numChars * 13;
 						break;
 					default:
 						throw "Invalid mode";
@@ -375,10 +366,10 @@ namespace app {
 	
 	// Calculates and returns the number of bits needed to encode the given segments at the given
 	// version. The result is infinity if a segment has too many characters to fit its length field.
-	function getTotalBits(segs: Array<Segment>, version: number): number {
-		let result: number = 0;
+	function getTotalBits(segs: Array<Segment>, version: int): number {
+		let result: int = 0;
 		for (const seg of segs) {
-			const ccbits: number = getNumCharCountBits(seg.mode, version);
+			const ccbits: int = getNumCharCountBits(seg.mode, version);
 			if (seg.numChars >= (1 << ccbits))
 				return Infinity;  // The segment's length doesn't fit the field's bit width
 			result += 4 + ccbits + seg.numDataBits;
@@ -390,41 +381,9 @@ namespace app {
 	
 	/*---- Low-level computation functions ----*/
 	
-	// Returns a new array of Unicode code points (effectively
-	// UTF-32 / UCS-4) representing the given UTF-16 string.
-	function toCodePoints(s: string): Array<number> {
-		let result: Array<number> = [];
-		for (let i = 0; i < s.length; i++) {
-			const c: number = s.charCodeAt(i);
-			if (0xD800 <= c && c < 0xDC00) {  // High surrogate
-				if (i + 1 >= s.length)
-					throw "Invalid UTF-16 string";
-				i++;
-				const d: number = s.charCodeAt(i);
-				result.push(((c & 0x3FF) << 10 | (d & 0x3FF)) + 0x10000);
-			} else if (0xDC00 <= c && c < 0xE000)  // Low surrogate
-				throw "Invalid UTF-16 string";
-			else
-				result.push(c);
-		}
-		return result;
-	}
-	
-	
-	// Returns the number of UTF-8 bytes needed to encode the given Unicode code point.
-	function countUtf8Bytes(cp: number): number {
-		if      (cp <        0) throw "Invalid code point";
-		else if (cp <     0x80) return 1;
-		else if (cp <    0x800) return 2;
-		else if (cp <  0x10000) return 3;
-		else if (cp < 0x110000) return 4;
-		else                    throw "Invalid code point";
-	}
-	
-	
 	// Returns the bit width of the character count field for a segment
 	// in the given mode in a QR Code at the given version number.
-	function getNumCharCountBits(mode: Mode, version: number): number {
+	function getNumCharCountBits(mode: Mode, version: int): int {
 		if (version < 1 || version > 40)
 			throw "Invalid version";
 		return {
@@ -438,7 +397,7 @@ namespace app {
 	
 	// NUM_DATA_CODEWORDS[v][e] is the number of 8-bit data codewords (excluding error correction codewords)
 	// in a QR Code symbol at version v (from 1 to 40 inclusive) and error correction e (0=L, 1=M, 2=Q, 3=H).
-	const NUM_DATA_CODEWORDS: Array<[number,number,number,number]> = [
+	const NUM_DATA_CODEWORDS: Array<[int,int,int,int]> = [
 		//  L,    M,    Q,    H    // Error correction level
 		[  -1,   -1,   -1,   -1],  // Padding for index 0
 		[  19,   16,   13,    9],  // Version 01
@@ -485,19 +444,19 @@ namespace app {
 	
 	
 	// Tests whether the given code point can be encoded in numeric mode.
-	function isNumeric(cp: number): boolean {
+	function isNumeric(cp: int): boolean {
 		return cp < 128 && "0123456789".indexOf(String.fromCharCode(cp)) != -1;
 	}
 	
 	
 	// Tests whether the given code point can be encoded in alphanumeric mode.
-	function isAlphanumeric(cp: number): boolean {
+	function isAlphanumeric(cp: int): boolean {
 		return cp < 128 && "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:".indexOf(String.fromCharCode(cp)) != -1;
 	}
 	
 	
 	// Tests whether the given code point can be encoded in kanji mode.
-	function isKanji(cp: number): boolean {
+	function isKanji(cp: int): boolean {
 		return cp < 0x10000 && ((parseInt(KANJI_BIT_SET.charAt(cp >>> 2), 16) >>> (cp & 3)) & 1) != 0;
 	}
 	
@@ -634,9 +593,68 @@ namespace app {
 	
 	
 	
+	/*---- Helper class ----*/
+	
+	class CodePoint {
+		
+		public static toArray(s: string): Array<CodePoint> {
+			let result: Array<CodePoint> = [];
+			for (let i = 0; i < s.length; i++) {
+				const c: int = s.charCodeAt(i);
+				if (0xD800 <= c && c < 0xDC00) {
+					if (i + 1 >= s.length)
+						throw "Invalid UTF-16 string";
+					i++;
+					const d: int = s.charCodeAt(i);
+					result.push(new CodePoint(((c & 0x3FF) << 10 | (d & 0x3FF)) + 0x10000));
+				} else if (0xDC00 <= c && c < 0xE000)
+					throw "Invalid UTF-16 string";
+				else
+					result.push(new CodePoint(c));
+			}
+			return result;
+		}
+		
+		
+		public readonly utf8: Array<int>;
+		public readonly utf16: string;
+		
+		private constructor(
+				public readonly utf32: int) {
+			
+			if (utf32 < 0x10000)
+				this.utf16 = String.fromCharCode(utf32);
+			else {
+				this.utf16 = String.fromCharCode(
+					0xD800 | ((utf32 - 0x10000) >>> 10),
+					0xDC00 | ((utf32 - 0x10000) & 0x3FF));
+			}
+			
+			if (utf32 < 0)
+				throw "Invalid code point";
+			else if (utf32 < 0x80)
+				this.utf8 = [utf32];
+			else {
+				let n: int;
+				if      (utf32 <    0x800)  n = 2;
+				else if (utf32 <  0x10000)  n = 3;
+				else if (utf32 < 0x110000)  n = 4;
+				else  throw "Invalid code point";
+				this.utf8 = [];
+				for (let i = 0; i < n; i++, utf32 >>>= 6)
+					this.utf8.push(0x80 | (utf32 & 0x3F));
+				this.utf8.reverse();
+				this.utf8[0] |= (0xF00 >>> n) & 0xFF;
+			}
+		}
+		
+	}
+	
+	
+	
 	/*---- Miscellaneous ----*/
 	
-	function setText(id: string, text: string|number): void {
+	function setText(id: string, text: string|int): void {
 		getElem(id).textContent = text.toString();
 	}
 	

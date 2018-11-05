@@ -26,7 +26,7 @@ class QrCode {
 			throw "Version number out of range";
 		let result: int = (16 * ver + 128) * ver + 64;
 		if (ver >= 2) {
-			let numAlign: int = Math.floor(ver / 7) + 2;
+			const numAlign: int = Math.floor(ver / 7) + 2;
 			result -= (25 * numAlign - 10) * numAlign - 55;
 			if (ver >= 7)
 				result -= 36;
@@ -578,7 +578,7 @@ class ReedSolomonGenerator {
 	public getRemainder(data: Array<byte>): Array<byte> {
 		let result: Array<byte> = this.coefficients.map(_ => 0);
 		for (const b of data) {
-			let factor: byte = b ^ (result.shift() as byte);
+			const factor: byte = b ^ (result.shift() as byte);
 			result.push(0);
 			this.coefficients.forEach((coef, i) =>
 				result[i] ^= ReedSolomonGenerator.multiply(coef, factor));
@@ -699,7 +699,7 @@ class QrSegment {
 	
 	public static getTotalBits(segs: Array<QrSegment>, version: int): number {
 		let result: int = 0;
-		for (let seg of segs) {
+		for (const seg of segs) {
 			let ccbits: int = seg.mode.numCharCountBits(version);
 			if (seg.numChars >= (1 << ccbits))
 				return Infinity;

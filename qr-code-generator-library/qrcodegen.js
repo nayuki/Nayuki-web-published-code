@@ -113,8 +113,8 @@ var qrcodegen = new function() {
 		if (mask == -1) {  // Automatically choose best mask
 			var minPenalty = Infinity;
 			for (var i = 0; i < 8; i++) {
-				drawFormatBits(i);
 				applyMask(i);
+				drawFormatBits(i);
 				var penalty = getPenaltyScore();
 				if (penalty < minPenalty) {
 					mask = i;
@@ -125,8 +125,8 @@ var qrcodegen = new function() {
 		}
 		if (mask < 0 || mask > 7)
 			throw "Assertion error";
-		drawFormatBits(mask);  // Overwrite old format bits
 		applyMask(mask);  // Apply the final choice of mask
+		drawFormatBits(mask);  // Overwrite old format bits
 		
 		isFunction = null;
 		
@@ -257,7 +257,7 @@ var qrcodegen = new function() {
 				setFunctionModule(14 - i, 8, getBit(bits, i));
 			
 			// Draw second copy
-			for (var i = 0; i <= 7; i++)
+			for (var i = 0; i < 8; i++)
 				setFunctionModule(size - 1 - i, 8, getBit(bits, i));
 			for (var i = 8; i < 15; i++)
 				setFunctionModule(8, size - 15 + i, getBit(bits, i));
@@ -427,35 +427,57 @@ var qrcodegen = new function() {
 		function getPenaltyScore() {
 			var result = 0;
 			
-			// Adjacent modules in row having same color
+			// Adjacent modules in row having same color, and finder-like patterns
 			for (var y = 0; y < size; y++) {
-				for (var x = 0, runX, colorX; x < size; x++) {
-					if (x == 0 || modules[y][x] != colorX) {
-						colorX = modules[y][x];
-						runX = 1;
-					} else {
+				var runHistory = [0,0,0,0,0,0,0];
+				var color = false;
+				var runX = 0;
+				for (var x = 0; x < size; x++) {
+					if (modules[y][x] == color) {
 						runX++;
 						if (runX == 5)
 							result += QrCode.PENALTY_N1;
 						else if (runX > 5)
 							result++;
+					} else {
+						QrCode.addRunToHistory(runX, runHistory);
+						if (!color && QrCode.hasFinderLikePattern(runHistory))
+							result += QrCode.PENALTY_N3;
+						color = modules[y][x];
+						runX = 1;
 					}
 				}
+				QrCode.addRunToHistory(runX, runHistory);
+				if (color)
+					QrCode.addRunToHistory(0, runHistory);  // Dummy run of white
+				if (QrCode.hasFinderLikePattern(runHistory))
+					result += QrCode.PENALTY_N3;
 			}
-			// Adjacent modules in column having same color
+			// Adjacent modules in column having same color, and finder-like patterns
 			for (var x = 0; x < size; x++) {
-				for (var y = 0, runY, colorY; y < size; y++) {
-					if (y == 0 || modules[y][x] != colorY) {
-						colorY = modules[y][x];
-						runY = 1;
-					} else {
+				var runHistory = [0,0,0,0,0,0,0];
+				var color = false;
+				var runY = 0;
+				for (var y = 0; y < size; y++) {
+					if (modules[y][x] == color) {
 						runY++;
 						if (runY == 5)
 							result += QrCode.PENALTY_N1;
 						else if (runY > 5)
 							result++;
+					} else {
+						QrCode.addRunToHistory(runY, runHistory);
+						if (!color && QrCode.hasFinderLikePattern(runHistory))
+							result += QrCode.PENALTY_N3;
+						color = modules[y][x];
+						runY = 1;
 					}
 				}
+				QrCode.addRunToHistory(runY, runHistory);
+				if (color)
+					QrCode.addRunToHistory(0, runHistory);  // Dummy run of white
+				if (QrCode.hasFinderLikePattern(runHistory))
+					result += QrCode.PENALTY_N3;
 			}
 			
 			// 2*2 blocks of modules having same color
@@ -466,23 +488,6 @@ var qrcodegen = new function() {
 					      color == modules[y + 1][x] &&
 					      color == modules[y + 1][x + 1])
 						result += QrCode.PENALTY_N2;
-				}
-			}
-			
-			// Finder-like pattern in rows
-			for (var y = 0; y < size; y++) {
-				for (var x = 0, bits = 0; x < size; x++) {
-					bits = ((bits << 1) & 0x7FF) | (modules[y][x] ? 1 : 0);
-					if (x >= 10 && (bits == 0x05D || bits == 0x5D0))  // Needs 11 bits accumulated
-						result += QrCode.PENALTY_N3;
-				}
-			}
-			// Finder-like pattern in columns
-			for (var x = 0; x < size; x++) {
-				for (var y = 0, bits = 0; y < size; y++) {
-					bits = ((bits << 1) & 0x7FF) | (modules[y][x] ? 1 : 0);
-					if (y >= 10 && (bits == 0x05D || bits == 0x5D0))  // Needs 11 bits accumulated
-						result += QrCode.PENALTY_N3;
 				}
 			}
 			
@@ -513,7 +518,7 @@ var qrcodegen = new function() {
 				var step = (version == 32) ? 26 :
 					Math.ceil((size - 13) / (numAlign*2 - 2)) * 2;
 				var result = [6];
-				for (var i = 0, pos = size - 7; i < numAlign - 1; i++, pos -= step)
+				for (var pos = size - 7; result.length < numAlign; pos -= step)
 					result.splice(1, 0, pos);
 				return result;
 			}
@@ -662,6 +667,24 @@ var qrcodegen = new function() {
 	};
 	
 	
+	// Inserts the given value to the front of the given array, which shifts over the
+	// existing values and deletes the last value. A helper function for getPenaltyScore().
+	QrCode.addRunToHistory = function(run, history) {
+		history.pop();
+		history.unshift(run);
+	};
+	
+	
+	// Tests whether the given run history has the pattern of ratio 1:1:3:1:1 in the middle, and
+	// surrounded by at least 4 on either or both ends. A helper function for getPenaltyScore().
+	// Must only be called immediately after a run of white modules has ended.
+	QrCode.hasFinderLikePattern = function(runHistory) {
+		var n = runHistory[1];
+		return n > 0 && runHistory[2] == n && runHistory[4] == n && runHistory[5] == n
+			&& runHistory[3] == n * 3 && Math.max(runHistory[0], runHistory[6]) >= n * 4;
+	};
+	
+	
 	/*---- Constants and tables for QrCode ----*/
 	
 	var MIN_VERSION =  1;  // The minimum version number supported in the QR Code Model 2 standard
@@ -782,7 +805,7 @@ var qrcodegen = new function() {
 		var bb = new BitBuffer();
 		for (var i = 0; i < digits.length; ) {  // Consume up to 3 digits per iteration
 			var n = Math.min(digits.length - i, 3);
-			bb.appendBits(parseInt(digits.substr(i, n), 10), n * 3 + 1);
+			bb.appendBits(parseInt(digits.substring(i, i + n), 10), n * 3 + 1);
 			i += n;
 		}
 		return new this(this.Mode.NUMERIC, digits.length, bb);
@@ -922,7 +945,7 @@ var qrcodegen = new function() {
 			if (str.charAt(i) != "%")
 				result.push(str.charCodeAt(i));
 			else {
-				result.push(parseInt(str.substr(i + 1, 2), 16));
+				result.push(parseInt(str.substring(i + 1, i + 3), 16));
 				i += 2;
 			}
 		}
@@ -974,8 +997,9 @@ var qrcodegen = new function() {
 			data.forEach(function(b) {
 				var factor = b ^ result.shift();
 				result.push(0);
-				for (var i = 0; i < result.length; i++)
-					result[i] ^= ReedSolomonGenerator.multiply(coefficients[i], factor);
+				coefficients.forEach(function(coef, i) {
+					result[i] ^= ReedSolomonGenerator.multiply(coef, factor);
+				});
 			});
 			return result;
 		};

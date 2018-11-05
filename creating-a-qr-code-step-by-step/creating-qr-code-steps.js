@@ -1359,7 +1359,11 @@ var app;
             var tr = appendNewElem(tbody, "tr");
             var cells = [maskNum].concat(penaltyInfo.penaltyPoints).concat([totalPoints]);
             cells.forEach(function (val, i) {
-                return appendNewElem(tr, (i == 0 ? "th" : "td"), val);
+                var td = appendNewElem(tr, (i == 0 ? "th" : "td"));
+                if (i < cells.length - 1)
+                    td.textContent = val.toString();
+                else
+                    appendNewElem(td, "strong", val);
             });
         });
         getElem("lowest-penalty-mask").textContent = result.toString();

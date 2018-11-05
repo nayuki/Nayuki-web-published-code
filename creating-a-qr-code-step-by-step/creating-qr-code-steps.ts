@@ -119,8 +119,8 @@ namespace app {
 		
 		// Get input values
 		const textStr: string = (getElem("input-text") as HTMLTextAreaElement).value;
-		const minVer : int = parseInt(getInput("force-min-version" ).value, 10);
-		let forceMask: int = parseInt(getInput("force-mask-pattern").value, 10);
+		const minVer   : int = parseInt(getInput("force-min-version" ).value, 10);
+		const forceMask: int = parseInt(getInput("force-mask-pattern").value, 10);
 		let errCorrLvl: ErrorCorrectionLevel;
 		if      (getInput("errcorlvl-low"     ).checked)  errCorrLvl = ErrorCorrectionLevel.LOW     ;
 		else if (getInput("errcorlvl-medium"  ).checked)  errCorrLvl = ErrorCorrectionLevel.MEDIUM  ;
@@ -141,8 +141,8 @@ namespace app {
 		doStep5(qr);
 		doStep6(qr, allCodewords);
 		
-		let masks: Array<QrCode> = doStep7(qr);
-		let penalties: Array<PenaltyInfo> = doStep8(qr, masks);
+		const masks: Array<QrCode> = doStep7(qr);
+		const penalties: Array<PenaltyInfo> = doStep8(qr, masks);
 		let chosenMask: int = doStep9(penalties);
 		if (forceMask != -1)
 			chosenMask = forceMask;
@@ -301,7 +301,7 @@ namespace app {
 		for (let ver = 1; ver <= 40; ver++) {
 			let tr = appendNewElem(tbody, "tr");
 			let td = appendNewElem(tr, "td", ver);
-			let numCodewords = Math.ceil(QrSegment.getTotalBits(segs, ver) / 8);
+			const numCodewords = Math.ceil(QrSegment.getTotalBits(segs, ver) / 8);
 			ERRCORRLVLS.forEach(e => {
 				let td = appendNewElem(tr, "td");
 				const capacityCodewords: int = QrCode.getNumDataCodewords(ver, e);
@@ -474,7 +474,7 @@ namespace app {
 			path.setAttribute("d", s);
 		} {
 			let s = "";
-			for (let [x, y] of zigZagScan)
+			for (const [x, y] of zigZagScan)
 				s += `M${x+0.5},${y+0.5}h0`;
 			let path = svgAppendNewElem(zigZagSvg, "path", "zigzag-dots");
 			path.setAttribute("d", s);
@@ -579,9 +579,14 @@ namespace app {
 				result = maskNum;
 			}
 			let tr = appendNewElem(tbody, "tr");
-			let cells: Array<int> = [maskNum].concat(penaltyInfo.penaltyPoints).concat([totalPoints]);
-			cells.forEach((val, i) =>
-				appendNewElem(tr, (i == 0 ? "th" : "td"), val));
+			const cells: Array<int> = [maskNum].concat(penaltyInfo.penaltyPoints).concat([totalPoints]);
+			cells.forEach((val, i) => {
+				let td = appendNewElem(tr, (i == 0 ? "th" : "td"));
+				if (i < cells.length - 1)
+					td.textContent = val.toString();
+				else
+					appendNewElem(td, "strong", val);
+			});
 		});
 		getElem("lowest-penalty-mask").textContent = result.toString();
 		tbody.children[result].classList.add("true");
