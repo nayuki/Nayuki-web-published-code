@@ -132,94 +132,92 @@ public final class OptimizeGif {
 	// Reads the given input file, optimizes just the LZW blocks according to the block size, and writes to the given output file.
 	// The output file path *must* point to a different file than the input file, otherwise the data will be corrupted.
 	private static void optimizeGif(File inFile, int blockSize, int dictClear, File outFile) throws IOException, DataFormatException {
-		MemoizingInputStream in = new MemoizingInputStream(new FileInputStream(inFile));
-		try {
-			OutputStream out = new FileOutputStream(outFile);
-			try {
-				// Header
-				int version;  // 0 = GIF87a, 1 = GIF89a
-				{
-					byte[] header = new byte[6];
-					readFully(in, header);
-					if (header[0] != 'G' || header[1] != 'I' || header[2] != 'F')
-						throw new DataFormatException("Invalid GIF header");
-					if (header[3] != '8' || header[5] != 'a')
-						throw new DataFormatException("Unrecognized GIF version");
-					
-					if (header[4] == '7')
-						version = 0;
-					else if (header[4] == '9')
-						version = 1;
-					else
-						throw new DataFormatException("Unrecognized GIF version");
-				}
-				
-				// Logical screen descriptor
-				{
-					byte[] screenDesc = new byte[7];
-					readFully(in, screenDesc);
-					if ((screenDesc[4] & 0x80) != 0) {
-						int gctSize = (screenDesc[4] & 0x7) + 1;
-						readFully(in, new byte[(1 << gctSize) * 3]);  // Skip global color table
-					}
-				}
-				
-				// Process top-level blocks
-				while (true) {
-					int b = in.read();
-					if (b == -1)
-						throw new EOFException();
-					else if (b == 0x3B)  // Trailer
-						break;
-					else if (b == 0x21) {  // Extension introducer
-						if (version == 0)
-							throw new DataFormatException("Extension block not supported in GIF87a");
-						b = in.read();  // Block label
-						if (b == -1)
-							throw new EOFException();
-						try (SubblockInputStream bin = new SubblockInputStream(in)) {
-							while (bin.read() != -1);  // Skip all data
-							in = (MemoizingInputStream)bin.detach();
-						}
-						
-					} else if (b == 0x2C) {
-						// Image descriptor
-						byte[] imageDesc = new byte[9];
-						readFully(in, imageDesc);
-						if ((imageDesc[8] & 0x80) != 0) {
-							int lctSize = (imageDesc[8] & 0x7) + 1;
-							readFully(in, new byte[(1 << lctSize) * 3]);  // Skip local color table
-						}
-						int codeBits = in.read();
-						if (codeBits == -1)
-							throw new EOFException();
-						if (codeBits < 2 || codeBits > 8)
-							throw new DataFormatException("Invalid number of code bits");
-						out.write(in.getBuffer());
-						in.clearBuffer();
-						recompressData(in, blockSize, dictClear, codeBits, out);
-						
-					} else
-						throw new DataFormatException("Unrecognized data block");
-				}
-				
-				// Copy remainder of data that was read
-				out.write(in.getBuffer());
-				
-			} catch (DataFormatException e) {
-				out.close();
-				outFile.delete();
-				throw e;
-			} catch (IOException e) {
-				out.close();
-				outFile.delete();
-				throw e;
-			} finally {
-				out.close();
+		try (MemoizingInputStream in = new MemoizingInputStream(new FileInputStream(inFile))) {
+			Throwable error = null;
+			try (OutputStream out = new FileOutputStream(outFile)) {
+				optimizeGif(in, blockSize, dictClear, out);
+			} catch (DataFormatException|IOException e) {
+				error = e;
 			}
-		} finally {
-			in.close();
+			if (error != null) {
+				error.printStackTrace();
+				outFile.delete();
+			}
 		}
+	}
+	
+	
+	private static void optimizeGif(MemoizingInputStream in, int blockSize, int dictClear, OutputStream out) throws IOException, DataFormatException {
+		// Header
+		int version;  // 0 = GIF87a, 1 = GIF89a
+		{
+			byte[] header = new byte[6];
+			readFully(in, header);
+			if (header[0] != 'G' || header[1] != 'I' || header[2] != 'F')
+				throw new DataFormatException("Invalid GIF header");
+			if (header[3] != '8' || header[5] != 'a')
+				throw new DataFormatException("Unrecognized GIF version");
+			
+			if (header[4] == '7')
+				version = 0;
+			else if (header[4] == '9')
+				version = 1;
+			else
+				throw new DataFormatException("Unrecognized GIF version");
+		}
+		
+		// Logical screen descriptor
+		{
+			byte[] screenDesc = new byte[7];
+			readFully(in, screenDesc);
+			if ((screenDesc[4] & 0x80) != 0) {
+				int gctSize = (screenDesc[4] & 0x7) + 1;
+				readFully(in, new byte[(1 << gctSize) * 3]);  // Skip global color table
+			}
+		}
+		
+		// Process top-level blocks
+		while (true) {
+			int b = in.read();
+			if (b == -1)
+				throw new EOFException();
+			else if (b == 0x3B)  // Trailer
+				break;
+			else if (b == 0x21) {  // Extension introducer
+				if (version == 0)
+					throw new DataFormatException("Extension block not supported in GIF87a");
+				b = in.read();  // Block label
+				if (b == -1)
+					throw new EOFException();
+				try (SubblockInputStream bin = new SubblockInputStream(in)) {
+					while (bin.read() != -1);  // Skip all data
+					in = (MemoizingInputStream)bin.detach();
+				}
+				
+			} else if (b == 0x2C) {
+				// Image descriptor
+				byte[] imageDesc = new byte[9];
+				readFully(in, imageDesc);
+				if ((imageDesc[8] & 0x80) != 0) {
+					int lctSize = (imageDesc[8] & 0x7) + 1;
+					readFully(in, new byte[(1 << lctSize) * 3]);  // Skip local color table
+				}
+				int codeBits = in.read();
+				if (codeBits == -1)
+					throw new EOFException();
+				if (codeBits < 2 || codeBits > 8)
+					throw new DataFormatException("Invalid number of code bits");
+				out.write(in.getBuffer());
+				in.clearBuffer();
+				recompressData(in, blockSize, dictClear, codeBits, out);
+				
+			} else
+				throw new DataFormatException("Unrecognized data block");
+		}
+		
+		// Copy remainder of data that was read
+		out.write(in.getBuffer());
+		
 	}
 	
 	

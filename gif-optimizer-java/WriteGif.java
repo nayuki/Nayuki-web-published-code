@@ -59,7 +59,7 @@
  *       compression further), but this encoder easily supports all possible values.
  * 
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
@@ -279,8 +279,8 @@ public final class WriteGif {
 		assert 1 <= paletteBits && paletteBits <= 8;
 		
 		// Start writing GIF file
-		OutputStream out = new FileOutputStream(file);
-		try {
+		Throwable error = null;
+		try (OutputStream out = new FileOutputStream(file)) {
 			// Header
 			out.write((transparentIndex == -1 ? "GIF87a" : "GIF89a").getBytes("US-ASCII"));
 			
@@ -342,11 +342,11 @@ public final class WriteGif {
 			// Trailer
 			out.write(0x3B);
 		} catch (IOException e) {
-			e.printStackTrace();
-			out.close();
+			error = e;
+		}
+		if (error != null) {
+			error.printStackTrace();
 			file.delete();
-		} finally {
-			out.close();
 		}
 	}
 	
