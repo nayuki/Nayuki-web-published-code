@@ -13,8 +13,8 @@ import java.util.Objects;
 
 
 /* 
- * Input stream parser for GIF's subblock format. This continues to return data
- * until a 0-length subblock is encountered; afterwards it returns -1 to signify EOF.
+ * An input stream that converts GIF's subblock format to a plain byte stream.
+ * This converter returns EOF after a zero-length subblock is encountered.
  */
 final class SubblockInputStream extends InputStream {
 	

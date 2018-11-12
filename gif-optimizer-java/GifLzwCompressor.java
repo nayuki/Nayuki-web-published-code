@@ -20,6 +20,7 @@ final class GifLzwCompressor {
 	// Uses only literal symbols, and clears the dictionary periodically to prevent the code bit width from changing.
 	// When the data length and code bits are the same, the output length is always the same.
 	public static void encodeUncompressed(byte[] data, int codeBits, BitOutputStream out) throws IOException {
+		// Check arguments
 		Objects.requireNonNull(data);
 		if (codeBits < 2 || codeBits > 8)
 			throw new IllegalArgumentException();
@@ -52,6 +53,7 @@ final class GifLzwCompressor {
 	
 	// Based on splitting the data into blocks and applying encodeLzwBlock() to each.
 	public static void encodeOptimized(byte[] data, int codeBits, int blockSize, int dictClear, BitOutputStream out, boolean print) throws IOException {
+		// Check arguments
 		if (codeBits < 2 || codeBits > 8 || blockSize <= 0)
 			throw new IllegalArgumentException();
 		

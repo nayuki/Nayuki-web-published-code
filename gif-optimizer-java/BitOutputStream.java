@@ -11,7 +11,9 @@ import java.io.OutputStream;
 import java.util.Objects;
 
 
-// A sink for accepting a sequence of variable numbers of bits.
+/* 
+ * A sink that accepts a stream of groups of bits.
+ */
 interface BitOutputStream {
 	
 	public void writeBits(int value, int width) throws IOException;
@@ -21,21 +23,20 @@ interface BitOutputStream {
 
 
 /* 
- * An adapter for writing a sequence of variable numbers of bits to an
- * underlying byte-based output stream. Bits are packed in little endian,
- * and multi-bit integers are serialized in little endian. Must call
- * detach() when done writing, otherwise the data is not properly terminated.
- * 
- * For example, the sequence [symbol(value=1 width=1), symbol(value=48 width=6), symbol(value=304 width=9)]
- * is serialized as the bytes [0x61, 0x98].
+ * Converts an output stream that accepts bytes into a stream that accept bits.
+ * - Bits are packed into bytes in little endian. For example,
+ *   the byte 0x5F represents the sequence of bits [1,1,1,1,1,0,1,0].
+ * - When writing the next unsigned integer as a group of bits, the bits are packed in little endian.
+ *   For example, writing the 3-bit unsigned integer 0b001 produces the bit sequence [1,0,0].
+ * - Must call detach() when done writing, otherwise the data is not properly terminated.
  */
 final class ByteBitOutputStream implements BitOutputStream {
 	
 	/*-- Fields --*/
 	
 	private OutputStream output;  // Underlying stream
-	private int bitBuffer;
-	private int bitBufferLen;  // Always in the range [0,8) after each write operation
+	private int bitBuffer;        // Only the bottommost bitBufferLen bits are valid
+	private int bitBufferLen;     // Always in the range [0,8) when not executing writeBits()
 	
 	
 	/*-- Constructors --*/
@@ -49,6 +50,7 @@ final class ByteBitOutputStream implements BitOutputStream {
 	
 	/*-- Methods --*/
 	
+	// Writes the given unsigned integer of the given bit width to this stream.
 	public void writeBits(int value, int width) throws IOException {
 		if (width < 0 || width > 24 || value >>> width != 0)
 			throw new IllegalArgumentException();
@@ -75,22 +77,13 @@ final class ByteBitOutputStream implements BitOutputStream {
 
 
 
-// A sink for counting the number of bits written, but discarding the data bits.
+/* 
+ * Counts the number of bits written, but discards the actual data.
+ */
 final class CountingBitOutputStream implements BitOutputStream {
 	
-	/*-- Fields --*/
+	public long length = 0;  // Total number of bits written
 	
-	public long length;  // Total number of bits written
-	
-	
-	/*-- Constructors --*/
-	
-	public CountingBitOutputStream() {
-		length = 0;
-	}
-	
-	
-	/*-- Methods --*/
 	
 	public void writeBits(int value, int width) {
 		length += width;

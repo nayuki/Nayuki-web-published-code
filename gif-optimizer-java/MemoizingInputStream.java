@@ -13,8 +13,8 @@ import java.util.Objects;
 
 
 /* 
- * An input stream that remembers all the bytes read so far, which can be retrieved
- * and cleared. This makes it easy to copy data verbatim to an output stream.
+ * Remembers and allows retrieval of all the bytes read so far.
+ * This makes it easy to copy data verbatim to an output stream.
  */
 final class MemoizingInputStream extends InputStream {
 	

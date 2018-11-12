@@ -12,8 +12,8 @@ import java.util.Objects;
 
 
 /* 
- * Output stream wrapper for GIF's subblock format. Must call detach()
- * when done writing, otherwise the data is not properly terminated.
+ * An output stream that converts a plain byte stream to GIF's subblock format.
+ * Must call detach() when finished writing to properly terminate the data.
  */
 final class SubblockOutputStream extends OutputStream {
 	
@@ -57,7 +57,7 @@ final class SubblockOutputStream extends OutputStream {
 	}
 	
 	
-	// Finishes the operation of this subblock output stream. Does not close the underlying stream.
+	// Terminates the sequence of subblocks. Does not close the underlying stream.
 	public void detach() throws IOException {
 		if (output == null)
 			throw new IllegalStateException();
