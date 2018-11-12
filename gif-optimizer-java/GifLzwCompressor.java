@@ -39,7 +39,7 @@ final class GifLzwCompressor {
 			
 			// Clear the dictionary periodically to ensure that codeBits does not increase
 			numNewEntries++;
-			if (numNewEntries == alphabetSize - 2) {
+			if (numNewEntries >= alphabetSize - 2) {
 				out.writeBits(clearCode, codeBits);
 				numNewEntries = 0;
 			}
@@ -77,6 +77,8 @@ final class GifLzwCompressor {
 			return;
 		}
 		int numBlocks = (data.length + blockSize - 1) / blockSize;  // ceil(length / blockSize)
+		if (numBlocks < 1)
+			throw new AssertionError();
 		
 		// sizes[i][j] is the LZW compressed size (in bits) of encoding j*blockSize bytes starting at offset start+i*blockSize
 		long[][] sizes = new long[numBlocks][];
@@ -169,6 +171,9 @@ final class GifLzwCompressor {
 		public DictionaryEncoder(int codeBits, int dictClear) {
 			if (codeBits < 2 || codeBits > 8)
 				throw new IllegalArgumentException();
+			if (dictClear != -1 && (dictClear < 5 || dictClear > MAX_DICT_SIZE))
+				throw new IllegalArgumentException();
+			
 			initCodeBits = codeBits;
 			alphabetSize = 1 << codeBits;
 			this.dictClear = dictClear;

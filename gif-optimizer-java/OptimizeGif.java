@@ -191,7 +191,7 @@ public final class OptimizeGif {
 							readFully(in, new byte[(1 << lctSize) * 3]);  // Skip local color table
 						}
 						int codeBits = in.read();
-						if (b == -1)
+						if (codeBits == -1)
 							throw new EOFException();
 						if (codeBits < 2 || codeBits > 8)
 							throw new DataFormatException("Invalid number of code bits");
