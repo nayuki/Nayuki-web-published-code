@@ -18,10 +18,14 @@ import java.util.Objects;
  */
 final class MemoizingInputStream extends InputStream {
 	
+	/*---- Fields ----*/
+	
 	private InputStream input;  // Underlying stream
 	private ByteArrayOutputStream buffer;  // All bytes read since the last clearing
 	
 	
+	
+	/*---- Constructors ----*/
 	
 	public MemoizingInputStream(InputStream in) {
 		input = Objects.requireNonNull(in);
@@ -29,6 +33,8 @@ final class MemoizingInputStream extends InputStream {
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	public int read() throws IOException {
 		int result = input.read();

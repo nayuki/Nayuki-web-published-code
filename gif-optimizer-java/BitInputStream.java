@@ -22,11 +22,15 @@ import java.util.Objects;
  */
 final class BitInputStream {
 	
+	/*---- Fields ----*/
+	
 	private InputStream input;  // Underlying stream
 	private int bitBuffer;
 	private int bitBufferLen;  // Always in the range [0,8) after each read operation
 	
 	
+	
+	/*---- Constructors ----*/
 	
 	public BitInputStream(InputStream in) {
 		input = Objects.requireNonNull(in);
@@ -35,6 +39,8 @@ final class BitInputStream {
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	// Returns the next value, which is in the range [0, 2^width).
 	public int readBits(int width) throws IOException {

@@ -31,11 +31,14 @@ interface BitOutputStream {
  */
 final class ByteBitOutputStream implements BitOutputStream {
 	
+	/*-- Fields --*/
+	
 	private OutputStream output;  // Underlying stream
 	private int bitBuffer;
 	private int bitBufferLen;  // Always in the range [0,8) after each write operation
 	
 	
+	/*-- Constructors --*/
 	
 	public ByteBitOutputStream(OutputStream out) {
 		output = Objects.requireNonNull(out);
@@ -44,6 +47,7 @@ final class ByteBitOutputStream implements BitOutputStream {
 	}
 	
 	
+	/*-- Methods --*/
 	
 	public void writeBits(int value, int width) throws IOException {
 		if (width < 0 || width > 24 || value >>> width != 0)
@@ -73,15 +77,19 @@ final class ByteBitOutputStream implements BitOutputStream {
 // A sink for counting the number of bits written, but discarding the data bits.
 final class CountingBitOutputStream implements BitOutputStream {
 	
+	/*-- Fields --*/
+	
 	public long length;  // Total number of bits written
 	
 	
+	/*-- Constructors --*/
 	
 	public CountingBitOutputStream() {
 		length = 0;
 	}
 	
 	
+	/*-- Methods --*/
 	
 	public void writeBits(int value, int width) {
 		length += width;

@@ -17,11 +17,15 @@ import java.util.Objects;
  */
 final class SubblockOutputStream extends OutputStream {
 	
+	/*---- Fields ----*/
+	
 	private OutputStream output;  // Underlying stream
 	private byte[] buffer;
 	private int bufferLen;
 	
 	
+	
+	/*---- Constructors ----*/
 	
 	public SubblockOutputStream(OutputStream out) {
 		output = Objects.requireNonNull(out);
@@ -30,6 +34,8 @@ final class SubblockOutputStream extends OutputStream {
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	// Writes the given byte to the logical stream, automatically creating subblocks if necessary.
 	public void write(int b) throws IOException {

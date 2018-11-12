@@ -18,6 +18,8 @@ import java.util.Objects;
  */
 final class SubblockInputStream extends InputStream {
 	
+	/*---- Fields ----*/
+	
 	private InputStream input;  // Underlying stream
 	private byte[] buffer;  // Only the range [0, bufferLen) is valid data
 	private int bufferLen;
@@ -25,6 +27,8 @@ final class SubblockInputStream extends InputStream {
 	private int eofState;  // 0 = active, 1 = normal termination, 2 = unexpected termination
 	
 	
+	
+	/*---- Constructors ----*/
 	
 	public SubblockInputStream(InputStream in) {
 		input = Objects.requireNonNull(in);
@@ -35,6 +39,8 @@ final class SubblockInputStream extends InputStream {
 	}
 	
 	
+	
+	/*---- Methods ----*/
 	
 	// Returns the next unsigned byte value in the stream, or -1 if the sequence of subblocks has ended.
 	public int read() throws IOException {
