@@ -336,7 +336,7 @@ public final class WriteGif {
 				GifLzwCompressor.encodeUncompressed(pixels, codeBits, bitOut);
 			else
 				throw new AssertionError();
-			bitOut.detach();
+			blockOut = (SubblockOutputStream)bitOut.detach();
 			blockOut.detach();
 			
 			// Trailer

@@ -241,7 +241,7 @@ public final class OptimizeGif {
 			GifLzwCompressor.encodeUncompressed(pixels, codeBits, bitOut);
 		else
 			throw new AssertionError();
-		bitOut.detach();
+		blockOut = (SubblockOutputStream)bitOut.detach();
 		blockOut.detach();
 		
 		// Choose which version to write

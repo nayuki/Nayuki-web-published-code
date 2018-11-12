@@ -65,12 +65,14 @@ final class ByteBitOutputStream implements BitOutputStream {
 	
 	
 	// Writes the currently accumulated bits, if any (the last byte may be partial).
-	public void detach() throws IOException {
+	public OutputStream detach() throws IOException {
 		if (output == null)
 			throw new IllegalStateException();
 		if (bitBufferLen > 0)
 			output.write(bitBuffer);
+		OutputStream result = output;
 		output = null;
+		return result;
 	}
 	
 }
