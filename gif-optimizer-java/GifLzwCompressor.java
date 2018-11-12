@@ -15,7 +15,7 @@ import java.util.Objects;
 // The result from each method will decompress to the same data, of course.
 final class GifLzwCompressor {
 	
-	/*---- Simple encoders ----*/
+	/*---- Uncompressed encoder ----*/
 	
 	// Uses only literal symbols, and clears the dictionary periodically to prevent the code bit width from changing.
 	// When the data length and code bits are the same, the output length is always the same.
@@ -46,23 +46,6 @@ final class GifLzwCompressor {
 		}
 		out.writeBits(stopCode, codeBits);
 	}
-	
-	
-	private static void encodeLzwBlock(byte[] data, boolean isLast, int codeBits, int dictClear, BitOutputStream out) throws IOException {
-		if (codeBits < 2 || codeBits > 8)
-			throw new IllegalArgumentException();
-		
-		DictionaryEncoder enc = new DictionaryEncoder(codeBits, dictClear);
-		final int clearCode = 1 << codeBits;
-		final int stopCode = clearCode + 1;
-		int i = 0;
-		while (i < data.length)
-			i += enc.encodeNext(data, i, out);
-		if (i != data.length)
-			throw new AssertionError();
-		out.writeBits(isLast ? stopCode : clearCode, enc.codeBits);  // Terminate block with Clear or Stop code
-	}
-	
 	
 	
 	/*---- Optimizing encoder ----*/
@@ -154,6 +137,22 @@ final class GifLzwCompressor {
 	}
 	
 	
+	private static void encodeLzwBlock(byte[] data, boolean isLast, int codeBits, int dictClear, BitOutputStream out) throws IOException {
+		if (codeBits < 2 || codeBits > 8)
+			throw new IllegalArgumentException();
+		
+		DictionaryEncoder enc = new DictionaryEncoder(codeBits, dictClear);
+		final int clearCode = 1 << codeBits;
+		final int stopCode = clearCode + 1;
+		int i = 0;
+		while (i < data.length)
+			i += enc.encodeNext(data, i, out);
+		if (i != data.length)
+			throw new AssertionError();
+		out.writeBits(isLast ? stopCode : clearCode, enc.codeBits);  // Terminate block with Clear or Stop code
+	}
+	
+	
 	
 	private static final class DictionaryEncoder {
 		
@@ -164,8 +163,8 @@ final class GifLzwCompressor {
 		private final int dictClear;  // -1 for deferred clear code, otherwise in the range [5, 4096]
 		
 		private TrieNode root;
-		private int size;       // Number of dictionary entries, max 4096
-		public int codeBits;    // Equal to ceil(log2(size))
+		private int size;     // Number of dictionary entries, max 4096
+		public int codeBits;  // Equal to ceil(log2(size))
 		
 		
 		public DictionaryEncoder(int codeBits, int dictClear) {
