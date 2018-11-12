@@ -72,11 +72,11 @@ final class GifLzwCompressor {
 		if (codeBits < 2 || codeBits > 8 || blockSize <= 0)
 			throw new IllegalArgumentException();
 		
-		int numBlocks = (data.length + blockSize - 1) / blockSize;  // ceil(length / blockSize)
-		if (numBlocks == 0) {  // Requires special handling
+		if (data.length == 0) {
 			out.writeBits((1 << codeBits) + 1, codeBits + 1);  // Stop code
 			return;
 		}
+		int numBlocks = (data.length + blockSize - 1) / blockSize;  // ceil(length / blockSize)
 		
 		// sizes[i][j] is the LZW compressed size (in bits) of encoding j*blockSize bytes starting at offset start+i*blockSize
 		long[][] sizes = new long[numBlocks][];
@@ -173,12 +173,10 @@ final class GifLzwCompressor {
 			alphabetSize = 1 << codeBits;
 			this.dictClear = dictClear;
 			
-			size = 1 << initCodeBits;
 			root = new TrieNode(-1, alphabetSize);  // Root has no symbol
-			for (int i = 0; i < size; i++)
+			for (int i = 0; i < root.children.length; i++)
 				root.children[i] = new TrieNode(i, alphabetSize);
-			size += 2;  // Add Clear and Stop codes
-			this.codeBits = initCodeBits + 1;
+			clearDictionary();
 		}
 		
 		
@@ -204,7 +202,7 @@ final class GifLzwCompressor {
 				if (i < data.length)  // Only add a physical entry if next symbol is not Clear or Stop
 					node.children[data[i] & 0xFF] = new TrieNode(size, alphabetSize);
 				// But we must update the size and code bits for the decoder's sake
-				if ((size & (size - 1)) == 0)  // Is a power of 2
+				if (Integer.bitCount(size) == 1)  // Is a power of 2
 					codeBits++;
 				size++;
 				if (dictClear != -1 && size >= dictClear) {
@@ -217,10 +215,10 @@ final class GifLzwCompressor {
 		
 		
 		private void clearDictionary() {
-			for (int i = 0; i < (1 << initCodeBits); i++)
-				Arrays.fill(root.children[i].children, null);
-			size = (1 << initCodeBits) + 2;  // Reset size and add Clear and Stop codes
-			this.codeBits = initCodeBits + 1;
+			for (TrieNode child : root.children)
+				Arrays.fill(child.children, null);
+			size = alphabetSize + 2;  // Includes Clear and Stop codes
+			codeBits = initCodeBits + 1;
 		}
 		
 		
