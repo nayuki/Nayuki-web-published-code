@@ -159,10 +159,11 @@ final class GifLzwCompressor {
 		
 		private final int initCodeBits;
 		private final int alphabetSize;
-		private TrieNode root;      // A trie structure
+		private final int dictClear;  // -1 for deferred clear code, otherwise in the range [5, 4096]
+		
+		private TrieNode root;
 		private int size;       // Number of dictionary entries, max 4096
 		public int codeBits;    // Equal to ceil(log2(size))
-		private final int dictClear;  // -1 for deferred clear code, otherwise in the range [5, 4096]
 		
 		
 		public DictionaryEncoder(int codeBits, int dictClear) {
