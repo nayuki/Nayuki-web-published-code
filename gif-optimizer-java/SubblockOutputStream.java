@@ -63,6 +63,8 @@ final class SubblockOutputStream extends OutputStream {
 			throw new IllegalStateException();
 		flush();
 		output.write(0);  // Terminator (zero-length subblock)
+		buffer = null;
+		bufferLen = -1;
 		output = null;
 	}
 	

@@ -161,7 +161,7 @@ final class GifLzwCompressor {
 		
 		private final int initCodeBits;
 		private final int alphabetSize;
-		private final int dictClear;  // -1 for deferred clear code, otherwise in the range [5, 4096]
+		private final int dictClear;  // -1 for deferred clear code, otherwise in the range [7, 4096]
 		
 		private TrieNode root;
 		private int size;     // Number of dictionary entries, max 4096
@@ -171,7 +171,7 @@ final class GifLzwCompressor {
 		public DictionaryEncoder(int codeBits, int dictClear) {
 			if (codeBits < 2 || codeBits > 8)
 				throw new IllegalArgumentException();
-			if (dictClear != -1 && (dictClear < 5 || dictClear > MAX_DICT_SIZE))
+			if (dictClear != -1 && (dictClear < 7 || dictClear > MAX_DICT_SIZE))
 				throw new IllegalArgumentException();
 			
 			initCodeBits = codeBits;
