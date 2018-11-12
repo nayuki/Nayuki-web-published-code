@@ -47,7 +47,7 @@
  *   the partial output file will be deleted.
  * 
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
@@ -177,8 +177,10 @@ public final class OptimizeGif {
 						b = in.read();  // Block label
 						if (b == -1)
 							throw new EOFException();
-						SubblockInputStream bin = new SubblockInputStream(in);
-						while (bin.read() != -1);  // Skip all data
+						try (SubblockInputStream bin = new SubblockInputStream(in)) {
+							while (bin.read() != -1);  // Skip all data
+							in = (MemoizingInputStream)bin.detach();
+						}
 						
 					} else if (b == 0x2C) {
 						// Image descriptor
@@ -224,9 +226,12 @@ public final class OptimizeGif {
 	// Read and decompress the LZW data fully, perform optimization and compression, and write out the new version.
 	private static void recompressData(MemoizingInputStream in, int blockSize, int dictClear, int codeBits, OutputStream out) throws IOException {
 		// Read and decompress
-		SubblockInputStream blockIn = new SubblockInputStream(in);
-		byte[] pixels = GifLzwDecompressor.decode(new BitInputStream(blockIn), codeBits);
-		while (blockIn.read() != -1);  // Discard rest of subblock data after the LZW Stop code
+		byte[] pixels;
+		try (SubblockInputStream blockIn = new SubblockInputStream(in)) {
+			pixels = GifLzwDecompressor.decode(new BitInputStream(blockIn), codeBits);
+			while (blockIn.read() != -1);  // Discard rest of subblock data after the LZW Stop code
+			in = (MemoizingInputStream)blockIn.detach();
+		}
 		
 		// Compress and hold
 		ByteArrayOutputStream bufOut = new ByteArrayOutputStream();

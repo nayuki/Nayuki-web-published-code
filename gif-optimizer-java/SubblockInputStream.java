@@ -66,4 +66,13 @@ final class SubblockInputStream extends InputStream {
 		return result;
 	}
 	
+	
+	public InputStream detach() {
+		if (bytesRemain != -2 || input == null)
+			throw new IllegalStateException();
+		InputStream result = input;
+		input = null;
+		return result;
+	}
+	
 }
