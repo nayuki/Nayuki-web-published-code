@@ -19,10 +19,8 @@ final class GifLzwCompressor {
 	
 	// Uses only literal symbols, and clears the dictionary periodically to prevent the code bit width from changing.
 	// When the data length and code bits are the same, the output length is always the same.
-	public static void encodeUncompressed(byte[] data, int start, int end, int codeBits, BitOutputStream out) throws IOException {
+	public static void encodeUncompressed(byte[] data, int codeBits, BitOutputStream out) throws IOException {
 		Objects.requireNonNull(data);
-		if (start < 0 || end < start || end > data.length)
-			throw new ArrayIndexOutOfBoundsException();
 		if (codeBits < 2 || codeBits > 8)
 			throw new IllegalArgumentException();
 		Objects.requireNonNull(out);
@@ -33,7 +31,7 @@ final class GifLzwCompressor {
 		codeBits++;  // To accommodate Clear and Stop codes
 		
 		out.writeBits(clearCode, codeBits);
-		for (int i = start, j = 0; i < end; i++) {
+		for (int i = 0, j = 0; i < data.length; i++) {
 			int b = data[i] & 0xFF;
 			if (b >= alphabetSize)
 				throw new IllegalArgumentException("Byte value out of range");
@@ -72,13 +70,11 @@ final class GifLzwCompressor {
 	/*---- Optimizing encoder ----*/
 	
 	// Based on splitting the data into blocks and applying encodeLzwBlock() to each.
-	public static void encodeOptimized(byte[] data, int start, int end, int codeBits, int blockSize, int dictClear, BitOutputStream out, boolean print) throws IOException {
-		if (start < 0 || end < start || end > data.length)
-			throw new ArrayIndexOutOfBoundsException();
+	public static void encodeOptimized(byte[] data, int codeBits, int blockSize, int dictClear, BitOutputStream out, boolean print) throws IOException {
 		if (codeBits < 2 || codeBits > 8 || blockSize <= 0)
 			throw new IllegalArgumentException();
 		
-		int numBlocks = (end - start + blockSize - 1) / blockSize;  // ceil(length / blockSize)
+		int numBlocks = (data.length + blockSize - 1) / blockSize;  // ceil(length / blockSize)
 		if (numBlocks == 0) {  // Requires special handling
 			out.writeBits((1 << codeBits) + 1, codeBits + 1);  // Stop code
 			return;
@@ -86,7 +82,7 @@ final class GifLzwCompressor {
 		
 		// sizes[i][j] is the LZW compressed size (in bits) of encoding j*blockSize bytes starting at offset start+i*blockSize
 		long[][] sizes = new long[numBlocks][];
-		for (int i = 0, off = start; i < sizes.length; i++, off += blockSize) {
+		for (int i = 0, off = 0; i < sizes.length; i++, off += blockSize) {
 			if (print) System.out.printf("\rOptimizing: %d of %d blocks", i, numBlocks);
 			sizes[i] = getLzwEncodedSizes(data, off, blockSize, codeBits, dictClear);
 		}
@@ -112,11 +108,11 @@ final class GifLzwCompressor {
 		if (print) System.out.print("Writing pixels - breakpoints: 0");
 		out.writeBits(1 << codeBits, codeBits + 1);  // Initial clear code
 		for (int i = 0; i < numBlocks; ) {
-			int st = start + i * blockSize;
+			int st = i * blockSize;
 			int n = bestNumBlocks[i];
-			int ed = Math.min(st + n * blockSize, end);
+			int ed = Math.min(st + n * blockSize, data.length);
 			if (print) System.out.print(", " + ed);
-			encodeLzwBlock(data, st, ed, end, codeBits, dictClear, out);
+			encodeLzwBlock(data, st, ed, data.length, codeBits, dictClear, out);
 			i += n;
 		}
 		if (print) System.out.println();

@@ -238,9 +238,9 @@ public final class OptimizeGif {
 		SubblockOutputStream blockOut = new SubblockOutputStream(bufOut);
 		ByteBitOutputStream bitOut = new ByteBitOutputStream(blockOut);
 		if (blockSize > 0)
-			GifLzwCompressor.encodeOptimized(pixels, 0, pixels.length, codeBits, blockSize, dictClear, bitOut, true);
+			GifLzwCompressor.encodeOptimized(pixels, codeBits, blockSize, dictClear, bitOut, true);
 		else if (blockSize == 0)
-			GifLzwCompressor.encodeUncompressed(pixels, 0, pixels.length, codeBits, bitOut);
+			GifLzwCompressor.encodeUncompressed(pixels, codeBits, bitOut);
 		else
 			throw new AssertionError();
 		bitOut.detach();
