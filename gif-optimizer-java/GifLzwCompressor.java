@@ -158,6 +158,7 @@ final class GifLzwCompressor {
 		private static final int MAX_DICT_SIZE = 4096;
 		
 		private int initCodeBits;
+		private final int alphabetSize;
 		private TrieNode root;      // A trie structure
 		private int size;       // Number of dictionary entries, max 4096
 		public int codeBits;    // Equal to ceil(log2(size))
@@ -168,12 +169,13 @@ final class GifLzwCompressor {
 			if (codeBits < 2 || codeBits > 8)
 				throw new IllegalArgumentException();
 			initCodeBits = codeBits;
+			alphabetSize = 1 << codeBits;
 			this.dictClear = dictClear;
 			
 			size = 1 << initCodeBits;
-			root = new TrieNode(-1);  // Root has no symbol
+			root = new TrieNode(-1, alphabetSize);  // Root has no symbol
 			for (int i = 0; i < size; i++)
-				root.children[i] = new TrieNode(i);
+				root.children[i] = new TrieNode(i, alphabetSize);
 			size += 2;  // Add Clear and Stop codes
 			this.codeBits = initCodeBits + 1;
 		}
@@ -199,7 +201,7 @@ final class GifLzwCompressor {
 			// Add new dictionary entry
 			if (size < MAX_DICT_SIZE) {
 				if (i < data.length)  // Only add a physical entry if next symbol is not Clear or Stop
-					node.children[data[i] & 0xFF] = new TrieNode(size);
+					node.children[data[i] & 0xFF] = new TrieNode(size, alphabetSize);
 				// But we must update the size and code bits for the decoder's sake
 				if ((size & (size - 1)) == 0)  // Is a power of 2
 					codeBits++;
@@ -228,9 +230,9 @@ final class GifLzwCompressor {
 			public TrieNode[] children;
 			
 			
-			public TrieNode(int sym) {
+			public TrieNode(int sym, int alphaSz) {
 				symbol = sym;
-				children = new TrieNode[256];
+				children = new TrieNode[alphaSz];
 			}
 			
 		}
