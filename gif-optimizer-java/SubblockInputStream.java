@@ -21,10 +21,12 @@ final class SubblockInputStream extends InputStream {
 	/*---- Fields ----*/
 	
 	private InputStream input;  // Underlying stream
-	private byte[] buffer;  // Only the range [0, bufferLen) is valid data
-	private int bufferLen;
-	private int bufferIndex;
-	private int eofState;  // 0 = active, 1 = normal termination, 2 = unexpected termination
+	
+	// -2 = stream ended correctly
+	// -1 = unexpected EOF
+	// 0 = need to read new block
+	// 1 or above = bytes remaining
+	private int bytesRemain;
 	
 	
 	
@@ -32,10 +34,7 @@ final class SubblockInputStream extends InputStream {
 	
 	public SubblockInputStream(InputStream in) {
 		input = Objects.requireNonNull(in);
-		buffer = new byte[255];
-		bufferLen = 0;
-		bufferIndex = 0;
-		eofState = 0;
+		bytesRemain = 0;
 	}
 	
 	
@@ -44,39 +43,27 @@ final class SubblockInputStream extends InputStream {
 	
 	// Returns the next unsigned byte value in the stream, or -1 if the sequence of subblocks has ended.
 	public int read() throws IOException {
-		// Handle exceptional states first
-		if (eofState == 0 && bufferIndex >= bufferLen) {
-			bufferLen = input.read();
-			if (bufferLen > 0) {  // Normal data subblock
-				readFully(input, buffer, bufferLen);
-				bufferIndex = 0;
-			} else if (bufferLen == 0)  // Zero-length subblock
-				eofState = 1;
-			else if (bufferLen == -1)  // EOF encountered in underlying stream
-				eofState = 2;
-			else
-				throw new AssertionError();
+		while (bytesRemain <= 0) {
+			switch (bytesRemain) {
+				case 0:  // Previous subblock ended, so read new one
+					bytesRemain = input.read();
+					if (bytesRemain == 0)
+						bytesRemain = -2;
+					break;
+				case -1:
+					throw new EOFException();
+				case -2:
+					return -1;  // Normal EOF
+			}
 		}
-		if (eofState == 1)
-			return -1;
-		if (eofState == 2)
-			throw new EOFException();
 		
-		// Return next byte normally
-		int result = buffer[bufferIndex] & 0xFF;
-		bufferIndex++;
-		return result;
-	}
-	
-	
-	// Reads buf range [0, len) fully or throws EOFException.
-	private static void readFully(InputStream in, byte[] buf, int len) throws IOException {
-		for (int off = 0; off < len; ) {
-			int n = in.read(buf, off, len - off);
-			if (n == -1)
-				throw new EOFException();
-			off += n;
+		int result = input.read();
+		if (result == -1) {
+			bytesRemain = -1;
+			throw new EOFException();
 		}
+		bytesRemain--;
+		return result;
 	}
 	
 }
