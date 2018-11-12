@@ -11,14 +11,21 @@ import java.util.Arrays;
 import java.util.Objects;
 
 
-// Provides different methods for performing GIF's dialect of LZW compression.
-// The result from each method will decompress to the same data, of course.
+/* 
+ * Compresses a byte array into GIF's dialect of LZW-encoded data, without making subblocks.
+ * Multiple compressor functions are provided, with different time/space trade-offs.
+ * The output from every compressor must decompress to the same data.
+ */
 final class GifLzwCompressor {
 	
 	/*---- Uncompressed encoder ----*/
 	
-	// Uses only literal symbols, and clears the dictionary periodically to prevent the code bit width from changing.
-	// When the data length and code bits are the same, the output length is always the same.
+	/* 
+	 * Compresses the given byte array to the given bit output stream using an "uncompressed" strategy.
+	 * The compressor only emits codes for literals, never codes for newly added dictionary entries.
+	 * The compressor emits dictionary-clear codes periodically to maintain a constant code bit width.
+	 * The output length depends on the data length and code bits, but not the data values themselves.
+	 */
 	public static void encodeUncompressed(byte[] data, int codeBits, BitOutputStream out) throws IOException {
 		// Check arguments
 		Objects.requireNonNull(data);
@@ -26,19 +33,21 @@ final class GifLzwCompressor {
 			throw new IllegalArgumentException();
 		Objects.requireNonNull(out);
 		
+		// Compute numbers
 		final int alphabetSize = 1 << codeBits;
 		final int clearCode = alphabetSize;
 		final int stopCode = clearCode + 1;
 		codeBits++;  // To accommodate Clear and Stop codes
 		
+		// Start encoding
 		out.writeBits(clearCode, codeBits);
 		for (int i = 0, numNewEntries = 0; i < data.length; i++) {
 			int b = data[i] & 0xFF;
 			if (b >= alphabetSize)
 				throw new IllegalArgumentException("Byte value out of range");
-			out.writeBits(b, codeBits);  // Write every byte as a literal symbol
+			out.writeBits(b, codeBits);  // Write the byte as a literal symbol
 			
-			// Clear the dictionary periodically to ensure that codeBits does not increase
+			// Periodically clear dictionary to avoid codeBits increasing
 			numNewEntries++;
 			if (numNewEntries >= alphabetSize - 2) {
 				out.writeBits(clearCode, codeBits);
@@ -51,7 +60,15 @@ final class GifLzwCompressor {
 	
 	/*---- Optimizing encoder ----*/
 	
-	// Based on splitting the data into blocks and applying encodeLzwBlock() to each.
+	/* 
+	 * Compresses the given byte array to the given bit output stream using a flexible advanced strategy.
+	 * The input array is either treated as a single block, or split into a sequence of blocks where each is
+	 * 'blockSize' long (except that the last block can be shorter). The compressor computes the compressed
+	 * bit length (using normal LZW compression) of every possible run of blocks, finds the optimal block
+	 * boundaries to clear the dictionary to minimize the total bit length, and performs the final encoding.
+	 * dictClear = -1 allows the dictionary to fill up, otherwise dictClear in the range [7, 4096] forces
+	 * the LZW encoder to emit a clear code immediately upon the dictionary reaching that size.
+	 */
 	public static void encodeOptimized(byte[] data, int codeBits, int blockSize, int dictClear, BitOutputStream out, boolean print) throws IOException {
 		// Check arguments
 		Objects.requireNonNull(data);

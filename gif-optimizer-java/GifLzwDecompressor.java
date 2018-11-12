@@ -13,7 +13,10 @@ import java.util.Arrays;
 import java.util.Objects;
 
 
-// Decompresses GIF's dialect of LZW-encoded data. Requires prior unpacking of GIF data subblocks.
+/* 
+ * Decompresses a bit stream of GIF's dialect of LZW-encoded data into a byte array.
+ * The incoming bit stream needs to have GIF data subblocks already unpacked.
+ */
 final class GifLzwDecompressor {
 	
 	public static byte[] decode(BitInputStream in, int codeBits) throws IOException {
