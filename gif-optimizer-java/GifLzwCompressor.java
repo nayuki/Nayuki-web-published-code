@@ -54,8 +54,10 @@ final class GifLzwCompressor {
 	// Based on splitting the data into blocks and applying encodeLzwBlock() to each.
 	public static void encodeOptimized(byte[] data, int codeBits, int blockSize, int dictClear, BitOutputStream out, boolean print) throws IOException {
 		// Check arguments
-		if (codeBits < 2 || codeBits > 8 || blockSize <= 0)
+		Objects.requireNonNull(data);
+		if (codeBits < 2 || codeBits > 8 || blockSize <= 0 || dictClear < -1)
 			throw new IllegalArgumentException();
+		Objects.requireNonNull(out);
 		
 		if (data.length == 0) {
 			out.writeBits((1 << codeBits) + 1, codeBits + 1);  // Stop code
@@ -140,9 +142,6 @@ final class GifLzwCompressor {
 	
 	
 	private static void encodeLzwBlock(byte[] data, boolean isLast, int codeBits, int dictClear, BitOutputStream out) throws IOException {
-		if (codeBits < 2 || codeBits > 8)
-			throw new IllegalArgumentException();
-		
 		DictionaryEncoder enc = new DictionaryEncoder(codeBits, dictClear);
 		final int clearCode = 1 << codeBits;
 		final int stopCode = clearCode + 1;

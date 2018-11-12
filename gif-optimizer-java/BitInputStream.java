@@ -43,7 +43,7 @@ final class BitInputStream {
 	
 	// Consumes 'width' bits from the stream and returns them as an unsigned integer.
 	public int readBits(int width) throws IOException {
-		if (width > 24)
+		if (width < 0 || width > 24)
 			throw new IllegalArgumentException();
 		
 		// Fill buffer with just enough bytes
