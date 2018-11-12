@@ -59,6 +59,8 @@ final class SubblockOutputStream extends OutputStream {
 	
 	// Finishes the operation of this subblock output stream. Does not close the underlying stream.
 	public void detach() throws IOException {
+		if (output == null)
+			throw new IllegalStateException();
 		flush();
 		output.write(0);  // Terminator (zero-length subblock)
 		output = null;

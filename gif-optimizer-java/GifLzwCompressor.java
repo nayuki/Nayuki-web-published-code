@@ -1,13 +1,14 @@
 /* 
  * Library classes for GIF optimizer (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 
 
 // Provides different methods for performing GIF's dialect of LZW compression.
@@ -19,10 +20,12 @@ final class GifLzwCompressor {
 	// Uses only literal symbols, and clears the dictionary periodically to prevent the code bit width from changing.
 	// When the data length and code bits are the same, the output length is always the same.
 	public static void encodeUncompressed(byte[] data, int start, int end, int codeBits, BitOutputStream out) throws IOException {
+		Objects.requireNonNull(data);
 		if (start < 0 || end < start || end > data.length)
 			throw new ArrayIndexOutOfBoundsException();
 		if (codeBits < 2 || codeBits > 8)
 			throw new IllegalArgumentException();
+		Objects.requireNonNull(out);
 		
 		final int alphabetSize = 1 << codeBits;
 		final int clearCode = alphabetSize;

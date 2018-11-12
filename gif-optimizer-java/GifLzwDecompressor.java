@@ -1,7 +1,7 @@
 /* 
  * Library classes for GIF optimizer (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Objects;
 
 
 // Decompresses GIF's dialect of LZW-encoded data. Requires prior unpacking of GIF subblocks.
@@ -35,6 +36,8 @@ final class GifLzwDecompressor {
 	
 	
 	private GifLzwDecompressor(BitInputStream in, int alphaSize, OutputStream out) throws IOException {
+		Objects.requireNonNull(in);
+		
 		// Initialize dictionary with literals
 		symbolStart = new int[MAX_DICT_SIZE + 1];
 		byte[] dictionary = new byte[alphaSize];  // Minimum initial size
