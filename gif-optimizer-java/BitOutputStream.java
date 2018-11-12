@@ -12,9 +12,9 @@ import java.util.Objects;
 
 
 // A sink for accepting a sequence of variable numbers of bits.
-abstract class BitOutputStream {
+interface BitOutputStream {
 	
-	public abstract void writeBits(int value, int width) throws IOException;
+	public void writeBits(int value, int width) throws IOException;
 	
 }
 
@@ -29,7 +29,7 @@ abstract class BitOutputStream {
  * For example, the sequence [symbol(value=1 width=1), symbol(value=48 width=6), symbol(value=304 width=9)]
  * is serialized as the bytes [0x61, 0x98].
  */
-final class ByteBitOutputStream extends BitOutputStream {
+final class ByteBitOutputStream implements BitOutputStream {
 	
 	private OutputStream output;  // Underlying stream
 	private int bitBuffer;
@@ -71,7 +71,7 @@ final class ByteBitOutputStream extends BitOutputStream {
 
 
 // A sink for counting the number of bits written, but discarding the data bits.
-final class CountingBitOutputStream extends BitOutputStream {
+final class CountingBitOutputStream implements BitOutputStream {
 	
 	public long length;  // Total number of bits written
 	
