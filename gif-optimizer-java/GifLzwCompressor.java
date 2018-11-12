@@ -31,17 +31,17 @@ final class GifLzwCompressor {
 		codeBits++;  // To accommodate Clear and Stop codes
 		
 		out.writeBits(clearCode, codeBits);
-		for (int i = 0, j = 0; i < data.length; i++) {
+		for (int i = 0, numNewEntries = 0; i < data.length; i++) {
 			int b = data[i] & 0xFF;
 			if (b >= alphabetSize)
 				throw new IllegalArgumentException("Byte value out of range");
 			out.writeBits(b, codeBits);  // Write every byte as a literal symbol
 			
 			// Clear the dictionary periodically to ensure that codeBits does not increase
-			j++;
-			if (j == alphabetSize - 2) {
+			numNewEntries++;
+			if (numNewEntries == alphabetSize - 2) {
 				out.writeBits(clearCode, codeBits);
-				j = 0;
+				numNewEntries = 0;
 			}
 		}
 		out.writeBits(stopCode, codeBits);
@@ -158,7 +158,7 @@ final class GifLzwCompressor {
 		private static final int MAX_DICT_SIZE = 4096;
 		
 		private int initCodeBits;
-		private Node root;      // A trie structure
+		private TrieNode root;      // A trie structure
 		private int size;       // Number of dictionary entries, max 4096
 		public int codeBits;    // Equal to ceil(log2(size))
 		private int dictClear;  // -1 for deferred clear code, otherwise in the range [5, 4096]
@@ -171,9 +171,9 @@ final class GifLzwCompressor {
 			this.dictClear = dictClear;
 			
 			size = 1 << initCodeBits;
-			root = new Node(-1);  // Root has no symbol
+			root = new TrieNode(-1);  // Root has no symbol
 			for (int i = 0; i < size; i++)
-				root.children[i] = new Node(i);
+				root.children[i] = new TrieNode(i);
 			size += 2;  // Add Clear and Stop codes
 			this.codeBits = initCodeBits + 1;
 		}
@@ -182,10 +182,10 @@ final class GifLzwCompressor {
 		// Returns the number of bytes consumed.
 		public int encodeNext(byte[] data, int start, BitOutputStream out) throws IOException {
 			// Find longest match in dictionary
-			Node node = root;
+			TrieNode node = root;
 			int i;
 			for (i = start; i < data.length; i++) {
-				Node next = node.children[data[i] & 0xFF];
+				TrieNode next = node.children[data[i] & 0xFF];
 				if (next == null)
 					break;
 				node = next;
@@ -199,7 +199,7 @@ final class GifLzwCompressor {
 			// Add new dictionary entry
 			if (size < MAX_DICT_SIZE) {
 				if (i < data.length)  // Only add a physical entry if next symbol is not Clear or Stop
-					node.children[data[i] & 0xFF] = new Node(size);
+					node.children[data[i] & 0xFF] = new TrieNode(size);
 				// But we must update the size and code bits for the decoder's sake
 				if ((size & (size - 1)) == 0)  // Is a power of 2
 					codeBits++;
@@ -222,15 +222,15 @@ final class GifLzwCompressor {
 		
 		
 		
-		private static final class Node {
+		private static final class TrieNode {
 			
 			public int symbol;
-			public Node[] children;
+			public TrieNode[] children;
 			
 			
-			public Node(int sym) {
+			public TrieNode(int sym) {
 				symbol = sym;
-				children = new Node[256];
+				children = new TrieNode[256];
 			}
 			
 		}
