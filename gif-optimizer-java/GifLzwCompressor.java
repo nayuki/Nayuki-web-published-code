@@ -81,76 +81,74 @@ final class GifLzwCompressor {
 			return;
 		}
 		int numBlocks = (data.length + blockSize - 1) / blockSize;  // ceil(length / blockSize)
-		if (numBlocks < 1)
-			throw new AssertionError();
+		assert numBlocks >= 1;
 		
-		// sizes[i][j] is the LZW compressed size (in bits) of encoding j*blockSize bytes starting at offset start+i*blockSize
-		long[][] sizes = new long[numBlocks][];
-		for (int i = 0, off = 0; i < sizes.length; i++, off += blockSize) {
-			if (print) System.out.printf("\rOptimizing: %d of %d blocks", i, numBlocks);
-			sizes[i] = getLzwEncodedSizes(Arrays.copyOfRange(data, off, data.length), blockSize, codeBits, dictClear);
+		long[] minBitLengths = new long[numBlocks];
+		int[] numBlocksToEncode = new int[numBlocks];
+		for (int i = numBlocks - 1; i >= 0; i--) {
+			if (print) System.out.printf("\rOptimizing: %d of %d block ranges", numBlocks - 1 - i, numBlocks);
+			byte[] subData = Arrays.copyOfRange(data, i * blockSize, data.length);
+			long[] subMinBitLen = Arrays.copyOfRange(minBitLengths, i + 1, minBitLengths.length);
+			long[] temp = getLzwEncodedSize(subData, blockSize, codeBits, dictClear, subMinBitLen);
+			minBitLengths[i] = temp[0];
+			numBlocksToEncode[i] = (int)temp[1];
 		}
 		if (print) System.out.println();
-		
-		// bestSize[i] represents the minimum LZW compressed size (in bits) of encoding the byte range
-		// [start+i*blockSize, start+end) (i.e. the block start up to the end of the array range)
-		long[] bestSize = new long[numBlocks];
-		int[] bestNumBlocks = new int[numBlocks];
-		for (int i = numBlocks - 1; i >= 0; i--) {
-			bestSize[i] = sizes[i][numBlocks - i];
-			bestNumBlocks[i] = numBlocks - i;
-			for (int j = 1; j + i < numBlocks; j++) {  // Dynamic programming
-				long size = sizes[i][j] + bestSize[i + j];
-				if (size < bestSize[i]) {
-					bestSize[i] = size;
-					bestNumBlocks[i] = j;
-				}
-			}
-		}
 		
 		// Encode and write the LZW blocks
 		if (print) System.out.print("Writing pixels - breakpoints: 0");
 		out.writeBits(1 << codeBits, codeBits + 1);  // Initial clear code
-		for (int i = 0; i < numBlocks; ) {
-			int st = i * blockSize;
-			int n = bestNumBlocks[i];
-			int ed = Math.min(st + n * blockSize, data.length);
-			if (print) System.out.print(", " + ed);
-			encodeLzwBlock(Arrays.copyOfRange(data, st, ed), ed >= data.length, codeBits, dictClear, out);
-			i += n;
+		int i = 0;
+		while (i < numBlocks) {
+			int start = i * blockSize;
+			i += numBlocksToEncode[i];
+			int end = Math.min(i * blockSize, data.length);
+			if (print) System.out.print(", " + end);
+			encodeLzwBlock(Arrays.copyOfRange(data, start, end), end >= data.length, codeBits, dictClear, out);
 		}
+		assert i == numBlocks;
 		if (print) System.out.println();
 	}
 	
 	
-	// Returns an array describing the number of bits to encode the byte sequences
-	// {data[0 : 0], data[0 : blockSize], data[0 : 2*blockSize], ...}
-	// until the last block (which may be a partial block that has [1, blockSize] bytes).
-	private static long[] getLzwEncodedSizes(byte[] data, int blockSize, int codeBits, int dictClear) {
+	// Returns the pair (minimum bit length to encode the given data array,
+	// number of prefix blocks to encode to achieve the minimum), given that:
+	// - nextOptimalSizes[0] is the minimum bit length to encode data[1*blockSize : end],
+	// - nextOptimalSizes[1] is the minimum bit length to encode data[2*blockSize : end], etc.
+	private static long[] getLzwEncodedSize(byte[] data, int blockSize, int codeBits, int dictClear, long[] nextOptimalSizes) {
+		if (data.length == 0 || nextOptimalSizes.length != (data.length - 1) / blockSize)
+			throw new IllegalArgumentException();
 		try {
-			// result[0] is the bit length of encoding 0 blocks of size 'blockSize' starting at 0,
-			// result[1] is the bit length of encoding 1 blocks of size 'blockSize' starting at 0, etc.
-			// result[result.length-1] is the length of encoding everything starting at 0.
-			long[] result = new long[(data.length + blockSize - 1) / blockSize + 1];  // ceil(data.length / blockSize) + 1
-			
+			long minBitLen = -1;
+			int blocksToEncode = -1;
 			DictionaryEncoder enc = new DictionaryEncoder(codeBits, dictClear);
 			CountingBitOutputStream counter = new CountingBitOutputStream();
-			counter.writeBits(0, enc.codeBits);  // Pre-count the trailing Clear or Stop code that ends any block
-			result[0] = counter.length;
-			int blockIndex = 1;
-			for (int i = 0; i < data.length; ) {
+			int nextBlockIndex = 1;
+			int curBlockEnd = Math.min(nextBlockIndex * blockSize, data.length);
+			
+			int i = 0;
+			while (i < data.length) {
 				int matched = enc.encodeNext(data, i, counter);
 				i += matched;
-				while (i >= blockIndex * blockSize) {
+				while (i >= curBlockEnd) {
 					// Remember, the LZW dictionary contains all prefixes. So even if we encoded
 					// more input symbols than the block boundary, it would take the same number of
 					// output symbols (and thus bits) to encode exactly up to the block boundary.
-					result[blockIndex] = counter.length;
-					blockIndex++;
+					long totalBitLen = counter.length + enc.codeBits;
+					if (nextBlockIndex - 1 < nextOptimalSizes.length)
+						totalBitLen += nextOptimalSizes[nextBlockIndex - 1];
+					if (minBitLen == -1 || totalBitLen < minBitLen) {
+						minBitLen = totalBitLen;
+						blocksToEncode = nextBlockIndex;
+					}
+					if (curBlockEnd == data.length)
+						break;
+					nextBlockIndex++;
+					curBlockEnd = Math.min(nextBlockIndex * blockSize, data.length);
 				}
 			}
-			result[result.length - 1] = counter.length;  // Handle last partial block
-			return result;
+			assert i == data.length;
+			return new long[]{minBitLen, blocksToEncode};
 			
 		} catch (IOException e) {
 			throw new AssertionError();
@@ -165,8 +163,7 @@ final class GifLzwCompressor {
 		int i = 0;
 		while (i < data.length)
 			i += enc.encodeNext(data, i, out);
-		if (i != data.length)
-			throw new AssertionError();
+		assert i == data.length;
 		out.writeBits(isLast ? stopCode : clearCode, enc.codeBits);  // Terminate block with Clear or Stop code
 	}
 	
