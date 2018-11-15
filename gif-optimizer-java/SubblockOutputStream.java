@@ -20,8 +20,8 @@ final class SubblockOutputStream extends OutputStream {
 	/*---- Fields ----*/
 	
 	private OutputStream output;  // Underlying stream
-	private byte[] buffer;
-	private int bufferLen;
+	private byte[] buffer;        // Only the prefix [0 : bufferFilled] contains valid data
+	private int bufferFilled;     // Always in the range [0, buffer.length)
 	
 	
 	
@@ -30,7 +30,7 @@ final class SubblockOutputStream extends OutputStream {
 	public SubblockOutputStream(OutputStream out) {
 		output = Objects.requireNonNull(out);
 		buffer = new byte[255];  // Can be any length from 1 to 255, but larger is more efficient
-		bufferLen = 0;
+		bufferFilled = 0;
 	}
 	
 	
@@ -39,20 +39,20 @@ final class SubblockOutputStream extends OutputStream {
 	
 	// Writes the given byte to the logical stream, automatically creating subblocks if necessary.
 	public void write(int b) throws IOException {
-		if (bufferLen == buffer.length)
+		buffer[bufferFilled] = (byte)b;
+		bufferFilled++;
+		if (bufferFilled == buffer.length)
 			flush();
-		buffer[bufferLen] = (byte)b;
-		bufferLen++;
 	}
 	
 	
 	// Flushes the currently accumulated subblock, if any.
 	public void flush() throws IOException {
-		if (bufferLen > 0) {
-			output.write(bufferLen);
-			output.write(buffer, 0, bufferLen);
+		if (bufferFilled > 0) {
+			output.write(bufferFilled);
+			output.write(buffer, 0, bufferFilled);
 			output.flush();
-			bufferLen = 0;
+			bufferFilled = 0;
 		}
 	}
 	
@@ -64,7 +64,7 @@ final class SubblockOutputStream extends OutputStream {
 		flush();
 		output.write(0);  // Terminator (zero-length subblock)
 		buffer = null;
-		bufferLen = -1;
+		bufferFilled = -1;
 		output = null;
 	}
 	

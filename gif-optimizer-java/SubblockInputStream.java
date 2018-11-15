@@ -25,7 +25,7 @@ final class SubblockInputStream extends InputStream {
 	// -2 = stream ended correctly
 	// -1 = unexpected EOF
 	// 0 = need to read new block
-	// 1 or above = bytes remaining
+	// 1 to 255 = bytes remaining
 	private int bytesRemain;
 	
 	
