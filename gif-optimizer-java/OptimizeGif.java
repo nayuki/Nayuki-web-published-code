@@ -58,7 +58,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.DataFormatException;
 
@@ -169,10 +168,10 @@ public final class OptimizeGif {
 		// Logical screen descriptor
 		{
 			byte[] screenDesc = new byte[7];
-			readFully(in, screenDesc);
+			in.readFully(screenDesc);
 			if ((screenDesc[4] & 0x80) != 0) {
 				int gctSize = (screenDesc[4] & 0x7) + 1;
-				readFully(in, new byte[(1 << gctSize) * 3]);  // Skip global color table
+				in.readFully(new byte[(1 << gctSize) * 3]);  // Skip global color table
 			}
 		}
 		
@@ -197,10 +196,10 @@ public final class OptimizeGif {
 			} else if (b == 0x2C) {
 				// Image descriptor
 				byte[] imageDesc = new byte[9];
-				readFully(in, imageDesc);
+				in.readFully(imageDesc);
 				if ((imageDesc[8] & 0x80) != 0) {
 					int lctSize = (imageDesc[8] & 0x7) + 1;
-					readFully(in, new byte[(1 << lctSize) * 3]);  // Skip local color table
+					in.readFully(new byte[(1 << lctSize) * 3]);  // Skip local color table
 				}
 				int codeSize = in.read();
 				if (codeSize == -1)
@@ -252,17 +251,6 @@ public final class OptimizeGif {
 		else
 			out.write(oldComp);
 		in.clearBuffer();
-	}
-	
-	
-	// Reads the entire buffer fully or throws EOFException.
-	private static void readFully(InputStream in, byte[] buf) throws IOException {
-		for (int off = 0; off < buf.length; ) {
-			int n = in.read(buf, off, buf.length - off);
-			if (n == -1)
-				throw new EOFException();
-			off += n;
-		}
 	}
 	
 }

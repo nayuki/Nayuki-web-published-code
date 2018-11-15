@@ -7,6 +7,7 @@
  */
 
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
@@ -49,6 +50,16 @@ final class MemoizingInputStream extends InputStream {
 		if (n >= 0)
 			buffer.write(b, off, n);
 		return n;
+	}
+	
+	
+	public void readFully(byte[] buf) throws IOException {
+		for (int off = 0; off < buf.length; ) {
+			int n = read(buf, off, buf.length - off);
+			if (n == -1)
+				throw new EOFException();
+			off += n;
+		}
 	}
 	
 	
