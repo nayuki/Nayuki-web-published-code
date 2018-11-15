@@ -2,7 +2,8 @@
  * GIF image file optimizer
  * 
  * 
- * Reads the given GIF file, optimizes the pixel data LZW compression, and writes a new file.
+ * Reads an input GIF file, optimizes the LZW compression of
+ * every block of pixel data, and writes a new output file.
  * 
  * Usage: java OptimizeGif [Options] Input.gif Output.gif
  * 
@@ -20,7 +21,7 @@
  *       produce rather large files.
  *   dictclear=int or "dcc"
  *     For example: dictclear=4096
- *     Valid range: [5, 4096]. Default is "dcc".
+ *     Valid range: [7, 4096]. Default is "dcc".
  *     If this value is "dcc", then deferred clear codes are used - in other
  *       words the dictionary will never be cleared because of reaching a certain
  *       size; it will only be cleared for optimizing the LZW compression; this
@@ -34,17 +35,17 @@
  *       compression further), but this encoder easily supports all possible values.
  * 
  * Notes:
- * - All GIF files are supported, including animated ones, ones with multiple
- *   data blocks, ones with over 256 colors, etc.
- * - This program only optimizes the LZW encoding. This does not change the
- *   block headers, palettes, or raw pixel data. Furthermore, no blocks are
- *   rearranged.
- * - Any data following the trailer is discarded (all compliant GIF decoders
- *   will ignore this data anyway).
- * - The output file path must be different from the input file because the
- *   data is copied in a streaming manner.
- * - If an I/O exception or data format exception occurs during optimization,
- *   the partial output file will be deleted.
+ * - All GIF files are supported, including animated ones, ones
+ *   with multiple data blocks, ones with over 256 colors, etc.
+ * - This program only optimizes the LZW encoding. This does not
+ *   change the block headers, palettes, or raw pixel data.
+ *   Furthermore, no blocks are rearranged.
+ * - Any data following the trailer is discarded.
+ *   (Compliant GIF decoders will ignore this data anyway).
+ * - The output file path must be different from the input file
+ *   because the data is copied in a streaming manner.
+ * - If an I/O exception or data format exception occurs during
+ *   optimization, then the partial output file will be deleted.
  * 
  * 
  * Copyright (c) 2018 Project Nayuki
@@ -96,26 +97,36 @@ public final class OptimizeGif {
 		int dictClear = -2;
 		for (int i = 0; i < args.length - 2; i++) {
 			String opt = args[i];
-			if (opt.startsWith("blocksize=")) {
-				if (blockSize != -1)
-					return "Duplicate block size option";
-				if (!opt.matches("blocksize=[0-9]+"))
-					return "Invalid block size option format";
-				blockSize = Integer.parseInt(opt.substring(10));
-			} else if (opt.startsWith("dictclear=")) {
-				if (dictClear != -2)
-					return "Duplicate dictionary clear option";
-				if (opt.equals("dictclear=dcc"))
-					dictClear = -1;
-				else if (opt.matches("dictclear=[0-9]+")) {
-					dictClear = Integer.parseInt(opt.substring(10));
-					if (dictClear < 5 || dictClear > 4096)
-						return "Invalid dictionary clear option value";
-				} else
-					return "Invalid dictionary clear option format";
-			} else
+			String[] parts = opt.split("=", 2);
+			if (parts.length != 2)
 				return "Invalid option: " + opt;
+			String key = parts[0];
+			String value = parts[1];
+			
+			switch (key) {
+				case "blocksize":
+					if (blockSize != -1)
+						return "Duplicate block size option";
+					blockSize = Integer.parseInt(value);
+					if (blockSize < 0)
+						return "Invalid block size value";
+					break;
+				case "dictclear":
+					if (dictClear != -2)
+						return "Duplicate dictionary clear option";
+					if (value.equals("dcc"))
+						dictClear = -1;
+					else {
+						dictClear = Integer.parseInt(opt.substring(10));
+						if (dictClear < 0)
+							return "Invalid dictionary clear value";
+					}
+					break;
+				default:
+					return "Invalid option: " + opt;
+			}
 		}
+		
 		// Set defaults
 		if (blockSize == -1)
 			blockSize = 1024;
@@ -148,21 +159,19 @@ public final class OptimizeGif {
 	
 	private static void optimizeGif(MemoizingInputStream in, int blockSize, int dictClear, OutputStream out) throws IOException, DataFormatException {
 		// Header
-		int version;  // 0 = GIF87a, 1 = GIF89a
+		int version;
 		{
-			byte[] header = new byte[6];
-			readFully(in, header);
-			if (header[0] != 'G' || header[1] != 'I' || header[2] != 'F')
+			char[] headCh = new char[6];
+			for (int i = 0; i < headCh.length; i++)
+				headCh[i] = (char)in.read();
+			String headStr = new String(headCh);
+			if (!headStr.startsWith("GIF"))
 				throw new DataFormatException("Invalid GIF header");
-			if (header[3] != '8' || header[5] != 'a')
-				throw new DataFormatException("Unrecognized GIF version");
-			
-			if (header[4] == '7')
-				version = 0;
-			else if (header[4] == '9')
-				version = 1;
-			else
-				throw new DataFormatException("Unrecognized GIF version");
+			switch (headStr) {
+				case "GIF87a":  version = 87;  break;
+				case "GIF89a":  version = 89;  break;
+				default:  throw new DataFormatException("Unrecognized GIF version");
+			}
 		}
 		
 		// Logical screen descriptor
@@ -183,7 +192,7 @@ public final class OptimizeGif {
 			else if (b == 0x3B)  // Trailer
 				break;
 			else if (b == 0x21) {  // Extension introducer
-				if (version == 0)
+				if (version == 87)
 					throw new DataFormatException("Extension block not supported in GIF87a");
 				b = in.read();  // Block label
 				if (b == -1)
@@ -216,7 +225,6 @@ public final class OptimizeGif {
 		
 		// Copy remainder of data that was read
 		out.write(in.getBuffer());
-		
 	}
 	
 	

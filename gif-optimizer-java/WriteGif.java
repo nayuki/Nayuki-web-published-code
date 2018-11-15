@@ -1,24 +1,24 @@
 /* 
- * GIF writer
+ * GIF image file writer
  * 
  * 
- * Converts an image to a GIF file and optimizes the LZW compression.
+ * Converts an input image file to an output GIF file, and optimizes the LZW compression.
  * 
  * Usage: java WriteGif [Options] Input.bmp/png/gif Output.gif
  * 
- * The main innovation of this program is that the LZW encoding of the pixel
- * data is optimized using dynamic programming, such that the LZW dictionary
- * is cleared at advantageous points in the data stream.
+ * The main innovation of this program is that the LZW encoding of the
+ * pixel data is optimized using dynamic programming, such that the LZW
+ * dictionary is cleared at advantageous points in the data stream.
  * 
  * Caveats:
  * - The input image must have 256 or fewer unique colors.
  * - The width and height must be less than 65536.
  * - PNGs with any partially transparent pixels are rejected.
  *   (Only fully opaque or transparent pixels are allowed.)
- * - PNGs where transparent pixels have different base colors will have all
- *   such pixels collapsed to an arbitrary single color.
+ * - PNGs where transparent pixels have different base colors will
+ *   have all such pixels collapsed to an arbitrary single color.
  * - GIFs are actually fully decoded to RGB24 pixels and encoded from scratch,
- *   so animations, comments, and other fancy features are discarded.
+ *   so transparency, animations, comments, and other fancy features are discarded.
  * 
  * Options:
  *   transparent=RGBHex
@@ -45,7 +45,7 @@
  *       produce rather large files.
  *   dictclear=int or "dcc"
  *     For example: dictclear=4096
- *     Valid range: [5, 4096]. Default is "dcc".
+ *     Valid range: [7, 4096]. Default is "dcc".
  *     If this value is "dcc", then deferred clear codes are used - in other
  *       words the dictionary will never be cleared because of reaching a certain
  *       size; it will only be cleared for optimizing the LZW compression; this
@@ -106,32 +106,43 @@ public final class WriteGif {
 		int dictClear = -2;
 		for (int i = 0; i < args.length - 2; i++) {
 			String opt = args[i];
-			if (opt.startsWith("transparent=")) {
-				if (transpColor != -1)
-					return "Duplicate transparent color option";
-				if (!opt.matches("transparent=[0-9a-fA-F]{6}"))
-					return "Invalid transparent color option format";
-				transpColor = Integer.parseInt(opt.substring(opt.length() - 6), 16);
-			} else if (opt.startsWith("blocksize=")) {
-				if (blockSize != -1)
-					return "Duplicate block size option";
-				if (!opt.matches("blocksize=[0-9]+"))
-					return "Invalid block size option format";
-				blockSize = Integer.parseInt(opt.substring(10));
-			} else if (opt.startsWith("dictclear=")) {
-				if (dictClear != -2)
-					return "Duplicate dictionary clear option";
-				if (opt.equals("dictclear=dcc"))
-					dictClear = -1;
-				else if (opt.matches("dictclear=[0-9]+")) {
-					dictClear = Integer.parseInt(opt.substring(10));
-					if (dictClear < 5 || dictClear > 4096)
-						return "Invalid dictionary clear option value";
-				} else
-					return "Invalid dictionary clear option format";
-			} else
+			String[] parts = opt.split("=", 2);
+			if (parts.length != 2)
 				return "Invalid option: " + opt;
+			String key = parts[0];
+			String value = parts[1];
+			
+			switch (key) {
+				case "blocksize":
+					if (blockSize != -1)
+						return "Duplicate block size option";
+					blockSize = Integer.parseInt(value);
+					if (blockSize < 0)
+						return "Invalid block size value";
+					break;
+				case "dictclear":
+					if (dictClear != -2)
+						return "Duplicate dictionary clear option";
+					if (value.equals("dcc"))
+						dictClear = -1;
+					else {
+						dictClear = Integer.parseInt(opt.substring(10));
+						if (dictClear < 0)
+							return "Invalid dictionary clear value";
+					}
+					break;
+				case "transparent":
+					if (transpColor != -1)
+						return "Duplicate transparent color option";
+					if (!value.matches("[0-9a-fA-F]{6}"))
+						return "Invalid transparent color value";
+					transpColor = Integer.parseInt(value, 16);
+					break;
+				default:
+					return "Invalid option: " + opt;
+			}
 		}
+		
 		// Set defaults
 		if (blockSize == -1)
 			blockSize = 1024;
@@ -157,11 +168,11 @@ public final class WriteGif {
 		
 		// Detect if image contains any transparent pixels
 		if (transpColor == -1) {
-			for (int i = 0; i < inPixels.length; i++) {
-				int alpha = inPixels[i] >>> 24;
+			for (int pix : inPixels) {
+				int alpha = pix >>> 24;
 				if (alpha == 0) {  // Transparent
 					if (transpColor == -1)
-						transpColor = inPixels[i] & 0xFFFFFF;  // Preliminary candidate
+						transpColor = pix & 0xFFFFFF;  // Preliminary candidate
 				} else if (alpha < 0xFF)
 					return "Image contains semi-transparent pixels";
 			}
@@ -169,12 +180,11 @@ public final class WriteGif {
 			if (transpColor != -1) {  // Transparent pixels found
 				// Find an unused color to use as new transparent color
 				boolean[] opaqueUsed = new boolean[256];
-				for (int i = 0; i < inPixels.length; i++) {
-					int pix = inPixels[i];
+				for (int pix : inPixels) {
 					if (pix >>> 24 == 0xFF) {  // Opaque
-						int j = (inPixels[i] - transpColor) & 0xFFFFFF;
-						if (j < opaqueUsed.length)
-							opaqueUsed[j] = true;
+						int i = (pix - transpColor) & 0xFFFFFF;
+						if (i < opaqueUsed.length)
+							opaqueUsed[i] = true;
 					}
 				}
 				for (int i = 0; ; i++) {
@@ -217,10 +227,10 @@ public final class WriteGif {
 	// Returns a sorted list of unique colors in the image, of length [0, maxColors].
 	// Throws an exception if there are more than maxColors.
 	private static int[] listUniqueColors(int[] pixels, int maxColors) {
-		int[] palette = new int[maxColors];  // The active part from [0, numColors) is always sorted ascending
+		int[] palette = new int[maxColors];  // Only the prefix [0 : numColors] contains valid data, and it is sorted ascending
 		int numColors = 0;
-		for (int i = 0; i < pixels.length; i++) {
-			int index = Arrays.binarySearch(palette, 0, numColors, pixels[i]);
+		for (int pix : pixels) {
+			int index = Arrays.binarySearch(palette, 0, numColors, pix);
 			if (index < 0) {  // Current pixel color not in palette
 				if (numColors >= maxColors)
 					throw new IllegalArgumentException("Number of unique colors in image exceeds " + maxColors);
@@ -228,7 +238,7 @@ public final class WriteGif {
 				
 				// Insert in sorted order
 				System.arraycopy(palette, index, palette, index + 1, numColors - index);
-				palette[index] = pixels[i];
+				palette[index] = pix;
 				numColors++;
 			}
 		}
@@ -272,10 +282,7 @@ public final class WriteGif {
 		if (!(dictClear == -1 || dictClear >= 5 && dictClear <= 4096))
 			throw new IllegalArgumentException("Invalid dictionary clear interval");
 		
-		// paletteBits = ceil(log2(palette.length))
-		int paletteBits = 1;
-		while ((1 << paletteBits) < palette.length)
-			paletteBits++;
+		int paletteBits = 32 - Integer.numberOfLeadingZeros(palette.length - 1);  // ceil(log2(palette.length))
 		assert 1 <= paletteBits && paletteBits <= 8;
 		
 		// Start writing GIF file
@@ -341,6 +348,7 @@ public final class WriteGif {
 			
 			// Trailer
 			out.write(0x3B);
+			
 		} catch (IOException e) {
 			error = e;
 		}
