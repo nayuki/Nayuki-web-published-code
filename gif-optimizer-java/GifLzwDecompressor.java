@@ -19,14 +19,14 @@ import java.util.Objects;
  */
 final class GifLzwDecompressor {
 	
-	public static byte[] decode(BitInputStream in, int codeBits) throws IOException {
+	public static byte[] decode(BitInputStream in, int codeSize) throws IOException {
 		// Check arguments
 		Objects.requireNonNull(in);
-		if (!(2 <= codeBits && codeBits <= 8))
+		if (!(2 <= codeSize && codeSize <= 8))
 			throw new IllegalArgumentException();
 		
 		// Initialize dictionary
-		LzwDictionary dict = new LzwDictionary(1 << codeBits);
+		LzwDictionary dict = new LzwDictionary(1 << codeSize);
 		final int clearCode = dict.alphabetSize;
 		final int stopCode = clearCode + 1;
 		

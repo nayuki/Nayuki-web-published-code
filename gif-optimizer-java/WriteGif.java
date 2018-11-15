@@ -326,14 +326,14 @@ public final class WriteGif {
 			out.write(0);
 			
 			// Image data
-			int codeBits = Math.max(paletteBits, 2);
-			out.write(codeBits);
+			int codeSize = Math.max(paletteBits, 2);
+			out.write(codeSize);
 			SubblockOutputStream blockOut = new SubblockOutputStream(out);
 			ByteBitOutputStream bitOut = new ByteBitOutputStream(blockOut);
 			if (blockSize > 0)
-				GifLzwCompressor.encodeOptimized(pixels, codeBits, blockSize, dictClear, bitOut, true);
+				GifLzwCompressor.encodeOptimized(pixels, codeSize, blockSize, dictClear, bitOut, true);
 			else if (blockSize == 0)
-				GifLzwCompressor.encodeUncompressed(pixels, codeBits, bitOut);
+				GifLzwCompressor.encodeUncompressed(pixels, codeSize, bitOut);
 			else
 				throw new AssertionError();
 			blockOut = (SubblockOutputStream)bitOut.detach();

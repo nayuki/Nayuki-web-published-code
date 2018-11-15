@@ -202,14 +202,14 @@ public final class OptimizeGif {
 					int lctSize = (imageDesc[8] & 0x7) + 1;
 					readFully(in, new byte[(1 << lctSize) * 3]);  // Skip local color table
 				}
-				int codeBits = in.read();
-				if (codeBits == -1)
+				int codeSize = in.read();
+				if (codeSize == -1)
 					throw new EOFException();
-				if (codeBits < 2 || codeBits > 8)
+				if (codeSize < 2 || codeSize > 8)
 					throw new DataFormatException("Invalid number of code bits");
 				out.write(in.getBuffer());
 				in.clearBuffer();
-				recompressData(in, blockSize, dictClear, codeBits, out);
+				recompressData(in, blockSize, dictClear, codeSize, out);
 				
 			} else
 				throw new DataFormatException("Unrecognized data block");
@@ -222,11 +222,11 @@ public final class OptimizeGif {
 	
 	
 	// Read and decompress the LZW data fully, perform optimization and compression, and write out the new version.
-	private static void recompressData(MemoizingInputStream in, int blockSize, int dictClear, int codeBits, OutputStream out) throws IOException {
+	private static void recompressData(MemoizingInputStream in, int blockSize, int dictClear, int codeSize, OutputStream out) throws IOException {
 		// Read and decompress
 		byte[] pixels;
 		try (SubblockInputStream blockIn = new SubblockInputStream(in)) {
-			pixels = GifLzwDecompressor.decode(new BitInputStream(blockIn), codeBits);
+			pixels = GifLzwDecompressor.decode(new BitInputStream(blockIn), codeSize);
 			while (blockIn.read() != -1);  // Discard rest of subblock data after the LZW Stop code
 			in = (MemoizingInputStream)blockIn.detach();
 		}
@@ -236,9 +236,9 @@ public final class OptimizeGif {
 		SubblockOutputStream blockOut = new SubblockOutputStream(bufOut);
 		ByteBitOutputStream bitOut = new ByteBitOutputStream(blockOut);
 		if (blockSize > 0)
-			GifLzwCompressor.encodeOptimized(pixels, codeBits, blockSize, dictClear, bitOut, true);
+			GifLzwCompressor.encodeOptimized(pixels, codeSize, blockSize, dictClear, bitOut, true);
 		else if (blockSize == 0)
-			GifLzwCompressor.encodeUncompressed(pixels, codeBits, bitOut);
+			GifLzwCompressor.encodeUncompressed(pixels, codeSize, bitOut);
 		else
 			throw new AssertionError();
 		blockOut = (SubblockOutputStream)bitOut.detach();
