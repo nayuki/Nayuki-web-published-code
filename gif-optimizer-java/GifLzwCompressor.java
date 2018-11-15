@@ -37,12 +37,13 @@ final class GifLzwCompressor {
 		final int alphabetSize = 1 << codeSize;
 		final int clearCode = alphabetSize;
 		final int stopCode = clearCode + 1;
-		codeSize++;  // To accommodate Clear and Stop codes
+		codeSize++;  // Accommodate Clear and Stop symbols
 		
-		// Start encoding
+		// Start encoding data
 		out.writeBits(clearCode, codeSize);
-		for (int i = 0, numNewEntries = 0; i < data.length; i++) {
-			int b = data[i] & 0xFF;
+		int numNewEntries = 0;
+		for (int b : data) {
+			b &= 0xFF;
 			if (b >= alphabetSize)
 				throw new IllegalArgumentException("Byte value out of range");
 			out.writeBits(b, codeSize);  // Write the byte as a literal symbol
@@ -72,7 +73,9 @@ final class GifLzwCompressor {
 	public static void encodeOptimized(byte[] data, int codeSize, int blockSize, int dictClear, BitOutputStream out, boolean print) throws IOException {
 		// Check arguments
 		Objects.requireNonNull(data);
-		if (codeSize < 2 || codeSize > 8 || blockSize <= 0 || dictClear < -1)
+		if (codeSize < 2 || codeSize > 8)
+			throw new IllegalArgumentException();
+		if (blockSize <= 0 || dictClear < -1)
 			throw new IllegalArgumentException();
 		Objects.requireNonNull(out);
 		
@@ -156,26 +159,27 @@ final class GifLzwCompressor {
 	}
 	
 	
+	// Encodes the given block of data using LZW with the given parameters to the given stream.
 	private static void encodeLzwBlock(byte[] data, boolean isLast, int codeSize, int dictClear, BitOutputStream out) throws IOException {
 		DictionaryEncoder enc = new DictionaryEncoder(codeSize, dictClear);
-		final int clearCode = 1 << codeSize;
-		final int stopCode = clearCode + 1;
 		int i = 0;
 		while (i < data.length)
 			i += enc.encodeNext(data, i, out);
 		assert i == data.length;
-		out.writeBits(isLast ? stopCode : clearCode, enc.codeSize);  // Terminate block with Clear or Stop code
+		// End the current block with either Clear or Stop code
+		out.writeBits((1 << codeSize) + (isLast ? 1 : 0), enc.codeSize);
 	}
 	
 	
 	
+	// A helper class with mutable state.
 	private static final class DictionaryEncoder {
 		
 		private static final int MAX_DICT_SIZE = 4096;
 		
 		private final int initCodeBits;
 		private final int alphabetSize;
-		private final int dictClear;  // -1 for deferred clear code, otherwise in the range [7, 4096]
+		private final int dictClear;  // In the range [7, MAX_DICT_SIZE + 1]
 		
 		private TrieNode root;
 		private int size;     // Number of dictionary entries, max 4096
@@ -190,7 +194,7 @@ final class GifLzwCompressor {
 			
 			initCodeBits = codeSize;
 			alphabetSize = 1 << codeSize;
-			this.dictClear = dictClear;
+			this.dictClear = (dictClear == -1) ? (MAX_DICT_SIZE + 1) : dictClear;
 			
 			root = new TrieNode(-1, alphabetSize);  // Root has no symbol
 			for (int i = 0; i < root.children.length; i++)
@@ -224,8 +228,8 @@ final class GifLzwCompressor {
 				if (Integer.bitCount(size) == 1)  // Is a power of 2
 					codeSize++;
 				size++;
-				if (dictClear != -1 && size >= dictClear) {
-					out.writeBits(1 << initCodeBits, codeSize);
+				if (size >= dictClear) {
+					out.writeBits(1 << initCodeBits, codeSize);  // Write the clear code
 					clearDictionary();
 				}
 			}
@@ -236,7 +240,7 @@ final class GifLzwCompressor {
 		private void clearDictionary() {
 			for (TrieNode child : root.children)
 				Arrays.fill(child.children, null);
-			size = alphabetSize + 2;  // Includes Clear and Stop codes
+			size = alphabetSize + 2;  // Includes Clear and Stop symbols
 			codeSize = initCodeBits + 1;
 		}
 		

@@ -33,8 +33,8 @@ final class GifLzwDecompressor {
 		// Start decoding
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		for (int prevSymbol = -1; ; ) {  // Parse and process each symbol
-			int symbol = in.readBits(dict.currentCodeBits);
-			if (symbol >= dict.currentSize)
+			int symbol = in.readBits(dict.currentCodeSize);
+			if (symbol >= dict.numEntries)
 				throw new IllegalArgumentException("Symbol out of range");
 			else if (symbol == stopCode)
 				break;
@@ -59,12 +59,13 @@ final class GifLzwDecompressor {
 	
 	
 	
+	// A helper class with mutable state.
 	private static final class LzwDictionary {
 		
 		public final int alphabetSize;
 		
-		public int currentSize;
-		public int currentCodeBits;
+		public int numEntries;  // Always in the range [alphabetSize + 2, MAX_ENTRIES]
+		public int currentCodeSize;  // Always equal to ceil(log2(numEntries))
 		
 		private byte[] symbolBytes;
 		private int[] symbolStarts;
@@ -83,7 +84,7 @@ final class GifLzwDecompressor {
 				symbolBytes[i] = (byte)i;
 			}
 			
-			// Add special zero-length Clear and Stop symbols
+			// Add special Clear and Stop symbols with zero-length data
 			for (int i = 0; i <= 2; i++)
 				symbolStarts[alphaSz + i] = alphaSz;
 			
@@ -92,28 +93,28 @@ final class GifLzwDecompressor {
 		
 		
 		public void resetEntries() {
-			currentSize = alphabetSize + 2;  // Alphabet plus Clear and Stop symbols
-			currentCodeBits = 32 - Integer.numberOfLeadingZeros(currentSize - 1);  // ceil(log2(currentSize))
-			Arrays.fill(symbolStarts, currentSize + 1, symbolStarts.length, -1);  // Mark unused entries
+			numEntries = alphabetSize + 2;  // Alphabet plus Clear and Stop symbols
+			currentCodeSize = 32 - Integer.numberOfLeadingZeros(numEntries - 1);
+			Arrays.fill(symbolStarts, numEntries + 1, symbolStarts.length, -1);  // Mark unused entries
 		}
 		
 		
 		public void fillPlaceholderEntry(int prevSymbol, int curSymbol) {
 			// Check arguments
-			if (symbolStarts[currentSize] != -1) {
-				if (currentSize >= MAX_ENTRIES)
+			if (symbolStarts[numEntries] != -1) {
+				if (numEntries >= MAX_ENTRIES)
 					return;
 				else
 					throw new IllegalStateException();
 			}
-			if (!(0 <= prevSymbol && prevSymbol < currentSize - 1))
+			if (!(0 <= prevSymbol && prevSymbol < numEntries - 1))
 				throw new IllegalArgumentException();
-			if (!(0 <= curSymbol && curSymbol < currentSize))
+			if (!(0 <= curSymbol && curSymbol < numEntries))
 				throw new IllegalArgumentException();
 			
 			// Compute numbers
 			int newEntryLen = symbolStarts[prevSymbol + 1] - symbolStarts[prevSymbol] + 1;
-			int newSymbol = currentSize - 1;
+			int newSymbol = numEntries - 1;
 			int newStart = symbolStarts[newSymbol];
 			int newEnd = newStart + newEntryLen;
 			
@@ -127,7 +128,7 @@ final class GifLzwDecompressor {
 		
 		
 		public void writeEntry(int symbol, OutputStream out) throws IOException {
-			if (!(0 <= symbol && symbol < currentSize))
+			if (!(0 <= symbol && symbol < numEntries))
 				throw new IllegalArgumentException();
 			Objects.requireNonNull(out);
 			int start = symbolStarts[symbol];
@@ -137,12 +138,12 @@ final class GifLzwDecompressor {
 		
 		
 		public void addPlaceholderEntry() {
-			if (currentSize < MAX_ENTRIES) {
-				if (symbolStarts[currentSize] == -1)
+			if (numEntries < MAX_ENTRIES) {
+				if (symbolStarts[numEntries] == -1)
 					throw new IllegalStateException();
-				if (Integer.bitCount(currentSize) == 1)  // Is power of 2
-					currentCodeBits++;
-				currentSize++;
+				if (Integer.bitCount(numEntries) == 1)  // Is power of 2
+					currentCodeSize++;
+				numEntries++;
 			}
 		}
 		
