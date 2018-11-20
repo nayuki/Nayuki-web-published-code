@@ -120,6 +120,8 @@ function nextMonth() {
 			return 1000000;  // Known amount
 		else if (year <= 2018)
 			return 550000;  // Known amount
+		else if (year <= 2019)
+			return 600000;  // Known amount
 		else  // Estimate based on 2% annual inflation
 			return Math.round(5000 * Math.pow(1.02, year - 2009) / 500) * 50000;
 	}
