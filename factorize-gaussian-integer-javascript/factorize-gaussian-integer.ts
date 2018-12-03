@@ -21,7 +21,7 @@ namespace app {
 		let outElem = document.getElementById("factorization") as HTMLElement;
 		while (outElem.firstChild != null)
 			outElem.removeChild(outElem.firstChild);
-		let input = (document.getElementById("number") as HTMLInputElement).value;
+		const input = (document.getElementById("number") as HTMLInputElement).value;
 		if (/^\s*$/.test(input)) {  // Blank input
 			outElem.textContent = NBSP;
 			return;

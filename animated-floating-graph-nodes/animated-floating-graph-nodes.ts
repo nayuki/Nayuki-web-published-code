@@ -120,7 +120,7 @@ namespace app {
 				node.velY = node.velY * 0.99 + (Math.random() - 0.5) * 0.3;
 				
 				// Fade out nodes near the borders of the rectangle, or exceeding the target number of nodes
-				let insideness = Math.min(node.posX, this.relWidth - node.posX,
+				const insideness = Math.min(node.posX, this.relWidth - node.posX,
 					node.posY, this.relHeight - node.posY);
 				node.fade(newNodes.length < curIdealNumNodes && insideness > this.borderFade ?
 					this.fadeInPerFrame : this.fadeOutPerFrame);
@@ -155,10 +155,10 @@ namespace app {
 					let b: GNode = this.nodes[j];
 					let dx: number = a.posX - b.posX;
 					let dy: number = a.posY - b.posY;
-					let distSqr: number = dx * dx + dy * dy;
+					const distSqr: number = dx * dx + dy * dy;
 					// Notes: The factor 1/sqrt(distSqr) is to make (dx, dy) into a unit vector.
 					// 1/distSqr is the inverse square law, with a smoothing constant added to prevent singularity.
-					let factor: number = this.repulsionForce / (Math.sqrt(distSqr) * (distSqr + 0.00001));
+					const factor: number = this.repulsionForce / (Math.sqrt(distSqr) * (distSqr + 0.00001));
 					dx *= factor;
 					dy *= factor;
 					a.dPosX += dx;
@@ -178,9 +178,9 @@ namespace app {
 		private updateEdges(): void {
 			// Calculate array of spanning tree edges, then add some extra low-weight edges
 			let allEdges: Array<[number,number,number]> = this.calcAllEdgeWeights();
-			let idealNumEdges = Math.round((this.nodes.length - 1) * (1 + this.extraEdgeProportion));
+			const idealNumEdges = Math.round((this.nodes.length - 1) * (1 + this.extraEdgeProportion));
 			let idealEdges: Array<GEdge> = this.calcSpanningTree(allEdges);
-			for (let [_, i, j] of allEdges) {
+			for (const [_, i, j] of allEdges) {
 				if (idealEdges.length >= idealNumEdges)
 					break;
 				let edge = new GEdge(this.nodes[i], this.nodes[j]);  // Convert data formats
@@ -198,7 +198,7 @@ namespace app {
 			}
 			
 			// If there's room for new edges, add some missing spanning tree edges (higher priority), then extra edges
-			for (let edge of idealEdges) {
+			for (const edge of idealEdges) {
 				if (newEdges.length >= idealNumEdges)
 					break;
 				if (!Graph.containsEdge(newEdges, edge))
@@ -213,9 +213,9 @@ namespace app {
 			// Each entry has the form [weight,nodeAIndex,nodeBIndex], where nodeAIndex < nodeBIndex
 			let result: Array<[number,number,number]> = [];
 			for (let i = 0; i < this.nodes.length; i++) {  // Calculate all n * (n - 1) / 2 edges
-				let a: GNode = this.nodes[i];
+				const a: GNode = this.nodes[i];
 				for (let j = 0; j < i; j++) {
-					let b: GNode = this.nodes[j];
+					const b: GNode = this.nodes[j];
 					let weight: number = Math.hypot(a.posX - b.posX, a.posY - b.posY);  // Euclidean distance
 					weight /= Math.pow(a.radius * b.radius, this.radiiWeightPower);  // Give discount based on node radii
 					result.push([weight, i, j]);
@@ -231,7 +231,7 @@ namespace app {
 			// Kruskal's MST algorithm
 			let result: Array<GEdge> = [];
 			let ds = new DisjointSet(this.nodes.length);
-			for (let [_, i, j] of allEdges) {
+			for (const [_, i, j] of allEdges) {
 				if (ds.mergeSets(i, j)) {
 					result.push(new GEdge(this.nodes[i], this.nodes[j]));  // Convert data formats
 					if (result.length >= this.nodes.length - 1)
@@ -245,7 +245,7 @@ namespace app {
 		// Tests whether the given array of edge objects contains an edge with
 		// the given endpoints (undirected). Pure function, no side effects.
 		private static containsEdge(edges: Array<GEdge>, edge: GEdge): boolean {
-			for (let e of edges) {
+			for (const e of edges) {
 				if (e.nodeA == edge.nodeA && e.nodeB == edge.nodeB ||
 				    e.nodeA == edge.nodeB && e.nodeB == edge.nodeA)
 					return true;
@@ -297,13 +297,13 @@ namespace app {
 			
 			function createSvgElem(tag: string, attribs: any): Element {
 				let result = document.createElementNS(svg.namespaceURI, tag);
-				for (let key in attribs)
+				for (const key in attribs)
 					result.setAttribute(key, attribs[key].toString());
 				return result;
 			}
 			
 			// Draw every node
-			for (let node of this.nodes) {
+			for (const node of this.nodes) {
 				gElem.appendChild(createSvgElem("circle", {
 					"cx": node.posX,
 					"cy": node.posY,
@@ -313,16 +313,16 @@ namespace app {
 			}
 			
 			// Draw every edge
-			for (let edge of this.edges) {
-				let a: GNode = edge.nodeA;
-				let b: GNode = edge.nodeB;
+			for (const edge of this.edges) {
+				const a: GNode = edge.nodeA;
+				const b: GNode = edge.nodeB;
 				let dx: number = a.posX - b.posX;
 				let dy: number = a.posY - b.posY;
-				let mag: number = Math.hypot(dx, dy);
+				const mag: number = Math.hypot(dx, dy);
 				if (mag > a.radius + b.radius) {  // Draw edge only if circles don't intersect
 					dx /= mag;  // Make (dx, dy) a unit vector, pointing from B to A
 					dy /= mag;
-					let opacity: number = Math.min(Math.min(a.opacity, b.opacity), edge.opacity);
+					const opacity: number = Math.min(Math.min(a.opacity, b.opacity), edge.opacity);
 					gElem.appendChild(createSvgElem("line", {
 						// Shorten the edge so that it only touches the circumference of each circle
 						"x1": a.posX - dx * a.radius,
@@ -391,11 +391,11 @@ namespace app {
 		}
 		
 		public mergeSets(i: number, j: number): boolean {
-			let repr0: number = this.getRepr(i);
-			let repr1: number = this.getRepr(j);
+			const repr0: number = this.getRepr(i);
+			const repr1: number = this.getRepr(j);
 			if (repr0 == repr1)
 				return false;
-			let cmp: number = this.ranks[repr0] - this.ranks[repr1];
+			const cmp: number = this.ranks[repr0] - this.ranks[repr1];
 			if (cmp >= 0) {
 				if (cmp == 0)
 					this.ranks[repr0]++;

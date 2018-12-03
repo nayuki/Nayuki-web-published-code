@@ -92,7 +92,7 @@ class DisjointSet {
 			return false;
 		
 		// Compare ranks
-		let cmp: number = this.ranks[repr0] - this.ranks[repr1];
+		const cmp: number = this.ranks[repr0] - this.ranks[repr1];
 		if (cmp == 0)  // Increment repr0's rank if both nodes have same rank
 			this.ranks[repr0]++;
 		else if (cmp < 0) {  // Swap to ensure that repr0's rank >= repr1's rank
@@ -121,7 +121,7 @@ class DisjointSet {
 		if (parent == elemIndex)
 			return elemIndex;
 		while (true) {
-			let grandparent: number = this.parents[parent];
+			const grandparent: number = this.parents[parent];
 			if (grandparent == parent)
 				return parent;
 			this.parents[elemIndex] = grandparent;  // Partial path compression
@@ -136,10 +136,10 @@ class DisjointSet {
 	public checkStructure(): void {
 		let numRepr: number = 0;
 		for (let i = 0; i < this.parents.length; i++) {
-			let parent: number = this.parents[i];
-			let rank  : number = this.ranks  [i];
-			let size  : number = this.sizes  [i];
-			let isRepr: boolean = parent == i;
+			const parent: number = this.parents[i];
+			const rank  : number = this.ranks  [i];
+			const size  : number = this.sizes  [i];
+			const isRepr: boolean = parent == i;
 			if (isRepr)
 				numRepr++;
 			

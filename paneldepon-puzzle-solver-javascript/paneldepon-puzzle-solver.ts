@@ -60,8 +60,8 @@ namespace app {
 	
 	export function doSolve(): void {
 		clearSolution();
-		let numMoves: number = parseInt(inputElemId("num-moves").value, 10);
-		let [moves, numVisited] = new Board(pageGrid.clone()).solve(numMoves);
+		const numMoves: number = parseInt(inputElemId("num-moves").value, 10);
+		const [moves, numVisited] = new Board(pageGrid.clone()).solve(numMoves);
 		
 		let solnHeadText: string;
 		if (moves === null)
@@ -71,7 +71,7 @@ namespace app {
 		else {
 			solnHeadText = "Solution:";
 			let solnStepsElem = elemId("solution-steps");
-			for (let [x, y] of moves) {
+			for (const [x, y] of moves) {
 				solnStepsElem.appendChild(createElement("li",
 					formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
 			}
@@ -82,26 +82,26 @@ namespace app {
 	
 	
 	export function doImport(): void {
-		let lines: Array<string> = inputElemId("import-export").value.replace(/^\s+|\s+$/, "").split("\n");
+		const lines: Array<string> = inputElemId("import-export").value.replace(/^\s+|\s+$/, "").split("\n");
 		if (lines.length != Grid.HEIGHT + 1) {
 			alert(`Invalid number of lines (should be ${Grid.HEIGHT + 1})`);
 			return;
 		}
-		let moves: number = parseInt(lines[0], 10);
+		const moves: number = parseInt(lines[0], 10);
 		if (!/^\d+$/.test(lines[0]) || moves < 0 || moves > 100) {
 			alert("Invalid number of moves");
 			return;
 		}
 		
 		for (let y = 0; y < Grid.HEIGHT; y++) {
-			let line: string = lines[Grid.HEIGHT - y];
+			const line: string = lines[Grid.HEIGHT - y];
 			if (line.length != Grid.WIDTH) {
 				alert(`Invalid line length (should be ${Grid.WIDTH})`);
 				return;
 			}
 			for (let x = 0; x < Grid.WIDTH; x++) {
-				let c: string = line.charAt(x);
-				let d: number = line.charCodeAt(x) - "a".charCodeAt(0) + 1;
+				const c: string = line.charAt(x);
+				const d: number = line.charCodeAt(x) - "a".charCodeAt(0) + 1;
 				if (c == ".")
 					pageGrid.set(x, y, 0);
 				else if (1 <= d && d < Grid.TILE_COLORS.length)
@@ -185,7 +185,7 @@ namespace app {
 		for (let y = 0; y < Grid.HEIGHT; y++) {
 			exportStr += "\n";
 			for (let x = 0; x < Grid.WIDTH; x++) {
-				let val = pageGrid.get(x, Grid.HEIGHT - 1 - y);
+				const val = pageGrid.get(x, Grid.HEIGHT - 1 - y);
 				if (val == 0)
 					exportStr += ".";
 				else
@@ -203,7 +203,7 @@ namespace app {
 	// 26 -> AA, 27 -> AB, ..., 51 -> AZ,
 	// 52 -> BA, ..., 701 -> ZZ.
 	function formatXCoordinate(x: number): string {
-		let START = "A".charCodeAt(0);
+		const START = "A".charCodeAt(0);
 		if (0 <= x && x < 26)
 			return String.fromCharCode(START + x);
 		else if (26 <= x && x < 702)
@@ -287,7 +287,7 @@ namespace app {
 			// Find horizontal matches
 			for (let y = 0; y < Grid.HEIGHT; y++) {
 				for (let x = 0; x < Grid.WIDTH; ) {
-					let run = this.getRunLength(x, y, 1, 0);
+					const run = this.getRunLength(x, y, 1, 0);
 					if (run >= Board.MINIMUM_RUN) {
 						for (let i = 0; i < run; i++)
 							toClear.set(x + i, y, 1);
@@ -299,7 +299,7 @@ namespace app {
 			// Find vertical matches
 			for (let x = 0; x < Grid.WIDTH; x++) {
 				for (let y = 0; y < Grid.HEIGHT; ) {
-					let run = this.getRunLength(x, y, 0, 1);
+					const run = this.getRunLength(x, y, 0, 1);
 					if (run >= Board.MINIMUM_RUN) {
 						for (let i = 0; i < run; i++)
 							toClear.set(x, y + i, 1);
@@ -326,7 +326,7 @@ namespace app {
 		private getRunLength(x: number, y: number, dx: number, dy: number): number {
 			if (dx < 0 || dy < 0 || dx == 0 && dy == 0)
 				throw "Invalid value";
-			let val: number = this.grid.get(x, y);
+			const val: number = this.grid.get(x, y);
 			if (val == Grid.EMPTY_TILE)
 				return 1;
 			let count: number = 0;
@@ -384,7 +384,7 @@ namespace app {
 			let endState: Board|null = null;
 			while (queue.length > 0) {
 				// Dequeue next state
-				let state = queue.shift();
+				const state = queue.shift();
 				if (state === undefined)
 					throw "Assertion error";
 				if (state.isClear()) {
@@ -393,13 +393,13 @@ namespace app {
 				}
 				
 				// Get info about state
-				let info = visited.get(state.toString());
+				const info = visited.get(state.toString());
 				if (info === undefined)
 					throw "Assertion error";
 				if (info.depth >= numMoves)
 					continue;
-				for (let move of state.getMoves()) {
-					let newState: Board = state.applyMove(move[0], move[1]);
+				for (const move of state.getMoves()) {
+					const newState: Board = state.applyMove(move[0], move[1]);
 					if (!visited.has(newState.toString())) {
 						queue.push(newState);
 						visited.set(newState.toString(), {depth:info.depth+1, prevBoard:state, prevMove:move});
@@ -412,12 +412,12 @@ namespace app {
 			// Retrieve previous board states
 			let result: Array<Move> = [];
 			for (let state = endState; ; ) {
-				let info = visited.get(state.toString());
+				const info = visited.get(state.toString());
 				if (info === undefined)
 					throw "Assertion error";
 				if (info.prevBoard === null)
 					break;
-				let prevMove = info.prevMove;
+				const prevMove = info.prevMove;
 				if (prevMove === null)
 					throw "Assertion error";
 				result.push(prevMove);

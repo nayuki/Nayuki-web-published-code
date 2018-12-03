@@ -101,7 +101,7 @@ class AvlTreeList<E> {
 	public shift(): E {
 		if (this.length == 0)
 			throw "List is empty";
-		let result: E = this.get(0);
+		const result: E = this.get(0);
 		this.remove(0);
 		return result;
 	}
@@ -110,10 +110,10 @@ class AvlTreeList<E> {
 	// Removes and returns the last element of this list.
 	// For example: [a,b,c] -> pop() returns c -> [a,b].
 	public pop(): E {
-		let len: number = this.length;
+		const len: number = this.length;
 		if (len == 0)
 			throw "List is empty";
-		let result = this.get(len - 1);
+		const result = this.get(len - 1);
 		this.remove(len - 1);
 		return result;
 	}
@@ -163,7 +163,7 @@ class AvlTreeList<E> {
 		
 		let result = new AvlTreeList<E>();
 		for (let i = 0; i < count; i++) {
-			let val: E = this.get(start);
+			const val: E = this.get(start);
 			result.push(val);
 			this.remove(start);
 		}
@@ -302,7 +302,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	public getNodeAt(index: number): AvlTreeListInternalNode<E> {
 		if (index < 0 || index >= this.size)
 			throw "Assertion error";
-		let leftSize: number = this.left.size;
+		const leftSize: number = this.left.size;
 		if (index < leftSize)
 			return this.leftNode.getNodeAt(index);
 		else if (index > leftSize)
@@ -315,7 +315,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	public insertAt(index: number, obj: E): AvlTreeListInternalNode<E> {
 		if (index < 0 || index > this.size)
 			throw "Assertion error";
-		let leftSize: number = this.left.size;
+		const leftSize: number = this.left.size;
 		if (index <= leftSize)
 			this.left = this.left.insertAt(index, obj);
 		else
@@ -328,7 +328,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	public removeAt(index: number): AvlTreeListNode<E> {
 		if (index < 0 || index >= this.size)
 			throw "Assertion error";
-		let leftSize: number = this.left.size;
+		const leftSize: number = this.left.size;
 		if (index < leftSize)
 			this.left = this.leftNode.removeAt(index);
 		else if (index > leftSize)
@@ -354,7 +354,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	
 	// Balances the subtree rooted at this node and returns the new root.
 	private balance(): AvlTreeListInternalNode<E> {
-		let bal: number = this.getBalance();
+		const bal: number = this.getBalance();
 		if (Math.abs(bal) > 2)
 			throw "Assertion error";
 		let result: AvlTreeListInternalNode<E> = this;
@@ -466,7 +466,7 @@ class AvlTreeListIterator<E> {
 		this.stack = [];
 		let maybeNode: AvlTreeListNode<E> = root;
 		while (maybeNode.size != 0) {
-			let node = maybeNode as AvlTreeListInternalNode<E>;
+			const node = maybeNode as AvlTreeListInternalNode<E>;
 			this.stack.push(node);
 			maybeNode = node.left;
 		}
@@ -483,10 +483,10 @@ class AvlTreeListIterator<E> {
 			throw "No next element";
 		
 		let node = this.stack.pop() as AvlTreeListInternalNode<E>;  // Never undefined
-		let result: E = node.value;
+		const result: E = node.value;
 		let maybeNode: AvlTreeListNode<E> = node.right;
 		while (maybeNode.size != 0) {
-			let node = maybeNode as AvlTreeListInternalNode<E>;
+			const node = maybeNode as AvlTreeListInternalNode<E>;
 			this.stack.push(node);
 			maybeNode = node.left;
 		}

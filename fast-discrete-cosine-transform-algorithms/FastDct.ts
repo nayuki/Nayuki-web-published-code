@@ -155,8 +155,8 @@ namespace fastDctLee {
 			return;
 		const halfLen: number = Math.floor(len / 2);
 		for (let i = 0; i < halfLen; i++) {
-			let x: number = vector[off + i];
-			let y: number = vector[off + len - 1 - i];
+			const x: number = vector[off + i];
+			const y: number = vector[off + len - 1 - i];
 			temp[off + i] = x + y;
 			temp[off + i + halfLen] = (x - y) / (Math.cos((i + 0.5) * Math.PI / len) * 2);
 		}
@@ -195,8 +195,8 @@ namespace fastDctLee {
 		inverseTransformInternal(temp, off, halfLen, vector);
 		inverseTransformInternal(temp, off + halfLen, halfLen, vector);
 		for (let i = 0; i < halfLen; i++) {
-			let x: number = temp[off + i];
-			let y: number = temp[off + i + halfLen] / (Math.cos((i + 0.5) * Math.PI / len) * 2);
+			const x: number = temp[off + i];
+			const y: number = temp[off + i + halfLen] / (Math.cos((i + 0.5) * Math.PI / len) * 2);
 			vector[off + i] = x + y;
 			vector[off + len - 1 - i] = x - y;
 		}
@@ -223,7 +223,7 @@ class fastDctFft {
 			vector[i] = 0;
 		transform(real, vector);
 		for (let i = 0; i < len; i++) {
-			let temp: number = i * Math.PI / (len * 2);
+			const temp: number = i * Math.PI / (len * 2);
 			vector[i] = real[i] * Math.cos(temp) + vector[i] * Math.sin(temp);
 		}
 	}
@@ -236,7 +236,7 @@ class fastDctFft {
 			vector[0] /= 2;
 		let real = new Float64Array(len);
 		for (let i = 0; i < len; i++) {
-			let temp: number = i * Math.PI / (len * 2);
+			const temp: number = i * Math.PI / (len * 2);
 			real[i] = vector[i] * Math.cos(temp);
 			vector[i] *= -Math.sin(temp);
 		}

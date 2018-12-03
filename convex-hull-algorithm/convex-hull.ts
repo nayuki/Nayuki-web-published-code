@@ -51,10 +51,10 @@ namespace convexhull {
 		
 		let upperHull: Array<Point> = [];
 		for (let i = 0; i < points.length; i++) {
-			let p: Point = points[i];
+			const p: Point = points[i];
 			while (upperHull.length >= 2) {
-				let q: Point = upperHull[upperHull.length - 1];
-				let r: Point = upperHull[upperHull.length - 2];
+				const q: Point = upperHull[upperHull.length - 1];
+				const r: Point = upperHull[upperHull.length - 2];
 				if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					upperHull.pop();
 				else
@@ -66,10 +66,10 @@ namespace convexhull {
 		
 		let lowerHull: Array<Point> = [];
 		for (let i = points.length - 1; i >= 0; i--) {
-			let p: Point = points[i];
+			const p: Point = points[i];
 			while (lowerHull.length >= 2) {
-				let q: Point = lowerHull[lowerHull.length - 1];
-				let r: Point = lowerHull[lowerHull.length - 2];
+				const q: Point = lowerHull[lowerHull.length - 1];
+				const r: Point = lowerHull[lowerHull.length - 2];
 				if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					lowerHull.pop();
 				else

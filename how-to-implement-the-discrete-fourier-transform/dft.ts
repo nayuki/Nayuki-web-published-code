@@ -13,14 +13,14 @@
  * Returns an array of two arrays - outreal and outimag, each of length n.
  */
 function computeDft(inreal: Array<number>, inimag: Array<number>): [Array<number>,Array<number>] {
-	let n: number = inreal.length;
+	const n: number = inreal.length;
 	let outreal: Array<number> = new Array(n);
 	let outimag: Array<number> = new Array(n);
 	for (let k = 0; k < n; k++) {  // For each output element
 		let sumreal: number = 0;
 		let sumimag: number = 0;
 		for (let t = 0; t < n; t++) {  // For each input element
-			let angle: number = 2 * Math.PI * t * k / n;
+			const angle: number = 2 * Math.PI * t * k / n;
 			sumreal +=  inreal[t] * Math.cos(angle) + inimag[t] * Math.sin(angle);
 			sumimag += -inreal[t] * Math.sin(angle) + inimag[t] * Math.cos(angle);
 		}

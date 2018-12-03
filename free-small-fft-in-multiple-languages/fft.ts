@@ -79,7 +79,7 @@ function transformRadix2(real: Array<number>|Float64Array, imag: Array<number>|F
 	
 	// Bit-reversed addressing permutation
 	for (let i = 0; i < n; i++) {
-		let j: number = reverseBits(i, levels);
+		const j: number = reverseBits(i, levels);
 		if (j > i) {
 			let temp: number = real[i];
 			real[i] = real[j];
@@ -92,13 +92,13 @@ function transformRadix2(real: Array<number>|Float64Array, imag: Array<number>|F
 	
 	// Cooley-Tukey decimation-in-time radix-2 FFT
 	for (let size = 2; size <= n; size *= 2) {
-		let halfsize: number = size / 2;
-		let tablestep: number = n / size;
+		const halfsize: number = size / 2;
+		const tablestep: number = n / size;
 		for (let i = 0; i < n; i += size) {
 			for (let j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
-				let l: number = j + halfsize;
-				let tpre: number =  real[l] * cosTable[k] + imag[l] * sinTable[k];
-				let tpim: number = -real[l] * sinTable[k] + imag[l] * cosTable[k];
+				const l: number = j + halfsize;
+				const tpre: number =  real[l] * cosTable[k] + imag[l] * sinTable[k];
+				const tpim: number = -real[l] * sinTable[k] + imag[l] * cosTable[k];
 				real[l] = real[j] - tpre;
 				imag[l] = imag[j] - tpim;
 				real[j] += tpre;
@@ -137,7 +137,7 @@ function transformBluestein(real: Array<number>|Float64Array, imag: Array<number
 	let cosTable = new Array<number>(n);
 	let sinTable = new Array<number>(n);
 	for (let i = 0; i < n; i++) {
-		let j: number = i * i % (n * 2);  // This is more accurate than j = i * i
+		const j: number = i * i % (n * 2);  // This is more accurate than j = i * i
 		cosTable[i] = Math.cos(Math.PI * j / n);
 		sinTable[i] = Math.sin(Math.PI * j / n);
 	}
@@ -203,7 +203,7 @@ function convolveComplex(
 	transform(yreal, yimag);
 	
 	for (let i = 0; i < n; i++) {
-		let temp: number = xreal[i] * yreal[i] - ximag[i] * yimag[i];
+		const temp: number = xreal[i] * yreal[i] - ximag[i] * yimag[i];
 		ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
 		xreal[i] = temp;
 	}

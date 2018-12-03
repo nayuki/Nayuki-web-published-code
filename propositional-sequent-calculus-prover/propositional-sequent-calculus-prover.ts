@@ -29,7 +29,7 @@ function doProve(inputSequent: string): void {
 	
 	let proof: Tree;
 	try {
-		let seq: Sequent = parseSequent(new Tokenizer(inputSequent));
+		const seq: Sequent = parseSequent(new Tokenizer(inputSequent));
 		proof = prove(seq);
 		appendText(msgElem, "Proof:");
 		proofElem.appendChild(Tree.toHtml([proof]));
@@ -40,7 +40,7 @@ function doProve(inputSequent: string): void {
 		else if ("position" in e) {
 			appendText(msgElem, "Syntax error: " + e.message);
 			appendText(codeOutElem, inputSequent.substring(0, e.position));
-			let highlight = document.createElement("u");
+			const highlight = document.createElement("u");
 			if (e.position < inputSequent.length) {
 				appendText(highlight, inputSequent.substring(e.position, e.position + 1));
 				codeOutElem.appendChild(highlight);
@@ -215,13 +215,13 @@ function prove(sequent: Sequent): Tree {
 	
 	// Try to find a variable that is common to both sides, to try to derive an axiom.
 	// This uses a dumb O(n^2) algorithm, but can theoretically be sped up by a hash table or such.
-	for (let lt of left) {
+	for (const lt of left) {
 		if (lt instanceof VarTerm) {
-			for (let rt of right) {
+			for (const rt of right) {
 				if (rt instanceof VarTerm && rt.name == lt.name) {
 					if (left.length == 1 && right.length == 1)  // Already in the form X ⊦ X
 						return new Tree(sequent);
-					let axiom = new Tree(new Sequent([lt], [rt]));
+					const axiom = new Tree(new Sequent([lt], [rt]));
 					return new Tree(sequent, axiom);
 				}
 			}
@@ -230,54 +230,54 @@ function prove(sequent: Sequent): Tree {
 	
 	// Try to find an easy operator on left side
 	for (let i = 0; i < left.length; i++) {
-		let term = left[i];
+		const term = left[i];
 		if (term instanceof NotTerm) {
 			left.splice(i, 1);
 			right.push(term.child);
-			let seq = new Sequent(left, right);
+			const seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq));
 		} else if (term instanceof AndTerm) {
 			left.splice(i, 1, term.left, term.right);
-			let seq = new Sequent(left, right);
+			const seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq));
 		}
 	}
 	
 	// Try to find an easy operator on right side
 	for (let i = 0; i < right.length; i++) {
-		let term = right[i];
+		const term = right[i];
 		if (term instanceof NotTerm) {
 			right.splice(i, 1);
 			left.push(term.child);
-			let seq = new Sequent(left, right);
+			const seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq));
 		} else if (term instanceof OrTerm) {
 			right.splice(i, 1, term.left, term.right);
-			let seq = new Sequent(left, right);
+			const seq = new Sequent(left, right);
 			return new Tree(sequent, prove(seq));
 		}
 	}
 	
 	// Try to find a hard operator (OR on left side, AND on right side)
 	for (let i = 0; i < left.length; i++) {
-		let term = left[i];
+		const term = left[i];
 		if (term instanceof OrTerm) {
 			left.splice(i, 1, term.left);
-			let seq0 = new Sequent(left, right);
+			const seq0 = new Sequent(left, right);
 			left = left.slice();
 			left.splice(i, 1, term.right);
-			let seq1 = new Sequent(left, right);
+			const seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
 	}
 	for (let i = 0; i < right.length; i++) {
-		let term = right[i];
+		const term = right[i];
 		if (term instanceof AndTerm) {
 			right.splice(i, 1, term.left);
-			let seq0 = new Sequent(left, right);
+			const seq0 = new Sequent(left, right);
 			right = right.slice();
 			right.splice(i, 1, term.right);
-			let seq1 = new Sequent(left, right);
+			const seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
 	}
@@ -293,7 +293,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 	// Parse left side
 	let lhs: Array<Term> = [];
 	for (let expectComma = false; ; ) {
-		let next: string|null = tok.peek();
+		const next: string|null = tok.peek();
 		if (next == TURNSTILE) {
 			tok.consume(next);
 			break;
@@ -313,7 +313,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 				else
 					throw {message: "Term or turnstile expected", position: tok.pos};
 			}
-			let term: Term|null = parseTerm(tok);
+			const term: Term|null = parseTerm(tok);
 			if (term != null)
 				lhs.push(term);
 		}
@@ -322,7 +322,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 	// Parse right side
 	let rhs: Array<Term> = [];
 	for (let expectComma = false; ; ) {
-		let next: string|null = tok.peek();
+		const next: string|null = tok.peek();
 		if (next == null)
 			break;
 		else if (next == TURNSTILE)
@@ -341,7 +341,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 				else
 					throw {message: "Term or end expected", position: tok.pos};
 			}
-			let term: Term|null = parseTerm(tok);
+			const term: Term|null = parseTerm(tok);
 			if (term != null)
 				rhs.push(term);
 		}
@@ -368,13 +368,13 @@ function parseTerm(tok: Tokenizer): Term|null {
 	function reduce(): void {
 		while (true) {
 			if (stack.length >= 2 && stack[stack.length - 2] == NOT) {
-				let term = stack.pop() as Term;
+				const term = stack.pop() as Term;
 				stack.pop();  // NOT
 				stack.push(new NotTerm(term));
 			} else if (stack.length >= 3 && isTerm(stack[stack.length - 1]) && stack[stack.length - 2] == AND && isTerm(stack[stack.length - 3])) {
-				let right = stack.pop() as Term;
+				const right = stack.pop() as Term;
 				stack.pop();  // AND
-				let left = stack.pop() as Term;
+				const left = stack.pop() as Term;
 				stack.push(new AndTerm(left, right));
 			} else
 				break;
@@ -383,9 +383,9 @@ function parseTerm(tok: Tokenizer): Term|null {
 	
 	function finalReduce(): void {
 		while (stack.length >= 3 && isTerm(stack[stack.length - 1]) && stack[stack.length - 2] == OR && isTerm(stack[stack.length - 3])) {
-			let right = stack.pop() as Term;
+			const right = stack.pop() as Term;
 			stack.pop();  // OR
-			let left = stack.pop() as Term;
+			const left = stack.pop() as Term;
 			stack.push(new OrTerm(left, right));
 		}
 	}
@@ -401,7 +401,7 @@ function parseTerm(tok: Tokenizer): Term|null {
 	}
 	
 	while (true) {
-		let next: string|null = tok.peek();
+		const next: string|null = tok.peek();
 		if (next == null || next == TURNSTILE || next == ",")
 			break;
 		
@@ -467,7 +467,7 @@ class Tokenizer {
 		if (this.pos == this.str.length)  // End of stream
 			return null;
 		
-		let match: RegExpExecArray|null = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.pos));
+		const match: RegExpExecArray|null = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.pos));
 		if (match == null)
 			throw {message: "Invalid symbol", position: this.pos};
 		
@@ -482,7 +482,7 @@ class Tokenizer {
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
 	public take(): string {
-		let result: string|null = this.peek();
+		const result: string|null = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
 		this.pos += result.length;
@@ -497,7 +497,7 @@ class Tokenizer {
 	}
 	
 	private skipSpaces(): void {
-		let match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.pos));
+		const match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.pos));
 		if (match === null)
 			throw "Assertion error";
 		this.pos += match[0].length;

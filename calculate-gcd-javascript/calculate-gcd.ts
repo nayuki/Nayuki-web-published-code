@@ -27,8 +27,8 @@ namespace app {
 	/*---- Entry points from HTML page ----*/
 	
 	export function doCalculate(): void {
-		let xStr: string = inputElem("numberX").value;
-		let yStr: string = inputElem("numberY").value;
+		const xStr: string = inputElem("numberX").value;
+		const yStr: string = inputElem("numberY").value;
 		if (xStr == "" || yStr == "") {
 			outputElem.value = "";
 			return;
@@ -54,8 +54,8 @@ namespace app {
 	
 	export function doRandom(): void {
 		randomClicked++;
-		let limit: number = randomClicked / 10;
-		let len: number = Math.floor(Math.random() * limit) + 1;
+		const limit: number = randomClicked / 10;
+		const len: number = Math.floor(Math.random() * limit) + 1;
 		function genRandom(): string {
 			let result: string = "";
 			for (let i = 0; i < len; i++)
@@ -81,7 +81,7 @@ namespace app {
 			if (typeof val == "string") {
 				if (!/^[0-9]+$/.test(val))
 					throw "Invalid number string";
-				for (let c of val)
+				for (const c of val)
 					this.digits.push(parseInt(c, 10));
 				this.digits.reverse();
 			} else if (Array.isArray(val)) {
@@ -162,7 +162,7 @@ namespace app {
 		public divide2Exact(): Uint {
 			if (!this.isEven())
 				throw "Number is odd";
-			let temp: Uint = this.multiply(5);
+			const temp: Uint = this.multiply(5);
 			let newDigits: Array<number> = temp.digits.slice();
 			newDigits.shift();
 			return new Uint(newDigits);

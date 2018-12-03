@@ -47,7 +47,7 @@ namespace app {
 			
 			// Select barcode generator function based on radio buttons
 			let radioElem = document.querySelector("#barcode-type-container input:checked") as HTMLInputElement;
-			let func = (barcodegen as any)[radioElem.id] as (((s: string) => barcodegen.Barcode) | undefined);
+			const func = (barcodegen as any)[radioElem.id] as (((s: string) => barcodegen.Barcode) | undefined);
 			if (func === undefined)
 				throw "Assertion error";
 			
@@ -70,7 +70,7 @@ namespace app {
 			barcode.forEach((barcolor, i) => {
 				for (let y = padding; y < height - padding; y++) {
 					for (let x = padding + i * scale, dx = 0; dx < scale; dx++) {
-						let k = ((y * width) + x + dx) * 4;
+						const k = ((y * width) + x + dx) * 4;
 						pixels[k + 0] = pixels[k + 1] = pixels[k + 2] = barcolor * 255;  // Red, green, blue channels
 					}
 				}
@@ -245,8 +245,8 @@ namespace barcodegen {
 		let encoded: string;  // String of n/w characters
 		encoded = "nnnn";  // Start
 		for (let i = 0; i < s.length; i += 2) {
-			let a: string = TABLE[parseInt(s.charAt(i + 0), 10)];
-			let b: string = TABLE[parseInt(s.charAt(i + 1), 10)];
+			const a: string = TABLE[parseInt(s.charAt(i + 0), 10)];
+			const b: string = TABLE[parseInt(s.charAt(i + 1), 10)];
 			for (let j = 0; j < 5; j++)
 				encoded += a.charAt(j) + b.charAt(j);
 		}
@@ -293,7 +293,7 @@ namespace barcodegen {
 		for (let i = 0; i < s.length; i++) {
 			if (i == s.length / 2)
 				result.appendDigits("10101");  // Middle
-			let code: string = TABLE[parseInt(s.charAt(i), 10)];
+			const code: string = TABLE[parseInt(s.charAt(i), 10)];
 			result.appendDigits(code, i >= s.length / 2);  // Invert right half
 		}
 		result.appendDigits("010");  // End
@@ -357,7 +357,7 @@ namespace barcodegen {
 		for (let i = 0; i < s.length; i++) {
 			if (i == s.length / 2)  // Center
 				result.appendDigits("10101");
-			let code: string = "1" + TABLE[parseInt(s.charAt(i), 10)] + "0";
+			const code: string = "1" + TABLE[parseInt(s.charAt(i), 10)] + "0";
 			result.appendDigits(code, i >= s.length / 2);  // Invert right half
 		}
 		result.appendDigits("010");  // End
@@ -401,7 +401,7 @@ namespace barcodegen {
 		public appendNarrowWide(s: string, narrow: number, wide: number) {
 			let color = 0;
 			for (const c of s) {
-				let rep = c == "n" ? narrow : wide;
+				const rep = c == "n" ? narrow : wide;
 				for (let i = 0; i < rep; i++)
 					this.bars.push(color);
 				color ^= 1;

@@ -28,7 +28,7 @@ function doBalance(): void {
 	codeOutElem.textContent = " ";
 	
 	// Parse equation
-	let formulaStr: string = formulaElem.value;
+	const formulaStr: string = formulaElem.value;
 	let eqn: Equation;
 	try {
 		eqn = new Parser(formulaStr).parseEquation();
@@ -39,7 +39,7 @@ function doBalance(): void {
 		} else if ("start" in e) {  // Error message object with start and possibly end character indices
 			msgElem.textContent = "Syntax error: " + e.message;
 			
-			let start: number = e.start;
+			const start: number = e.start;
 			let end: number = "end" in e ? e.end : e.start;
 			while (end > start && [" ", "\t"].indexOf(formulaStr.charAt(end - 1)) != -1)
 				end--;  // Adjust position to eliminate whitespace
@@ -62,7 +62,7 @@ function doBalance(): void {
 	try {
 		let matrix: Matrix = buildMatrix(eqn);                   // Set up matrix
 		solve(matrix);                                           // Solve linear system
-		let coefs: Array<number> = extractCoefficients(matrix);  // Get coefficients
+		const coefs: Array<number> = extractCoefficients(matrix);  // Get coefficients
 		checkAnswer(eqn, coefs);                                 // Self-test, should not fail
 		balancedElem.appendChild(eqn.toHtml(coefs));             // Display balanced equation
 	} catch (e) {
@@ -137,7 +137,7 @@ class Parser {
 	public parseEquation(): Equation {
 		let lhs: Array<Term> = [this.parseTerm()];
 		while (true) {
-			let next: string|null = this.tok.peek();
+			const next: string|null = this.tok.peek();
 			if (next == "+") {
 				this.tok.consume(next);
 				lhs.push(this.parseTerm());
@@ -150,7 +150,7 @@ class Parser {
 		
 		let rhs: Array<Term> = [this.parseTerm()];
 		while (true) {
-			let next: string|null = this.tok.peek();
+			const next: string|null = this.tok.peek();
 			if (next == null)
 				break;
 			else if (next == "+") {
@@ -165,7 +165,7 @@ class Parser {
 	
 	// Parses and returns a term.
 	private parseTerm(): Term {
-		let startPos: number = this.tok.pos;
+		const startPos: number = this.tok.pos;
 		
 		// Parse groups and elements
 		let items: Array<ChemElem|Group> = [];
@@ -227,11 +227,11 @@ class Parser {
 	
 	// Parses and returns a group.
 	private parseGroup(): Group {
-		let startPos: number = this.tok.pos;
+		const startPos: number = this.tok.pos;
 		this.tok.consume("(");
 		let items: Array<ChemElem|Group> = [];
 		while (true) {
-			let next: string|null = this.tok.peek();
+			const next: string|null = this.tok.peek();
 			if (next == "(")
 				items.push(this.parseGroup());
 			else if (next != null && /^[A-Z][a-z]*$/.test(next))
@@ -250,7 +250,7 @@ class Parser {
 	
 	// Parses and returns an element.
 	private parseElement(): ChemElem {
-		let name: string = this.tok.take();
+		const name: string = this.tok.take();
 		if (!/^[A-Z][a-z]*$/.test(name))
 			throw "Assertion error";
 		return new ChemElem(name, this.parseOptionalNumber());
@@ -259,7 +259,7 @@ class Parser {
 	
 	// Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
 	private parseOptionalNumber(): number {
-		let next: string|null = this.tok.peek();
+		const next: string|null = this.tok.peek();
 		if (next != null && /^[0-9]+$/.test(next))
 			return checkedParseInt(this.tok.take());
 		else
@@ -284,7 +284,7 @@ class Tokenizer {
 	public peek(): string|null {
 		if (this.pos == this.str.length)  // End of stream
 			return null;
-		let match: RegExpExecArray|null = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.pos));
+		const match: RegExpExecArray|null = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.pos));
 		if (match == null)
 			throw {message: "Invalid symbol", start: this.pos};
 		return match[0];
@@ -292,7 +292,7 @@ class Tokenizer {
 	
 	// Returns the next token as a string and advances this tokenizer past the token.
 	public take(): string {
-		let result = this.peek();
+		const result = this.peek();
 		if (result == null)
 			throw "Advancing beyond last token";
 		this.pos += result.length;
@@ -307,7 +307,7 @@ class Tokenizer {
 	}
 	
 	private skipSpaces(): void {
-		let match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.pos));
+		const match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.pos));
 		if (match === null)
 			throw "Assertion error";
 		this.pos += match[0].length;
@@ -333,8 +333,8 @@ class Equation {
 	// Returns an array of the names all of the elements used in this equation.
 	// The array represents a set, so the items are in an arbitrary order and no item is repeated.
 	public getElements(): Array<string> {
-		let result = new Set<string>();
-		for (let item of this.leftSide.concat(this.rightSide))
+		const result = new Set<string>();
+		for (const item of this.leftSide.concat(this.rightSide))
 			item.getElements(result);
 		return Array.from(result);
 	}
@@ -350,8 +350,8 @@ class Equation {
 		let j = 0;
 		function termsToHtml(terms: Array<Term>): void {
 			let head = true;
-			for (let term of terms) {
-				let coef = coefs !== undefined ? coefs[j] : 1;
+			for (const term of terms) {
+				const coef = coefs !== undefined ? coefs[j] : 1;
 				if (coef != 0) {
 					if (head)
 						head = false;
@@ -393,7 +393,7 @@ class Term {
 	
 	public getElements(resultSet: Set<string>): void {
 		resultSet.add("e");
-		for (let item of this.items)
+		for (const item of this.items)
 			item.getElements(resultSet);
 	}
 	
@@ -403,7 +403,7 @@ class Term {
 			return -this.charge;
 		} else {
 			let sum = 0;
-			for (let item of this.items)
+			for (const item of this.items)
 				sum = checkedAdd(sum, item.countElement(name));
 			return sum;
 		}
@@ -416,7 +416,7 @@ class Term {
 			node.textContent = "e";
 			node.appendChild(createElem("sup", MINUS));
 		} else {
-			for (let item of this.items)
+			for (const item of this.items)
 				node.appendChild(item.toHtml());
 			if (this.charge != 0) {
 				let s;
@@ -446,13 +446,13 @@ class Group {
 	}
 	
 	public getElements(resultSet: Set<string>): void {
-		for (let item of this.items)
+		for (const item of this.items)
 			item.getElements(resultSet);
 	}
 	
 	public countElement(name: string): number {
 		let sum = 0;
-		for (let item of this.items)
+		for (const item of this.items)
 			sum = checkedAdd(sum, checkedMultiply(item.countElement(name), this.count));
 		return sum;
 	}
@@ -460,7 +460,7 @@ class Group {
 	// Returns an HTML element representing this group.
 	public toHtml(): HTMLElement {
 		let node = createSpan("group", "(");
-		for (let item of this.items)
+		for (const item of this.items)
 			node.appendChild(item.toHtml());
 		node.appendChild(document.createTextNode(")"));
 		if (this.count != 1)
@@ -542,7 +542,7 @@ class Matrix {
 	private swapRows(i: number, j: number): void {
 		if (i < 0 || i >= this.numRows || j < 0 || j >= this.numRows)
 			throw "Index out of bounds";
-		let temp: Array<number> = this.cells[i];
+		const temp: Array<number> = this.cells[i];
 		this.cells[i] = this.cells[j];
 		this.cells[j] = temp;
 	}
@@ -567,7 +567,7 @@ class Matrix {
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
 	private static gcdRow(x: Array<number>): number {
 		let result = 0;
-		for (let val of x)
+		for (const val of x)
 			result = gcd(val, result);
 		return result;
 	}
@@ -576,7 +576,7 @@ class Matrix {
 	// For example, simplifyRow([0, -2, 2, 4]) = [0, 1, -1, -2].
 	private static simplifyRow(x: Array<number>): Array<number> {
 		let sign = 0;
-		for (let val of x) {
+		for (const val of x) {
 			if (val != 0) {
 				sign = Math.sign(val);
 				break;
@@ -584,7 +584,7 @@ class Matrix {
 		}
 		if (sign == 0)
 			return x.slice();
-		let g: number = Matrix.gcdRow(x) * sign;
+		const g: number = Matrix.gcdRow(x) * sign;
 		return x.map(val => val / g);
 	}
 	
@@ -602,13 +602,13 @@ class Matrix {
 				pivotRow++;
 			if (pivotRow == this.numRows)
 				continue;
-			let pivot = cells[pivotRow][i];
+			const pivot = cells[pivotRow][i];
 			this.swapRows(numPivots, pivotRow);
 			numPivots++;
 			
 			// Eliminate below
 			for (let j = numPivots; j < this.numRows; j++) {
-				let g = gcd(pivot, cells[j][i]);
+				const g = gcd(pivot, cells[j][i]);
 				cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][i] / g)));
 			}
 		}
@@ -621,11 +621,11 @@ class Matrix {
 				pivotCol++;
 			if (pivotCol == this.numCols)
 				continue;
-			let pivot = cells[i][pivotCol];
+			const pivot = cells[i][pivotCol];
 			
 			// Eliminate above
 			for (let j = i - 1; j >= 0; j--) {
-				let g = gcd(pivot, cells[j][pivotCol]);
+				const g = gcd(pivot, cells[j][pivotCol]);
 				cells[j] = Matrix.simplifyRow(Matrix.addRows(Matrix.multiplyRow(cells[j], pivot / g), Matrix.multiplyRow(cells[i], -cells[j][pivotCol] / g)));
 			}
 		}
@@ -641,11 +641,11 @@ function buildMatrix(eqn: Equation): Matrix {
 	let matrix = new Matrix(elems.length + 1, lhs.length + rhs.length + 1);
 	elems.forEach((elem, i) => {
 		let j = 0;
-		for (let term of lhs) {
+		for (const term of lhs) {
 			matrix.set(i, j,  term.countElement(elem));
 			j++;
 		}
-		for (let term of rhs) {
+		for (const term of rhs) {
 			matrix.set(i, j, -term.countElement(elem));
 			j++;
 		}
@@ -697,7 +697,7 @@ function extractCoefficients(matrix: Matrix): Array<number> {
 	let coefs: Array<number> = [];
 	let allzero = true;
 	for (let i = 0; i < cols - 1; i++) {
-		let coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
+		const coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
 		coefs.push(coef);
 		allzero = allzero && coef == 0;
 	}
@@ -713,7 +713,7 @@ function checkAnswer(eqn: Equation, coefs: Array<number>): void {
 		throw "Assertion error: Mismatched length";
 	
 	let allzero = true;
-	for (let coef of coefs) {
+	for (const coef of coefs) {
 		if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
 			throw "Assertion error: Not an integer";
 		allzero = allzero && coef == 0;
@@ -721,14 +721,14 @@ function checkAnswer(eqn: Equation, coefs: Array<number>): void {
 	if (allzero)
 		throw "Assertion error: All-zero solution";
 	
-	for (let elem of eqn.getElements()) {
+	for (const elem of eqn.getElements()) {
 		let sum = 0;
 		let j = 0;
-		for (let term of eqn.leftSide) {
+		for (const term of eqn.leftSide) {
 			sum = checkedAdd(sum, checkedMultiply(term.countElement(elem),  coefs[j]));
 			j++;
 		}
-		for (let term of eqn.rightSide) {
+		for (const term of eqn.rightSide) {
 			sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), -coefs[j]));
 			j++;
 		}
@@ -745,7 +745,7 @@ const INT_MAX: number = 9007199254740992;  // 2^53
 
 // Returns the given string parsed into a number, or throws an exception if the result is too large.
 function checkedParseInt(str: string): number {
-	let result = parseInt(str, 10);
+	const result = parseInt(str, 10);
 	if (isNaN(result))
 		throw "Not a number";
 	return checkOverflow(result);
@@ -776,7 +776,7 @@ function gcd(x: number, y: number): number {
 	x = Math.abs(x);
 	y = Math.abs(y);
 	while (y != 0) {
-		let z = x % y;
+		const z = x % y;
 		x = y;
 		y = z;
 	}
