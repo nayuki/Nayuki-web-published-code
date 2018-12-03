@@ -120,8 +120,8 @@ function makeCircumcircle(a, b, c) {
 	var d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 	if (d == 0)
 		return null;
-	var x = ox + ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
-	var y = oy + ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+	var x = ox + ((ax*ax + ay*ay) * (by - cy) + (bx*bx + by*by) * (cy - ay) + (cx*cx + cy*cy) * (ay - by)) / d;
+	var y = oy + ((ax*ax + ay*ay) * (cx - bx) + (bx*bx + by*by) * (ax - cx) + (cx*cx + cy*cy) * (bx - ax)) / d;
 	var ra = distance(x, y, a.x, a.y);
 	var rb = distance(x, y, b.x, b.y);
 	var rc = distance(x, y, c.x, c.y);

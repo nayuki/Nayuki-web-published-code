@@ -116,8 +116,8 @@ public final class SmallestEnclosingCircle {
 		double d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 		if (d == 0)
 			return null;
-		double x = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
-		double y = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+		double x = ((ax*ax + ay*ay) * (by - cy) + (bx*bx + by*by) * (cy - ay) + (cx*cx + cy*cy) * (ay - by)) / d;
+		double y = ((ax*ax + ay*ay) * (cx - bx) + (bx*bx + by*by) * (ax - cx) + (cx*cx + cy*cy) * (bx - ax)) / d;
 		Point p = new Point(ox + x, oy + y);
 		double r = Math.max(Math.max(p.distance(a), p.distance(b)), p.distance(c));
 		return new Circle(p, r);

@@ -107,8 +107,8 @@ def make_circumcircle(a, b, c):
 	d = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2.0
 	if d == 0.0:
 		return None
-	x = ox + ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
-	y = oy + ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
+	x = ox + ((ax*ax + ay*ay) * (by - cy) + (bx*bx + by*by) * (cy - ay) + (cx*cx + cy*cy) * (ay - by)) / d
+	y = oy + ((ax*ax + ay*ay) * (cx - bx) + (bx*bx + by*by) * (ax - cx) + (cx*cx + cy*cy) * (bx - ax)) / d
 	ra = math.hypot(x - a[0], y - a[1])
 	rb = math.hypot(x - b[0], y - b[1])
 	rc = math.hypot(x - c[0], y - c[1])

@@ -133,8 +133,8 @@ function makeCircumcircle(a: Point, b: Point, c: Point): Circle|null {
 	const d: number = (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) * 2;
 	if (d == 0)
 		return null;
-	const x: number = ox + ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
-	const y: number = oy + ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+	const x: number = ox + ((ax*ax + ay*ay) * (by - cy) + (bx*bx + by*by) * (cy - ay) + (cx*cx + cy*cy) * (ay - by)) / d;
+	const y: number = oy + ((ax*ax + ay*ay) * (cx - bx) + (bx*bx + by*by) * (ax - cx) + (cx*cx + cy*cy) * (bx - ax)) / d;
 	const ra: number = distance(x, y, a.x, a.y);
 	const rb: number = distance(x, y, b.x, b.y);
 	const rc: number = distance(x, y, c.x, c.y);

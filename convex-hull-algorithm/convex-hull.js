@@ -1,7 +1,7 @@
 /* 
  * Convex hull algorithm - Library (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2018 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -85,7 +85,7 @@ var convexhull = new function() {
 			return -1;
 		else if (a.x > b.x)
 			return +1;
-		if (a.y < b.y)
+		else if (a.y < b.y)
 			return -1;
 		else if (a.y > b.y)
 			return +1;
