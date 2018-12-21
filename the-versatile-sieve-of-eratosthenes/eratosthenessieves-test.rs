@@ -1,6 +1,6 @@
 /* 
  * Test of variants of the sieve of Eratosthenes (Rust)
- * by Project Nayuki, 2017. Public domain.
+ * by Project Nayuki, 2018. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -46,9 +46,7 @@ fn test_prefix_consistency<T: std::cmp::PartialEq + std::fmt::Debug>(func: fn(u3
 	let mut prev = Vec::<T>::new();
 	for i in 0 .. n {
 		let cur: Vec<T> = func(i);
-		for j in 0 .. i {
-			assert_eq!(prev[j as usize], cur[j as usize]);
-		}
+		assert_eq!(prev[..], cur[ .. i as usize]);
 		prev = cur;
 	}
 }

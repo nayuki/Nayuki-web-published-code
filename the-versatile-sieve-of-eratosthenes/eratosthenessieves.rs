@@ -1,6 +1,6 @@
 /* 
  * Variants of the sieve of Eratosthenes (Rust)
- * by Project Nayuki, 2017. Public domain.
+ * by Project Nayuki, 2018. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -15,9 +15,8 @@ pub fn sieve_primeness(limit: u32) -> Vec<bool> {
 		result[1] = false;
 	}
 	
-	let mut i: usize = 2;
 	let end: usize = floor_sqrt(limit) as usize;
-	while i <= end {
+	for i in 2 .. end + 1 {
 		if result[i] {
 			let mut j: usize = i * i;
 			let bound: usize = i.wrapping_neg();
@@ -29,7 +28,6 @@ pub fn sieve_primeness(limit: u32) -> Vec<bool> {
 				j += i;
 			}
 		}
-		i += 1;
 	}
 	result
 }
@@ -42,9 +40,8 @@ pub fn sieve_smallest_prime_factor(limit: u32) -> Vec<u32> {
 		result[1] = 1;
 	}
 	
-	let mut i: usize = 2;
 	let sqrt: usize = floor_sqrt(limit) as usize;
-	while i <= limit as usize {
+	for i in 2 .. (limit + 1) as usize {
 		if result[i] == 0 {
 			result[i] = i as u32;
 			if i <= sqrt {
@@ -57,11 +54,10 @@ pub fn sieve_smallest_prime_factor(limit: u32) -> Vec<u32> {
 					if j >= bound {
 						break;
 					}
-				j += i;
+					j += i;
 				}
 			}
 		}
-		i += 1;
 	}
 	result
 }
