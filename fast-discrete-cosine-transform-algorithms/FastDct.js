@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -142,7 +142,7 @@ var fastDctLee = new function() {
 	// See: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.3056&rep=rep1&type=pdf#page=34
 	this.transform = function(vector) {
 		var n = vector.length;
-		if (n <= 0 && (n & (n - 1)) != 0)
+		if (n <= 0 || (n & (n - 1)) != 0)
 			throw "Length must be power of 2";
 		transformInternal(vector, 0, n, new Float64Array(n));
 	};
@@ -173,7 +173,7 @@ var fastDctLee = new function() {
 	// See: https://www.nayuki.io/res/fast-discrete-cosine-transform-algorithms/lee-new-algo-discrete-cosine-transform.pdf
 	this.inverseTransform = function(vector) {
 		var n = vector.length;
-		if (n <= 0 && (n & (n - 1)) != 0)
+		if (n <= 0 || (n & (n - 1)) != 0)
 			throw "Length must be power of 2";
 		vector[0] /= 2;
 		inverseTransformInternal(vector, 0, n, new Float64Array(n));

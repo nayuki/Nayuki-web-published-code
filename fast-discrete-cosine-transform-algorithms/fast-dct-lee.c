@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@ static void inverseTransform(double vector[], double temp[], size_t len);
 // DCT type II, unscaled. Algorithm by Byeong Gi Lee, 1984.
 // See: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.118.3056&rep=rep1&type=pdf#page=34
 bool FastDctLee_transform(double vector[], size_t len) {
-	if (len > 0 && (len & (len - 1)) != 0)
+	if (len <= 0 || (len & (len - 1)) != 0)
 		return false;  // Length is not power of 2
 	if (SIZE_MAX / sizeof(double) < len)
 		return false;
@@ -71,7 +71,7 @@ static void forwardTransform(double vector[], double temp[], size_t len) {
 // DCT type III, unscaled. Algorithm by Byeong Gi Lee, 1984.
 // See: https://www.nayuki.io/res/fast-discrete-cosine-transform-algorithms/lee-new-algo-discrete-cosine-transform.pdf
 bool FastDctLee_inverseTransform(double vector[], size_t len) {
-	if (len > 0 && (len & (len - 1)) != 0)
+	if (len <= 0 || (len & (len - 1)) != 0)
 		return false;  // Length is not power of 2
 	if (SIZE_MAX / sizeof(double) < len)
 		return false;
