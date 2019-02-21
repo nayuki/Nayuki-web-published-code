@@ -1,7 +1,7 @@
 /* 
  * Simple FLAC encoder (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/simple-flac-implementation
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -78,8 +78,8 @@ public final class SimpleEncodeWavToFlac {
 		out.writeInt(1, 1);
 		out.writeInt(7, 0);
 		out.writeInt(24, 34);
-		out.writeInt(16, BLOCK_SIZE - 1);
-		out.writeInt(16, BLOCK_SIZE - 1);
+		out.writeInt(16, BLOCK_SIZE);
+		out.writeInt(16, BLOCK_SIZE);
 		out.writeInt(24, 0);
 		out.writeInt(24, 0);
 		out.writeInt(20, sampleRate);

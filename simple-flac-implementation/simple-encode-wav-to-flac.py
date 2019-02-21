@@ -1,7 +1,7 @@
 # 
 # Simple FLAC encoder (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2019 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/simple-flac-implementation
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -61,8 +61,8 @@ def encode_file(inp, out):
 	out.write_int(1, 1)
 	out.write_int(7, 0)
 	out.write_int(24, 34)
-	out.write_int(16, BLOCK_SIZE - 1)
-	out.write_int(16, BLOCK_SIZE - 1)
+	out.write_int(16, BLOCK_SIZE)
+	out.write_int(16, BLOCK_SIZE)
 	out.write_int(24, 0)
 	out.write_int(24, 0)
 	out.write_int(20, samplerate)
