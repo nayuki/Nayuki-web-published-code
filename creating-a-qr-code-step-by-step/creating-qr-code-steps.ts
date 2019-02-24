@@ -1,7 +1,7 @@
 /* 
  * Creating a QR Code step by step
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
@@ -160,7 +160,7 @@ namespace app {
 	
 	/*---- Main application ----*/
 	
-	export function doGenerate(ev?: Event) {
+	export function doGenerate(ev?: Event): void {
 		if (ev !== undefined)
 			ev.preventDefault();
 		
