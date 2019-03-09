@@ -735,19 +735,18 @@ namespace app {
 	
 	
 	function appendNewElem(container: HTMLElement, tag: string, text?: string|number): HTMLElement {
-		let result = document.createElement(tag);
+		let result = container.appendChild(document.createElement(tag));
 		if (text !== undefined)
 			result.textContent = text.toString();
-		container.appendChild(result);
 		return result;
 	}
 	
 	
 	function svgAppendNewElem(container: Element, tag: string, cls?: string): Element {
-		let result = document.createElementNS(container.namespaceURI, tag);
+		let result = container.appendChild(
+			document.createElementNS(container.namespaceURI, tag));
 		if (cls !== undefined)
 			result.setAttribute("class", cls);
-		container.appendChild(result);
 		return result;
 	}
 	

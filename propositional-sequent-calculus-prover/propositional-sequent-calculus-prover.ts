@@ -1,7 +1,7 @@
 /* 
  * Propositional sequent calculus prover
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
@@ -76,7 +76,7 @@ class Tree {
 			return document.createDocumentFragment();
 		let ul = document.createElement("ul");
 		trees.forEach(tree => {
-			let li = document.createElement("li");
+			let li = ul.appendChild(document.createElement("li"));
 			if (tree.sequent === "Fail")
 				li.textContent = "Fail";
 			else {
@@ -84,7 +84,6 @@ class Tree {
 				li.appendChild(Tree.toHtml(tree.children));
 				ul.appendChild(li);
 			}
-			ul.appendChild(li);
 		});
 		return ul;
 	}
@@ -119,10 +118,9 @@ class Sequent {
 			result.appendChild(document.createTextNode(text));
 		}
 		function appendSpan(text: string, clsName: string): void {
-			let elem = document.createElement("span");
+			let elem = result.appendChild(document.createElement("span"));
 			elem.textContent = text;
 			elem.className = clsName;
-			result.appendChild(elem);
 		}
 		
 		if (this.left.length == 0)

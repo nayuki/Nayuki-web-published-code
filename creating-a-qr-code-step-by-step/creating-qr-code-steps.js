@@ -1,7 +1,7 @@
 /*
  * Creating a QR Code step by step (compiled from TypeScript)
  *
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -890,7 +890,7 @@ var app;
     function initShowHideSteps() {
         var headings = document.querySelectorAll("article section h3");
         var showHideP = getElem("show-hide-steps");
-        var _loop_5 = function (heading) {
+        var _loop_1 = function (heading) {
             var parent_1 = heading.parentNode;
             var stepStr = /^\d+(?=\. )/.exec(heading.textContent)[0];
             var label = appendNewElem(showHideP, "label");
@@ -923,7 +923,7 @@ var app;
         };
         for (var _i = 0, headings_1 = headings; _i < headings_1.length; _i++) {
             var heading = headings_1[_i];
-            _loop_5(heading);
+            _loop_1(heading);
         }
     }
     var maskShower;
@@ -1049,8 +1049,8 @@ var app;
             ["Byte", true],
             ["Kanji", allKanji],
         ];
-        for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
-            var row = data_2[_i];
+        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+            var row = data_1[_i];
             var tr = appendNewElem(tbody, "tr");
             appendNewElem(tr, "td", row[0]);
             var td = appendNewElem(tr, "td", row[1] ? "Yes" : "No");
@@ -1152,7 +1152,7 @@ var app;
         ];
         var tbody = clearChildren("#codewords-per-version tbody");
         var result = -1;
-        var _loop_6 = function (ver) {
+        var _loop_2 = function (ver) {
             var tr = appendNewElem(tbody, "tr");
             var td = appendNewElem(tr, "td", ver);
             var numCodewords = Math.ceil(QrSegment.getTotalBits(segs, ver) / 8);
@@ -1172,7 +1172,7 @@ var app;
             });
         };
         for (var ver = 1; ver <= 40; ver++) {
-            _loop_6(ver);
+            _loop_2(ver);
         }
         getElem("chosen-version").textContent = result != -1 ? result.toString() : "Cannot fit any version";
         return result;
@@ -1249,7 +1249,7 @@ var app;
             var verticalTh = document.createElement("th");
             verticalTh.textContent = "Codeword index within block";
             verticalTh.rowSpan = shortBlockLen; // Not final value; work around Firefox bug
-            var _loop_7 = function (i) {
+            var _loop_3 = function (i) {
                 var isDataRow = i < shortBlockLen + 1 - blockEccLen;
                 var tr = appendNewElem(tbody, "tr");
                 tr.className = isDataRow ? "data" : "ecc";
@@ -1268,7 +1268,7 @@ var app;
                 }
             };
             for (var i = 0; i < shortBlockLen + 1; i++) {
-                _loop_7(i);
+                _loop_3(i);
             }
             tbody.clientHeight; // Read property to force reflow in Firefox
             verticalTh.rowSpan = shortBlockLen + 1;
@@ -1505,17 +1505,15 @@ var app;
         return elem;
     }
     function appendNewElem(container, tag, text) {
-        var result = document.createElement(tag);
+        var result = container.appendChild(document.createElement(tag));
         if (text !== undefined)
             result.textContent = text.toString();
-        container.appendChild(result);
         return result;
     }
     function svgAppendNewElem(container, tag, cls) {
-        var result = document.createElementNS(container.namespaceURI, tag);
+        var result = container.appendChild(document.createElementNS(container.namespaceURI, tag));
         if (cls !== undefined)
             result.setAttribute("class", cls);
-        container.appendChild(result);
         return result;
     }
     function intToBits(val, len) {

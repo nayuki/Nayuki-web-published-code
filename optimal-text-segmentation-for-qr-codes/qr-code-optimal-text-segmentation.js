@@ -1,7 +1,7 @@
 /*
  * Optimal text segmentation for QR Codes (compiled from TypeScript)
  *
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/optimal-text-segmentation-for-qr-codes
  */
@@ -81,12 +81,11 @@ var app;
             setText("num-segments-optimal", segs.length);
             setText("total-segment-bits-optimal", getTotalBits(segs, version_1));
             segs.forEach(function (seg, i) {
-                var span = document.createElement("span");
+                var span = textOut.appendChild(document.createElement("span"));
                 span.textContent = seg.text;
                 span.classList.add(seg.mode.toLowerCase());
                 span.title = "Segment index: " + i;
-                textOut.appendChild(span);
-                var tr = document.createElement("tr");
+                var tr = tableOut.appendChild(document.createElement("tr"));
                 tr.classList.add(seg.mode.toLowerCase());
                 var cells = [
                     i,
@@ -99,11 +98,9 @@ var app;
                 ];
                 for (var _i = 0, cells_1 = cells; _i < cells_1.length; _i++) {
                     var s = cells_1[_i];
-                    var td = document.createElement("td");
+                    var td = tr.appendChild(document.createElement("td"));
                     td.textContent = s.toString();
-                    tr.appendChild(td);
                 }
-                tableOut.appendChild(tr);
             });
         }
         // Process the comparison between segmentation algorithms

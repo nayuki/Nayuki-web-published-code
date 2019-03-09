@@ -1,7 +1,7 @@
 /*
  * Propositional sequent calculus prover (compiled from TypeScript)
  *
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
@@ -69,7 +69,7 @@ var Tree = /** @class */ (function () {
             return document.createDocumentFragment();
         var ul = document.createElement("ul");
         trees.forEach(function (tree) {
-            var li = document.createElement("li");
+            var li = ul.appendChild(document.createElement("li"));
             if (tree.sequent === "Fail")
                 li.textContent = "Fail";
             else {
@@ -77,7 +77,6 @@ var Tree = /** @class */ (function () {
                 li.appendChild(Tree.toHtml(tree.children));
                 ul.appendChild(li);
             }
-            ul.appendChild(li);
         });
         return ul;
     };
@@ -111,10 +110,9 @@ var Sequent = /** @class */ (function () {
             result.appendChild(document.createTextNode(text));
         }
         function appendSpan(text, clsName) {
-            var elem = document.createElement("span");
+            var elem = result.appendChild(document.createElement("span"));
             elem.textContent = text;
             elem.className = clsName;
-            result.appendChild(elem);
         }
         if (this.left.length == 0)
             appendText(EMPTY);

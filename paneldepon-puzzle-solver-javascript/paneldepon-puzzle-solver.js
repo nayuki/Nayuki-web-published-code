@@ -1,7 +1,7 @@
 /*
  * Panel de Pon puzzle solver (compiled from TypeScript)
  *
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -18,16 +18,15 @@ var app;
         var tbodyElem = document.querySelector("#game-board tbody");
         clearChildren(tbodyElem);
         // Create header row's cells
-        var tr = createElement("tr", createElement("td"));
+        var tr = tbodyElem.appendChild(createElement("tr", createElement("td")));
         for (var x = 0; x < Grid.WIDTH; x++)
             tr.appendChild(createElement("td", formatXCoordinate(x)));
-        tbodyElem.appendChild(tr);
         // Create remaining rows' cells
         var numColors = Grid.TILE_COLORS.length;
         var _loop_1 = function (y) {
-            var tr_1 = createElement("tr", createElement("td", y.toString()));
+            var tr_1 = tbodyElem.appendChild(createElement("tr", createElement("td", y.toString())));
             var _loop_2 = function (x) {
-                var td = createElement("td");
+                var td = tr_1.appendChild(createElement("td"));
                 // Set event handlers
                 td.onmousedown = function (ev) {
                     var inc = 0;
@@ -39,12 +38,10 @@ var app;
                     handleBoardChanged();
                 };
                 td.oncontextmenu = td.onselectstart = (function () { return false; });
-                tr_1.appendChild(td);
             };
             for (var x = 0; x < Grid.WIDTH; x++) {
                 _loop_2(x);
             }
-            tbodyElem.appendChild(tr_1);
         };
         for (var y = Grid.HEIGHT - 1; y >= 0; y--) {
             _loop_1(y);

@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -28,17 +28,16 @@ namespace app {
 		clearChildren(tbodyElem);
 		
 		// Create header row's cells
-		let tr: HTMLElement = createElement("tr", createElement("td"));
+		let tr: HTMLElement = tbodyElem.appendChild(createElement("tr", createElement("td")));
 		for (let x = 0; x < Grid.WIDTH; x++)
 			tr.appendChild(createElement("td", formatXCoordinate(x)));
-		tbodyElem.appendChild(tr);
 		
 		// Create remaining rows' cells
 		const numColors = Grid.TILE_COLORS.length;
 		for (let y = Grid.HEIGHT - 1; y >= 0; y--) {
-			let tr: HTMLElement = createElement("tr", createElement("td", y.toString()));
+			let tr: HTMLElement = tbodyElem.appendChild(createElement("tr", createElement("td", y.toString())));
 			for (let x = 0; x < Grid.WIDTH; x++) {
-				let td: HTMLElement = createElement("td");
+				let td: HTMLElement = tr.appendChild(createElement("td"));
 				// Set event handlers
 				td.onmousedown = (ev: MouseEvent) => {
 					let inc = 0;
@@ -50,9 +49,7 @@ namespace app {
 					handleBoardChanged();
 				};
 				td.oncontextmenu = td.onselectstart = (() => false);
-				tr.appendChild(td);
 			}
-			tbodyElem.appendChild(tr);
 		}
 		handleBoardChanged();
 	}
