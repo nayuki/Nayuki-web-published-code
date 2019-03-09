@@ -62,7 +62,7 @@ var YIELD_AFTER_TIME = 20;  // In milliseconds; a long computation relinquishes/
 var ANNEAL_REDRAW_TIME = 300;  // In milliseconds; the minimum amount of time between image and text updates when performing annealing
 
 
-function init() {
+function initialize() {
 	baseImage.onload = function() {
 		canvasElem.width = width = baseImage.width;
 		canvasElem.height = height = baseImage.height;
@@ -80,7 +80,7 @@ function init() {
 		imageSelectElem.removeChild(imageSelectElem.firstChild);
 	IMAGE_LIST.forEach(function(entry) {
 		var option = imageSelectElem.appendChild(document.createElement("option"));
-		option.appendChild(document.createTextNode(entry[0]));
+		option.textContent = entry[0];
 	});
 	
 	imageSelectElem.selectedIndex = Math.floor(Math.random() * IMAGE_LIST.length);
@@ -318,4 +318,4 @@ function element(elemId) {
 
 
 // We put this call after all global variables are declared
-init();
+initialize();

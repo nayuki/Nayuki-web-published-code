@@ -23,34 +23,26 @@ function doProve(inputSequent: string): void {
 	clearChildren(codeOutElem);
 	clearChildren(proofElem);
 	
-	function appendText(node: HTMLElement, text: string): void {
-		node.appendChild(document.createTextNode(text));
-	}
-	
-	let proof: Tree;
 	try {
 		const seq: Sequent = parseSequent(new Tokenizer(inputSequent));
-		proof = prove(seq);
-		appendText(msgElem, "Proof:");
-		proofElem.appendChild(Tree.toHtml([proof]));
+		let proof: Tree = prove(seq);
+		msgElem.textContent = "Proof:";
+		proofElem.appendChild(proof.toHtml());
 		
 	} catch (e) {
 		if (typeof e == "string")
-			appendText(msgElem, "Error: " + e);
+			msgElem.textContent = "Error: " + e;
 		else if ("position" in e) {
-			appendText(msgElem, "Syntax error: " + e.message);
-			appendText(codeOutElem, inputSequent.substring(0, e.position));
-			const highlight = document.createElement("u");
+			msgElem.textContent = "Syntax error: " + e.message;
+			codeOutElem.textContent = inputSequent.substring(0, e.position);
+			let highlight = codeOutElem.appendChild(document.createElement("u"));
 			if (e.position < inputSequent.length) {
-				appendText(highlight, inputSequent.substring(e.position, e.position + 1));
-				codeOutElem.appendChild(highlight);
-				appendText(codeOutElem, inputSequent.substring(e.position + 1));
-			} else {
-				appendText(highlight, " ");
-				codeOutElem.appendChild(highlight);
-			}
+				highlight.textContent = inputSequent.substring(e.position, e.position + 1);
+				codeOutElem.appendChild(document.createTextNode(inputSequent.substring(e.position + 1)));
+			} else
+				highlight.textContent = " ";
 		} else
-			appendText(msgElem, "Error: " + e);
+			msgElem.textContent = "Error: " + e;
 	}
 }
 
@@ -71,21 +63,19 @@ class Tree {
 		this.children = children;
 	}
 	
-	public static toHtml(trees: Array<Tree>): HTMLElement|DocumentFragment {
-		if (trees.length == 0)
-			return document.createDocumentFragment();
+	public toHtml(): HTMLElement {
+		let result = document.createElement("li");
+		if (typeof this.sequent == "string")
+			result.textContent = this.sequent;
+		else
+			result.appendChild(this.sequent.toHtml());
+		
 		let ul = document.createElement("ul");
-		trees.forEach(tree => {
-			let li = ul.appendChild(document.createElement("li"));
-			if (tree.sequent === "Fail")
-				li.textContent = "Fail";
-			else {
-				li.appendChild(tree.sequent.toHtml());
-				li.appendChild(Tree.toHtml(tree.children));
-				ul.appendChild(li);
-			}
-		});
-		return ul;
+		for (const subtree of this.children) {
+			result.appendChild(ul);
+			ul.appendChild(subtree.toHtml());
+		}
+		return result;
 	}
 }
 
@@ -260,10 +250,10 @@ function prove(sequent: Sequent): Tree {
 	for (let i = 0; i < left.length; i++) {
 		const term = left[i];
 		if (term instanceof OrTerm) {
-			left.splice(i, 1, term.left);
+			left[i] = term.left;
 			const seq0 = new Sequent(left, right);
 			left = left.slice();
-			left.splice(i, 1, term.right);
+			left[i] = term.right;
 			const seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
@@ -271,10 +261,10 @@ function prove(sequent: Sequent): Tree {
 	for (let i = 0; i < right.length; i++) {
 		const term = right[i];
 		if (term instanceof AndTerm) {
-			right.splice(i, 1, term.left);
+			right[i] = term.left;
 			const seq0 = new Sequent(left, right);
 			right = right.slice();
-			right.splice(i, 1, term.right);
+			right[i] = term.right;
 			const seq1 = new Sequent(left, right);
 			return new Tree(sequent, prove(seq0), prove(seq1));
 		}
