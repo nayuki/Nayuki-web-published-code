@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Triangle solver (JavaScript)</title>
-		<!-- Copyright (c) 2018 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
+		<!-- Copyright (c) 2019 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
 		<style type="text/css">
 		html {
 			background-color: #FFFFFF;
@@ -421,7 +421,7 @@
 			function initImageMap() {
 				var container = document.getElementById("diagramcontainer");
 				rectangles.forEach(function(rect, i) {
-					var elem = document.createElement("a");
+					var elem = container.appendChild(document.createElement("a"));
 					elem.href = "#";
 					elem.classList.add("letterhover");
 					rect[0] -= Math.round((RECT_PADDED_SIZE - rect[2]) / 2);
@@ -471,7 +471,6 @@
 						document.getElementById(ioNames[i] + "in").select();
 						return false;
 					};
-					container.appendChild(elem);
 				});
 			}
 			

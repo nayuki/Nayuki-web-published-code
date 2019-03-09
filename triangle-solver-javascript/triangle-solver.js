@@ -1,7 +1,7 @@
 /* 
  * Triangle solver
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/triangle-solver-javascript
  */
@@ -236,7 +236,7 @@ var rectangles = [
 function initImageMap() {
 	var container = document.getElementById("diagramcontainer");
 	rectangles.forEach(function(rect, i) {
-		var elem = document.createElement("a");
+		var elem = container.appendChild(document.createElement("a"));
 		elem.href = "#";
 		elem.classList.add("letterhover");
 		rect[0] -= Math.round((RECT_PADDED_SIZE - rect[2]) / 2);
@@ -286,7 +286,6 @@ function initImageMap() {
 			document.getElementById(ioNames[i] + "in").select();
 			return false;
 		};
-		container.appendChild(elem);
 	});
 }
 

@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!--
   - Full screen clock (analog with seconds)
-  - Copyright (c) 2018 Project Nayuki
+  - Copyright (c) 2019 Project Nayuki
   - 
   - https://www.nayuki.io/page/full-screen-clock-javascript
   -->
@@ -25,10 +25,10 @@
 	
 	function initialize() {
 		for (var i = 0; i < 12; i++) {
-			var elem = document.createElementNS(document.documentElement.namespaceURI, "use");
+			var elem = document.getElementById("hour-marks").appendChild(
+				document.createElementNS(document.documentElement.namespaceURI, "use"));
 			elem.setAttribute("href", "#hour-mark");
 			rotateElem(elem, i / 12 * 360);
-			document.getElementById("hour-marks").appendChild(elem);
 		}
 		updateClock();
 		document.getElementById("hands").removeAttribute("style");

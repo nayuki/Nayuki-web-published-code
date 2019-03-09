@@ -1,7 +1,7 @@
 /* 
  * Tax-free savings account simulator
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/canada-tax-free-savings-account-simulator-javascript
  */
@@ -152,9 +152,8 @@ function display() {
 	function appendTd(content) {
 		if (typeof content == "string")
 			content = [document.createTextNode(content)];
-		var td = document.createElement("td");
+		var td = tr.appendChild(document.createElement("td"));
 		content.forEach(td.appendChild, td);
-		tr.appendChild(td);
 	}
 	
 	function formatMoney(amount) {
@@ -193,7 +192,7 @@ function display() {
 	var cheqElem = document.getElementById("chequing-transactions");
 	clearChildren(cheqElem);
 	for (var i = showAllTransactions ? 0 : chequingTransactions.length - TRANSACTION_ROWS; i < chequingTransactions.length; i++) {
-		tr = document.createElement("tr");
+		tr = cheqElem.appendChild(document.createElement("tr"));
 		if (i < 0) {
 			for (var j = 0; j < 4; j++)
 				appendTd(NBSP);
@@ -204,13 +203,12 @@ function display() {
 			appendTd(formatMoney(trans[2]));
 			appendTd(formatMoney(trans[3]));
 		}
-		cheqElem.appendChild(tr);
 	}
 	
 	var tfsaElem = document.getElementById("tfsa-transactions");
 	clearChildren(tfsaElem);
 	for (var i = showAllTransactions ? 0 : tfsaTransactions.length - TRANSACTION_ROWS; i < tfsaTransactions.length; i++) {
-		tr = document.createElement("tr");
+		tr = tfsaElem.appendChild(document.createElement("tr"));
 		if (i < 0) {
 			for (var j = 0; j < 6; j++)
 				appendTd(NBSP);
@@ -223,7 +221,6 @@ function display() {
 			appendTd(formatMoney(trans[4]));
 			appendTd(formatMoney(trans[5]));
 		}
-		tfsaElem.appendChild(tr);
 	}
 	
 	setText("current-date", formatDate(date));

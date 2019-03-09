@@ -1,7 +1,7 @@
 /* 
  * Image unshredder demo (JavaScript)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -79,9 +79,8 @@ function init() {
 	while (imageSelectElem.firstChild != null)
 		imageSelectElem.removeChild(imageSelectElem.firstChild);
 	IMAGE_LIST.forEach(function(entry) {
-		var option = document.createElement("option");
+		var option = imageSelectElem.appendChild(document.createElement("option"));
 		option.appendChild(document.createTextNode(entry[0]));
-		imageSelectElem.appendChild(option);
 	});
 	
 	imageSelectElem.selectedIndex = Math.floor(Math.random() * IMAGE_LIST.length);

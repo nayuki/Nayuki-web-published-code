@@ -1,7 +1,7 @@
 /* 
  * Automatic Caesar cipher breaker
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/automatic-caesar-cipher-breaker-javascript
  */
@@ -35,29 +35,24 @@ function doBreak() {
 	clearChildren(guessesElem);
 	var maxEntropy = entropies[entropies.length - 1][1];
 	entropies.forEach(function(item, index) {
-		var tr = document.createElement("tr");
+		var tr = guessesElem.appendChild(document.createElement("tr"));
 		if (index == 0)
 			tr.classList.add("active");
 		
-		var td = document.createElement("td");
+		var td = tr.appendChild(document.createElement("td"));
 		td.textContent = item[0].toString();
-		tr.appendChild(td);
 		
-		td = document.createElement("td");
+		td = tr.appendChild(document.createElement("td"));
 		td.textContent = item[1].toFixed(3);
-		tr.appendChild(td);
 		
-		td = document.createElement("td");
-		var div = document.createElement("div");
+		td = tr.appendChild(document.createElement("td"));
+		var div = td.appendChild(document.createElement("div"));
 		div.classList.add("bar");
 		div.style.width = (item[1] / maxEntropy * 30).toFixed(6) + "em";
-		td.appendChild(div);
-		tr.appendChild(td);
 		
 		tr.onclick = function() {
 			setShift(item[0]);
 		};
-		guessesElem.appendChild(tr);
 	});
 }
 

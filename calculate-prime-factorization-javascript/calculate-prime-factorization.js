@@ -1,7 +1,7 @@
 /* 
  * Calculate prime factorization
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-prime-factorization-javascript
  */
@@ -32,9 +32,8 @@ function factor() {
 	var outElem1 = document.getElementById("factorization1");
 	clearChildren(outElem1);
 	outElem1.textContent = NBSP;
-	var temp = document.createElement("sup");
+	var temp = outElem1.appendChild(document.createElement("sup"));
 	temp.textContent = NBSP;
-	outElem1.appendChild(temp);
 	
 	if (!/^-?\d+$/.test(numberText)) {
 		factorization0Elem.textContent = "Not an integer";
@@ -69,9 +68,8 @@ function factor() {
 				
 				appendText(factPow[0].toString());
 				if (factPow[1] > 1) {
-					var temp = document.createElement("sup");
+					var temp = outElem1.appendChild(document.createElement("sup"));
 					temp.textContent = factPow[1].toString();
-					outElem1.appendChild(temp);
 				}
 			});
 		}
