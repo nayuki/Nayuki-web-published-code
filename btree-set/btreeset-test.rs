@@ -1,7 +1,7 @@
 /* 
  * B-tree set test (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,9 +23,9 @@
 
 use std::collections::HashSet;
 extern crate rand;
+use rand::Rng;
 use rand::distributions::IndependentSample;
 use rand::distributions::range::Range;
-use rand::Rng;
 mod btreeset;
 use btreeset::BTreeSet;
 
@@ -44,7 +44,7 @@ fn test_small_randomly() {
 	let operations = 100;
 	let range = 1000;
 	let mut rng = rand::thread_rng(); let rng = &mut rng;
-	let degreedist = Range::new(2usize, 7usize);
+	let degreedist = Range::new(2usize, 7);
 	let valuedist = Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
@@ -110,7 +110,7 @@ fn test_large_randomly() {
 	let range = 100_000;
 	let checks = 10;
 	let mut rng = rand::thread_rng(); let rng = &mut rng;
-	let degreedist = Range::new(2usize, 7usize);
+	let degreedist = Range::new(2usize, 7);
 	let valuedist = Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
@@ -145,7 +145,7 @@ fn test_remove_all_randomly() {
 	let range = 100_000;
 	let checks = 10;
 	let mut rng = rand::thread_rng(); let rng = &mut rng;
-	let degreedist = Range::new(2usize, 7usize);
+	let degreedist = Range::new(2usize, 7);
 	let valuedist = Range::new(0i32, range);
 	
 	for _ in 0 .. trials {

@@ -1,7 +1,7 @@
 /* 
  * Binomial heap test (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,6 +34,7 @@ fn main() {
 	test_size_7();
 	test_against_vec_randomly();
 	test_against_rust_binary_heap_randomly();
+	println!("Test passed");
 }
 
 

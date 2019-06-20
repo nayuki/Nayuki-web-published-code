@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,6 +36,7 @@ fn main() {
 	test_fast_dct8_vs_naive();
 	test_fast_dct_fft_vs_naive();
 	test_fast_dct_fft_invertibility();
+	println!("Test passed");
 }
 
 
@@ -80,16 +81,16 @@ fn test_fast_dct8_vs_naive() {
 	let vector = random_vector(8);
 	
 	let mut expect = naive_dct::transform(&vector);
-	for i in 0 .. expect.len() {
-		expect[i] /= if i == 0 { (8.0f64).sqrt() } else { 2.0 };
+	for (i, x) in expect.iter_mut().enumerate() {
+		*x /= if i == 0 { (8.0f64).sqrt() } else { 2.0 };
 	}
 	let mut actual = vector.clone();
 	fast_dct8::transform(&mut actual);
 	assert_array_equals(&expect, &actual, EPSILON);
 	
 	let mut expect = vector.clone();
-	for i in 0 .. expect.len() {
-		expect[i] /= if i == 0 { (2.0f64).sqrt() } else { 2.0 };
+	for (i, x) in expect.iter_mut().enumerate() {
+		*x /= if i == 0 { (2.0f64).sqrt() } else { 2.0 };
 	}
 	let expect = naive_dct::inverse_transform(&mut expect);
 	let mut actual = vector.clone();

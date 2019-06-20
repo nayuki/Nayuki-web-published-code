@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,9 +33,7 @@ pub struct AvlTreeList<E> {
 impl <E> AvlTreeList<E> {
 	
 	pub fn new() -> Self {
-		Self {
-			root: MaybeNode(None),
-		}
+		Self { root: MaybeNode(None) }
 	}
 	
 	
@@ -123,18 +121,12 @@ struct MaybeNode<E>(Option<Box<Node<E>>>);
 impl <E> MaybeNode<E> {
 	
 	fn size(&self) -> usize {
-		match self.0 {
-			None => 0,
-			Some(ref node) => node.size,
-		}
+		self.0.as_ref().map_or(0, |node| node.size)
 	}
 	
 	
 	fn height(&self) -> i16 {
-		match self.0 {
-			None => 0,
-			Some(ref node) => node.height,
-		}
+		self.0.as_ref().map_or(0, |node| node.height)
 	}
 	
 	

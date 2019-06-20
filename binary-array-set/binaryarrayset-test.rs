@@ -1,7 +1,7 @@
 /* 
  * Binary array set test (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,6 +33,7 @@ fn main() {
 	test_add_1();
 	test_iterator();
 	test_against_rust_set_randomly();
+	println!("Test passed");
 }
 
 
@@ -139,7 +140,6 @@ fn test_against_rust_set_randomly() {
 		assert_eq!(set0.len(), size, "Set size mismatch");
 		assert_eq!(set1.len(), size, "Set size mismatch");
 	}
-	println!("Test passed");
 }
 
 

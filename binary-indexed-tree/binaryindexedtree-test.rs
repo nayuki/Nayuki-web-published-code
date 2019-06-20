@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree test (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,6 +34,7 @@ fn main() {
 	test_all_ones();
 	test_array_constructor_randomly();
 	test_add_and_set_randomly();
+	println!("Test passed");
 }
 
 

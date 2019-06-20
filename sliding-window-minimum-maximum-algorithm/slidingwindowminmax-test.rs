@@ -31,6 +31,7 @@ mod slidingwindowminmax;
 fn main() {
 	test_randomly();
 	test_incremental();
+	println!("Test passed");
 }
 
 
@@ -43,7 +44,8 @@ fn test_randomly() {
 	
 	for _ in 0 .. trials {
 		let arraylen = arraylendist.ind_sample(&mut rng);
-		let array: Vec<u32> = (0 .. arraylen).map(|_| valuedist.ind_sample(&mut rng)).collect();
+		let array: Vec<u32> = (0 .. arraylen).map(
+			|_| valuedist.ind_sample(&mut rng)).collect();
 		let window = windowdist.ind_sample(&mut rng);
 		let maximize: bool = rng.gen();
 		
@@ -61,7 +63,8 @@ fn test_incremental() {
 	
 	for _ in 0 .. trials {
 		let arraylen: usize = 1000;
-		let array: Vec<i8> = (0 .. arraylen).map(|_| valuedist.ind_sample(&mut rng)).collect();
+		let array: Vec<i8> = (0 .. arraylen).map(
+			|_| valuedist.ind_sample(&mut rng)).collect();
 		
 		let mut swm = slidingwindowminmax::SlidingWindowMinMax::new();
 		let mut start: usize = 0;

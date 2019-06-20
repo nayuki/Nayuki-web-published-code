@@ -1,7 +1,7 @@
 /* 
  * Binary array set (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -72,13 +72,11 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	
 	// Runs in average-case O((log n)^2) time, worst-case O(n) time
 	pub fn insert(&mut self, val: E) -> bool {
-		// Checking for duplicates is expensive
-		if self.contains(&val) {
-			return false;
-		} else {
+		let result = !self.contains(&val);  // Checking for duplicates is expensive
+		if result {
 			self.insert_unique(val);
-			return true;
 		}
+		result
 	}
 	
 	

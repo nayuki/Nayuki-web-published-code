@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,8 +21,8 @@
  *   Software.
  */
 
-use fft;
 use std;
+use fft;
 
 
 /* 

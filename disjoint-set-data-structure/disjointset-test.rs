@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,8 +22,8 @@
  */
 
 extern crate rand;
-use rand::distributions::IndependentSample;
 use rand::Rng;
+use rand::distributions::IndependentSample;
 mod disjointset;
 use disjointset::DisjointSet;
 
@@ -150,9 +150,7 @@ struct NaiveDisjointSet {
 impl NaiveDisjointSet {
 	
 	fn new(numelems: usize) -> Self {
-		NaiveDisjointSet {
-			representatives: (0usize .. numelems).collect(),
-		}
+		Self { representatives: (0usize .. numelems).collect() }
 	}
 	
 	

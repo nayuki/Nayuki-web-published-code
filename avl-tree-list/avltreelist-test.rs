@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,6 +43,7 @@ fn main() {
 	test_clear();
 	test_iterator();
 	test_against_rust_vec_randomly();
+	println!("Test passed");
 }
 
 

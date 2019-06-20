@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,7 +33,7 @@ pub fn transform(real: &mut [f64], imag: &mut [f64]) {
 	assert_eq!(imag.len(), n);
 	if n == 0 {
 		return;
-	} else if n & (n - 1) == 0 {  // Is power of 2
+	} else if n.count_ones() == 1 {  // Is power of 2
 		transform_radix2(real, imag);
 	} else {  // More complicated algorithm for arbitrary sizes
 		transform_bluestein(real, imag);
@@ -182,7 +182,10 @@ pub fn convolve_real(x: &[f64], y: &[f64], out: &mut [f64]) {
 	let n: usize = x.len();
 	assert_eq!(y.len(), n);
 	assert_eq!(out.len(), n);
-	convolve_complex(x, &mut vec![0.0; n], y, &mut vec![0.0; n], out, &mut vec![0.0; n]);
+	convolve_complex(
+		x  , &mut vec![0.0; n],
+		y  , &mut vec![0.0; n],
+		out, &mut vec![0.0; n]);
 }
 
 
