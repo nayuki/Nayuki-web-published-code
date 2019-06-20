@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,8 +35,8 @@ public final class SlidingWindowMinMax<E extends Comparable<? super E>> {
 	
 	/* 
 	 * Returns a new array such that each result[i] =
-	 * min(array[i], array[i+1], ..., array[i+windowSize-1]) or
-	 * max(array[i], array[i+1], ..., array[i+windowSize-1]),
+	 * min(array[i], array[i+1], ..., array[i+window-1]) or
+	 * max(array[i], array[i+1], ..., array[i+window-1]),
 	 * depending on the maximize argument.
 	 */
 	public static int[] compute(int[] array, int window, boolean maximize) {
@@ -67,8 +67,8 @@ public final class SlidingWindowMinMax<E extends Comparable<? super E>> {
 	
 	/*
 	 * Returns a new array such that each result[i] =
-	 * min(list[i], list[i+1], ..., list[i+windowSize-1]) or
-	 * max(list[i], list[i+1], ..., list[i+windowSize-1]),
+	 * min(list[i], list[i+1], ..., list[i+window-1]) or
+	 * max(list[i], list[i+1], ..., list[i+window-1]),
 	 * depending on the maximize argument.
 	 */
 	public static <E extends Comparable<? super E>> List<E> compute(List<E> list, int window, boolean maximize) {
