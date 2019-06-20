@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max test (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -86,7 +86,7 @@ static void testRandomly() {
 		
 		vector<int> array;
 		size_t arrayLen = arrayLenDist(randGen);
-		for (size_t i = 0; i < arrayLen; i++)
+		for (size_t j = 0; j < arrayLen; j++)
 			array.push_back(valueDist(randGen));
 		size_t window = windowDist(randGen);
 		bool maximize = boolDist(randGen);
@@ -95,8 +95,8 @@ static void testRandomly() {
 		vector<int> actual = computeSlidingWindowMinOrMax     (array, window, maximize);
 		if (expect.size() != actual.size())
 			throw "Size mismatch";
-		for (size_t i = 0; i < expect.size(); i++) {
-			if (expect.at(i) != actual.at(i))
+		for (size_t j = 0; j < expect.size(); j++) {
+			if (expect.at(j) != actual.at(j))
 				throw "Value mismatch";
 		}
 	}
@@ -109,7 +109,7 @@ static void testIncremental() {
 		
 		vector<int> array;
 		size_t arrayLen = 1000;
-		for (size_t i = 0; i < arrayLen; i++)
+		for (size_t j = 0; j < arrayLen; j++)
 			array.push_back(valueDist(randGen));
 		
 		SlidingWindowMinMax<int> swm;
