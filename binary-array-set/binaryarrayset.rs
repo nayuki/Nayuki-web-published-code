@@ -94,7 +94,7 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 			// Merge two sorted arrays
 			assert_eq!(vals.len(), toput.len());
 			assert!(vals.len() <= std::usize::MAX / 2);
-			toput = BinaryArraySet::merge_vecs(vals, &mut toput);
+			toput = BinaryArraySet::merge_vecs(vals, toput);
 		}
 		self.values.push(toput);
 	}
@@ -116,18 +116,27 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 	
 	// (Private) Assuming that xs and ys are both in ascending order, this
 	// moves all their elements into a new sorted vector zs and returns it.
-	fn merge_vecs(xs: &mut Vec<E>, ys: &mut Vec<E>) -> Vec<E> {
+	fn merge_vecs(xs: &mut Vec<E>, ys: Vec<E>) -> Vec<E> {
 		let mut result = Vec::<E>::with_capacity(xs.len() + ys.len());
+		let mut xiter = xs.drain(..);
+		let mut yiter = ys.into_iter();
+		let mut xnext = xiter.next();
+		let mut ynext = yiter.next();
 		loop {
-			let which: bool = match (xs.last(), ys.last()) {
+			let takex: bool = match (xnext.as_ref(), ynext.as_ref()) {
 				(None, None) => break,
-				(None, _) => false,
 				(_, None) => true,
-				(Some(x), Some(y)) => x > y,
+				(None, _) => false,
+				(Some(x), Some(y)) => *x <= *y,
 			};
-			result.push((if which { xs.pop() } else { ys.pop() }).unwrap());
+			if takex {
+				result.push(xnext.unwrap());
+				xnext = xiter.next();
+			} else {
+				result.push(ynext.unwrap());
+				ynext = yiter.next();
+			}
 		}
-		result.reverse();
 		result
 	}
 	

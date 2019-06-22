@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
  */
@@ -15,11 +15,16 @@ import java.util.Objects;
  */
 public final class QuadraticSurdField extends Field<QuadraticSurd> {
 	
+	/*---- Fields ----*/
+	
 	/**
 	 * The value under the square root. All arguments and return values must have {@code d} equal to this value. Not null.
 	 */
 	public final BigInteger d;
 	
+	
+	
+	/*---- Constructor ----*/
 	
 	/**
 	 * Constructs a quadratic surd field with the specified number under the square root.
@@ -33,20 +38,22 @@ public final class QuadraticSurdField extends Field<QuadraticSurd> {
 	}
 	
 	
-	public boolean equals(QuadraticSurd x, QuadraticSurd y) {
-		check(x);
-		check(y);
-		return x.equals(y);
-	}
 	
+	/*---- Methods ----*/
 	
 	public QuadraticSurd zero() {
 		return new QuadraticSurd(BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE, d);
 	}
 	
-	
 	public QuadraticSurd one() {
 		return new QuadraticSurd(BigInteger.ONE, BigInteger.ZERO, BigInteger.ONE, d);
+	}
+	
+	
+	public boolean equals(QuadraticSurd x, QuadraticSurd y) {
+		check(x);
+		check(y);
+		return x.equals(y);
 	}
 	
 	

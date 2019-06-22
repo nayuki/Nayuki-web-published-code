@@ -1,9 +1,9 @@
 /* 
- * Gauss-Jordan elimination over any field (Java)
+ * Reed-Solomon error-correcting code decoder
  * 
  * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
+ * https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
  */
 
 import java.util.Objects;

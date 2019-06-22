@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -101,7 +101,7 @@ class SlidingWindowMinMax final {
 		
 		if (val > maxDeque.front())
 			throw std::invalid_argument("Wrong value");
-		if (val == maxDeque.front())
+		else if (val == maxDeque.front())
 			maxDeque.pop_front();
 	}
 	

@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
  */
@@ -27,21 +27,7 @@
  */
 public abstract class Field<T> {
 	
-	/* Comparison */
-	
-	/**
-	 * Tests whether the two specified elements are equal.
-	 * Note that the elements are not required to implement their own {@code equals()} correctly.
-	 * This means {@code x.equals(y)} is allowed to mismatch {@code f.equals(x, y)}.
-	 * @param x an element to test for equality
-	 * @param y an element to test for equality
-	 * @return {@code true} if the two specified elements are equal, {@code false} otherwise
-	 */
-	public abstract boolean equals(T x, T y);
-	
-	
-	
-	/* Constant values */
+	/*-- Constant values --*/
 	
 	/**
 	 * Returns the additive identity constant of this field.
@@ -57,8 +43,20 @@ public abstract class Field<T> {
 	public abstract T one();
 	
 	
+	/*-- Comparison --*/
 	
-	/* Addition/subtraction */
+	/**
+	 * Tests whether the two specified elements are equal.
+	 * Note that the elements are not required to implement their own {@code equals()} correctly.
+	 * This means {@code x.equals(y)} is allowed to mismatch {@code f.equals(x, y)}.
+	 * @param x an element to test for equality
+	 * @param y an element to test for equality
+	 * @return {@code true} if the two specified elements are equal, {@code false} otherwise
+	 */
+	public abstract boolean equals(T x, T y);
+	
+	
+	/*-- Addition/subtraction --*/
 	
 	/**
 	 * Returns the additive inverse of the specified element.
@@ -92,8 +90,7 @@ public abstract class Field<T> {
 	}
 	
 	
-	
-	/* Multiplication/division */
+	/*-- Multiplication/division --*/
 	
 	/**
 	 * Returns the multiplicative inverse of the specified non-zero element.

@@ -1,7 +1,7 @@
 /* 
  * Gauss-Jordan elimination over any field (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
  */
@@ -117,7 +117,7 @@ public final class MatrixTest {
 	
 	
 	@Test public void testDeterminant1() {
-		for (int i = 0; i < field.size; i++) {
+		for (int i = 0; i < field.modulus; i++) {
 			Matrix<Integer> mat = new Matrix<>(1, 1, field);
 			mat.set(0, 0, i);
 			assertEquals(i, (int)mat.determinantAndRef());
@@ -128,10 +128,10 @@ public final class MatrixTest {
 	@Test public void testDeterminant2() {
 		for (int i = 0; i < 1000; i++) {
 			Matrix<Integer> mat = new Matrix<>(2, 2, field);
-			mat.set(0, 0, random.nextInt(field.size));
-			mat.set(0, 1, random.nextInt(field.size));
-			mat.set(1, 0, random.nextInt(field.size));
-			mat.set(1, 1, random.nextInt(field.size));
+			mat.set(0, 0, random.nextInt(field.modulus));
+			mat.set(0, 1, random.nextInt(field.modulus));
+			mat.set(1, 0, random.nextInt(field.modulus));
+			mat.set(1, 1, random.nextInt(field.modulus));
 			Integer expect = field.subtract(field.multiply(mat.get(0, 0), mat.get(1, 1)), field.multiply(mat.get(0, 1), mat.get(1, 0)));
 			assertEquals(expect, mat.determinantAndRef());
 		}
@@ -146,7 +146,7 @@ public final class MatrixTest {
 			Matrix<Integer> mat = new Matrix<>(size, size, field);
 			for (int j = 0; j < size; j++) {
 				for (int k = 0; k < size; k++)
-					mat.set(j, k, random.nextInt(field.size));
+					mat.set(j, k, random.nextInt(field.modulus));
 			}
 			
 			assertEquals(determinant(mat, 0, new boolean[size], field), mat.determinantAndRef());
@@ -184,7 +184,7 @@ public final class MatrixTest {
 			Matrix<Integer> mat = new Matrix<>(size, size, field);
 			for (int j = 0; j < size; j++) {
 				for (int k = 0; k < size; k++)
-					mat.set(j, k, random.nextInt(field.size));
+					mat.set(j, k, random.nextInt(field.modulus));
 			}
 			
 			if (field.equals(mat.clone().determinantAndRef(), field.zero()))
