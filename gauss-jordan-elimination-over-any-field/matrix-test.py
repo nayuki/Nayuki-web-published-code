@@ -1,12 +1,12 @@
 # 
 # Gauss-Jordan elimination over any field (Python)
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2019 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
 # 
 
-import math, random, unittest
+import fractions, math, random, unittest
 import fieldmath
 
 
@@ -106,7 +106,7 @@ class MatrixTest(unittest.TestCase):
 	
 	
 	def test_determinant_1(self):
-		for i in range(MatrixTest.field.size):
+		for i in range(MatrixTest.field.modulus):
 			mat = fieldmath.Matrix(1, 1, MatrixTest.field)
 			mat.set(0, 0, i)
 			self.assertEqual(i, mat.determinant_and_ref())
@@ -118,7 +118,7 @@ class MatrixTest(unittest.TestCase):
 			mat = fieldmath.Matrix(2, 2, f)
 			for i in range(mat.row_count()):
 				for j in range(mat.column_count()):
-					mat.set(i, j, random.randrange(f.size))
+					mat.set(i, j, random.randrange(f.modulus))
 			expect = f.subtract(f.multiply(mat.get(0, 0), mat.get(1, 1)), f.multiply(mat.get(0, 1), mat.get(1, 0)))
 			self.assertEqual(mat.determinant_and_ref(), expect)
 	
@@ -131,7 +131,7 @@ class MatrixTest(unittest.TestCase):
 			mat = fieldmath.Matrix(size, size, MatrixTest.field)
 			for i in range(mat.row_count()):
 				for j in range(mat.column_count()):
-					mat.set(i, j, random.randrange(MatrixTest.field.size))
+					mat.set(i, j, random.randrange(MatrixTest.field.modulus))
 			
 			expect = MatrixTest.determinant(mat, 0, [False] * size, MatrixTest.field)
 			self.assertEqual(mat.determinant_and_ref(), expect)
@@ -157,37 +157,68 @@ class MatrixTest(unittest.TestCase):
 			return sum
 	
 	
-	def test_invert(self):
-		zero = MatrixTest.field.zero()
-		one = MatrixTest.field.one()
-		for _ in range(300):
+	def test_invert_randomly_prime(self):
+		TRIALS = 100
+		f = fieldmath.PrimeField(17)
+		for _ in range(TRIALS):
 			size = int(math.sqrt(random.random()) * 9) + 2
 			size = max(min(size, 10), 1)
-			
-			mat = fieldmath.Matrix(size, size, MatrixTest.field)
+			mat = fieldmath.Matrix(size, size, f)
 			for i in range(mat.row_count()):
 				for j in range(mat.column_count()):
-					mat.set(i, j, random.randrange(MatrixTest.field.size))
-			
-			if MatrixTest.field.equals(mat.determinant_and_ref(), zero):
-				continue
-			
-			inverse = mat.clone()
-			inverse.invert()
-			
-			prod = mat.multiply(inverse)
-			self.assertEqual(prod.row_count(), size)
-			self.assertEqual(prod.column_count(), size)
-			for i in range(size):
-				for j in range(size):
-					self.assertEqual(prod.get(i, j), (one if i == j else zero))
-			
-			prod = inverse.multiply(mat)
-			self.assertEqual(prod.row_count(), size)
-			self.assertEqual(prod.column_count(), size)
-			for i in range(size):
-				for j in range(size):
-					self.assertEqual(prod.get(i, j), (one if i == j else zero))
+					mat.set(i, j, random.randrange(f.modulus))
+			self._test_invert(f, mat)
+	
+	
+	def test_invert_randomly_binary(self):
+		TRIALS = 100
+		f = fieldmath.BinaryField(0x481)
+		for _ in range(TRIALS):
+			size = int(math.sqrt(random.random()) * 9) + 2
+			size = max(min(size, 10), 1)
+			mat = fieldmath.Matrix(size, size, f)
+			for i in range(mat.row_count()):
+				for j in range(mat.column_count()):
+					mat.set(i, j, random.randrange(f.size))
+			self._test_invert(f, mat)
+	
+	
+	def test_invert_randomly_fraction(self):
+		TRIALS = 100
+		f = fieldmath.RationalField.FIELD
+		for _ in range(TRIALS):
+			size = int(math.sqrt(random.random()) * 9) + 2
+			size = max(min(size, 10), 1)
+			mat = fieldmath.Matrix(size, size, f)
+			for i in range(mat.row_count()):
+				for j in range(mat.column_count()):
+					val = fractions.Fraction(
+						random.randrange(-100, 100),
+						random.randrange(1, 30))
+					mat.set(i, j, val)
+			self._test_invert(f, mat)
+	
+	
+	def _test_invert(self, f, mat):
+		size = mat.row_count()
+		self.assertEqual(size, mat.column_count())
+		det = mat.clone().determinant_and_ref()
+		if f.equals(det, f.zero()):
+			return
+		
+		inverse = mat.clone()
+		inverse.invert()
+		self.assertTrue(MatrixTest._is_identity(f, mat.multiply(inverse)))
+		self.assertTrue(MatrixTest._is_identity(f, inverse.multiply(mat)))
+	
+	
+	@staticmethod
+	def _is_identity(f, mat):
+		size = mat.row_count()
+		if mat.column_count() != size:
+			return False
+		return all((f.one() if (i == j) else f.zero()) == mat.get(i, j)
+			for i in range(size) for j in range(size))
 
 
 if __name__ == "__main__":

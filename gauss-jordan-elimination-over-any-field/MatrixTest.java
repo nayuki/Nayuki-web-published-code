@@ -7,7 +7,9 @@
  */
 
 import static org.junit.Assert.assertEquals;
+import java.math.BigInteger;
 import java.util.Random;
+import org.junit.Assert;
 import org.junit.Test;
 
 
@@ -132,7 +134,9 @@ public final class MatrixTest {
 			mat.set(0, 1, random.nextInt(field.modulus));
 			mat.set(1, 0, random.nextInt(field.modulus));
 			mat.set(1, 1, random.nextInt(field.modulus));
-			Integer expect = field.subtract(field.multiply(mat.get(0, 0), mat.get(1, 1)), field.multiply(mat.get(0, 1), mat.get(1, 0)));
+			Integer expect = field.subtract(
+				field.multiply(mat.get(0, 0), mat.get(1, 1)),
+				field.multiply(mat.get(0, 1), mat.get(1, 0)));
 			assertEquals(expect, mat.determinantAndRef());
 		}
 	}
@@ -176,39 +180,118 @@ public final class MatrixTest {
 	}
 	
 	
-	@Test public void testInvert() {
-		for (int i = 0; i < 10000; i++) {
+	@Test public void testInvertRandomlyPrime() {
+		PrimeField f = new PrimeField(17);
+		final int TRIALS = 10000;
+		for (int i = 0; i < TRIALS; i++) {
 			int size = (int)(Math.sqrt(random.nextDouble()) * 9) + 2;
 			size = Math.max(Math.min(size, 10), 1);
-			
-			Matrix<Integer> mat = new Matrix<>(size, size, field);
+			Matrix<Integer> mat = new Matrix<>(size, size, f);
 			for (int j = 0; j < size; j++) {
 				for (int k = 0; k < size; k++)
-					mat.set(j, k, random.nextInt(field.modulus));
+					mat.set(j, k, random.nextInt(f.modulus));
+			}
+			testInvert(f, mat);
+		}
+	}
+	
+	
+	@Test public void testInvertRandomlyBinary() {
+		final int TRIALS = 1000;
+		BinaryField f = new BinaryField(BigInteger.valueOf(0x481));  // x^10 + x^7 + x^0
+		for (int i = 0; i < TRIALS; i++) {
+			int size = (int)(Math.sqrt(random.nextDouble()) * 9) + 2;
+			size = Math.max(Math.min(size, 10), 1);
+			Matrix<BigInteger> mat = new Matrix<>(size, size, f);
+			for (int j = 0; j < size; j++) {
+				for (int k = 0; k < size; k++)
+					mat.set(j, k, new BigInteger(f.modulus.bitLength() - 1, random));
+			}
+			testInvert(f, mat);
+		}
+	}
+	
+	
+	@Test public void testInvertRandomlyFraction() {
+		final int TRIALS = 100;
+		RationalField f = RationalField.FIELD;
+		for (int i = 0; i < TRIALS; i++) {
+			int size = (int)(Math.sqrt(random.nextDouble()) * 9) + 2;
+			size = Math.max(Math.min(size, 10), 1);
+			Matrix<Fraction> mat = new Matrix<>(size, size, f);
+			for (int j = 0; j < size; j++) {
+				for (int k = 0; k < size; k++)
+					mat.set(j, k, new Fraction(random.nextInt(200) - 100, random.nextInt(30) + 1));
+			}
+			testInvert(f, mat);
+		}
+	}
+	
+	
+	@Test public void testInvertRandomlySurd() {
+		final int TRIALS = 100;
+		for (int i = 0; i < TRIALS; i++) {
+			QuadraticSurdField f;
+			if (random.nextBoolean()) {
+				inner:
+				while (true) {  // Find a square-free integer at least 2
+					int d = random.nextInt(300) + 2;
+					for (int j = 2; j * j <= d; j++) {
+						if (d % (j * j) == 0)
+							continue inner;
+					}
+					f = new QuadraticSurdField(BigInteger.valueOf(d));
+					break;
+				}
+			} else {  // Negative square root
+				int d = -(random.nextInt(100) + 1);
+				f = new QuadraticSurdField(BigInteger.valueOf(d));
 			}
 			
-			if (field.equals(mat.clone().determinantAndRef(), field.zero()))
-				continue;
-			
-			Matrix<Integer> inverse = mat.clone();
-			inverse.invert();
-			
-			Matrix<Integer> prod = mat.multiply(inverse);
-			assertEquals(size, prod.rowCount());
-			assertEquals(size, prod.columnCount());
+			int size = (int)(Math.sqrt(random.nextDouble()) * 9) + 2;
+			size = Math.max(Math.min(size, 10), 1);
+			Matrix<QuadraticSurd> mat = new Matrix<>(size, size, f);
 			for (int j = 0; j < size; j++) {
-				for (int k = 0; k < size; k++)
-					assertEquals(j == k ? field.one() : field.zero(), prod.get(j, k));
+				for (int k = 0; k < size; k++) {
+					QuadraticSurd val = new QuadraticSurd(
+						BigInteger.valueOf(random.nextInt(30) - 10),
+						BigInteger.valueOf(random.nextInt(30) - 10),
+						BigInteger.valueOf(random.nextInt(10) + 1),
+						f.d);
+					mat.set(j, k, val);
+				}
 			}
-			
-			prod = inverse.multiply(mat);
-			assertEquals(size, prod.rowCount());
-			assertEquals(size, prod.columnCount());
+			testInvert(f, mat);
+		}
+	}
+	
+	
+	private static <E> void testInvert(Field<E> f, Matrix<E> mat) {
+		int size = mat.rowCount();
+		assertEquals(size, mat.columnCount());
+		E det = mat.clone().determinantAndRef();
+		if (f.equals(det, f.zero()))
+			return;
+		
+		Matrix<E> inverse = mat.clone();
+		inverse.invert();
+		Assert.assertTrue(isIdentity(f, mat.multiply(inverse)));
+		Assert.assertTrue(isIdentity(f, inverse.multiply(mat)));
+	}
+	
+	
+	private static <E> boolean isIdentity(Field<E> f, Matrix<E> mat) {
+		int size = mat.rowCount();
+		if (mat.columnCount() != size)
+			return false;
+		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
-				for (int k = 0; k < size; k++)
-					assertEquals(j == k ? field.one() : field.zero(), prod.get(j, k));
+				E expect = i == j ? f.one() : f.zero();
+				if (!mat.get(i, j).equals(expect))
+					return false;
 			}
 		}
+		return true;
 	}
 	
 }

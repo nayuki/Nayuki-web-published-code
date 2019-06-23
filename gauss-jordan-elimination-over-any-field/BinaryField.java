@@ -100,6 +100,8 @@ public final class BinaryField extends Field<BigInteger> {
 		BigInteger b = BigInteger.ONE;
 		while (y.signum() != 0) {
 			BigInteger[] quotrem = divideAndRemainder(x, y);
+			if (quotrem[0].equals(modulus))
+				quotrem[0] = BigInteger.ZERO;
 			BigInteger c = a.xor(multiply(quotrem[0], b));
 			x = y;
 			y = quotrem[1];

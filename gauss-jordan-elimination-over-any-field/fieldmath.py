@@ -1,7 +1,7 @@
 # 
 # Gauss-Jordan elimination over any field (Python)
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2019 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
 # 
@@ -27,15 +27,6 @@ class Field(object):
 	Each Field object should be stateless and immutable. The field element objects should be immutable too."""
 	
 	
-	# -- Comparison --
-	
-	def equals(self, x, y):
-		"""Tests whether the two given elements are equal.
-		Note that the elements are not required to implement their own __eq__() correctly.
-		This means x == y is allowed to mismatch f.equals(x, y)."""
-		raise AssertionError("Not implemented")
-	
-	
 	# -- Constant values --
 	
 	def zero(self):
@@ -45,6 +36,15 @@ class Field(object):
 	
 	def one(self):
 		"""Returns the multiplicative identity constant of this field."""
+		raise AssertionError("Not implemented")
+	
+	
+	# -- Comparison --
+	
+	def equals(self, x, y):
+		"""Tests whether the two given elements are equal.
+		Note that the elements are not required to implement their own __eq__() correctly.
+		This means x == y is allowed to mismatch f.equals(x, y)."""
 		raise AssertionError("Not implemented")
 	
 	
@@ -96,14 +96,14 @@ class RationalField(Field):
 		pass
 	
 	
-	def equals(self, x, y):
-		return x == y
-	
 	def zero(self):
 		return fractions.Fraction(0)
 	
 	def one(self):
 		return fractions.Fraction(1)
+	
+	def equals(self, x, y):
+		return x == y
 	
 	
 	def negate(self, x):
@@ -133,31 +133,18 @@ RationalField.FIELD = RationalField()
 # ---- PrimeField class ----
 
 class PrimeField(Field):
-	"""The field of integers modulo a prime number. For a given size, the valid
-	elements of the field are the set of integers in the range [0, size)."""
+	"""A finite field of the form Z_p, where p is a prime number.
+	Each element of this kind of field is an integer in the range [0, p).
+	Both the field and the elements are immutable and thread-safe."""
 	
 	
-	def __init__(self, size):
-		"""Constructs a finite field of the specified size.
-		The size must be a prime number, but this requirement is not checked."""
-		if size < 2:
-			raise ValueError("Invalid field size")
-		# The number of elements in this finite field. Must be positive and prime.
-		self.size = size
-	
-	
-	# Checks if the given object is the correct type and within the
-	# range of valid values, and returns the same value.
-	def _check(self, x):
-		if not isinstance(x, numbers.Integral):
-			raise TypeError()
-		if not (0 <= x < self.size):
-			raise ValueError("Not an element of this field: " + str(x))
-		return x
-	
-	
-	def equals(self, x, y):
-		return self._check(x) == self._check(y)
+	def __init__(self, mod):
+		"""Constructs a prime field with the given modulus. The modulus must be a
+		prime number, but this crucial property is not checked by the constructor."""
+		if mod < 2:
+			raise ValueError("Modulus must be prime")
+		# The modulus of this field, which is also the number of elements in this finite field. Must be prime.
+		self.modulus = mod
 	
 	
 	def zero(self):
@@ -166,27 +153,30 @@ class PrimeField(Field):
 	def one(self):
 		return 1
 	
+	def equals(self, x, y):
+		return self._check(x) == self._check(y)
+	
 	
 	def negate(self, x):
-		return -self._check(x) % self.size
+		return -self._check(x) % self.modulus
 	
 	def add(self, x, y):
-		return (self._check(x) + self._check(y)) % self.size
+		return (self._check(x) + self._check(y)) % self.modulus
 	
 	def subtract(self, x, y):
-		return (self._check(x) - self._check(y)) % self.size
+		return (self._check(x) - self._check(y)) % self.modulus
 	
 	
 	def multiply(self, x, y):
-		return (self._check(x) * self._check(y)) % self.size
+		return (self._check(x) * self._check(y)) % self.modulus
 	
 	
-	def reciprocal(self, x):
+	def reciprocal(self, w):
 		# Extended Euclidean GCD algorithm
-		y = self._check(x)
+		x = self.modulus
+		y = self._check(w)
 		if y == 0:
 			raise ValueError("Division by zero")
-		x = self.size
 		a = 0
 		b = 1
 		while y != 0:
@@ -194,9 +184,19 @@ class PrimeField(Field):
 			x, y = y, r
 			a, b = b, (a - q * b)
 		if x == 1:
-			return a % self.size
+			return a % self.modulus
 		else:  # All non-zero values must have a reciprocal
-			raise AssertionError("Field size is not prime")
+			raise AssertionError("Field modulus is not prime")
+	
+	
+	# Checks if the given object is the correct type and within
+	# the range of valid values, and returns the value itself.
+	def _check(self, x):
+		if not isinstance(x, numbers.Integral):
+			raise TypeError()
+		if not (0 <= x < self.modulus):
+			raise ValueError("Not an element of this field: " + str(x))
+		return x
 
 
 
@@ -209,15 +209,11 @@ class BinaryField(Field):
 	
 	
 	def __init__(self, mod):
-		"""Constructs a binary field with the given modulus. The modulus must be irreducible
-		(not factorable) in Z_2, but this critical property is not checked by the constructor."""
-		if mod < 0:
+		"""Constructs a binary field with the given modulus. The modulus must have
+		degree at least 1. Also the modulus must be irreducible (not factorable) in Z_2,
+		but this critical property is not checked by the constructor."""
+		if mod <= 1:
 			raise ValueError("Invalid modulus")
-		if mod == 0:
-			raise ValueError("Division by zero")
-		if mod == 1:
-			raise ValueError("Degenerate field")
-		degree = mod.bit_length() - 1
 		
 		# The modulus of this field represented as a string of bits in natural order.
 		# For example, the modulus x^5 + x^1 + x^0 is represented by the integer value 0b100011 (binary) or 35 (decimal).
@@ -225,21 +221,7 @@ class BinaryField(Field):
 		
 		# The number of (unique) elements in this field. It is a positive power of 2, e.g. 2, 4, 8, 16, etc.
 		# The size of the field is equal to 2 to the power of the degree of the modulus.
-		self.size = 1 << degree
-	
-	
-	# Checks if the given object is the correct type and within the
-	# range of valid values, and returns the same value.
-	def _check(self, x):
-		if not isinstance(x, numbers.Integral):
-			raise TypeError()
-		if not (0 <= x < self.size):
-			raise ValueError("Not an element of this field: " + str(x))
-		return x
-	
-	
-	def equals(self, x, y):
-		return self._check(x) == self._check(y)
+		self.size = 1 << (mod.bit_length() - 1)
 	
 	
 	def zero(self):
@@ -248,6 +230,9 @@ class BinaryField(Field):
 	def one(self):
 		return 1
 	
+	
+	def equals(self, x, y):
+		return self._check(x) == self._check(y)
 	
 	def negate(self, x):
 		return self._check(x)
@@ -273,24 +258,24 @@ class BinaryField(Field):
 		return result
 	
 	
-	def reciprocal(self, x):
+	def reciprocal(self, w):
 		# Extended Euclidean GCD algorithm
-		y = self._check(x)
+		x = self.modulus
+		y = self._check(w)
 		if y == 0:
 			raise ValueError("Division by zero")
-		x = self.modulus
 		a = 0
 		b = 1
 		while y != 0:
 			q, r = self._divide_and_remainder(x, y)
-			if q >= self.size:
-				q ^= self.modulus
+			if q == self.modulus:
+				q = 0
 			x, y = y, r
 			a, b = b, (a ^ self.multiply(q, b))
 		if x == 1:
 			return a
 		else:  # All non-zero values must have a reciprocal
-			raise AssertionError("Modulus is not irreducible")
+			raise AssertionError("Field modulus is not irreducible")
 	
 	
 	# Returns a new tuple containing the pair of values (x div y, x mod y).
@@ -302,6 +287,16 @@ class BinaryField(Field):
 				x ^= y << i
 				quotient |= 1 << i
 		return (quotient, x)
+	
+	
+	# Checks if the given object is the correct type and within the
+	# range of valid values, and returns the same value.
+	def _check(self, x):
+		if not isinstance(x, numbers.Integral):
+			raise TypeError()
+		if not (0 <= x < self.size):
+			raise ValueError("Not an element of this field: " + str(x))
+		return x
 
 
 
@@ -411,7 +406,7 @@ class Matrix(object):
 	
 	
 	def multiply(self, other):
-		"""Returns a new matrix representing this matrix multiplied by the specified matrix. Requires the specified matrix to have
+		"""Returns a new matrix representing this matrix multiplied by the given matrix. Requires the given matrix to have
 		the same number of rows as this matrix's number of columns. Remember that matrix multiplication is not commutative.
 		All elements of both matrices should be non-None when performing this operation.
 		The time complexity of this operation is O(self.rows * self.cols * other.cols)."""
