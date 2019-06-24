@@ -1,7 +1,7 @@
 # 
 # Reed-Solomon error-correcting code decoder
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2019 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
 # 
@@ -12,12 +12,13 @@ import fieldmath, reedsolomon
 
 # Runs a bunch of demos and tests, printing information to standard output.
 def main():
-	show_example()
+	show_binary_example()
+	show_prime_example()
 	test_correctness()
 
 
-# Shows an example of encoding a message, and decoding a codeword containing errors.
-def show_example():
+# Shows an example of encoding a binary message, and decoding a codeword containing errors.
+def show_binary_example():
 	# Configurable parameters
 	field = fieldmath.BinaryField(0x11D)
 	generator = 0x02
@@ -38,7 +39,40 @@ def show_example():
 	perturbed = 0
 	for i in range(len(codeword)):
 		if random.random() < probability:
-			codeword[i] ^= random.randrange(1, field.size)
+			codeword[i] = field.add(codeword[i], random.randrange(1, field.size))
+			perturbed += 1
+	print("Number of values perturbed: {}".format(perturbed))
+	print("Perturbed codeword: {}".format(codeword))
+	
+	# Try to decode the codeword
+	decoded = rs.decode(codeword)
+	print("Decoded message: {}".format(decoded if (decoded is not None) else "Failure"))
+	print("")
+
+
+# Shows an example of encoding a prime message, and decoding a codeword containing errors.
+def show_prime_example():
+	# Configurable parameters
+	field = fieldmath.PrimeField(97)
+	generator = 5
+	msglen = 9
+	ecclen = 4
+	rs = reedsolomon.ReedSolomon(field, generator, msglen, ecclen)
+	
+	# Generate random message
+	message = [random.randrange(field.modulus) for _ in range(msglen)]
+	print("Original message: {}".format(message))
+	
+	# Encode message to produce codeword
+	codeword = rs.encode(message)
+	print("Encoded codeword: {}".format(codeword))
+	
+	# Perturb some values in the codeword
+	probability = float(ecclen // 2) / (msglen + ecclen)
+	perturbed = 0
+	for i in range(len(codeword)):
+		if random.random() < probability:
+			codeword[i] = field.add(codeword[i], random.randrange(1, field.modulus))
 			perturbed += 1
 	print("Number of values perturbed: {}".format(perturbed))
 	print("Perturbed codeword: {}".format(codeword))

@@ -64,6 +64,8 @@ public final class QuadraticSurdField extends Field<QuadraticSurd> {
 	
 	
 	public QuadraticSurd add(QuadraticSurd x, QuadraticSurd y) {
+		check(x);
+		check(y);
 		return new QuadraticSurd(
 			x.a.multiply(y.c).add(y.a.multiply(x.c)),
 			x.b.multiply(y.c).add(y.b.multiply(x.c)),
@@ -72,6 +74,7 @@ public final class QuadraticSurdField extends Field<QuadraticSurd> {
 	
 	
 	public QuadraticSurd reciprocal(QuadraticSurd x) {
+		check(x);
 		return new QuadraticSurd(
 			x.a.multiply(x.c).negate(), x.b.multiply(x.c),
 			x.b.multiply(x.b).multiply(d).subtract(x.a.multiply(x.a)), d);
@@ -79,6 +82,8 @@ public final class QuadraticSurdField extends Field<QuadraticSurd> {
 	
 	
 	public QuadraticSurd multiply(QuadraticSurd x, QuadraticSurd y) {
+		check(x);
+		check(y);
 		return new QuadraticSurd(
 			x.a.multiply(y.a).add(x.b.multiply(y.b).multiply(d)),
 			x.a.multiply(y.b).add(y.a.multiply(x.b)), x.c.multiply(y.c), d);

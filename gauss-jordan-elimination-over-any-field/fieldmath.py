@@ -300,6 +300,93 @@ class BinaryField(Field):
 
 
 
+# ---- QuadraticSurdField class ----
+
+class QuadraticSurdField(Field):
+	
+	def __init__(self, d):
+		# The value under the square root. All arguments and return values must have d equal to this value.
+		self.d = d
+	
+	
+	def zero(self):
+		return QuadraticSurd(0, 0, 1, self.d)
+	
+	def one(self):
+		return QuadraticSurd(1, 0, 1, self.d)
+	
+	
+	def equals(self, x, y):
+		self._check(x)
+		self._check(y)
+		return x == y
+	
+	
+	def negate(self, x):
+		self._check(x)
+		return QuadraticSurd(-x.a, -x.b, x.c, x.d)
+	
+	
+	def add(self, x, y):
+		self._check(x)
+		self._check(y)
+		return QuadraticSurd(x.a * y.c + y.a * x.c,
+			x.b * y.c + y.b * x.c, x.c * y.c, self.d)
+	
+	
+	def reciprocal(self, x):
+		self._check(x)
+		return QuadraticSurd(-x.a * x.c, x.b * x.c,
+			x.b * x.b * self.d - x.a * x.a, self.d)
+	
+	
+	def multiply(self, x, y):
+		self._check(x)
+		self._check(y)
+		return QuadraticSurd(x.a * y.a + x.b * y.b * self.d,
+			x.a * y.b + y.a * x.b, x.c * y.c, self.d)
+	
+	
+	def _check(self, x):
+		if x.d != self.d:
+			raise ValueError(("The value under the square root must match that of the field"))
+
+
+
+# ---- QuadraticSurd class ----
+
+class QuadraticSurd(object):
+	
+	def __init__(self, a, b, c, d):
+		if c == 0:
+			raise ValueError("Division by zero")
+		
+		# Simplify
+		if c < 0:
+			a = -a
+			b = -b
+			c = -c
+		gcd = fractions.gcd(fractions.gcd(a, b), c)
+		if gcd != 1:
+			a //= gcd
+			b //= gcd
+			c //= gcd
+		
+		self.a = a
+		self.b = b
+		self.c = c
+		self.d = d
+	
+	
+	def __eq__(self, other):
+		return (self.a, self.b, self.c, self.d) == (other.a, other.b, other.c, other.d)
+	
+	
+	def __str__(self):
+		return "({} + {}*sqrt({})) / {}".format(a, b, d, c)
+
+
+
 # ---- Matrix class ----
 
 class Matrix(object):
@@ -316,7 +403,7 @@ class Matrix(object):
 			raise TypeError()
 		
 		# The field used to operate on the values in the matrix.
-		self.field = field
+		self.f = field
 		# The values of the matrix stored in row-major order, with each element initially None.
 		self.values = [[None] * cols for _ in range(rows)]
 	
@@ -350,7 +437,7 @@ class Matrix(object):
 	def clone(self):
 		"""Returns a clone of this matrix. The field and elements are shallow-copied because they are
 		assumed to be immutable. Any matrix element can be None when performing this operation."""
-		result = Matrix(self.row_count(), self.column_count(), self.field)
+		result = Matrix(self.row_count(), self.column_count(), self.f)
 		result.values = [list(row) for row in self.values]
 		return result
 	
@@ -360,7 +447,7 @@ class Matrix(object):
 		because they are assumed to be immutable. Any matrix element can be None when performing this operation."""
 		rows = self.row_count()
 		cols = self.column_count()
-		result = Matrix(cols, rows, self.field)
+		result = Matrix(cols, rows, self.f)
 		for i in range(rows):
 			for j in range(cols):
 				result.values[j][i] = self.values[i][j]
@@ -392,7 +479,7 @@ class Matrix(object):
 		The elements of the given row should all be non-None when performing this operation."""
 		if not (0 <= row < len(self.values)):
 			raise IndexError("Row index out of bounds")
-		self.values[row] = [self.field.multiply(val, factor) for val in self.values[row]]
+		self.values[row] = [self.f.multiply(val, factor) for val in self.values[row]]
 	
 	
 	def add_rows(self, srcrow, destrow, factor):
@@ -401,7 +488,7 @@ class Matrix(object):
 		should all be non-None when performing this operation."""
 		if not (0 <= srcrow < len(self.values) and 0 <= destrow < len(self.values)):
 			raise IndexError("Row index out of bounds")
-		self.values[destrow] = [self.field.add(destval, self.field.multiply(srcval, factor))
+		self.values[destrow] = [self.f.add(destval, self.f.multiply(srcval, factor))
 			for (srcval, destval) in zip(self.values[srcrow], self.values[destrow])]
 	
 	
@@ -413,13 +500,12 @@ class Matrix(object):
 		rows = self.row_count()
 		cols = other.column_count()
 		cells = self.column_count()
-		f = self.field
-		result = Matrix(rows, cols, f)
+		result = Matrix(rows, cols, self.f)
 		for i in range(rows):
 			for j in range(cols):
-				sum = f.zero()
+				sum = self.f.zero()
 				for k in range(cells):
-					sum = f.add(f.multiply(self.get(i, k), other.get(k, j)), sum)
+					sum = self.f.add(self.f.multiply(self.get(i, k), other.get(k, j)), sum)
 				result.set(i, j, sum)
 		return result
 	
@@ -433,7 +519,6 @@ class Matrix(object):
 		The time complexity of this operation is O(rows * cols * min(rows, cols))."""
 		rows = self.row_count()
 		cols = self.column_count()
-		f = self.field
 		
 		# Compute row echelon form (REF)
 		numpivots = 0
@@ -441,7 +526,7 @@ class Matrix(object):
 			if numpivots >= rows:
 				break
 			pivotrow = numpivots
-			while pivotrow < rows and f.equals(self.get(pivotrow, j), f.zero()):
+			while pivotrow < rows and self.f.equals(self.get(pivotrow, j), self.f.zero()):
 				pivotrow += 1
 			if pivotrow == rows:
 				continue  # Cannot eliminate on this column
@@ -450,24 +535,24 @@ class Matrix(object):
 			numpivots += 1
 			
 			# Simplify the pivot row
-			self.multiply_row(pivotrow, f.reciprocal(self.get(pivotrow, j)))
+			self.multiply_row(pivotrow, self.f.reciprocal(self.get(pivotrow, j)))
 			
 			# Eliminate rows below
 			for i in range(pivotrow + 1, rows):
-				self.add_rows(pivotrow, i, f.negate(self.get(i, j)))
+				self.add_rows(pivotrow, i, self.f.negate(self.get(i, j)))
 		
 		# Compute reduced row echelon form (RREF)
 		for i in reversed(range(numpivots)):
 			# Find pivot
 			pivotcol = 0
-			while pivotcol < cols and f.equals(self.get(i, pivotcol), f.zero()):
+			while pivotcol < cols and self.f.equals(self.get(i, pivotcol), self.f.zero()):
 				pivotcol += 1
 			if pivotcol == cols:
 				continue  # Skip this all-zero row
 			
 			# Eliminate rows above
 			for j in range(i):
-				self.add_rows(i, j, f.negate(self.get(j, pivotcol)))
+				self.add_rows(i, j, self.f.negate(self.get(j, pivotcol)))
 	
 	
 	def invert(self):
@@ -477,16 +562,15 @@ class Matrix(object):
 		The time complexity of this operation is O(rows^3)."""
 		rows = self.row_count()
 		cols = self.column_count()
-		f = self.field
 		if rows != cols:
 			raise RuntimeError("Matrix dimensions are not square")
 		
 		# Build augmented matrix: [this | identity]
-		temp = Matrix(rows, cols * 2, f)
+		temp = Matrix(rows, cols * 2, self.f)
 		for i in range(rows):
 			for j in range(cols):
 				temp.set(i, j, self.get(i, j))
-				temp.set(i, j + cols, (f.one() if i == j else f.zero()))
+				temp.set(i, j + cols, (self.f.one() if i == j else self.f.zero()))
 		
 		# Do the main calculation
 		temp.reduced_row_echelon_form()
@@ -494,7 +578,7 @@ class Matrix(object):
 		# Check that the left half is the identity matrix
 		for i in range(rows):
 			for j in range(cols):
-				if not f.equals(temp.get(i, j), (f.one() if i == j else f.zero())):
+				if not self.f.equals(temp.get(i, j), (self.f.one() if i == j else self.f.zero())):
 					raise RuntimeError("Matrix is not invertible")
 		
 		# Extract inverse matrix from: [identity | inverse]
@@ -511,36 +595,35 @@ class Matrix(object):
 		The time complexity of this operation is O(rows^3)."""
 		rows = self.row_count()
 		cols = self.column_count()
-		f = self.field
 		if rows != cols:
 			raise RuntimeError("Matrix dimensions are not square")
-		det = f.one()
+		det = self.f.one()
 		
 		# Compute row echelon form (REF)
 		numpivots = 0
 		for j in range(cols):  # For each column
 			# Find a pivot row for this column
 			pivotrow = numpivots
-			while pivotrow < rows and f.equals(self.get(pivotrow, j), f.zero()):
+			while pivotrow < rows and self.f.equals(self.get(pivotrow, j), self.f.zero()):
 				pivotrow += 1
 			
 			if pivotrow < rows:
 				# This column has a nonzero pivot
 				if numpivots != pivotrow:
 					self.swap_rows(numpivots, pivotrow)
-					det = f.negate(det)
+					det = self.f.negate(det)
 				pivotrow = numpivots
 				numpivots += 1
 			
 				# Simplify the pivot row
 				temp = self.get(pivotrow, j)
-				self.multiply_row(pivotrow, f.reciprocal(temp))
-				det = f.multiply(temp, det)
+				self.multiply_row(pivotrow, self.f.reciprocal(temp))
+				det = self.f.multiply(temp, det)
 				
 				# Eliminate rows below
 				for i in range(pivotrow + 1, rows):
-					self.add_rows(pivotrow, i, f.negate(self.get(i, j)))
+					self.add_rows(pivotrow, i, self.f.negate(self.get(i, j)))
 			
 			# Update determinant
-			det = f.multiply(self.get(j, j), det)
+			det = self.f.multiply(self.get(j, j), det)
 		return det

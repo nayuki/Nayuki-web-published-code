@@ -231,22 +231,20 @@ public final class MatrixTest {
 	@Test public void testInvertRandomlySurd() {
 		final int TRIALS = 100;
 		for (int i = 0; i < TRIALS; i++) {
-			QuadraticSurdField f;
+			int d;
 			if (random.nextBoolean()) {
-				inner:
+				middle:
 				while (true) {  // Find a square-free integer at least 2
-					int d = random.nextInt(300) + 2;
+					d = random.nextInt(300) + 2;
 					for (int j = 2; j * j <= d; j++) {
 						if (d % (j * j) == 0)
-							continue inner;
+							continue middle;
 					}
-					f = new QuadraticSurdField(BigInteger.valueOf(d));
 					break;
 				}
-			} else {  // Negative square root
-				int d = -(random.nextInt(100) + 1);
-				f = new QuadraticSurdField(BigInteger.valueOf(d));
-			}
+			} else  // Negative square root
+				d = -(random.nextInt(100) + 1);
+			QuadraticSurdField f = new QuadraticSurdField(BigInteger.valueOf(d));
 			
 			int size = (int)(Math.sqrt(random.nextDouble()) * 9) + 2;
 			size = Math.max(Math.min(size, 10), 1);
@@ -254,10 +252,9 @@ public final class MatrixTest {
 			for (int j = 0; j < size; j++) {
 				for (int k = 0; k < size; k++) {
 					QuadraticSurd val = new QuadraticSurd(
-						BigInteger.valueOf(random.nextInt(30) - 10),
-						BigInteger.valueOf(random.nextInt(30) - 10),
-						BigInteger.valueOf(random.nextInt(10) + 1),
-						f.d);
+						BigInteger.valueOf(random.nextInt(40) - 20),
+						BigInteger.valueOf(random.nextInt(40) - 20),
+						BigInteger.valueOf(random.nextInt(10) + 1), f.d);
 					mat.set(j, k, val);
 				}
 			}

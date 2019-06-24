@@ -6,7 +6,7 @@
 # https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
 # 
 
-import fractions, math, random, unittest
+import fractions, itertools, math, random, unittest
 import fieldmath
 
 
@@ -195,6 +195,36 @@ class MatrixTest(unittest.TestCase):
 					val = fractions.Fraction(
 						random.randrange(-100, 100),
 						random.randrange(1, 30))
+					mat.set(i, j, val)
+			self._test_invert(f, mat)
+	
+	
+	def test_invert_randomly_surd(self):
+		TRIALS = 100
+		for _ in range(TRIALS):
+			if random.random() < 0.5:
+				f = None
+				while f is None:  # Find a square-free integer at least 2
+					d = random.randrange(2, 300)
+					for i in itertools.count(2):
+						i2 = i * i
+						if i2 > d:
+							f = fieldmath.QuadraticSurdField(d)
+							break  # Success
+						elif d % i2 == 0:
+							break  # Failure
+			else:  # Negative square root
+				f = fieldmath.QuadraticSurdField(random.randrange(-100, 0))
+			
+			size = int(math.sqrt(random.random()) * 9) + 2
+			size = max(min(size, 10), 1)
+			mat = fieldmath.Matrix(size, size, f)
+			for i in range(mat.row_count()):
+				for j in range(mat.column_count()):
+					val = fieldmath.QuadraticSurd(
+						random.randrange(-20, 20),
+						random.randrange(-20, 20),
+						random.randrange(1, 10), f.d)
 					mat.set(i, j, val)
 			self._test_invert(f, mat)
 	
