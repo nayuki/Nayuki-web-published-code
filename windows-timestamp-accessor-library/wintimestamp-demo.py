@@ -3,7 +3,7 @@
 # Windows timestamp accessor demo (Python)
 # For Python 2 and 3.3+
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2019 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/windows-timestamp-accessor-library
 # 
@@ -16,10 +16,10 @@ import wintimestamp
 # This program performs the following actions:
 # 0. Print the creation timestamp and modification timestamp of the current working directory.
 # 1. Create a file named "Hello Python Timestamp.txt" with:
-#   - Creation time = 2000-01-01 00:00:00 UTC
+#   - Creation time     = 2000-01-01 00:00:00 UTC
 #   - Modification time = 2005-05-05 05:05:05 UTC
 # 2. Create a file named 你好パイソン.txt with:
-#   - Creation time = 2014-09-21 01:23:45 UTC
+#   - Creation time     = 2014-09-21 01:23:45 UTC
 #   - Modification time = 2014-09-21 12:34:56.789000 UTC
 # 
 def main():
@@ -39,7 +39,7 @@ def main():
 				raise Exception("File already exists")
 		else:
 			open(path, "w").close()  # Create zero-length file
-		wt.set_creation_time(path, 630822816000000000)
+		wt.set_creation_time    (path, 630822816000000000)
 		wt.set_modification_time(path, 632508663050000000)
 		
 		# Action 2
@@ -49,7 +49,7 @@ def main():
 				raise Exception("File already exists")
 		else:
 			open(path, "w").close()  # Create zero-length file
-		wt.set_creation_time(path, wintimestamp.datetime_to_ticks(datetime.datetime(2014, 9, 21, 1, 23, 45, 0)))
+		wt.set_creation_time    (path, wintimestamp.datetime_to_ticks(datetime.datetime(2014, 9, 21,  1, 23, 45,      0)))
 		wt.set_modification_time(path, wintimestamp.datetime_to_ticks(datetime.datetime(2014, 9, 21, 12, 34, 56, 789000)))
 
 

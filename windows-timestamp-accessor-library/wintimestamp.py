@@ -2,7 +2,7 @@
 # Windows timestamp accessor (Python)
 # For Python 2 and 3.3+
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2019 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/windows-timestamp-accessor-library
 # 
@@ -10,16 +10,17 @@
 import datetime, os, subprocess
 
 
-# Assumes it is in the current working directory
-_EXECUTABLE_PATH = "WindowsTimestampAccessor.exe"
-
-
-# Note: Ticks is the number of 100-nanosecond units since the epoch of midnight UTC on January 1st, Year 1 on the proleptic Gregorian calendar
+# Note: Ticks is the number of 100-nanosecond units since the epoch of
+# midnight UTC on January 1st, Year 1 on the proleptic Gregorian calendar
 
 class WindowsTimestampAccessor(object):
 	
+	# Initialization and disposal
+	
+	_EXECUTABLE_PATH = "WindowsTimestampAccessor.exe"  # Assumes it is in the current working directory
+	
 	def __init__(self):
-		self.process = subprocess.Popen(_EXECUTABLE_PATH, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+		self.process = subprocess.Popen(WindowsTimestampAccessor._EXECUTABLE_PATH, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 		self.query = self.process.stdin
 		self.response = self.process.stdout
 	
@@ -29,7 +30,7 @@ class WindowsTimestampAccessor(object):
 		proc = self.process
 		proc.wait()
 		if proc.returncode != 0:
-			raise subprocess.CalledProcessError(proc.returncode, _EXECUTABLE_PATH, "")
+			raise subprocess.CalledProcessError(proc.returncode, WindowsTimestampAccessor._EXECUTABLE_PATH, "")
 	
 	
 	def __enter__(self):
@@ -80,7 +81,7 @@ class WindowsTimestampAccessor(object):
 
 # Takes an int. The returned datetime object will be naive, i.e. tzinfo=None.
 def ticks_to_datetime(ticks):
-	return datetime.datetime.utcfromtimestamp((ticks - 621355968000000000) / 1e7)
+	return datetime.datetime.utcfromtimestamp((ticks - _EPOCH) / 1e7)
 
 
 # The given datetime object must be naive, i.e. tzinfo=None. Returns an int.
@@ -88,4 +89,8 @@ def datetime_to_ticks(dt):
 	if dt.tzinfo is not None:
 		raise ValueError("Naive datetime expected")
 	delta = dt - datetime.datetime.utcfromtimestamp(0)
-	return ((delta.days * 86400 + delta.seconds) * 1000000 + delta.microseconds) * 10 + 621355968000000000
+	return ((delta.days * 86400 + delta.seconds) * 1000000 + delta.microseconds) * 10 + _EPOCH
+
+
+# The instant 1970-01-01 00:00:00 UTC, expressed in ticks.
+_EPOCH = 621355968000000000

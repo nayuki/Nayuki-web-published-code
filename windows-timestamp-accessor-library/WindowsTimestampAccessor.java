@@ -1,7 +1,7 @@
 /* 
  * Windows timestamp accessor (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
@@ -16,7 +16,8 @@ import java.io.PrintWriter;
 import java.math.BigInteger;
 
 
-// Note: Ticks is the number of 100-nanosecond units since the epoch of midnight UTC on January 1st, Year 1 on the proleptic Gregorian calendar
+// Note: Ticks is the number of 100-nanosecond units since the epoch of
+// midnight UTC on January 1st, Year 1 on the proleptic Gregorian calendar.
 
 public final class WindowsTimestampAccessor implements AutoCloseable {
 	
@@ -55,11 +56,9 @@ public final class WindowsTimestampAccessor implements AutoCloseable {
 		return getSomeTime("Creation", item);
 	}
 	
-	
 	public long getModificationTime(File item) throws IOException {
 		return getSomeTime("Modification", item);
 	}
-	
 	
 	public long getAccessTime(File item) throws IOException {
 		return getSomeTime("Access", item);
@@ -83,11 +82,9 @@ public final class WindowsTimestampAccessor implements AutoCloseable {
 		setSomeTime("Creation", item, ticks);
 	}
 	
-	
 	public void setModificationTime(File item, long ticks) throws IOException {
 		setSomeTime("Modification", item, ticks);
 	}
-	
 	
 	public void setAccessTime(File item, long ticks) throws IOException {
 		setSomeTime("Access", item, ticks);
@@ -113,10 +110,11 @@ public final class WindowsTimestampAccessor implements AutoCloseable {
 	 * - [0]: Year
 	 * - [1]: Month, range [1, 12]
 	 * - [2]: Day, range [1, 31]
-	 * - [3]: Hour, range [0, 59]
+	 * - [3]: Hour, range [0, 23]
 	 * - [4]: Minute, range [0, 59]
 	 * - [5]: Second, range [0, 59]
 	 * - [6]: Microsecond, range [0, 999999]
+	 * Note that this conversion loses the last digit of precision, because 1 tick is 0.1 microsecond.
 	 */
 	public static int[] ticksToDatetime(long ticks) {
 		int[] result = new int[7];
@@ -177,8 +175,10 @@ public final class WindowsTimestampAccessor implements AutoCloseable {
 	}
 	
 	
-	// Takes an array of 7 integers representing the date and time: {year, month, day, hour, minute, second, microsecond}.
-	// The method accepts lenient date-time representations (e.g. month 13 = January of the next year, hour -1 = 23 o'clock of the previous day).
+	// Takes an array of 7 integers representing the date and time:
+	// {year, month, day, hour, minute, second, microsecond}.
+	// The method accepts lenient date-time representations. For example,
+	// month 13 = January of the next year; hour -1 = 23 o'clock of the previous day.
 	public static long datetimeToTicks(int... dt) {
 		if (dt.length != 7)
 			throw new IllegalArgumentException();
@@ -217,12 +217,11 @@ public final class WindowsTimestampAccessor implements AutoCloseable {
 		return (x % y + y) % y;
 	}
 	
-	
 	private static long mod(long x, long y) {
 		return (x % y + y) % y;
 	}
 	
 	
-	private static int[] CUMULATIVE_DAYS = {0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 337};
+	private static final int[] CUMULATIVE_DAYS = {0, 31, 61, 92, 122, 153, 184, 214, 245, 275, 306, 337};
 	
 }
