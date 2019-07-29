@@ -1,0 +1,40 @@
+(* 
+ * Montgomery reduction algorithm (Mathematica)
+ * 
+ * Copyright (c) 2019 Project Nayuki
+ * All rights reserved. Contact Nayuki for licensing.
+ * https://www.nayuki.io/page/montgomery-reduction-algorithm
+ *)
+
+
+(*---- User inputs ----*)
+
+n = 3697;  (* The modulus *)
+a = 2398;  (* A multiplicand *)
+b = 453;  (* A multiplicand *)
+
+
+(*---- The computation ----*)
+
+MontgomeryMultiply[a_, b_, n_] := Block[{r, rinv, k, aa, bb, x, s, t, u, cc, c},
+    If[!IntegerQ[n] || n <= 3 || EvenQ[n], Abort[]];
+    If[!IntegerQ[a] || !(0 <= a < n), Abort[]];
+    If[!IntegerQ[b] || !(0 <= b < n), Abort[]];
+    
+    r = 2^Ceiling[Log[2, n]];
+    rinv = PowerMod[r, -1, n];
+    k = (r * rinv - 1) / n;
+    aa = Mod[a * r, n];
+    bb = Mod[b * r, n];
+    x = aa * bb;
+    s = Mod[x * k, r];
+    t = x + s * n;
+    u = t / r;
+    cc = If[u < n, u, u - n];
+    c = Mod[cc * rinv, n];
+    c]
+
+(* Self-check *)
+Print[MontgomeryMultiply[a, b, n]]
+Print[Mod[a * b, n]]
+Print[MontgomeryMultiply[a, b, n] == Mod[a * b, n]]  (* Must be true *)

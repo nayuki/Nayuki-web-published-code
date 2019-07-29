@@ -1,0 +1,30 @@
+(* 
+ * Barrett reduction algorithm (Mathematica)
+ * 
+ * Copyright (c) 2019 Project Nayuki
+ * All rights reserved. Contact Nayuki for licensing.
+ * https://www.nayuki.io/page/barrett-reduction-algorithm
+ *)
+
+
+(*---- User inputs ----*)
+
+n = 8315;  (* The modulus *)
+x = 28298572;  (* Number to reduce *)
+
+
+(*---- The computation ----*)
+
+BarrettReduce[x_, n_] := Block[{k, r, t},
+    If[!IntegerQ[n] || n < 3, Abort[]];
+    If[!IntegerQ[x] || !(0 <= x < n^2), Abort[]];
+    
+    k = Ceiling[Log[2, n]];
+    r = Floor[4^k / n];
+    t = x - Floor[x * r / 4^k] * n;
+    If[t < n, t, t - n]]
+
+(* Self-check *)
+Print[BarrettReduce[x, n]]
+Print[Mod[x, n]]
+Print[BarrettReduce[x, n] == Mod[x, n]]  (* Must be true *)
