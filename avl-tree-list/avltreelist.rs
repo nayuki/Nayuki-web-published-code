@@ -413,10 +413,7 @@ impl <'a, E> Iterator for Iter<'a, E> {
 	type Item = &'a E;
 	
 	fn next(&mut self) -> Option<Self::Item> {
-		if self.stack.is_empty() {
-			return None;
-		}
-		let node: &Node<E> = self.stack.pop().unwrap();
+		let node: &Node<E> = self.stack.pop()?;
 		self.push_left_path(&node.right);
 		self.count -= 1;
 		Some(&node.value)

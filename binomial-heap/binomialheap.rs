@@ -76,10 +76,7 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
 	
 	pub fn pop(&mut self) -> Option<E> {
-		let minnodeindex: u32 = match self.find_min() {
-			None => return None,
-			Some(x) => x.1,
-		};
+		let minnodeindex: u32 = self.find_min()?.1;
 		
 		let mut minnode: Node<E>;
 		{
@@ -105,15 +102,8 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
 	
 	fn find_min(&self) -> Option<(&E, u32)> {
-		let mut minvalue: &E;
-		let mut node: &Node<E>;
-		match self.head {
-			None => return None,
-			Some(ref nd) => {
-				minvalue = &nd.value;
-				node = nd;
-			},
-		};
+		let mut node: &Node<E> = self.head.as_ref()?;
+		let mut minvalue: &E = &node.value;
 		
 		let mut minindex = 0u32;
 		let mut index = 1u32;
