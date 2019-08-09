@@ -38,7 +38,7 @@ impl <E> AvlTreeList<E> {
 	
 	
 	pub fn is_empty(&self) -> bool {
-		self.root.0.is_none()
+		!self.root.exists()
 	}
 	
 	
@@ -120,6 +120,11 @@ struct MaybeNode<E>(Option<Box<Node<E>>>);
 
 impl <E> MaybeNode<E> {
 	
+	fn exists(&self) -> bool {
+		self.0.is_some()
+	}
+	
+	
 	fn size(&self) -> usize {
 		self.0.as_ref().map_or(0, |node| node.size)
 	}
@@ -147,7 +152,7 @@ impl <E> MaybeNode<E> {
 	
 	fn insert_at(mut self, index: usize, val: E) -> Self {
 		assert!(index <= self.size());
-		if self.0.is_none() {  // Automatically implies index == 0, because MaybeNode(None).size() == 0
+		if !self.exists() {  // Automatically implies index == 0, because MaybeNode(None).size() == 0
 			return MaybeNode(Some(Box::new(Node::new(val))));
 		} else {
 			let node = self.node_mut();
@@ -164,32 +169,33 @@ impl <E> MaybeNode<E> {
 	
 	
 	fn remove_at(mut self, index: usize, outval: &mut Option<E>) -> Self {
-		loop {  // Simulate goto
-			{  // Modify the current object
-				let node = self.node_mut();
-				let leftsize = node.left.size();
-				// Recursively find and remove a node
-				if index < leftsize {
-					node.left = node.left.pop().remove_at(index, outval);
-				} else if index > leftsize {
-					node.right = node.right.pop().remove_at(index - leftsize - 1, outval);
-				} else if node.left.0.is_some() && node.right.0.is_some() {
-					node.right = node.right.pop().remove_at(0, outval);  // Remove successor node
-					std::mem::swap(outval.as_mut().unwrap(), &mut node.value);  // Replace value by successor
-				} else {
-					break;  // Don't recalculate
-				}
-				node.recalculate();
+		let mut done = true;
+		{  // Modify the current object
+			let node = self.node_mut();
+			let leftsize = node.left.size();
+			// Recursively find and remove a node
+			if index < leftsize {
+				node.left = node.left.pop().remove_at(index, outval);
+			} else if index > leftsize {
+				node.right = node.right.pop().remove_at(index - leftsize - 1, outval);
+			} else if node.left.exists() && node.right.exists() {
+				node.right = node.right.pop().remove_at(0, outval);  // Remove successor node
+				std::mem::swap(outval.as_mut().unwrap(), &mut node.value);  // Replace value by successor
+			} else {
+				done = false;
 			}
+		}
+		if done {
+			self.node_mut().recalculate();
 			return self.balance();
 		}
 		
 		// Remove current node and return a child or nothing
 		let node = *self.0.unwrap();
 		*outval = Some(node.value);
-		if node.left.0.is_some() {
+		if node.left.exists() {
 			node.left
-		} else if node.right.0.is_some() {
+		} else if node.right.exists() {
 			node.right
 		} else {
 			MaybeNode(None)
@@ -399,9 +405,8 @@ impl <'a, E> Iter<'a, E> {
 	
 	
 	fn push_left_path(&mut self, mut maybenode: &'a MaybeNode<E>) {
-		while maybenode.0.is_some() {
-			let node: &Node<E> = maybenode.node_ref();
-			self.stack.push(node);
+		while let Some(ref node) = maybenode.0 {
+			self.stack.push(node.as_ref());
 			maybenode = &node.left;
 		}
 	}

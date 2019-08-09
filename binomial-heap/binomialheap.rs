@@ -49,8 +49,8 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
 	
 	pub fn len(&self) -> usize {
-		let mut result = 0;
-		let mut node = &self.head;
+		let mut result: usize = 0;
+		let mut node: &MaybeNode<E> = &self.head;
 		while let Some(ref nd) = *node {
 			result |= 1 << nd.rank;
 			node = &nd.next;
@@ -76,26 +76,16 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
 	
 	pub fn pop(&mut self) -> Option<E> {
-		let minnodeindex: u32 = self.find_min()?.1;
-		
 		let mut minnode: Node<E>;
 		{
+			let minnodeindex: u32 = self.find_min()?.1;
 			let mut node: &mut MaybeNode<E> = &mut self.head;
-			let mut index: u32 = 0;
-			loop {
-				if index < minnodeindex {
-					node = &mut {node}.as_mut().unwrap().as_mut().next;
-					index += 1;
-				} else if index == minnodeindex {
-					minnode = *std::mem::replace(node, None).unwrap();
-					std::mem::swap(node, &mut minnode.next);
-					break;
-				} else {
-					unreachable!();
-				}
+			for _ in 0 .. minnodeindex {
+				node = &mut {node}.as_mut().unwrap().as_mut().next;
 			}
+			minnode = *std::mem::replace(node, None).unwrap();
+			std::mem::swap(node, &mut minnode.next);
 		}
-		
 		self.merge_nodes(minnode.remove_root());
 		Some(minnode.value)
 	}
@@ -105,8 +95,8 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 		let mut node: &Node<E> = self.head.as_ref()?;
 		let mut minvalue: &E = &node.value;
 		
-		let mut minindex = 0u32;
-		let mut index = 1u32;
+		let mut minindex: u32 = 0;
+		let mut index: u32 = 1;
 		while let Some(ref next) = node.next {
 			node = next.as_ref();
 			if node.value < *minvalue {
@@ -127,7 +117,7 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 	
 	
 	fn merge_nodes(&mut self, mut other: MaybeNode<E>) {
-		let mut this = std::mem::replace(&mut self.head, None);
+		let mut this: MaybeNode<E> = std::mem::replace(&mut self.head, None);
 		let mut merged: MaybeNode<E> = None;
 		
 		while this.is_some() || other.is_some() {
@@ -148,8 +138,9 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 				if mrgd.rank == node.rank + 1 {
 					std::mem::swap(&mut mrgd.next, &mut node.next);
 					mrgd.next = Some(node);
-				} else if mrgd.rank == node.rank {
+				} else {
 					// Merge nodes
+					assert_eq!(mrgd.rank, node.rank);
 					if node.value < mrgd.value {
 						std::mem::swap(&mut node.value, &mut mrgd.value);
 						std::mem::swap(&mut node.down, &mut mrgd.down);
@@ -157,8 +148,6 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 					node.next = std::mem::replace(&mut mrgd.down, None);
 					mrgd.down = Some(node);
 					mrgd.rank += 1;
-				} else {
-					unreachable!();
 				}
 				merged = Some(mrgd);
 			}
@@ -197,7 +186,7 @@ struct Node<E> {
 
 impl <E: std::cmp::Ord> Node<E> {
 	
-	/*-- Constructors --*/
+	/*-- Constructor --*/
 	
 	fn new(val: E) -> Self {
 		Self {
