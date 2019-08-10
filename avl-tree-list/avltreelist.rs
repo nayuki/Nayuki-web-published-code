@@ -93,6 +93,13 @@ impl <E> AvlTreeList<E> {
 }
 
 
+impl <E> Default for AvlTreeList<E> {
+	fn default() -> Self {
+		Self::new()
+	}
+}
+
+
 impl <E> std::ops::Index<usize> for AvlTreeList<E> {
 	type Output = E;
 	

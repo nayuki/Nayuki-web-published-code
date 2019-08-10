@@ -83,7 +83,7 @@ impl <E: std::cmp::Ord> BinomialHeap<E> {
 			for _ in 0 .. minnodeindex {
 				node = &mut {node}.as_mut().unwrap().as_mut().next;
 			}
-			minnode = *std::mem::replace(node, None).unwrap();
+			minnode = *node.take().unwrap();
 			std::mem::swap(node, &mut minnode.next);
 		}
 		self.merge_nodes(minnode.remove_root());

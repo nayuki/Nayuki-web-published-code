@@ -159,7 +159,7 @@ fn test_remove_all_randomly() {
 		set1.check_structure();
 		
 		// Remove each value in random order
-		let mut list: Vec<i32> = set0.iter().map(|x| *x).collect();
+		let mut list: Vec<i32> = set0.iter().copied().collect();
 		rng.shuffle(&mut list);
 		for val in list {
 			assert_eq!(set0.remove(&val), set1.remove(&val));

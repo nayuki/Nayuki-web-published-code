@@ -24,7 +24,7 @@
 use std;
 
 
-#[derive(Clone)]
+#[derive(Clone,Default)]
 pub struct BinaryArraySet<E> {
 	
 	// Each values[i]'s length is either 0 or 2^i, with elements in ascending order

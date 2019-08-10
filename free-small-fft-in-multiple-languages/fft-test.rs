@@ -46,7 +46,7 @@ fn main() {
 		// Test diverse size FFTs
 		let mut prev: usize = 0;
 		for i in 0i32 .. 101 {
-			let n: usize = (1500.0f64).powf((i as f64) / 100.0).round() as usize;
+			let n: usize = (1500.0f64).powf(f64::from(i) / 100.0).round() as usize;
 			if n > prev {
 				update_error(test_fft(n));
 				prev = n;
@@ -61,7 +61,7 @@ fn main() {
 		// Test diverse size convolutions
 		let mut prev: usize = 0;
 		for i in 0i32 .. 101 {
-			let n: usize = (1500.0f64).powf((i as f64) / 100.0).round() as usize;
+			let n: usize = (1500.0f64).powf(f64::from(i) / 100.0).round() as usize;
 			if n > prev {
 				update_error(test_convolution(n));
 				prev = n;

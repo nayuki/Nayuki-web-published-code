@@ -187,7 +187,7 @@ fn test_insert_list() {
 
 // Stresses the self-balancing mechanism
 fn test_insert_many_beginning() {
-	let n: i32 = 300000;
+	let n: i32 = 300_000;
 	let mut list = AvlTreeList::<i32>::new();
 	for i in 0 .. n {
 		list.push(i);
@@ -201,7 +201,7 @@ fn test_insert_many_beginning() {
 
 // Stresses the self-balancing mechanism
 fn test_insert_many_end() {
-	let n: i32 = 300000;
+	let n: i32 = 300_000;
 	let mut list = AvlTreeList::<i32>::new();
 	for i in (0 .. n).rev() {
 		list.insert(0, i);
@@ -332,7 +332,7 @@ fn test_against_rust_vec_randomly() {
 	let trials = 100_000;
 	let mut rng = rand::thread_rng();
 	let opcountdist = Range::new(1, 101);
-	let valuedist = Range::new(0i32, 1000000i32);
+	let valuedist = Range::new(0i32, 1_000_000);
 	
 	let mut list0 = Vec::<i32>::new();
 	let mut list1 = AvlTreeList::<i32>::new();

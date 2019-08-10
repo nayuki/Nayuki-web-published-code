@@ -137,7 +137,7 @@ fn test_array_constructor_randomly() {
 			cums.push(y + x);
 		}
 		
-		let mut bt = BinaryIndexedTree::<T>::new_array(&vals);
+		let bt = BinaryIndexedTree::<T>::new_array(&vals);
 		assert_eq!(len, bt.len());
 		assert_eq!(cums[len], bt.get_total());
 		
@@ -175,14 +175,13 @@ fn test_add_and_set_randomly() {
 		
 		let len = lendist.ind_sample(&mut rng);
 		let mut vals: Vec<T>;
-		let mut bt: BinaryIndexedTree<T>;
-		if rng.gen::<bool>() {
+		let mut bt: BinaryIndexedTree<T> = if rng.gen::<bool>() {
 			vals = vec![std::num::Wrapping(0); len];
-			bt = BinaryIndexedTree::<T>::new_size(len);
+			BinaryIndexedTree::<T>::new_size(len)
 		} else {
 			vals = (0 .. len).map(|_| std::num::Wrapping(rng.gen::<E>())).collect();
-			bt = BinaryIndexedTree::<T>::new_array(&vals);
-		}
+			BinaryIndexedTree::<T>::new_array(&vals)
+		};
 		
 		let indexdist = Range::new(0, len.max(1));
 		for _ in 0 .. OPERATIONS {

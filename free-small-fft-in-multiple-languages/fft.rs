@@ -183,8 +183,8 @@ pub fn convolve_real(x: &[f64], y: &[f64], out: &mut [f64]) {
 	assert_eq!(y.len(), n);
 	assert_eq!(out.len(), n);
 	convolve_complex(
-		x  , &mut vec![0.0; n],
-		y  , &mut vec![0.0; n],
+		x, &vec![0.0; n],
+		y, &vec![0.0; n],
 		out, &mut vec![0.0; n]);
 }
 

@@ -92,7 +92,7 @@ fn test_fast_dct8_vs_naive() {
 	for (i, x) in expect.iter_mut().enumerate() {
 		*x /= if i == 0 { (2.0f64).sqrt() } else { 2.0 };
 	}
-	let expect = naive_dct::inverse_transform(&mut expect);
+	let expect = naive_dct::inverse_transform(&expect);
 	let mut actual = vector.clone();
 	fast_dct8::inverse_transform(&mut actual);
 	assert_array_equals(&expect, &actual, EPSILON);
@@ -102,7 +102,7 @@ fn test_fast_dct8_vs_naive() {
 fn test_fast_dct_fft_vs_naive() {
 	let mut prev: usize = 0;
 	for i in 0i32 .. 101 {
-		let len = (3000.0f64).powf((i as f64) / 100.0).round() as usize;
+		let len = (3000.0f64).powf(f64::from(i) / 100.0).round() as usize;
 		if len <= prev {
 			continue;
 		}
@@ -125,7 +125,7 @@ fn test_fast_dct_fft_vs_naive() {
 fn test_fast_dct_fft_invertibility() {
 	let mut prev: usize = 0;
 	for i in 0 .. 31 {
-		let len = (1000000.0f64).powf((i as f64) / 30.0).round() as usize;
+		let len = (1000000.0f64).powf(f64::from(i) / 30.0).round() as usize;
 		if len <= prev {
 			continue;
 		}

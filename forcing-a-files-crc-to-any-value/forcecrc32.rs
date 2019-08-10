@@ -90,8 +90,9 @@ pub fn modify_file_crc32(file: &std::path::Path, offset: u64, newcrc: u32, print
 	}
 	
 	// Compute the change to make
-	let delta = multiply_mod(reciprocal_mod(pow_mod(2, (filelen - offset) * 8)),
-		(crc ^ newcrc) as u64) as u32;
+	let delta = multiply_mod(
+		reciprocal_mod(pow_mod(2, (filelen - offset) * 8)),
+		u64::from(crc ^ newcrc)) as u32;
 	
 	// Patch 4 bytes in the file
 	raf.seek(io::SeekFrom::Start(offset))?;
@@ -132,7 +133,7 @@ fn get_crc32(raf: &mut std::fs::File) -> io::Result<u32> {
 		}
 		for b in &buffer[.. n] {
 			for i in 0 .. 8 {
-				crc ^= ((*b >> i) as u32) << 31;
+				crc ^= u32::from(*b >> i) << 31;
 				crc = (crc << 1) ^ ((crc >> 31) * (POLYNOMIAL as u32));
 			}
 		}

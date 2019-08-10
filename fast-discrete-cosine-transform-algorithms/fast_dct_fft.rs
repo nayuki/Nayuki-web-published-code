@@ -41,8 +41,8 @@ pub fn transform(vector: &mut [f64]) {
 	if len % 2 == 1 {
 		real[halflen] = vector[len - 1];
 	}
-	for i in 0 .. len {
-		vector[i] = 0.0;
+	for x in vector.iter_mut() {
+		*x = 0.0;
 	}
 	fft::transform(&mut real, vector);
 	for i in 0 .. len {
