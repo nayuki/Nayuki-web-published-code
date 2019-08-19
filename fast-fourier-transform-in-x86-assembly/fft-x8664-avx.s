@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform (x86-64 AVX)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,130 +48,130 @@
 .globl fft_transform
 fft_transform:
 	/* Save registers */
-	pushq       %r10
-	pushq       %r11
-	pushq       %r12
-	pushq       %r13
+	pushq        %r10
+	pushq        %r11
+	pushq        %r12
+	pushq        %r13
 	
 	/* Permute registers for better variable names */
-	movq        %rdi, %rax
-	movq        %rsi, %rdi
-	movq        %rdx, %rsi
+	movq         %rdi, %rax
+	movq         %rsi, %rdi
+	movq         %rdx, %rsi
 	
 	/* Load struct FftTables fields */
-	movq         0(%rax), %rdx  /* rdx: Size of FFT (a power of 2, must be at least 4) */
-	movq         8(%rax), %r9   /* r9: Base address of bit-reversed indexing array */
-	movq        16(%rax), %r8   /* r8: Base address of trigonometric tables array */
+	movq          0(%rax), %rdx  /* rdx: Size of FFT (a power of 2, must be at least 4) */
+	movq          8(%rax), %r9   /* r9: Base address of bit-reversed indexing array */
+	movq         16(%rax), %r8   /* r8: Base address of trigonometric tables array */
 	
 	/* Bit-reversed addressing permutation */
-	movq        $0, %rcx  /* Loop counter: Range [0, rdx), step size 1 */
+	movq         $0, %rcx  /* Loop counter: Range [0, rdx), step size 1 */
 bitrevloop:
-	movq        (%r9,%rcx,8), %rax  /* rax: Bit reversal of rcx, with bit width log2(rdx) */
-	cmpq        %rcx, %rax
-	jae         bitrevskip
-	movq        (%rdi,%rcx,8), %r10
-	movq        (%rsi,%rcx,8), %r11
-	movq        (%rdi,%rax,8), %r12
-	movq        (%rsi,%rax,8), %r13
-	movq        %r10, (%rdi,%rax,8)
-	movq        %r11, (%rsi,%rax,8)
-	movq        %r12, (%rdi,%rcx,8)
-	movq        %r13, (%rsi,%rcx,8)
+	movq         (%r9,%rcx,8), %rax  /* rax: Bit reversal of rcx, with bit width log2(rdx) */
+	cmpq         %rcx, %rax
+	jae          bitrevskip
+	movq         (%rdi,%rcx,8), %r10
+	movq         (%rsi,%rcx,8), %r11
+	movq         (%rdi,%rax,8), %r12
+	movq         (%rsi,%rax,8), %r13
+	movq         %r10, (%rdi,%rax,8)
+	movq         %r11, (%rsi,%rax,8)
+	movq         %r12, (%rdi,%rcx,8)
+	movq         %r13, (%rsi,%rcx,8)
 bitrevskip:
-	incq        %rcx
-	cmpq        %rdx, %rcx
-	jb          bitrevloop
+	incq         %rcx
+	cmpq         %rdx, %rcx
+	jb           bitrevloop
 	
 	/* Size 2 merge (special) */
-	movq        $0, %rcx  /* Loop counter: Range [0, rdx), step size 4 */
+	movq         $0, %rcx  /* Loop counter: Range [0, rdx), step size 4 */
 size2loop:
-	vmovupd     (%rdi,%rcx,8), %ymm0
-	vmovupd     (%rsi,%rcx,8), %ymm2
-	vshufpd     $15, %ymm0, %ymm0, %ymm1
-	vshufpd     $0, %ymm0, %ymm0, %ymm0
-	vshufpd     $15, %ymm2, %ymm2, %ymm3
-	vshufpd     $0, %ymm2, %ymm2, %ymm2
-	vaddsubpd   %ymm1, %ymm0, %ymm0
-	vaddsubpd   %ymm3, %ymm2, %ymm2
-	vshufpd     $5, %ymm0, %ymm0, %ymm0
-	vshufpd     $5, %ymm2, %ymm2, %ymm2
-	vmovupd     %ymm0, (%rdi,%rcx,8)
-	vmovupd     %ymm2, (%rsi,%rcx,8)
-	addq        $4, %rcx
-	cmpq        %rdx, %rcx
-	jb          size2loop
+	vmovupd      (%rdi,%rcx,8), %ymm0
+	vmovupd      (%rsi,%rcx,8), %ymm2
+	vshufpd      $15, %ymm0, %ymm0, %ymm1
+	vshufpd      $0, %ymm0, %ymm0, %ymm0
+	vshufpd      $15, %ymm2, %ymm2, %ymm3
+	vshufpd      $0, %ymm2, %ymm2, %ymm2
+	vaddsubpd    %ymm1, %ymm0, %ymm0
+	vaddsubpd    %ymm3, %ymm2, %ymm2
+	vshufpd      $5, %ymm0, %ymm0, %ymm0
+	vshufpd      $5, %ymm2, %ymm2, %ymm2
+	vmovupd      %ymm0, (%rdi,%rcx,8)
+	vmovupd      %ymm2, (%rsi,%rcx,8)
+	addq         $4, %rcx
+	cmpq         %rdx, %rcx
+	jb           size2loop
 	
 	/* Size 4 merge (special) */
-	vmovapd     .size4negation0(%rip), %ymm6
-	vmovapd     .size4negation1(%rip), %ymm7
-	movq        $0, %rcx  /* Loop counter: Range [0, rdx), step size 4 */
+	vmovapd      .size4negation0(%rip), %ymm6
+	vmovapd      .size4negation1(%rip), %ymm7
+	movq         $0, %rcx  /* Loop counter: Range [0, rdx), step size 4 */
 size4loop:
-	vmovupd     (%rdi,%rcx,8), %ymm0
-	vmovupd     (%rsi,%rcx,8), %ymm1
-	vperm2f128  $0, %ymm0, %ymm0, %ymm2
-	vperm2f128  $0, %ymm1, %ymm1, %ymm3
-	vshufpd     $10, %ymm1, %ymm0, %ymm4
-	vshufpd     $10, %ymm0, %ymm1, %ymm5
-	vperm2f128  $17, %ymm4, %ymm4, %ymm4
-	vperm2f128  $17, %ymm5, %ymm5, %ymm5
-	vfmadd231pd %ymm4, %ymm6, %ymm2
-	vfmadd231pd %ymm5, %ymm7, %ymm3
-	vmovupd     %ymm2, (%rdi,%rcx,8)
-	vmovupd     %ymm3, (%rsi,%rcx,8)
-	addq        $4, %rcx
-	cmpq        %rdx, %rcx
-	jb          size4loop
+	vmovupd      (%rdi,%rcx,8), %ymm0
+	vmovupd      (%rsi,%rcx,8), %ymm1
+	vperm2f128   $0, %ymm0, %ymm0, %ymm2
+	vperm2f128   $0, %ymm1, %ymm1, %ymm3
+	vshufpd      $10, %ymm1, %ymm0, %ymm4
+	vshufpd      $10, %ymm0, %ymm1, %ymm5
+	vperm2f128   $17, %ymm4, %ymm4, %ymm4
+	vperm2f128   $17, %ymm5, %ymm5, %ymm5
+	vfmadd231pd  %ymm4, %ymm6, %ymm2
+	vfmadd231pd  %ymm5, %ymm7, %ymm3
+	vmovupd      %ymm2, (%rdi,%rcx,8)
+	vmovupd      %ymm3, (%rsi,%rcx,8)
+	addq         $4, %rcx
+	cmpq         %rdx, %rcx
+	jb           size4loop
 	
 	/* Size 8 and larger merges (general) */
-	movq        $4, %rcx  /* rcx: halfsize */
+	movq         $4, %rcx  /* rcx: halfsize */
 outerloop:   /* For each merge size: From 8, 16, 32, ..., to rdx (inclusive). rcx is half the merge size. */
-	cmpq        %rdx, %rcx
-	jae         end
-	movq        $0, %rax
+	cmpq         %rdx, %rcx
+	jae          end
+	movq         $0, %rax
 middleloop:  /* For each block of the current size: From 0, 2*rcx, 4*rcx, 6*rcx, ..., to rdx (exclusive). rax is the block start. */
-	movq        $0, %r9
+	movq         $0, %r9
 innerloop:   /* For each 4 elements up to halfsize. r9 is the vector start. */
-	leaq        (%rax,%r9 ), %r10
-	leaq        (%r10,%rcx), %r11
-	vmovupd     (%rdi,%r10,8), %ymm0
-	vmovupd     (%rsi,%r10,8), %ymm1
-	vmovupd     (%rdi,%r11,8), %ymm2
-	vmovupd     (%rsi,%r11,8), %ymm3
-	leaq        (,%r9,4), %r12
-	leaq        (%r8,%r12,4), %r12  /* r12 = r9*16 + r8 */
-	vmovupd      0(%r12), %ymm4  /* Cosine table values */
-	vmovupd     32(%r12), %ymm5  /* Sine table values */
-	vmulpd      %ymm2, %ymm4, %ymm6
-	vmulpd      %ymm2, %ymm5, %ymm7
-	vfmadd231pd %ymm3, %ymm5, %ymm6
-	vfmsub231pd %ymm3, %ymm4, %ymm7
-	vaddpd      %ymm0, %ymm6, %ymm2
-	vaddpd      %ymm1, %ymm7, %ymm3
-	vsubpd      %ymm6, %ymm0, %ymm4
-	vsubpd      %ymm7, %ymm1, %ymm5
-	vmovupd     %ymm2, (%rdi,%r10,8)
-	vmovupd     %ymm3, (%rsi,%r10,8)
-	vmovupd     %ymm4, (%rdi,%r11,8)
-	vmovupd     %ymm5, (%rsi,%r11,8)
-	addq        $4, %r9
-	cmpq        %rcx, %r9
-	jb          innerloop
+	leaq         (%rax,%r9 ), %r10
+	leaq         (%r10,%rcx), %r11
+	vmovupd      (%rdi,%r10,8), %ymm0
+	vmovupd      (%rsi,%r10,8), %ymm1
+	vmovupd      (%rdi,%r11,8), %ymm2
+	vmovupd      (%rsi,%r11,8), %ymm3
+	leaq         (,%r9,4), %r12
+	leaq         (%r8,%r12,4), %r12  /* r12 = r9*16 + r8 */
+	vmovupd       0(%r12), %ymm4  /* Cosine table values */
+	vmovupd      32(%r12), %ymm5  /* Sine table values */
+	vmulpd       %ymm2, %ymm4, %ymm6
+	vmulpd       %ymm2, %ymm5, %ymm7
+	vfmadd231pd  %ymm3, %ymm5, %ymm6
+	vfmsub231pd  %ymm3, %ymm4, %ymm7
+	vaddpd       %ymm0, %ymm6, %ymm2
+	vaddpd       %ymm1, %ymm7, %ymm3
+	vsubpd       %ymm6, %ymm0, %ymm4
+	vsubpd       %ymm7, %ymm1, %ymm5
+	vmovupd      %ymm2, (%rdi,%r10,8)
+	vmovupd      %ymm3, (%rsi,%r10,8)
+	vmovupd      %ymm4, (%rdi,%r11,8)
+	vmovupd      %ymm5, (%rsi,%r11,8)
+	addq         $4, %r9
+	cmpq         %rcx, %r9
+	jb           innerloop
 	/* End inner loop */
-	leaq        (%rax,%rcx,2), %rax  /* Increment rax by current size */
-	cmpq        %rdx, %rax
-	jb          middleloop
+	leaq         (%rax,%rcx,2), %rax  /* Increment rax by current size */
+	cmpq         %rdx, %rax
+	jb           middleloop
 	/* End middle loop */
-	shlq        $1, %rcx
-	leaq        (%r8,%rcx,8), %r8  /* Advance the trigonometric tables */
-	jmp         outerloop
+	shlq         $1, %rcx
+	leaq         (%r8,%rcx,8), %r8  /* Advance the trigonometric tables */
+	jmp          outerloop
 	
 	/* Restore registers */
 end:
-	popq        %r13
-	popq        %r12
-	popq        %r11
-	popq        %r10
-	vzeroupper
+	popq         %r13
+	popq         %r12
+	popq         %r11
+	popq         %r10
+	vzeroall
 	retq
 
 

@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -121,7 +121,6 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 		unsigned long long temp = static_cast<unsigned long long>(i) * i;
 		temp %= static_cast<unsigned long long>(n) * 2;
 		double angle = M_PI * temp / n;
-		// Less accurate alternative if long long is unavailable: double angle = M_PI * i * i / n;
 		cosTable[i] = std::cos(angle);
 		sinTable[i] = std::sin(angle);
 	}

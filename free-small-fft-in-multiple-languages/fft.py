@@ -1,7 +1,7 @@
 # 
 # Free FFT and convolution (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2019 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/free-small-fft-in-multiple-languages
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,8 +59,8 @@ def transform_radix2(vector, inverse):
 	if 2**levels != n:
 		raise ValueError("Length is not a power of 2")
 	# Now, levels = log2(n)
-	coef = (2j if inverse else -2j) * cmath.pi / n
-	exptable = [cmath.exp(i * coef) for i in range(n // 2)]
+	coef = (2 if inverse else -2) * cmath.pi / n
+	exptable = [cmath.rect(1, i * coef) for i in range(n // 2)]
 	vector = [vector[reverse(i, levels)] for i in range(n)]  # Copy with bit-reversed permutation
 	
 	# Radix-2 decimation-in-time FFT
@@ -91,8 +91,8 @@ def transform_bluestein(vector, inverse):
 		return []
 	m = 2**((n * 2).bit_length())
 	
-	coef = (1j if inverse else -1j) * cmath.pi / n
-	exptable = [cmath.exp((i * i % (n * 2)) * coef) for i in range(n)]  # Trigonometric table
+	coef = (1 if inverse else -1) * cmath.pi / n
+	exptable = [cmath.rect(1, (i * i % (n * 2)) * coef) for i in range(n)]  # Trigonometric table
 	a = [(x * y) for (x, y) in zip(vector, exptable)] + [0] * (m - n)  # Temporary vectors and preprocessing
 	b = exptable[ : n] + [0] * (m - (n * 2 - 1)) + exptable[ : 0 : -1]
 	b = [x.conjugate() for x in b]

@@ -1,7 +1,7 @@
 # 
 # FFT and convolution test (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2019 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/free-small-fft-in-multiple-languages
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -92,11 +92,11 @@ def _naive_dft(input, inverse):
 	output = []
 	if n == 0:
 		return output
-	coef = (2j if inverse else -2j) * math.pi / n
+	coef = (2 if inverse else -2) * math.pi / n
 	for k in range(n):  # For each output element
 		s = 0
 		for t in range(n):  # For each input element
-			s += input[t] * cmath.exp((t * k % n) * coef)
+			s += input[t] * cmath.rect(1, (t * k % n) * coef)
 		output.append(s)
 	return output
 

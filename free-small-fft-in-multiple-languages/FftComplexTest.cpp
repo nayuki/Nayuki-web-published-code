@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -125,7 +125,7 @@ static vector<complex<double> > naiveDft(const vector<complex<double> > &input, 
 		complex<double> sum(0);
 		for (int t = 0; t < n; t++) {  // For each input element
 			double angle = coef * (static_cast<long long>(t) * k % n);
-			sum += input[t] * std::exp(complex<double>(0, angle));
+			sum += input[t] * std::polar(1.0, angle);
 		}
 		output.push_back(sum);
 	}

@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -69,7 +69,7 @@ void Fft::transformRadix2(vector<complex<double> > &vec) {
 	// Trignometric table
 	vector<complex<double> > expTable(n / 2);
 	for (size_t i = 0; i < n / 2; i++)
-		expTable[i] = std::exp(complex<double>(0, -2 * M_PI * i / n));
+		expTable[i] = std::polar(1.0, -2 * M_PI * i / n);
 	
 	// Bit-reversed addressing permutation
 	for (size_t i = 0; i < n; i++) {
@@ -111,8 +111,7 @@ void Fft::transformBluestein(vector<complex<double> > &vec) {
 		unsigned long long temp = static_cast<unsigned long long>(i) * i;
 		temp %= static_cast<unsigned long long>(n) * 2;
 		double angle = M_PI * temp / n;
-		// Less accurate alternative if long long is unavailable: double angle = M_PI * i * i / n;
-		expTable[i] = std::exp(complex<double>(0, -angle));
+		expTable[i] = std::polar(1.0, -angle);
 	}
 	
 	// Temporary vectors and preprocessing
