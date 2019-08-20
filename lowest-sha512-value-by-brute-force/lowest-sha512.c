@@ -1,7 +1,7 @@
 /* 
  * Lowest SHA-512 value by brute force (C)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
@@ -108,7 +108,7 @@ int main(void) {
 			prevprinttype = 0;
 		}
 		
-		// Increment messages
+		// Increment message
 		int j;
 		for (j = MSG_LEN - 1; j >= 0 && block[j] >= 'z'; j--)
 			block[j] = 'a';
@@ -177,7 +177,7 @@ static int compare_hashes(const uint64_t hash0[static 8], const uint64_t hash1[s
 static void sha512_compress(uint64_t state[static 8], const uint8_t block[static 128]) {
 	// 64-bit right rotation
 	#define ROTR64(x, i)  \
-		(((x) << (64 - (i))) | ((x) >> (i)))
+		(((0U + (x)) << (64 - (i))) | ((x) >> (i)))
 	
 	#define LOADSCHEDULE(i)  \
 		schedule[i] =  \
@@ -191,14 +191,14 @@ static void sha512_compress(uint64_t state[static 8], const uint8_t block[static
 		    | (uint64_t)block[i * 8 + 7] <<  0;
 	
 	#define SCHEDULE(i)  \
-		schedule[i] = schedule[i - 16] + schedule[i - 7]  \
+		schedule[i] = 0U + schedule[i - 16] + schedule[i - 7]  \
 			+ (ROTR64(schedule[i - 15], 1) ^ ROTR64(schedule[i - 15], 8) ^ (schedule[i - 15] >> 7))  \
 			+ (ROTR64(schedule[i - 2], 19) ^ ROTR64(schedule[i - 2], 61) ^ (schedule[i - 2] >> 6));
 	
 	#define ROUND(a, b, c, d, e, f, g, h, i, k)  \
-		h += (ROTR64(e, 14) ^ ROTR64(e, 18) ^ ROTR64(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
-		d += h;  \
-		h += (ROTR64(a, 28) ^ ROTR64(a, 34) ^ ROTR64(a, 39)) + ((a & (b | c)) | (b & c));
+		h = 0U + h + (ROTR64(e, 14) ^ ROTR64(e, 18) ^ ROTR64(e, 41)) + (g ^ (e & (f ^ g))) + UINT64_C(k) + schedule[i];  \
+		d = 0U + d + h;  \
+		h = 0U + h + (ROTR64(a, 28) ^ ROTR64(a, 34) ^ ROTR64(a, 39)) + ((a & (b | c)) | (b & c));
 	
 	uint64_t schedule[80];
 	LOADSCHEDULE( 0)
@@ -370,12 +370,12 @@ static void sha512_compress(uint64_t state[static 8], const uint8_t block[static
 	ROUND(d, e, f, g, h, a, b, c, 77, 0x597F299CFC657E2A)
 	ROUND(c, d, e, f, g, h, a, b, 78, 0x5FCB6FAB3AD6FAEC)
 	ROUND(b, c, d, e, f, g, h, a, 79, 0x6C44198C4A475817)
-	state[0] += a;
-	state[1] += b;
-	state[2] += c;
-	state[3] += d;
-	state[4] += e;
-	state[5] += f;
-	state[6] += g;
-	state[7] += h;
+	state[0] = 0U + state[0] + a;
+	state[1] = 0U + state[1] + b;
+	state[2] = 0U + state[2] + c;
+	state[3] = 0U + state[3] + d;
+	state[4] = 0U + state[4] + e;
+	state[5] = 0U + state[5] + f;
+	state[6] = 0U + state[6] + g;
+	state[7] = 0U + state[7] + h;
 }
