@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree test (JavaScript)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -231,7 +231,7 @@ function assertEquals(expect, actual) {
 				msg += "Fail - " + e;
 			}
 			i++;
-			setTimeout(iterate, 0);
+			setTimeout(iterate);
 		}
 		var li = document.createElement("li");
 		li.textContent = msg;

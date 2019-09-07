@@ -143,7 +143,7 @@ function doShuffle() {
 	
 	// Continue shuffling or finish
 	if (shuffleStartColumn < width)
-		setTimeout(doShuffle, 0);
+		setTimeout(doShuffle);
 	else {
 		setButtonState(3);
 		curIteration = 0;
@@ -182,7 +182,7 @@ function doAnnealPrecompute() {
 			break;
 	}
 	if (columnDiffs.length < width)
-		setTimeout(doAnnealPrecompute, 0);
+		setTimeout(doAnnealPrecompute);
 	else {
 		curEnergy = 0;
 		for (var i = 0; i < width - 1; i++)
@@ -272,7 +272,7 @@ function doAnneal() {
 	
 	// Continue annealing or finish
 	if (curIteration < numIterations)
-		setTimeout(doAnneal, 0);
+		setTimeout(doAnneal);
 	else {
 		curIteration = 0;
 		colPermutation = null;

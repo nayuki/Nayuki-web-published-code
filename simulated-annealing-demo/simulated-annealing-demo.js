@@ -1,7 +1,7 @@
 /* 
  * Simulated annealing on image demo (JavaScript)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/simulated-annealing-demo
  */
@@ -182,7 +182,7 @@ function doAnnealing() {
 		var factor = 30 / (Date.now() - startTime);
 		factor = Math.max(Math.min(factor, 10), 0.1);
 		blockOfIterations = Math.max(Math.round(blockOfIterations * factor), 1);
-		setTimeout(doAnnealing, 0);
+		setTimeout(doAnnealing);
 	} else {
 		isRunning = false;
 		numIterations = null;
