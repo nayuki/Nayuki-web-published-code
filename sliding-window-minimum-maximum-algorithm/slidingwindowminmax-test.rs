@@ -37,16 +37,16 @@ fn main() {
 
 fn test_randomly() {
 	let trials = 100_000;
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let valuedist = Range::new(0u32, 100);
 	let arraylendist = Range::new(0usize, 1000);
 	let windowdist = Range::new(1usize, 31);
 	
 	for _ in 0 .. trials {
-		let arraylen = arraylendist.ind_sample(&mut rng);
+		let arraylen = arraylendist.ind_sample(rng);
 		let array: Vec<u32> = (0 .. arraylen).map(
-			|_| valuedist.ind_sample(&mut rng)).collect();
-		let window = windowdist.ind_sample(&mut rng);
+			|_| valuedist.ind_sample(rng)).collect();
+		let window = windowdist.ind_sample(rng);
 		let maximize: bool = rng.gen();
 		
 		let expect: Vec<u32> = compute_sliding_window_min_or_max_naive               (&array, window, maximize);
@@ -58,13 +58,13 @@ fn test_randomly() {
 
 fn test_incremental() {
 	let trials = 10_000;
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let valuedist = Range::new(0i8, 100);
 	
 	for _ in 0 .. trials {
 		let arraylen: usize = 1000;
 		let array: Vec<i8> = (0 .. arraylen).map(
-			|_| valuedist.ind_sample(&mut rng)).collect();
+			|_| valuedist.ind_sample(rng)).collect();
 		
 		let mut swm = slidingwindowminmax::SlidingWindowMinMax::new();
 		let mut start: usize = 0;

@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -194,7 +194,7 @@ fn log10_rms_err(
 
 
 fn random_reals(size: usize) -> Vec<f64> {
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let uniform = rand::distributions::range::Range::new(-1.0, 1.0);
-	(0 .. size).map(|_| uniform.ind_sample(&mut rng)).collect()
+	(0 .. size).map(|_| uniform.ind_sample(rng)).collect()
 }

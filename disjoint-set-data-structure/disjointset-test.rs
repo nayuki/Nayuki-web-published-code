@@ -86,7 +86,7 @@ fn test_big_merge() {
 	
 	let numelems: usize = 1 << maxrank;  // Grows exponentially
 	let mut ds = DisjointSet::new(numelems);
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let range = rand::distributions::range::Range::new(0, numelems);
 	for level in 0 .. maxrank {
 		let mergestep: usize = 1 << level;
@@ -102,8 +102,8 @@ fn test_big_merge() {
 		// Do random tests
 		let mask: usize = incrstep.wrapping_neg();  // 0b11...100...00
 		for _ in 0 .. trials {
-			let j: usize = range.ind_sample(&mut rng);
-			let k: usize = range.ind_sample(&mut rng);
+			let j: usize = range.ind_sample(rng);
+			let k: usize = range.ind_sample(rng);
 			let expect: bool = (j & mask) == (k & mask);
 			assert_eq!(expect, ds.are_in_same_set(j, k));
 		}
@@ -116,14 +116,14 @@ fn test_against_naive_randomly() {
 	let iterations: i32 = 3000;
 	let numelems: usize = 300;
 	
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let range = rand::distributions::range::Range::new(0, numelems);
 	for _ in 0 .. trials {
 		let mut nds = NaiveDisjointSet::new(numelems);
 		let mut ds = DisjointSet::new(numelems);
 		for _ in 0 .. iterations {
-			let i: usize = range.ind_sample(&mut rng);
-			let j: usize = range.ind_sample(&mut rng);
+			let i: usize = range.ind_sample(rng);
+			let j: usize = range.ind_sample(rng);
 			assert_eq!(nds.get_size_of_set(i), ds.get_size_of_set(i));
 			assert_eq!(nds.are_in_same_set(i, j), ds.are_in_same_set(i, j));
 			if rng.next_f64() < 0.1 {

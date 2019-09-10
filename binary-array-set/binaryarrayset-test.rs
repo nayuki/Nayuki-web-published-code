@@ -92,7 +92,7 @@ fn test_iterator() {
 // Comprehensively tests all the defined methods
 fn test_against_rust_set_randomly() {
 	let trials = 100_000;
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let operationdist = rand::distributions::range::Range::new(0, 100);
 	let opcountdist = rand::distributions::range::Range::new(1, 101);
 	let valuedist = rand::distributions::range::Range::new(0i32, 10000i32);
@@ -101,7 +101,7 @@ fn test_against_rust_set_randomly() {
 	let mut set1 = binaryarrayset::BinaryArraySet::<i32>::new();
 	let mut size: usize = 0;
 	for _ in 0 .. trials {
-		let op = operationdist.ind_sample(&mut rng);
+		let op = operationdist.ind_sample(rng);
 		
 		if op < 1 {  // Clear
 			set1.check_structure();
@@ -117,18 +117,18 @@ fn test_against_rust_set_randomly() {
 			assert_eq!(list0, list1);
 			
 		} else if op < 70 {  // Insert
-			let n = opcountdist.ind_sample(&mut rng);
+			let n = opcountdist.ind_sample(rng);
 			for _ in 0 .. n {
-				let val: i32 = valuedist.ind_sample(&mut rng);
+				let val: i32 = valuedist.ind_sample(rng);
 				let added: bool = set0.insert(val);
 				assert_eq!(added, set1.insert(val), "Insert mismatch");
 				size += added as usize;
 			}
 			
 		} else if op < 100 {  // Contains
-			let n = opcountdist.ind_sample(&mut rng);
+			let n = opcountdist.ind_sample(rng);
 			for _ in 0 .. n {
-				let val: i32 = valuedist.ind_sample(&mut rng);
+				let val: i32 = valuedist.ind_sample(rng);
 				assert_eq!(set0.contains(&val), set1.contains(&val), "Contain test mismatch");
 			}
 			

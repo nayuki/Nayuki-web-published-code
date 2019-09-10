@@ -96,16 +96,16 @@ fn test_against_vec_randomly() {
 	let maxsize: usize = 1000;
 	let range: i32 = 1000;
 	
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let sizedist = Range::new(0, maxsize);
 	let valuedist = Range::new(0, range);
 	
 	let mut heap = BinomialHeap::<i32>::new();
 	for _ in 0 .. trials {
-		let size = sizedist.ind_sample(&mut rng);
+		let size = sizedist.ind_sample(rng);
 		let mut values = Vec::<i32>::with_capacity(size);
 		for _ in 0 .. size {
-			let val = valuedist.ind_sample(&mut rng);
+			let val = valuedist.ind_sample(rng);
 			values.push(val);
 			heap.push(val);
 		}
@@ -124,7 +124,7 @@ fn test_against_rust_binary_heap_randomly() {
 	let iterops: usize = 100;
 	let range: i32 = 10_000;
 	
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let opcountdist = Range::new(1, iterops + 1);
 	let valuedist = Range::new(0, range);
 	
@@ -132,7 +132,7 @@ fn test_against_rust_binary_heap_randomly() {
 	let mut queue = std::collections::binary_heap::BinaryHeap::<i32>::new();
 	let mut size: usize = 0;
 	for _ in 0 .. trials {
-		let op = Range::new(0, 100).ind_sample(&mut rng);
+		let op = Range::new(0, 100).ind_sample(rng);
 		
 		if op < 1 {  // Clear
 			heap.check_structure();
@@ -150,9 +150,9 @@ fn test_against_rust_binary_heap_randomly() {
 		} else if op < 70 {  // Enqueue/merge
 			let merge = !(op < 60);
 			let mut temp = BinomialHeap::<i32>::new();
-			let n = opcountdist.ind_sample(&mut rng);
+			let n = opcountdist.ind_sample(rng);
 			for _ in 0 .. n {
-				let val = valuedist.ind_sample(&mut rng);
+				let val = valuedist.ind_sample(rng);
 				queue.push(-val);
 				if merge {
 					temp.push(val);
@@ -167,7 +167,7 @@ fn test_against_rust_binary_heap_randomly() {
 			size += n;
 			
 		} else if op < 100 {  // Dequeue
-			let n = std::cmp::min(opcountdist.ind_sample(&mut rng), size);
+			let n = std::cmp::min(opcountdist.ind_sample(rng), size);
 			for _ in 0 .. n {
 				assert_eq!(-queue.pop().unwrap(), heap.pop().unwrap());
 			}

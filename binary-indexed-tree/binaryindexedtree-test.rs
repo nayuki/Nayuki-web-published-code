@@ -42,7 +42,7 @@ fn test_size_constructor() {
 	let SIZELIMIT: usize = 10_000;
 	let CHECKS = 10;
 	type T = i8;
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	for len in 0 .. SIZELIMIT {
 		
 		let bt = BinaryIndexedTree::<T>::new_size(len);
@@ -53,12 +53,12 @@ fn test_size_constructor() {
 		let indexonedist = Range::new(0, len + 1);
 		for _ in 0 .. CHECKS {
 			if len > 0 {
-				assert_eq!(0, bt.get(indexdist.ind_sample(&mut rng)));
+				assert_eq!(0, bt.get(indexdist.ind_sample(rng)));
 			}
-			assert_eq!(0, bt.get_prefix_sum(indexonedist.ind_sample(&mut rng)));
+			assert_eq!(0, bt.get_prefix_sum(indexonedist.ind_sample(rng)));
 			
-			let mut start = indexonedist.ind_sample(&mut rng);
-			let mut end   = indexonedist.ind_sample(&mut rng);
+			let mut start = indexonedist.ind_sample(rng);
+			let mut end   = indexonedist.ind_sample(rng);
 			if start > end {
 				std::mem::swap(&mut start, &mut end);
 			}
@@ -72,12 +72,12 @@ fn test_all_ones() {
 	let SIZELIMIT: usize = 10_000;
 	let CHECKS = 10;
 	type T = u16;
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let modedist = Range::new(0, 4);
 	for len in 1 .. SIZELIMIT {
 		
 		let mut bt;
-		let mode = modedist.ind_sample(&mut rng);
+		let mode = modedist.ind_sample(rng);
 		if mode == 0 {
 			bt = BinaryIndexedTree::<T>::new_array(&vec![1; len]);
 		} else {
@@ -102,12 +102,12 @@ fn test_all_ones() {
 		let indexdist = Range::new(0, len.max(1));
 		let indexonedist = Range::new(0, len + 1);
 		for _ in 0 .. CHECKS {
-			assert_eq!(1, bt.get(indexdist.ind_sample(&mut rng)));
-			let k = indexonedist.ind_sample(&mut rng);
+			assert_eq!(1, bt.get(indexdist.ind_sample(rng)));
+			let k = indexonedist.ind_sample(rng);
 			assert_eq!(k as T, bt.get_prefix_sum(k));
 			
-			let mut start = indexonedist.ind_sample(&mut rng);
-			let mut end   = indexonedist.ind_sample(&mut rng);
+			let mut start = indexonedist.ind_sample(rng);
+			let mut end   = indexonedist.ind_sample(rng);
 			if start > end {
 				std::mem::swap(&mut start, &mut end);
 			}
@@ -122,16 +122,16 @@ fn test_array_constructor_randomly() {
 	let SIZELIMIT: usize = 10_000;
 	let CHECKS = 100;
 	type T = i64;
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let lendist = Range::new(0, SIZELIMIT);
 	for _ in 0 .. TRIALS {
 		
-		let len = lendist.ind_sample(&mut rng);
+		let len = lendist.ind_sample(rng);
 		let mut vals: Vec<T> = vec![];
 		let mut cums: Vec<T> = vec![0];
 		let valdist = Range::new(-1000, 1001);
 		for _ in 0 .. len {
-			let x = valdist.ind_sample(&mut rng);
+			let x = valdist.ind_sample(rng);
 			vals.push(x);
 			let y = *cums.last().unwrap();
 			cums.push(y + x);
@@ -145,14 +145,14 @@ fn test_array_constructor_randomly() {
 		let indexonedist = Range::new(0, len + 1);
 		for _ in 0 .. CHECKS {
 			if len > 0 {
-				let k = indexdist.ind_sample(&mut rng);
+				let k = indexdist.ind_sample(rng);
 				assert_eq!(vals[k], bt.get(k));
 			}
-			let k = indexonedist.ind_sample(&mut rng);
+			let k = indexonedist.ind_sample(rng);
 			assert_eq!(cums[k], bt.get_prefix_sum(k));
 			
-			let mut start = indexonedist.ind_sample(&mut rng);
-			let mut end   = indexonedist.ind_sample(&mut rng);
+			let mut start = indexonedist.ind_sample(rng);
+			let mut end   = indexonedist.ind_sample(rng);
 			if start > end {
 				std::mem::swap(&mut start, &mut end);
 			}
@@ -169,11 +169,11 @@ fn test_add_and_set_randomly() {
 	let CHECKS = 100;
 	type E = u64;
 	type T = std::num::Wrapping<E>;
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let lendist = Range::new(1, SIZELIMIT);
 	for _ in 0 .. TRIALS {
 		
-		let len = lendist.ind_sample(&mut rng);
+		let len = lendist.ind_sample(rng);
 		let mut vals: Vec<T>;
 		let mut bt: BinaryIndexedTree<T> = if rng.gen::<bool>() {
 			vals = vec![std::num::Wrapping(0); len];
@@ -185,7 +185,7 @@ fn test_add_and_set_randomly() {
 		
 		let indexdist = Range::new(0, len.max(1));
 		for _ in 0 .. OPERATIONS {
-			let k = indexdist.ind_sample(&mut rng);
+			let k = indexdist.ind_sample(rng);
 			let x: T = std::num::Wrapping(rng.gen());
 			if rng.gen::<bool>() {
 				vals[k] += x;
@@ -204,13 +204,13 @@ fn test_add_and_set_randomly() {
 		
 		let indexonedist = Range::new(0, len + 1);
 		for _ in 0 .. CHECKS {
-			let k = indexdist.ind_sample(&mut rng);
+			let k = indexdist.ind_sample(rng);
 			assert_eq!(vals[k], bt.get(k));
-			let k = indexonedist.ind_sample(&mut rng);
+			let k = indexonedist.ind_sample(rng);
 			assert_eq!(cums[k], bt.get_prefix_sum(k));
 			
-			let mut start = indexonedist.ind_sample(&mut rng);
-			let mut end   = indexonedist.ind_sample(&mut rng);
+			let mut start = indexonedist.ind_sample(rng);
+			let mut end   = indexonedist.ind_sample(rng);
 			if start > end {
 				std::mem::swap(&mut start, &mut end);
 			}

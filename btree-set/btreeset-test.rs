@@ -43,7 +43,7 @@ fn test_small_randomly() {
 	let trials = 1000;
 	let operations = 100;
 	let range = 1000;
-	let mut rng = rand::thread_rng(); let rng = &mut rng;
+	let rng = &mut rand::thread_rng();
 	let degreedist = Range::new(2usize, 7);
 	let valuedist = Range::new(0i32, range);
 	
@@ -79,7 +79,7 @@ fn test_insert_randomly() {
 	let operations = 10_000;
 	let range = 100_000;
 	let checks = 10;
-	let mut rng = rand::thread_rng(); let rng = &mut rng;
+	let rng = &mut rand::thread_rng();
 	let valuedist = Range::new(0i32, range);
 	
 	for _ in 0 .. trials {
@@ -109,7 +109,7 @@ fn test_large_randomly() {
 	let operations = 30_000;
 	let range = 100_000;
 	let checks = 10;
-	let mut rng = rand::thread_rng(); let rng = &mut rng;
+	let rng = &mut rand::thread_rng();
 	let degreedist = Range::new(2usize, 7);
 	let valuedist = Range::new(0i32, range);
 	
@@ -144,7 +144,7 @@ fn test_remove_all_randomly() {
 	let limit = 10_000;
 	let range = 100_000;
 	let checks = 10;
-	let mut rng = rand::thread_rng(); let rng = &mut rng;
+	let rng = &mut rand::thread_rng();
 	let degreedist = Range::new(2usize, 7);
 	let valuedist = Range::new(0i32, range);
 	

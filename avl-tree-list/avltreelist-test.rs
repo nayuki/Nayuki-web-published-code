@@ -330,7 +330,7 @@ fn test_iterator() {
 // Comprehensively tests all the defined methods.
 fn test_against_rust_vec_randomly() {
 	let trials = 100_000;
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let opcountdist = Range::new(1, 101);
 	let valuedist = Range::new(0i32, 1_000_000);
 	
@@ -338,7 +338,7 @@ fn test_against_rust_vec_randomly() {
 	let mut list1 = AvlTreeList::<i32>::new();
 	let mut size: usize = 0;
 	for _ in 0 .. trials {
-		let op = Range::new(0, 100).ind_sample(&mut rng);
+		let op = Range::new(0, 100).ind_sample(rng);
 		
 		if op < 1 {  // Clear
 			list1.check_structure();
@@ -348,54 +348,54 @@ fn test_against_rust_vec_randomly() {
 			
 		} else if op < 2 {  // Set
 			if size > 0 {
-				let index = Range::new(0, size).ind_sample(&mut rng);
-				let val = valuedist.ind_sample(&mut rng);
+				let index = Range::new(0, size).ind_sample(rng);
+				let val = valuedist.ind_sample(rng);
 				list0[index] = val;
 				list1[index] = val;
 			}
 			
 		} else if op < 30 {  // Random insertion
-			let n = opcountdist.ind_sample(&mut rng);
+			let n = opcountdist.ind_sample(rng);
 			for _ in 0 .. n {
-				let index = Range::new(0, size + 1).ind_sample(&mut rng);
-				let val = valuedist.ind_sample(&mut rng);
+				let index = Range::new(0, size + 1).ind_sample(rng);
+				let val = valuedist.ind_sample(rng);
 				list0.insert(index, val);
 				list1.insert(index, val);
 			}
 			size += n;
 			
 		} else if op < 50 {  // Ascending insertion
-			let n = opcountdist.ind_sample(&mut rng);
-			let offset =  Range::new(0, size + 1).ind_sample(&mut rng);
+			let n = opcountdist.ind_sample(rng);
+			let offset =  Range::new(0, size + 1).ind_sample(rng);
 			for i in 0 .. n {
-				let val = valuedist.ind_sample(&mut rng);
+				let val = valuedist.ind_sample(rng);
 				list0.insert(offset + i, val);
 				list1.insert(offset + i, val);
 			}
 			size += n;
 			
 		} else if op < 70 {  // Descending insertion
-			let n = opcountdist.ind_sample(&mut rng);
-			let offset = Range::new(0, size + 1).ind_sample(&mut rng);
+			let n = opcountdist.ind_sample(rng);
+			let offset = Range::new(0, size + 1).ind_sample(rng);
 			for _ in 0 .. n {
-				let val = valuedist.ind_sample(&mut rng);
+				let val = valuedist.ind_sample(rng);
 				list0.insert(offset, val);
 				list1.insert(offset, val);
 			}
 			size += n;
 			
 		} else if op < 80 {  // Random deletion
-			let n = std::cmp::min(opcountdist.ind_sample(&mut rng), size);
+			let n = std::cmp::min(opcountdist.ind_sample(rng), size);
 			for _ in 0 .. n {
-				let index = Range::new(0, size).ind_sample(&mut rng);
+				let index = Range::new(0, size).ind_sample(rng);
 				assert_eq!(list0.remove(index), list1.remove(index));
 				size -= 1;
 			}
 			
 		} else if op < 90 {  // Ascending deletion
 			if size > 0 {
-				let offset = Range::new(0, size).ind_sample(&mut rng);
-				let n = std::cmp::min(opcountdist.ind_sample(&mut rng), size - offset);
+				let offset = Range::new(0, size).ind_sample(rng);
+				let n = std::cmp::min(opcountdist.ind_sample(rng), size - offset);
 				for _ in 0 .. n {
 					assert_eq!(list0.remove(offset), list1.remove(offset));
 				}
@@ -404,8 +404,8 @@ fn test_against_rust_vec_randomly() {
 			
 		} else if op < 100 {  // Descending deletion
 			if size > 0 {
-				let offset = Range::new(0, size).ind_sample(&mut rng);
-				let n = std::cmp::min(opcountdist.ind_sample(&mut rng), offset + 1);
+				let offset = Range::new(0, size).ind_sample(rng);
+				let n = std::cmp::min(opcountdist.ind_sample(rng), offset + 1);
 				for i in 0 .. n {
 					assert_eq!(list0.remove(offset - i), list1.remove(offset - i));
 				}
@@ -420,7 +420,7 @@ fn test_against_rust_vec_randomly() {
 		if size > 0 {
 			let indexdist = Range::new(0, size);
 			for _ in 0 .. 10 {
-				let index = indexdist.ind_sample(&mut rng);
+				let index = indexdist.ind_sample(rng);
 				assert_eq!(list0[index], list1[index]);
 			}
 		}

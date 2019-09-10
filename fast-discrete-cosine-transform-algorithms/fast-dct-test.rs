@@ -146,9 +146,9 @@ fn test_fast_dct_fft_invertibility() {
 /*---- Utilities ----*/
 
 fn random_vector(len: usize) -> Vec<f64> {
-	let mut rng = rand::thread_rng();
+	let rng = &mut rand::thread_rng();
 	let uniform = rand::distributions::range::Range::new(-1.0, 1.0);
-	(0 .. len).map(|_| uniform.ind_sample(&mut rng)).collect()
+	(0 .. len).map(|_| uniform.ind_sample(rng)).collect()
 }
 
 
