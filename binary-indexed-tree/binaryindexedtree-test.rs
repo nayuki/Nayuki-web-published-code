@@ -39,11 +39,11 @@ fn main() {
 
 
 fn test_size_constructor() {
-	let SIZELIMIT: usize = 10_000;
-	let CHECKS = 10;
+	let sizelimit: usize = 10_000;
+	let checks = 10;
 	type T = i8;
 	let rng = &mut rand::thread_rng();
-	for len in 0 .. SIZELIMIT {
+	for len in 0 .. sizelimit {
 		
 		let bt = BinaryIndexedTree::<T>::new_size(len);
 		assert_eq!(len, bt.len());
@@ -51,7 +51,7 @@ fn test_size_constructor() {
 		
 		let indexdist = Range::new(0, len.max(1));
 		let indexonedist = Range::new(0, len + 1);
-		for _ in 0 .. CHECKS {
+		for _ in 0 .. checks {
 			if len > 0 {
 				assert_eq!(0, bt.get(indexdist.ind_sample(rng)));
 			}
@@ -69,12 +69,12 @@ fn test_size_constructor() {
 
 
 fn test_all_ones() {
-	let SIZELIMIT: usize = 10_000;
-	let CHECKS = 10;
+	let sizelimit: usize = 10_000;
+	let checks = 10;
 	type T = u16;
 	let rng = &mut rand::thread_rng();
 	let modedist = Range::new(0, 4);
-	for len in 1 .. SIZELIMIT {
+	for len in 1 .. sizelimit {
 		
 		let mut bt;
 		let mode = modedist.ind_sample(rng);
@@ -101,7 +101,7 @@ fn test_all_ones() {
 		assert_eq!(len as T, bt.get_total());
 		let indexdist = Range::new(0, len.max(1));
 		let indexonedist = Range::new(0, len + 1);
-		for _ in 0 .. CHECKS {
+		for _ in 0 .. checks {
 			assert_eq!(1, bt.get(indexdist.ind_sample(rng)));
 			let k = indexonedist.ind_sample(rng);
 			assert_eq!(k as T, bt.get_prefix_sum(k));
@@ -118,13 +118,13 @@ fn test_all_ones() {
 
 
 fn test_array_constructor_randomly() {
-	let TRIALS = 10_000;
-	let SIZELIMIT: usize = 10_000;
-	let CHECKS = 100;
+	let trials = 10_000;
+	let sizelimit: usize = 10_000;
+	let checks = 100;
 	type T = i64;
 	let rng = &mut rand::thread_rng();
-	let lendist = Range::new(0, SIZELIMIT);
-	for _ in 0 .. TRIALS {
+	let lendist = Range::new(0, sizelimit);
+	for _ in 0 .. trials {
 		
 		let len = lendist.ind_sample(rng);
 		let mut vals: Vec<T> = vec![];
@@ -143,7 +143,7 @@ fn test_array_constructor_randomly() {
 		
 		let indexdist = Range::new(0, len.max(1));
 		let indexonedist = Range::new(0, len + 1);
-		for _ in 0 .. CHECKS {
+		for _ in 0 .. checks {
 			if len > 0 {
 				let k = indexdist.ind_sample(rng);
 				assert_eq!(vals[k], bt.get(k));
@@ -163,15 +163,15 @@ fn test_array_constructor_randomly() {
 
 
 fn test_add_and_set_randomly() {
-	let TRIALS = 10_000;
-	let SIZELIMIT: usize = 10_000;
-	let OPERATIONS = 10_000;
-	let CHECKS = 100;
+	let trials = 10_000;
+	let sizelimit: usize = 10_000;
+	let operations = 10_000;
+	let checks = 100;
 	type E = u64;
 	type T = std::num::Wrapping<E>;
 	let rng = &mut rand::thread_rng();
-	let lendist = Range::new(1, SIZELIMIT);
-	for _ in 0 .. TRIALS {
+	let lendist = Range::new(1, sizelimit);
+	for _ in 0 .. trials {
 		
 		let len = lendist.ind_sample(rng);
 		let mut vals: Vec<T>;
@@ -184,7 +184,7 @@ fn test_add_and_set_randomly() {
 		};
 		
 		let indexdist = Range::new(0, len.max(1));
-		for _ in 0 .. OPERATIONS {
+		for _ in 0 .. operations {
 			let k = indexdist.ind_sample(rng);
 			let x: T = std::num::Wrapping(rng.gen());
 			if rng.gen::<bool>() {
@@ -203,7 +203,7 @@ fn test_add_and_set_randomly() {
 		}
 		
 		let indexonedist = Range::new(0, len + 1);
-		for _ in 0 .. CHECKS {
+		for _ in 0 .. checks {
 			let k = indexdist.ind_sample(rng);
 			assert_eq!(vals[k], bt.get(k));
 			let k = indexonedist.ind_sample(rng);

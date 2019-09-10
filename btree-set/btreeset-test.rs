@@ -35,6 +35,7 @@ fn main() {
 	test_insert_randomly();
 	test_large_randomly();
 	test_remove_all_randomly();
+	test_iterator_randomly();
 	println!("Test passed");
 }
 
@@ -172,5 +173,37 @@ fn test_remove_all_randomly() {
 				assert_eq!(set0.contains(&val), set1.contains(&val));
 			}
 		}
+	}
+}
+
+
+fn test_iterator_randomly() {
+	let trials = 10_000;
+	let operations = 1000;
+	let range = 10_000;
+	let rng = &mut rand::thread_rng();
+	let degreedist = Range::new(2usize, 7);
+	let operdist = Range::new(0usize, operations);
+	let valuedist = Range::new(0i32, range);
+	
+	for _ in 0 .. trials {
+		// Create sets and add all values
+		let mut set0 = HashSet::<i32>::new();
+		let mut set1 = BTreeSet::<i32>::new(degreedist.ind_sample(rng));
+		let numinsert = operdist.ind_sample(rng);
+		for _ in 0 .. numinsert {
+			let val: i32 = valuedist.ind_sample(rng);
+			assert_eq!(set0.insert(val), set1.insert(val));
+		}
+		assert_eq!(set0, set1.into_iter().copied().collect::<HashSet<i32>>());
+		
+		// Remove a random subset
+		let mut list: Vec<i32> = set1.into_iter().copied().collect();
+		rng.shuffle(&mut list);
+		let numremove = Range::new(0usize, list.len() + 1).ind_sample(rng);
+		for val in &list[ .. numremove] {
+			assert_eq!(set0.remove(val), set1.remove(val));
+		}
+		assert_eq!(set0, set1.into_iter().copied().collect::<HashSet<i32>>());
 	}
 }

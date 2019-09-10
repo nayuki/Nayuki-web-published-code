@@ -1,7 +1,7 @@
 /* 
  * B-tree set (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -424,6 +424,91 @@ impl <E: std::cmp::Ord> Node<E> {
 			}
 		}
 		count
+	}
+	
+}
+
+
+
+/*---- Helper struct: B-tree iterator ----*/
+
+impl <'a, E: std::cmp::Ord> IntoIterator for &'a BTreeSet<E> {
+	type Item = &'a E;
+	type IntoIter = Iter<'a, E>;
+	
+	fn into_iter(self) -> Self::IntoIter {
+		Iter::<E>::new(&self)
+	}
+}
+
+
+#[derive(Clone)]
+pub struct Iter<'a, E:'a> {
+	count: usize,
+	node_stack: Vec<&'a Node<E>>,
+	index_stack: Vec<usize>,
+}
+
+
+impl <'a, E: std::cmp::Ord> Iter<'a, E> {
+	
+	fn new(set: &'a BTreeSet<E>) -> Self {
+		let mut result = Self {
+			count: set.size,
+			node_stack : Vec::new(),
+			index_stack: Vec::new(),
+		};
+		if !set.root.keys.is_empty() {
+			result.push_left_path(&set.root);
+		}
+		result
+	}
+	
+	
+	fn push_left_path(&mut self, mut node: &'a Node<E>) {
+		loop {
+			self.node_stack.push(node);
+			self.index_stack.push(0);
+			if node.is_leaf() {
+				break;
+			}
+			node = node.children[0].as_ref();
+		}
+	}
+	
+}
+
+
+impl <'a, E: std::cmp::Ord> Iterator for Iter<'a, E> {
+	type Item = &'a E;
+	
+	fn next(&mut self) -> Option<Self::Item> {
+		let node: &'a Node<E> = self.node_stack.last()?;
+		let result: &'a E;
+		let index: usize = {
+			let index: &mut usize = self.index_stack.last_mut().unwrap();
+			result = &node.keys[*index];
+			*index += 1;
+			*index
+		};
+		if index >= node.keys.len() {
+			self.node_stack.pop();
+			self.index_stack.pop();
+		}
+		if index < node.children.len() {
+			self.push_left_path(&node.children[index]);
+		}
+		self.count -= 1;
+		Some(result)
+	}
+	
+	
+	fn size_hint(&self) -> (usize,Option<usize>) {
+		(self.count, Some(self.count))
+	}
+	
+	fn count(self) -> usize {
+		self.count
 	}
 	
 }
