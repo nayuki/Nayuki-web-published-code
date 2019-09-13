@@ -193,8 +193,8 @@ fn test_insert_many_beginning() {
 		list.push(i);
 	}
 	
-	for (i, x) in (0i32 .. ).zip(list.into_iter()) {
-		assert_eq!(*x, i);
+	for (i, &x) in (0i32 .. ).zip(list.into_iter()) {
+		assert_eq!(x, i);
 	}
 }
 

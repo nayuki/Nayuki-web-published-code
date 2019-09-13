@@ -155,14 +155,14 @@ impl NaiveDisjointSet {
 	
 	
 	fn number_of_sets(&self) -> usize {
-		self.representatives.iter().enumerate().filter(
-			|irepr: &(usize, &usize)| *irepr.1 == irepr.0).count()
+		self.representatives.iter().enumerate()
+			.filter(|&(i, &repr)| repr == i).count()
 	}
 	
 	
 	fn get_size_of_set(&self, elemindex: usize) -> usize {
 		let repr: usize = self.representatives[elemindex];
-		self.representatives.iter().filter(|r| **r == repr).count()
+		self.representatives.iter().filter(|&r| *r == repr).count()
 	}
 	
 	

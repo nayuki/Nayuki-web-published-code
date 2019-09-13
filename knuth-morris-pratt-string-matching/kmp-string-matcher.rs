@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2019 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,13 +33,13 @@ fn kmp_search(pattern: &str, text: &str) -> Option<usize> {
 	let pattbytes: &[u8] = pattern.as_bytes();
 	let mut lsp = Vec::<usize>::with_capacity(pattbytes.len());
 	lsp.push(0);
-	for b in &pattbytes[1 .. ] {
+	for &b in &pattbytes[1 .. ] {
 		// Start by assuming we're extending the previous LSP
 		let mut j: usize = *lsp.last().unwrap();
-		while j > 0 && *b != pattbytes[j] {
+		while j > 0 && b != pattbytes[j] {
 			j = lsp[j - 1];
 		}
-		if *b == pattbytes[j] {
+		if b == pattbytes[j] {
 			j += 1;
 		}
 		lsp.push(j);
