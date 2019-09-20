@@ -442,8 +442,8 @@ namespace app {
 		} {
 			let tbody = clearChildren("#blocks-and-ecc tbody");
 			let verticalTh = document.createElement("th");
-			verticalTh.textContent = "Codeword index within block";
 			verticalTh.rowSpan = shortBlockLen;  // Not final value; work around Firefox bug
+			let div = appendNewElem(verticalTh, "div", "Codeword index within block");
 			for (let i = 0; i < shortBlockLen + 1; i++) {
 				const isDataRow: boolean = i < shortBlockLen + 1 - blockEccLen;
 				let tr = appendNewElem(tbody, "tr");
@@ -461,8 +461,8 @@ namespace app {
 						appendNewElem(tr, "td", byteToHex(block[i - (shortBlockLen + 1 - blockEccLen)].value)));
 				}
 			}
-			tbody.clientHeight;  // Read property to force reflow in Firefox
 			verticalTh.rowSpan = shortBlockLen + 1;
+			verticalTh.style.width = div.getBoundingClientRect().width + "px";  // Work around Firefox sizing bug
 		}
 		
 		let result: Array<Codeword> = qr.interleaveBlocks(dataBlocks, eccBlocks);
