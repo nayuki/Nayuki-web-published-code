@@ -77,7 +77,7 @@ public final class Bencode {
 			}
 			out.write('e');
 		} else
-			throw new IllegalArgumentException("Unsupported item type: " + obj.getClass().getName());
+			throw new IllegalArgumentException("Unsupported value type: " + obj.getClass().getName());
 	}
 	
 	
@@ -98,14 +98,14 @@ public final class Bencode {
 	
 	
 	public Object parseRoot() throws IOException {
-		Object result = parseItem(input.read());
+		Object result = parseValue(input.read());
 		if (input.read() != -1)
 			throw new IllegalArgumentException("Unexpected extra data");
 		return result;
 	}
 	
 	
-	private Object parseItem(int leadByte) throws IOException {
+	private Object parseValue(int leadByte) throws IOException {
 		if (leadByte == -1)
 			throw new EOFException();
 		else if (leadByte == 'i')
@@ -117,7 +117,7 @@ public final class Bencode {
 		else if (leadByte == 'd')
 			return parseDictionary();
 		else
-			throw new IllegalArgumentException("Unexpected item type");
+			throw new IllegalArgumentException("Unexpected value type");
 	}
 	
 	
@@ -188,7 +188,7 @@ public final class Bencode {
 			int b = input.read();
 			if (b == 'e')
 				break;
-			result.add(parseItem(b));
+			result.add(parseValue(b));
 		}
 		return result;
 	}
@@ -207,7 +207,7 @@ public final class Bencode {
 			b = input.read();
 			if (b == -1)
 				throw new EOFException();
-			result.put(key, parseItem(b));
+			result.put(key, parseValue(b));
 		}
 		return result;
 	}

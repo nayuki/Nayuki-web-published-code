@@ -45,49 +45,55 @@ public final class BencodeTest {
 	/*---- Test the serialization ----*/
 	
 	@Test public void testSerializeInteger() {
-		testSerialize("i0e", 0);
-		testSerialize("i2e", 2L);
-		testSerialize("i-1e", BigInteger.valueOf(-1));
-		testSerialize("i3141592e", 3141592);
-		testSerialize("i-27182818284e", -27182818284L);
-		testSerialize("i1208925819614629174706176e", BigInteger.ONE.shiftLeft(80));
+		checkSerialize("i0e", 0);
+		checkSerialize("i2e", 2L);
+		checkSerialize("i-1e", BigInteger.valueOf(-1));
+		checkSerialize("i3141592e", 3141592);
+		checkSerialize("i-27182818284e", -27182818284L);
+		checkSerialize("i1208925819614629174706176e", BigInteger.ONE.shiftLeft(80));
 	}
 	
 	
 	@Test public void testSerializeByteString() {
-		testSerialize("0:", new byte[]{});
-		testSerialize("1:\u0000", new byte[]{0});
-		testSerialize("2:\u0004\u0001", "\u0004\u0001");
-		testSerialize("3:ben", new byte[]{'b','e','n'});
-		testSerialize("10:ABCDE98765", "ABCDE98765");
+		checkSerialize("0:", new byte[]{});
+		checkSerialize("1:\u0000", new byte[]{0});
+		checkSerialize("2:\u0004\u0001", "\u0004\u0001");
+		checkSerialize("3:ben", new byte[]{'b','e','n'});
+		checkSerialize("10:ABCDE98765", "ABCDE98765");
 	}
 	
 	
 	@Test public void testSerializeList() {
-		testSerialize("le", Arrays.<Object>asList());
-		testSerialize("li4ee", Arrays.<Object>asList(4));
-		testSerialize("li7e5:Helloe", Arrays.<Object>asList(7, "Hello"));
-		testSerialize("li-88ele1:Xe", Arrays.<Object>asList(-88L, Arrays.<Object>asList(), "X"));
+		checkSerialize("le", Arrays.<Object>asList());
+		checkSerialize("li4ee", Arrays.<Object>asList(4));
+		checkSerialize("li7e5:Helloe", Arrays.<Object>asList(7, "Hello"));
+		checkSerialize("li-88ele1:Xe", Arrays.<Object>asList(-88L, Arrays.<Object>asList(), "X"));
 	}
 	
 	
 	@Test public void testSerializeDictionary() {
-		testSerialize("de", new TreeMap<String,Object>());
+		checkSerialize("de", new TreeMap<String,Object>());
 		{
 			SortedMap<String,Object> d = new TreeMap<>();
 			d.put("", new ArrayList<Object>());
-			testSerialize("d0:lee", d);
+			checkSerialize("d0:lee", d);
 		}
 		{
 			SortedMap<String,Object> d = new TreeMap<>();
 			d.put("ZZ", 768L);
 			d.put("AAA", "-14142");
-			testSerialize("d3:AAA6:-141422:ZZi768ee", d);
+			checkSerialize("d3:AAA6:-141422:ZZi768ee", d);
+		}
+		{
+			SortedMap<String,Object> d = new TreeMap<>();
+			d.put("\u0003", Arrays.<Object>asList());
+			d.put("\u0008", new TreeMap<String,Object>());
+			checkSerialize("d1:\u0003le1:\u0008dee", d);
 		}
 	}
 	
 	
-	private static void testSerialize(String expected, Object obj) {
+	private static void checkSerialize(String expected, Object obj) {
 		byte[] bytes = Bencode.serialize(obj);
 		String actual = Bencode.arrayToByteString(bytes);
 		assertEquals(expected, actual);
@@ -98,11 +104,11 @@ public final class BencodeTest {
 	/*---- Test the parsing ----*/
 	
 	@Test public void testParseInteger() {
-		testParse(0L, "i0e");
-		testParse(11L, "i11e");
-		testParse(-749L, "i-749e");
-		testParse(9223372036854775807L, "i9223372036854775807e");
-		testParse(-9223372036854775808L, "i-9223372036854775808e");
+		checkParse(0L, "i0e");
+		checkParse(11L, "i11e");
+		checkParse(-749L, "i-749e");
+		checkParse(9223372036854775807L, "i9223372036854775807e");
+		checkParse(-9223372036854775808L, "i-9223372036854775808e");
 	}
 	
 	
@@ -113,42 +119,36 @@ public final class BencodeTest {
 			"i1248",
 			"i-",
 		};
-		for (String cs : CASES) {
-			try {
-				testParseInvalid(cs);
-				Assert.fail();
-			} catch (EOFException e) {}  // Pass
-		}
+		parseExpectingException(CASES, EOFException.class);
 	}
 	
 	
 	@Test public void testParseIntegerInvalid() throws IOException {
 		String[] CASES = {
 			"ie",
+			"i00",
 			"i00e",
+			"i019",
 			"i0199e",
 			"i-e",
+			"i-0",
 			"i-0e",
 			"i-026e",
+			"iA",
 			"iAe",
 			"i01Ce",
 			"i+5e",
 			"i4.0e",
 			"i9E9e",
 		};
-		for (String cs : CASES) {
-			try {
-				testParseInvalid(cs);
-				Assert.fail();
-			} catch (IllegalArgumentException e) {}  // Pass
-		}
+		parseExpectingException(CASES, IllegalArgumentException.class);
 	}
 	
 	
 	@Test public void testParseByteString() {
-		testParse("", "0:");
-		testParse("&", "1:&");
-		testParse("abcdefghijklm", "13:abcdefghijklm");
+		checkParse("", "0:");
+		checkParse("&", "1:&");
+		checkParse("abcdefghijklm", "13:abcdefghijklm");
 	}
 	
 	
@@ -161,13 +161,9 @@ public final class BencodeTest {
 			"2:",
 			"2:q",
 			"d",
+			"d3:$"
 		};
-		for (String cs : CASES) {
-			try {
-				testParseInvalid(cs);
-				Assert.fail();
-			} catch (EOFException e) {}  // Pass
-		}
+		parseExpectingException(CASES, EOFException.class);
 	}
 	
 	
@@ -181,51 +177,40 @@ public final class BencodeTest {
 			"-0",
 			"-1:",
 		};
-		for (String cs : CASES) {
-			try {
-				testParseInvalid(cs);
-				Assert.fail();
-			} catch (IllegalArgumentException e) {}  // Pass
-		}
+		parseExpectingException(CASES, IllegalArgumentException.class);
 	}
 	
 	
 	@Test public void testParseList() {
-		testParse(Arrays.<Object>asList(), "le");
-		testParse(Arrays.<Object>asList(-6L), "li-6ee");
-		testParse(Arrays.<Object>asList("00", 55L), "l2:00i55ee");
-		testParse(Arrays.<Object>asList(Arrays.<Object>asList(), Arrays.<Object>asList()), "llelee");
+		checkParse(Arrays.<Object>asList(), "le");
+		checkParse(Arrays.<Object>asList(-6L), "li-6ee");
+		checkParse(Arrays.<Object>asList("00", 55L), "l2:00i55ee");
+		checkParse(Arrays.<Object>asList(Arrays.<Object>asList(), Arrays.<Object>asList()), "llelee");
 	}
 	
 	
-	@Test(expected=EOFException.class)
-	public void testParseListEof0() throws IOException {
-		testParseInvalid("l");
-	}
-	
-	@Test(expected=EOFException.class)
-	public void testParseListEof1() throws IOException {
-		testParseInvalid("li0e");
-	}
-	
-	@Test(expected=EOFException.class)
-	public void testParseListEof2() throws IOException {
-		testParseInvalid("llleleel");
+	@Test public void testParseListEof() throws IOException {
+		String[] CASES = {
+			"l",
+			"li0e",
+			"llleleel",
+		};
+		parseExpectingException(CASES, EOFException.class);
 	}
 	
 	
 	@Test public void testParseDictionary() {
-		testParse(new TreeMap<>(), "de");
+		checkParse(new TreeMap<>(), "de");
 		{
 			SortedMap<String,Object> d = new TreeMap<>();
 			d.put("-", 404L);
-			testParse(d, "d1:-i404ee");
+			checkParse(d, "d1:-i404ee");
 		}
 		{
 			SortedMap<String,Object> d = new TreeMap<>();
 			d.put("010", "101");
 			d.put("yU", new LinkedList<>());
-			testParse(d, "d3:0103:1012:yUlee");
+			checkParse(d, "d3:0103:1012:yUlee");
 		}
 	}
 	
@@ -237,12 +222,7 @@ public final class BencodeTest {
 			"d2:  0:",
 			"d0:d",
 		};
-		for (String cs : CASES) {
-			try {
-				testParseInvalid(cs);
-				Assert.fail();
-			} catch (EOFException e) {}  // Pass
-		}
+		parseExpectingException(CASES, EOFException.class);
 	}
 	
 	
@@ -254,19 +234,26 @@ public final class BencodeTest {
 			"d1:E0:1:F0:1:E0:",
 			"d2:gg0:1:g0:",
 		};
-		for (String cs : CASES) {
+		parseExpectingException(CASES, IllegalArgumentException.class);
+	}
+	
+	
+	private static void parseExpectingException(String[] testCases, Class<? extends Throwable> expect) {
+		for (String cs : testCases) {
 			try {
-				testParseInvalid(cs);
-				Assert.fail();
-			} catch (IllegalArgumentException e) {}  // Pass
+				tryParse(cs);
+			} catch (Throwable e) {
+				if (expect.isInstance(e))
+					continue;  // Pass
+			}
+			Assert.fail();
 		}
 	}
 	
 	
-	private static void testParse(Object expect, String str) {
-		byte[] bytes = Bencode.byteStringToArray(str);
-		try (InputStream in = new ByteArrayInputStream(bytes)) {
-			Object actual = Bencode.parse(in);
+	private static void checkParse(Object expect, String str) {
+		try {
+			Object actual = tryParse(str);
 			Assert.assertTrue(deepEquals(expect, actual));
 		} catch (IOException e) {
 			throw new AssertionError(e);
@@ -274,10 +261,10 @@ public final class BencodeTest {
 	}
 	
 	
-	private static void testParseInvalid(String str) throws IOException {
+	private static Object tryParse(String str) throws IOException {
 		byte[] bytes = Bencode.byteStringToArray(str);
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
-			Bencode.parse(in);
+			return Bencode.parse(in);
 		}
 	}
 	

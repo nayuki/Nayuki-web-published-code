@@ -28,32 +28,31 @@ namespace app {
 	fileElem.addEventListener("change", render);
 	
 	
-	async function render(): Promise<void> {
-		const files = fileElem.files;
-		if (files === null)
-			return;
-		const bytes = await new Promise<Uint8Array>(resolve => {
-			let reader = new FileReader();
-			reader.onload = () =>
-				resolve(new Uint8Array(reader.result as ArrayBuffer));
-			reader.readAsArrayBuffer(files[0]);
-		});
-		
+	function render() {
 		let rootElem = document.querySelector("article #file-dissection") as HTMLElement;
 		while (rootElem.firstChild !== null)
 			rootElem.removeChild(rootElem.firstChild);
 		
-		try {
-			const rootItem = new BencodeParser(bytes).parseRoot();
-			rootElem.appendChild(toHtml(rootItem));
-			
-		} catch (e) {
-			rootElem.textContent = "Error: " + e.toString();
+		const files = fileElem.files;
+		if (files === null)
+			return;
+		let reader = new FileReader();
+		reader.onload = func;
+		reader.readAsArrayBuffer(files[0]);
+		
+		function func() {
+			try {
+				const bytes = new Uint8Array(reader.result as ArrayBuffer);
+				const rootVal = BencodeParser.parse(bytes);
+				rootElem.appendChild(toHtml(rootVal));
+			} catch (e) {
+				rootElem.textContent = "Error: " + e.toString();
+			}
 		}
 	}
 	
 	
-	function toHtml(item: BencodeItem): Node {
+	function toHtml(item: BencodeValue): Node {
 		function appendText(container: Node, text: string): void {
 			container.appendChild(document.createTextNode(text));
 		}
@@ -92,7 +91,8 @@ namespace app {
 			function addRow(a: string, b: Node): void {
 				let tr = appendElem(tbody, "tr");
 				let td = appendElem(tr, "td");
-				td.textContent = a;
+				let span = appendElem(td, "span");
+				span.textContent = a;
 				td = appendElem(tr, "td");
 				td.appendChild(b);
 			}
@@ -113,8 +113,7 @@ namespace app {
 						throw "Assertion error";
 					addRow(key, toHtml(val));
 				}
-			}
-			else
+			} else
 				throw "Assertion error";
 		}
 		else
@@ -173,75 +172,47 @@ namespace app {
 	
 	class BencodeParser {
 		
-		private index: number = 0;
+		public static parse(array: Uint8Array) {
+			return new BencodeParser(array).parseRoot();
+		}
 		
+		
+		private index: number = 0;
 		
 		public constructor(
 			private readonly array: Uint8Array) {}
 		
 		
-		public parseRoot(): BencodeItem {
-			if (this.index != 0)
-				throw "Invalid parser state";
-			const b: number = this.readByte();
-			if (b == -1)
-				throw "Unexpected end of data at byte offset " + this.index;
-			let result: BencodeItem = this.parseItem(b);
+		private parseRoot(): BencodeValue {
+			const result: BencodeValue = this.parseValue(this.readByte());
 			if (this.readByte() != -1)
 				throw "Unexpected extra data at byte offset " + (this.index - 1);
 			return result;
 		}
 		
 		
-		private parseItem(leadByte: number): BencodeItem {
-			if (leadByte == cc("i"))
-				return this.parseInt();
-			
+		private parseValue(leadByte: number): BencodeValue {
+			if (leadByte == -1)
+				throw "Unexpected end of data at byte offset " + this.index;
+			else if (leadByte == cc("i"))
+				return this.parseInteger();
 			else if (cc("0") <= leadByte && leadByte <= cc("9"))
-				return this.parseBytes(leadByte);
-			
-			else if (leadByte == cc("l")) {
-				let array: Array<BencodeItem> = [];
-				while (true) {
-					const b: number = this.readByte();
-					if (b == cc("e"))
-						break;
-					array.push(this.parseItem(b));
-				}
-				return new BencodeList(array);
-			}
-			
-			else if (leadByte == cc("d")) {
-				let map = new Map<string,BencodeItem>();
-				let keys: Array<string> = [];
-				while (true) {
-					let b: number = this.readByte();
-					if (b == cc("e"))
-						break;
-					const key: string = this.parseBytes(b).value;
-					if (keys.length > 0 && key <= keys[keys.length - 1])
-						throw "Misordered dictionary key at byte offset " + (this.index - 1);
-					keys.push(key);
-					
-					b = this.readByte();
-					if (b == -1)
-						throw "Unexpected end of data at byte offset " + this.index;
-					map.set(key, this.parseItem(b));
-				}
-				return new BencodeDict(map, keys);
-			}
+				return this.parseByteString(leadByte);
+			else if (leadByte == cc("l"))
+				return this.parseList();
+			else if (leadByte == cc("d"))
+				return this.parseDictionary();
 			else
 				throw "Unexpected item type at byte offset " + (this.index - 1);
 		}
 		
 		
-		private parseInt(): BencodeInt {
+		private parseInteger(): BencodeInt {
 			let str: string = "";
 			while (true) {
 				const b: number = this.readByte();
 				if (b == -1)
 					throw "Unexpected end of data at byte offset " + this.index;
-				
 				const c: string = String.fromCharCode(b);
 				if (c == "e")
 					break;
@@ -263,14 +234,12 @@ namespace app {
 			}
 			if (str == "" || str == "-")
 				throw "Invalid integer syntax at byte offset " + (this.index - 1);
-			if (!/^(0|-?[1-9][0-9]*)$/.test(str))
-				throw "Assertion error";
 			return new BencodeInt(str);
 		}
 		
 		
-		private parseBytes(leadByte: number): BencodeBytes {
-			const length = this.parseNatural(leadByte);
+		private parseByteString(leadByte: number): BencodeBytes {
+			const length = this.parseNaturalNumber(leadByte);
 			let result: string = "";
 			for (let i = 0; i < length; i++) {
 				const b: number = this.readByte();
@@ -282,26 +251,54 @@ namespace app {
 		}
 		
 		
-		private parseNatural(leadByte: number): number {
+		private parseNaturalNumber(leadByte: number): number {
 			let str: string = "";
 			let b: number = leadByte;
-			while (true) {
+			while (b != cc(":")) {
 				if (b == -1)
 					throw "Unexpected end of data at byte offset " + this.index;
-				const c: string = String.fromCharCode(b);
-				if (c == ":")
-					break;
-				else if (str != "0" && "0" <= c && c <= "9")
-					str += c;
+				else if (str != "0" && cc("0") <= b && b <= cc("9"))
+					str += String.fromCharCode(b);
 				else
 					throw "Unexpected integer character at byte offset " + (this.index - 1);
 				b = this.readByte();
 			}
 			if (str == "")
 				throw "Invalid integer syntax at byte offset " + (this.index - 1);
-			if (!/^(0|[1-9][0-9]*)$/.test(str))
-				throw "Assertion error";
 			return parseInt(str, 10);
+		}
+		
+		
+		private parseList(): BencodeList {
+			let result: Array<BencodeValue> = [];
+			while (true) {
+				const b: number = this.readByte();
+				if (b == cc("e"))
+					break;
+				result.push(this.parseValue(b));
+			}
+			return new BencodeList(result);
+		}
+		
+		
+		private parseDictionary(): BencodeDict {
+			let map = new Map<string,BencodeValue>();
+			let keys: Array<string> = [];
+			while (true) {
+				let b: number = this.readByte();
+				if (b == cc("e"))
+					break;
+				const key: string = this.parseByteString(b).value;
+				if (keys.length > 0 && key <= keys[keys.length - 1])
+					throw "Misordered dictionary key at byte offset " + (this.index - 1);
+				keys.push(key);
+				
+				b = this.readByte();
+				if (b == -1)
+					throw "Unexpected end of data at byte offset " + this.index;
+				map.set(key, this.parseValue(b));
+			}
+			return new BencodeDict(map, keys);
 		}
 		
 		
@@ -323,37 +320,32 @@ namespace app {
 	}
 	
 	
+	abstract class BencodeValue {}
 	
-	abstract class BencodeItem {}
-	
-	
-	class BencodeInt extends BencodeItem {
+	class BencodeInt extends BencodeValue {
 		public constructor(
 				public readonly value: string) {
 			super();
 		}
 	}
 	
-	
-	class BencodeBytes extends BencodeItem {
+	class BencodeBytes extends BencodeValue {
 		public constructor(
 				public readonly value: string) {
 			super();
 		}
 	}
 	
-	
-	class BencodeList extends BencodeItem {
+	class BencodeList extends BencodeValue {
 		public constructor(
-				public readonly array: Array<BencodeItem>) {
+				public readonly array: Array<BencodeValue>) {
 			super();
 		}
 	}
 	
-	
-	class BencodeDict extends BencodeItem {
+	class BencodeDict extends BencodeValue {
 		public constructor(
-				public readonly map: Map<string,BencodeItem>,
+				public readonly map: Map<string,BencodeValue>,
 				public readonly keys: Array<string>) {
 			super();
 		}
