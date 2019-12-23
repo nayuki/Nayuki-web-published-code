@@ -24,11 +24,13 @@
 
 namespace app {
 	
+	/*---- User interface ----*/
+	
 	let fileElem = document.querySelector("article input[type='file']") as HTMLInputElement;
 	fileElem.addEventListener("change", render);
 	
 	
-	function render() {
+	function render(): void {
 		let rootElem = document.querySelector("article #file-dissection") as HTMLElement;
 		while (rootElem.firstChild !== null)
 			rootElem.removeChild(rootElem.firstChild);
@@ -91,8 +93,8 @@ namespace app {
 			function addRow(a: string, b: Node): void {
 				let tr = appendElem(tbody, "tr");
 				let td = appendElem(tr, "td");
-				let span = appendElem(td, "span");
-				span.textContent = a;
+				let div = appendElem(td, "div");
+				div.textContent = a;
 				td = appendElem(tr, "td");
 				td.appendChild(b);
 			}
@@ -170,16 +172,18 @@ namespace app {
 	
 	
 	
+	/*---- Bencode parser ----*/
+	
 	class BencodeParser {
 		
-		public static parse(array: Uint8Array) {
+		public static parse(array: Uint8Array): BencodeValue {
 			return new BencodeParser(array).parseRoot();
 		}
 		
 		
 		private index: number = 0;
 		
-		public constructor(
+		private constructor(
 			private readonly array: Uint8Array) {}
 		
 		

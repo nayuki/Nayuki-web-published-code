@@ -36,6 +36,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 var app;
 (function (app) {
+    /*---- User interface ----*/
     var fileElem = document.querySelector("article input[type='file']");
     fileElem.addEventListener("change", render);
     function render() {
@@ -97,8 +98,8 @@ var app;
             function addRow(a, b) {
                 var tr = appendElem(tbody_1, "tr");
                 var td = appendElem(tr, "td");
-                var span = appendElem(td, "span");
-                span.textContent = a;
+                var div = appendElem(td, "div");
+                div.textContent = a;
                 td = appendElem(tr, "td");
                 td.appendChild(b);
             }
@@ -176,6 +177,7 @@ var app;
         }
         return result;
     }
+    /*---- Bencode parser ----*/
     var BencodeParser = /** @class */ (function () {
         function BencodeParser(array) {
             this.array = array;

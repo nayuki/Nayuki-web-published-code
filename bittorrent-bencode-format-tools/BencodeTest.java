@@ -24,6 +24,7 @@
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,7 +95,13 @@ public final class BencodeTest {
 	
 	
 	private static void checkSerialize(String expected, Object obj) {
-		byte[] bytes = Bencode.serialize(obj);
+		byte[] bytes;
+		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+			Bencode.serialize(obj, out);
+			bytes = out.toByteArray();
+		} catch (IOException e) {
+			throw new AssertionError(e);
+		}
 		String actual = Bencode.arrayToByteString(bytes);
 		assertEquals(expected, actual);
 	}
@@ -161,7 +168,7 @@ public final class BencodeTest {
 			"2:",
 			"2:q",
 			"d",
-			"d3:$"
+			"d3:$",
 		};
 		parseExpectingException(CASES, EOFException.class);
 	}

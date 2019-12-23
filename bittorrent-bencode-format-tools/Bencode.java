@@ -21,7 +21,6 @@
  *   Software.
  */
 
-import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,16 +37,6 @@ import java.util.TreeMap;
 public final class Bencode {
 	
 	/*---- Bencode serializer ----*/
-	
-	public static byte[] serialize(Object obj) {
-		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-			serialize(obj, out);
-			return out.toByteArray();
-		} catch (IOException e) {
-			throw new AssertionError(e);
-		}
-	}
-	
 	
 	public static void serialize(Object obj, OutputStream out) throws IOException {
 		if (obj instanceof Integer || obj instanceof Long || obj instanceof BigInteger)
@@ -97,7 +86,7 @@ public final class Bencode {
 	}
 	
 	
-	public Object parseRoot() throws IOException {
+	private Object parseRoot() throws IOException {
 		Object result = parseValue(input.read());
 		if (input.read() != -1)
 			throw new IllegalArgumentException("Unexpected extra data");
