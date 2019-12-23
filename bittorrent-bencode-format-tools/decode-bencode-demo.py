@@ -26,6 +26,8 @@ import os, sys
 import bencode
 
 
+# Reads the given file, parses its data as bencode, then prints the
+# data structure with hierarchical formatting to standard output.
 def main(args):
 	USAGE = "Usage: python decode-bencode-demo.py Input.torrent"
 	if len(args) != 1:

@@ -34,10 +34,34 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 
+/**
+ * Converts between bencode data structures and byte sequences.
+ * <p>Bencode supports four types of values:</p>
+ * <ul>
+ *   <li>Integer, which is mapped to Java {@link Integer} or {@link Long} or {@link BigInteger}.</li>
+ *   <li>Byte string, which is mapped to Java {@code byte[]} or {@link String}
+ *     (where every character is in the range [U+00, U+FF] to represent a byte).</li>
+ *   <li>List, which is mapped to Java {@link List} (e.g. {@link ArrayList}),
+ *     such that every element is a bencode value.</li>
+ *   <li>Dictionary, which is mapped to Java {@link SortedMap} (e.g. {@link TreeMap}), such that every key is a
+ *     {@link String} containing character values in the range [U+00, U+FF] and every value is a bencode value.</li>
+ * </ul>
+ * <p>Note that {@link String} objects are often used to represent byte sequences because
+ * strings can be hashed and compared easily, whereas {@code byte[]} objects cannot.</p>
+ */
 public final class Bencode {
 	
 	/*---- Bencode serializer ----*/
 	
+	/**
+	 * Serializes the specified bencode value into bytes and writes them to the specified output stream.
+	 * The allowed types of the value and its children are described in this class's overview comment.
+	 * @param obj the bencode value to serialize
+	 * @param out the output stream to write to
+	 * @throws IllegalArgumentException if the value or any child or any dictionary key has
+	 * an unsupported type, or any dictionary presents its keys in non-ascending order
+	 * @throws IOException if an I/O exception occurred
+	 */
 	public static void serialize(Object obj, OutputStream out) throws IOException {
 		if (obj instanceof Integer || obj instanceof Long || obj instanceof BigInteger)
 			out.write(("i" + obj.toString() + "e").getBytes(StandardCharsets.UTF_8));
@@ -73,6 +97,19 @@ public final class Bencode {
 	
 	/*---- Bencode parser ----*/
 	
+	/**
+	 * Parses bytes from the specified input stream and returns the bencode value represented by the bytes.
+	 * The input data must have exactly one root object and then the stream must immediately end.
+	 * <p>Note that the returned value maps bencode integer to Java {@link Long}, and maps
+	 * bencode byte string to Java {@link String} (where every character is in the range [U+00, U+FF]).
+	 * Also note that even though bencode supports arbitrarily large integer values, this library
+	 * doesn't parse them into Java {@link BigInteger} objects because they are rarely needed.</p>
+	 * @param in the input stream to read from
+	 * @return one bencode value, which may contain children
+	 * @throws IllegalArgumentException if the input data does not conform to bencode's serialization syntax rules
+	 * @throws EOFException if more data was expected but the input stream ended
+	 * @throws IOException if an I/O exception occurred
+	 */
 	public static Object parse(InputStream in) throws IOException {
 		return new Bencode(in).parseRoot();
 	}
@@ -205,6 +242,14 @@ public final class Bencode {
 	
 	/*---- Utility functions ----*/
 	
+	/**
+	 * Returns a new byte array where each element is the numeric value of the corresponding character
+	 * in the specified string. The string must have all characters in the range [U+00, U+FF].
+	 * This uses the verbatim encoding, and is not a proper Unicode conversion!
+	 * @param str the string to convert, where all characters must be in the range [U+00, U+FF]
+	 * @return a new byte array representing the converted string
+	 * @throws IllegalArgumentException if any character in the string exceeds U+FF
+	 */
 	public static byte[] byteStringToArray(String str) {
 		byte[] result = new byte[str.length()];
 		for (int i = 0; i < str.length(); i++) {
@@ -217,6 +262,13 @@ public final class Bencode {
 	}
 	
 	
+	/**
+	 * Returns a string where each character is numerically equal
+	 * to the corresponding element in the specified byte array.
+	 * This uses the verbatim encoding, and is not a proper Unicode conversion!
+	 * @param arr the byte array to convert
+	 * @return a string representing the converted byte array
+	 */
 	public static String arrayToByteString(byte[] arr) {
 		char[] result = new char[arr.length];
 		for (int i = 0; i < arr.length; i++)

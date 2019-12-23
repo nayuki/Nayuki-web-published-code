@@ -34,6 +34,8 @@ import java.util.SortedMap;
 
 public final class DecodeBencodeDemo {
 	
+	// Reads the given file, parses its data as bencode, then prints the
+	// data structure with hierarchical formatting to standard output.
 	public static void main(String[] args) throws IOException {
 		if (!submain(args)) {
 			System.err.println("Usage: java DecodeBencodeDemo Input.torrent");

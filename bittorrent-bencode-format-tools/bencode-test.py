@@ -60,6 +60,7 @@ class BencodeTest(unittest.TestCase):
 		self._check_serialize(u"d1:\u0003le1:\u0008dee", {b"\x03":[], b"\x08":{}})
 	
 	
+	# Asserts that serializing the given bencode value equals the given byte string.
 	def _check_serialize(self, expected, obj):
 		with io.BytesIO() as out:
 			bencode.serialize(obj, out)
@@ -185,6 +186,7 @@ class BencodeTest(unittest.TestCase):
 		self._parse_expecting_exception(CASES, ValueError)
 	
 	
+	# Asserts that parsing each given test case will raise the given exception.
 	def _parse_expecting_exception(self, testcases, expect):
 		for cs in testcases:
 			try:
@@ -195,17 +197,20 @@ class BencodeTest(unittest.TestCase):
 			self.fail()
 	
 	
+	# Asserts that parsing the given byte string equals the given bencode value.
 	def _check_parse(self, expect, s):
 		actual = BencodeTest._try_parse(s)
 		self.assertTrue(BencodeTest._deep_equals(expect, actual))
 	
 	
+	# Parses the given byte string into a bencode value.
 	@staticmethod
 	def _try_parse(s):
 		with io.BytesIO(s) as inp:
 			return bencode.parse(inp)
 	
 	
+	# Tests whether the two given bencode values/structures are equal.
 	@staticmethod
 	def _deep_equals(x, y):
 		if bencode.is_int(x) and bencode.is_int(y):

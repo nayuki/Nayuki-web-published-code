@@ -30,6 +30,8 @@ namespace app {
 	fileElem.addEventListener("change", render);
 	
 	
+	// Reads the input file, parses its data as bencode, then renders
+	// HTML elements to this page in order to represent the data structure.
 	function render(): void {
 		let rootElem = document.querySelector("article #file-dissection") as HTMLElement;
 		while (rootElem.firstChild !== null)
@@ -54,6 +56,7 @@ namespace app {
 	}
 	
 	
+	// Returns a new DOM node to visually represent the given value.
 	function toHtml(item: BencodeValue): Node {
 		function appendText(container: Node, text: string): void {
 			container.appendChild(document.createTextNode(text));
@@ -124,6 +127,7 @@ namespace app {
 	}
 	
 	
+	// Treats the given byte string as UTF-8, decodes it strictly, and returns a JavaScript UTF-16 string.
 	function decodeUtf8(bytes: string): string {
 		function cb(i: number): number {
 			if (i < 0 || i >= bytes.length)
@@ -176,6 +180,8 @@ namespace app {
 	
 	class BencodeParser {
 		
+		// Parses the given byte array and returns the bencode value represented by the bytes.
+		// The input data must have exactly one root object and then the array must immediately end.
 		public static parse(array: Uint8Array): BencodeValue {
 			return new BencodeParser(array).parseRoot();
 		}
@@ -317,12 +323,15 @@ namespace app {
 	}
 	
 	
+	// Returns the numeric code point of the given one-character ASCII string.
 	function cc(s: string): number {
 		if (s.length != 1)
 			throw "Invalid string length";
 		return s.charCodeAt(0);
 	}
 	
+	
+	/*-- Bencode value types --*/
 	
 	abstract class BencodeValue {}
 	

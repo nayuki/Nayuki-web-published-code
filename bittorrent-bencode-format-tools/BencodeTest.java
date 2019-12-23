@@ -94,6 +94,7 @@ public final class BencodeTest {
 	}
 	
 	
+	// Asserts that serializing the given bencode value equals the given byte string.
 	private static void checkSerialize(String expected, Object obj) {
 		byte[] bytes;
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -245,6 +246,7 @@ public final class BencodeTest {
 	}
 	
 	
+	// Asserts that parsing each given test case will throw the given exception.
 	private static void parseExpectingException(String[] testCases, Class<? extends Throwable> expect) {
 		for (String cs : testCases) {
 			try {
@@ -258,6 +260,7 @@ public final class BencodeTest {
 	}
 	
 	
+	// Asserts that parsing the given byte string equals the given bencode value.
 	private static void checkParse(Object expect, String str) {
 		try {
 			Object actual = tryParse(str);
@@ -268,6 +271,7 @@ public final class BencodeTest {
 	}
 	
 	
+	// Parses the given byte string into a bencode value.
 	private static Object tryParse(String str) throws IOException {
 		byte[] bytes = Bencode.byteStringToArray(str);
 		try (InputStream in = new ByteArrayInputStream(bytes)) {
@@ -276,6 +280,8 @@ public final class BencodeTest {
 	}
 	
 	
+	// Tests whether the two given bencode values/structures are equal. This implementation is specialized
+	// for this test suite and does not cover all possible Java types that could represent bencode values.
 	private static boolean deepEquals(Object x, Object y) {
 		if (x instanceof Long && y instanceof Long)
 			return x.equals(y);

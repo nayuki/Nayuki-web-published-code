@@ -39,6 +39,8 @@ var app;
     /*---- User interface ----*/
     var fileElem = document.querySelector("article input[type='file']");
     fileElem.addEventListener("change", render);
+    // Reads the input file, parses its data as bencode, then renders
+    // HTML elements to this page in order to represent the data structure.
     function render() {
         var rootElem = document.querySelector("article #file-dissection");
         while (rootElem.firstChild !== null)
@@ -60,6 +62,7 @@ var app;
             }
         }
     }
+    // Returns a new DOM node to visually represent the given value.
     function toHtml(item) {
         function appendText(container, text) {
             container.appendChild(document.createTextNode(text));
@@ -130,6 +133,7 @@ var app;
             throw "Assertion error";
         return result;
     }
+    // Treats the given byte string as UTF-8, decodes it strictly, and returns a JavaScript UTF-16 string.
     function decodeUtf8(bytes) {
         function cb(i) {
             if (i < 0 || i >= bytes.length)
@@ -183,6 +187,8 @@ var app;
             this.array = array;
             this.index = 0;
         }
+        // Parses the given byte array and returns the bencode value represented by the bytes.
+        // The input data must have exactly one root object and then the array must immediately end.
         BencodeParser.parse = function (array) {
             return new BencodeParser(array).parseRoot();
         };
@@ -297,11 +303,13 @@ var app;
         };
         return BencodeParser;
     }());
+    // Returns the numeric code point of the given one-character ASCII string.
     function cc(s) {
         if (s.length != 1)
             throw "Invalid string length";
         return s.charCodeAt(0);
     }
+    /*-- Bencode value types --*/
     var BencodeValue = /** @class */ (function () {
         function BencodeValue() {
         }
