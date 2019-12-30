@@ -1,7 +1,7 @@
 # 
 # Linear congruential generator (LCG) with fast skipping and backward iteration (Python)
 # 
-# Copyright (c) 2018 Project Nayuki
+# Copyright (c) 2019 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
 # 
@@ -117,7 +117,7 @@ class LcgRandom(random.Random):
 	# Implements a method in class random.Random.
 	def getrandbits(self, k):
 		result = 0
-		for i in range(k):
+		for _ in range(k):
 			result = (result << 1) | self.randbit()
 		return result
 	
