@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,7 +33,7 @@ pub struct BinaryIndexedTree<T> {
 }
 
 
-impl <T: num_traits::identities::Zero +
+impl<T: num_traits::identities::Zero +
 		std::ops::AddAssign +
 		std::ops::Sub<Output=T> +
 		std::ops::SubAssign +

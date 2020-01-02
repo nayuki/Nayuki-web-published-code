@@ -1,7 +1,7 @@
 /* 
  * Binary array set (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,7 +35,7 @@ pub struct BinaryArraySet<E> {
 }
 
 
-impl <E: std::cmp::Ord> BinaryArraySet<E> {
+impl<E: std::cmp::Ord> BinaryArraySet<E> {
 	
 	pub fn new() -> Self {
 		Self {
@@ -146,7 +146,7 @@ impl <E: std::cmp::Ord> BinaryArraySet<E> {
 
 /*---- Helper struct ----*/
 
-impl <'a, E> IntoIterator for &'a BinaryArraySet<E> {
+impl<'a, E> IntoIterator for &'a BinaryArraySet<E> {
 	type Item = &'a E;
 	type IntoIter = Iter<'a, E>;
 	
@@ -165,7 +165,7 @@ pub struct Iter<'a, E:'a> {
 }
 
 
-impl <'a, E> Iter<'a, E> {
+impl<'a, E> Iter<'a, E> {
 	// Runs in O(log n) time
 	fn new(set: &'a BinaryArraySet<E>) -> Self {
 		Self {
@@ -179,7 +179,7 @@ impl <'a, E> Iter<'a, E> {
 }
 
 
-impl <'a, E> Iterator for Iter<'a, E> {
+impl<'a, E> Iterator for Iter<'a, E> {
 	type Item = &'a E;
 	
 	// Runs in amortized O(1) time, worst-case O(log n) time

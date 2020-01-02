@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,7 +30,7 @@ pub struct AvlTreeList<E> {
 }
 
 
-impl <E> AvlTreeList<E> {
+impl<E> AvlTreeList<E> {
 	
 	pub fn new() -> Self {
 		Self { root: MaybeNode(None) }
@@ -93,14 +93,14 @@ impl <E> AvlTreeList<E> {
 }
 
 
-impl <E> Default for AvlTreeList<E> {
+impl<E> Default for AvlTreeList<E> {
 	fn default() -> Self {
 		Self::new()
 	}
 }
 
 
-impl <E> std::ops::Index<usize> for AvlTreeList<E> {
+impl<E> std::ops::Index<usize> for AvlTreeList<E> {
 	type Output = E;
 	
 	fn index(&self, index: usize) -> &E {
@@ -110,7 +110,7 @@ impl <E> std::ops::Index<usize> for AvlTreeList<E> {
 }
 
 
-impl <E> std::ops::IndexMut<usize> for AvlTreeList<E> {
+impl<E> std::ops::IndexMut<usize> for AvlTreeList<E> {
 	fn index_mut(&mut self, index: usize) -> &mut E {
 		assert!(index < self.len(), "Index out of bounds");
 		self.root.node_mut().get_at_mut(index)
@@ -125,7 +125,7 @@ impl <E> std::ops::IndexMut<usize> for AvlTreeList<E> {
 struct MaybeNode<E>(Option<Box<Node<E>>>);
 
 
-impl <E> MaybeNode<E> {
+impl<E> MaybeNode<E> {
 	
 	fn exists(&self) -> bool {
 		self.0.is_some()
@@ -315,7 +315,7 @@ struct Node<E> {
 }
 
 
-impl <E> Node<E> {
+impl<E> Node<E> {
 	
 	fn new(val: E) -> Self {
 		Self {
@@ -382,7 +382,7 @@ impl <E> Node<E> {
 
 /*---- Helper struct: AVL tree iterator ----*/
 
-impl <'a, E> IntoIterator for &'a AvlTreeList<E> {
+impl<'a, E> IntoIterator for &'a AvlTreeList<E> {
 	type Item = &'a E;
 	type IntoIter = Iter<'a, E>;
 	
@@ -399,7 +399,7 @@ pub struct Iter<'a, E:'a> {
 }
 
 
-impl <'a, E> Iter<'a, E> {
+impl<'a, E> Iter<'a, E> {
 	
 	fn new(root: &'a MaybeNode<E>) -> Self {
 		let mut result = Self {
@@ -421,7 +421,7 @@ impl <'a, E> Iter<'a, E> {
 }
 
 
-impl <'a, E> Iterator for Iter<'a, E> {
+impl<'a, E> Iterator for Iter<'a, E> {
 	type Item = &'a E;
 	
 	fn next(&mut self) -> Option<Self::Item> {

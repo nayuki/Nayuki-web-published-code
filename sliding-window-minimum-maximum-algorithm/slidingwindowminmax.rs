@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -71,7 +71,7 @@ pub struct SlidingWindowMinMax<E> {
 }
 
 
-impl <E: std::cmp::Ord + Clone> SlidingWindowMinMax<E> {
+impl<E: std::cmp::Ord + Clone> SlidingWindowMinMax<E> {
 	
 	pub fn new() -> Self {
 		Self {

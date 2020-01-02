@@ -1,7 +1,7 @@
 /* 
  * B-tree set (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,7 +37,7 @@ pub struct BTreeSet<E> {
 }
 
 
-impl <E: std::cmp::Ord> BTreeSet<E> {
+impl<E: std::cmp::Ord> BTreeSet<E> {
 	
 	// The degree is the minimum number of children each non-root internal node must have.
 	pub fn new(degree: usize) -> Self {
@@ -219,7 +219,7 @@ struct Node<E> {
 }
 
 
-impl <E: std::cmp::Ord> Node<E> {
+impl<E: std::cmp::Ord> Node<E> {
 	
 	/*-- Constructor --*/
 	
@@ -432,7 +432,7 @@ impl <E: std::cmp::Ord> Node<E> {
 
 /*---- Helper struct: B-tree iterator ----*/
 
-impl <'a, E: std::cmp::Ord> IntoIterator for &'a BTreeSet<E> {
+impl<'a, E: std::cmp::Ord> IntoIterator for &'a BTreeSet<E> {
 	type Item = &'a E;
 	type IntoIter = Iter<'a, E>;
 	
@@ -450,7 +450,7 @@ pub struct Iter<'a, E:'a> {
 }
 
 
-impl <'a, E: std::cmp::Ord> Iter<'a, E> {
+impl<'a, E: std::cmp::Ord> Iter<'a, E> {
 	
 	fn new(set: &'a BTreeSet<E>) -> Self {
 		let mut result = Self {
@@ -479,7 +479,7 @@ impl <'a, E: std::cmp::Ord> Iter<'a, E> {
 }
 
 
-impl <'a, E: std::cmp::Ord> Iterator for Iter<'a, E> {
+impl<'a, E: std::cmp::Ord> Iterator for Iter<'a, E> {
 	type Item = &'a E;
 	
 	fn next(&mut self) -> Option<Self::Item> {
