@@ -111,23 +111,23 @@ impl<E: std::cmp::Ord> BinomialHeap<E> {
 	
 	// Moves all the values in the given heap into this heap
 	pub fn merge(&mut self, other: &mut Self) {
-		let othernodes = std::mem::replace(&mut other.head, None);
+		let othernodes = other.head.take();
 		self.merge_nodes(othernodes);
 	}
 	
 	
 	fn merge_nodes(&mut self, mut other: MaybeNode<E>) {
-		let mut this: MaybeNode<E> = std::mem::replace(&mut self.head, None);
+		let mut this: MaybeNode<E> = self.head.take();
 		let mut merged: MaybeNode<E> = None;
 		
 		while this.is_some() || other.is_some() {
 			let mut node: Box<Node<E>>;
 			if other.is_none() || this.is_some() && this.as_ref().unwrap().rank <= other.as_ref().unwrap().rank {
 				node = this.unwrap();
-				this = std::mem::replace(&mut node.next, None);
+				this = node.next.take();
 			} else {
 				node = other.unwrap();
-				other = std::mem::replace(&mut node.next, None);
+				other = node.next.take();
 			}
 			
 			if merged.is_none() || merged.as_ref().unwrap().rank < node.rank {
@@ -136,7 +136,7 @@ impl<E: std::cmp::Ord> BinomialHeap<E> {
 			} else {
 				let mut mrgd = merged.unwrap();
 				if mrgd.rank == node.rank + 1 {
-					std::mem::swap(&mut mrgd.next, &mut node.next);
+					node.next = mrgd.next.take();
 					mrgd.next = Some(node);
 				} else {
 					// Merge nodes
@@ -145,7 +145,7 @@ impl<E: std::cmp::Ord> BinomialHeap<E> {
 						std::mem::swap(&mut node.value, &mut mrgd.value);
 						std::mem::swap(&mut node.down, &mut mrgd.down);
 					}
-					node.next = std::mem::replace(&mut mrgd.down, None);
+					node.next = mrgd.down.take();
 					mrgd.down = Some(node);
 					mrgd.rank += 1;
 				}
@@ -202,7 +202,7 @@ impl<E: std::cmp::Ord> Node<E> {
 	
 	fn remove_root(&mut self) -> MaybeNode<E> {
 		assert!(self.next.is_none());
-		let temp = std::mem::replace(&mut self.down, None);
+		let temp = self.down.take();
 		reverse_nodes(temp)
 	}
 		

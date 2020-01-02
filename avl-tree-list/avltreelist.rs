@@ -153,7 +153,7 @@ impl<E> MaybeNode<E> {
 	
 	
 	fn pop(&mut self) -> Self {
-		std::mem::replace(self, MaybeNode(None))
+		MaybeNode(self.0.take())
 	}
 	
 	
