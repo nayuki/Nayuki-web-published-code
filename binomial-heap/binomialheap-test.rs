@@ -1,7 +1,7 @@
 /* 
  * Binomial heap test (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,7 +44,7 @@ fn test_size_1() {
 	h.check_structure();
 	assert_eq!(h.len(), 1);
 	assert_eq!(*h.peek().unwrap(), 3);
-	assert_eq!(h.pop().unwrap(), 3);
+	assert_eq!(h.pop(), Some(3));
 	h.check_structure();
 	assert_eq!(h.len(), 0);
 }
@@ -57,11 +57,11 @@ fn test_size_2() {
 	h.check_structure();
 	assert_eq!(h.len(), 2);
 	assert_eq!(*h.peek().unwrap(), 2);
-	assert_eq!(h.pop().unwrap(), 2);
+	assert_eq!(h.pop(), Some(2));
 	h.check_structure();
 	assert_eq!(h.len(), 1);
 	assert_eq!(*h.peek().unwrap(), 4);
-	assert_eq!(h.pop().unwrap(), 4);
+	assert_eq!(h.pop(), Some(4));
 	h.check_structure();
 	assert_eq!(h.len(), 0);
 }
@@ -79,14 +79,14 @@ fn test_size_7() {
 	h.push(4);
 	h.check_structure();
 	assert_eq!(h.len(), 7);
-	assert_eq!(h.pop().unwrap(), 1);  assert_eq!(h.len(), 6);
-	assert_eq!(h.pop().unwrap(), 1);  assert_eq!(h.len(), 5);
-	assert_eq!(h.pop().unwrap(), 2);  assert_eq!(h.len(), 4);
-	assert_eq!(h.pop().unwrap(), 3);  assert_eq!(h.len(), 3);
+	assert_eq!(h.pop(), Some(1));  assert_eq!(h.len(), 6);
+	assert_eq!(h.pop(), Some(1));  assert_eq!(h.len(), 5);
+	assert_eq!(h.pop(), Some(2));  assert_eq!(h.len(), 4);
+	assert_eq!(h.pop(), Some(3));  assert_eq!(h.len(), 3);
 	h.check_structure();
-	assert_eq!(h.pop().unwrap(), 4);  assert_eq!(h.len(), 2);
-	assert_eq!(h.pop().unwrap(), 7);  assert_eq!(h.len(), 1);
-	assert_eq!(h.pop().unwrap(), 8);  assert_eq!(h.len(), 0);
+	assert_eq!(h.pop(), Some(4));  assert_eq!(h.len(), 2);
+	assert_eq!(h.pop(), Some(7));  assert_eq!(h.len(), 1);
+	assert_eq!(h.pop(), Some(8));  assert_eq!(h.len(), 0);
 	h.check_structure();
 }
 
@@ -112,7 +112,7 @@ fn test_against_vec_randomly() {
 		
 		values.sort();
 		for val in values {
-			assert_eq!(heap.pop().unwrap(), val);
+			assert_eq!(heap.pop(), Some(val));
 		}
 		heap.clear();
 	}
@@ -137,7 +137,7 @@ fn test_against_rust_binary_heap_randomly() {
 		if op < 1 {  // Clear
 			heap.check_structure();
 			for _ in 0 .. size {
-				assert_eq!(-queue.pop().unwrap(), heap.pop().unwrap());
+				assert_eq!(queue.pop().map(|x| -x), heap.pop());
 			}
 			size = 0;
 			
@@ -169,7 +169,7 @@ fn test_against_rust_binary_heap_randomly() {
 		} else if op < 100 {  // Dequeue
 			let n = std::cmp::min(opcountdist.ind_sample(rng), size);
 			for _ in 0 .. n {
-				assert_eq!(-queue.pop().unwrap(), heap.pop().unwrap());
+				assert_eq!(queue.pop().map(|x| -x), heap.pop());
 			}
 			size -= n;
 			

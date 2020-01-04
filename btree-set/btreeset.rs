@@ -79,7 +79,7 @@ impl<E: std::cmp::Ord> BTreeSet<E> {
 			} else if node.is_leaf() {
 				return false;
 			} else {  // Internal node
-				node = node.children[index].as_ref();
+				node = &node.children[index];
 			}
 		}
 	}
@@ -90,7 +90,7 @@ impl<E: std::cmp::Ord> BTreeSet<E> {
 		if self.root.keys.len() == self.max_keys {
 			let child = std::mem::replace(&mut self.root,
 				Node::new(self.max_keys, false));  // Increment tree height
-			self.root.children.push(Box::new(child));
+			self.root.children.push(child);
 			self.root.split_child(self.min_keys, self.max_keys, 0);
 		}
 		
@@ -118,7 +118,7 @@ impl<E: std::cmp::Ord> BTreeSet<E> {
 						Ordering::Less    => {},
 					}
 				}
-				node = {node}.children[index].as_mut();
+				node = &mut node.children[index];
 				isroot = false;
 			}
 		}
@@ -133,7 +133,7 @@ impl<E: std::cmp::Ord> BTreeSet<E> {
 		}
 		if self.root.keys.is_empty() && !self.root.is_leaf() {
 			assert_eq!(self.root.children.len(), 1);
-			self.root = *self.root.children.pop().unwrap();  // Decrement tree height
+			self.root = self.root.children.pop().unwrap();  // Decrement tree height
 		}
 		result
 	}
@@ -163,7 +163,7 @@ impl<E: std::cmp::Ord> BTreeSet<E> {
 					} else {  // Merge key and right node into left node, then recurse
 						node.merge_children(self.min_keys, index);
 						// Index known due to merging; no need to search
-						node = {node}.children[index].as_mut();
+						node = &mut node.children[index];
 						index = self.min_keys;
 					}
 				} else {  // Key might be found in some child
@@ -193,7 +193,7 @@ impl<E: std::cmp::Ord> BTreeSet<E> {
 		let mut node = &self.root;
 		while !node.is_leaf() {
 			height = height.checked_add(1).unwrap();
-			node = node.children[0].as_ref();
+			node = node.children.first().unwrap();
 		}
 		
 		// Check all nodes and total size
@@ -214,7 +214,7 @@ struct Node<E> {
 	keys: Vec<E>,
 	
 	// If leaf then size is 0, otherwise if internal node then size always equals keys.len()+1.
-	children: Vec<Box<Node<E>>>,
+	children: Vec<Node<E>>,
 	
 }
 
@@ -266,7 +266,7 @@ impl<E: std::cmp::Ord> Node<E> {
 		let middlekey;
 		let mut right;
 		{
-			let left = self.children[index].as_mut();
+			let left = &mut self.children[index];
 			assert_eq!(left.keys.len(), maxkeys);
 			right = Self::new(maxkeys, left.is_leaf());
 			if !left.is_leaf() {
@@ -276,7 +276,7 @@ impl<E: std::cmp::Ord> Node<E> {
 			middlekey = left.keys.pop().unwrap();
 		}
 		self.keys.insert(index, middlekey);
-		self.children.insert(index + 1, Box::new(right));
+		self.children.insert(index + 1, right);
 	}
 	
 	
@@ -291,7 +291,7 @@ impl<E: std::cmp::Ord> Node<E> {
 		assert!(!self.is_leaf() && index <= self.keys.len());
 		let childsize = self.children[index].keys.len();
 		if childsize > minkeys {  // Already satisfies the condition
-			return self.children[index].as_mut();
+			return &mut self.children[index];
 		}
 		assert_eq!(childsize, minkeys);
 		
@@ -299,12 +299,12 @@ impl<E: std::cmp::Ord> Node<E> {
 		let mut leftsize  = 0;
 		let mut rightsize = 0;
 		if index >= 1 {
-			let left = self.children[index - 1].as_ref();
+			let left = &self.children[index - 1];
 			leftsize = left.keys.len();
 			assert_eq!(!left.is_leaf(), internal);  // Sibling must be same type (internal/leaf) as child
 		}
 		if index < self.keys.len() {
-			let right = self.children[index + 1].as_ref();
+			let right = &self.children[index + 1];
 			rightsize = right.keys.len();
 			assert_eq!(!right.is_leaf(), internal);  // Sibling must be same type (internal/leaf) as child
 		}
@@ -334,7 +334,7 @@ impl<E: std::cmp::Ord> Node<E> {
 		} else {
 			unreachable!();
 		}
-		self.children[index].as_mut()
+		&mut self.children[index]
 	}
 	
 	
@@ -343,8 +343,8 @@ impl<E: std::cmp::Ord> Node<E> {
 	fn merge_children(&mut self, minkeys: usize, index: usize) {
 		assert!(!self.is_leaf() && index < self.keys.len());
 		let middlekey = self.keys.remove(index);
-		let mut right = *self.children.remove(index + 1);
-		let left = self.children[index].as_mut();
+		let mut right = self.children.remove(index + 1);
+		let left = &mut self.children[index];
 		assert_eq!(left .keys.len(), minkeys);
 		assert_eq!(right.keys.len(), minkeys);
 		if !left.is_leaf() {
@@ -445,8 +445,7 @@ impl<'a, E: std::cmp::Ord> IntoIterator for &'a BTreeSet<E> {
 #[derive(Clone)]
 pub struct Iter<'a, E:'a> {
 	count: usize,
-	node_stack: Vec<&'a Node<E>>,
-	index_stack: Vec<usize>,
+	stack: Vec<(&'a Node<E>,usize)>,
 }
 
 
@@ -455,8 +454,7 @@ impl<'a, E: std::cmp::Ord> Iter<'a, E> {
 	fn new(set: &'a BTreeSet<E>) -> Self {
 		let mut result = Self {
 			count: set.size,
-			node_stack : Vec::new(),
-			index_stack: Vec::new(),
+			stack: Vec::new(),
 		};
 		if !set.root.keys.is_empty() {
 			result.push_left_path(&set.root);
@@ -467,12 +465,11 @@ impl<'a, E: std::cmp::Ord> Iter<'a, E> {
 	
 	fn push_left_path(&mut self, mut node: &'a Node<E>) {
 		loop {
-			self.node_stack.push(node);
-			self.index_stack.push(0);
+			self.stack.push((node, 0));
 			if node.is_leaf() {
 				break;
 			}
-			node = node.children[0].as_ref();
+			node = node.children.first().unwrap();
 		}
 	}
 	
@@ -483,17 +480,12 @@ impl<'a, E: std::cmp::Ord> Iterator for Iter<'a, E> {
 	type Item = &'a E;
 	
 	fn next(&mut self) -> Option<Self::Item> {
-		let node: &'a Node<E> = self.node_stack.last()?;
-		let result: &'a E;
-		let index: usize = {
-			let index: &mut usize = self.index_stack.last_mut().unwrap();
-			result = &node.keys[*index];
-			*index += 1;
-			*index
-		};
+		let &mut (node, ref mut index) = self.stack.last_mut()?;
+		let result = &node.keys[*index];
+		*index += 1;
+		let index = *index;
 		if index >= node.keys.len() {
-			self.node_stack.pop();
-			self.index_stack.pop();
+			self.stack.pop();
 		}
 		if index < node.children.len() {
 			self.push_left_path(&node.children[index]);
