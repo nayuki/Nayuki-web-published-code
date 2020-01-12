@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -36,26 +36,26 @@ fn main() {
 }
 
 
-fn submain(args: Vec<String>) -> Option<String> {
+fn submain(argv: Vec<String>) -> Option<String> {
 	// Handle arguments
-	if args.len() != 4 {
-		return Some(format!("Usage: {} FileName ByteOffset NewCrc32Value", args[0]));
+	if argv.len() != 4 {
+		return Some(format!("Usage: {} FileName ByteOffset NewCrc32Value", argv[0]));
 	}
-	let offset = match u64::from_str(&args[2]) {
+	let offset = match u64::from_str(&argv[2]) {
 		Ok(x) => x,
-		Err(_) => return Some(String::from("Error: Invalid byte offset")),
+		Err(_) => return Some("Error: Invalid byte offset".to_string()),
 	};
-	if args[3].len() != 8 {
-		return Some(String::from("Error: Invalid new CRC-32 value"));
+	if argv[3].len() != 8 {
+		return Some("Error: Invalid new CRC-32 value".to_string());
 	}
-	let newcrc = match u32::from_str_radix(&args[3], 16) {
+	let newcrc = match u32::from_str_radix(&argv[3], 16) {
 		Ok(x) => reverse_bits(x),
-		Err(_) => return Some(String::from("Error: Invalid new CRC-32 value")),
+		Err(_) => return Some("Error: Invalid new CRC-32 value".to_string()),
 	};
 	
-	let file = std::path::Path::new(&args[1]);
+	let file = std::path::Path::new(&argv[1]);
 	if !file.is_file() {
-		return Some(format!("Error: File does not exist: {}", args[1]));
+		return Some(format!("Error: File does not exist: {}", argv[1]));
 	}
 	
 	// Process the file
