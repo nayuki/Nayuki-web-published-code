@@ -1,7 +1,7 @@
 # 
 # BitTorrent bencode encoder/decoder (Python)
 # 
-# Copyright (c) 2019 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/bittorrent-bencode-format-tools
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -75,108 +75,108 @@ def parse(inp):
 	Note that the returned value maps bencode byte string to Python bytes, and maps bencode list to Python list.
 	Raises ValueError if the input data does not conform to bencode's serialization syntax rules.
 	Raises EOFError if more data was expected but the input stream ended."""
-	result = _parse_value(inp, inp.read(1))
+	parser = _Parser(inp)
+	result = parser.parse_value(parser.read_byte())
 	if inp.read(1) != b"":
 		raise ValueError("Unexpected extra data")
 	return result
 
 
-def _parse_value(inp, leadbyte):
-	if leadbyte == b"":
-		raise EOFError()
-	elif leadbyte == b"i":
-		return _parse_integer(inp)
-	elif b"0" <= leadbyte <= b"9":
-		return _parse_byte_string(inp, leadbyte)
-	elif leadbyte == b"l":
-		return _parse_list(inp)
-	elif leadbyte == b"d":
-		return _parse_dictionary(inp)
-	else:
-		raise ValueError("Unexpected value type")
-
-
-def _parse_integer(inp):
-	buf = bytearray()
-	while True:
-		b = inp.read(1)
-		if b == b"":
-			raise EOFError()
-		if b == b"e":
-			break
-		
-		if len(buf) == 0:
-			ok = b == b"-" or b"0" <= b <= b"9"
-		elif len(buf) == 1 and buf[0] == ord("-"):
-			ok = b"1" <= b <= b"9"
-		elif len(buf) == 1 and buf[0] == ord("0"):
-			ok = False
-		else:  # buf starts with [123456789] or -[123456789]
-			ok = b"0" <= b <= b"9"
-		
-		if ok:
-			buf.append(b[0] if py3 else ord(b))
+class _Parser(object):
+	
+	def __init__(self, inp):
+		self._input = inp
+	
+	
+	def parse_value(self, head):
+		if head == b"i":
+			return self._parse_integer()
+		elif b"0" <= head <= b"9":
+			return self._parse_byte_string(head)
+		elif head == b"l":
+			return self._parse_list()
+		elif head == b"d":
+			return self._parse_dictionary()
 		else:
-			raise ValueError("Unexpected integer character")
-	if len(buf) == 0 or (len(buf) == 1 and buf[0] == ord("-")):
-		raise ValueError("Invalid integer syntax")
-	return int(buf)
-
-
-def _parse_byte_string(inp, leadbyte):
-	length = _parse_natural_number(inp, leadbyte)
-	result = bytearray()
-	for _ in range(length):
-		b = inp.read(1)
-		if b == b"":
-			raise EOFError()
-		result.append(b[0] if py3 else ord(b))
-	return bytes(result)
-
-
-def _parse_natural_number(inp, leadbyte):
-	buf = bytearray()
-	b = leadbyte
-	while b != b":":
-		if b == b"":
-			raise EOFError()
-		elif (len(buf) != 1 or buf[0] != ord("0")) and b"0" <= b <= b"9":
+			raise ValueError("Unexpected value type")
+	
+	
+	def _parse_integer(self):
+		buf = bytearray()
+		while True:
+			b = self.read_byte()
+			if b == b"e":
+				break
+			
+			if buf == b"":
+				ok = b == b"-" or b"0" <= b <= b"9"
+			elif buf == b"-":
+				ok = b"1" <= b <= b"9"
+			elif buf == b"0":
+				ok = False
+			else:  # buf starts with [123456789] or -[123456789]
+				ok = b"0" <= b <= b"9"
+			
+			if not ok:
+				raise ValueError("Unexpected integer character")
 			buf.append(b[0] if py3 else ord(b))
-		else:
-			raise ValueError("Unexpected integer character")
-		b = inp.read(1)
-	if len(buf) == 0:
-		raise ValueError("Invalid integer syntax")
-	return int(buf)
-
-
-def _parse_list(inp):
-	result = []
-	while True:
-		b = inp.read(1)
-		if b == b"e":
-			break
-		result.append(_parse_value(inp, b))
-	return result
-
-
-def _parse_dictionary(inp):
-	result = {}
-	prevkey = None
-	while True:
-		b = inp.read(1)
-		if b == b"e":
-			break
-		key = _parse_byte_string(inp, b)
-		if prevkey is not None and key <= prevkey:
-			raise ValueError("Misordered dictionary key")
-		prevkey = key
-		
-		b = inp.read(1)
-		if b == b"":
+		if buf in (b"", b"-"):
+			raise ValueError("Invalid integer syntax")
+		return int(buf)
+	
+	
+	def _parse_byte_string(self, head):
+		length = self._parse_natural_number(head)
+		result = bytearray()
+		for _ in range(length):
+			b = self.read_byte()
+			result.append(b[0] if py3 else ord(b))
+		return bytes(result)
+	
+	
+	def _parse_natural_number(self, head):
+		buf = bytearray()
+		b = head
+		while True:
+			if b < b"0" or b > b"9" or buf == b"0":
+				raise ValueError("Unexpected integer character")
+			buf.append(b[0] if py3 else ord(b))
+			b = self.read_byte()
+			if b == b":":
+				break
+		return int(buf)
+	
+	
+	def _parse_list(self):
+		result = []
+		while True:
+			b = self.read_byte()
+			if b == b"e":
+				break
+			result.append(self.parse_value(b))
+		return result
+	
+	
+	def _parse_dictionary(self):
+		result = {}
+		prevkey = None
+		while True:
+			b = self.read_byte()
+			if b == b"e":
+				break
+			key = self._parse_byte_string(b)
+			if prevkey is not None and key <= prevkey:
+				raise ValueError("Misordered dictionary key")
+			prevkey = key
+			result[key] = self.parse_value(self.read_byte())
+		return result
+	
+	
+	def read_byte(self):
+		result = self._input.read(1)
+		if len(result) == 0:
 			raise EOFError()
-		result[key] = _parse_value(inp, b)
-	return result
+		return result
 
 
 

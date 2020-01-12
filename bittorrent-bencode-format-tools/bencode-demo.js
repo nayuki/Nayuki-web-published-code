@@ -1,7 +1,7 @@
 /*
  * BitTorrent bencode decoder demo (compiled from TypeScript)
  *
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -194,20 +194,18 @@ var app;
         };
         BencodeParser.prototype.parseRoot = function () {
             var result = this.parseValue(this.readByte());
-            if (this.readByte() != -1)
-                throw "Unexpected extra data at byte offset " + (this.index - 1);
+            if (this.index < this.array.length)
+                throw "Unexpected extra data at byte offset " + this.index;
             return result;
         };
-        BencodeParser.prototype.parseValue = function (leadByte) {
-            if (leadByte == -1)
-                throw "Unexpected end of data at byte offset " + this.index;
-            else if (leadByte == cc("i"))
+        BencodeParser.prototype.parseValue = function (head) {
+            if (head == cc("i"))
                 return this.parseInteger();
-            else if (cc("0") <= leadByte && leadByte <= cc("9"))
-                return this.parseByteString(leadByte);
-            else if (leadByte == cc("l"))
+            else if (cc("0") <= head && head <= cc("9"))
+                return this.parseByteString(head);
+            else if (head == cc("l"))
                 return this.parseList();
-            else if (leadByte == cc("d"))
+            else if (head == cc("d"))
                 return this.parseDictionary();
             else
                 throw "Unexpected item type at byte offset " + (this.index - 1);
@@ -216,8 +214,6 @@ var app;
             var str = "";
             while (true) {
                 var b = this.readByte();
-                if (b == -1)
-                    throw "Unexpected end of data at byte offset " + this.index;
                 var c = String.fromCharCode(b);
                 if (c == "e")
                     break;
@@ -230,40 +226,30 @@ var app;
                     ok = false;
                 else // str starts with [123456789] or -[123456789]
                     ok = "0" <= c && c <= "9";
-                if (ok)
-                    str += c;
-                else
+                if (!ok)
                     throw "Unexpected integer character at byte offset " + (this.index - 1);
+                str += c;
             }
             if (str == "" || str == "-")
                 throw "Invalid integer syntax at byte offset " + (this.index - 1);
             return new BencodeInt(str);
         };
-        BencodeParser.prototype.parseByteString = function (leadByte) {
-            var length = this.parseNaturalNumber(leadByte);
+        BencodeParser.prototype.parseByteString = function (head) {
+            var length = this.parseNaturalNumber(head);
             var result = "";
-            for (var i = 0; i < length; i++) {
-                var b = this.readByte();
-                if (b == -1)
-                    throw "Unexpected end of data at byte offset " + this.index;
-                result += String.fromCharCode(b);
-            }
+            for (var i = 0; i < length; i++)
+                result += String.fromCharCode(this.readByte());
             return new BencodeBytes(result);
         };
-        BencodeParser.prototype.parseNaturalNumber = function (leadByte) {
+        BencodeParser.prototype.parseNaturalNumber = function (head) {
             var str = "";
-            var b = leadByte;
-            while (b != cc(":")) {
-                if (b == -1)
-                    throw "Unexpected end of data at byte offset " + this.index;
-                else if (str != "0" && cc("0") <= b && b <= cc("9"))
-                    str += String.fromCharCode(b);
-                else
+            var b = head;
+            do {
+                if (b < cc("0") || b > cc("9") || str == "0")
                     throw "Unexpected integer character at byte offset " + (this.index - 1);
+                str += String.fromCharCode(b);
                 b = this.readByte();
-            }
-            if (str == "")
-                throw "Invalid integer syntax at byte offset " + (this.index - 1);
+            } while (b != cc(":"));
             return parseInt(str, 10);
         };
         BencodeParser.prototype.parseList = function () {
@@ -285,18 +271,15 @@ var app;
                     break;
                 var key = this.parseByteString(b).value;
                 if (keys.length > 0 && key <= keys[keys.length - 1])
-                    throw "Misordered dictionary key at byte offset " + (this.index - 1);
+                    throw "Misordered dictionary key at byte offset " + (this.index - key.length);
                 keys.push(key);
-                b = this.readByte();
-                if (b == -1)
-                    throw "Unexpected end of data at byte offset " + this.index;
-                map.set(key, this.parseValue(b));
+                map.set(key, this.parseValue(this.readByte()));
             }
             return new BencodeDict(map, keys);
         };
         BencodeParser.prototype.readByte = function () {
             if (this.index >= this.array.length)
-                return -1;
+                throw "Unexpected end of data at byte offset " + this.index;
             var result = this.array[this.index];
             this.index++;
             return result;

@@ -1,7 +1,7 @@
 # 
 # BitTorrent bencode coder test suite (Python)
 # 
-# Copyright (c) 2019 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/bittorrent-bencode-format-tools
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -71,12 +71,25 @@ class BencodeTest(unittest.TestCase):
 	
 	# ---- Test the parsing ----
 	
+	def test_parse_empty(self):
+		self._parse_expecting_exception([""], EOFError)
+	
+	
+	def test_parse_invalid(self):
+		CASES = [
+			"i0ei1e",
+			"1:a2:bc3:def",
+			"le0:de",
+		]
+		self._parse_expecting_exception(CASES, ValueError)
+	
+	
 	def test_parse_integer(self):
-		self._check_parse(0, b"i0e")
-		self._check_parse(11, b"i11e")
-		self._check_parse(-749, b"i-749e")
-		self._check_parse(9223372036854775807, b"i9223372036854775807e")
-		self._check_parse(-9223372036854775808, b"i-9223372036854775808e")
+		self._check_parse(0, "i0e")
+		self._check_parse(11, "i11e")
+		self._check_parse(-749, "i-749e")
+		self._check_parse(9223372036854775807, "i9223372036854775807e")
+		self._check_parse(-9223372036854775808, "i-9223372036854775808e")
 	
 	
 	def test_parse_integer_eof(self):
@@ -100,6 +113,7 @@ class BencodeTest(unittest.TestCase):
 			"i-0",
 			"i-0e",
 			"i-026e",
+			"i-B",
 			"iA",
 			"iAe",
 			"i01Ce",
@@ -111,9 +125,9 @@ class BencodeTest(unittest.TestCase):
 	
 	
 	def test_parse_byte_string(self):
-		self._check_parse(b"", b"0:")
-		self._check_parse(b"&", b"1:&")
-		self._check_parse(b"abcdefghijklm", b"13:abcdefghijklm")
+		self._check_parse(b"", "0:")
+		self._check_parse(b"&", "1:&")
+		self._check_parse(b"abcdefghijklm", "13:abcdefghijklm")
 	
 	
 	def test_parse_byte_string_eof(self):
@@ -144,10 +158,10 @@ class BencodeTest(unittest.TestCase):
 	
 	
 	def test_parse_list(self):
-		self._check_parse([], b"le")
-		self._check_parse([-6], b"li-6ee")
-		self._check_parse([b"00", 55], b"l2:00i55ee")
-		self._check_parse([[], []], b"llelee")
+		self._check_parse([], "le")
+		self._check_parse([-6], "li-6ee")
+		self._check_parse([b"00", 55], "l2:00i55ee")
+		self._check_parse([[], []], "llelee")
 	
 	
 	def test_parse_list_eof(self):
@@ -160,9 +174,9 @@ class BencodeTest(unittest.TestCase):
 	
 	
 	def test_parse_dictionary(self):
-		self._check_parse({}, b"de")
-		self._check_parse({b"-":404}, b"d1:-i404ee")
-		self._check_parse({b"010":b"101", b"yU":[]}, b"d3:0103:1012:yUlee")
+		self._check_parse({}, "de")
+		self._check_parse({b"-":404}, "d1:-i404ee")
+		self._check_parse({b"010":b"101", b"yU":[]}, "d3:0103:1012:yUlee")
 	
 	
 	def test_parse_dictionary_eof(self):
@@ -177,6 +191,8 @@ class BencodeTest(unittest.TestCase):
 	
 	def test_parse_dictionary_invalid(self):
 		CASES = [
+			"d:",
+			"d-",
 			"d1:A0:1:A1:.",
 			"d1:B0:1:A1:.",
 			"d1:B0:1:D0:1:C0:",
@@ -190,7 +206,7 @@ class BencodeTest(unittest.TestCase):
 	def _parse_expecting_exception(self, testcases, expect):
 		for cs in testcases:
 			try:
-				BencodeTest._try_parse(cs.encode("UTF-8"))
+				BencodeTest._try_parse(cs)
 			except Exception as e:
 				if isinstance(e, expect):
 					continue  # Pass
@@ -203,10 +219,10 @@ class BencodeTest(unittest.TestCase):
 		self.assertTrue(BencodeTest._deep_equals(expect, actual))
 	
 	
-	# Parses the given byte string into a bencode value.
+	# Parses the given string into a bencode value.
 	@staticmethod
 	def _try_parse(s):
-		with io.BytesIO(s) as inp:
+		with io.BytesIO(s.encode("UTF-8")) as inp:
 			return bencode.parse(inp)
 	
 	

@@ -1,7 +1,7 @@
 /* 
  * BitTorrent bencode encoder/decoder (Java)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -111,7 +111,11 @@ public final class Bencode {
 	 * @throws IOException if an I/O exception occurred
 	 */
 	public static Object parse(InputStream in) throws IOException {
-		return new Bencode(in).parseRoot();
+		Bencode parser = new Bencode(in);
+		Object result = parser.parseValue(parser.readByte());
+		if (in.read() != -1)
+			throw new IllegalArgumentException("Unexpected extra data");
+		return result;
 	}
 	
 	
@@ -123,24 +127,14 @@ public final class Bencode {
 	}
 	
 	
-	private Object parseRoot() throws IOException {
-		Object result = parseValue(input.read());
-		if (input.read() != -1)
-			throw new IllegalArgumentException("Unexpected extra data");
-		return result;
-	}
-	
-	
-	private Object parseValue(int leadByte) throws IOException {
-		if (leadByte == -1)
-			throw new EOFException();
-		else if (leadByte == 'i')
+	private Object parseValue(byte head) throws IOException {
+		if (head == 'i')
 			return parseInteger();
-		else if ('0' <= leadByte && leadByte <= '9')
-			return parseByteString(leadByte);
-		else if (leadByte == 'l')
+		else if ('0' <= head && head <= '9')
+			return parseByteString(head);
+		else if (head == 'l')
 			return parseList();
-		else if (leadByte == 'd')
+		else if (head == 'd')
 			return parseDictionary();
 		else
 			throw new IllegalArgumentException("Unexpected value type");
@@ -150,60 +144,48 @@ public final class Bencode {
 	private Long parseInteger() throws IOException {
 		StringBuilder sb = new StringBuilder();
 		while (true) {
-			int b = input.read();
-			if (b == -1)
-				throw new EOFException();
+			byte b = readByte();
 			if (b == 'e')
 				break;
 			
 			boolean ok;
-			if (sb.length() == 0)
+			if ("".contentEquals(sb))
 				ok = b == '-' || '0' <= b && b <= '9';
-			else if (sb.length() == 1 && sb.charAt(0) == '-')
+			else if ("-".contentEquals(sb))
 				ok = '1' <= b && b <= '9';
-			else if (sb.length() == 1 && sb.charAt(0) == '0')
+			else if ("0".contentEquals(sb))
 				ok = false;
 			else  // sb starts with [123456789] or -[123456789]
 				ok = '0' <= b && b <= '9';
 			
-			if (ok)
-				sb.append((char)b);
-			else
+			if (!ok)
 				throw new IllegalArgumentException("Unexpected integer character");
+			sb.append((char)b);
 		}
-		if (sb.length() == 0 || sb.length() == 1 && sb.charAt(0) == '-')
+		if ("".contentEquals(sb) || "-".contentEquals(sb))
 			throw new IllegalArgumentException("Invalid integer syntax");
 		return Long.parseLong(sb.toString());
 	}
 	
 	
-	private String parseByteString(int leadByte) throws IOException {
-		int length = parseNaturalNumber(leadByte);
+	private String parseByteString(byte head) throws IOException {
+		int length = parseNaturalNumber(head);
 		char[] result = new char[length];
-		for (int i = 0; i < length; i++) {
-			int b = input.read();
-			if (b == -1)
-				throw new EOFException();
-			result[i] = (char)(b & 0xFF);
-		}
+		for (int i = 0; i < length; i++)
+			result[i] = (char)readByte();
 		return new String(result);
 	}
 	
 	
-	private int parseNaturalNumber(int leadByte) throws IOException {
+	private int parseNaturalNumber(byte head) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		int b = leadByte;
-		while (b != ':') {
-			if (b == -1)
-				throw new EOFException();
-			else if ((sb.length() != 1 || sb.charAt(0) != '0') && '0' <= b && b <= '9')
-				sb.append((char)b);
-			else
+		byte b = head;
+		do {
+			if (b < '0' || b > '9' || "0".contentEquals(sb))
 				throw new IllegalArgumentException("Unexpected integer character");
-			b = input.read();
-		}
-		if (sb.length() == 0)
-			throw new IllegalArgumentException("Invalid integer syntax");
+			sb.append((char)b);
+			b = readByte();
+		} while (b != ':');
 		return Integer.parseInt(sb.toString());
 	}
 	
@@ -211,7 +193,7 @@ public final class Bencode {
 	private Object parseList() throws IOException {
 		List<Object> result = new ArrayList<>();
 		while (true) {
-			int b = input.read();
+			byte b = readByte();
 			if (b == 'e')
 				break;
 			result.add(parseValue(b));
@@ -220,22 +202,26 @@ public final class Bencode {
 	}
 	
 	
-	private Object parseDictionary() throws IOException, EOFException {
+	private Object parseDictionary() throws IOException {
 		SortedMap<String,Object> result = new TreeMap<>();
 		while (true) {
-			int b = input.read();
+			byte b = readByte();
 			if (b == 'e')
 				break;
 			String key = parseByteString(b);
 			if (!result.isEmpty() && key.compareTo(result.lastKey()) <= 0)
 				throw new IllegalArgumentException("Misordered dictionary key");
-			
-			b = input.read();
-			if (b == -1)
-				throw new EOFException();
-			result.put(key, parseValue(b));
+			result.put(key, parseValue(readByte()));
 		}
 		return result;
+	}
+	
+	
+	private byte readByte() throws IOException {
+		int result = input.read();
+		if (result == -1)
+			throw new EOFException();
+		return (byte)result;
 	}
 	
 	

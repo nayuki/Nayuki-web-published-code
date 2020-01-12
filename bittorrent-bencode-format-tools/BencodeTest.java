@@ -1,7 +1,7 @@
 /* 
  * BitTorrent bencode coder test suite (Java)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -111,6 +111,22 @@ public final class BencodeTest {
 	
 	/*---- Test the parsing ----*/
 	
+	@Test(expected=EOFException.class)
+	public void testParseEmpty() throws IOException {
+		tryParse("");
+	}
+	
+	
+	@Test public void testParseInvalid() {
+		String[] CASES = {
+			"i0ei1e",
+			"1:a2:bc3:def",
+			"le0:de",
+		};
+		parseExpectingException(CASES, IllegalArgumentException.class);
+	}
+	
+	
 	@Test public void testParseInteger() {
 		checkParse(0L, "i0e");
 		checkParse(11L, "i11e");
@@ -120,7 +136,7 @@ public final class BencodeTest {
 	}
 	
 	
-	@Test public void testParseIntegerEof() throws IOException {
+	@Test public void testParseIntegerEof() {
 		String[] CASES = {
 			"i",
 			"i0",
@@ -131,7 +147,7 @@ public final class BencodeTest {
 	}
 	
 	
-	@Test public void testParseIntegerInvalid() throws IOException {
+	@Test public void testParseIntegerInvalid() {
 		String[] CASES = {
 			"ie",
 			"i00",
@@ -142,6 +158,7 @@ public final class BencodeTest {
 			"i-0",
 			"i-0e",
 			"i-026e",
+			"i-B",
 			"iA",
 			"iAe",
 			"i01Ce",
@@ -160,7 +177,7 @@ public final class BencodeTest {
 	}
 	
 	
-	@Test public void testParseByteStringEof() throws IOException {
+	@Test public void testParseByteStringEof() {
 		String[] CASES = {
 			"0",
 			"1",
@@ -175,7 +192,7 @@ public final class BencodeTest {
 	}
 	
 	
-	@Test public void testParseByteStringInvalid() throws IOException {
+	@Test public void testParseByteStringInvalid() {
 		String[] CASES = {
 			"00",
 			"01",
@@ -197,7 +214,7 @@ public final class BencodeTest {
 	}
 	
 	
-	@Test public void testParseListEof() throws IOException {
+	@Test public void testParseListEof() {
 		String[] CASES = {
 			"l",
 			"li0e",
@@ -223,7 +240,7 @@ public final class BencodeTest {
 	}
 	
 	
-	@Test public void testParseDictionaryEof() throws IOException {
+	@Test public void testParseDictionaryEof() {
 		String[] CASES = {
 			"d",
 			"d1::",
@@ -234,8 +251,10 @@ public final class BencodeTest {
 	}
 	
 	
-	@Test public void testParseDictionaryInvalid() throws IOException {
+	@Test public void testParseDictionaryInvalid() {
 		String[] CASES = {
+			"d:",
+			"d-",
 			"d1:A0:1:A1:.",
 			"d1:B0:1:A1:.",
 			"d1:B0:1:D0:1:C0:",
