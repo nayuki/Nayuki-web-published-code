@@ -1,7 +1,7 @@
 /* 
  * B-tree set test (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -160,7 +160,7 @@ fn test_remove_all_randomly() {
 		set1.check_structure();
 		
 		// Remove each value in random order
-		let mut list: Vec<i32> = set0.iter().copied().collect();
+		let mut list: Vec<i32> = set0.iter().cloned().collect();
 		rng.shuffle(&mut list);
 		for val in list {
 			assert_eq!(set0.remove(&val), set1.remove(&val));
@@ -195,15 +195,15 @@ fn test_iterator_randomly() {
 			let val: i32 = valuedist.ind_sample(rng);
 			assert_eq!(set0.insert(val), set1.insert(val));
 		}
-		assert_eq!(set0, set1.into_iter().copied().collect::<HashSet<i32>>());
+		assert_eq!(set0, set1.into_iter().cloned().collect::<HashSet<i32>>());
 		
 		// Remove a random subset
-		let mut list: Vec<i32> = set1.into_iter().copied().collect();
+		let mut list: Vec<i32> = set1.into_iter().cloned().collect();
 		rng.shuffle(&mut list);
 		let numremove = Range::new(0usize, list.len() + 1).ind_sample(rng);
 		for val in &list[ .. numremove] {
 			assert_eq!(set0.remove(val), set1.remove(val));
 		}
-		assert_eq!(set0, set1.into_iter().copied().collect::<HashSet<i32>>());
+		assert_eq!(set0, set1.into_iter().cloned().collect::<HashSet<i32>>());
 	}
 }

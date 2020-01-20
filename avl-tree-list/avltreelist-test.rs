@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -267,7 +267,7 @@ fn test_remove() {
 	
 	let s = "thick broom or they do";
 	assert_eq!(list.len(), s.len());
-	for (i, c) in (0usize .. ).zip(s.chars()) {
+	for (i, c) in s.chars().enumerate() {
 		assert_eq!(list[i], c);
 	}
 	
@@ -288,7 +288,7 @@ fn test_remove() {
 	assert_eq!(list.remove(6), 'y');
 	
 	let s = "him red";
-	for (i, c) in (0usize .. ).zip(s.chars()) {
+	for (i, c) in s.chars().enumerate() {
 		assert_eq!(list[i], c);
 	}
 }
@@ -321,7 +321,7 @@ fn test_iterator() {
 	
 	let mut iter = list.into_iter();
 	for i in 0 .. 50 {
-		assert_eq!(*iter.next().unwrap(), i * i);
+		assert_eq!(iter.next().cloned(), Some(i * i));
 	}
 	assert_eq!(iter.next(), None);
 }

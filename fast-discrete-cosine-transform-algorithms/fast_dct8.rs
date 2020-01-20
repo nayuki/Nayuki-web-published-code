@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,13 +25,12 @@ use std;
 
 
 /* 
- * Computes the scaled DCT type II on the specified length-8 array in place.
+ * Computes the scaled DCT type II on the given length-8 array in place.
  * The inverse of this function is inverse_transform(), except for rounding errors.
  */
-pub fn transform(vector: &mut [f64]) {
+pub fn transform(vector: &mut [f64; 8]) {
 	// Algorithm by Arai, Agui, Nakajima, 1988. For details, see:
 	// https://web.stanford.edu/class/ee398a/handouts/lectures/07-TransformCoding.pdf#page=30
-	assert_eq!(vector.len(), 8);
 	let v0 = vector[0] + vector[7];
 	let v1 = vector[1] + vector[6];
 	let v2 = vector[2] + vector[5];
@@ -79,12 +78,11 @@ pub fn transform(vector: &mut [f64]) {
 
 
 /* 
- * Computes the scaled DCT type III on the specified length-8 array in place.
- * The inverse of this function is {@link #transform}, except for rounding errors.
+ * Computes the scaled DCT type III on the given length-8 array in place.
+ * The inverse of this function is transform(), except for rounding errors.
  */
-pub fn inverse_transform(vector: &mut [f64]) {
+pub fn inverse_transform(vector: &mut [f64; 8]) {
 	// A straightforward inverse of the forward algorithm
-	assert_eq!(vector.len(), 8);
 	let v15 = vector[0] / S[0];
 	let v26 = vector[1] / S[1];
 	let v21 = vector[2] / S[2];

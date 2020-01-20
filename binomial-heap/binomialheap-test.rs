@@ -143,9 +143,7 @@ fn test_against_rust_binary_heap_randomly() {
 			
 		} else if op < 2 {  // Peek
 			heap.check_structure();
-			if size > 0 {
-				assert_eq!(-*queue.peek().unwrap(), *heap.peek().unwrap());
-			}
+			assert_eq!(queue.peek().map(|x| -x), heap.peek().cloned());
 			
 		} else if op < 70 {  // Enqueue/merge
 			let merge = !(op < 60);

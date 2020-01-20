@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max test (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -79,9 +79,9 @@ fn test_incremental() {
 			}
 			assert!(start <= end);
 			if start < end {
-				let range = &array[start .. end];
-				assert_eq!(*swm.get_minimum(), *range.iter().min().unwrap());
-				assert_eq!(*swm.get_maximum(), *range.iter().max().unwrap());
+				let subarr = &array[start .. end];
+				assert_eq!(*swm.get_minimum(), *subarr.iter().min().unwrap());
+				assert_eq!(*swm.get_maximum(), *subarr.iter().max().unwrap());
 			}
 		}
 	}
@@ -90,9 +90,8 @@ fn test_incremental() {
 
 fn compute_sliding_window_min_or_max_naive<E: std::cmp::Ord + Clone>(array: &[E], window: usize, maximize: bool) -> Vec<E> {
 	assert!(window > 0, "Window size must be positive");
-	let end: usize = if array.len() < window {0} else {array.len() - (window - 1)};
-	(0 .. end).map(|i| {
-		let iter = array[i .. i + window].iter();
+	array.windows(window).map(|subarr| {
+		let iter = subarr.iter();
 		(if maximize { iter.max() } else { iter.min() }).unwrap().clone()
 	}).collect()
 }

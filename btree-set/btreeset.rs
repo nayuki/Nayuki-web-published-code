@@ -362,7 +362,7 @@ impl<E: std::cmp::Ord> Node<E> {
 		loop {
 			assert!(node.keys.len() > minkeys);
 			if node.is_leaf() {
-				return node.keys.remove(0)
+				return node.keys.remove(0);
 			} else {
 				node = {node}.ensure_child_remove(minkeys, 0);
 			}
@@ -418,8 +418,7 @@ impl<E: std::cmp::Ord> Node<E> {
 			for (i, child) in self.children.iter().enumerate() {
 				let temp = child.check_structure(
 					minkeys, maxkeys, false, leafdepth - 1,
-					if i == 0 { min } else { Some(&self.keys[i - 1]) },
-					if i == numkeys { max } else { Some(&self.keys[i]) });
+					self.keys.get(i - 1).or(min), self.keys.get(i).or(max));
 				count = count.checked_add(temp).unwrap();
 			}
 		}
@@ -466,10 +465,10 @@ impl<'a, E: std::cmp::Ord> Iter<'a, E> {
 	fn push_left_path(&mut self, mut node: &'a Node<E>) {
 		loop {
 			self.stack.push((node, 0));
-			if node.is_leaf() {
-				break;
+			match node.children.first() {
+				None => break,  // node.is_leaf() == true
+				Some(nd) => node = nd,
 			}
-			node = node.children.first().unwrap();
 		}
 	}
 	
