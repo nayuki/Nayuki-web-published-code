@@ -52,7 +52,7 @@ impl<E: std::cmp::Ord> BinomialHeap<E> {
 		let mut result: usize = 0;
 		let mut node: &MaybeNode<E> = &self.head;
 		while let Some(ref nd) = *node {
-			result |= 1 << nd.rank;
+			result |= 1usize.checked_shl(u32::from(nd.rank)).unwrap();
 			node = &nd.next;
 		}
 		result
@@ -111,8 +111,7 @@ impl<E: std::cmp::Ord> BinomialHeap<E> {
 	
 	// Moves all the values in the given heap into this heap
 	pub fn merge(&mut self, other: &mut Self) {
-		let othernodes = other.head.take();
-		self.merge_nodes(othernodes);
+		self.merge_nodes(other.head.take());
 	}
 	
 	
@@ -202,11 +201,10 @@ impl<E: std::cmp::Ord> Node<E> {
 	
 	fn remove_root(&mut self) -> MaybeNode<E> {
 		assert!(self.next.is_none());
-		let temp = self.down.take();
-		reverse_nodes(temp)
+		reverse_nodes(self.down.take())
 	}
-		
-		
+	
+	
 	// For unit tests
 	fn check_structure(&self, ismain: bool, lowerbound: Option<&E>) {
 		// Basic checks
