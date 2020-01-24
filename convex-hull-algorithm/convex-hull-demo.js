@@ -1,7 +1,7 @@
 /* 
  * Convex hull algorithm - Demo (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -129,7 +129,7 @@ var staticDemo = new function() {
 	};
 	
 	this.stop = function() {
-		if (timeout != null) {
+		if (timeout !== null) {
 			clearTimeout(timeout);
 			timeout = null;
 		}
@@ -180,7 +180,7 @@ var movingDemo = new function() {
 	
 	this.stop = function() {
 		prevTime = null;
-		if (timeout != null) {
+		if (timeout !== null) {
 			cancelAnimationFrame(timeout);
 			timeout = null;
 		}
@@ -189,9 +189,9 @@ var movingDemo = new function() {
 
 
 function showPointsAndHull() {
-	while (offHullGroupElem.firstChild != null)
+	while (offHullGroupElem.firstChild !== null)
 		offHullGroupElem.removeChild(offHullGroupElem.firstChild);
-	while (onHullGroupElem.firstChild != null)
+	while (onHullGroupElem.firstChild !== null)
 		onHullGroupElem.removeChild(onHullGroupElem.firstChild);
 	
 	var hull = convexhull.makeHull(points);

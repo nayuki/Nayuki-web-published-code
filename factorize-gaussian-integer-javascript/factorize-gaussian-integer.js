@@ -1,7 +1,7 @@
 /*
  * Factorize Gaussian integer (compiled from TypeScript)
  *
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
@@ -15,7 +15,7 @@ var app;
         if (ev !== null)
             ev.preventDefault();
         var outElem = document.getElementById("factorization");
-        while (outElem.firstChild != null)
+        while (outElem.firstChild !== null)
             outElem.removeChild(outElem.firstChild);
         var input = document.getElementById("number").value;
         if (/^\s*$/.test(input)) { // Blank input

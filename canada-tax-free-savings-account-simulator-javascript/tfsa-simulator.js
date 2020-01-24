@@ -243,7 +243,7 @@ function setText(elementName, text) {
 
 
 function clearChildren(node) {
-	while (node.firstChild != null)
+	while (node.firstChild !== null)
 		node.removeChild(node.firstChild);
 }
 

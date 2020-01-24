@@ -1,7 +1,7 @@
 /* 
  * Image unshredder demo (JavaScript)
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -76,7 +76,7 @@ function initialize() {
 	annealButton .onclick = startAnneal;
 	stopButton   .onclick = doStop;
 	
-	while (imageSelectElem.firstChild != null)
+	while (imageSelectElem.firstChild !== null)
 		imageSelectElem.removeChild(imageSelectElem.firstChild);
 	IMAGE_LIST.forEach(function(entry) {
 		var option = imageSelectElem.appendChild(document.createElement("option"));
@@ -163,7 +163,7 @@ function startAnneal() {
 
 function doAnnealPrecompute() {
 	var startTime = Date.now();
-	if (columnDiffs == null) {
+	if (columnDiffs === null) {
 		columnDiffs = [];
 		curIterationsElem.textContent = "Precomputing...";
 	}

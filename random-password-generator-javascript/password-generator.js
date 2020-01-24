@@ -1,7 +1,7 @@
 /* 
  * Random password generator (JavaScript)
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/random-password-generator-javascript
  */
@@ -217,7 +217,7 @@ function randomIntMathRandom(n) {
 
 // Uses a secure, unpredictable random number generator if available; otherwise returns 0.
 function randomIntBrowserCrypto(n) {
-	if (cryptoObject == null)
+	if (cryptoObject === null)
 		return 0;
 	// Generate an unbiased sample
 	var x = new Uint32Array(1);

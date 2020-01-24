@@ -1,7 +1,7 @@
 /* 
  * Chemical equation balancer
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
@@ -21,9 +21,9 @@ function doBalance(): void {
 	const balancedElem = document.getElementById("balanced") as HTMLElement;
 	const codeOutElem  = document.getElementById("codeOutput") as HTMLElement;
 	msgElem.textContent = "";
-	while (balancedElem.firstChild != null)
+	while (balancedElem.firstChild !== null)
 		balancedElem.removeChild(balancedElem.firstChild);
-	while (codeOutElem.firstChild != null)
+	while (codeOutElem.firstChild !== null)
 		codeOutElem.removeChild(codeOutElem.firstChild);
 	codeOutElem.textContent = " ";
 	
@@ -151,7 +151,7 @@ class Parser {
 		let rhs: Array<Term> = [this.parseTerm()];
 		while (true) {
 			const next: string|null = this.tok.peek();
-			if (next == null)
+			if (next === null)
 				break;
 			else if (next == "+") {
 				this.tok.consume(next);
@@ -178,9 +178,9 @@ class Parser {
 			else if (next == "e") {
 				this.tok.consume(next);
 				electron = true;
-			} else if (next != null && /^[A-Z][a-z]*$/.test(next))
+			} else if (next !== null && /^[A-Z][a-z]*$/.test(next))
 				items.push(this.parseElement());
-			else if (next != null && /^[0-9]+$/.test(next))
+			else if (next !== null && /^[0-9]+$/.test(next))
 				throw {message: "Invalid term - number not expected", start: this.tok.pos};
 			else
 				break;
@@ -191,7 +191,7 @@ class Parser {
 		if (next == "^") {
 			this.tok.consume(next);
 			next = this.tok.peek();
-			if (next == null)
+			if (next === null)
 				throw {message: "Number or sign expected", start: this.tok.pos};
 			else {
 				charge = this.parseOptionalNumber();
@@ -211,14 +211,14 @@ class Parser {
 		if (electron) {
 			if (items.length > 0)
 				throw {message: "Invalid term - electron needs to stand alone", start: startPos, end: this.tok.pos};
-			if (charge == null)  // Allow omitting the charge
+			if (charge === null)  // Allow omitting the charge
 				charge = -1;
 			if (charge != -1)
 				throw {message: "Invalid term - invalid charge for electron", start: startPos, end: this.tok.pos};
 		} else {
 			if (items.length == 0)
 				throw {message: "Invalid term - empty", start: startPos, end: this.tok.pos};
-			if (charge == null)
+			if (charge === null)
 				charge = 0;
 		}
 		return new Term(items, charge);
@@ -234,7 +234,7 @@ class Parser {
 			const next: string|null = this.tok.peek();
 			if (next == "(")
 				items.push(this.parseGroup());
-			else if (next != null && /^[A-Z][a-z]*$/.test(next))
+			else if (next !== null && /^[A-Z][a-z]*$/.test(next))
 				items.push(this.parseElement());
 			else if (next == ")") {
 				this.tok.consume(next);
@@ -260,7 +260,7 @@ class Parser {
 	// Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
 	private parseOptionalNumber(): number {
 		const next: string|null = this.tok.peek();
-		if (next != null && /^[0-9]+$/.test(next))
+		if (next !== null && /^[0-9]+$/.test(next))
 			return checkedParseInt(this.tok.take());
 		else
 			return 1;
@@ -285,7 +285,7 @@ class Tokenizer {
 		if (this.pos == this.str.length)  // End of stream
 			return null;
 		const match: RegExpExecArray|null = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.pos));
-		if (match == null)
+		if (match === null)
 			throw {message: "Invalid symbol", start: this.pos};
 		return match[0];
 	}
@@ -293,7 +293,7 @@ class Tokenizer {
 	// Returns the next token as a string and advances this tokenizer past the token.
 	public take(): string {
 		const result = this.peek();
-		if (result == null)
+		if (result === null)
 			throw "Advancing beyond last token";
 		this.pos += result.length;
 		this.skipSpaces();

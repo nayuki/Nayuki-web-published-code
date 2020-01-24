@@ -1,7 +1,7 @@
 /* 
  * Symmetry sketcher
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/symmetry-sketcher-javascript
  */
@@ -201,7 +201,7 @@ canvasElem.onmousemove = function(ev) {
 	var coord = getLocalCoordinates(ev);
 	if (isMouseDown) {
 		drawPoint(baseGfx, coord[0], coord[1]);
-		if (lastCoord != null)
+		if (lastCoord !== null)
 			drawLine(baseGfx, coord[0], coord[1], lastCoord[0], lastCoord[1]);
 		redrawGuideCanvas();
 		lastCoord = coord;
@@ -355,7 +355,7 @@ function setAndCallHandler(elemName, eventName, func) {
 
 function element(name) {
 	var result = document.getElementById(name);
-	if (result == null)
+	if (result === null)
 		throw "Element ID not found: " + name;
 	return result;
 }

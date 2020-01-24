@@ -1,7 +1,7 @@
 /* 
  * Master theorem solver (JavaScript)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/master-theorem-solver
  */
@@ -67,7 +67,7 @@ function calc() {
 			result += formatPolyLog("\\log_{" + b + "} " + a, 0) + ") \\approx \u0398(" + formatPolyLog(p.toFixed(3), 0);
 	} else
 		result = null;
-	if (result != null)
+	if (result !== null)
 		result += ").\\)";
 	else
 		result = "Arithmetic error";
@@ -133,7 +133,7 @@ function formatPolyLog(k, i) {
 		else
 			k = k.toString();
 	}
-	if (result != null);
+	if (result !== null);
 	else if (typeof k == "string")
 		result = "n^{" + k + "}";
 	else

@@ -1,7 +1,7 @@
 /*
  * Animated floating graph nodes (compiled from TypeScript)
  *
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
@@ -12,7 +12,7 @@ var __extends = (this && this.__extends) || (function () {
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
         return extendStatics(d, b);
-    }
+    };
     return function (d, b) {
         extendStatics(d, b);
         function __() { this.constructor = d; }
@@ -272,7 +272,7 @@ var app;
             var svg = this.svgElem;
             // Clear movable objects
             var gElem = svg.querySelector("g");
-            while (gElem.firstChild != null)
+            while (gElem.firstChild !== null)
                 gElem.removeChild(gElem.firstChild);
             function createSvgElem(tag, attribs) {
                 var result = document.createElementNS(svg.namespaceURI, tag);

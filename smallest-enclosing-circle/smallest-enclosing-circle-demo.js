@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Demo (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -129,7 +129,7 @@ var staticDemo = new function() {
 	};
 	
 	this.stop = function() {
-		if (timeout != null) {
+		if (timeout !== null) {
 			clearTimeout(timeout);
 			timeout = null;
 		}
@@ -180,7 +180,7 @@ var movingDemo = new function() {
 	
 	this.stop = function() {
 		prevTime = null;
-		if (timeout != null) {
+		if (timeout !== null) {
 			cancelAnimationFrame(timeout);
 			timeout = null;
 		}
@@ -189,13 +189,13 @@ var movingDemo = new function() {
 
 
 function showPointsAndCircle() {
-	while (offCircleGroupElem.firstChild != null)
+	while (offCircleGroupElem.firstChild !== null)
 		offCircleGroupElem.removeChild(offCircleGroupElem.firstChild);
-	while (onCircleGroupElem.firstChild != null)
+	while (onCircleGroupElem.firstChild !== null)
 		onCircleGroupElem.removeChild(onCircleGroupElem.firstChild);
 	
 	var circle = makeCircle(points);
-	if (circle == null) {
+	if (circle === null) {
 		circleElem.setAttribute("r", 0);
 		return;
 	}

@@ -1,7 +1,7 @@
 /* 
  * Automatic Caesar cipher breaker
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/automatic-caesar-cipher-breaker-javascript
  */
@@ -131,7 +131,7 @@ function decrypt(str, key) {
 /* Utilities */
 
 function clearChildren(node) {
-	while (node.firstChild != null)
+	while (node.firstChild !== null)
 		node.removeChild(node.firstChild);
 }
 

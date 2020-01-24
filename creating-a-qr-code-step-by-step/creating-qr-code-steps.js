@@ -1,7 +1,7 @@
 /*
  * Creating a QR Code step by step (compiled from TypeScript)
  *
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
@@ -1500,7 +1500,7 @@ var app;
             elem = queryElem(elemOrQuery);
         else
             elem = elemOrQuery;
-        while (elem.firstChild != null)
+        while (elem.firstChild !== null)
             elem.removeChild(elem.firstChild);
         return elem;
     }

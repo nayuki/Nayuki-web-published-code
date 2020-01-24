@@ -1,7 +1,7 @@
 /* 
  * Band-limited square waves (JavaScript)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/band-limited-square-waves
  */
@@ -25,7 +25,7 @@ var state = null;
 
 // Reads HTML form elements and updates the 'state' object.
 function updateWaveParams() {
-	if (state == null)
+	if (state === null)
 		return;
 	
 	var elems = document.querySelectorAll("input[type=radio][name=wave-type]");
@@ -49,7 +49,7 @@ function updateWaveParams() {
 
 // Starts or stops the wave playback.
 function toggleWave() {
-	if (state == null) {  // Start playing
+	if (state === null) {  // Start playing
 		state = {
 			phase: 0,
 			// Workaround: Mozilla Firefox needs a bit of delay to ensure seamless playback; Google Chrome doesn't.
@@ -73,7 +73,7 @@ function toggleWave() {
 
 // Note: This updates the state variables phase, src0, src1.
 function renderNext() {
-	if (state == null)
+	if (state === null)
 		throw "Illegal state";
 	var buf = audioContext.createBuffer(1, Math.floor(SAMPLE_RATE / 4), SAMPLE_RATE);
 	var data = buf.getChannelData(0);
@@ -158,7 +158,7 @@ function frequencyNumberChanged() {
 function updateNumHarmonics() {
 	var freq = parseFloat(document.getElementById("frequency-number").value);
 	var elem = document.getElementById("num-harmonics");
-	while (elem.firstChild != null)
+	while (elem.firstChild !== null)
 		elem.removeChild(elem.firstChild);
 	var text = "floor(" + (SAMPLE_RATE / 2) + " / " + freq.toFixed(3) + ") = " + Math.floor((SAMPLE_RATE / 2) / freq);
 	elem.textContent = text;

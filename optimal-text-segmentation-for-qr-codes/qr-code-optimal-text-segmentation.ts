@@ -1,7 +1,7 @@
 /* 
  * Optimal text segmentation for QR Codes
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/optimal-text-segmentation-for-qr-codes
  */
@@ -78,9 +78,9 @@ namespace app {
 		// Clear container elements
 		const textOut = getElem("text-split");
 		const tableOut = document.querySelector("#segment-details tbody") as HTMLElement;
-		while (textOut.firstChild != null)
+		while (textOut.firstChild !== null)
 			textOut.removeChild(textOut.firstChild);
-		while (tableOut.firstChild != null)
+		while (tableOut.firstChild !== null)
 			tableOut.removeChild(tableOut.firstChild);
 		
 		// Process the optimal segmentation algorithm
@@ -135,7 +135,7 @@ namespace app {
 	
 	export function revealElement(link: HTMLElement, targetId: string): boolean {
 		let linkParent = link.parentNode as HTMLElement;
-		while (link.firstChild != null)
+		while (link.firstChild !== null)
 			linkParent.appendChild(link.firstChild);
 		linkParent.removeChild(link);
 		
@@ -272,7 +272,7 @@ namespace app {
 			modeTypes.forEach((_, j) => {  // To mode
 				modeTypes.forEach((fromMode, k) => {  // From mode
 					const newCost = Math.ceil(curCosts[k] / 6) * 6 + headCosts[j];
-					if (cModes[k] != null && newCost < curCosts[j]) {
+					if (cModes[k] !== null && newCost < curCosts[j]) {
 						curCosts[j] = newCost;
 						cModes[j] = fromMode;
 					}

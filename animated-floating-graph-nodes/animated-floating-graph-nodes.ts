@@ -1,7 +1,7 @@
 /* 
  * Animated floating graph nodes
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
@@ -292,7 +292,7 @@ namespace app {
 			
 			// Clear movable objects
 			let gElem = svg.querySelector("g") as Element;
-			while (gElem.firstChild != null)
+			while (gElem.firstChild !== null)
 				gElem.removeChild(gElem.firstChild);
 			
 			function createSvgElem(tag: string, attribs: any): Element {

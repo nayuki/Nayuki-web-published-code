@@ -1,7 +1,7 @@
 /* 
  * Propositional sequent calculus prover
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
@@ -13,7 +13,7 @@ function doProve(inputSequent: string): void {
 	(document.getElementById("inputSequent") as HTMLInputElement).value = inputSequent;
 	
 	function clearChildren(node: HTMLElement): void {
-		while (node.firstChild != null)
+		while (node.firstChild !== null)
 			node.removeChild(node.firstChild);
 	}
 	let msgElem     = document.getElementById("message"   ) as HTMLElement;
@@ -285,7 +285,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 		if (next == TURNSTILE) {
 			tok.consume(next);
 			break;
-		} else if (next == null)
+		} else if (next === null)
 			throw {message: "Comma or turnstile expected", position: tok.pos};
 		else {
 			if (expectComma) {
@@ -293,7 +293,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 					tok.consume(next);
 				else
 					throw {message: "Comma expected", position: tok.pos};
-				if (tok.peek() == null)
+				if (tok.peek() === null)
 					throw {message: "Term expected", position: tok.pos};
 			} else {
 				if (tok.peek() != ",")
@@ -302,7 +302,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 					throw {message: "Term or turnstile expected", position: tok.pos};
 			}
 			const term: Term|null = parseTerm(tok);
-			if (term != null)
+			if (term !== null)
 				lhs.push(term);
 		}
 	}
@@ -311,7 +311,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 	let rhs: Array<Term> = [];
 	for (let expectComma = false; ; ) {
 		const next: string|null = tok.peek();
-		if (next == null)
+		if (next === null)
 			break;
 		else if (next == TURNSTILE)
 			throw {message: "Turnstile not expected", position: tok.pos};
@@ -321,7 +321,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 					tok.consume(next);
 				else
 					throw {message: "Comma expected", position: tok.pos};
-				if (tok.peek() == null)
+				if (tok.peek() === null)
 					throw {message: "Term expected", position: tok.pos};
 			} else {
 				if (tok.peek() != ",")
@@ -330,7 +330,7 @@ function parseSequent(tok: Tokenizer): Sequent {
 					throw {message: "Term or end expected", position: tok.pos};
 			}
 			const term: Term|null = parseTerm(tok);
-			if (term != null)
+			if (term !== null)
 				rhs.push(term);
 		}
 	}
@@ -390,7 +390,7 @@ function parseTerm(tok: Tokenizer): Term|null {
 	
 	while (true) {
 		const next: string|null = tok.peek();
-		if (next == null || next == TURNSTILE || next == ",")
+		if (next === null || next == TURNSTILE || next == ",")
 			break;
 		
 		else if (/^[A-Za-z][A-Za-z0-9]*$/.test(next)) {  // Variable
@@ -456,7 +456,7 @@ class Tokenizer {
 			return null;
 		
 		const match: RegExpExecArray|null = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.pos));
-		if (match == null)
+		if (match === null)
 			throw {message: "Invalid symbol", position: this.pos};
 		
 		// Normalize notation
@@ -471,7 +471,7 @@ class Tokenizer {
 	// Returns the next token as a string and advances this tokenizer past the token.
 	public take(): string {
 		const result: string|null = this.peek();
-		if (result == null)
+		if (result === null)
 			throw "Advancing beyond last token";
 		this.pos += result.length;
 		this.skipSpaces();

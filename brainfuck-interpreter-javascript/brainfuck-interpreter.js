@@ -1,7 +1,7 @@
 /* 
  * Brainfuck interpreter
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/brainfuck-interpreter-javascript
  */
@@ -18,7 +18,7 @@ var pauseButton = document.getElementById("pause");
 /*---- Entry points from the HTML code ----*/
 
 function doLoad() {
-	if (instance != null) {
+	if (instance !== null) {
 		instance.pause();
 		instance = null;
 	}
@@ -38,13 +38,13 @@ function demo(s) {
 
 
 function doStep() {
-	if (instance != null)
+	if (instance !== null)
 		instance.step();
 }
 
 
 function doRun() {
-	if (instance != null) {
+	if (instance !== null) {
 		stepButton.disabled = true;
 		runButton.disabled = true;
 		pauseButton.disabled = false;
@@ -54,7 +54,7 @@ function doRun() {
 
 
 function doPause() {
-	if (instance != null) {
+	if (instance !== null) {
 		instance.pause();
 		stepButton.disabled = false;
 		runButton.disabled = false;
@@ -103,12 +103,12 @@ function Brainfuck(code) {
 	// Public controls
 	
 	this.run = function() {
-		if (!isHalted() && timeout == null)
+		if (!isHalted() && timeout === null)
 			run(1);
 	};
 	
 	this.step = function() {
-		if (!isHalted() && timeout == null) {
+		if (!isHalted() && timeout === null) {
 			step();
 			showState();
 			if (isHalted()) {
@@ -119,7 +119,7 @@ function Brainfuck(code) {
 	};
 	
 	this.pause = function() {
-		if (timeout != null) {
+		if (timeout !== null) {
 			clearTimeout(timeout);
 			timeout = null;
 			showState();
@@ -142,7 +142,7 @@ function Brainfuck(code) {
 		} else {
 			if (outputChanged)
 				showOutput();
-			if (lastStepsUpdate == null || Date.now() - lastStepsUpdate >= 100) {
+			if (lastStepsUpdate === null || Date.now() - lastStepsUpdate >= 100) {
 				showSteps();
 				lastStepsUpdate = Date.now();
 			}

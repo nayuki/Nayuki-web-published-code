@@ -1,7 +1,7 @@
 /* 
  * Triangle solver
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/triangle-solver-javascript
  */
@@ -60,8 +60,8 @@ function solve() {
 
 // Given some sides and angles, this returns a tuple of 8 number/string values.
 function solveTriangle(a, b, c, A, B, C) {
-	var sides  = (a != null) + (b != null) + (c != null);  // Boolean to integer conversion
-	var angles = (A != null) + (B != null) + (C != null);  // Boolean to integer conversion
+	var sides  = (a !== null) + (b !== null) + (c !== null);  // Boolean to integer conversion
+	var angles = (A !== null) + (B !== null) + (C !== null);  // Boolean to integer conversion
 	var area, status;
 	
 	if (sides + angles != 3)
@@ -83,9 +83,9 @@ function solveTriangle(a, b, c, A, B, C) {
 	} else if (angles == 2) {
 		status = "Angle side angle (ASA) case";
 		// Find missing angle
-		if (A == null) A = 180 - B - C;
-		if (B == null) B = 180 - C - A;
-		if (C == null) C = 180 - A - B;
+		if (A === null) A = 180 - B - C;
+		if (B === null) B = 180 - C - A;
+		if (C === null) C = 180 - A - B;
 		if (A <= 0 || B <= 0 || C <= 0)
 			throw status + " - No solution";
 		var sinA = Math.sin(degToRad(A));
@@ -93,36 +93,36 @@ function solveTriangle(a, b, c, A, B, C) {
 		var sinC = Math.sin(degToRad(C));
 		// Use law of sines to find sides
 		var ratio;  // side / sin(angle)
-		if (a != null) { ratio = a / sinA; area = a * ratio * sinB * sinC / 2; }
-		if (b != null) { ratio = b / sinB; area = b * ratio * sinC * sinA / 2; }
-		if (c != null) { ratio = c / sinC; area = c * ratio * sinA * sinB / 2; }
-		if (a == null) a = ratio * sinA;
-		if (b == null) b = ratio * sinB;
-		if (c == null) c = ratio * sinC;
+		if (a !== null) { ratio = a / sinA; area = a * ratio * sinB * sinC / 2; }
+		if (b !== null) { ratio = b / sinB; area = b * ratio * sinC * sinA / 2; }
+		if (c !== null) { ratio = c / sinC; area = c * ratio * sinA * sinB / 2; }
+		if (a === null) a = ratio * sinA;
+		if (b === null) b = ratio * sinB;
+		if (c === null) c = ratio * sinC;
 		
-	} else if (A != null && a == null || B != null && b == null || C != null && c == null) {
+	} else if (A !== null && a === null || B !== null && b === null || C !== null && c === null) {
 		status = "Side angle side (SAS) case";
-		if (A != null && A >= 180 || B != null && B >= 180 || C != null && C >= 180)
+		if (A !== null && A >= 180 || B !== null && B >= 180 || C !== null && C >= 180)
 			throw status + " - No solution";
-		if (a == null) a = solveSide(b, c, A);
-		if (b == null) b = solveSide(c, a, B);
-		if (c == null) c = solveSide(a, b, C);
-		if (A == null) A = solveAngle(b, c, a);
-		if (B == null) B = solveAngle(c, a, b);
-		if (C == null) C = solveAngle(a, b, c);
-		if (A != null) area = b * c * Math.sin(degToRad(A)) / 2;
-		if (B != null) area = c * a * Math.sin(degToRad(B)) / 2;
-		if (C != null) area = a * b * Math.sin(degToRad(C)) / 2;
+		if (a === null) a = solveSide(b, c, A);
+		if (b === null) b = solveSide(c, a, B);
+		if (c === null) c = solveSide(a, b, C);
+		if (A === null) A = solveAngle(b, c, a);
+		if (B === null) B = solveAngle(c, a, b);
+		if (C === null) C = solveAngle(a, b, c);
+		if (A !== null) area = b * c * Math.sin(degToRad(A)) / 2;
+		if (B !== null) area = c * a * Math.sin(degToRad(B)) / 2;
+		if (C !== null) area = a * b * Math.sin(degToRad(C)) / 2;
 		
 	} else {
 		status = "Side side angle (SSA) case - ";
 		var knownSide, knownAngle, partialSide;
-		if (a != null && A != null) { knownSide = a; knownAngle = A; }
-		if (b != null && B != null) { knownSide = b; knownAngle = B; }
-		if (c != null && C != null) { knownSide = c; knownAngle = C; }
-		if (a != null && A == null) partialSide = a;
-		if (b != null && B == null) partialSide = b;
-		if (c != null && C == null) partialSide = c;
+		if (a !== null && A !== null) { knownSide = a; knownAngle = A; }
+		if (b !== null && B !== null) { knownSide = b; knownAngle = B; }
+		if (c !== null && C !== null) { knownSide = c; knownAngle = C; }
+		if (a !== null && A === null) partialSide = a;
+		if (b !== null && B === null) partialSide = b;
+		if (c !== null && C === null) partialSide = c;
 		if (knownAngle >= 180)
 			throw status + "No solution";
 		var ratio = knownSide / Math.sin(degToRad(knownAngle));
@@ -150,12 +150,12 @@ function solveTriangle(a, b, c, A, B, C) {
 			area = [knownSide * partialSide * Math.sin(degToRad(unknownAngle0)) / 2,
 			        knownSide * partialSide * Math.sin(degToRad(unknownAngle1)) / 2];
 		}
-		if (a != null && A == null) A = partialAngle;
-		if (b != null && B == null) B = partialAngle;
-		if (c != null && C == null) C = partialAngle;
-		if (a == null && A == null) { a = unknownSide; A = unknownAngle; }
-		if (b == null && B == null) { b = unknownSide; B = unknownAngle; }
-		if (c == null && C == null) { c = unknownSide; C = unknownAngle; }
+		if (a !== null && A === null) A = partialAngle;
+		if (b !== null && B === null) B = partialAngle;
+		if (c !== null && C === null) C = partialAngle;
+		if (a === null && A === null) { a = unknownSide; A = unknownAngle; }
+		if (b === null && B === null) { b = unknownSide; B = unknownAngle; }
+		if (c === null && C === null) { c = unknownSide; C = unknownAngle; }
 	}
 	
 	return [a, b, c, A, B, C, area, status];
@@ -247,7 +247,7 @@ function initImageMap() {
 		elem.style.height = RECT_PADDED_SIZE + "px";
 		
 		elem.onmouseover = function() {
-			if (solution == null)
+			if (solution === null)
 				return;
 			
 			var suffix = i >= 3 && i < 6 ? DEGREE : "";
@@ -298,7 +298,7 @@ function setElementText(nodeId, str) {
 
 function parsePixels(str) {
 	var match = /^(\d+(?:\.\d*)?)px$/.exec(str);
-	if (match != null)
+	if (match !== null)
 		return parseFloat(match[1]);
 	else
 		throw "Invalid unit";

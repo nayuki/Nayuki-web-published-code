@@ -1,7 +1,7 @@
 /* 
  * Calculate prime factorization
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-prime-factorization-javascript
  */
@@ -142,7 +142,7 @@ function toFactorPowerList(factors) {
 
 
 function clearChildren(node) {
-	while (node.firstChild != null)
+	while (node.firstChild !== null)
 		node.removeChild(node.firstChild);
 }
 

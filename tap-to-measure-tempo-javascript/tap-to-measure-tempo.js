@@ -1,7 +1,7 @@
 /* 
  * Tap to measure tempo
  * 
- * Copyright (c) 2015 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/tap-to-measure-tempo-javascript
  */
@@ -40,7 +40,7 @@ function doBeat() {
 
 function countBeat(currTime) {
 	// Coordinates for linear regression
-	if (startTime == null)
+	if (startTime === null)
 		startTime = currTime;
 	var x = beatTimes.length;
 	var y = currTime - startTime;
