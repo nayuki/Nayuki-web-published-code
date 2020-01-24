@@ -6,8 +6,6 @@
  * https://www.nayuki.io/page/optimal-text-segmentation-for-qr-codes
  */
 
-"use strict";
-
 
 namespace app {
 	

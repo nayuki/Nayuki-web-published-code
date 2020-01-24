@@ -1,10 +1,8 @@
 /* 
  * Discrete Fourier transform (TypeScript)
- * by Project Nayuki, 2018. Public domain.
+ * by Project Nayuki, 2020. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
-
-"use strict";
 
 
 /* 

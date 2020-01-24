@@ -6,8 +6,6 @@
  * https://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
 
-"use strict";
-
 
 namespace app {
 	

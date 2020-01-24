@@ -6,8 +6,6 @@
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
 
-"use strict";
-
 
 namespace app {
 	

@@ -6,8 +6,6 @@
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
 
-"use strict";
-
 
 function doProve(inputSequent: string): void {
 	(document.getElementById("inputSequent") as HTMLInputElement).value = inputSequent;

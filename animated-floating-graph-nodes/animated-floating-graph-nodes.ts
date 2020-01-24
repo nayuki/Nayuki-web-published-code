@@ -6,8 +6,6 @@
  * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
 
-"use strict";
-
 
 namespace app {
 	

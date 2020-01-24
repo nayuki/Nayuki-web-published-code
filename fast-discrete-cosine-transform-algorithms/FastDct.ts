@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (TypeScript)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,8 +20,6 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
-
-"use strict";
 
 
 namespace fastDct8 {

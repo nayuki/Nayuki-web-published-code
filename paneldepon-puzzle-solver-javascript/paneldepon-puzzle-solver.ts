@@ -1,12 +1,10 @@
 /* 
  * Panel de Pon puzzle solver
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
-
-"use strict";
 
 
 namespace app {

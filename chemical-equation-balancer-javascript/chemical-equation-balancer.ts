@@ -6,8 +6,6 @@
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
 
-"use strict";
-
 
 /*---- Entry point functions from HTML GUI ----*/
 

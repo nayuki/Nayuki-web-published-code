@@ -1,12 +1,10 @@
 /* 
  * Creating a QR Code step by step
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
-
-"use strict";
 
 
 type bit = number;

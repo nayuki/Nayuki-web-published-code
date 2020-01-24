@@ -1,10 +1,8 @@
 /* 
  * Next lexicographical permutation algorithm (TypeScript)
- * by Project Nayuki, 2018. Public domain.
+ * by Project Nayuki, 2020. Public domain.
  * https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
-
-"use strict";
 
 
 /* Basic version */

@@ -1,12 +1,10 @@
 /* 
  * GCD calculator
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-gcd-javascript
  */
-
-"use strict";
 
 
 namespace app {
