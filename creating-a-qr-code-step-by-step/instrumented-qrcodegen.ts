@@ -371,10 +371,10 @@ class QrCode {
 		let horzFinders: Array<LinearRun> = [];
 		for (let y = 0; y < this.size; y++) {
 			let runHistory = [0,0,0,0,0,0,0];
-			let color = false;
+			let runColor = false;
 			let runLen = 0;
 			for (let x = 0; ; x++) {
-				if (x < this.size && colors[x][y] == color)
+				if (x < this.size && colors[x][y] == runColor)
 					runLen++;
 				else {
 					if (runLen >= 5) {
@@ -382,18 +382,18 @@ class QrCode {
 						horzRuns.push(new LinearRun(x - runLen, y, runLen));
 					}
 					addRunToHistory(runLen, runHistory);
-					if (x >= this.size && color) {
+					if (x >= this.size && runColor) {
 						addRunToHistory(0, runHistory);
-						color = false;
+						runColor = false;
 					}
-					if (!color && hasFinderLikePattern(runHistory)) {
+					if (!runColor && hasFinderLikePattern(runHistory)) {
 						penalties[2] += QrCode.PENALTY_N3;
 						const n = sumArray(runHistory);
 						horzFinders.push(new LinearRun(x - n, y, n));
 					}
 					if (x >= this.size)
 						break;
-					color = colors[x][y];
+					runColor = colors[x][y];
 					runLen = 1;
 				}
 			}
@@ -403,10 +403,10 @@ class QrCode {
 		let vertFinders: Array<LinearRun> = [];
 		for (let x = 0; x < this.size; x++) {
 			let runHistory = [0,0,0,0,0,0,0];
-			let color = false;
+			let runColor = false;
 			let runLen = 0;
 			for (let y = 0; ; y++) {
-				if (y < this.size && colors[x][y] == color)
+				if (y < this.size && colors[x][y] == runColor)
 					runLen++;
 				else {
 					if (runLen >= 5) {
@@ -414,18 +414,18 @@ class QrCode {
 						vertRuns.push(new LinearRun(x, y - runLen, runLen));
 					}
 					addRunToHistory(runLen, runHistory);
-					if (y >= this.size && color) {
+					if (y >= this.size && runColor) {
 						addRunToHistory(0, runHistory);
-						color = false;
+						runColor = false;
 					}
-					if (!color && hasFinderLikePattern(runHistory)) {
+					if (!runColor && hasFinderLikePattern(runHistory)) {
 						penalties[2] += QrCode.PENALTY_N3;
 						const n = sumArray(runHistory);
 						vertFinders.push(new LinearRun(x, y - n, n));
 					}
 					if (y >= this.size)
 						break;
-					color = colors[x][y];
+					runColor = colors[x][y];
 					runLen = 1;
 				}
 			}
