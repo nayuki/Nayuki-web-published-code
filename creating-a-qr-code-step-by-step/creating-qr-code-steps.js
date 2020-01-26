@@ -356,16 +356,16 @@ var QrCode = /** @class */ (function () {
         for (var y = 0; y < this.size; y++) {
             var runHistory = [0, 0, 0, 0, 0, 0, 0];
             var runColor = false;
-            var runLen = 0;
+            var runX = 0;
             for (var x = 0;; x++) {
                 if (x < this.size && colors[x][y] == runColor)
-                    runLen++;
+                    runX++;
                 else {
-                    if (runLen >= 5) {
-                        penalties[0] += QrCode.PENALTY_N1 + runLen - 5;
-                        horzRuns.push(new LinearRun(x - runLen, y, runLen));
+                    if (runX >= 5) {
+                        penalties[0] += QrCode.PENALTY_N1 + runX - 5;
+                        horzRuns.push(new LinearRun(x - runX, y, runX));
                     }
-                    addRunToHistory(runLen, runHistory);
+                    addRunToHistory(runX, runHistory);
                     if (x >= this.size && runColor) {
                         addRunToHistory(0, runHistory);
                         runColor = false;
@@ -378,7 +378,7 @@ var QrCode = /** @class */ (function () {
                     if (x >= this.size)
                         break;
                     runColor = colors[x][y];
-                    runLen = 1;
+                    runX = 1;
                 }
             }
         }
@@ -387,16 +387,16 @@ var QrCode = /** @class */ (function () {
         for (var x = 0; x < this.size; x++) {
             var runHistory = [0, 0, 0, 0, 0, 0, 0];
             var runColor = false;
-            var runLen = 0;
+            var runY = 0;
             for (var y = 0;; y++) {
                 if (y < this.size && colors[x][y] == runColor)
-                    runLen++;
+                    runY++;
                 else {
-                    if (runLen >= 5) {
-                        penalties[0] += QrCode.PENALTY_N1 + runLen - 5;
-                        vertRuns.push(new LinearRun(x, y - runLen, runLen));
+                    if (runY >= 5) {
+                        penalties[0] += QrCode.PENALTY_N1 + runY - 5;
+                        vertRuns.push(new LinearRun(x, y - runY, runY));
                     }
-                    addRunToHistory(runLen, runHistory);
+                    addRunToHistory(runY, runHistory);
                     if (y >= this.size && runColor) {
                         addRunToHistory(0, runHistory);
                         runColor = false;
@@ -409,7 +409,7 @@ var QrCode = /** @class */ (function () {
                     if (y >= this.size)
                         break;
                     runColor = colors[x][y];
-                    runLen = 1;
+                    runY = 1;
                 }
             }
         }

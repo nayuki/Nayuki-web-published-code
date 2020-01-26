@@ -372,16 +372,16 @@ class QrCode {
 		for (let y = 0; y < this.size; y++) {
 			let runHistory = [0,0,0,0,0,0,0];
 			let runColor = false;
-			let runLen = 0;
+			let runX = 0;
 			for (let x = 0; ; x++) {
 				if (x < this.size && colors[x][y] == runColor)
-					runLen++;
+					runX++;
 				else {
-					if (runLen >= 5) {
-						penalties[0] += QrCode.PENALTY_N1 + runLen - 5;
-						horzRuns.push(new LinearRun(x - runLen, y, runLen));
+					if (runX >= 5) {
+						penalties[0] += QrCode.PENALTY_N1 + runX - 5;
+						horzRuns.push(new LinearRun(x - runX, y, runX));
 					}
-					addRunToHistory(runLen, runHistory);
+					addRunToHistory(runX, runHistory);
 					if (x >= this.size && runColor) {
 						addRunToHistory(0, runHistory);
 						runColor = false;
@@ -394,7 +394,7 @@ class QrCode {
 					if (x >= this.size)
 						break;
 					runColor = colors[x][y];
-					runLen = 1;
+					runX = 1;
 				}
 			}
 		}
@@ -404,16 +404,16 @@ class QrCode {
 		for (let x = 0; x < this.size; x++) {
 			let runHistory = [0,0,0,0,0,0,0];
 			let runColor = false;
-			let runLen = 0;
+			let runY = 0;
 			for (let y = 0; ; y++) {
 				if (y < this.size && colors[x][y] == runColor)
-					runLen++;
+					runY++;
 				else {
-					if (runLen >= 5) {
-						penalties[0] += QrCode.PENALTY_N1 + runLen - 5;
-						vertRuns.push(new LinearRun(x, y - runLen, runLen));
+					if (runY >= 5) {
+						penalties[0] += QrCode.PENALTY_N1 + runY - 5;
+						vertRuns.push(new LinearRun(x, y - runY, runY));
 					}
-					addRunToHistory(runLen, runHistory);
+					addRunToHistory(runY, runHistory);
 					if (y >= this.size && runColor) {
 						addRunToHistory(0, runHistory);
 						runColor = false;
@@ -426,7 +426,7 @@ class QrCode {
 					if (y >= this.size)
 						break;
 					runColor = colors[x][y];
-					runLen = 1;
+					runY = 1;
 				}
 			}
 		}
