@@ -351,17 +351,6 @@ class QrCode {
 	// Can only be called after all modules have been drawn.
 	// Reads this QR Code's modules, but doesn't change them.
 	public computePenalties(): PenaltyInfo {
-		function addRunToHistory(run: int, history: Array<int>): void {
-			history.pop();
-			history.unshift(run);
-		}
-		
-		function hasFinderLikePattern(runHistory: Array<int>): boolean {
-			const n: int = runHistory[1];
-			return n > 0 && runHistory[2] == n && runHistory[4] == n && runHistory[5] == n
-				&& runHistory[3] == n * 3 && Math.max(runHistory[0], runHistory[6]) >= n * 4;
-		}
-		
 		let penalties: [int,int,int,int] = [0, 0, 0, 0];
 		const colors: Array<Array<boolean>> = this.modules.map(
 			column => column.map(
@@ -370,65 +359,55 @@ class QrCode {
 		let horzRuns   : Array<LinearRun> = [];
 		let horzFinders: Array<LinearRun> = [];
 		for (let y = 0; y < this.size; y++) {
-			let runHistory = [0,0,0,0,0,0,0];
 			let runColor = false;
 			let runX = 0;
-			for (let x = 0; ; x++) {
-				if (x < this.size && colors[x][y] == runColor)
+			let runHistory = new FinderPenalty(this.size, "horz", y, horzFinders);
+			for (let x = 0; x < this.size; x++) {
+				if (colors[x][y] == runColor) {
 					runX++;
-				else {
-					if (runX >= 5) {
-						penalties[0] += QrCode.PENALTY_N1 + runX - 5;
-						horzRuns.push(new LinearRun(x - runX, y, runX));
+					if (runX == 5) {
+						penalties[0] += QrCode.PENALTY_N1;
+						horzRuns.push(new LinearRun(x + 1 - runX, y, runX));
+					} else if (runX > 5) {
+						penalties[0]++;
+						horzRuns[horzRuns.length - 1] = new LinearRun(x + 1 - runX, y, runX);
 					}
-					addRunToHistory(runX, runHistory);
-					if (x >= this.size && runColor) {
-						addRunToHistory(0, runHistory);
-						runColor = false;
-					}
-					if (!runColor && hasFinderLikePattern(runHistory)) {
-						penalties[2] += QrCode.PENALTY_N3;
-						const n = sumArray(runHistory);
-						horzFinders.push(new LinearRun(x - n, y, n));
-					}
-					if (x >= this.size)
-						break;
+				} else {
+					runHistory.addHistory(runX);
+					if (!runColor)
+						penalties[2] += runHistory.countAndAddPatterns() * QrCode.PENALTY_N3;
 					runColor = colors[x][y];
 					runX = 1;
 				}
 			}
+			penalties[2] += runHistory.terminateAndCount(runColor, runX) * QrCode.PENALTY_N3;
 		}
 		
 		let vertRuns   : Array<LinearRun> = [];
 		let vertFinders: Array<LinearRun> = [];
 		for (let x = 0; x < this.size; x++) {
-			let runHistory = [0,0,0,0,0,0,0];
 			let runColor = false;
 			let runY = 0;
-			for (let y = 0; ; y++) {
-				if (y < this.size && colors[x][y] == runColor)
+			let runHistory = new FinderPenalty(this.size, "vert", x, vertFinders);
+			for (let y = 0; y < this.size; y++) {
+				if (colors[x][y] == runColor) {
 					runY++;
-				else {
-					if (runY >= 5) {
-						penalties[0] += QrCode.PENALTY_N1 + runY - 5;
-						vertRuns.push(new LinearRun(x, y - runY, runY));
+					if (runY == 5) {
+						penalties[0] += QrCode.PENALTY_N1;
+						vertRuns.push(new LinearRun(x, y + 1 - runY, runY));
+					} else if (runY > 5) {
+						penalties[0]++;
+						vertRuns[vertRuns.length - 1] = new LinearRun(x, y + 1 - runY, runY);
 					}
-					addRunToHistory(runY, runHistory);
-					if (y >= this.size && runColor) {
-						addRunToHistory(0, runHistory);
-						runColor = false;
-					}
-					if (!runColor && hasFinderLikePattern(runHistory)) {
-						penalties[2] += QrCode.PENALTY_N3;
-						const n = sumArray(runHistory);
-						vertFinders.push(new LinearRun(x, y - n, n));
-					}
-					if (y >= this.size)
-						break;
+				} else {
+					runHistory.addHistory(runY);
+					if (!runColor)
+						penalties[2] += runHistory.countAndAddPatterns() * QrCode.PENALTY_N3;
 					runColor = colors[x][y];
 					runY = 1;
 				}
 			}
+			penalties[2] += runHistory.terminateAndCount(runColor, runY) * QrCode.PENALTY_N3;
 		}
 		
 		let twoByTwos: Array<[int,int]> = [];
@@ -443,12 +422,8 @@ class QrCode {
 		}
 		
 		let black: int = 0;
-		for (const column of colors) {
-			for (const color of column) {
-				if (color)
-					black++;
-			}
-		}
+		for (const column of colors)
+			black = column.reduce((a, b) => a + (b ? 1 : 0), black);
 		const total: int = this.size * this.size;
 		let k = 0;
 		while (Math.abs(black * 20 - total * 10) > (k + 1) * total)
@@ -625,12 +600,75 @@ class LinearRun {
 }
 
 
-// Simple helper function.
-function sumArray(arr: Array<int>): int {
-	let result: int = 0;
-	for (const x of arr)
-		result += x;
-	return result;
+
+// A class for QrCode.computePenalties().
+class FinderPenalty {
+	
+	private runHistory: Array<int> = [];
+	private runEndPositions: Array<int> = [0];
+	private position: int = 0;
+	private padding: int;
+	
+	
+	public constructor(
+			private readonly qrSize: int,
+			private readonly direction: "horz"|"vert",
+			private readonly outerPosition: int,
+			private readonly finders: Array<LinearRun>) {
+		this.padding = qrSize;
+	}
+	
+	
+	public addHistory(currentRunLength: int): void {
+		this.runHistory.unshift(currentRunLength + this.padding);
+		this.padding = 0;
+		this.position += currentRunLength;
+		this.runEndPositions.unshift(this.position);
+	}
+	
+	
+	public countAndAddPatterns(): int {
+		const hist = this.runHistory;
+		const n: int = hist[1];
+		if (n > this.qrSize * 3)
+			throw "Assertion error";
+		const core = n > 0 && hist[2] == n && hist[3] == n * 3 && hist[4] == n && hist[5] == n;
+		const coreStart = this.runEndPositions[6];
+		const coreEnd = this.runEndPositions[1];
+		
+		let result = 0;
+		if (core && hist[0] >= n * 4 && hist[6] >= n) {
+			result++;
+			const start = coreStart - n;
+			const end = coreEnd + n * 4;
+			this.finders.push(this.direction == "horz" ?
+				new LinearRun(start, this.outerPosition, end - start) :
+				new LinearRun(this.outerPosition, start, end - start));
+		}
+		if (core && hist[6] >= n * 4 && hist[0] >= n) {
+			result++;
+			const start = coreStart - n * 4;
+			const end = coreEnd + n;
+			this.finders.push(this.direction == "horz" ?
+				new LinearRun(start, this.outerPosition, end - start) :
+				new LinearRun(this.outerPosition, start, end - start));
+		}
+		return result;
+	}
+	
+	
+	public terminateAndCount(currentRunColor: boolean, currentRunLength: int): int {
+		if (currentRunColor) {
+			this.addHistory(currentRunLength);
+			currentRunLength = 0;
+		}
+		this.padding = this.qrSize;
+		this.addHistory(currentRunLength);
+		if (this.position != this.qrSize)
+			throw "Assertion error";
+		return this.countAndAddPatterns();
+	}
+	
 }
 
 

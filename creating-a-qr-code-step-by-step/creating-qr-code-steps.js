@@ -340,78 +340,63 @@ var QrCode = /** @class */ (function () {
     // Can only be called after all modules have been drawn.
     // Reads this QR Code's modules, but doesn't change them.
     QrCode.prototype.computePenalties = function () {
-        function addRunToHistory(run, history) {
-            history.pop();
-            history.unshift(run);
-        }
-        function hasFinderLikePattern(runHistory) {
-            var n = runHistory[1];
-            return n > 0 && runHistory[2] == n && runHistory[4] == n && runHistory[5] == n
-                && runHistory[3] == n * 3 && Math.max(runHistory[0], runHistory[6]) >= n * 4;
-        }
         var penalties = [0, 0, 0, 0];
         var colors = this.modules.map(function (column) { return column.map(function (cell) { return cell instanceof FilledModule && cell.color; }); });
         var horzRuns = [];
         var horzFinders = [];
         for (var y = 0; y < this.size; y++) {
-            var runHistory = [0, 0, 0, 0, 0, 0, 0];
             var runColor = false;
             var runX = 0;
-            for (var x = 0;; x++) {
-                if (x < this.size && colors[x][y] == runColor)
+            var runHistory = new FinderPenalty(this.size, "horz", y, horzFinders);
+            for (var x = 0; x < this.size; x++) {
+                if (colors[x][y] == runColor) {
                     runX++;
+                    if (runX == 5) {
+                        penalties[0] += QrCode.PENALTY_N1;
+                        horzRuns.push(new LinearRun(x + 1 - runX, y, runX));
+                    }
+                    else if (runX > 5) {
+                        penalties[0]++;
+                        horzRuns[horzRuns.length - 1] = new LinearRun(x + 1 - runX, y, runX);
+                    }
+                }
                 else {
-                    if (runX >= 5) {
-                        penalties[0] += QrCode.PENALTY_N1 + runX - 5;
-                        horzRuns.push(new LinearRun(x - runX, y, runX));
-                    }
-                    addRunToHistory(runX, runHistory);
-                    if (x >= this.size && runColor) {
-                        addRunToHistory(0, runHistory);
-                        runColor = false;
-                    }
-                    if (!runColor && hasFinderLikePattern(runHistory)) {
-                        penalties[2] += QrCode.PENALTY_N3;
-                        var n = sumArray(runHistory);
-                        horzFinders.push(new LinearRun(x - n, y, n));
-                    }
-                    if (x >= this.size)
-                        break;
+                    runHistory.addHistory(runX);
+                    if (!runColor)
+                        penalties[2] += runHistory.countAndAddPatterns() * QrCode.PENALTY_N3;
                     runColor = colors[x][y];
                     runX = 1;
                 }
             }
+            penalties[2] += runHistory.terminateAndCount(runColor, runX) * QrCode.PENALTY_N3;
         }
         var vertRuns = [];
         var vertFinders = [];
         for (var x = 0; x < this.size; x++) {
-            var runHistory = [0, 0, 0, 0, 0, 0, 0];
             var runColor = false;
             var runY = 0;
-            for (var y = 0;; y++) {
-                if (y < this.size && colors[x][y] == runColor)
+            var runHistory = new FinderPenalty(this.size, "vert", x, vertFinders);
+            for (var y = 0; y < this.size; y++) {
+                if (colors[x][y] == runColor) {
                     runY++;
+                    if (runY == 5) {
+                        penalties[0] += QrCode.PENALTY_N1;
+                        vertRuns.push(new LinearRun(x, y + 1 - runY, runY));
+                    }
+                    else if (runY > 5) {
+                        penalties[0]++;
+                        vertRuns[vertRuns.length - 1] = new LinearRun(x, y + 1 - runY, runY);
+                    }
+                }
                 else {
-                    if (runY >= 5) {
-                        penalties[0] += QrCode.PENALTY_N1 + runY - 5;
-                        vertRuns.push(new LinearRun(x, y - runY, runY));
-                    }
-                    addRunToHistory(runY, runHistory);
-                    if (y >= this.size && runColor) {
-                        addRunToHistory(0, runHistory);
-                        runColor = false;
-                    }
-                    if (!runColor && hasFinderLikePattern(runHistory)) {
-                        penalties[2] += QrCode.PENALTY_N3;
-                        var n = sumArray(runHistory);
-                        vertFinders.push(new LinearRun(x, y - n, n));
-                    }
-                    if (y >= this.size)
-                        break;
+                    runHistory.addHistory(runY);
+                    if (!runColor)
+                        penalties[2] += runHistory.countAndAddPatterns() * QrCode.PENALTY_N3;
                     runColor = colors[x][y];
                     runY = 1;
                 }
             }
+            penalties[2] += runHistory.terminateAndCount(runColor, runY) * QrCode.PENALTY_N3;
         }
         var twoByTwos = [];
         for (var x = 0; x < this.size - 1; x++) {
@@ -426,11 +411,7 @@ var QrCode = /** @class */ (function () {
         var black = 0;
         for (var _i = 0, colors_1 = colors; _i < colors_1.length; _i++) {
             var column = colors_1[_i];
-            for (var _a = 0, column_2 = column; _a < column_2.length; _a++) {
-                var color = column_2[_a];
-                if (color)
-                    black++;
-            }
+            black = column.reduce(function (a, b) { return a + (b ? 1 : 0); }, black);
         }
         var total = this.size * this.size;
         var k = 0;
@@ -576,15 +557,64 @@ var LinearRun = /** @class */ (function () {
     }
     return LinearRun;
 }());
-// Simple helper function.
-function sumArray(arr) {
-    var result = 0;
-    for (var _i = 0, arr_1 = arr; _i < arr_1.length; _i++) {
-        var x = arr_1[_i];
-        result += x;
+// A class for QrCode.computePenalties().
+var FinderPenalty = /** @class */ (function () {
+    function FinderPenalty(qrSize, direction, outerPosition, finders) {
+        this.qrSize = qrSize;
+        this.direction = direction;
+        this.outerPosition = outerPosition;
+        this.finders = finders;
+        this.runHistory = [];
+        this.runEndPositions = [0];
+        this.position = 0;
+        this.padding = qrSize;
     }
-    return result;
-}
+    FinderPenalty.prototype.addHistory = function (currentRunLength) {
+        this.runHistory.unshift(currentRunLength + this.padding);
+        this.padding = 0;
+        this.position += currentRunLength;
+        this.runEndPositions.unshift(this.position);
+    };
+    FinderPenalty.prototype.countAndAddPatterns = function () {
+        var hist = this.runHistory;
+        var n = hist[1];
+        if (n > this.qrSize * 3)
+            throw "Assertion error";
+        var core = n > 0 && hist[2] == n && hist[3] == n * 3 && hist[4] == n && hist[5] == n;
+        var coreStart = this.runEndPositions[6];
+        var coreEnd = this.runEndPositions[1];
+        var result = 0;
+        if (core && hist[0] >= n * 4 && hist[6] >= n) {
+            result++;
+            var start = coreStart - n;
+            var end = coreEnd + n * 4;
+            this.finders.push(this.direction == "horz" ?
+                new LinearRun(start, this.outerPosition, end - start) :
+                new LinearRun(this.outerPosition, start, end - start));
+        }
+        if (core && hist[6] >= n * 4 && hist[0] >= n) {
+            result++;
+            var start = coreStart - n * 4;
+            var end = coreEnd + n;
+            this.finders.push(this.direction == "horz" ?
+                new LinearRun(start, this.outerPosition, end - start) :
+                new LinearRun(this.outerPosition, start, end - start));
+        }
+        return result;
+    };
+    FinderPenalty.prototype.terminateAndCount = function (currentRunColor, currentRunLength) {
+        if (currentRunColor) {
+            this.addHistory(currentRunLength);
+            currentRunLength = 0;
+        }
+        this.padding = this.qrSize;
+        this.addHistory(currentRunLength);
+        if (this.position != this.qrSize)
+            throw "Assertion error";
+        return this.countAndAddPatterns();
+    };
+    return FinderPenalty;
+}());
 /*---- Hierarchy of classes for modules (pixels) ----*/
 var Module = /** @class */ (function () {
     function Module() {
@@ -1354,8 +1384,9 @@ var app;
         return result;
     }
     function doStep8(qr, masks) {
-        function drawSvgAndAddGroup(name, i) {
-            var svg = getSvgAndDrawQrCode(name + "-" + i, qr);
+        function drawSvgAndAddGroup(name, i, border) {
+            if (border === void 0) { border = 0; }
+            var svg = getSvgAndDrawQrCode(name + "-" + i, qr, border);
             var group = svgAppendNewElem(svg, "g");
             return group;
         }
@@ -1382,9 +1413,9 @@ var app;
                 var x = _a[0], y = _a[1];
                 return appendRect(group, x, y, 2, 2);
             });
-            group = drawSvgAndAddGroup("horizontal-false-finders", maskIndex);
+            group = drawSvgAndAddGroup("horizontal-false-finders", maskIndex, 4);
             penaltyInfo.horizontalFalseFinders.forEach(function (run) { return appendRect(group, run.startX, run.startY, run.runLength, 1); });
-            group = drawSvgAndAddGroup("vertical-false-finders", maskIndex);
+            group = drawSvgAndAddGroup("vertical-false-finders", maskIndex, 4);
             penaltyInfo.verticalFalseFinders.forEach(function (run) { return appendRect(group, run.startX, run.startY, 1, run.runLength); });
             var tds = document.querySelectorAll("#black-white-balance-" + maskIndex + " td:nth-child(2)");
             var total = qr.size * qr.size;
@@ -1405,7 +1436,7 @@ var app;
         var result = -1;
         var minPenalty = Infinity;
         penalties.forEach(function (penaltyInfo, maskNum) {
-            var totalPoints = sumArray(penaltyInfo.penaltyPoints);
+            var totalPoints = penaltyInfo.penaltyPoints.reduce(function (a, b) { return a + b; });
             if (totalPoints < minPenalty) {
                 minPenalty = totalPoints;
                 result = maskNum;
@@ -1424,10 +1455,11 @@ var app;
         tbody.children[result].classList.add("true");
         return result;
     }
-    function getSvgAndDrawQrCode(id, qr) {
+    function getSvgAndDrawQrCode(id, qr, border) {
+        if (border === void 0) { border = 0; }
         var svg = document.getElementById(id);
-        var EXTRA_BORDER = 0.2;
-        var a = -EXTRA_BORDER, b = qr.size + EXTRA_BORDER * 2;
+        border += 0.2;
+        var a = -border, b = qr.size + border * 2;
         svg.setAttribute("viewBox", a + " " + a + " " + b + " " + b);
         while (svg.firstChild !== null)
             svg.removeChild(svg.firstChild);

@@ -554,8 +554,8 @@ namespace app {
 	
 	
 	function doStep8(qr: QrCode, masks: Array<QrCode>): Array<PenaltyInfo> {
-		function drawSvgAndAddGroup(name: string, i: int): Element {
-			let svg = getSvgAndDrawQrCode(`${name}-${i}`, qr);
+		function drawSvgAndAddGroup(name: string, i: int, border: number = 0): Element {
+			let svg = getSvgAndDrawQrCode(`${name}-${i}`, qr, border);
 			let group = svgAppendNewElem(svg, "g");
 			return group;
 		}
@@ -588,11 +588,11 @@ namespace app {
 			penaltyInfo.twoByTwoBoxes.forEach(
 				([x, y]) => appendRect(group, x, y, 2, 2));
 			
-			group = drawSvgAndAddGroup("horizontal-false-finders", maskIndex);
+			group = drawSvgAndAddGroup("horizontal-false-finders", maskIndex, 4);
 			penaltyInfo.horizontalFalseFinders.forEach(
 				run => appendRect(group, run.startX, run.startY, run.runLength, 1));
 			
-			group = drawSvgAndAddGroup("vertical-false-finders", maskIndex);
+			group = drawSvgAndAddGroup("vertical-false-finders", maskIndex, 4);
 			penaltyInfo.verticalFalseFinders.forEach(
 				run => appendRect(group, run.startX, run.startY, 1, run.runLength));
 			
@@ -618,7 +618,7 @@ namespace app {
 		let result = -1;
 		let minPenalty = Infinity;
 		penalties.forEach((penaltyInfo, maskNum) => {
-			const totalPoints = sumArray(penaltyInfo.penaltyPoints);
+			const totalPoints = penaltyInfo.penaltyPoints.reduce((a, b) => a + b);
 			if (totalPoints < minPenalty) {
 				minPenalty = totalPoints;
 				result = maskNum;
@@ -639,10 +639,10 @@ namespace app {
 	}
 	
 	
-	function getSvgAndDrawQrCode(id: string, qr: QrCode): Element {
+	function getSvgAndDrawQrCode(id: string, qr: QrCode, border: number = 0): Element {
 		let svg = document.getElementById(id) as Element;
-		const EXTRA_BORDER: number = 0.2;
-		const a = -EXTRA_BORDER, b = qr.size + EXTRA_BORDER * 2;
+		border += 0.2;
+		const a = -border, b = qr.size + border * 2;
 		svg.setAttribute("viewBox", `${a} ${a} ${b} ${b}`);
 		
 		while (svg.firstChild !== null)
