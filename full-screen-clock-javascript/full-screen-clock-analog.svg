@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!--
   - Full screen clock (analog)
-  - Copyright (c) 2019 Project Nayuki
+  - Copyright (c) 2020 Project Nayuki
   - 
   - https://www.nayuki.io/page/full-screen-clock-javascript
   -->
@@ -18,7 +18,7 @@
 	</g>
 	
 	
-	<script type="application/javascript">
+	<script>
 	<![CDATA[
 	"use strict";
 	
