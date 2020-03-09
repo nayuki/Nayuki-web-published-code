@@ -81,7 +81,10 @@ function solveTriangle(a, b, c, A, B, C) {
 		area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
 		
 	} else if (angles == 2) {
-		status = "Angle side angle (ASA) case";
+		if (A === null && a !== null || B === null && b !== null || C === null && c !== null)
+			status = "Angle side angle (ASA) case";
+		else
+			status = "Angle angle side (AAS) case";
 		// Find missing angle
 		if (A === null) A = 180 - B - C;
 		if (B === null) B = 180 - C - A;

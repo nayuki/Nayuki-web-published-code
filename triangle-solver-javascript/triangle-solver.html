@@ -176,9 +176,9 @@
 		<ul>
 			<li><p>All sides are measured in the same unit. For example, you cannot directly solve a triangle with the sides 3 metres, 5 feet, and 2 yards; you must convert the side lengths to a common unit first.</p></li>
 			<li><p>In a valid solution, all side lengths are positive, and all angles are greater than 0° and less than 180°.</p></li>
-			<li><p>3 sides (<abbr title="side side side">SSS</abbr>) yields a unique solution, or no solution if the longest side is longer than the sum of the other sides.</p></li>
-			<li><p>2 angles and a side (<abbr title="angle side angle">ASA</abbr>) always yields a unique solution, provided that the two given angles add up to less than 180°.</p></li>
 			<li><p>2 sides and an enclosed angle (<abbr title="side angle side">SAS</abbr>) always yields a unique solution.</p></li>
+			<li><p>2 angles and a side (<abbr title="angle side angle">ASA</abbr>, <abbr title="angle angle side">AAS</abbr>) always yields a unique solution, provided that the two given angles add up to less than 180°.</p></li>
+			<li><p>3 sides (<abbr title="side side side">SSS</abbr>) yields a unique solution, or no solution if the longest side is longer than the sum of the other sides.</p></li>
 			<li><p>2 sides and a non-enclosed angle (<abbr title="side side angle">SSA</abbr>) yields 0, 1, or 2 solutions.</p></li>
 		</ul>
 		<p>More info:</p>
@@ -266,7 +266,10 @@
 					area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
 					
 				} else if (angles == 2) {
-					status = "Angle side angle (ASA) case";
+					if (A === null && a !== null || B === null && b !== null || C === null && c !== null)
+						status = "Angle side angle (ASA) case";
+					else
+						status = "Angle angle side (AAS) case";
 					// Find missing angle
 					if (A === null) A = 180 - B - C;
 					if (B === null) B = 180 - C - A;
