@@ -142,16 +142,12 @@ function calcHmac(
 	while (key.length < blockSize)
 		key.push(0x00);
 	
-	let innerMsg: Array<byte> = key.slice();
-	innerMsg.forEach((_, i) =>
-		innerMsg[i] ^= 0x36);
+	let innerMsg: Array<byte> = key.map(b => b ^ 0x36);
 	for (const b of message)
 		innerMsg.push(b);
 	const innerHash: Array<byte> = hashFunc(innerMsg);
 	
-	let outerMsg: Array<byte> = key.slice();
-	outerMsg.forEach((_, i) =>
-		outerMsg[i] ^= 0x5C);
+	let outerMsg: Array<byte> = key.map(b => b ^ 0x5C);
 	for (const b of innerHash)
 		outerMsg.push(b);
 	return hashFunc(outerMsg);

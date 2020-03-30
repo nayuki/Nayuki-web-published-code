@@ -102,19 +102,13 @@ function calcHmac(key, message, hashFunc, blockSize) {
     key = key.slice();
     while (key.length < blockSize)
         key.push(0x00);
-    var innerMsg = key.slice();
-    innerMsg.forEach(function (_, i) {
-        return innerMsg[i] ^= 0x36;
-    });
+    var innerMsg = key.map(function (b) { return b ^ 0x36; });
     for (var _i = 0, message_1 = message; _i < message_1.length; _i++) {
         var b = message_1[_i];
         innerMsg.push(b);
     }
     var innerHash = hashFunc(innerMsg);
-    var outerMsg = key.slice();
-    outerMsg.forEach(function (_, i) {
-        return outerMsg[i] ^= 0x5C;
-    });
+    var outerMsg = key.map(function (b) { return b ^ 0x5C; });
     for (var _a = 0, innerHash_1 = innerHash; _a < innerHash_1.length; _a++) {
         var b = innerHash_1[_a];
         outerMsg.push(b);

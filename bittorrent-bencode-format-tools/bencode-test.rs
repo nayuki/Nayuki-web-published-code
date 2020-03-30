@@ -66,16 +66,16 @@ fn test_serialize_integer() {
 fn test_serialize_byte_string() {
 	check_serialize("0:", &Bytes(vec![]));
 	check_serialize("1:\u{0}", &Bytes(vec![0]));
-	check_serialize("2:\u{4}\u{1}", &Bytes(Vec::from(&b"\x04\x01"[..])));
-	check_serialize("3:ben", &Bytes(Vec::from(&b"ben"[..])));
-	check_serialize("10:ABCDE98765", &Bytes(Vec::from("ABCDE98765".as_bytes())));
+	check_serialize("2:\u{4}\u{1}", &Bytes(b"\x04\x01".to_vec()));
+	check_serialize("3:ben", &Bytes(b"ben".to_vec()));
+	check_serialize("10:ABCDE98765", &Bytes(b"ABCDE98765".to_vec()));
 }
 
 
 fn test_serialize_list() {
 	check_serialize("le", &List(vec![]));
 	check_serialize("li4ee", &List(vec![Int(4)]));
-	check_serialize("li7e5:Helloe", &List(vec![Int(7), Bytes(Vec::from("Hello".as_bytes()))]));
+	check_serialize("li7e5:Helloe", &List(vec![Int(7), Bytes(b"Hello".to_vec())]));
 	check_serialize("li-88ele1:Xe", &List(vec![Int(-88), List(vec![]), Bytes(vec![b'X'])]));
 }
 
@@ -84,19 +84,19 @@ fn test_serialize_dictionary() {
 	check_serialize("de", &Dict(BTreeMap::new()));
 	{
 		let mut d = BTreeMap::<Vec<u8>,Bencode>::new();
-		d.insert(Vec::from(&""[..]), List(vec![]));
+		d.insert(b"".to_vec(), List(vec![]));
 		check_serialize("d0:lee", &Dict(d));
 	}
 	{
 		let mut d = BTreeMap::<Vec<u8>,Bencode>::new();
-		d.insert(Vec::from(&b"ZZ"[..]), Int(768));
-		d.insert(Vec::from(&b"AAA"[..]), Bytes(Vec::from(&b"-14142"[..])));
+		d.insert(b"ZZ".to_vec(), Int(768));
+		d.insert(b"AAA".to_vec(), Bytes(b"-14142".to_vec()));
 		check_serialize("d3:AAA6:-141422:ZZi768ee", &Dict(d));
 	}
 	{
 		let mut d = BTreeMap::<Vec<u8>,Bencode>::new();
-		d.insert(Vec::from(&b"\x03"[..]), List(vec![]));
-		d.insert(Vec::from(&b"\x08"[..]), Dict(BTreeMap::new()));
+		d.insert(b"\x03".to_vec(), List(vec![]));
+		d.insert(b"\x08".to_vec(), Dict(BTreeMap::new()));
 		check_serialize("d1:\u{3}le1:\u{8}dee", &Dict(d));
 	}
 }
@@ -170,9 +170,9 @@ fn test_parse_integer_invalid() {
 
 
 fn test_parse_byte_string() {
-	check_parse(&Bytes(Vec::from(&b""[..])), "0:");
-	check_parse(&Bytes(Vec::from(&b"&"[..])), "1:&");
-	check_parse(&Bytes(Vec::from(&b"abcdefghijklm"[..])), "13:abcdefghijklm");
+	check_parse(&Bytes(b"".to_vec()), "0:");
+	check_parse(&Bytes(b"&".to_vec()), "1:&");
+	check_parse(&Bytes(b"abcdefghijklm".to_vec()), "13:abcdefghijklm");
 }
 
 
@@ -206,7 +206,7 @@ fn test_parse_byte_string_invalid() {
 fn test_parse_list() {
 	check_parse(&List(vec![]), "le");
 	check_parse(&List(vec![Int(-6)]), "li-6ee");
-	check_parse(&List(vec![Bytes(Vec::from(&b"00"[..])), Int(55)]), "l2:00i55ee");
+	check_parse(&List(vec![Bytes(b"00".to_vec()), Int(55)]), "l2:00i55ee");
 	check_parse(&List(vec![List(vec![]), List(vec![])]), "llelee");
 }
 
@@ -224,13 +224,13 @@ fn test_parse_dictionary() {
 	check_parse(&Dict(BTreeMap::new()), "de");
 	{
 		let mut d = BTreeMap::<Vec<u8>,Bencode>::new();
-		d.insert(Vec::from(&b"-"[..]), Int(404));
+		d.insert(b"-".to_vec(), Int(404));
 		check_parse(&Dict(d), "d1:-i404ee");
 	}
 	{
 		let mut d = BTreeMap::<Vec<u8>,Bencode>::new();
-		d.insert(Vec::from(&b"010"[..]), Bytes(Vec::from(&b"101"[..])));
-		d.insert(Vec::from(&b"yU"[..]), List(vec![]));
+		d.insert(b"010".to_vec(), Bytes(b"101".to_vec()));
+		d.insert(b"yU".to_vec(), List(vec![]));
 		check_parse(&Dict(d), "d3:0103:1012:yUlee");
 	}
 }
