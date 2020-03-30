@@ -153,7 +153,7 @@ string calcHotp(
 	int offset = hash.back() & 0xF;
 	unsigned long val = 0;
 	for (int i = 0; i < 4; i++)
-		val |= static_cast<unsigned long>(hash[offset + i]) << ((3 - i) * 8);
+		val |= static_cast<unsigned long>(hash.at(offset + i)) << ((3 - i) * 8);
 	val &= 0x7FFFFFFFUL;
 	
 	// Extract and format base-10 digits
@@ -213,7 +213,7 @@ vector<uint8_t> calcSha1Hash(const vector<uint8_t> &message) {
 		for (size_t j = 0; j < schedule.size() * 4; j++)
 			schedule.at(j / 4) |= static_cast<uint32_t>(msg.at(i + j)) << ((3 - j % 4) * 8);
 		for (size_t j = schedule.size(); j < 80; j++) {
-			uint32_t temp = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
+			uint32_t temp = schedule.at(j - 3) ^ schedule.at(j - 8) ^ schedule.at(j - 14) ^ schedule.at(j - 16);
 			schedule.push_back(rotateLeft(temp, 1));
 		}
 		uint32_t a = state[0];

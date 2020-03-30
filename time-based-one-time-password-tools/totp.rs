@@ -21,9 +21,9 @@
  *   Software.
  */
 
-use std::string::String;
 use std::convert::TryFrom;
 use std::convert::TryInto;
+use std::string::String;
 
 
 /*---- Main program ----*/
@@ -36,7 +36,7 @@ fn main() {
 		eprintln!("Test passed");
 	} else if argv.len() == 2 {
 		let secretkey: Vec<u8> = decode_base32(&argv[1]);
-		let timestamp: i64 = std::time::SystemTime::now()
+		let timestamp = std::time::SystemTime::now()
 			.duration_since(std::time::SystemTime::UNIX_EPOCH)
 			.unwrap().as_secs() as i64;
 		let code: String = calc_totp(
@@ -158,11 +158,11 @@ fn calc_sha1_hash(message: &[u8]) -> Vec<u8> {
 	msg.extend_from_slice(&bitlenbytes);
 	
 	let mut state: [u32; 5] = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
-	for i in (0 .. msg.len()).step_by(64) {
-		let mut schedule: Vec<u32> = msg[i .. i + 64].chunks(4)
-			.map(|bs| u32::from_be_bytes(bs.try_into().unwrap())).collect();
-		for j in schedule.len() .. 80 {
-			let temp: u32 = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
+	for block in msg.chunks(64) {
+		let mut schedule: Vec<u32> = block.chunks(4).map(|bs|
+			u32::from_be_bytes(bs.try_into().unwrap())).collect();
+		for i in schedule.len() .. 80 {
+			let temp: u32 = schedule[i - 3] ^ schedule[i - 8] ^ schedule[i - 14] ^ schedule[i - 16];
 			schedule.push(temp.rotate_left(1));
 		}
 		let mut a: u32 = state[0];
@@ -170,8 +170,8 @@ fn calc_sha1_hash(message: &[u8]) -> Vec<u8> {
 		let mut c: u32 = state[2];
 		let mut d: u32 = state[3];
 		let mut e: u32 = state[4];
-		for (j, &sch) in schedule.iter().enumerate() {
-			let (f, rc): (u32,u32) = match j / 20 {
+		for (i, &sch) in schedule.iter().enumerate() {
+			let (f, rc): (u32,u32) = match i / 20 {
 				0 => ((b & c) | (!b & d)         , 0x5A827999),
 				1 => (b ^ c ^ d                  , 0x6ED9EBA1),
 				2 => ((b & c) ^ (b & d) ^ (c & d), 0x8F1BBCDC),
