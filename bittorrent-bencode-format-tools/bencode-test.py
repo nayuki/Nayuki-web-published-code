@@ -40,8 +40,8 @@ class BencodeTest(unittest.TestCase):
 	
 	def test_serialize_byte_string(self):
 		self._check_serialize("0:", b"")
-		self._check_serialize(u"1:\u0000", b"\x00")
-		self._check_serialize(u"2:\u0004\u0001", b"\x04\x01")
+		self._check_serialize("1:\u0000", b"\x00")
+		self._check_serialize("2:\u0004\u0001", b"\x04\x01")
 		self._check_serialize("3:ben", b"ben")
 		self._check_serialize("10:ABCDE98765", b"ABCDE98765")
 	
@@ -57,7 +57,7 @@ class BencodeTest(unittest.TestCase):
 		self._check_serialize("de", {})
 		self._check_serialize("d0:lee", {b"":[]})
 		self._check_serialize("d3:AAA6:-141422:ZZi768ee", {b"ZZ":768, b"AAA":b"-14142"})
-		self._check_serialize(u"d1:\u0003le1:\u0008dee", {b"\x03":[], b"\x08":{}})
+		self._check_serialize("d1:\u0003le1:\u0008dee", {b"\x03":[], b"\x08":{}})
 	
 	
 	# Asserts that serializing the given bencode value equals the given byte string.

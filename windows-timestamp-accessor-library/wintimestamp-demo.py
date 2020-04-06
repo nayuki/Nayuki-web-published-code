@@ -42,7 +42,7 @@ def main():
 		wt.set_modification_time(path, 632508663050000000)
 		
 		# Action 2
-		path = u"\u4f60\u597d\u30d1\u30a4\u30bd\u30f3.txt"
+		path = "\u4f60\u597d\u30d1\u30a4\u30bd\u30f3.txt"
 		if os.path.isfile(path):
 			if os.path.getsize(path) > 0:
 				raise Exception("File already exists")

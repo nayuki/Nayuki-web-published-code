@@ -170,11 +170,11 @@ class YllionChineseNotation:
 	@staticmethod
 	def number_to_words(n):
 		if n < 0:
-			return u"\u8CA0" + YllionChineseNotation.number_to_words(-n)
+			return "\u8CA0" + YllionChineseNotation.number_to_words(-n)
 		elif n == 0:
-			return u"\u96F6"
+			return "\u96F6"
 		elif n < 100:
-			return (((YllionChineseNotation._ONES[n // 10] if (n >= 20) else u"") + u"\u5341") if (n >= 10) else u"") \
+			return (((YllionChineseNotation._ONES[n // 10] if (n >= 20) else "") + "\u5341") if (n >= 10) else "") \
 				+ YllionChineseNotation._ONES[n % 10]
 		else:
 			temp = str(n)
@@ -186,14 +186,14 @@ class YllionChineseNotation:
 				if len(temp) > negsplit:
 					high = int(temp[ : -negsplit])
 					low  = int(temp[-negsplit : ])
-					return ((YllionChineseNotation.number_to_words(high) + YllionChineseNotation._YLLIONS[i]) if (high > 0) else u"") \
-						+ (YllionChineseNotation.number_to_words(low) if (low > 0) else u"")
+					return ((YllionChineseNotation.number_to_words(high) + YllionChineseNotation._YLLIONS[i]) if (high > 0) else "") \
+						+ (YllionChineseNotation.number_to_words(low) if (low > 0) else "")
 			raise AssertionError()
 	
 	
-	_ONES = [u"", u"\u4E00", u"\u4E8C", u"\u4E09", u"\u56DB", u"\u4E94", u"\u516D", u"\u4E03", u"\u516B", u"\u4E5D"]
+	_ONES = ["", "\u4E00", "\u4E8C", "\u4E09", "\u56DB", "\u4E94", "\u516D", "\u4E03", "\u516B", "\u4E5D"]
 	
-	_YLLIONS = [None, u"\u767E", u"\u842C", u"\u5104", u"\u5146", u"\u4EAC", u"\u5793", u"\u79ED", u"\u7A70", u"\u6E9D", u"\u6F97", u"\u6B63", u"\u8F09"]
+	_YLLIONS = [None, "\u767E", "\u842C", "\u5104", "\u5146", "\u4EAC", "\u5793", "\u79ED", "\u7A70", "\u6E9D", "\u6F97", "\u6B63", "\u8F09"]
 
 
 
