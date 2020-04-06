@@ -415,7 +415,7 @@ def plusminus(val):
 
 # ---- Intermediate representation (IR) ----
 
-class Command(object):  # Common superclass
+class Command:  # Common superclass
 	pass
 
 class Assign(Command):

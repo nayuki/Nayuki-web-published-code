@@ -1,7 +1,7 @@
 # 
 # Simple FLAC decoder (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/simple-flac-implementation
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -231,7 +231,7 @@ def restore_linear_prediction(result, coefs, shift):
 
 
 
-class BitInputStream(object):
+class BitInputStream:
 	
 	def __init__(self, inp):
 		self.inp = inp

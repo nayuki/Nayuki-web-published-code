@@ -1,7 +1,7 @@
 # 
 # Barrett reduction algorithm (Python)
 # 
-# Copyright (c) 2018 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/barrett-reduction-algorithm
 # 
@@ -29,7 +29,7 @@ class BarrettReducerTest(unittest.TestCase):
 
 
 
-class BarrettReducer(object):
+class BarrettReducer:
 	
 	def __init__(self, mod):
 		if mod <= 0:

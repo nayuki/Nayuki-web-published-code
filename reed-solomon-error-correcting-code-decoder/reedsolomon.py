@@ -1,7 +1,7 @@
 # 
 # Reed-Solomon error-correcting code decoder
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
 # 
@@ -9,7 +9,7 @@
 import fieldmath
 
 
-class ReedSolomon(object):
+class ReedSolomon:
 	"""Performs Reed-Solomon encoding and decoding. This object can encode a message into a codeword.
 	The codeword can have some values modified by external code. Then this object can try
 	to decode the codeword, and under some circumstances can reproduce the original message.

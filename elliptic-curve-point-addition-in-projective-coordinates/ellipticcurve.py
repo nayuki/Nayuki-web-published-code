@@ -1,7 +1,7 @@
 # 
 # Elliptic curve point addition in projective coordinates
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/elliptic-curve-point-addition-in-projective-coordinates
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@ import numbers
 
 # ---- Elliptic curve points in affine coordinates ----
 
-class AffineCurvePoint(object):
+class AffineCurvePoint:
 	
 	def __init__(self, x, y, a, b, mod):
 		if not ((x is None and y is None) or (isinstance(x, FieldInt) and isinstance(y, FieldInt))):
@@ -141,7 +141,7 @@ class AffineCurvePoint(object):
 
 # ---- Elliptic curve points in projective coordinates ----
 
-class ProjectiveCurvePoint(object):
+class ProjectiveCurvePoint:
 	
 	def __init__(self, x, y, z, a, b, mod):
 		if x is None and y is None and z is None:
@@ -282,7 +282,7 @@ class ProjectiveCurvePoint(object):
 
 # ---- Scalar numbers from a field ----
 
-class FieldInt(object):
+class FieldInt:
 	"""A non-negative integer modulo a prime number."""
 	
 	# -- Instance management methods --

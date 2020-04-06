@@ -1,7 +1,7 @@
 # 
 # Disjoint-set data structure - Library (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/disjoint-set-data-structure
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,7 +27,7 @@ import itertools
 # Represents a set of disjoint sets. Also known as the union-find data structure.
 # Main operations are querying if two elements are in the same set, and merging two sets together.
 # Useful for testing graph connectivity, and is used in Kruskal's algorithm.
-class DisjointSet(object):
+class DisjointSet:
 	
 	# Constructs a new set containing the given number of singleton sets.
 	# For example, DisjointSet(3) --> {{0}, {1}, {2}}.

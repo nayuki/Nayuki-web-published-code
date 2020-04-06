@@ -1,7 +1,7 @@
 # 
 # AVL tree list (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/avl-tree-list
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 
-class AvlTreeList(object):
+class AvlTreeList:
 	
 	def __init__(self, lst=None):
 		self.clear()
@@ -104,7 +104,7 @@ class AvlTreeList(object):
 	
 	
 	
-	class Node(object):
+	class Node:
 		
 		def __init__(self, val, isleaf=False):
 			# The object stored at this node. Can be None.

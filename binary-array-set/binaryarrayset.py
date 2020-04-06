@@ -1,7 +1,7 @@
 # 
 # Binary array set (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-array-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@ if sys.version_info.major == 2:
 	range = xrange
 
 
-class BinaryArraySet(object):
+class BinaryArraySet:
 	
 	# Runs in O(n * (log n)^2) time
 	def __init__(self, coll=None):

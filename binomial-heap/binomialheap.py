@@ -1,7 +1,7 @@
 # 
 # Binomial heap (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binomial-heap
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 
-class BinomialHeap(object):
+class BinomialHeap:
 	
 	def __init__(self):
 		self.head = BinomialHeap.Node()  # Dummy node
@@ -148,7 +148,7 @@ class BinomialHeap(object):
 	
 	# ---- Helper class: Binomial heap node ----
 	
-	class Node(object):
+	class Node:
 		
 		def __init__(self, val=None):
 			self.value = val

@@ -1,7 +1,7 @@
 # 
 # AA tree set (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/aa-tree-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 
-class AaTreeSet(object):
+class AaTreeSet:
 	
 	def __init__(self, coll=None):
 		self.clear()
@@ -95,7 +95,7 @@ class AaTreeSet(object):
 	
 	
 	
-	class Node(object):
+	class Node:
 		
 		def __init__(self, val=None):
 			self.value = val

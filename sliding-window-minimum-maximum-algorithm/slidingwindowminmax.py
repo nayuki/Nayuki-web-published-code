@@ -53,7 +53,7 @@ def compute(array, window, maximize):
 
 # ---- Stateful instance for incremental computation ----
 
-class SlidingWindowMinMax(object):
+class SlidingWindowMinMax:
 	
 	def __init__(self):
 		self.mindeque = collections.deque()

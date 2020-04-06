@@ -45,7 +45,7 @@ def main():
 # ---- Submodules for different number formats ----
 
 # See https://en.wikipedia.org/wiki/English_numerals .
-class ConventionalEnglishNotation(object):
+class ConventionalEnglishNotation:
 	
 	# For example: number_to_words(1234567) -> "one million two hundred thirty-four thousand five hundred sixty-seven".
 	@staticmethod
@@ -116,7 +116,7 @@ class ConventionalEnglishNotation(object):
 
 
 # Donald Knuth's system; see https://en.wikipedia.org/wiki/-yllion .
-class YllionEnglishNotation(object):
+class YllionEnglishNotation:
 	
 	@staticmethod
 	def number_to_words(n):
@@ -165,7 +165,7 @@ class YllionEnglishNotation(object):
 
 
 # Donald Knuth's system; see https://en.wikipedia.org/wiki/-yllion .
-class YllionChineseNotation(object):
+class YllionChineseNotation:
 	
 	@staticmethod
 	def number_to_words(n):

@@ -1,7 +1,7 @@
 # 
 # Primitive recursive functions (Python)
 # 
-# Copyright (c) 2015 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/primitive-recursive-functions
 # 
@@ -15,7 +15,7 @@ if sys.version_info.major == 2:
 
 # Abstract base class of all primitive recursive functions.
 # All subclasses should be designed to be immutable.
-class PrimRecFunc(object):
+class PrimRecFunc:
 	
 	# xs is an array of integers.
 	def eval(self, xs):

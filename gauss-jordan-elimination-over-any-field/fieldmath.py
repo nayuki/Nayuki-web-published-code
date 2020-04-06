@@ -1,7 +1,7 @@
 # 
 # Gauss-Jordan elimination over any field (Python)
 # 
-# Copyright (c) 2019 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
 # 
@@ -11,7 +11,7 @@ import fractions, numbers
 
 # ---- Field abstract class ----
 
-class Field(object):
+class Field:
 	"""An abstract base class representing a field in abstract algebra. Every field must
 	satisfy all these axioms, where x, y, z are arbitrary elements of the field:
 	- 0 is an element of the field, and 0 + x = x. (Existence of additive identity)
@@ -355,7 +355,7 @@ class QuadraticSurdField(Field):
 
 # ---- QuadraticSurd class ----
 
-class QuadraticSurd(object):
+class QuadraticSurd:
 	
 	def __init__(self, a, b, c, d):
 		if c == 0:
@@ -389,7 +389,7 @@ class QuadraticSurd(object):
 
 # ---- Matrix class ----
 
-class Matrix(object):
+class Matrix:
 	"""Represents a mutable matrix of field elements, supporting linear algebra operations.
 	Note that the dimensions of a matrix cannot be changed after construction. Not thread-safe."""
 	

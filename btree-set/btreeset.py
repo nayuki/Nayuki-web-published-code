@@ -1,7 +1,7 @@
 # 
 # B-tree set (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/btree-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,7 +24,7 @@
 import numbers
 
 
-class BTreeSet(object):
+class BTreeSet:
 	
 	# The degree is the minimum number of children each non-root internal node must have.
 	def __init__(self, degree, coll=None):
@@ -203,7 +203,7 @@ class BTreeSet(object):
 	
 	# ---- Helper class ----
 	
-	class Node(object):
+	class Node:
 		
 		# -- Constructor --
 		

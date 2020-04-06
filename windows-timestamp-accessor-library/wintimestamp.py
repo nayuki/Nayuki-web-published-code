@@ -12,7 +12,7 @@ import datetime, os, subprocess
 # Note: Ticks is the number of 100-nanosecond units since the epoch of
 # midnight UTC on January 1st, Year 1 on the proleptic Gregorian calendar
 
-class WindowsTimestampAccessor(object):
+class WindowsTimestampAccessor:
 	
 	# Initialization and disposal
 	

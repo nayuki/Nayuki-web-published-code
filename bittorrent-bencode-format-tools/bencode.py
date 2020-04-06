@@ -82,7 +82,7 @@ def parse(inp):
 	return result
 
 
-class _Parser(object):
+class _Parser:
 	
 	def __init__(self, inp):
 		self._input = inp

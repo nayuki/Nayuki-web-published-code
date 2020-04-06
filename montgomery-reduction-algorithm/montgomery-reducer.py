@@ -1,7 +1,7 @@
 # 
 # Montgomery reduction algorithm (Python)
 # 
-# Copyright (c) 2018 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/montgomery-reduction-algorithm
 # 
@@ -36,7 +36,7 @@ class MontgomeryReducerTest(unittest.TestCase):
 
 
 
-class MontgomeryReducer(object):
+class MontgomeryReducer:
 	
 	def __init__(self, mod):
 		# Modulus
