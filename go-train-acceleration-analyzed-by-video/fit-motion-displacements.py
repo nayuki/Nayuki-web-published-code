@@ -2,9 +2,9 @@
 # Fit motion displacements
 # 
 # Reads a TSV file with motion vectors, performs analysis, and writes to standard output.
-# For Python 3+. Requires NumPy library.
+# Requires NumPy library.
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/go-train-acceleration-analyzed-by-video
 # 

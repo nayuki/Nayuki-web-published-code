@@ -1,8 +1,7 @@
 # 
 # CRC-32 forcer (Python)
-# Compatible with Python 2 and 3.
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
 # 
 # This program is free software: you can redistribute it and/or modify

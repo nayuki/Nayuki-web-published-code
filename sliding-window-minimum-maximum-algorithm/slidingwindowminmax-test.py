@@ -1,7 +1,7 @@
 # 
-# Sliding window min/max test (Python 2, 3)
+# Sliding window min/max test (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of

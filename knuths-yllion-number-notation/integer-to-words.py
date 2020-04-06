@@ -1,9 +1,9 @@
 # 
 # Knuth's -yllion number notation demo (Python)
 # 
-# Run main program with no arguments. Prints stuff to standard output. For Python 2.7+ and 3.3+.
+# Run main program with no arguments. Prints stuff to standard output.
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/knuths-yllion-number-notation
 # 

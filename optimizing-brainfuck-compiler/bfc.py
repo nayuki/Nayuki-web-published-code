@@ -3,9 +3,8 @@
 # 
 # This script translates brainfuck source code into C/Java/Python source code.
 # Usage: python bfc.py BrainfuckFile OutputFile.c/java/py
-# For Python 2 and 3.
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/optimizing-brainfuck-compiler
 # 

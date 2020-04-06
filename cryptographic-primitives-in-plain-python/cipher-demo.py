@@ -1,8 +1,8 @@
 # 
 # This program shows how to call a cipher, and displays debugging information.
-# Run with no arguments. For Python 2 and 3.
+# Run with no arguments.
 # 
-# Copyright (c) 2015 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of

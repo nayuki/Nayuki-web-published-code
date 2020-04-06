@@ -1,8 +1,7 @@
 # 
 # Windows timestamp accessor (Python)
-# For Python 2 and 3.3+
 # 
-# Copyright (c) 2019 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/windows-timestamp-accessor-library
 # 

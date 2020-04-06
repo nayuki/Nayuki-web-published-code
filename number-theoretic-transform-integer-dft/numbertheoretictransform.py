@@ -1,7 +1,7 @@
 # 
-# Number-theoretic transform library (Python 2, 3)
+# Number-theoretic transform library (Python)
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 # 
