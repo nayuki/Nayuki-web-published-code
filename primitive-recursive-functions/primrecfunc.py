@@ -65,7 +65,7 @@ class I(PrimRecFunc):
 		return xs[self.i]
 	
 	def __str__(self):
-		return "I({},{})".format(self.n, self.i)
+		return f"I({self.n},{self.i})"
 
 
 # Composition function: C_{f, g_0, ..., g_{k-1}}(xs) = f(g_0(xs), ..., g_{k-1}(xs))
@@ -81,7 +81,7 @@ class C(PrimRecFunc):
 		return self.f.eval([g.eval(xs) for g in self.gs])
 	
 	def __str__(self):
-		return "C({}, [{}])".format(str(self.f), ", ".join([str(g) for g in self.gs]))
+		return f"C({str(self.f)}, [{', '.join([str(g) for g in self.gs])}])"
 
 
 # Primitive recursion: R_{f,g}(y, xs) = if (y == 0) then (f xs) else g(R_{f,g}(y-1, xs), y-1, xs)
@@ -110,7 +110,7 @@ class R(PrimRecFunc):
 			return self.g.eval([self.eval([y-1] + xs[1:]), y-1] + xs[1:])
 	
 	def __str__(self):
-		return "R({}, {})".format(str(self.f), str(self.g))
+		return f"R({str(self.f)}, {str(self.g)})"
 
 
 # Native function implementation

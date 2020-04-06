@@ -51,7 +51,7 @@ class WindowsTimestampAccessor:
 		return self._get_some_time("Access", path)
 	
 	def _get_some_time(self, type, path):
-		self.query.write("Get{}Time\t{}\n".format(type, os.path.abspath(path)).encode("UTF-8"))
+		self.query.write(f"Get{type}Time\t{os.path.abspath(path)}\n".encode("UTF-8"))
 		self.query.flush()
 		tokens = self.response.readline().decode("UTF-8").rstrip("\r\n").split("\t")
 		if len(tokens) != 2 or tokens[0] != "ok":
@@ -71,7 +71,7 @@ class WindowsTimestampAccessor:
 		self._set_some_time("Access", path, ticks)
 	
 	def _set_some_time(self, type, path, ticks):
-		self.query.write("Set{}Time\t{}\t{}\n".format(type, os.path.abspath(path), ticks).encode("UTF-8"))
+		self.query.write(f"Set{type}Time\t{os.path.abspath(path)}\t{ticks}\n".encode("UTF-8"))
 		self.query.flush()
 		line = self.response.readline().decode("UTF-8").rstrip("\r\n")
 		if line != "ok":

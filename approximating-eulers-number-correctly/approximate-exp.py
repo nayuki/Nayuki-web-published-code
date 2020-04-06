@@ -1,7 +1,7 @@
 # 
 # Approximating the exponential function correctly (Python)
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/approximating-eulers-number-correctly
 # 
@@ -12,7 +12,7 @@ def main():
 	for i in range(31):  # x = 0.0, 0.1, 0.2, ..., 3.0
 		for j in range(1, 11):  # Accuracy 1 to 10
 			x = i * 10 ** (j - 1)
-			print("exp({:12}) = {}".format(format_decimal(x, j), compute_exp(x, j)))
+			print(f"exp({format_decimal(x, j):12}) = {compute_exp(x, j)}")
 		print("")
 
 

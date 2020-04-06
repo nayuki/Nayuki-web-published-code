@@ -1,7 +1,7 @@
 # 
 # Create dict (Python version)
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/java-native-interface-compared-to-python-c-api
 # 
@@ -13,7 +13,7 @@ import createdict_native
 def main():
 	data = createdict_native.create_dict(30)
 	for (key, val) in sorted(data.items()):
-		print("{} -> {}".format(key, val))
+		print(f"{key} -> {val}")
 
 
 # Tests whether the given integer is a prime number. Called by the native function.

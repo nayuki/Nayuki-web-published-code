@@ -1,7 +1,7 @@
 # 
 # Binary array set test (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-array-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -95,7 +95,7 @@ class BinaryArraySetTest(unittest.TestCase):
 		length = 0
 		for i in range(ITERATIONS):
 			if i % 300 == 0:
-				print("Progress: {:.0%}".format(float(i) / ITERATIONS))
+				print(f"Progress: {float(i) / ITERATIONS:.0%}")
 			op = random.randrange(100)
 			
 			if op < 1:  # Fast clear

@@ -28,7 +28,7 @@ def do_iterated_popcount(n):
 	prev = -1
 	print("Iter  Value")
 	while True:
-		print("{:4}  {}".format(i, n))
+		print(f"{i:4}  {n}")
 		if n == prev:
 			break
 		prev = n

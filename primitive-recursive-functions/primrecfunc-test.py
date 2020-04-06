@@ -2,7 +2,7 @@
 # Test suite for primrecfunc (Python).
 # Runnable as a main program, which should print "All N tests passed".
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/primitive-recursive-functions
 # 
@@ -791,7 +791,7 @@ if __name__ == "__main__":
 				if not failed:
 					print("One or more tests failed:")
 					failed = True
-				print("    {} {} = {} != {}".format(str(f), str(arg), str(actual), str(ans)))
+				print(f"    {str(f)} {str(arg)} = {str(actual)} != {str(ans)}")
 			count += 1
 	if not failed:
-		print("All {} tests passed".format(count))
+		print(f"All {count} tests passed")

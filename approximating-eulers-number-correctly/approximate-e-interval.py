@@ -1,7 +1,7 @@
 # 
 # Approximating Euler's number correctly (Python)
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/approximating-eulers-number-correctly
 # 
@@ -27,7 +27,7 @@ def main():
 		start_time = time.time()
 		compute_eulers_number(digits)
 		elapsed_time = time.time() - start_time
-		print("{:6d}  {:7.3f} s".format(digits, elapsed_time))
+		print(f"{digits:6d}  {elapsed_time:7.3f} s")
 
 
 # For example: compute_eulers_number(4) = "2.7183"

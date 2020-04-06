@@ -70,7 +70,7 @@ def modify_file_crc32(path, offset, newcrc, printstatus=False):
 		# Read entire file and calculate original CRC-32 value
 		crc = get_crc32(raf)
 		if printstatus:
-			print("Original CRC-32: {:08X}".format(reverse32(crc)))
+			print(f"Original CRC-32: {reverse32(crc):08X}")
 		
 		# Compute the change to make
 		delta = crc ^ newcrc

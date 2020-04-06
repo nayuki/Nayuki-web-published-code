@@ -24,7 +24,7 @@ def main():
 		numdigits = len(str(n))  # Number of digits in base 10, i.e. floor(log10(n))+1
 		if numdigits > 8192:
 			break
-		print("({} bits, {} digits) {}".format(n.bit_length(), numdigits, n))
+		print(f"({n.bit_length()} bits, {numdigits} digits) {n}")
 		
 		# Print the number in various notations
 		if numdigits <= 69:

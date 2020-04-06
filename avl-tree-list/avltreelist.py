@@ -182,7 +182,7 @@ class AvlTreeList:
 		
 		
 		def __str__(self):
-			return "AvlTreeNode(size={}, height={}, val={})".format(self.size, self.height, self.value)
+			return f"AvlTreeNode(size={self.size}, height={self.height}, val={self.value})"
 		
 		
 		# Balances the subtree rooted at this node and returns the new root.

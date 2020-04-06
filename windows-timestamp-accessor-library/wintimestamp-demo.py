@@ -27,9 +27,9 @@ def main():
 		path = "."
 		print(os.path.abspath(path))
 		ticks = wt.get_creation_time(path)
-		print("{}    {}".format(ticks, wintimestamp.ticks_to_datetime(ticks)))
+		print(f"{ticks}    {wintimestamp.ticks_to_datetime(ticks)}")
 		ticks = wt.get_modification_time(path)
-		print("{}    {}".format(ticks, wintimestamp.ticks_to_datetime(ticks)))
+		print(f"{ticks}    {wintimestamp.ticks_to_datetime(ticks)}")
 		
 		# Action 1
 		path = "Hello Python Timestamp.txt"

@@ -1,7 +1,7 @@
 # 
 # Reed-Solomon error-correcting code decoder
 # 
-# Copyright (c) 2019 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
 # 
@@ -28,11 +28,11 @@ def show_binary_example():
 	
 	# Generate random message
 	message = [random.randrange(field.size) for _ in range(msglen)]
-	print("Original message: {}".format(message))
+	print(f"Original message: {message}")
 	
 	# Encode message to produce codeword
 	codeword = rs.encode(message)
-	print("Encoded codeword: {}".format(codeword))
+	print(f"Encoded codeword: {codeword}")
 	
 	# Perturb some values in the codeword
 	probability = float(ecclen // 2) / (msglen + ecclen)
@@ -41,12 +41,12 @@ def show_binary_example():
 		if random.random() < probability:
 			codeword[i] = field.add(codeword[i], random.randrange(1, field.size))
 			perturbed += 1
-	print("Number of values perturbed: {}".format(perturbed))
-	print("Perturbed codeword: {}".format(codeword))
+	print(f"Number of values perturbed: {perturbed}")
+	print(f"Perturbed codeword: {codeword}")
 	
 	# Try to decode the codeword
 	decoded = rs.decode(codeword)
-	print("Decoded message: {}".format(decoded if (decoded is not None) else "Failure"))
+	print(f"Decoded message: {decoded if (decoded is not None) else 'Failure'}")
 	print("")
 
 
@@ -61,11 +61,11 @@ def show_prime_example():
 	
 	# Generate random message
 	message = [random.randrange(field.modulus) for _ in range(msglen)]
-	print("Original message: {}".format(message))
+	print(f"Original message: {message}")
 	
 	# Encode message to produce codeword
 	codeword = rs.encode(message)
-	print("Encoded codeword: {}".format(codeword))
+	print(f"Encoded codeword: {codeword}")
 	
 	# Perturb some values in the codeword
 	probability = float(ecclen // 2) / (msglen + ecclen)
@@ -74,12 +74,12 @@ def show_prime_example():
 		if random.random() < probability:
 			codeword[i] = field.add(codeword[i], random.randrange(1, field.modulus))
 			perturbed += 1
-	print("Number of values perturbed: {}".format(perturbed))
-	print("Perturbed codeword: {}".format(codeword))
+	print(f"Number of values perturbed: {perturbed}")
+	print(f"Perturbed codeword: {codeword}")
 	
 	# Try to decode the codeword
 	decoded = rs.decode(codeword)
-	print("Decoded message: {}".format(decoded if (decoded is not None) else "Failure"))
+	print(f"Decoded message: {decoded if (decoded is not None) else 'Failure'}")
 	print("")
 
 
@@ -141,8 +141,7 @@ def test_correctness():
 				numfailure += 1
 		
 		# Print parameters and statistics for this round
-		print("msgLen={}, eccLen={}, codewordLen={}, numErrors={}  numTrials={}, numSuccess={}, numWrong={}, numFailure={}".format(
-			msglen, ecclen, codewordlen, numerrors, numsuccess + numwrong + numfailure, numsuccess, numwrong, numfailure))
+		print(f"msgLen={msglen}, eccLen={ecclen}, codewordLen={codewordlen}, numErrors={numerrors}  numTrials={numsuccess + numwrong + numfailure}, numSuccess={numsuccess}, numWrong={numwrong}, numFailure={numfailure}")
 
 
 if __name__ == "__main__":

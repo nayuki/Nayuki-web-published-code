@@ -1,7 +1,7 @@
 # 
 # BitTorrent bencode decoder demo (Python)
 # 
-# Copyright (c) 2019 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/bittorrent-bencode-format-tools
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,10 +45,10 @@ def main(args):
 # with at least the given indentation depth.
 def _print_bencode_value(obj, depth):
 	if bencode.is_int(obj):
-		print("Integer: {}".format(obj))
+		print(f"Integer: {obj}")
 	
 	elif bencode.is_bytes(obj):
-		s = "Byte string ({}) ".format(len(obj))
+		s = f"Byte string ({len(obj)}) "
 		try:
 			obj.decode("UTF-8")
 			s += "(text): "
@@ -61,18 +61,18 @@ def _print_bencode_value(obj, depth):
 		print("List:")
 		for (i, val) in enumerate(obj):
 			_print_indent(depth + 1)
-			print("{} = ".format(i), end="")
+			print(f"{i} = ", end="")
 			_print_bencode_value(val, depth + 1)
 	
 	elif bencode.is_dict(obj):
 		print("Dictionary:")
 		for (key, val) in sorted(obj.items()):
 			_print_indent(depth + 1)
-			print("{} = ".format(_render_byte_string(key)), end="")
+			print(f"{_render_byte_string(key)} = ", end="")
 			_print_bencode_value(val, depth + 1)
 	
 	else:
-		raise ValueError("Unsupported value type: {}".format(type(obj)))
+		raise ValueError(f"Unsupported value type: {type(obj)}")
 
 
 # Returns a human-friendly string representation of the given byte string.
@@ -82,7 +82,7 @@ def _render_byte_string(bs):
 	except UnicodeDecodeError:
 		parts = []
 		for (i, b) in enumerate(bytearray(bs)):
-			parts.append("{:02X}".format(b))
+			parts.append(f"{b:02X}")
 			if i + 1 < len(bs) and i == 30:
 				parts.append("...")
 				break

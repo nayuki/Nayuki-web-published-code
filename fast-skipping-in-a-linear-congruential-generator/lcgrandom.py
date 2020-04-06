@@ -1,7 +1,7 @@
 # 
 # Linear congruential generator (LCG) with fast skipping and backward iteration (Python)
 # 
-# Copyright (c) 2019 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
 # 
@@ -48,7 +48,7 @@ def main():
 			raise AssertionError()
 		randslow.previous()
 	
-	print("Test passed (n={})".format(N))
+	print(f"Test passed (n={N})")
 
 
 

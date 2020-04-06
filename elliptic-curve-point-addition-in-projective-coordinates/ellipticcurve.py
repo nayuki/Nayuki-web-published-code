@@ -132,10 +132,10 @@ class AffineCurvePoint:
 		if self.is_zero():
 			return "(Zero)"
 		else:
-			return "({}, {})".format(self.x, self.y)
+			return f"({self.x}, {self.y})"
 	
 	def __repr__(self):
-		return "AffineCurvePoint(x={}, y={}, a={}, b={}, mod={})".format(self.x, self.y, self.a, self.b, self.modulus)
+		return f"AffineCurvePoint(x={self.x}, y={self.y}, a={self.a}, b={self.b}, mod={self.modulus})"
 
 
 
@@ -273,10 +273,10 @@ class ProjectiveCurvePoint:
 		if self.is_zero():
 			return "(Zero)"
 		else:
-			return "({}, {}, {})".format(self.x, self.y, self.z)
+			return f"({self.x}, {self.y}, {self.z})"
 	
 	def __repr__(self):
-		return "ProjectiveCurvePoint(x={}, y={}, z={}, a={}, b={}, mod={})".format(self.x, self.y, self.z, self.a, self.b, self.modulus)
+		return f"ProjectiveCurvePoint(x={self.x}, y={self.y}, z={self.z}, a={self.a}, b={self.b}, mod={self.modulus})"
 
 
 
@@ -356,4 +356,4 @@ class FieldInt:
 		return str(self.value)
 	
 	def __repr__(self):
-		return "FieldInt(value={}, modulus={})".format(self.value, self.modulus)
+		return f"FieldInt(value={self.value}, modulus={self.modulus})"

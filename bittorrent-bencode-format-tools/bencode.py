@@ -40,9 +40,9 @@ def serialize(obj, out):
 	The allowed types of the value and its children are described in this module's overview comment.
 	Raises TypeError if the value or any child or any dictionary key has an unsupported type."""
 	if is_int(obj):
-		out.write("i{}e".format(obj).encode("UTF-8"))
+		out.write(f"i{obj}e".encode("UTF-8"))
 	elif is_bytes(obj):
-		out.write("{}:".format(len(obj)).encode("UTF-8") + obj)
+		out.write(f"{len(obj)}:".encode("UTF-8") + obj)
 	elif is_list(obj):
 		out.write(b"l")
 		for o in obj:
@@ -57,7 +57,7 @@ def serialize(obj, out):
 			serialize(v, out)
 		out.write(b"e")
 	else:
-		raise TypeError("Unsupported value type: {}".format(type(obj)))
+		raise TypeError(f"Unsupported value type: {type(obj)}")
 
 
 

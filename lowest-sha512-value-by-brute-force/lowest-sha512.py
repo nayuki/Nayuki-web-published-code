@@ -1,7 +1,7 @@
 # 
 # Lowest SHA-512 value by brute force (Python)
 # 
-# Copyright (c) 2019 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
 # 
@@ -25,7 +25,7 @@ def main():
 		# Hash message and compare with lowest
 		hash = hashlib.sha512(message).hexdigest()
 		if lowesthash is None or hash < lowesthash:
-			print("Trial #{}:  sha512({}) = {}...".format(trials, message.decode("ASCII"), hash[ : 24]))
+			print(f"Trial #{trials}:  sha512({message.decode('ASCII')}) = {hash[ : 24]}...")
 			lowesthash = hash
 		
 		# Increment message. For example, "aa" -> "ab", "fnzz" -> "foaa".

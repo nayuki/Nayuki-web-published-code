@@ -383,7 +383,7 @@ class QuadraticSurd:
 	
 	
 	def __str__(self):
-		return "({} + {}*sqrt({})) / {}".format(a, b, d, c)
+		return f"({a} + {b}*sqrt({c})) / {d}"
 
 
 

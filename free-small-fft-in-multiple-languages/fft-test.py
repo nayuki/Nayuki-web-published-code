@@ -59,7 +59,7 @@ def main():
 			prev = n
 	
 	print("")
-	print("Max log err = {:.1f}".format(_maxlogerr))
+	print(f"Max log err = {_maxlogerr:.1f}")
 	print("Test " + ("passed" if _maxlogerr < -10 else "failed"))
 
 
@@ -72,7 +72,7 @@ def _test_fft(size):
 	actualin = fft.transform(refout, True)
 	actualin = [(x / size) for x in actualin]
 	err = max(_log10_rms_err(input, actualin), err)
-	print("fftsize={:4d}  logerr={:5.1f}".format(size, err))
+	print(f"fftsize={size:4d}  logerr={err:5.1f}")
 
 
 def _test_convolution(size):
@@ -80,7 +80,7 @@ def _test_convolution(size):
 	input1 = _random_vector(size)
 	refout = _naive_convolution(input0, input1)
 	actualout = fft.convolve(input0, input1, False)
-	print("convsize={:4d}  logerr={:5.1f}".format(size, _log10_rms_err(refout, actualout)))
+	print(f"convsize={size:4d}  logerr={_log10_rms_err(refout, actualout):5.1f}")
 
 
 # ---- Naive reference computation functions ----

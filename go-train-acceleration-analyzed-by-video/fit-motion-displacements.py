@@ -52,7 +52,7 @@ def main(args):
 	for i in range(solutionx.size):
 		x = solutionx[i]
 		y = solutiony[i]
-		print("{}\t{}\t{}\t{}".format(i, x, y, math.hypot(x, y)))
+		print(f"{i}\t{x}\t{y}\t{math.hypot(x, y)}")
 
 
 if __name__ == "__main__":

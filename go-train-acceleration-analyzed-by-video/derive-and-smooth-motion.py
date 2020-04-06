@@ -77,7 +77,7 @@ def main(args):
 	HEADER = ("Frame", "Displacement (m)", "Velocity (km/h)", "Acceleration (m/s^2)")
 	print("\t".join(HEADER))
 	for i in range(disp.size):
-		print("{}\t{}\t{}\t{}".format(i, disp[i], vel[i] * 3.6, acc[i]))
+		print(f"{i}\t{disp[i]}\t{vel[i] * 3.6}\t{acc[i]}")
 
 
 
