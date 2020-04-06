@@ -22,7 +22,7 @@
 #   Software.
 # 
 
-import hashlib, random, sys, unittest
+import hashlib, random, unittest
 from cryptocommon import asciistr_to_bytelist, hexstr_to_bytelist
 
 
@@ -187,14 +187,13 @@ class HashTest(unittest.TestCase):
 	def _check_vs_stdlib(self, ourfunc, stdfunc):
 		global num_test_cases
 		trials = 1000
-		py3 = sys.version_info.major >= 3
 		for _ in range(trials):
 			msglen = random.randrange(1000)
 			msglist = [random.randrange(256) for _ in range(msglen)]
-			msgstr = bytes(msglist) if py3 else b"".join(map(chr, msglist))
+			msgstr = bytes(msglist)
 			actualhash = ourfunc(msglist)
 			expecthash = stdfunc(msgstr).digest()
-			expecthash = list(expecthash) if py3 else map(ord, expecthash)
+			expecthash = list(expecthash)
 			self.assertEqual(actualhash, expecthash)
 			num_test_cases += 1
 

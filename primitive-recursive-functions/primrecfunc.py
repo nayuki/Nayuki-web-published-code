@@ -6,10 +6,6 @@
 # https://www.nayuki.io/page/primitive-recursive-functions
 # 
 
-import sys
-if sys.version_info.major == 2:
-	range = xrange
-
 
 # ---- Classes for primitive recursive functions ----
 

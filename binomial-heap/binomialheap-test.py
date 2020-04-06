@@ -1,7 +1,7 @@
 # 
 # Binomial heap test (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binomial-heap
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,11 +21,7 @@
 #   Software.
 # 
 
-import random, sys, unittest
-if sys.version_info.major == 2:
-	import Queue as queue
-else:
-	import queue
+import queue, random, unittest
 import binomialheap
 
 

@@ -1,7 +1,7 @@
 # 
 # FFT and convolution test (Python)
 # 
-# Copyright (c) 2019 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/free-small-fft-in-multiple-languages
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,10 +21,8 @@
 #   Software.
 # 
 
-import cmath, math, random, sys
+import cmath, math, random
 import fft
-if sys.version_info.major == 2:
-	range = xrange
 
 
 # ---- Main and test functions ----

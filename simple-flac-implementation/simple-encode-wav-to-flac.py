@@ -22,7 +22,6 @@
 # 
 
 import sys
-python3 = sys.version_info.major >= 3
 
 
 def main(argv):
@@ -94,7 +93,7 @@ def read_fully(inp, n):
 def read_little_int(inp, n):
 	result = 0
 	for (i, b) in enumerate(read_fully(inp, n)):
-		result |= (b if python3 else ord(b)) << (i * 8)
+		result |= b << (i * 8)
 	return result
 
 
@@ -166,7 +165,7 @@ class BitOutputStream:
 		while self.bitbufferlen >= 8:
 			self.bitbufferlen -= 8
 			b = (self.bitbuffer >> self.bitbufferlen) & 0xFF
-			self.out.write(bytes((b,)) if python3 else chr(b))
+			self.out.write(bytes((b,)))
 			self.crc8 = CRC8_TABLE[self.crc8 ^ b]
 			self.crc16 = CRC16_TABLE[(self.crc16 >> 8) ^ b] ^ ((self.crc16 & 0xFF) << 8)
 		self.bitbuffer &= (1 << self.bitbufferlen) - 1

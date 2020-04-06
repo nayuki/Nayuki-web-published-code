@@ -10,8 +10,6 @@
 # 
 
 import math, numpy, sys
-if sys.version_info[ : 3] < (3, 0, 0):
-	raise AssertionError("Requires Python 3+")
 
 
 # Configuration

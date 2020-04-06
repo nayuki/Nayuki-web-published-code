@@ -30,13 +30,7 @@ Bencode supports four types of values:
 * Dictionary, which is mapped to Python dict, such that every key
   is a bytes object and every value is a bencode value."""
 
-import numbers, sys
-py3 = sys.version_info.major >= 3
-if py3:
-	import collections.abc as collections_abc
-	unicode = str
-else:
-	import collections as collections_abc
+import collections.abc, numbers
 
 
 # ---- Bencode serializer ----
@@ -119,7 +113,7 @@ class _Parser:
 			
 			if not ok:
 				raise ValueError("Unexpected integer character")
-			buf.append(b[0] if py3 else ord(b))
+			buf.append(b[0])
 		if buf in (b"", b"-"):
 			raise ValueError("Invalid integer syntax")
 		return int(buf)
@@ -129,8 +123,7 @@ class _Parser:
 		length = self._parse_natural_number(head)
 		result = bytearray()
 		for _ in range(length):
-			b = self.read_byte()
-			result.append(b[0] if py3 else ord(b))
+			result.append(self.read_byte()[0])
 		return bytes(result)
 	
 	
@@ -140,7 +133,7 @@ class _Parser:
 		while True:
 			if b < b"0" or b > b"9" or buf == b"0":
 				raise ValueError("Unexpected integer character")
-			buf.append(b[0] if py3 else ord(b))
+			buf.append(b[0])
 			b = self.read_byte()
 			if b == b":":
 				break
@@ -192,9 +185,9 @@ def is_bytes(obj):
 
 def is_list(obj):
 	"""Tests whether the given value is a bencode list."""
-	return isinstance(obj, collections_abc.Sequence) and \
-		not isinstance(obj, (str, unicode, bytes, bytearray))
+	return isinstance(obj, collections.abc.Sequence) and \
+		not isinstance(obj, (str, bytes, bytearray))
 
 def is_dict(obj):
 	"""Tests whether the given value is a bencode dictionary."""
-	return isinstance(obj, collections_abc.Mapping)
+	return isinstance(obj, collections.abc.Mapping)

@@ -14,9 +14,8 @@ import codecs, itertools, random, sys
 # ---- Main runnable demo ----
 
 def main():
-	if sys.version_info[0] >= 3:
-		# Monkey-patch stdout to accept Unicode strings
-		sys.stdout = codecs.getwriter("UTF-8")(sys.stdout.buffer)
+	# Monkey-patch stdout to accept Unicode strings
+	sys.stdout = codecs.getwriter("UTF-8")(sys.stdout.buffer)
 	
 	for i in itertools.count(4):
 		# Choose a random positive number that is exactly 'bits' bits long
@@ -35,8 +34,6 @@ def main():
 			print(YllionEnglishNotation.to_string_with_separators(n))
 			print(YllionEnglishNotation.number_to_words(n))
 			chinese = YllionChineseNotation.number_to_words(n)
-			if sys.version_info[0] < 3:
-				chinese = chinese.encode("UTF-8")
 			print(chinese)
 		print("")
 

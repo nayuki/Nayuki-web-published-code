@@ -22,7 +22,6 @@
 # 
 
 import struct, sys
-python3 = sys.version_info.major >= 3
 
 
 def main(argv):
@@ -250,7 +249,7 @@ class BitInputStream:
 			result = self.inp.read(1)
 			if len(result) == 0:
 				return -1
-			return result[0] if python3 else ord(result)
+			return result[0]
 	
 	
 	def read_uint(self, n):
@@ -258,8 +257,7 @@ class BitInputStream:
 			temp = self.inp.read(1)
 			if len(temp) == 0:
 				raise EOFError()
-			temp = temp[0] if python3 else ord(temp)
-			self.bitbuffer = (self.bitbuffer << 8) | temp
+			self.bitbuffer = (self.bitbuffer << 8) | temp[0]
 			self.bitbufferlen += 8
 		self.bitbufferlen -= n
 		result = (self.bitbuffer >> self.bitbufferlen) & ((1 << n) - 1)

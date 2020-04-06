@@ -1,14 +1,10 @@
 # 
 # Iterated popcount demo
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/iterated-popcount-results-in-0-or-1
 # 
-
-import sys
-if sys.version_info.major == 2:
-	input = raw_input
 
 
 def main():

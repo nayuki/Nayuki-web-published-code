@@ -1,14 +1,12 @@
 # 
 # Band-limited square waves (Python)
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/band-limited-square-waves
 # 
 
 import math, struct, sys
-if sys.version_info.major < 3:
-	range = xrange
 
 
 def main(args):

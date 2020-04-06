@@ -1,14 +1,12 @@
 # 
 # Galois linear feedback shift register (LFSR) (Python)
 # 
-# Copyright (c) 2016 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/galois-linear-feedback-shift-register
 # 
 
-import numbers, random, sys
-if sys.version_info.major == 2:
-	range = xrange
+import numbers, random
 
 
 # Random number generator class (implements most functionality of random.Random)
