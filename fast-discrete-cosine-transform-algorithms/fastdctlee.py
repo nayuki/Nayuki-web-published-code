@@ -1,7 +1,7 @@
 # 
 # Fast discrete cosine transform algorithms (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -53,7 +53,7 @@ def transform(vector):
 def inverse_transform(vector, root=True):
 	if root:
 		vector = list(vector)
-		vector[0] /= 2.0
+		vector[0] /= 2
 	n = len(vector)
 	if n == 1:
 		return vector

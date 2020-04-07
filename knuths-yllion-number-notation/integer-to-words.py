@@ -19,7 +19,7 @@ def main():
 	
 	for i in itertools.count(4):
 		# Choose a random positive number that is exactly 'bits' bits long
-		bits = int(round(2 ** (i / 2.0)))
+		bits = int(round(2 ** (i / 2)))
 		n = random.randrange(1 << (bits - 1), 1 << bits)
 		numdigits = len(str(n))  # Number of digits in base 10, i.e. floor(log10(n))+1
 		if numdigits > 8192:

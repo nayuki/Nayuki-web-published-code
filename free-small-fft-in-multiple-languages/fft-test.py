@@ -41,7 +41,7 @@ def main():
 	# Test diverse size FFTs
 	prev = 0
 	for i in range(100 + 1):
-		n = int(round(1500 ** (i / 100.0)))
+		n = int(round(1500 ** (i / 100)))
 		if n > prev:
 			_test_fft(n)
 			prev = n
@@ -53,7 +53,7 @@ def main():
 	# Test diverse size convolutions
 	prev = 0
 	for i in range(100 + 1):
-		n = int(round(1500 ** (i / 100.0)))
+		n = int(round(1500 ** (i / 100)))
 		if n > prev:
 			_test_convolution(n)
 			prev = n

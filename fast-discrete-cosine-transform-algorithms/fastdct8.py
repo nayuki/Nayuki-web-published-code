@@ -1,7 +1,7 @@
 # 
 # Fast discrete cosine transform algorithms (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -85,18 +85,18 @@ def inverse_transform(vector):
 	v22 = vector[6] / S[6]
 	v27 = vector[7] / S[7]
 	
-	v19 = (v25 - v28) / 2.0
-	v20 = (v26 - v27) / 2.0
-	v23 = (v26 + v27) / 2.0
-	v24 = (v25 + v28) / 2.0
+	v19 = (v25 - v28) / 2
+	v20 = (v26 - v27) / 2
+	v23 = (v26 + v27) / 2
+	v24 = (v25 + v28) / 2
 	
-	v7  = (v23 + v24) / 2.0
-	v11 = (v21 + v22) / 2.0
-	v13 = (v23 - v24) / 2.0
-	v17 = (v21 - v22) / 2.0
+	v7  = (v23 + v24) / 2
+	v11 = (v21 + v22) / 2
+	v13 = (v23 - v24) / 2
+	v17 = (v21 - v22) / 2
 	
-	v8 = (v15 + v16) / 2.0
-	v9 = (v15 - v16) / 2.0
+	v8 = (v15 + v16) / 2
+	v9 = (v15 - v16) / 2
 	
 	v18 = (v19 - v20) * A[5]  # Different from original
 	v12 = (v19 * A[4] - v18) / (A[2] * A[5] - A[2] * A[4] - A[4] * A[5])
@@ -107,20 +107,20 @@ def inverse_transform(vector):
 	v4 = -v5 - v12
 	v10 = v17 / A[1] - v11
 	
-	v0 = (v8 + v11) / 2.0
-	v1 = (v9 + v10) / 2.0
-	v2 = (v9 - v10) / 2.0
-	v3 = (v8 - v11) / 2.0
+	v0 = (v8 + v11) / 2
+	v1 = (v9 + v10) / 2
+	v2 = (v9 - v10) / 2
+	v3 = (v8 - v11) / 2
 	
 	return [
-		(v0 + v7) / 2.0,
-		(v1 + v6) / 2.0,
-		(v2 + v5) / 2.0,
-		(v3 + v4) / 2.0,
-		(v3 - v4) / 2.0,
-		(v2 - v5) / 2.0,
-		(v1 - v6) / 2.0,
-		(v0 - v7) / 2.0,
+		(v0 + v7) / 2,
+		(v1 + v6) / 2,
+		(v2 + v5) / 2,
+		(v3 + v4) / 2,
+		(v3 - v4) / 2,
+		(v2 - v5) / 2,
+		(v1 - v6) / 2,
+		(v0 - v7) / 2,
 	]
 
 

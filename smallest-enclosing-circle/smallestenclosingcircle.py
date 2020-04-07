@@ -1,7 +1,7 @@
 # 
 # Smallest enclosing circle - Library (Python)
 # 
-# Copyright (c) 2018 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # https://www.nayuki.io/page/smallest-enclosing-circle
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -90,8 +90,8 @@ def _make_circle_two_points(points, p, q):
 
 
 def make_diameter(a, b):
-	cx = (a[0] + b[0]) / 2.0
-	cy = (a[1] + b[1]) / 2.0
+	cx = (a[0] + b[0]) / 2
+	cy = (a[1] + b[1]) / 2
 	r0 = math.hypot(cx - a[0], cy - a[1])
 	r1 = math.hypot(cx - b[0], cy - b[1])
 	return (cx, cy, max(r0, r1))
@@ -99,8 +99,8 @@ def make_diameter(a, b):
 
 def make_circumcircle(a, b, c):
 	# Mathematical algorithm from Wikipedia: Circumscribed circle
-	ox = (min(a[0], b[0], c[0]) + max(a[0], b[0], c[0])) / 2.0
-	oy = (min(a[1], b[1], c[1]) + max(a[1], b[1], c[1])) / 2.0
+	ox = (min(a[0], b[0], c[0]) + max(a[0], b[0], c[0])) / 2
+	oy = (min(a[1], b[1], c[1]) + max(a[1], b[1], c[1])) / 2
 	ax = a[0] - ox;  ay = a[1] - oy
 	bx = b[0] - ox;  by = b[1] - oy
 	cx = c[0] - ox;  cy = c[1] - oy

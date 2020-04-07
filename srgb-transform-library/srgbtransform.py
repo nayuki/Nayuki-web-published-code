@@ -47,7 +47,7 @@ def linear_to_srgb(x):
 	elif x < 0.0031308:
 		return x * 12.92
 	else:
-		return x ** (1.0 / 2.4) * 1.055 - 0.055
+		return x ** (1 / 2.4) * 1.055 - 0.055
 
 
 def linear_to_srgb_8bit(x):
@@ -65,4 +65,4 @@ def linear_to_srgb_8bit(x):
 	return y if (x - table[y] <= table[y + 1] - x) else (y + 1)
 
 
-_SRGB_8BIT_TO_LINEAR = [srgb_to_linear(i / 255.0) for i in range(256)]
+_SRGB_8BIT_TO_LINEAR = [srgb_to_linear(i / 255) for i in range(256)]

@@ -1,7 +1,7 @@
 # 
 # Fast discrete cosine transform algorithms (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -68,7 +68,7 @@ class FastDctTest(unittest.TestCase):
 	def test_fast_dct_fft_vs_naive(self):
 		prev = 0
 		for i in range(100 + 1):
-			n = int(round(1000**(i / 100.0)))
+			n = int(round(1000**(i / 100)))
 			if n <= prev:
 				continue
 			prev = n
@@ -86,7 +86,7 @@ class FastDctTest(unittest.TestCase):
 	def test_fast_dct_fft_invertibility(self):
 		prev = 0
 		for i in range(30 + 1):
-			n = int(round(10000**(i / 30.0)))
+			n = int(round(10000**(i / 30)))
 			if n <= prev:
 				continue
 			prev = n

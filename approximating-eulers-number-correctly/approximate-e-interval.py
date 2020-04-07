@@ -19,7 +19,7 @@ def main():
 	# Compute 1 to 100000 decimal places (exponentially increasing) and print timing
 	prev = 0
 	for i in range(101):
-		digits = int(round(10 ** (i / 20.0)))
+		digits = int(round(10 ** (i / 20)))
 		if digits == prev:
 			continue
 		prev = digits

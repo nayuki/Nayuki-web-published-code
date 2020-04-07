@@ -1,7 +1,7 @@
 # 
 # AA tree set test (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/aa-tree-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -198,7 +198,7 @@ class AaTreeSetTest(unittest.TestCase):
 			for val in lst:
 				set0.remove(val)
 				set1.remove(val)
-				if random.random() < max(1.0 / max(len(set1), 1), 0.001):
+				if random.random() < max(1 / max(len(set1), 1), 0.001):
 					set1.check_structure()
 				self.assertEqual(len(set0), len(set1))
 				for _ in range(CHECKS):

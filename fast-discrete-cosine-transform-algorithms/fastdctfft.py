@@ -1,7 +1,7 @@
 # 
 # Fast discrete cosine transform algorithms (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@ def transform(vector):
 def inverse_transform(vector):
 	n = len(vector)
 	factor = -1j * cmath.pi / (len(vector) * 2)
-	temp = [(val if i > 0 else val / 2.0) * cmath.exp(i * factor)
+	temp = [(val if i > 0 else val / 2) * cmath.exp(i * factor)
 		for (i, val) in enumerate(vector)]
 	temp = fft.transform(temp, False)
 	
