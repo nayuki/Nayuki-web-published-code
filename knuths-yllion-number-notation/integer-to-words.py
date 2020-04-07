@@ -35,7 +35,7 @@ def main():
 			print(YllionEnglishNotation.number_to_words(n))
 			chinese = YllionChineseNotation.number_to_words(n)
 			print(chinese)
-		print("")
+		print()
 
 
 

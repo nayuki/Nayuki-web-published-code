@@ -81,7 +81,7 @@ def _hash(message, outbitlen, printdebug):
 		j = i >> 3
 		x, y = j % _MATRIX_SIZE, j // _MATRIX_SIZE
 		result.append(int(state[x][y] >> ((i % 8) * 8)) & 0xFF)
-	if printdebug: print("")
+	if printdebug: print()
 	return result
 
 

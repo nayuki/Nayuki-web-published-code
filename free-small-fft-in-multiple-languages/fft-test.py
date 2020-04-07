@@ -58,7 +58,7 @@ def main():
 			_test_convolution(n)
 			prev = n
 	
-	print("")
+	print()
 	print(f"Max log err = {_maxlogerr:.1f}")
 	print("Test " + ("passed" if _maxlogerr < -10 else "failed"))
 

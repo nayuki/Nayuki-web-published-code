@@ -20,7 +20,7 @@ def main():
 			do_iterated_popcount(n)
 		except ValueError:
 			print("Error: Number must be positive or zero")
-		print("")
+		print()
 
 
 def do_iterated_popcount(n):

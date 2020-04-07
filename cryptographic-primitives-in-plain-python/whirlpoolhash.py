@@ -56,7 +56,7 @@ def hash(message, printdebug=False):
 		state = _compress(block, state, printdebug)
 	
 	# Return the final state as a bytelist
-	if printdebug: print("")
+	if printdebug: print()
 	return list(state)
 
 

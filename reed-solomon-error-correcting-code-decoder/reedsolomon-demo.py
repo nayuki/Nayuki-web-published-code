@@ -47,7 +47,7 @@ def show_binary_example():
 	# Try to decode the codeword
 	decoded = rs.decode(codeword)
 	print(f"Decoded message: {decoded if (decoded is not None) else 'Failure'}")
-	print("")
+	print()
 
 
 # Shows an example of encoding a prime message, and decoding a codeword containing errors.
@@ -80,7 +80,7 @@ def show_prime_example():
 	# Try to decode the codeword
 	decoded = rs.decode(codeword)
 	print(f"Decoded message: {decoded if (decoded is not None) else 'Failure'}")
-	print("")
+	print()
 
 
 # Tests the Reed-Solomon encoding and decoding logic under many parameters with many repetitions.

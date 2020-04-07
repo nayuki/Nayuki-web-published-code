@@ -55,7 +55,7 @@ def encrypt(block, key, printdebug=False):
 		result.append(int((x >> 16) & 0xFF))
 		result.append(int((x >>  8) & 0xFF))
 		result.append(int((x >>  0) & 0xFF))
-	if printdebug: print("")
+	if printdebug: print()
 	return result
 
 
@@ -88,7 +88,7 @@ def decrypt(block, key, printdebug=False):
 		result.append(int((x >> 16) & 0xFF))
 		result.append(int((x >>  8) & 0xFF))
 		result.append(int((x >>  0) & 0xFF))
-	if printdebug: print("")
+	if printdebug: print()
 	return result
 
 

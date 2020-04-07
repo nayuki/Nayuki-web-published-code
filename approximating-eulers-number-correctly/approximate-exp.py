@@ -13,7 +13,7 @@ def main():
 		for j in range(1, 11):  # Accuracy 1 to 10
 			x = i * 10 ** (j - 1)
 			print(f"exp({format_decimal(x, j):12}) = {compute_exp(x, j)}")
-		print("")
+		print()
 
 
 # For example: compute_exp(20000, 4) = "7.3891"

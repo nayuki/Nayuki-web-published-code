@@ -53,7 +53,7 @@ def hash(message, printdebug=False):
 	state, checksum = _compress(checksum, state, checksum, printdebug)
 	
 	# Return a prefix of the final state as a bytelist
-	if printdebug: print("")
+	if printdebug: print()
 	return list(state[ : 16])
 
 

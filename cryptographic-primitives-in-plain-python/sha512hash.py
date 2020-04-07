@@ -61,7 +61,7 @@ def hash(message, printdebug=False):
 	for x in state:
 		for i in reversed(range(8)):
 			result.append(int((x >> (i * 8)) & 0xFF))
-	if printdebug: print("")
+	if printdebug: print()
 	return result
 
 

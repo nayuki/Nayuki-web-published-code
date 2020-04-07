@@ -61,7 +61,7 @@ def encrypt(block, key, printdebug=False):
 	newblock = _add_round_key(newblock, keyschedule[-1])
 	
 	# Return the final block as a bytelist
-	if printdebug: print("")
+	if printdebug: print()
 	return list(newblock)
 
 
@@ -99,7 +99,7 @@ def decrypt(block, key, printdebug=False):
 	newblock = _add_round_key(newblock, keyschedule[-1])
 	
 	# Return the final block as a bytelist
-	if printdebug: print("")
+	if printdebug: print()
 	return list(newblock)
 
 

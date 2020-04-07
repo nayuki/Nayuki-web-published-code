@@ -15,7 +15,7 @@ def main():
 	# Print e rounded to n decimal places, for n from 0 to 60
 	for i in range(61):
 		print(compute_eulers_number(i))
-	print("")
+	print()
 	
 	# Compute 1 to 3000 decimal places (exponentially increasing) and print timing
 	prev = 0

@@ -62,7 +62,7 @@ def hash(message, printdebug=False):
 		result.append(int((x >>  8) & 0xFF))
 		result.append(int((x >> 16) & 0xFF))
 		result.append(int((x >> 24) & 0xFF))
-	if printdebug: print("")
+	if printdebug: print()
 	return result
 
 

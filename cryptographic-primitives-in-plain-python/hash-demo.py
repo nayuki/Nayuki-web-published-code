@@ -34,9 +34,9 @@ def main():
 	print(f"Message bytelist: {msgbytelist}")
 	print(f"Hash bytelist: {hashbytelist}")
 	print(f"MD5 hash (hex): {hashhexstr}")
-	print("")
+	print()
 	print("-" * 100)
-	print("")
+	print()
 	
 	message = "the quick brown fox"
 	msgbytelist = cryptocommon.asciistr_to_bytelist(message)
