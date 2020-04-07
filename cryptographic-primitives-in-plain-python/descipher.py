@@ -2,7 +2,7 @@
 # The DES (Data Encryption Standard) block cipher.
 # Note: The key length is 64 bits but 8 of them are ignored, so the effective key length is 56 bits.
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,7 +46,7 @@ def _crypt(block, key, direction, printdebug):
 	assert isinstance(block, list) and len(block) == 8
 	assert isinstance(key, list) and len(key) == 8
 	assert direction in ("encrypt", "decrypt")
-	if printdebug: print("descipher.{}(block = {}, key = {})".format(direction, cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
+	if printdebug: print(f"descipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Pack key bytes into uint64 in big endian
 	k = 0
@@ -74,7 +74,7 @@ def _crypt(block, key, direction, printdebug):
 	
 	# Perform 16 rounds of encryption/decryption
 	for (i, subkey) in enumerate(keyschedule):
-		if printdebug: print("    Round {:2d}: block = [{:08X} {:08X}]".format(i, left, right))
+		if printdebug: print(f"    Round {i:2d}: block = [{left:08X} {right:08X}]")
 		left, right = right, (left ^ _feistel_function(right, subkey))
 		assert 0 <= right <= cryptocommon.UINT32_MASK
 	

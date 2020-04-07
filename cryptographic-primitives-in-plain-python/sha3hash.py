@@ -1,7 +1,7 @@
 # 
 # The SHA-3 family of hash functions. It is described in FIPS Publication 202.
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,7 +54,7 @@ def _hash(message, outbitlen, printdebug):
 	assert isinstance(message, list)
 	msg = list(message)
 	blocksize = 200 - outbitlen // 4
-	if printdebug: print("sha3.hash{}(message = {} bytes)".format(outbitlen, len(message)))
+	if printdebug: print(f"sha3.hash{outbitlen}(message = {len(message)} bytes)")
 	
 	# Append the suffix bits and termination bit (rounded up to a whole byte)
 	msg.append(0x06)
@@ -72,7 +72,7 @@ def _hash(message, outbitlen, printdebug):
 	# Compress each block in the augmented message
 	for i in range(len(msg) // blocksize):
 		block = msg[i * blocksize : (i + 1) * blocksize]
-		if printdebug: print("    Block {} = {}".format(i, cryptocommon.bytelist_to_debugstr(block)))
+		if printdebug: print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		_compress(block, state, printdebug)
 	
 	# Serialize a prefix of the final state as a bytelist in little endian
@@ -108,13 +108,13 @@ def _compress(block, state, printdebug):
 	r = 1  # 8-bit LFSR
 	for _ in range(_NUM_ROUNDS):
 		if printdebug:
-			print("        Round {:2d}:".format(i))
+			print(f"        Round {i:2d}:")
 			for i in range(sz):
 				y = (sz // 2 - i) % sz
 				parts = []
 				for j in range(sz):
 					x = (j - sz // 2) % sz
-					parts.append("[{},{}]={:016X}".format(x, y, a[x][y]))
+					parts.append(f"[{x},{y}]={a[x][y]:016X}")
 				print("            " + ", ".join(parts))
 		
 		# Theta step

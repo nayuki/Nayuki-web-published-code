@@ -1,7 +1,7 @@
 # 
 # The SHA-1 hash function. It is described in FIPS Publication 180.
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@ def hash(message, printdebug=False):
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	assert isinstance(message, list)
 	msg = list(message)
-	if printdebug: print("sha1.hash(message = {} bytes)".format(len(message)))
+	if printdebug: print(f"sha1.hash(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
 	msg.append(0x80)
@@ -52,7 +52,7 @@ def hash(message, printdebug=False):
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
 		block = tuple(msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE])
-		if printdebug: print("    Block {} = {}".format(i, cryptocommon.bytelist_to_debugstr(block)))
+		if printdebug: print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
 	# Serialize the final state as a bytelist in big endian
@@ -93,7 +93,7 @@ def _compress(block, state, printdebug):
 	# Perform 80 rounds of hashing
 	for i in range(len(schedule)):
 		# Compute f value based on the round index i
-		if printdebug: print("        Round {:2d}: a={:08X}, b={:08X}, c={:08X}, d={:08X}, e={:08X}".format(i, a, b, c, d, e))
+		if printdebug: print(f"        Round {i:2d}: a={a:08X}, b={b:08X}, c={c:08X}, d={d:08X}, e={e:08X}")
 		j = i // 20
 		if   j == 0:  f = (b & c) | (~b & d)
 		elif j == 1:  f = b ^ c ^ d

@@ -2,7 +2,7 @@
 # The AES (Advanced Encryption Standard) block cipher. It is described in FIPS Publication 197.
 # All three key lengths (128, 192, 256 bits) are supported.
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,7 +33,7 @@ def encrypt(block, key, printdebug=False):
 	# Check input arguments
 	assert isinstance(block, list) and len(block) == 16
 	assert isinstance(key, list) and len(key) in (16, 24, 32)
-	if printdebug: print("aescipher.encrypt(block = {}, key = {})".format(cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
+	if printdebug: print(f"aescipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Compute key schedule from key
 	keyschedule = _expand_key_schedule(key)
@@ -41,13 +41,13 @@ def encrypt(block, key, printdebug=False):
 	# Perform special first round
 	i = 0
 	newblock = tuple(block)
-	if printdebug: print("    Round {:2d}: block = {}".format(i, cryptocommon.bytelist_to_debugstr(list(newblock))))
+	if printdebug: print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	i += 1
 	
 	# Perform 9/11/13 regular rounds of encryption
 	for subkey in keyschedule[1 : -1]:
-		if printdebug: print("    Round {:2d}: block = {}".format(i, cryptocommon.bytelist_to_debugstr(list(newblock))))
+		if printdebug: print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
 		newblock = _sub_bytes(newblock, _SBOX_FORWARD)
 		newblock = _shift_rows(newblock, 1)
 		newblock = _mix_columns(newblock, _MULTIPLIERS_FORWARD)
@@ -55,7 +55,7 @@ def encrypt(block, key, printdebug=False):
 		i += 1
 	
 	# Perform special last round
-	if printdebug: print("    Round {:2d}: block = {}".format(i, cryptocommon.bytelist_to_debugstr(list(newblock))))
+	if printdebug: print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
 	newblock = _sub_bytes(newblock, _SBOX_FORWARD)
 	newblock = _shift_rows(newblock, 1)
 	newblock = _add_round_key(newblock, keyschedule[-1])
@@ -71,7 +71,7 @@ def decrypt(block, key, printdebug=False):
 	# Check input arguments
 	assert isinstance(block, list) and len(block) == 16
 	assert isinstance(key, list) and len(key) in (16, 24, 32)
-	if printdebug: print("aescipher.decrypt(block = {}, key = {})".format(cryptocommon.bytelist_to_debugstr(block), cryptocommon.bytelist_to_debugstr(key)))
+	if printdebug: print(f"aescipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Compute key schedule from key
 	keyschedule = list(reversed(_expand_key_schedule(key)))
@@ -79,7 +79,7 @@ def decrypt(block, key, printdebug=False):
 	# Perform special first round
 	i = 0
 	newblock = tuple(block)
-	if printdebug: print("    Round {:2d}: block = {}".format(i, cryptocommon.bytelist_to_debugstr(list(newblock))))
+	if printdebug: print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	newblock = _shift_rows(newblock, -1)
 	newblock = _sub_bytes(newblock, _SBOX_INVERSE)
@@ -87,7 +87,7 @@ def decrypt(block, key, printdebug=False):
 	
 	# Perform 9/11/13 regular rounds of decryption
 	for subkey in keyschedule[1 : -1]:
-		if printdebug: print("    Round {:2d}: block = {}".format(i, cryptocommon.bytelist_to_debugstr(list(newblock))))
+		if printdebug: print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
 		newblock = _add_round_key(newblock, subkey)
 		newblock = _mix_columns(newblock, _MULTIPLIERS_INVERSE)
 		newblock = _shift_rows(newblock, -1)
@@ -95,7 +95,7 @@ def decrypt(block, key, printdebug=False):
 		i += 1
 	
 	# Perform special last round
-	if printdebug: print("    Round {:2d}: block = {}".format(i, cryptocommon.bytelist_to_debugstr(list(newblock))))
+	if printdebug: print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
 	newblock = _add_round_key(newblock, keyschedule[-1])
 	
 	# Return the final block as a bytelist

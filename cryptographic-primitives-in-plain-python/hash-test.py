@@ -204,4 +204,4 @@ class HashTest(unittest.TestCase):
 if __name__ == "__main__":
 	num_test_cases = 0
 	unittest.main(exit=False)
-	print("Tested {} vectors".format(num_test_cases))
+	print(f"Tested {num_test_cases} vectors")

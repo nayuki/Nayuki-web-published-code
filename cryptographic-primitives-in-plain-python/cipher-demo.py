@@ -35,12 +35,12 @@ def main():
 	ciphertexthexstr = cryptocommon.bytelist_to_hexstr(ciphertextbytelist)
 	assert aescipher.decrypt(ciphertextbytelist, keybytelist) == plaintextbytelist
 	
-	print('Plaintext  (hex): {}'.format(message))
-	print('Ciphertext (hex): {}'.format(ciphertexthexstr))
-	print('Key        (hex): {}'.format(key))
-	print("Plaintext  (bytelist): {}".format(plaintextbytelist))
-	print("Ciphertext (bytelist): {}".format(ciphertextbytelist))
-	print("Key        (bytelist): {}".format(keybytelist))
+	print(f"Plaintext  (hex): {message}")
+	print(f"Ciphertext (hex): {ciphertexthexstr}")
+	print(f"Key        (hex): {key}")
+	print(f"Plaintext  (bytelist): {plaintextbytelist}")
+	print(f"Ciphertext (bytelist): {ciphertextbytelist}")
+	print(f"Key        (bytelist): {keybytelist}")
 
 
 if __name__ == "__main__":

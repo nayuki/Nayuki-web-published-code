@@ -1,7 +1,7 @@
 # 
 # Common utility functions and constants for cryptography use.
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -72,10 +72,10 @@ def hexstr_to_bytelist(hexstr):
 # For example: bytelist_to_hexstr([255, 0, 192]) -> "FF00C0".
 def bytelist_to_hexstr(bytelist):
 	assert isinstance(bytelist, (list, tuple))
-	return "".join("{:02X}".format(b) for b in bytelist)
+	return "".join(f"{b:02X}" for b in bytelist)
 
 
 # For example: bytelist_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
 def bytelist_to_debugstr(bytelist):
 	assert isinstance(bytelist, (list, tuple))
-	return "[" + " ".join("{:02X}".format(b) for b in bytelist) + "]"
+	return "[" + " ".join(f"{b:02X}" for b in bytelist) + "]"
