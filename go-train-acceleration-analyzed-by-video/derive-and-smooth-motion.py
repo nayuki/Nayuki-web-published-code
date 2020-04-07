@@ -9,7 +9,7 @@
 # https://www.nayuki.io/page/go-train-acceleration-analyzed-by-video
 # 
 
-import math, numpy, sys
+import math, numpy, pathlib, sys
 
 
 # Configuration
@@ -26,7 +26,7 @@ def main(args):
 	
 	# Read TSV file data into ndarray
 	data = []
-	with open(args[0], "rt", encoding="UTF-8", newline=None) as fin:
+	with pathlib.Path(args[0]).open("rt", encoding="UTF-8", newline=None) as fin:
 		for (i, line) in enumerate(fin):
 			line = line.rstrip("\n")
 			parts = line.split("\t")

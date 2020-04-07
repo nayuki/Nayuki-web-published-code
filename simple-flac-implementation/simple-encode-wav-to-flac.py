@@ -21,14 +21,14 @@
 #   Software.
 # 
 
-import sys
+import pathlib, sys
 
 
 def main(argv):
 	if len(argv) != 3:
-		sys.exit("Usage: python " + argv[0] + " InFile.wav OutFile.flac")
-	with open(argv[1], "rb") as inp:
-		with BitOutputStream(open(argv[2], "wb")) as out:
+		sys.exit(f"Usage: python {argv[0]} InFile.wav OutFile.flac")
+	with pathlib.Path(argv[1]).open("rb") as inp:
+		with BitOutputStream(pathlib.Path(argv[2]).open("wb")) as out:
 			encode_file(inp, out)
 
 

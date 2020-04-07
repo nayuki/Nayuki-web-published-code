@@ -6,7 +6,7 @@
 # https://www.nayuki.io/page/band-limited-square-waves
 # 
 
-import math, struct, sys
+import math, pathlib, struct, sys
 
 
 def main(args):
@@ -43,7 +43,7 @@ Example: python generate-square-wave.py 440.0 0.5 48000 1.0 BandLimited Output.w
 	
 	# Start writing file data
 	numsamples = int(round(duration * samplerate))
-	with open(outfilepath, "wb") as fout:
+	with pathlib.Path(outfilepath).open("wb") as fout:
 		# Write WAV header
 		fout.write(b"RIFF")
 		fout.write(struct.pack("<I", 36 + numsamples * 4))

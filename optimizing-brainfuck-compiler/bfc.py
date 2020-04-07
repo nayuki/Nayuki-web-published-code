@@ -9,7 +9,7 @@
 # https://www.nayuki.io/page/optimizing-brainfuck-compiler
 # 
 
-import os, re, sys
+import os, pathlib, re, sys
 
 
 # ---- Main ----
@@ -19,18 +19,18 @@ def main(args):
 	if len(args) != 2:
 		return "Usage: python bfc.py BrainfuckFile OutputFile.c/java/py"
 	
-	inname = args[0]
-	if not os.path.isfile(inname):
-		return f"{inname}: Not a file"
+	inpath = pathlib.Path(args[0])
+	if not inpath.is_file():
+		return f"{inpath}: Not a file"
 	
-	outname = args[1]
-	if   outname.endswith(".c"   ):  outfunc = commands_to_c
-	elif outname.endswith(".java"):  outfunc = commands_to_java
-	elif outname.endswith(".py"  ):  outfunc = commands_to_python
-	else:  return f"{outname}: Unknown output type"
+	outpath = pathlib.Path(args[1])
+	if   outpath.suffix == ".c"   :  outfunc = commands_to_c
+	elif outpath.suffix == ".java":  outfunc = commands_to_java
+	elif outpath.suffix == ".py"  :  outfunc = commands_to_python
+	else:  return f"{outpath}: Unknown output type"
 	
 	# Read input
-	with open(inname, "rt") as fin:
+	with inpath.open("rt") as fin:
 		incode = fin.read()
 	
 	# Parse and optimize Brainfuck code
@@ -40,9 +40,8 @@ def main(args):
 	commands = optimize(commands)
 	
 	# Write output
-	tempname = os.path.splitext(os.path.basename(outname))[0]
-	outcode = outfunc(commands, tempname)
-	with open(outname, "wt") as fout:
+	outcode = outfunc(commands, outpath.stem)
+	with outpath.open("wt") as fout:
 		fout.write(outcode)
 
 

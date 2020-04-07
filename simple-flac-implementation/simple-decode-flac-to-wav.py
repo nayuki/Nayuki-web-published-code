@@ -21,14 +21,14 @@
 #   Software.
 # 
 
-import struct, sys
+import pathlib, struct, sys
 
 
 def main(argv):
 	if len(argv) != 3:
-		sys.exit("Usage: python " + argv[0] + " InFile.flac OutFile.wav")
-	with BitInputStream(open(argv[1], "rb")) as inp:
-		with open(argv[2], "wb") as out:
+		sys.exit(f"Usage: python {argv[0]} InFile.flac OutFile.wav")
+	with BitInputStream(pathlib.Path(argv[1]).open("rb")) as inp:
+		with pathlib.Path(argv[2]).open("wb") as out:
 			decode_file(inp, out)
 
 

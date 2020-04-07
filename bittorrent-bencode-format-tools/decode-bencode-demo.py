@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-import os, sys
+import os, pathlib, sys
 import bencode
 
 
@@ -31,11 +31,11 @@ def main(args):
 	USAGE = "Usage: python decode-bencode-demo.py Input.torrent"
 	if len(args) != 1:
 		sys.exit(USAGE)
-	filepath = args[0]
-	if not os.path.isfile(filepath):
+	filepath = pathlib.Path(args[0])
+	if not filepath.is_file():
 		sys.exit(USAGE)
 	
-	with open(filepath, "rb") as inp:
+	with filepath.open("rb") as inp:
 		obj = bencode.parse(inp)
 	_print_bencode_value(obj, 0)
 
