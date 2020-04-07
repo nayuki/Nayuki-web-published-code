@@ -32,13 +32,13 @@ def main():
 		
 		# Action 1
 		path = "Hello Python Timestamp.txt"
-		pathlib.Path(path).touch(exists_ok=False)
+		pathlib.Path(path).touch(exist_ok=False)
 		wt.set_creation_time    (path, 630822816000000000)
 		wt.set_modification_time(path, 632508663050000000)
 		
 		# Action 2
 		path = "\u4f60\u597d\u30d1\u30a4\u30bd\u30f3.txt"
-		pathlib.Path(path).touch(exists_ok=False)
+		pathlib.Path(path).touch(exist_ok=False)
 		wt.set_creation_time    (path, wintimestamp.datetime_to_ticks(datetime.datetime(2014, 9, 21,  1, 23, 45,      0)))
 		wt.set_modification_time(path, wintimestamp.datetime_to_ticks(datetime.datetime(2014, 9, 21, 12, 34, 56, 789000)))
 
