@@ -6,7 +6,7 @@
 # https://www.nayuki.io/page/galois-linear-feedback-shift-register
 # 
 
-import numbers, random
+import random
 
 
 # Random number generator class (implements most functionality of random.Random)
@@ -17,8 +17,8 @@ class LfsrRandom(random.Random):
 	
 	
 	def __init__(self, charis, state):
-		assert isinstance(charis, numbers.Integral)
-		assert isinstance(state, numbers.Integral)
+		assert isinstance(charis, int)
+		assert isinstance(state, int)
 		
 		if charis < 0:
 			raise ValueError("Invalid characteristic polynomial - negative")

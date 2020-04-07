@@ -21,13 +21,13 @@
 #   Software.
 # 
 
-import collections, numbers
+import collections
 
 
 # ---- Function for one-shot computation ----
 
 def compute(array, window, maximize):
-	if not isinstance(window, numbers.Integral):
+	if not isinstance(window, int):
 		raise TypeError()
 	if not isinstance(maximize, bool):
 		raise TypeError()

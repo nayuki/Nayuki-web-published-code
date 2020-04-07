@@ -21,14 +21,12 @@
 #   Software.
 # 
 
-import numbers
-
 
 class BTreeSet:
 	
 	# The degree is the minimum number of children each non-root internal node must have.
 	def __init__(self, degree, coll=None):
-		if not isinstance(degree, numbers.Integral):
+		if not isinstance(degree, int):
 			raise TypeError()
 		if degree < 2:
 			raise ValueError("Degree must be at least 2")

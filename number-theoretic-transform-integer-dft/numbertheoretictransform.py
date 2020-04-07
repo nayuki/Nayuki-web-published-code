@@ -6,7 +6,7 @@
 # https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 # 
 
-import itertools, numbers
+import itertools
 
 
 # ---- High-level NTT functions ----
@@ -258,5 +258,5 @@ def sqrt(n):
 
 # Returns silently if the given value is an integer, otherwise raises a TypeError.
 def check_int(n):
-	if not isinstance(n, numbers.Integral):
+	if not isinstance(n, int):
 		raise TypeError()

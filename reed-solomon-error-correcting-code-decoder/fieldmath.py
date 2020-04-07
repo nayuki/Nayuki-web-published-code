@@ -6,8 +6,6 @@
 # https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
 # 
 
-import numbers
-
 
 # ---- Field abstract class ----
 
@@ -147,7 +145,7 @@ class PrimeField(Field):
 	# Checks if the given object is the correct type and within
 	# the range of valid values, and returns the value itself.
 	def _check(self, x):
-		if not isinstance(x, numbers.Integral):
+		if not isinstance(x, int):
 			raise TypeError()
 		if not (0 <= x < self.modulus):
 			raise ValueError("Not an element of this field: " + str(x))
@@ -247,7 +245,7 @@ class BinaryField(Field):
 	# Checks if the given object is the correct type and within the
 	# range of valid values, and returns the same value.
 	def _check(self, x):
-		if not isinstance(x, numbers.Integral):
+		if not isinstance(x, int):
 			raise TypeError()
 		if not (0 <= x < self.size):
 			raise ValueError("Not an element of this field: " + str(x))

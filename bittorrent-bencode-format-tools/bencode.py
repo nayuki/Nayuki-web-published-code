@@ -30,7 +30,7 @@ Bencode supports four types of values:
 * Dictionary, which is mapped to Python dict, such that every key
   is a bytes object and every value is a bencode value."""
 
-import collections.abc, numbers
+import collections.abc
 
 
 # ---- Bencode serializer ----
@@ -177,7 +177,7 @@ class _Parser:
 
 def is_int(obj):
 	"""Tests whether the given value is a bencode integer."""
-	return isinstance(obj, numbers.Integral)
+	return isinstance(obj, int)
 
 def is_bytes(obj):
 	"""Tests whether the given value is a bencode byte string."""

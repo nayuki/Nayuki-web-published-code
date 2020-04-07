@@ -21,8 +21,6 @@
 #   Software.
 # 
 
-import numbers
-
 
 # ---- Elliptic curve points in affine coordinates ----
 
@@ -103,7 +101,7 @@ class AffineCurvePoint:
 	
 	
 	def __mul__(self, n):
-		if not isinstance(n, numbers.Integral):
+		if not isinstance(n, int):
 			raise TypeError("Expected integer")
 		if n < 0:
 			return -self * -n
@@ -243,7 +241,7 @@ class ProjectiveCurvePoint:
 	
 	
 	def __mul__(self, n):
-		if not isinstance(n, numbers.Integral):
+		if not isinstance(n, int):
 			raise TypeError("Expected integer")
 		if n < 0:
 			return -self * -n
@@ -289,7 +287,7 @@ class FieldInt:
 	
 	# The modulus must be prime, which is not checked!
 	def __init__(self, value, modulus):
-		if not isinstance(value, numbers.Integral) or not isinstance(modulus, numbers.Integral):
+		if not isinstance(value, int) or not isinstance(modulus, int):
 			raise TypeError("Expected integers")
 		if modulus <= 0:
 			raise ValueError("Modulus must be positive")

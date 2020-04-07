@@ -21,13 +21,11 @@
 #   Software.
 # 
 
-import numbers
-
 
 class BinaryIndexedTree:
 	
 	def __init__(self, arg):
-		if isinstance(arg, numbers.Integral):
+		if isinstance(arg, int):
 			self.sumtree = [0] * arg
 		else:
 			self.sumtree = list(arg)

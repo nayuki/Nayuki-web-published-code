@@ -6,7 +6,7 @@
 # https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
 # 
 
-import numbers, random, time
+import random, time
 
 
 # ---- Demo main program, which runs a correctness check ----
@@ -61,10 +61,10 @@ class LcgRandom(random.Random):
 	
 	
 	def __init__(self, a, b, m, seed):
-		assert isinstance(a, numbers.Integral) and a > 0
-		assert isinstance(b, numbers.Integral) and b >= 0
-		assert isinstance(m, numbers.Integral) and m > 0
-		assert isinstance(seed, numbers.Integral) and 0 <= seed < m
+		assert isinstance(a, int) and a > 0
+		assert isinstance(b, int) and b >= 0
+		assert isinstance(m, int) and m > 0
+		assert isinstance(seed, int) and 0 <= seed < m
 		
 		self.a = a     # Multiplier
 		self.ainv = LcgRandom.reciprocal_mod(a, m)

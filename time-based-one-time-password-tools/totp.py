@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-import base64, hashlib, hmac, numbers, time, struct, sys, unittest
+import base64, hashlib, hmac, time, struct, sys, unittest
 
 
 # ---- Library functions ----
@@ -32,9 +32,9 @@ def calc_totp(secretkey, epoch=0, timestep=30, timestamp=None, codelen=6, hashfu
 		timestamp = int(time.time())
 	
 	# Check arguments
-	assert isinstance(epoch    , numbers.Integral)
-	assert isinstance(timestep , numbers.Integral)
-	assert isinstance(timestamp, numbers.Integral)
+	assert isinstance(epoch    , int)
+	assert isinstance(timestep , int)
+	assert isinstance(timestamp, int)
 	
 	# Calculate HOTP
 	timecounter = (timestamp - epoch) // timestep
@@ -46,7 +46,7 @@ def calc_hotp(secretkey, counter, codelen=6, hashfunc=hashlib.sha1):
 	# Check arguments
 	assert isinstance(secretkey, (bytes, bytearray))
 	assert isinstance(counter  , (bytes, bytearray))
-	assert isinstance(codelen  , numbers.Integral) and 1 <= codelen <= 9
+	assert isinstance(codelen  , int) and 1 <= codelen <= 9
 	
 	# Calculate HMAC
 	hasher = hmac.new(secretkey, counter, hashfunc)
