@@ -1,4 +1,3 @@
-# -*- coding: UTF-8 -*-
 # 
 # Windows timestamp accessor demo (Python)
 # 

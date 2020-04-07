@@ -1,12 +1,10 @@
 # 
 # Karatsuba fast multiplication algorithm (Python)
 # 
-# Copyright (c) 2014 Project Nayuki
+# Copyright (c) 2020 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/karatsuba-multiplication
 # 
-
-# Requires Python version >= 2.7 because of long.bit_length().
 
 
 # Requirement: _CUTOFF >= 64, or else there will be infinite recursion.

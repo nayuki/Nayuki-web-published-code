@@ -58,7 +58,7 @@ def main(args):
 
 # ---- Main function ----
 
-# Public library function. path is str/unicode, offset is uint, newcrc is uint32, printstatus is bool.
+# Public library function. path is str, offset is uint, newcrc is uint32, printstatus is bool.
 # Returns None. May raise IOError, ValueError, AssertionError.
 def modify_file_crc32(path, offset, newcrc, printstatus=False):
 	with open(path, "r+b") as raf:
@@ -107,7 +107,7 @@ def get_crc32(raf):
 	while True:
 		buffer = raf.read(128 * 1024)
 		if len(buffer) == 0:
-			return reverse32(crc & MASK)
+			return reverse32(crc)
 		crc = zlib.crc32(buffer, crc)
 
 

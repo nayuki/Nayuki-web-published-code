@@ -111,7 +111,7 @@ def _naive_convolution(x, y):
 
 # ---- Utility functions ----
 
-_maxlogerr = float("-inf")
+_maxlogerr = -math.inf
 
 def _log10_rms_err(x, y):
 	global _maxlogerr

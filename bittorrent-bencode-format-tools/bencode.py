@@ -25,7 +25,6 @@
 Bencode supports four types of values:
 * Integer, which is mapped to Python int.
 * Byte string, which is mapped to Python bytes or bytearray.
-  (Note that in Python 2, bytes is a synonym for str.)
 * List, which is mapped to Python list or tuple, such that every element is a bencode value.
 * Dictionary, which is mapped to Python dict, such that every key
   is a bytes object and every value is a bencode value."""

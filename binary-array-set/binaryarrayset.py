@@ -48,8 +48,7 @@ class BinaryArraySet:
 	def __iter__(self):
 		for vals in self.values:
 			if vals is not None:
-				for val in vals:
-					yield val
+				yield from vals
 	
 	
 	# Runs in O((log n)^2) time

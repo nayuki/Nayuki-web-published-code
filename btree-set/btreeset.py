@@ -167,8 +167,7 @@ class BTreeSet:
 			node, index = stack.pop()
 			if node.is_leaf():
 				assert index == 0
-				for obj in node.keys:
-					yield obj
+				yield from node.keys
 			else:
 				yield node.keys[index]
 				index += 1

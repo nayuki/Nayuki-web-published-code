@@ -6,7 +6,7 @@
 # https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
 # 
 
-import fractions
+import fractions, math
 
 
 # ---- Field abstract class ----
@@ -366,7 +366,7 @@ class QuadraticSurd:
 			a = -a
 			b = -b
 			c = -c
-		gcd = fractions.gcd(fractions.gcd(a, b), c)
+		gcd = math.gcd(math.gcd(a, b), c)
 		if gcd != 1:
 			a //= gcd
 			b //= gcd

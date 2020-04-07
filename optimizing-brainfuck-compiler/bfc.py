@@ -21,13 +21,13 @@ def main(args):
 	
 	inname = args[0]
 	if not os.path.isfile(inname):
-		return inname + ": Not a file"
+		return f"{inname}: Not a file"
 	
 	outname = args[1]
 	if   outname.endswith(".c"   ):  outfunc = commands_to_c
 	elif outname.endswith(".java"):  outfunc = commands_to_java
 	elif outname.endswith(".py"  ):  outfunc = commands_to_python
-	else:  return outname + ": Unknown output type"
+	else:  return f"{outname}: Unknown output type"
 	
 	# Read input
 	with open(inname, "rt") as fin:

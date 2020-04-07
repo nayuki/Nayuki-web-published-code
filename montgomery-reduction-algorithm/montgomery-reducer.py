@@ -6,7 +6,7 @@
 # https://www.nayuki.io/page/montgomery-reduction-algorithm
 # 
 
-import fractions, random, unittest
+import math, random, unittest
 
 
 class MontgomeryReducerTest(unittest.TestCase):
@@ -48,7 +48,7 @@ class MontgomeryReducer:
 		self.reducerbits = (mod.bit_length() // 8 + 1) * 8  # This is a multiple of 8
 		self.reducer = 1 << self.reducerbits  # This is a power of 256
 		self.mask = self.reducer - 1
-		assert self.reducer > mod and fractions.gcd(self.reducer, mod) == 1
+		assert self.reducer > mod and math.gcd(self.reducer, mod) == 1
 		
 		# Other computed numbers
 		self.reciprocal = MontgomeryReducer.reciprocal_mod(self.reducer % mod, mod)

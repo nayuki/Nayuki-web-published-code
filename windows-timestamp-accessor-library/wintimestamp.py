@@ -39,7 +39,7 @@ class WindowsTimestampAccessor:
 		self.close()
 	
 	
-	# Get-methods return the number of ticks as an int; path can be of type str or unicode
+	# Get-methods return the number of ticks as an int; path is of type str
 	
 	def get_creation_time(self, path):
 		return self._get_some_time("Creation", path)
@@ -59,7 +59,7 @@ class WindowsTimestampAccessor:
 		return int(tokens[1])
 	
 	
-	# Set-methods require the number of ticks to be an int; path can be of type str or unicode
+	# Set-methods require the number of ticks to be an int; path is of type str
 	
 	def set_creation_time(self, path, ticks):
 		self._set_some_time("Creation", path, ticks)
