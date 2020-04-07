@@ -50,7 +50,7 @@ class LfsrRandom(random.Random):
 	
 	
 	def random(self):
-		return self.getrandbits(52) / float(1 << 52)
+		return self.getrandbits(52) / (1 << 52)
 
 
 

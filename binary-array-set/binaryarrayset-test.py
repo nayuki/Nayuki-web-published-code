@@ -95,7 +95,7 @@ class BinaryArraySetTest(unittest.TestCase):
 		length = 0
 		for i in range(ITERATIONS):
 			if i % 300 == 0:
-				print(f"Progress: {float(i) / ITERATIONS:.0%}")
+				print(f"Progress: {i / ITERATIONS:.0%}")
 			op = random.randrange(100)
 			
 			if op < 1:  # Fast clear

@@ -107,7 +107,7 @@ class BinomialHeapTest(unittest.TestCase):
 		size = 0
 		for i in range(TRIALS):
 			if i % 300 == 0:
-				print(f"Progress: {float(i) / TRIALS:.0%}")
+				print(f"Progress: {i / TRIALS:.0%}")
 			op = random.randrange(100)
 			
 			if op < 1:  # Clear

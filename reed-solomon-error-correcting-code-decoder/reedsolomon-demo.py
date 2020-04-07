@@ -35,7 +35,7 @@ def show_binary_example():
 	print(f"Encoded codeword: {codeword}")
 	
 	# Perturb some values in the codeword
-	probability = float(ecclen // 2) / (msglen + ecclen)
+	probability = (ecclen // 2) / (msglen + ecclen)
 	perturbed = 0
 	for i in range(len(codeword)):
 		if random.random() < probability:
@@ -68,7 +68,7 @@ def show_prime_example():
 	print(f"Encoded codeword: {codeword}")
 	
 	# Perturb some values in the codeword
-	probability = float(ecclen // 2) / (msglen + ecclen)
+	probability = (ecclen // 2) / (msglen + ecclen)
 	perturbed = 0
 	for i in range(len(codeword)):
 		if random.random() < probability:
