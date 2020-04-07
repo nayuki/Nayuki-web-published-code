@@ -1,5 +1,5 @@
 /* 
- * Reed-Solomon error-correcting code decoder demo
+ * Reed-Solomon error-correcting code decoder demo (Java)
  * 
  * Copyright (c) 2019 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
