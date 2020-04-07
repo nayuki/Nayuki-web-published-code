@@ -71,9 +71,13 @@ def _compress(block, state, printdebug):
 	# Perform 10 rounds of hashing
 	tempkey = state
 	tempmsg = _add_round_key(block, state)
+	i = 0
 	for rcon in _ROUND_CONSTANTS:
+		if printdebug: print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(tempmsg))}")
 		tempkey = _compute_round(tempkey, rcon)  # Compute key schedule on the fly
 		tempmsg = _compute_round(tempmsg, tempkey)
+		i += 1
+	if printdebug: print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(tempmsg))}")
 	
 	# Combine data using the Miyaguchi-Preneel construction
 	newstate = []

@@ -1,7 +1,7 @@
 # 
 # AVL tree list test (Python)
 # 
-# Copyright (c) 2017 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/avl-tree-list
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-import itertools, random, unittest
+import random, unittest
 from avltreelist import AvlTreeList
 
 
@@ -208,7 +208,7 @@ class AvlTreeListTest(unittest.TestCase):
 		lst = AvlTreeList()
 		for i in range(30000):
 			lst.append(i)
-		for (i, x) in zip(itertools.count(), lst):
+		for (i, x) in enumerate(lst):
 			self.assertEqual(i, x)
 	
 	
@@ -217,8 +217,9 @@ class AvlTreeListTest(unittest.TestCase):
 		lst = AvlTreeList()
 		for i in reversed(range(30000)):
 			lst.insert(0, i)
-		for (i, x) in zip(itertools.count(), lst):
+		for (i, x) in enumerate(lst):
 			self.assertEqual(i, x)
+	
 	
 	# Adds in a weird binary pattern to stress arrays and linked lists
 	def test_insert_many_everywhere(self):
@@ -230,7 +231,7 @@ class AvlTreeListTest(unittest.TestCase):
 			for j in range(1 << i, 1 << N, 2 << i):
 				lst.insert(k, j)
 				k += 2
-		for (i, x) in zip(itertools.count(), lst):
+		for (i, x) in enumerate(lst):
 			self.assertEqual(i, x)
 	
 	

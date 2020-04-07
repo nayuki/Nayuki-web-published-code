@@ -1,7 +1,7 @@
 # 
 # Binary indexed tree test (Python)
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2020 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-indexed-tree
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,10 +54,10 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 				bt = binaryindexedtree.BinaryIndexedTree([1] * length)
 			else:
 				bt = binaryindexedtree.BinaryIndexedTree(length)
-				if   mode == 1: p = 0
-				elif mode == 2: p = 1
-				elif mode == 3: p = random.random()
-				else: raise AssertionError()
+				if   mode == 1:  p = 0
+				elif mode == 2:  p = 1
+				elif mode == 3:  p = random.random()
+				else:  raise AssertionError()
 				for i in range(length):
 					if random.random() < p:
 						bt.add(i, 1)

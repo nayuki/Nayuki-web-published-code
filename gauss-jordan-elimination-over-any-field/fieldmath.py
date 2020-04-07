@@ -153,9 +153,9 @@ class PrimeField(Field):
 	def one(self):
 		return 1
 	
+	
 	def equals(self, x, y):
 		return self._check(x) == self._check(y)
-	
 	
 	def negate(self, x):
 		return -self._check(x) % self.modulus

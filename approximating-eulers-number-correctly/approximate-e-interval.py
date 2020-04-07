@@ -27,7 +27,7 @@ def main():
 		start_time = time.time()
 		compute_eulers_number(digits)
 		elapsed_time = time.time() - start_time
-		print(f"{digits:6d}  {elapsed_time:7.3f} s")
+		print(f"{digits:6}  {elapsed_time:7.3f} s")
 
 
 # For example: compute_eulers_number(4) = "2.7183"

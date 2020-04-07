@@ -141,7 +141,7 @@ def test_correctness():
 				numfailure += 1
 		
 		# Print parameters and statistics for this round
-		print(f"msgLen={msglen}, eccLen={ecclen}, codewordLen={codewordlen}, numErrors={numerrors}  numTrials={numsuccess + numwrong + numfailure}, numSuccess={numsuccess}, numWrong={numwrong}, numFailure={numfailure}")
+		print(f"msgLen={msglen}, eccLen={ecclen}, codewordLen={codewordlen}, numErrors={numerrors};  numTrials={numsuccess + numwrong + numfailure}, numSuccess={numsuccess}, numWrong={numwrong}, numFailure={numfailure}")
 
 
 if __name__ == "__main__":

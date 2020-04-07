@@ -109,27 +109,29 @@ class DisjointSetTest(unittest.TestCase):
 			ds.check_structure()
 
 
+
 # ---- Helper class ----
 
 class NaiveDisjointSet:
-	def __init__(self, numElems):
-		self.representatives = list(range(numElems))
+	def __init__(self, numelems):
+		self.representatives = list(range(numelems))
 	
 	def get_num_sets(self):
 		return sum(1 for (i, repr) in enumerate(self.representatives) if repr == i)
 	
-	def get_size_of_set(self, elemIndex):
-		repr = self.representatives[elemIndex]
+	def get_size_of_set(self, elemindex):
+		repr = self.representatives[elemindex]
 		return sum(1 for r in self.representatives if r == repr)
 	
-	def are_in_same_set(self, elemIndex0, elemIndex1):
-		return self.representatives[elemIndex0] ==  self.representatives[elemIndex1]
+	def are_in_same_set(self, elemindex0, elemindex1):
+		return self.representatives[elemindex0] ==  self.representatives[elemindex1]
 	
-	def merge_sets(self, elemIndex0, elemIndex1):
-		repr0 = self.representatives[elemIndex0]
-		repr1 = self.representatives[elemIndex1]
+	def merge_sets(self, elemindex0, elemindex1):
+		repr0 = self.representatives[elemindex0]
+		repr1 = self.representatives[elemindex1]
 		self.representatives = [(repr0 if (rp == repr1) else rp) for rp in self.representatives]
 		return repr0 != repr1
+
 
 
 # ---- Main runner ----

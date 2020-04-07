@@ -106,11 +106,11 @@ def _compress(block, state, printdebug):
 	# Perform 24 rounds of hashing
 	a = state
 	r = 1  # 8-bit LFSR
-	for _ in range(_NUM_ROUNDS):
+	for i in range(_NUM_ROUNDS):
 		if printdebug:
 			print(f"        Round {i:2d}:")
-			for i in range(sz):
-				y = (sz // 2 - i) % sz
+			for j in range(sz):
+				y = (sz // 2 - j) % sz
 				parts = []
 				for j in range(sz):
 					x = (j - sz // 2) % sz
@@ -144,8 +144,8 @@ def _compress(block, state, printdebug):
 				a[x][y] = b[x][y] ^ (~b[(x + 1) % sz][y] & b[(x + 2) % sz][y])
 		
 		# Iota step
-		for i in range(7):
-			a[0][0] ^= (r & 1) << ((1 << i) - 1)
+		for j in range(7):
+			a[0][0] ^= (r & 1) << ((1 << j) - 1)
 			r = (r << 1) ^ ((r >> 7) * 0x171)
 
 

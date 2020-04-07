@@ -10,10 +10,13 @@ import hashlib
 
 
 def main():
-	# Configuration
-	MSG_LEN = 12  # Can be any positive integer
-	START_CHAR = ord("a")  # Any integer in the range [0, 254]
-	END_CHAR   = ord("z")  # Requires START_CHAR < END_CHAR <= 255
+	# Configuration and constraints
+	MSG_LEN = 12
+	START_CHAR = ord("a")
+	END_CHAR   = ord("z")
+	assert isinstance(MSG_LEN, int) and MSG_LEN > 0
+	assert isinstance(START_CHAR, int) and isinstance(END_CHAR, int)
+	assert 0 <= START_CHAR < END_CHAR < 256
 	
 	# Initialize values
 	message = bytearray([START_CHAR] * MSG_LEN)

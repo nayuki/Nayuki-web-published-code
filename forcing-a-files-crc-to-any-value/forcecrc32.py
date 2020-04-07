@@ -108,8 +108,7 @@ def get_crc32(raf):
 		buffer = raf.read(128 * 1024)
 		if len(buffer) == 0:
 			return reverse32(crc & MASK)
-		else:
-			crc = zlib.crc32(buffer, crc)
+		crc = zlib.crc32(buffer, crc)
 
 
 def reverse32(x):

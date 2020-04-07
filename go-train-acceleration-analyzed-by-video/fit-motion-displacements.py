@@ -48,11 +48,11 @@ def main(args):
 	solutiony -= solutiony[0]
 	
 	# Print results
-	print("Frame\tDisplacement x (pixels)\tDisplacement y (pixels)\tDisplacement magnitude (pixels)")
+	print("Frame", "Displacement x (pixels)", "Displacement y (pixels)", "Displacement magnitude (pixels)", sep="\t")
 	for i in range(solutionx.size):
 		x = solutionx[i]
 		y = solutiony[i]
-		print(f"{i}\t{x}\t{y}\t{math.hypot(x, y)}")
+		print(i, x, y, math.hypot(x, y), sep="\t")
 
 
 if __name__ == "__main__":

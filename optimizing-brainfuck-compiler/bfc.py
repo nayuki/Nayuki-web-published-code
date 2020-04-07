@@ -20,19 +20,17 @@ def main(args):
 		return "Usage: python bfc.py BrainfuckFile OutputFile.c/java/py"
 	
 	inname = args[0]
-	if not os.path.exists(inname):
-		return inname + ": File does not exist"
 	if not os.path.isfile(inname):
 		return inname + ": Not a file"
 	
 	outname = args[1]
-	if   outname.endswith(".c"   ): outfunc = commands_to_c
-	elif outname.endswith(".java"): outfunc = commands_to_java
-	elif outname.endswith(".py"  ): outfunc = commands_to_python
-	else: return outname + ": Unknown output type"
+	if   outname.endswith(".c"   ):  outfunc = commands_to_c
+	elif outname.endswith(".java"):  outfunc = commands_to_java
+	elif outname.endswith(".py"  ):  outfunc = commands_to_python
+	else:  return outname + ": Unknown output type"
 	
 	# Read input
-	with open(inname, "r") as fin:
+	with open(inname, "rt") as fin:
 		incode = fin.read()
 	
 	# Parse and optimize Brainfuck code
@@ -44,7 +42,7 @@ def main(args):
 	# Write output
 	tempname = os.path.splitext(os.path.basename(outname))[0]
 	outcode = outfunc(commands, tempname)
-	with open(outname, "w") as fout:
+	with open(outname, "wt") as fout:
 		fout.write(outcode)
 
 

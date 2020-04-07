@@ -155,7 +155,7 @@ class AaTreeSet:
 				return (self, found)
 			if self.right.level == self.level:
 				self.right.level -= 1
-			self.level -=1
+			self.level -= 1
 			result = self._skew()
 			result.right = result.right._skew()
 			if result.right.right is not EMPTY:
