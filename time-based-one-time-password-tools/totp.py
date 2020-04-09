@@ -22,12 +22,21 @@
 # 
 
 import base64, hashlib, hmac, time, struct, sys, unittest
+from typing import List, Optional, Tuple, Union
 
 
 # ---- Library functions ----
 
 # Time-based One-Time Password algorithm (RFC 6238)
-def calc_totp(secretkey, epoch=0, timestep=30, timestamp=None, codelen=6, hashfunc=hashlib.sha1):
+def calc_totp(
+		secretkey: bytes,
+		epoch: int = 0,
+		timestep: int = 30,
+		timestamp: Optional[int] = None,
+		codelen: int = 6,
+		hashfunc = hashlib.sha1,
+		) -> str:
+	
 	if timestamp is None:
 		timestamp = int(time.time())
 	
@@ -37,12 +46,18 @@ def calc_totp(secretkey, epoch=0, timestep=30, timestamp=None, codelen=6, hashfu
 	assert isinstance(timestamp, int)
 	
 	# Calculate HOTP
-	timecounter = (timestamp - epoch) // timestep
+	timecounter: int = (timestamp - epoch) // timestep
 	return calc_hotp(secretkey, struct.pack(">Q", timecounter), codelen, hashfunc)
 
 
 # HMAC-based One-Time Password algorithm (RFC 4226)
-def calc_hotp(secretkey, counter, codelen=6, hashfunc=hashlib.sha1):
+def calc_hotp(
+		secretkey: bytes,
+		counter: bytes,
+		codelen: int = 6,
+		hashfunc = hashlib.sha1,
+		) -> str:
+	
 	# Check arguments
 	assert isinstance(secretkey, (bytes, bytearray))
 	assert isinstance(counter  , (bytes, bytearray))
@@ -50,12 +65,12 @@ def calc_hotp(secretkey, counter, codelen=6, hashfunc=hashlib.sha1):
 	
 	# Calculate HMAC
 	hasher = hmac.new(secretkey, counter, hashfunc)
-	hash = bytearray(hasher.digest())
+	hash: bytes = hasher.digest()
 	
 	# Dynamically truncate the hash value
-	offset = hash[-1] % 16
-	extracted = hash[offset : offset + 4]
-	val, = struct.unpack(">I", extracted)
+	offset: int = hash[-1] % 16
+	extracted: bytes = hash[offset : offset + 4]
+	val: int = struct.unpack(">I", extracted)[0]
 	val %= 2**31
 	
 	# Extract and format base-10 digits
@@ -65,9 +80,9 @@ def calc_hotp(secretkey, counter, codelen=6, hashfunc=hashlib.sha1):
 
 # Calculates TOTP for the most popular configuration:
 # epoch=0, timestep=30, hashfunc=hashlib.sha1, codelen=6.
-def calc_totp_compact_default(secretkey):
+def calc_totp_compact_default(secretkey: bytes) -> str:
 	count = struct.pack(">Q", int(time.time()) // 30)
-	hash = bytearray(hmac.new(secretkey, count, hashlib.sha1).digest())
+	hash = hmac.new(secretkey, count, hashlib.sha1).digest()
 	offset = hash[-1] % 16
 	val, = struct.unpack(">I", hash[offset : offset + 4])
 	return str(val % 2**31 % 10**6).zfill(6)
@@ -78,8 +93,8 @@ def calc_totp_compact_default(secretkey):
 
 class TotpTest(unittest.TestCase):
 	
-	def test_hotp(self):
-		CASES = [
+	def test_hotp(self) -> None:
+		CASES: List[Tuple[int,str]] = [
 			(0, "284755224"),
 			(1, "094287082"),
 			(2, "137359152"),
@@ -91,15 +106,15 @@ class TotpTest(unittest.TestCase):
 			(8, "673399871"),
 			(9, "645520489"),
 		]
-		SECRET_KEY = b"12345678901234567890"
+		SECRET_KEY: bytes = b"12345678901234567890"
 		
 		for cs in CASES:
 			actual = calc_hotp(SECRET_KEY, struct.pack(">Q", cs[0]), 9, hashlib.sha1)
 			self.assertEqual(cs[1], actual)
 	
 	
-	def test_totp(self):
-		CASES = [
+	def test_totp(self) -> None:
+		CASES: List[Tuple[int,str,str,str]] = [
 			(         59, "94287082", "46119246", "90693936"),
 			( 1111111109, "07081804", "68084774", "25091201"),
 			( 1111111111, "14050471", "67062674", "99943326"),
@@ -107,7 +122,7 @@ class TotpTest(unittest.TestCase):
 			( 2000000000, "69279037", "90698825", "38618901"),
 			(20000000000, "65353130", "77737706", "47863826"),
 		]
-		SECRET_KEYS = [
+		SECRET_KEYS: List[bytes] = [
 			b"12345678901234567890",
 			b"12345678901234567890123456789012",
 			b"1234567890123456789012345678901234567890123456789012345678901234",
@@ -122,13 +137,13 @@ class TotpTest(unittest.TestCase):
 
 # ---- Main program ----
 
-def main(args):
+def main(args: List[str]) -> None:
 	if len(args) == 0:
 		unittest.main()
 	elif len(args) == 1:
-		keystr = args[0].replace(" ", "").upper()
-		secretkey = base64.b32decode(keystr)
-		code = calc_totp(secretkey)
+		keystr: str = args[0].replace(" ", "").upper()
+		secretkey: bytes = base64.b32decode(keystr)
+		code: str = calc_totp(secretkey)
 		assert calc_totp_compact_default(secretkey) == code
 		print(code)
 	else:

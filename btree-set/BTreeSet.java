@@ -1,7 +1,7 @@
 /* 
  * B-tree set (Java)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -527,7 +527,8 @@ public final class BTreeSet<E extends Comparable<? super E>>
 					if ((children[i] != null) != (i <= numKeys))
 						throw new AssertionError("Invalid filling of children array");
 					if (i <= numKeys)
-						count += children[i].checkStructure(false, leafDepth - 1, (i == 0 ? min : keys[i - 1]), (i == numKeys ? max : keys[i]));
+						count += children[i].checkStructure(false, leafDepth - 1,
+							(i > 0 ? keys[i - 1] : min), (i < numKeys ? keys[i] : max));
 					if (count > Integer.MAX_VALUE)
 						throw new AssertionError("Size overflow");
 				}

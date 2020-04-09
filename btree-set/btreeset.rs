@@ -418,7 +418,8 @@ impl<E: std::cmp::Ord> Node<E> {
 			for (i, child) in self.children.iter().enumerate() {
 				let temp = child.check_structure(
 					minkeys, maxkeys, false, leafdepth - 1,
-					self.keys.get(i - 1).or(min), self.keys.get(i).or(max));
+					if i > 0 { Some(&self.keys[i - 1]) } else { min },
+					if i < numkeys { Some(&self.keys[i]) } else { max });
 				count = count.checked_add(temp).unwrap();
 			}
 		}

@@ -22,12 +22,13 @@
 # 
 
 import os, pathlib, sys
+from typing import Any, List
 import bencode
 
 
 # Reads the given file, parses its data as bencode, then prints the
 # data structure with hierarchical formatting to standard output.
-def main(args):
+def main(args: List[str]) -> None:
 	USAGE = "Usage: python decode-bencode-demo.py Input.torrent"
 	if len(args) != 1:
 		sys.exit(USAGE)
@@ -42,7 +43,7 @@ def main(args):
 
 # Recursively prints the given value/structure to standard output,
 # with at least the given indentation depth.
-def _print_bencode_value(obj, depth):
+def _print_bencode_value(obj: Any, depth: int) -> None:
 	if bencode.is_int(obj):
 		print(f"Integer: {obj}")
 	
@@ -75,12 +76,12 @@ def _print_bencode_value(obj, depth):
 
 
 # Returns a human-friendly string representation of the given byte string.
-def _render_byte_string(bs):
+def _render_byte_string(bs: bytes) -> str:
 	try:
 		return bs.decode("UTF-8")
 	except UnicodeDecodeError:
-		parts = []
-		for (i, b) in enumerate(bytearray(bs)):
+		parts: List[str] = []
+		for (i, b) in enumerate(bs):
 			parts.append(f"{b:02X}")
 			if i + 1 < len(bs) and i == 30:
 				parts.append("...")
@@ -90,7 +91,7 @@ def _render_byte_string(bs):
 
 # Prints the given multiple of indentation whitespace
 # to standard output, without a trailing newline.
-def _print_indent(depth):
+def _print_indent(depth: int) -> None:
 	if depth < 0:
 		raise ValueError("Negative depth")
 	print("    " * depth, end="")

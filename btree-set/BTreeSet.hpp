@@ -1,7 +1,7 @@
 /* 
  * B-tree set (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -437,7 +437,7 @@ class BTreeSet final {
 				for (std::size_t i = 0; i < children.size(); i++) {
 					std::size_t temp = children.at(i)->checkStructure(
 						minKeys, maxKeys, false, leafDepth - 1,
-						(i == 0 ? min : &keys.at(i - 1)), (i == numKeys ? max : &keys.at(i)));
+						(i > 0 ? &keys.at(i - 1) : min), (i < numKeys ? &keys.at(i) : max));
 					if (SIZE_MAX - temp < count)
 						throw std::logic_error("Size overflow");
 					count += temp;
