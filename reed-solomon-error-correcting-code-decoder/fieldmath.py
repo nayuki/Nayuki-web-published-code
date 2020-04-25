@@ -21,7 +21,7 @@ class Field:
 	- (x * y) * z = x * (y * z). (Associativity of multiplication)
 	- x * (y + z) = (x * y) + (x * z). (Distributivity of multiplication over addition)
 	- -x is an element of the field, such that x + (-x) = 0. (Existence of additive inverse)
-	- x^-1 is an element of the field, such that x * (x^-1) = 1. (Existence of multiplicative inverse)
+	- If x != 0, then x^-1 is an element of the field, such that x * (x^-1) = 1. (Existence of multiplicative inverse)
 	Each Field object should be stateless and immutable. The field element objects should be immutable too."""
 	
 	

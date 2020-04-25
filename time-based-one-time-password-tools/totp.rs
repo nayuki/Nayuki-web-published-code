@@ -134,9 +134,7 @@ fn calc_hmac(
 	assert!(blocksize >= 1, "Invalid block size");
 	let mut newkey: Vec<u8> = if key.len() <= blocksize
 		{ key.to_vec() } else { hashfunc(key) };
-	while newkey.len() < blocksize {
-		newkey.push(0);
-	}
+	newkey.resize(blocksize, 0);
 	
 	let mut innermsg: Vec<u8> = newkey.iter().map(|&b| b ^ 0x36).collect();
 	innermsg.extend_from_slice(message);

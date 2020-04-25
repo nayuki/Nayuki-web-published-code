@@ -1,7 +1,7 @@
 /* 
  * Reed-Solomon error-correcting code decoder (Java)
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
  */
@@ -19,7 +19,7 @@
  *   <li>(<var>x</var> * <var>y</var>) * <var>z</var> = <var>x</var> * (<var>y</var> * <var>z</var>). (Associativity of multiplication)</li>
  *   <li><var>x</var> * (<var>y</var> + <var>z</var>) = (<var>x</var> * <var>y</var>) + (<var>x</var> * <var>z</var>). (Distributivity of multiplication over addition)</li>
  *   <li>&minus;<var>x</var> is an element of the field, such that <var>x</var> + (&minus;<var>x</var>) = 0. (Existence of additive inverse)</li>
- *   <li><var>x</var><sup>&minus;1</sup> is an element of the field, such that <var>x</var> * (<var>x</var><sup>&minus;1</sup>) = 1. (Existence of multiplicative inverse)</li>
+ *   <li>If <var>x</var> &ne; 0, then <var>x</var><sup>&minus;1</sup> is an element of the field, such that <var>x</var> * (<var>x</var><sup>&minus;1</sup>) = 1. (Existence of multiplicative inverse)</li>
  * </ol>
  * <p>Each {@code Field} object should be stateless and immutable. The field element objects should be immutable too.</p>
  * <p>All methods must return a non-{@code null} value, and must throw {@code NullPointerException} if any argument is {@code null}.</p>
