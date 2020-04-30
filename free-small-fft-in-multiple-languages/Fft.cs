@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C#)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -59,7 +59,7 @@ public sealed class Fft {
 		Complex[] expTable = new Complex[n / 2];
 		double coef = 2 * Math.PI / n * (inverse ? 1 : -1);
 		for (int i = 0; i < n / 2; i++)
-			expTable[i] = Complex.Exp(new Complex(0, i * coef));
+			expTable[i] = Complex.FromPolarCoordinates(1, i * coef);
 		
 		// Bit-reversed addressing permutation
 		for (int i = 0; i < n; i++) {

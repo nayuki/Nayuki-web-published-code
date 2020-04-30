@@ -1,14 +1,8 @@
 /* 
  * Discrete Fourier transform (C++)
- * by Project Nayuki, 2017. Public domain.
+ * by Project Nayuki, 2020. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
-
-// Shared definitions
-#include <cmath>
-#include <vector>
-using std::size_t;
-using std::vector;
 
 
 /* 
@@ -16,7 +10,11 @@ using std::vector;
  * All the array arguments must have the same length.
  */
 #include <complex>
+#include <cstddef>
+#include <vector>
+using std::size_t;
 using std::complex;
+using std::vector;
 using std::exp;
 vector<complex<double> > computeDft(const vector<complex<double> > &input) {
 	vector<complex<double> > output;
@@ -24,7 +22,7 @@ vector<complex<double> > computeDft(const vector<complex<double> > &input) {
 	for (size_t k = 0; k < n; k++) {  // For each output element
 		complex<double> sum(0.0, 0.0);
 		for (size_t t = 0; t < n; t++) {  // For each input element
-			double angle = 2 * M_PI * t * k / n;
+			double angle = 2i * M_PI * t * k / n;
 			sum += input[t] * exp(-angle);
 		}
 		output.push_back(sum);
@@ -38,6 +36,11 @@ vector<complex<double> > computeDft(const vector<complex<double> > &input) {
  * Computes the discrete Fourier transform (DFT) of the given complex vector.
  * All the array arguments must have the same length.
  */
+#include <cmath>
+#include <cstddef>
+#include <vector>
+using std::size_t;
+using std::vector;
 using std::cos;
 using std::sin;
 void computeDft(const vector<double> &inreal, const vector<double> &inimag,
