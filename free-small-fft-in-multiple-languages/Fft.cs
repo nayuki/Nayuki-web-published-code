@@ -111,21 +111,21 @@ public sealed class Fft {
 		}
 		
 		// Temporary vectors and preprocessing
-		Complex[] avector = new Complex[m];
+		Complex[] avec = new Complex[m];
 		for (int i = 0; i < n; i++)
-			avector[i] = vec[i] * expTable[i];
-		Complex[] bvector = new Complex[m];
-		bvector[0] = expTable[0];
+			avec[i] = vec[i] * expTable[i];
+		Complex[] bvec = new Complex[m];
+		bvec[0] = expTable[0];
 		for (int i = 1; i < n; i++)
-			bvector[i] = bvector[m - i] = Complex.Conjugate(expTable[i]);
+			bvec[i] = bvec[m - i] = Complex.Conjugate(expTable[i]);
 		
 		// Convolution
-		Complex[] cvector = new Complex[m];
-		Convolve(avector, bvector, cvector);
+		Complex[] cvec = new Complex[m];
+		Convolve(avec, bvec, cvec);
 		
 		// Postprocessing
 		for (int i = 0; i < n; i++)
-			vec[i] = cvector[i] * expTable[i];
+			vec[i] = cvec[i] * expTable[i];
 	}
 	
 	

@@ -106,21 +106,21 @@ void Fft::transformBluestein(vector<complex<double> > &vec, bool inverse) {
 	}
 	
 	// Temporary vectors and preprocessing
-	vector<complex<double> > av(m);
+	vector<complex<double> > avec(m);
 	for (size_t i = 0; i < n; i++)
-		av[i] = vec[i] * expTable[i];
-	vector<complex<double> > bv(m);
-	bv[0] = expTable[0];
+		avec[i] = vec[i] * expTable[i];
+	vector<complex<double> > bvec(m);
+	bvec[0] = expTable[0];
 	for (size_t i = 1; i < n; i++)
-		bv[i] = bv[m - i] = std::conj(expTable[i]);
+		bvec[i] = bvec[m - i] = std::conj(expTable[i]);
 	
 	// Convolution
-	vector<complex<double> > cv(m);
-	convolve(av, bv, cv);
+	vector<complex<double> > cvec(m);
+	convolve(avec, bvec, cvec);
 	
 	// Postprocessing
 	for (size_t i = 0; i < n; i++)
-		vec[i] = cv[i] * expTable[i];
+		vec[i] = cvec[i] * expTable[i];
 }
 
 
