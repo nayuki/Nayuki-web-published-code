@@ -21,10 +21,10 @@
  *   Software.
  */
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
+#include <utility>
 #include "FftComplex.hpp"
 
 using std::complex;
@@ -37,27 +37,18 @@ using std::vector;
 static size_t reverseBits(size_t val, int width);
 
 
-void Fft::transform(vector<complex<double> > &vec) {
+void Fft::transform(vector<complex<double> > &vec, bool inverse) {
 	size_t n = vec.size();
 	if (n == 0)
 		return;
 	else if ((n & (n - 1)) == 0)  // Is power of 2
-		transformRadix2(vec);
+		transformRadix2(vec, inverse);
 	else  // More complicated algorithm for arbitrary sizes
-		transformBluestein(vec);
+		transformBluestein(vec, inverse);
 }
 
 
-void Fft::inverseTransform(vector<complex<double> > &vec) {
-	std::transform(vec.cbegin(), vec.cend(), vec.begin(),
-		static_cast<complex<double> (*)(const complex<double> &)>(std::conj));
-	transform(vec);
-	std::transform(vec.cbegin(), vec.cend(), vec.begin(),
-		static_cast<complex<double> (*)(const complex<double> &)>(std::conj));
-}
-
-
-void Fft::transformRadix2(vector<complex<double> > &vec) {
+void Fft::transformRadix2(vector<complex<double> > &vec, bool inverse) {
 	// Length variables
 	size_t n = vec.size();
 	int levels = 0;  // Compute levels = floor(log2(n))
@@ -69,7 +60,7 @@ void Fft::transformRadix2(vector<complex<double> > &vec) {
 	// Trignometric table
 	vector<complex<double> > expTable(n / 2);
 	for (size_t i = 0; i < n / 2; i++)
-		expTable[i] = std::polar(1.0, -2 * M_PI * i / n);
+		expTable[i] = std::polar(1.0, (inverse ? 2 : -2) * M_PI * i / n);
 	
 	// Bit-reversed addressing permutation
 	for (size_t i = 0; i < n; i++) {
@@ -95,7 +86,7 @@ void Fft::transformRadix2(vector<complex<double> > &vec) {
 }
 
 
-void Fft::transformBluestein(vector<complex<double> > &vec) {
+void Fft::transformBluestein(vector<complex<double> > &vec, bool inverse) {
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
 	size_t n = vec.size();
 	size_t m = 1;
@@ -110,8 +101,8 @@ void Fft::transformBluestein(vector<complex<double> > &vec) {
 	for (size_t i = 0; i < n; i++) {
 		uintmax_t temp = static_cast<uintmax_t>(i) * i;
 		temp %= static_cast<uintmax_t>(n) * 2;
-		double angle = M_PI * temp / n;
-		expTable[i] = std::polar(1.0, -angle);
+		double angle = (inverse ? M_PI : -M_PI) * temp / n;
+		expTable[i] = std::polar(1.0, angle);
 	}
 	
 	// Temporary vectors and preprocessing
@@ -143,11 +134,11 @@ void Fft::convolve(
 		throw std::domain_error("Mismatched lengths");
 	vector<complex<double> > xv = xvec;
 	vector<complex<double> > yv = yvec;
-	transform(xv);
-	transform(yv);
+	transform(xv, false);
+	transform(yv, false);
 	for (size_t i = 0; i < n; i++)
 		xv[i] *= yv[i];
-	inverseTransform(xv);
+	transform(xv, true);
 	for (size_t i = 0; i < n; i++)  // Scaling (because this FFT implementation omits it)
 		outvec[i] = xv[i] / static_cast<double>(n);
 }

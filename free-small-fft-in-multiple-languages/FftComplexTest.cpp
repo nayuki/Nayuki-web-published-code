@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C++)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -96,7 +96,7 @@ static void testFft(int n) {
 	const vector<complex<double> > input = randomComplexes(n);
 	const vector<complex<double> > refout = naiveDft(input, false);
 	vector<complex<double> > actualout = input;
-	Fft::transform(actualout);
+	Fft::transform(actualout, false);
 	cout << "fftsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
 	     << log10RmsErr(refout, actualout) << endl;
