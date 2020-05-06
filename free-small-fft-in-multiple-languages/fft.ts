@@ -105,14 +105,14 @@ function transformRadix2(real: Array<number>|Float64Array, imag: Array<number>|F
 		}
 	}
 	
-	// Returns the integer whose value is the reverse of the lowest 'bits' bits of the integer 'x'.
-	function reverseBits(x: number, bits: number): number {
-		let y: number = 0;
-		for (let i = 0; i < bits; i++) {
-			y = (y << 1) | (x & 1);
-			x >>>= 1;
+	// Returns the integer whose value is the reverse of the lowest 'width' bits of the integer 'val'.
+	function reverseBits(val: number, width: number): number {
+		let result: number = 0;
+		for (let i = 0; i < width; i++) {
+			result = (result << 1) | (val & 1);
+			val >>>= 1;
 		}
-		return y;
+		return result;
 	}
 }
 

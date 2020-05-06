@@ -43,13 +43,13 @@ def transform(vector, inverse):
 # The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
 # 
 def transform_radix2(vector, inverse):
-	# Returns the integer whose value is the reverse of the lowest 'bits' bits of the integer 'x'.
-	def reverse_bits(x, bits):
-		y = 0
-		for _ in range(bits):
-			y = (y << 1) | (x & 1)
-			x >>= 1
-		return y
+	# Returns the integer whose value is the reverse of the lowest 'width' bits of the integer 'val'.
+	def reverse_bits(val, width):
+		result = 0
+		for _ in range(width):
+			result = (result << 1) | (val & 1)
+			val >>= 1
+		return result
 	
 	# Initialization
 	n = len(vector)

@@ -32,7 +32,7 @@ using std::vector;
 
 
 // Private function prototypes
-static size_t reverseBits(size_t x, int n);
+static size_t reverseBits(size_t val, int width);
 
 
 void Fft::transform(vector<double> &real, vector<double> &imag) {
@@ -190,9 +190,9 @@ void Fft::convolve(
 }
 
 
-static size_t reverseBits(size_t x, int n) {
+static size_t reverseBits(size_t val, int width) {
 	size_t result = 0;
-	for (int i = 0; i < n; i++, x >>= 1)
-		result = (result << 1) | (x & 1U);
+	for (int i = 0; i < width; i++, val >>= 1)
+		result = (result << 1) | (val & 1U);
 	return result;
 }

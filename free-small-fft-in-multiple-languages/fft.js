@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (JavaScript)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -107,14 +107,14 @@ function transformRadix2(real, imag) {
 		}
 	}
 	
-	// Returns the integer whose value is the reverse of the lowest 'bits' bits of the integer 'x'.
-	function reverseBits(x, bits) {
-		var y = 0;
-		for (var i = 0; i < bits; i++) {
-			y = (y << 1) | (x & 1);
-			x >>>= 1;
+	// Returns the integer whose value is the reverse of the lowest 'width' bits of the integer 'val'.
+	function reverseBits(val, width) {
+		var result = 0;
+		for (var i = 0; i < width; i++) {
+			result = (result << 1) | (val & 1);
+			val >>>= 1;
 		}
-		return y;
+		return result;
 	}
 }
 

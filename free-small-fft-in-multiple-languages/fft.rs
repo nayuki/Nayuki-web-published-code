@@ -70,11 +70,11 @@ pub fn transform_radix2(real: &mut [f64], imag: &mut [f64]) {
 		sintable.push(angle.sin());
 	}
 	
-	fn reverse_bits(mut x: usize, n: u32) -> usize {
+	fn reverse_bits(mut val: usize, width: u32) -> usize {
 		let mut result: usize = 0;
-		for _ in 0 .. n {
-			result = (result << 1) | (x & 1);
-			x >>= 1;
+		for _ in 0 .. width {
+			result = (result << 1) | (val & 1);
+			val >>= 1;
 		}
 		result
 	}
