@@ -97,9 +97,9 @@ public sealed class FftTest {
 	
 	/*---- Naive reference computation functions ----*/
 	
-	private static void NaiveDft(Complex[] invector, Complex[] outvector, bool inverse) {
-		int n = invector.Length;
-		if (n != outvector.Length)
+	private static void NaiveDft(Complex[] input, Complex[] output, bool inverse) {
+		int n = input.Length;
+		if (n != output.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
 		double coef = (inverse ? 2 : -2) * Math.PI;
@@ -107,23 +107,23 @@ public sealed class FftTest {
 			Complex sum = 0;
 			for (int t = 0; t < n; t++) {  // For each input element
 				double angle = coef * (int)((long)t * k % n) / n;  // This is more accurate than t * k
-				sum += invector[t] * Complex.Exp(new Complex(0, angle));
+				sum += input[t] * Complex.Exp(new Complex(0, angle));
 			}
-			outvector[k] = sum;
+			output[k] = sum;
 		}
 	}
 	
 	
-	private static void NaiveConvolve(Complex[] xvector, Complex[] yvector, Complex[] outvector) {
-		int n = xvector.Length;
-		if (n != yvector.Length || n != outvector.Length)
+	private static void NaiveConvolve(Complex[] xvec, Complex[] yvec, Complex[] outvec) {
+		int n = xvec.Length;
+		if (n != yvec.Length || n != outvec.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
 		for (int i = 0; i < n; i++)
-			outvector[i] = 0;
+			outvec[i] = 0;
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++)
-				outvector[(i + j) % n] += xvector[i] * yvector[j];
+				outvec[(i + j) % n] += xvec[i] * yvec[j];
 		}
 	}
 	
@@ -132,9 +132,9 @@ public sealed class FftTest {
 	
 	private static double maxLogError = Double.NegativeInfinity;
 	
-	private static double Log10RmsErr(Complex[] xvector, Complex[] yvector) {
-		int n = xvector.Length;
-		if (n != yvector.Length)
+	private static double Log10RmsErr(Complex[] xvec, Complex[] yvec) {
+		int n = xvec.Length;
+		if (n != yvec.Length)
 			throw new ArgumentException("Mismatched lengths");
 		
 		double err = Math.Pow(10, -99 * 2);

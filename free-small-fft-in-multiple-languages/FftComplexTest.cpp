@@ -136,14 +136,14 @@ static vector<complex<double> > naiveDft(const vector<complex<double> > &input, 
 static vector<complex<double> > naiveConvolve(
 		const vector<complex<double> > &xvec, const vector<complex<double> > &yvec) {
 	int n = static_cast<int>(xvec.size());
-	vector<complex<double> > outvec(n);  // All zeros
+	vector<complex<double> > result(n);  // All zeros
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			int k = (i + j) % n;
-			outvec[k] += xvec[i] * yvec[j];
+			result[k] += xvec[i] * yvec[j];
 		}
 	}
-	return outvec;
+	return result;
 }
 
 

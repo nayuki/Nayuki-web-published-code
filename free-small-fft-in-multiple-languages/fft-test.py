@@ -99,27 +99,27 @@ def _naive_dft(input, inverse):
 	return output
 
 
-def _naive_convolution(x, y):
-	assert len(x) == len(y)
-	n = len(x)
-	z = [0] * n
+def _naive_convolution(xvec, yvec):
+	assert len(xvec) == len(yvec)
+	n = len(xvec)
+	result = [0] * n
 	for i in range(n):
 		for j in range(n):
-			z[(i + j) % n] += x[i] * y[j]
-	return z
+			result[(i + j) % n] += xvec[i] * yvec[j]
+	return result
 
 
 # ---- Utility functions ----
 
 _maxlogerr = -math.inf
 
-def _log10_rms_err(x, y):
+def _log10_rms_err(xvec, yvec):
 	global _maxlogerr
-	assert len(x) == len(y)
+	assert len(xvec) == len(yvec)
 	err = 10.0**(-99 * 2)
-	for (u, v) in zip(x, y):
-		err += abs(u - v) ** 2
-	err = math.sqrt(err / max(len(x), 1))  # Now this is a root mean square (RMS) error
+	for (x, y) in zip(xvec, yvec):
+		err += abs(x - y) ** 2
+	err = math.sqrt(err / max(len(xvec), 1))  # Now this is a root mean square (RMS) error
 	err = math.log10(err)
 	_maxlogerr = max(err, _maxlogerr)
 	return err
