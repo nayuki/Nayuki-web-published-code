@@ -55,8 +55,8 @@ namespace Fft {
 	 * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
 	 */
 	void convolve(
-		const std::vector<std::complex<double> > &vecx,
-		const std::vector<std::complex<double> > &vecy,
-		std::vector<std::complex<double> > &vecout);
+		const std::vector<std::complex<double> > &xvec,
+		const std::vector<std::complex<double> > &yvec,
+		std::vector<std::complex<double> > &outvec);
 	
 }

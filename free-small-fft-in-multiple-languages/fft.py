@@ -103,17 +103,17 @@ def transform_bluestein(vec, inverse):
 # realoutput=True: Extract the real part of the convolution, so that the output is a list of floats. This is useful if both inputs are real.
 # realoutput=False: The output is always a list of complex numbers (even if both inputs are real).
 # 
-def convolve(x, y, realoutput=True):
-	assert len(x) == len(y)
-	n = len(x)
-	x = transform(x, False)
-	y = transform(y, False)
+def convolve(xvec, yvec, realoutput=True):
+	assert len(xvec) == len(yvec)
+	n = len(xvec)
+	xvec = transform(xvec, False)
+	yvec = transform(yvec, False)
 	for i in range(n):
-		x[i] *= y[i]
-	x = transform(x, True)
+		xvec[i] *= yvec[i]
+	xvec = transform(xvec, True)
 	
 	# Scaling (because this FFT implementation omits it) and postprocessing
 	if realoutput:
-		return [(val.real / n) for val in x]
+		return [(val.real / n) for val in xvec]
 	else:
-		return [(val / n) for val in x]
+		return [(val / n) for val in xvec]
