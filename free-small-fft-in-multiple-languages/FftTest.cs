@@ -73,11 +73,10 @@ public sealed class FftTest {
 		Fft.Transform(actual, false);
 		double err = Log10RmsErr(expect, actual);
 		
-		Complex[] actualin = new Complex[size];
 		for (int i = 0; i < size; i++)
-			actualin[i] = expect[i] / size;
-		Fft.Transform(actualin, true);
-		err = Math.Max(Log10RmsErr(input, actualin), err);
+			actual[i] = expect[i] / size;
+		Fft.Transform(actual, true);
+		err = Math.Max(Log10RmsErr(input, actual), err);
 		Console.WriteLine("fftsize={0,4}  logerr={1,5:F1}", size, err);
 	}
 	

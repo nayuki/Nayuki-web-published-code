@@ -69,9 +69,9 @@ def _test_fft(size):
 	actual = fft.transform(input, False)
 	err = _log10_rms_err(expect, actual)
 	
-	actualin = fft.transform(expect, True)
-	actualin = [(x / size) for x in actualin]
-	err = max(_log10_rms_err(input, actualin), err)
+	actual = [(x / size) for x in expect]
+	actual = fft.transform(actual, True)
+	err = max(_log10_rms_err(input, actual), err)
 	print(f"fftsize={size:4d}  logerr={err:5.1f}")
 
 

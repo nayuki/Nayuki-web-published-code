@@ -97,9 +97,15 @@ static void testFft(int n) {
 	const vector<complex<double> > expect = naiveDft(input, false);
 	vector<complex<double> > actual = input;
 	Fft::transform(actual, false);
+	double err = log10RmsErr(expect, actual);
+	
+	for (auto it = actual.begin(); it != actual.end(); ++it)
+		*it /= n;
+	Fft::transform(actual, true);
+	err = std::max(log10RmsErr(input, actual), err);
 	cout << "fftsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
-	     << log10RmsErr(expect, actual) << endl;
+	     << err << endl;
 }
 
 

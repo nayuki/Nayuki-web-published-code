@@ -77,9 +77,15 @@ public final class FftTest {
 		double[] actualreal = inputreal.clone();
 		double[] actualimag = inputimag.clone();
 		Fft.transform(actualreal, actualimag);
+		double err = log10RmsErr(expectreal, expectimag, actualreal, actualimag);
 		
-		System.out.printf("fftsize=%4d  logerr=%5.1f%n", size,
-			log10RmsErr(expectreal, expectimag, actualreal, actualimag));
+		for (int i = 0; i < size; i++) {
+			actualreal[i] /= size;
+			actualimag[i] /= size;
+		}
+		Fft.inverseTransform(actualreal, actualimag);
+		err = Math.max(log10RmsErr(inputreal, inputimag, actualreal, actualimag), err);
+		System.out.printf("fftsize=%4d  logerr=%5.1f%n", size, err);
 	}
 	
 	

@@ -93,7 +93,13 @@ static void test_fft(int n) {
 	naive_dft(input, expect, n, false);
 	double complex *actual = memdup(input, n * sizeof(double complex));
 	Fft_transform(actual, n, false);
-	printf("fftsize=%4d  logerr=%5.1f\n", n, log10_rms_err(expect, actual, n));
+	double err0 = log10_rms_err(expect, actual, n);
+	
+	for (int i = 0; i < n; i++)
+		actual[i] /= n;
+	Fft_transform(actual, n, true);
+	double err1 = log10_rms_err(input, actual, n);
+	printf("fftsize=%4d  logerr=%5.1f\n", n, (err0 > err1 ? err0 : err1));
 	free(input);
 	free(expect);
 	free(actual);

@@ -86,8 +86,16 @@ fn test_fft(size: usize) -> f64 {
 	let mut actualreal: Vec<f64> = inputreal.clone();
 	let mut actualimag: Vec<f64> = inputimag.clone();
 	fft::transform(&mut actualreal, &mut actualimag);
+	let mut err: f64 = log10_rms_err(&expectreal, &expectimag, &actualreal, &actualimag);
 	
-	let err: f64 = log10_rms_err(&expectreal, &expectimag, &actualreal, &actualimag);
+	for x in actualreal.iter_mut() {
+		*x /= size as f64;
+	}
+	for x in actualimag.iter_mut() {
+		*x /= size as f64;
+	}
+	fft::inverse_transform(&mut actualreal, &mut actualimag);
+	err = log10_rms_err(&inputreal, &inputimag, &actualreal, &actualimag).max(err);
 	println!("fftsize={:4}  logerr={:5.1}", size, err);
 	err
 }

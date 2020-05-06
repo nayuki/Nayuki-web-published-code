@@ -100,9 +100,15 @@ static void test_fft(int n) {
 	double *actualreal = memdup(inputreal, n * sizeof(double));
 	double *actualimag = memdup(inputimag, n * sizeof(double));
 	Fft_transform(actualreal, actualimag, n);
+	double err0 = log10_rms_err(expectreal, expectimag, actualreal, actualimag, n);
 	
-	printf("fftsize=%4d  logerr=%5.1f\n", n,
-		log10_rms_err(expectreal, expectimag, actualreal, actualimag, n));
+	for (int i = 0; i < n; i++) {
+		actualreal[i] /= n;
+		actualimag[i] /= n;
+	}
+	Fft_inverseTransform(actualreal, actualimag, n);
+	double err1 = log10_rms_err(inputreal, inputimag, actualreal, actualimag, n);
+	printf("fftsize=%4d  logerr=%5.1f\n", n, (err0 > err1 ? err0 : err1));
 	
 	free(inputreal);
 	free(inputimag);

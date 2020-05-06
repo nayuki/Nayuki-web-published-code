@@ -73,9 +73,15 @@ function testFft(size) {
 	var actualreal = inputreal.slice();
 	var actualimag = inputimag.slice();
 	transform(actualreal, actualimag);
+	var err = log10RmsErr(expectreal, expectimag, actualreal, actualimag);
 	
-	document.write("fftsize=" + size + "  logerr=" +
-		log10RmsErr(expectreal, expectimag, actualreal, actualimag).toFixed(1) + "\n");
+	for (var i = 0; i < size; i++) {
+		actualreal[i] /= size;
+		actualimag[i] /= size;
+	}
+	inverseTransform(actualreal, actualimag);
+	err = Math.max(log10RmsErr(inputreal, inputimag, actualreal, actualimag), err);
+	document.write("fftsize=" + size + "  logerr=" + err.toFixed(1) + "\n");
 }
 
 

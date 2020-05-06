@@ -105,10 +105,17 @@ static void testFft(int n) {
 	vector<double> actualreal = inputreal;
 	vector<double> actualimag = inputimag;
 	Fft::transform(actualreal, actualimag);
+	double err = log10RmsErr(expectreal, expectimag, actualreal, actualimag);
 	
+	for (auto it = actualreal.begin(); it != actualreal.end(); ++it)
+		*it /= n;
+	for (auto it = actualimag.begin(); it != actualimag.end(); ++it)
+		*it /= n;
+	Fft::inverseTransform(actualreal, actualimag);
+	err = std::max(log10RmsErr(inputreal, inputimag, actualreal, actualimag), err);
 	cout << "fftsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
-	     << log10RmsErr(expectreal, expectimag, actualreal, actualimag) << endl;
+	     << err << endl;
 }
 
 
