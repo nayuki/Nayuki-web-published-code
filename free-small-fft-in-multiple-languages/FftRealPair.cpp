@@ -23,11 +23,13 @@
 
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <stdexcept>
 #include <utility>
 #include "FftRealPair.hpp"
 
 using std::size_t;
+using std::uintmax_t;
 using std::vector;
 
 
@@ -117,8 +119,8 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 	// Trignometric tables
 	vector<double> cosTable(n), sinTable(n);
 	for (size_t i = 0; i < n; i++) {
-		unsigned long long temp = static_cast<unsigned long long>(i) * i;
-		temp %= static_cast<unsigned long long>(n) * 2;
+		uintmax_t temp = static_cast<uintmax_t>(i) * i;
+		temp %= static_cast<uintmax_t>(n) * 2;
 		double angle = M_PI * temp / n;
 		cosTable[i] = std::cos(angle);
 		sinTable[i] = std::sin(angle);

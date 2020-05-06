@@ -114,8 +114,7 @@ bool Fft_transformBluestein(double complex vec[], size_t n, bool inverse) {
 	
 	// Trignometric tables
 	for (size_t i = 0; i < n; i++) {
-		uintmax_t temp = (uintmax_t)i * i;
-		temp %= (uintmax_t)n * 2;
+		uintmax_t temp = ((uintmax_t)i * i) % ((uintmax_t)n * 2);
 		double angle = (inverse ? M_PI : -M_PI) * temp / n;
 		exptable[i] = cexp(angle * I);
 	}

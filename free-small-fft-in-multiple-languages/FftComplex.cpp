@@ -23,11 +23,13 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <stdexcept>
 #include "FftComplex.hpp"
 
 using std::complex;
 using std::size_t;
+using std::uintmax_t;
 using std::vector;
 
 
@@ -106,8 +108,8 @@ void Fft::transformBluestein(vector<complex<double> > &vec) {
 	// Trignometric table
 	vector<complex<double> > expTable(n);
 	for (size_t i = 0; i < n; i++) {
-		unsigned long long temp = static_cast<unsigned long long>(i) * i;
-		temp %= static_cast<unsigned long long>(n) * 2;
+		uintmax_t temp = static_cast<uintmax_t>(i) * i;
+		temp %= static_cast<uintmax_t>(n) * 2;
 		double angle = M_PI * temp / n;
 		expTable[i] = std::polar(1.0, -angle);
 	}

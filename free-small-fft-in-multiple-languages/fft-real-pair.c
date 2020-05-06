@@ -142,8 +142,7 @@ bool Fft_transformBluestein(double real[], double imag[], size_t n) {
 	
 	// Trignometric tables
 	for (size_t i = 0; i < n; i++) {
-		unsigned long long temp = (unsigned long long)i * i;
-		temp %= (unsigned long long)n * 2;
+		uintmax_t temp = ((uintmax_t)i * i) % ((uintmax_t)n * 2);
 		double angle = M_PI * temp / n;
 		cos_table[i] = cos(angle);
 		sin_table[i] = sin(angle);
