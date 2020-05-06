@@ -22,7 +22,7 @@
  */
 
 #include <math.h>
-#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "fft-real-pair.h"
@@ -174,14 +174,14 @@ bool Fft_transformBluestein(double real[], double imag[], size_t n) {
 	
 	// Deallocation
 cleanup:
-	free(cimag);
-	free(creal);
-	free(bimag);
-	free(breal);
-	free(aimag);
-	free(areal);
-	free(sin_table);
 	free(cos_table);
+	free(sin_table);
+	free(areal);
+	free(aimag);
+	free(breal);
+	free(bimag);
+	free(creal);
+	free(cimag);
 	return status;
 }
 

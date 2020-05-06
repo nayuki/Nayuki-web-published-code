@@ -63,7 +63,7 @@ public sealed class Fft {
 		
 		// Bit-reversed addressing permutation
 		for (int i = 0; i < n; i++) {
-			int j = (int)((uint)ReverseBits(i) >> (32 - levels));
+			int j = ReverseBits(i, levels);
 			if (j > i) {
 				Complex temp = vector[i];
 				vector[i] = vector[j];
@@ -148,9 +148,9 @@ public sealed class Fft {
 	}
 	
 	
-	private static int ReverseBits(int val) {
+	private static int ReverseBits(int val, int width) {
 		int result = 0;
-		for (int i = 0; i < 32; i++, val >>= 1)
+		for (int i = 0; i < width; i++, val >>= 1)
 			result = (result << 1) | (val & 1);
 		return result;
 	}

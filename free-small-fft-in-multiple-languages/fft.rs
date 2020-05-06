@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -141,18 +141,14 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 	}
 	
 	// Temporary vectors and preprocessing
-	let mut areal = Vec::<f64>::with_capacity(m);
-	let mut aimag = Vec::<f64>::with_capacity(m);
+	let mut areal = vec![0.0f64; m];
+	let mut aimag = vec![0.0f64; m];
 	for i in 0 .. n {
-		areal.push( real[i] * costable[i] + imag[i] * sintable[i]);
-		aimag.push(-real[i] * sintable[i] + imag[i] * costable[i]);
+		areal[i] =  real[i] * costable[i] + imag[i] * sintable[i];
+		aimag[i] = -real[i] * sintable[i] + imag[i] * costable[i];
 	}
-	for _ in n .. m {
-		areal.push(0.0);
-		aimag.push(0.0);
-	}
-	let mut breal: Vec<f64> = vec![0.0; m];
-	let mut bimag: Vec<f64> = vec![0.0; m];
+	let mut breal = vec![0.0f64; m];
+	let mut bimag = vec![0.0f64; m];
 	breal[0] = costable[0];
 	bimag[0] = sintable[0];
 	for i in 1 .. n {
@@ -163,8 +159,8 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 	}
 	
 	// Convolution
-	let mut creal: Vec<f64> = vec![0.0; m];
-	let mut cimag: Vec<f64> = vec![0.0; m];
+	let mut creal = vec![0.0f64; m];
+	let mut cimag = vec![0.0f64; m];
 	convolve_complex(&areal, &aimag, &breal, &bimag, &mut creal, &mut cimag);
 	
 	// Postprocessing

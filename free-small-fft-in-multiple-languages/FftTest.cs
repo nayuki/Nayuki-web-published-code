@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C#)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -139,8 +139,8 @@ public sealed class FftTest {
 		
 		double err = Math.Pow(10, -99 * 2);
 		for (int i = 0; i < n; i++) {
-			Complex temp = xvector[i] - yvector[i];
-			err += temp.Real * temp.Real + temp.Imaginary * temp.Imaginary;
+			double temp = (xvec[i] - yvec[i]).Magnitude;
+			err += temp * temp;
 		}
 		err = Math.Sqrt(err / Math.Max(n, 1));  // Now this is a root mean square (RMS) error
 		err = Math.Log10(err);

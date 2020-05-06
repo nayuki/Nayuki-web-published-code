@@ -21,10 +21,10 @@
  *   Software.
  */
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <stdexcept>
+#include <utility>
 #include "FftRealPair.hpp"
 
 using std::size_t;

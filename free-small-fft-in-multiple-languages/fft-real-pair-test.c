@@ -35,7 +35,7 @@
 static void test_fft(int n);
 static void test_convolution(int n);
 static void naive_dft(const double *inreal, const double *inimag,
-	double *outreal, double *outimag, bool inverse, int n);
+	double *outreal, double *outimag, int n, bool inverse);
 static void naive_convolve(const double *xreal, const double *ximag,
 	const double *yreal, const double *yimag,
 	double *outreal, double *outimag, int n);
@@ -95,7 +95,7 @@ static void test_fft(int n) {
 	
 	double *refoutreal = malloc(n * sizeof(double));
 	double *refoutimag = malloc(n * sizeof(double));
-	naive_dft(inputreal, inputimag, refoutreal, refoutimag, false, n);
+	naive_dft(inputreal, inputimag, refoutreal, refoutimag, n, false);
 	
 	double *actualoutreal = memdup(inputreal, n * sizeof(double));
 	double *actualoutimag = memdup(inputimag, n * sizeof(double));
@@ -144,7 +144,7 @@ static void test_convolution(int n) {
 /*---- Naive reference computation functions ----*/
 
 static void naive_dft(const double *inreal, const double *inimag,
-		double *outreal, double *outimag, bool inverse, int n) {
+		double *outreal, double *outimag, int n, bool inverse) {
 	
 	double coef = (inverse ? 2 : -2) * M_PI;
 	for (int k = 0; k < n; k++) {  // For each output element
@@ -210,7 +210,7 @@ static double *random_reals(int n) {
 
 static void *memdup(const void *src, size_t n) {
 	void *dest = malloc(n);
-	if (dest != NULL)
+	if (n > 0 && dest != NULL)
 		memcpy(dest, src, n);
 	return dest;
 }

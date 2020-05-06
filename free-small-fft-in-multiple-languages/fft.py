@@ -44,9 +44,9 @@ def transform(vector, inverse):
 # 
 def transform_radix2(vector, inverse):
 	# Returns the integer whose value is the reverse of the lowest 'bits' bits of the integer 'x'.
-	def reverse(x, bits):
+	def reverse_bits(x, bits):
 		y = 0
-		for i in range(bits):
+		for _ in range(bits):
 			y = (y << 1) | (x & 1)
 			x >>= 1
 		return y
@@ -59,7 +59,7 @@ def transform_radix2(vector, inverse):
 	# Now, levels = log2(n)
 	coef = (2 if inverse else -2) * cmath.pi / n
 	exptable = [cmath.rect(1, i * coef) for i in range(n // 2)]
-	vector = [vector[reverse(i, levels)] for i in range(n)]  # Copy with bit-reversed permutation
+	vector = [vector[reverse_bits(i, levels)] for i in range(n)]  # Copy with bit-reversed permutation
 	
 	# Radix-2 decimation-in-time FFT
 	size = 2
