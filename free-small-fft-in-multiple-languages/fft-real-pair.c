@@ -185,7 +185,7 @@ cleanup:
 }
 
 
-bool Fft_convolveReal(const double x[], const double y[], double out[], size_t n) {
+bool Fft_convolveReal(const double xvec[], const double yvec[], double outvec[], size_t n) {
 	bool status = false;
 	double *ximag = calloc(n, sizeof(double));
 	double *yimag = calloc(n, sizeof(double));
@@ -193,7 +193,7 @@ bool Fft_convolveReal(const double x[], const double y[], double out[], size_t n
 	if (ximag == NULL || yimag == NULL || zimag == NULL)
 		goto cleanup;
 	
-	status = Fft_convolveComplex(x, ximag, y, yimag, out, zimag, n);
+	status = Fft_convolveComplex(xvec, ximag, yvec, yimag, outvec, zimag, n);
 cleanup:
 	free(zimag);
 	free(yimag);

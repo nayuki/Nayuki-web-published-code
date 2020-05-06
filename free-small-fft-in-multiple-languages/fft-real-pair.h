@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -67,7 +67,7 @@ bool Fft_transformBluestein(double real[], double imag[], size_t n);
  * Computes the circular convolution of the given real vectors. Each vector's length must be the same.
  * Returns true if successful, false otherwise (out of memory).
  */
-bool Fft_convolveReal(const double x[], const double y[], double out[], size_t n);
+bool Fft_convolveReal(const double xvec[], const double yvec[], double outvec[], size_t n);
 
 
 /* 

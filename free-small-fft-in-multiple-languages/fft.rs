@@ -174,14 +174,14 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 /* 
  * Computes the circular convolution of the given real vectors. Each vector's length must be the same.
  */
-pub fn convolve_real(x: &[f64], y: &[f64], out: &mut [f64]) {
-	let n: usize = x.len();
-	assert_eq!(y.len(), n);
-	assert_eq!(out.len(), n);
+pub fn convolve_real(xvec: &[f64], yvec: &[f64], outvec: &mut [f64]) {
+	let n: usize = xvec.len();
+	assert_eq!(yvec.len(), n);
+	assert_eq!(outvec.len(), n);
 	convolve_complex(
-		x, &vec![0.0; n],
-		y, &vec![0.0; n],
-		out, &mut vec![0.0; n]);
+		xvec, &vec![0.0; n],
+		yvec, &vec![0.0; n],
+		outvec, &mut vec![0.0; n]);
 }
 
 

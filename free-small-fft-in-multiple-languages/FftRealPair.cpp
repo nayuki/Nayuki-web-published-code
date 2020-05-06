@@ -152,12 +152,12 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 }
 
 
-void Fft::convolve(const vector<double> &x, const vector<double> &y, vector<double> &out) {
-	size_t n = x.size();
-	if (n != y.size() || n != out.size())
+void Fft::convolve(const vector<double> &xvec, const vector<double> &yvec, vector<double> &outvec) {
+	size_t n = xvec.size();
+	if (n != yvec.size() || n != outvec.size())
 		throw std::invalid_argument("Mismatched lengths");
 	vector<double> outimag(n);
-	convolve(x, vector<double>(n), y, vector<double>(n), out, outimag);
+	convolve(xvec, vector<double>(n), yvec, vector<double>(n), outvec, outimag);
 }
 
 

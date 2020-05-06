@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -160,11 +160,11 @@ public final class Fft {
 	/* 
 	 * Computes the circular convolution of the given real vectors. Each vector's length must be the same.
 	 */
-	public static void convolve(double[] x, double[] y, double[] out) {
-		int n = x.length;
-		if (n != y.length || n != out.length)
+	public static void convolve(double[] xvec, double[] yvec, double[] outvec) {
+		int n = xvec.length;
+		if (n != yvec.length || n != outvec.length)
 			throw new IllegalArgumentException("Mismatched lengths");
-		convolve(x, new double[n], y, new double[n], out, new double[n]);
+		convolve(xvec, new double[n], yvec, new double[n], outvec, new double[n]);
 	}
 	
 	
