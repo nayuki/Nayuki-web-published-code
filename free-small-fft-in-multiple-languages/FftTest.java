@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -70,16 +70,16 @@ public final class FftTest {
 		double[] inputreal = randomReals(size);
 		double[] inputimag = randomReals(size);
 		
-		double[] refoutreal = new double[size];
-		double[] refoutimag = new double[size];
-		naiveDft(inputreal, inputimag, refoutreal, refoutimag, false);
+		double[] expectreal = new double[size];
+		double[] expectimag = new double[size];
+		naiveDft(inputreal, inputimag, expectreal, expectimag, false);
 		
-		double[] actualoutreal = inputreal.clone();
-		double[] actualoutimag = inputimag.clone();
-		Fft.transform(actualoutreal, actualoutimag);
+		double[] actualreal = inputreal.clone();
+		double[] actualimag = inputimag.clone();
+		Fft.transform(actualreal, actualimag);
 		
 		System.out.printf("fftsize=%4d  logerr=%5.1f%n", size,
-			log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag));
+			log10RmsErr(expectreal, expectimag, actualreal, actualimag));
 	}
 	
 	
@@ -89,16 +89,16 @@ public final class FftTest {
 		double[] input1real = randomReals(size);
 		double[] input1imag = randomReals(size);
 		
-		double[] refoutreal = new double[size];
-		double[] refoutimag = new double[size];
-		naiveConvolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag);
+		double[] expectreal = new double[size];
+		double[] expectimag = new double[size];
+		naiveConvolve(input0real, input0imag, input1real, input1imag, expectreal, expectimag);
 		
-		double[] actualoutreal = new double[size];
-		double[] actualoutimag = new double[size];
-		Fft.convolve(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
+		double[] actualreal = new double[size];
+		double[] actualimag = new double[size];
+		Fft.convolve(input0real, input0imag, input1real, input1imag, actualreal, actualimag);
 		
 		System.out.printf("convsize=%4d  logerr=%5.1f%n", size,
-			log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag));
+			log10RmsErr(expectreal, expectimag, actualreal, actualimag));
 	}
 	
 	

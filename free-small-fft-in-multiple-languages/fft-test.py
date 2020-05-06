@@ -65,11 +65,11 @@ def main():
 
 def _test_fft(size):
 	input = _random_vector(size)
-	refout = _naive_dft(input, False)
-	actualout = fft.transform(input, False)
-	err = _log10_rms_err(refout, actualout)
+	expect = _naive_dft(input, False)
+	actual = fft.transform(input, False)
+	err = _log10_rms_err(expect, actual)
 	
-	actualin = fft.transform(refout, True)
+	actualin = fft.transform(expect, True)
 	actualin = [(x / size) for x in actualin]
 	err = max(_log10_rms_err(input, actualin), err)
 	print(f"fftsize={size:4d}  logerr={err:5.1f}")
@@ -78,9 +78,9 @@ def _test_fft(size):
 def _test_convolution(size):
 	input0 = _random_vector(size)
 	input1 = _random_vector(size)
-	refout = _naive_convolution(input0, input1)
-	actualout = fft.convolve(input0, input1, False)
-	print(f"convsize={size:4d}  logerr={_log10_rms_err(refout, actualout):5.1f}")
+	expect = _naive_convolution(input0, input1)
+	actual = fft.convolve(input0, input1, False)
+	print(f"convsize={size:4d}  logerr={_log10_rms_err(expect, actual):5.1f}")
 
 
 # ---- Naive reference computation functions ----

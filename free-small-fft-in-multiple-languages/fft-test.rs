@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -79,15 +79,15 @@ fn test_fft(size: usize) -> f64 {
 	let inputreal: Vec<f64> = random_reals(size);
 	let inputimag: Vec<f64> = random_reals(size);
 	
-	let mut refoutreal: Vec<f64> = vec![0.0; size];
-	let mut refoutimag: Vec<f64> = vec![0.0; size];
-	naive_dft(&inputreal, &inputimag, &mut refoutreal, &mut refoutimag, false);
+	let mut expectreal: Vec<f64> = vec![0.0; size];
+	let mut expectimag: Vec<f64> = vec![0.0; size];
+	naive_dft(&inputreal, &inputimag, &mut expectreal, &mut expectimag, false);
 	
-	let mut actualoutreal: Vec<f64> = inputreal.clone();
-	let mut actualoutimag: Vec<f64> = inputimag.clone();
-	fft::transform(&mut actualoutreal, &mut actualoutimag);
+	let mut actualreal: Vec<f64> = inputreal.clone();
+	let mut actualimag: Vec<f64> = inputimag.clone();
+	fft::transform(&mut actualreal, &mut actualimag);
 	
-	let err: f64 = log10_rms_err(&refoutreal, &refoutimag, &actualoutreal, &actualoutimag);
+	let err: f64 = log10_rms_err(&expectreal, &expectimag, &actualreal, &actualimag);
 	println!("fftsize={:4}  logerr={:5.1}", size, err);
 	err
 }
@@ -99,17 +99,17 @@ fn test_convolution(size: usize) -> f64 {
 	let input1real: Vec<f64> = random_reals(size);
 	let input1imag: Vec<f64> = random_reals(size);
 	
-	let mut refoutreal: Vec<f64> = vec![0.0; size];
-	let mut refoutimag: Vec<f64> = vec![0.0; size];
+	let mut expectreal: Vec<f64> = vec![0.0; size];
+	let mut expectimag: Vec<f64> = vec![0.0; size];
 	naive_convolve(&input0real, &input0imag, &input1real, &input1imag,
-		&mut refoutreal, &mut refoutimag);
+		&mut expectreal, &mut expectimag);
 	
-	let mut actualoutreal: Vec<f64> = vec![0.0; size];
-	let mut actualoutimag: Vec<f64> = vec![0.0; size];
+	let mut actualreal: Vec<f64> = vec![0.0; size];
+	let mut actualimag: Vec<f64> = vec![0.0; size];
 	fft::convolve_complex(&input0real, &input0imag, &input1real, &input1imag,
-		&mut actualoutreal, &mut actualoutimag);
+		&mut actualreal, &mut actualimag);
 	
-	let err: f64 = log10_rms_err(&refoutreal, &refoutimag, &actualoutreal, &actualoutimag);
+	let err: f64 = log10_rms_err(&expectreal, &expectimag, &actualreal, &actualimag);
 	println!("convsize={:4}  logerr={:5.1}", size, err);
 	err
 }

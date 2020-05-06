@@ -94,24 +94,24 @@ int main() {
 
 static void testFft(int n) {
 	const vector<complex<double> > input = randomComplexes(n);
-	const vector<complex<double> > refout = naiveDft(input, false);
-	vector<complex<double> > actualout = input;
-	Fft::transform(actualout, false);
+	const vector<complex<double> > expect = naiveDft(input, false);
+	vector<complex<double> > actual = input;
+	Fft::transform(actual, false);
 	cout << "fftsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
-	     << log10RmsErr(refout, actualout) << endl;
+	     << log10RmsErr(expect, actual) << endl;
 }
 
 
 static void testConvolution(int n) {
 	const vector<complex<double> > input0 = randomComplexes(n);
 	const vector<complex<double> > input1 = randomComplexes(n);
-	const vector<complex<double> > refout = naiveConvolve(input0, input1);
-	vector<complex<double> > actualout(n);
-	Fft::convolve(input0, input1, actualout);
+	const vector<complex<double> > expect = naiveConvolve(input0, input1);
+	vector<complex<double> > actual(n);
+	Fft::convolve(input0, input1, actual);
 	cout << "convsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
-	     << log10RmsErr(refout, actualout) << endl;
+	     << log10RmsErr(expect, actual) << endl;
 }
 
 

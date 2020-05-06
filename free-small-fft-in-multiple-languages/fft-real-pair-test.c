@@ -93,23 +93,23 @@ static void test_fft(int n) {
 	double *inputreal = random_reals(n);
 	double *inputimag = random_reals(n);
 	
-	double *refoutreal = malloc(n * sizeof(double));
-	double *refoutimag = malloc(n * sizeof(double));
-	naive_dft(inputreal, inputimag, refoutreal, refoutimag, n, false);
+	double *expectreal = malloc(n * sizeof(double));
+	double *expectimag = malloc(n * sizeof(double));
+	naive_dft(inputreal, inputimag, expectreal, expectimag, n, false);
 	
-	double *actualoutreal = memdup(inputreal, n * sizeof(double));
-	double *actualoutimag = memdup(inputimag, n * sizeof(double));
-	Fft_transform(actualoutreal, actualoutimag, n);
+	double *actualreal = memdup(inputreal, n * sizeof(double));
+	double *actualimag = memdup(inputimag, n * sizeof(double));
+	Fft_transform(actualreal, actualimag, n);
 	
 	printf("fftsize=%4d  logerr=%5.1f\n", n,
-		log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
+		log10_rms_err(expectreal, expectimag, actualreal, actualimag, n));
 	
 	free(inputreal);
 	free(inputimag);
-	free(refoutreal);
-	free(refoutimag);
-	free(actualoutreal);
-	free(actualoutimag);
+	free(expectreal);
+	free(expectimag);
+	free(actualreal);
+	free(actualimag);
 }
 
 
@@ -119,25 +119,25 @@ static void test_convolution(int n) {
 	double *input1real = random_reals(n);
 	double *input1imag = random_reals(n);
 	
-	double *refoutreal = malloc(n * sizeof(double));
-	double *refoutimag = malloc(n * sizeof(double));
-	naive_convolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag, n);
+	double *expectreal = malloc(n * sizeof(double));
+	double *expectimag = malloc(n * sizeof(double));
+	naive_convolve(input0real, input0imag, input1real, input1imag, expectreal, expectimag, n);
 	
-	double *actualoutreal = malloc(n * sizeof(double));
-	double *actualoutimag = malloc(n * sizeof(double));
-	Fft_convolveComplex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag, n);
+	double *actualreal = malloc(n * sizeof(double));
+	double *actualimag = malloc(n * sizeof(double));
+	Fft_convolveComplex(input0real, input0imag, input1real, input1imag, actualreal, actualimag, n);
 	
 	printf("convsize=%4d  logerr=%5.1f\n", n,
-		log10_rms_err(refoutreal, refoutimag, actualoutreal, actualoutimag, n));
+		log10_rms_err(expectreal, expectimag, actualreal, actualimag, n));
 	
 	free(input0real);
 	free(input0imag);
 	free(input1real);
 	free(input1imag);
-	free(refoutreal);
-	free(refoutimag);
-	free(actualoutreal);
-	free(actualoutimag);
+	free(expectreal);
+	free(expectimag);
+	free(actualreal);
+	free(actualimag);
 }
 
 

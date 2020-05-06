@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -98,17 +98,17 @@ static void testFft(int n) {
 	const vector<double> inputreal = randomReals(n);
 	const vector<double> inputimag = randomReals(n);
 	
-	vector<double> refoutreal(n);
-	vector<double> refoutimag(n);
-	naiveDft(inputreal, inputimag, refoutreal, refoutimag, false);
+	vector<double> expectreal(n);
+	vector<double> expectimag(n);
+	naiveDft(inputreal, inputimag, expectreal, expectimag, false);
 	
-	vector<double> actualoutreal = inputreal;
-	vector<double> actualoutimag = inputimag;
-	Fft::transform(actualoutreal, actualoutimag);
+	vector<double> actualreal = inputreal;
+	vector<double> actualimag = inputimag;
+	Fft::transform(actualreal, actualimag);
 	
 	cout << "fftsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
-	     << log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag) << endl;
+	     << log10RmsErr(expectreal, expectimag, actualreal, actualimag) << endl;
 }
 
 
@@ -118,17 +118,17 @@ static void testConvolution(int n) {
 	const vector<double> input1real = randomReals(n);
 	const vector<double> input1imag = randomReals(n);
 	
-	vector<double> refoutreal(n);
-	vector<double> refoutimag(n);
-	naiveConvolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag);
+	vector<double> expectreal(n);
+	vector<double> expectimag(n);
+	naiveConvolve(input0real, input0imag, input1real, input1imag, expectreal, expectimag);
 	
-	vector<double> actualoutreal(n);
-	vector<double> actualoutimag(n);
-	Fft::convolve(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
+	vector<double> actualreal(n);
+	vector<double> actualimag(n);
+	Fft::convolve(input0real, input0imag, input1real, input1imag, actualreal, actualimag);
 	
 	cout << "convsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
-	     << log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag) << endl;
+	     << log10RmsErr(expectreal, expectimag, actualreal, actualimag) << endl;
 }
 
 

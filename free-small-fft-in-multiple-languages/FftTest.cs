@@ -67,29 +67,28 @@ public sealed class FftTest {
 	
 	
 	private static void TestFft(int size) {
-		Complex[] inputvector = RandomComplexes(size);
-		Complex[] refoutvector = NaiveDft(inputvector, false);
-		Complex[] actualoutvector = (Complex[])inputvector.Clone();
-		Fft.Transform(actualoutvector, false);
-		double err = Log10RmsErr(refoutvector, actualoutvector);
+		Complex[] input = RandomComplexes(size);
+		Complex[] expect = NaiveDft(input, false);
+		Complex[] actual = (Complex[])input.Clone();
+		Fft.Transform(actual, false);
+		double err = Log10RmsErr(expect, actual);
 		
-		Complex[] actualinvector = new Complex[size];
+		Complex[] actualin = new Complex[size];
 		for (int i = 0; i < size; i++)
-			actualinvector[i] = refoutvector[i] / size;
-		Fft.Transform(actualinvector, true);
-		err = Math.Max(Log10RmsErr(inputvector, actualinvector), err);
+			actualin[i] = expect[i] / size;
+		Fft.Transform(actualin, true);
+		err = Math.Max(Log10RmsErr(input, actualin), err);
 		Console.WriteLine("fftsize={0,4}  logerr={1,5:F1}", size, err);
 	}
 	
 	
 	private static void TestConvolution(int size) {
-		Complex[] input0vector = RandomComplexes(size);
-		Complex[] input1vector = RandomComplexes(size);
-		Complex[] refoutvector = NaiveConvolve(input0vector, input1vector);
-		
-		Complex[] actualoutvector = new Complex[size];
-		Fft.Convolve(input0vector, input1vector, actualoutvector);
-		Console.WriteLine("convsize={0,4}  logerr={1,5:F1}", size, Log10RmsErr(refoutvector, actualoutvector));
+		Complex[] input0 = RandomComplexes(size);
+		Complex[] input1 = RandomComplexes(size);
+		Complex[] expect = NaiveConvolve(input0, input1);
+		Complex[] actual = new Complex[size];
+		Fft.Convolve(input0, input1, actual);
+		Console.WriteLine("convsize={0,4}  logerr={1,5:F1}", size, Log10RmsErr(expect, actual));
 	}
 	
 	

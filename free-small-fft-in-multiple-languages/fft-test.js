@@ -66,16 +66,16 @@ function testFft(size) {
 	var inputreal = randomReals(size);
 	var inputimag = randomReals(size);
 	
-	var refoutreal = new Array(size);
-	var refoutimag = new Array(size);
-	naiveDft(inputreal, inputimag, refoutreal, refoutimag, false);
+	var expectreal = new Array(size);
+	var expectimag = new Array(size);
+	naiveDft(inputreal, inputimag, expectreal, expectimag, false);
 	
-	var actualoutreal = inputreal.slice();
-	var actualoutimag = inputimag.slice();
-	transform(actualoutreal, actualoutimag);
+	var actualreal = inputreal.slice();
+	var actualimag = inputimag.slice();
+	transform(actualreal, actualimag);
 	
 	document.write("fftsize=" + size + "  logerr=" +
-		log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
+		log10RmsErr(expectreal, expectimag, actualreal, actualimag).toFixed(1) + "\n");
 }
 
 
@@ -86,16 +86,16 @@ function testConvolution(size) {
 	var input1real = randomReals(size);
 	var input1imag = randomReals(size);
 	
-	var refoutreal = new Array(size);
-	var refoutimag = new Array(size);
-	naiveConvolve(input0real, input0imag, input1real, input1imag, refoutreal, refoutimag);
+	var expectreal = new Array(size);
+	var expectimag = new Array(size);
+	naiveConvolve(input0real, input0imag, input1real, input1imag, expectreal, expectimag);
 	
-	var actualoutreal = new Array(size);
-	var actualoutimag = new Array(size);
-	convolveComplex(input0real, input0imag, input1real, input1imag, actualoutreal, actualoutimag);
+	var actualreal = new Array(size);
+	var actualimag = new Array(size);
+	convolveComplex(input0real, input0imag, input1real, input1imag, actualreal, actualimag);
 	
 	document.write("convsize=" + size + "  logerr=" +
-		log10RmsErr(refoutreal, refoutimag, actualoutreal, actualoutimag).toFixed(1) + "\n");
+		log10RmsErr(expectreal, expectimag, actualreal, actualimag).toFixed(1) + "\n");
 }
 
 
