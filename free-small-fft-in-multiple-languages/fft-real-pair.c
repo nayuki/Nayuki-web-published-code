@@ -195,9 +195,9 @@ bool Fft_convolveReal(const double xvec[], const double yvec[], double outvec[],
 	
 	status = Fft_convolveComplex(xvec, ximag, yvec, yimag, outvec, zimag, n);
 cleanup:
-	free(zimag);
-	free(yimag);
 	free(ximag);
+	free(yimag);
+	free(zimag);
 	return status;
 }
 
@@ -239,10 +239,10 @@ bool Fft_convolveComplex(
 	status = true;
 	
 cleanup:
-	free(yi);
-	free(yr);
-	free(xi);
 	free(xr);
+	free(xi);
+	free(yr);
+	free(yi);
 	return status;
 }
 

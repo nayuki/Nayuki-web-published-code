@@ -198,22 +198,22 @@ pub fn convolve_complex(xreal: &[f64], ximag: &[f64], yreal: &[f64], yimag: &[f6
 	assert_eq!(outreal.len(), n);
 	assert_eq!(outimag.len(), n);
 	
-	let mut xrecp: Vec<f64> = xreal.to_vec();
-	let mut ximcp: Vec<f64> = ximag.to_vec();
-	let mut yrecp: Vec<f64> = yreal.to_vec();
-	let mut yimcp: Vec<f64> = yimag.to_vec();
-	transform(&mut xrecp, &mut ximcp);
-	transform(&mut yrecp, &mut yimcp);
+	let mut xreal: Vec<f64> = xreal.to_vec();
+	let mut ximag: Vec<f64> = ximag.to_vec();
+	let mut yreal: Vec<f64> = yreal.to_vec();
+	let mut yimag: Vec<f64> = yimag.to_vec();
+	transform(&mut xreal, &mut ximag);
+	transform(&mut yreal, &mut yimag);
 	
 	for i in 0 .. n {
-		let temp: f64 = xrecp[i] * yrecp[i] - ximcp[i] * yimcp[i];
-		ximcp[i] = ximcp[i] * yrecp[i] + xrecp[i] * yimcp[i];
-		xrecp[i] = temp;
+		let temp: f64 = xreal[i] * yreal[i] - ximag[i] * yimag[i];
+		ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
+		xreal[i] = temp;
 	}
-	inverse_transform(&mut xrecp, &mut ximcp);
+	inverse_transform(&mut xreal, &mut ximag);
 	
 	for i in 0 .. n {  // Scaling (because this FFT implementation omits it)
-		outreal[i] = xrecp[i] / (n as f64);
-		outimag[i] = ximcp[i] / (n as f64);
+		outreal[i] = xreal[i] / (n as f64);
+		outimag[i] = ximag[i] / (n as f64);
 	}
 }
