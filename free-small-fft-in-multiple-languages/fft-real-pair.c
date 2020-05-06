@@ -25,7 +25,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include "fft.h"
+#include "fft-real-pair.h"
 
 
 // Private function prototypes

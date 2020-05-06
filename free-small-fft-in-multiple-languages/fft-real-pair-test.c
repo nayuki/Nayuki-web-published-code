@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "fft.h"
+#include "fft-real-pair.h"
 
 
 // Private function prototypes
