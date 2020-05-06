@@ -68,8 +68,7 @@ public sealed class FftTest {
 	
 	private static void TestFft(int size) {
 		Complex[] inputvector = RandomComplexes(size);
-		Complex[] refoutvector = new Complex[size];
-		NaiveDft(inputvector, refoutvector, false);
+		Complex[] refoutvector = NaiveDft(inputvector, false);
 		Complex[] actualoutvector = (Complex[])inputvector.Clone();
 		Fft.Transform(actualoutvector, false);
 		double err = Log10RmsErr(refoutvector, actualoutvector);
@@ -86,8 +85,7 @@ public sealed class FftTest {
 	private static void TestConvolution(int size) {
 		Complex[] input0vector = RandomComplexes(size);
 		Complex[] input1vector = RandomComplexes(size);
-		Complex[] refoutvector = new Complex[size];
-		NaiveConvolve(input0vector, input1vector, refoutvector);
+		Complex[] refoutvector = NaiveConvolve(input0vector, input1vector);
 		
 		Complex[] actualoutvector = new Complex[size];
 		Fft.Convolve(input0vector, input1vector, actualoutvector);
@@ -97,11 +95,9 @@ public sealed class FftTest {
 	
 	/*---- Naive reference computation functions ----*/
 	
-	private static void NaiveDft(Complex[] input, Complex[] output, bool inverse) {
+	private static Complex[] NaiveDft(Complex[] input, bool inverse) {
 		int n = input.Length;
-		if (n != output.Length)
-			throw new ArgumentException("Mismatched lengths");
-		
+		Complex[] output = new Complex[n];
 		double coef = (inverse ? 2 : -2) * Math.PI;
 		for (int k = 0; k < n; k++) {  // For each output element
 			Complex sum = 0;
@@ -111,20 +107,20 @@ public sealed class FftTest {
 			}
 			output[k] = sum;
 		}
+		return output;
 	}
 	
 	
-	private static void NaiveConvolve(Complex[] xvec, Complex[] yvec, Complex[] outvec) {
+	private static Complex[] NaiveConvolve(Complex[] xvec, Complex[] yvec) {
 		int n = xvec.Length;
-		if (n != yvec.Length || n != outvec.Length)
+		if (n != yvec.Length)
 			throw new ArgumentException("Mismatched lengths");
-		
-		for (int i = 0; i < n; i++)
-			outvec[i] = 0;
+		Complex[] result = new Complex[n];
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++)
-				outvec[(i + j) % n] += xvec[i] * yvec[j];
+				result[(i + j) % n] += xvec[i] * yvec[j];
 		}
+		return result;
 	}
 	
 	
