@@ -28,21 +28,21 @@ import cmath
 # Computes the discrete Fourier transform (DFT) or inverse transform of the given complex vector, returning the result as a new vector.
 # The vector can have any length. This is a wrapper function. The inverse transform does not perform scaling, so it is not a true inverse.
 # 
-def transform(vector, inverse):
-	n = len(vector)
+def transform(vec, inverse):
+	n = len(vec)
 	if n == 0:
 		return []
 	elif n & (n - 1) == 0:  # Is power of 2
-		return transform_radix2(vector, inverse)
+		return transform_radix2(vec, inverse)
 	else:  # More complicated algorithm for arbitrary sizes
-		return transform_bluestein(vector, inverse)
+		return transform_bluestein(vec, inverse)
 
 
 # 
 # Computes the discrete Fourier transform (DFT) of the given complex vector, returning the result as a new vector.
 # The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
 # 
-def transform_radix2(vector, inverse):
+def transform_radix2(vec, inverse):
 	# Returns the integer whose value is the reverse of the lowest 'width' bits of the integer 'val'.
 	def reverse_bits(val, width):
 		result = 0
@@ -52,14 +52,14 @@ def transform_radix2(vector, inverse):
 		return result
 	
 	# Initialization
-	n = len(vector)
+	n = len(vec)
 	levels = n.bit_length() - 1
 	if 2**levels != n:
 		raise ValueError("Length is not a power of 2")
 	# Now, levels = log2(n)
 	coef = (2 if inverse else -2) * cmath.pi / n
 	exptable = [cmath.rect(1, i * coef) for i in range(n // 2)]
-	vector = [vector[reverse_bits(i, levels)] for i in range(n)]  # Copy with bit-reversed permutation
+	vec = [vec[reverse_bits(i, levels)] for i in range(n)]  # Copy with bit-reversed permutation
 	
 	# Radix-2 decimation-in-time FFT
 	size = 2
@@ -69,12 +69,12 @@ def transform_radix2(vector, inverse):
 		for i in range(0, n, size):
 			k = 0
 			for j in range(i, i + halfsize):
-				temp = vector[j + halfsize] * exptable[k]
-				vector[j + halfsize] = vector[j] - temp
-				vector[j] += temp
+				temp = vec[j + halfsize] * exptable[k]
+				vec[j + halfsize] = vec[j] - temp
+				vec[j] += temp
 				k += tablestep
 		size *= 2
-	return vector
+	return vec
 
 
 # 
@@ -82,16 +82,16 @@ def transform_radix2(vector, inverse):
 # The vector can have any length. This requires the convolution function, which in turn requires the radix-2 FFT function.
 # Uses Bluestein's chirp z-transform algorithm.
 # 
-def transform_bluestein(vector, inverse):
+def transform_bluestein(vec, inverse):
 	# Find a power-of-2 convolution length m such that m >= n * 2 + 1
-	n = len(vector)
+	n = len(vec)
 	if n == 0:
 		return []
 	m = 2**((n * 2).bit_length())
 	
 	coef = (1 if inverse else -1) * cmath.pi / n
 	exptable = [cmath.rect(1, (i * i % (n * 2)) * coef) for i in range(n)]  # Trigonometric table
-	a = [(x * y) for (x, y) in zip(vector, exptable)] + [0] * (m - n)  # Temporary vectors and preprocessing
+	a = [(x * y) for (x, y) in zip(vec, exptable)] + [0] * (m - n)  # Temporary vectors and preprocessing
 	b = exptable[ : n] + [0] * (m - (n * 2 - 1)) + exptable[ : 0 : -1]
 	b = [x.conjugate() for x in b]
 	c = convolve(a, b, False)[ : n]  # Convolution

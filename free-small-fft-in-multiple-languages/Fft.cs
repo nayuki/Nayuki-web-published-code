@@ -31,14 +31,14 @@ public sealed class Fft {
 	 * Computes the discrete Fourier transform (DFT) or inverse transform of the given complex vector, storing the result back into the vector.
 	 * The vector can have any length. This is a wrapper function. The inverse transform does not perform scaling, so it is not a true inverse.
 	 */
-	public static void Transform(Complex[] vector, bool inverse) {
-		int n = vector.Length;
+	public static void Transform(Complex[] vec, bool inverse) {
+		int n = vec.Length;
 		if (n == 0)
 			return;
 		else if ((n & (n - 1)) == 0)  // Is power of 2
-			TransformRadix2(vector, inverse);
+			TransformRadix2(vec, inverse);
 		else  // More complicated algorithm for arbitrary sizes
-			TransformBluestein(vector, inverse);
+			TransformBluestein(vec, inverse);
 	}
 	
 	
@@ -46,9 +46,9 @@ public sealed class Fft {
 	 * Computes the discrete Fourier transform (DFT) of the given complex vector, storing the result back into the vector.
 	 * The vector's length must be a power of 2. Uses the Cooley-Tukey decimation-in-time radix-2 algorithm.
 	 */
-	public static void TransformRadix2(Complex[] vector, bool inverse) {
+	public static void TransformRadix2(Complex[] vec, bool inverse) {
 		// Length variables
-		int n = vector.Length;
+		int n = vec.Length;
 		int levels = 0;  // compute levels = floor(log2(n))
 		for (int temp = n; temp > 1; temp >>= 1)
 			levels++;
@@ -65,9 +65,9 @@ public sealed class Fft {
 		for (int i = 0; i < n; i++) {
 			int j = ReverseBits(i, levels);
 			if (j > i) {
-				Complex temp = vector[i];
-				vector[i] = vector[j];
-				vector[j] = temp;
+				Complex temp = vec[i];
+				vec[i] = vec[j];
+				vec[j] = temp;
 			}
 		}
 		
@@ -77,9 +77,9 @@ public sealed class Fft {
 			int tablestep = n / size;
 			for (int i = 0; i < n; i += size) {
 				for (int j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
-					Complex temp = vector[j + halfsize] * expTable[k];
-					vector[j + halfsize] = vector[j] - temp;
-					vector[j] += temp;
+					Complex temp = vec[j + halfsize] * expTable[k];
+					vec[j + halfsize] = vec[j] - temp;
+					vec[j] += temp;
 				}
 			}
 			if (size == n)  // Prevent overflow in 'size *= 2'
@@ -93,9 +93,9 @@ public sealed class Fft {
 	 * The vector can have any length. This requires the convolution function, which in turn requires the radix-2 FFT function.
 	 * Uses Bluestein's chirp z-transform algorithm.
 	 */
-	public static void TransformBluestein(Complex[] vector, bool inverse) {
+	public static void TransformBluestein(Complex[] vec, bool inverse) {
 		// Find a power-of-2 convolution length m such that m >= n * 2 + 1
-		int n = vector.Length;
+		int n = vec.Length;
 		if (n >= 0x20000000)
 			throw new ArgumentException("Array too large");
 		int m = 1;
@@ -113,7 +113,7 @@ public sealed class Fft {
 		// Temporary vectors and preprocessing
 		Complex[] avector = new Complex[m];
 		for (int i = 0; i < n; i++)
-			avector[i] = vector[i] * expTable[i];
+			avector[i] = vec[i] * expTable[i];
 		Complex[] bvector = new Complex[m];
 		bvector[0] = expTable[0];
 		for (int i = 1; i < n; i++)
@@ -125,7 +125,7 @@ public sealed class Fft {
 		
 		// Postprocessing
 		for (int i = 0; i < n; i++)
-			vector[i] = cvector[i] * expTable[i];
+			vec[i] = cvector[i] * expTable[i];
 	}
 	
 	
