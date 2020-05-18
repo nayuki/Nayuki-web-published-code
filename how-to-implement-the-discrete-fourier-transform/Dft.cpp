@@ -20,10 +20,10 @@ vector<complex<double> > computeDft(const vector<complex<double> > &input) {
 	vector<complex<double> > output;
 	size_t n = input.size();
 	for (size_t k = 0; k < n; k++) {  // For each output element
-		complex<double> sum(0.0, 0.0);
+		complex<double> sum(0, 0);
 		for (size_t t = 0; t < n; t++) {  // For each input element
-			double angle = 2i * M_PI * t * k / n;
-			sum += input[t] * exp(-angle);
+			double angle = 2 * M_PI * t * k / n;
+			sum += input[t] * exp(complex<double>(0, -angle));
 		}
 		output.push_back(sum);
 	}
