@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (C++)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -154,8 +154,8 @@ Circle makeDiameter(const Point &a, const Point &b) {
 
 Circle makeCircumcircle(const Point &a, const Point &b, const Point &c) {
 	// Mathematical algorithm from Wikipedia: Circumscribed circle
-	double ox = (min(min(a.x, b.x), c.x) + max(min(a.x, b.x), c.x)) / 2;
-	double oy = (min(min(a.y, b.y), c.y) + max(min(a.y, b.y), c.y)) / 2;
+	double ox = (min(min(a.x, b.x), c.x) + max(max(a.x, b.x), c.x)) / 2;
+	double oy = (min(min(a.y, b.y), c.y) + max(max(a.y, b.y), c.y)) / 2;
 	double ax = a.x - ox,  ay = a.y - oy;
 	double bx = b.x - ox,  by = b.y - oy;
 	double cx = c.x - ox,  cy = c.y - oy;

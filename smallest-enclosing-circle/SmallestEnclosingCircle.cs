@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (C#)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -111,8 +111,8 @@ public sealed class SmallestEnclosingCircle {
 	
 	public static Circle MakeCircumcircle(Point a, Point b, Point c) {
 		// Mathematical algorithm from Wikipedia: Circumscribed circle
-		double ox = (Math.Min(Math.Min(a.x, b.x), c.x) + Math.Max(Math.Min(a.x, b.x), c.x)) / 2;
-		double oy = (Math.Min(Math.Min(a.y, b.y), c.y) + Math.Max(Math.Min(a.y, b.y), c.y)) / 2;
+		double ox = (Math.Min(Math.Min(a.x, b.x), c.x) + Math.Max(Math.Max(a.x, b.x), c.x)) / 2;
+		double oy = (Math.Min(Math.Min(a.y, b.y), c.y) + Math.Max(Math.Max(a.y, b.y), c.y)) / 2;
 		double ax = a.x - ox,  ay = a.y - oy;
 		double bx = b.x - ox,  by = b.y - oy;
 		double cx = c.x - ox,  cy = c.y - oy;

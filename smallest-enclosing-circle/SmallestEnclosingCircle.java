@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (Java)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -108,8 +108,8 @@ public final class SmallestEnclosingCircle {
 	
 	static Circle makeCircumcircle(Point a, Point b, Point c) {
 		// Mathematical algorithm from Wikipedia: Circumscribed circle
-		double ox = (Math.min(Math.min(a.x, b.x), c.x) + Math.max(Math.min(a.x, b.x), c.x)) / 2;
-		double oy = (Math.min(Math.min(a.y, b.y), c.y) + Math.max(Math.min(a.y, b.y), c.y)) / 2;
+		double ox = (Math.min(Math.min(a.x, b.x), c.x) + Math.max(Math.max(a.x, b.x), c.x)) / 2;
+		double oy = (Math.min(Math.min(a.y, b.y), c.y) + Math.max(Math.max(a.y, b.y), c.y)) / 2;
 		double ax = a.x - ox,  ay = a.y - oy;
 		double bx = b.x - ox,  by = b.y - oy;
 		double cx = c.x - ox,  cy = c.y - oy;
