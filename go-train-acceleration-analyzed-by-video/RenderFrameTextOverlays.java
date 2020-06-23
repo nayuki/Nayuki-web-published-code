@@ -1,7 +1,7 @@
 /* 
  * Render frame text overlays
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/go-train-acceleration-analyzed-by-video
  */
@@ -390,12 +390,11 @@ public final class RenderFrameTextOverlays {
 				};
 				thr[i].start();
 			}
-			for (Thread th : thr) {
-				try {
+			try {
+				for (Thread th : thr)
 					th.join();
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
 			}
 			
 			outputImage = new BufferedImage(outWidth, outHeight, BufferedImage.TYPE_INT_ARGB);

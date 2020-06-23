@@ -1,7 +1,7 @@
 /* 
  * Sinc-based image resampler (fast version)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * https://www.nayuki.io/page/sinc-based-image-resampler
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -395,12 +395,11 @@ final class FastSincImageResampler {
 			};
 			thr[i].start();
 		}
-		for (Thread th : thr) {
-			try {
+		try {
+			for (Thread th : thr)
 				th.join();
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 		
 		outputImage = new BufferedImage(outWidth, outHeight, BufferedImage.TYPE_INT_RGB);
