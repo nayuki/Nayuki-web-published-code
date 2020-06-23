@@ -38,7 +38,7 @@ public final class SortTextEncoder {
 		// e.g. {a:137, in:89, the:256}
 		Map<String,Integer> wordFreq = new TreeMap<String,Integer>();  // Word keys are in ascending order
 		for (TextToken tok : tokens) {
-			if (tok.type >= 0 && tok.type <= 2) {  // Skip weird-case words because they must be escape-coded
+			if (0 <= tok.type && tok.type <= 2) {  // Skip weird-case words because they must be escape-coded
 				String key = tok.value.toLowerCase();  // Normalize to lowercase
 				wordFreq.put(key, (wordFreq.containsKey(key) ? wordFreq.get(key) : 0) + 1);
 			}
@@ -93,7 +93,7 @@ public final class SortTextEncoder {
 					out.write(tok.value);
 					continue;
 				}
-				if (tok.type >= 0 && tok.type <= 2) {
+				if (0 <= tok.type && tok.type <= 2) {
 					String key = tok.value.toLowerCase();
 					if (wordToCodeword.containsKey(key)) {
 						String code = wordToCodeword.get(key);
@@ -111,7 +111,7 @@ public final class SortTextEncoder {
 						}
 					}
 				}
-				if (tok.type >= 0 && tok.type <= 3) {  // Escape
+				if (0 <= tok.type && tok.type <= 3) {  // Escape
 					out.write("a" + tok.value);
 					continue;
 				}

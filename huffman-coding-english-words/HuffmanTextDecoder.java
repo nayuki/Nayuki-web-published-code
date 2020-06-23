@@ -54,7 +54,7 @@ public final class HuffmanTextDecoder {
 						if (code.length() != 0)
 							throw new RuntimeException("Unfinished codeword: " + code.toString());
 						break;
-					} else if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z') {
+					} else if ('A' <= c && c <= 'Z' || 'a' <= c && c <= 'z') {
 						code.append((char)c);
 						if (codewordToWords.containsKey(code.toString())) {
 							out.write(codewordToWords.get(code.toString()));

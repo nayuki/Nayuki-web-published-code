@@ -67,9 +67,9 @@ public final class SortTextDecoder {
 				String val = tok.value;
 				if (type == 4)  // Symbol
 					out.write(val);
-				else if (escapeCode != null && type >= 0 && type <= 3 && val.startsWith(escapeCode))  // Escape
+				else if (escapeCode != null && 0 <= type && type <= 3 && val.startsWith(escapeCode))  // Escape
 					out.write(val.substring(escapeCode.length()));  // Delete prefix
-				else if (type >= 0 && type <= 2) {
+				else if (0 <= type && type <= 2) {
 					String key = val.toLowerCase();
 					if (!codewordToWord.containsKey(key))
 						throw new RuntimeException("Codeword not in codebook: " + key);

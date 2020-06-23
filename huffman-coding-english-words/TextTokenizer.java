@@ -77,7 +77,7 @@ final class TextTokenizer {
 	
 	
 	private static boolean isLetter(char c) {
-		return c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z';
+		return 'A' <= c && c <= 'Z' || 'a' <= c && c <= 'z';
 	}
 	
 }

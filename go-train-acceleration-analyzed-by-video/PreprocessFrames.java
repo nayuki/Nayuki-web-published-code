@@ -303,7 +303,7 @@ public final class PreprocessFrames {
 		private static double windowedSinc(double x, double y) {
 			x *= Math.PI;
 			double sinc = x != 0 ? Math.sin(x) / x : 1;
-			double window = y >= 0 && y <= 1 ? 1 - Math.abs(y - 0.5) * 2 : 0;  // Triangle window
+			double window = 0 <= y && y <= 1 ? 1 - Math.abs(y - 0.5) * 2 : 0;  // Triangle window
 			return sinc * window;
 		}
 		

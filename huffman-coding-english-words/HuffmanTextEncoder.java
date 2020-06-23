@@ -51,7 +51,7 @@ public final class HuffmanTextEncoder {
 			// Encode input text tokens to output
 			for (int i = 0; i < tokens.size(); i++) {
 				TextToken tok = tokens.get(i);
-				if (tok.type >= 0 && tok.type <= 3) {
+				if (0 <= tok.type && tok.type <= 3) {
 					// Try to write whole word
 					String word = tok.value;
 					boolean nextIsSpace = i + 1 < tokens.size() && tokens.get(i + 1).value.equals(" ");
@@ -100,7 +100,7 @@ public final class HuffmanTextEncoder {
 		Map<String,Integer> wordFreq = new HashMap<String,Integer>();
 		for (int i = 0; i < tokens.size(); i++) {
 			TextToken tok = tokens.get(i);
-			if (tok.type >= 0 && tok.type <= 3) {
+			if (0 <= tok.type && tok.type <= 3) {
 				String word = tok.value;
 				if (i + 1 < tokens.size() && tokens.get(i + 1).value.equals(" ")) {  // Fuse with next space
 					word += " ";

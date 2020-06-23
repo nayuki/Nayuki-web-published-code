@@ -59,7 +59,7 @@
  *       compression further), but this encoder easily supports all possible values.
  * 
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gif-optimizer-java
  */
@@ -279,7 +279,7 @@ public final class WriteGif {
 			throw new IllegalArgumentException("Invalid transparent color index");
 		if (blockSize < 0)
 			throw new IllegalArgumentException("Invalid block size");
-		if (!(dictClear == -1 || dictClear >= 5 && dictClear <= 4096))
+		if (!(dictClear == -1 || 5 <= dictClear && dictClear <= 4096))
 			throw new IllegalArgumentException("Invalid dictionary clear interval");
 		
 		int paletteBits = 32 - Integer.numberOfLeadingZeros(palette.length - 1);  // ceil(log2(palette.length))
