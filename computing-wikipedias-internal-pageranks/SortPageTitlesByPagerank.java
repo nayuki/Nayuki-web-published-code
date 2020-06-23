@@ -50,9 +50,9 @@ public final class SortPageTitlesByPagerank {
 		
 		// Read page titles to sort
 		Set<String> titles = new HashSet<>();
-		try (BufferedReader in0 = new BufferedReader(new InputStreamReader(new FileInputStream(PAGE_TITLES_INPUT_FILE), StandardCharsets.UTF_8))) {
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(PAGE_TITLES_INPUT_FILE), StandardCharsets.UTF_8))) {
 			while (true) {
-				String line = in0.readLine();
+				String line = in.readLine();
 				if (line == null)
 					break;
 				if (titles.contains(line))
@@ -66,9 +66,9 @@ public final class SortPageTitlesByPagerank {
 		
 		// Read all PageRanks
 		double[] pageranks = new double[(int)(PAGERANK_RAW_FILE.length() / 8)];
-		try (DataInputStream in1 = new DataInputStream(new BufferedInputStream(new FileInputStream(PAGERANK_RAW_FILE)))) {
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(PAGERANK_RAW_FILE)))) {
 			for (int i = 0; i < pageranks.length; i++)
-				pageranks[i] = in1.readDouble();
+				pageranks[i] = in.readDouble();
 		}
 		
 		// Sort and write output
