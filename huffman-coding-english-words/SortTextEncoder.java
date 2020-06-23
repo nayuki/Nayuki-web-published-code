@@ -1,7 +1,7 @@
 /* 
  * Word-based sort coding encoder
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/huffman-coding-english-words
  */
@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,7 +58,7 @@ public final class SortTextEncoder {
 		}
 		
 		// Start writing output text file
-		Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), "UTF-8");
+		Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8);
 		try {
 			// Build and write codebook
 			out.write("a ESC\n");  // Hard-coded escape codeword prefix

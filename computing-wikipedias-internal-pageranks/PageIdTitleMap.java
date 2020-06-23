@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ final class PageIdTitleMap {
 		long startTime = System.currentTimeMillis();
 		Map<String,Integer> result = new HashMap<String,Integer>();
 		
-		SqlReader in = new SqlReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), "UTF-8")), "page");
+		SqlReader in = new SqlReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), StandardCharsets.UTF_8)), "page");
 		long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 		try {
 			while (true) {
@@ -76,7 +77,7 @@ final class PageIdTitleMap {
 		long startTime = System.currentTimeMillis();
 		Map<String,Integer> result = new HashMap<String,Integer>();
 		
-		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
 		try {
 			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 			for (int i = 0; ; i++) {
@@ -100,7 +101,7 @@ final class PageIdTitleMap {
 	
 	public static void writeRawFile(Map<String,Integer> idByTitle, File file) throws IOException {
 		long startTime = System.currentTimeMillis();
-		PrintWriter out = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file), 128 * 1024), "UTF-8"));
+		PrintWriter out = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file), 128 * 1024), StandardCharsets.UTF_8));
 		try {
 			int i = 0;
 			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;

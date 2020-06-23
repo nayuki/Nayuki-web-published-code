@@ -1,7 +1,7 @@
 /* 
  * Word-based Huffman coding encoder
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/huffman-coding-english-words
  */
@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,7 +39,7 @@ public final class HuffmanTextEncoder {
 		Map<String,String> wordToCodeword = makeHuffmanCodebook(tokens);
 		
 		// Start writing output text file
-		Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), "UTF-8");
+		Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8);
 		try {
 			// Build and write inverted codebook (looks neater for decoding)
 			Map<String,String> codewordToWord = new TreeMap<String,String>();

@@ -1,7 +1,7 @@
 /* 
  * Text tokenizer
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/huffman-coding-english-words
  */
@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +25,7 @@ final class TextTokenizer {
 	
 	public static List<TextToken> tokenize(File file) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		Reader in = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), "UTF-8");
+		Reader in = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.UTF_8);
 		try {
 			while (true) {
 				int c = in.read();

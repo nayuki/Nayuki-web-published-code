@@ -6,7 +6,7 @@
  * 
  * Usage: java CompactHashSetDemo regular|compact
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/compact-hash-map-java
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@
  *   Software.
  */
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,11 +65,7 @@ public final class CompactHashSetDemo {
 	private static final CompactSetTranslator<String> TRANSLATOR = new CompactSetTranslator<String>() {
 		
 		public byte[] serialize(String s) {
-			try {
-				return s.getBytes("UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				throw new AssertionError(e);
-			}
+			return s.getBytes(StandardCharsets.UTF_8);
 		}
 		
 		
@@ -93,11 +89,7 @@ public final class CompactHashSetDemo {
 		
 		
 		public String deserialize(byte[] packed) {
-			try {
-				return new String(packed, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				throw new AssertionError(e);
-			}
+			return new String(packed, StandardCharsets.UTF_8);
 		}
 		
 	};

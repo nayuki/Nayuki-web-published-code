@@ -1,7 +1,7 @@
 /* 
  * Compact hash map test
  * 
- * Copyright (c) 2015 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/compact-hash-map-java
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,7 +24,7 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -262,28 +262,20 @@ public final class CompactHashMapTest {
 		
 		
 		public byte[] serialize(String key, Integer value) {
-			try {
-				byte[] packed = key.getBytes("UTF-8");
-				int off = packed.length;
-				packed = Arrays.copyOf(packed, off + 4);
-				int val = value;
-				packed[off + 0] = (byte)(val >>> 24);
-				packed[off + 1] = (byte)(val >>> 16);
-				packed[off + 2] = (byte)(val >>>  8);
-				packed[off + 3] = (byte)(val >>>  0);
-				return packed;
-			} catch (UnsupportedEncodingException e) {
-				throw new AssertionError(e);
-			}
+			byte[] packed = key.getBytes(StandardCharsets.UTF_8);
+			int off = packed.length;
+			packed = Arrays.copyOf(packed, off + 4);
+			int val = value;
+			packed[off + 0] = (byte)(val >>> 24);
+			packed[off + 1] = (byte)(val >>> 16);
+			packed[off + 2] = (byte)(val >>>  8);
+			packed[off + 3] = (byte)(val >>>  0);
+			return packed;
 		}
 		
 		
 		public String deserializeKey(byte[] packed) {
-			try {
-				return new String(packed, 0, packed.length - 4, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				throw new AssertionError(e);
-			}
+			return new String(packed, 0, packed.length - 4, StandardCharsets.UTF_8);
 		}
 		
 		

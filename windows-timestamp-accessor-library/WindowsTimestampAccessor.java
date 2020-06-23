@@ -1,7 +1,7 @@
 /* 
  * Windows timestamp accessor (Java)
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 
 
 // Note: Ticks is the number of 100-nanosecond units since the epoch of
@@ -36,8 +37,8 @@ public final class WindowsTimestampAccessor implements AutoCloseable {
 	
 	public WindowsTimestampAccessor() throws IOException {
 		process = Runtime.getRuntime().exec(new String[]{EXECUTABLE_PATH});
-		query = new PrintWriter(new OutputStreamWriter(process.getOutputStream(), "UTF-8"));
-		response = new BufferedReader(new InputStreamReader(process.getInputStream(), "UTF-8"));
+		query = new PrintWriter(new OutputStreamWriter(process.getOutputStream(), StandardCharsets.UTF_8));
+		response = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
 	}
 	
 	

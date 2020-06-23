@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -16,6 +16,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,7 @@ final class PageLinksList {
 		long[] rawlinks = new long[1];
 		int rawlinksLen = 0;
 		
-		SqlReader in = new SqlReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), "UTF-8")), "pagelinks");
+		SqlReader in = new SqlReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), StandardCharsets.UTF_8)), "pagelinks");
 		try {
 			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 			while (true) {

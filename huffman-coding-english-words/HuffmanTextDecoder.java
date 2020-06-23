@@ -1,7 +1,7 @@
 /* 
  * Word-based Huffman coding decoder
  * 
- * Copyright (c) 2014 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/huffman-coding-english-words
  */
@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public final class HuffmanTextDecoder {
 		}
 		
 		// Start reading input text file
-		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(args[0]), "UTF-8"));
+		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(args[0]), StandardCharsets.UTF_8));
 		try {
 			// Read codebook
 			Map<String,String> codewordToWords = new HashMap<String,String>();
@@ -46,7 +47,7 @@ public final class HuffmanTextDecoder {
 			}
 			
 			// Write output text file
-			Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), "UTF-8");
+			Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8);
 			try {
 				StringBuilder code = new StringBuilder();  // Current partial codeword being accumulated
 				while (true) {

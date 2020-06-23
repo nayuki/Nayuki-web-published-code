@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -49,7 +50,7 @@ public final class SortPageTitlesByPagerank {
 		
 		// Read page titles to sort
 		Set<String> titles = new HashSet<>();
-		BufferedReader in0 = new BufferedReader(new InputStreamReader(new FileInputStream(PAGE_TITLES_INPUT_FILE), "UTF-8"));
+		BufferedReader in0 = new BufferedReader(new InputStreamReader(new FileInputStream(PAGE_TITLES_INPUT_FILE), StandardCharsets.UTF_8));
 		try {
 			while (true) {
 				String line = in0.readLine();
@@ -81,7 +82,7 @@ public final class SortPageTitlesByPagerank {
 		for (String title : titles)
 			entries.add(new Entry(pageranks[titleToId.get(title)], title));
 		Collections.sort(entries);
-		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(PAGE_TITLES_OUTPUT_FILE), "UTF-8"));
+		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(PAGE_TITLES_OUTPUT_FILE), StandardCharsets.UTF_8));
 		try {
 			for (Entry e : entries)
 				out.printf("%.3f\t%s\n", Math.log10(e.pagerank), e.title);
