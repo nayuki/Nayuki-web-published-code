@@ -1,7 +1,7 @@
 /* 
  * Windows timestamp accessor demo (Java)
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
@@ -54,7 +54,6 @@ public final class WindowsTimestampAccessorDemo {
 				throw new IOException("Failed to create file");
 			wt.setCreationTime    (file, WindowsTimestampAccessor.datetimeToTicks(2014, 9, 21,  1, 23, 45,      0));
 			wt.setModificationTime(file, WindowsTimestampAccessor.datetimeToTicks(2014, 9, 21, 12, 34, 56, 789000));
-			
 		}
 	}
 	
@@ -76,6 +75,6 @@ public final class WindowsTimestampAccessorDemo {
 	}
 	
 	
-	private static String[] DAYS_OF_WEEK = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+	private static final String[] DAYS_OF_WEEK = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 	
 }

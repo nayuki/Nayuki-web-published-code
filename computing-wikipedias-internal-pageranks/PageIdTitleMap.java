@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -83,7 +83,7 @@ final class PageIdTitleMap {
 				String line = in.readLine();
 				if (line == null)
 					break;
-				result.put(line, new Integer(in.readLine()));
+				result.put(line, Integer.valueOf(in.readLine()));
 				
 				if (System.currentTimeMillis() - lastPrint >= PRINT_INTERVAL) {
 					System.out.printf("\rReading %s: %.3f million entries...", file.getName(), i / 1000000.0);

@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -15,7 +15,7 @@ import java.util.List;
 /* 
  * An FSM for parsing lines of SQL statements, particularly to extract data from "INSERT INTO" statements.
  */
-final class SqlReader {
+final class SqlReader implements AutoCloseable {
 	
 	/*---- Fields ----*/
 	
@@ -104,9 +104,9 @@ final class SqlReader {
 						String s = text.substring(tokenStart, i);
 						tokenStart = -1;
 						if (s.indexOf(".") == -1)
-							tuple.add(new Integer(s));
+							tuple.add(Integer.valueOf(s));
 						else
-							tuple.add(new Double(s));
+							tuple.add(Double.valueOf(s));
 						if (c == ',')
 							state = 7;
 						else if (c == ')') {
