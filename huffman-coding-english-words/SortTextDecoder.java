@@ -35,8 +35,7 @@ public final class SortTextDecoder {
 		String escapeCode = null;
 		
 		// Read all of input text file
-		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(args[0]), StandardCharsets.UTF_8));
-		try {
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(args[0]), StandardCharsets.UTF_8))) {
 			// Read codebook
 			while (true) {
 				String line = in.readLine();
@@ -59,13 +58,10 @@ public final class SortTextDecoder {
 				sb.append((char)c);
 			}
 			text = sb.toString();
-		} finally {
-			in.close();
 		}
 		
 		// Write output text file
-		Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8);
-		try {
+		try (Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8)) {
 			for (TextToken tok : TextTokenizer.tokenize(text)) {
 				int type = tok.type;
 				String val = tok.value;
@@ -86,8 +82,6 @@ public final class SortTextDecoder {
 				} else
 					throw new RuntimeException("Invalid encoded text");
 			}
-		} finally {
-			out.close();
 		}
 	}
 	

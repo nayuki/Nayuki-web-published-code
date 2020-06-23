@@ -1,7 +1,7 @@
 /* 
  * Computing Wikipedia's internal PageRanks
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/computing-wikipedias-internal-pageranks
  */
@@ -76,12 +76,9 @@ public final class WikipediaPagerank {
 		}
 		
 		// Write PageRanks to file
-		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(PAGERANKS_RAW_FILE)));
-		try {
+		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(PAGERANKS_RAW_FILE)))) {
 			for (double x : pr.pageranks)
 				out.writeDouble(x);
-		} finally {
-			out.close();
 		}
 	}
 	

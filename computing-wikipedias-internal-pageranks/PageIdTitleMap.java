@@ -32,9 +32,8 @@ final class PageIdTitleMap {
 		long startTime = System.currentTimeMillis();
 		Map<String,Integer> result = new HashMap<String,Integer>();
 		
-		SqlReader in = new SqlReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), StandardCharsets.UTF_8)), "page");
 		long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
-		try {
+		try (SqlReader in = new SqlReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), StandardCharsets.UTF_8)), "page")) {
 			while (true) {
 				List<List<Object>> multipleRows = in.readInsertionTuples();
 				if (multipleRows == null)
@@ -65,8 +64,6 @@ final class PageIdTitleMap {
 					lastPrint = System.currentTimeMillis();
 				}
 			}
-		} finally {
-			in.close();
 		}
 		System.out.printf("\rParsing %s: %.3f million entries stored... Done (%.3f s)%n", file.getName(), result.size() / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
 		return result;
@@ -77,8 +74,7 @@ final class PageIdTitleMap {
 		long startTime = System.currentTimeMillis();
 		Map<String,Integer> result = new HashMap<String,Integer>();
 		
-		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8));
-		try {
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
 			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 			for (int i = 0; ; i++) {
 				String line = in.readLine();
@@ -92,8 +88,6 @@ final class PageIdTitleMap {
 				}
 			}
 			System.out.printf("\rReading %s: %.3f million entries... Done (%.3f s)%n", file.getName(), result.size() / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
-		} finally {
-			in.close();
 		}
 		return result;
 	}
@@ -101,8 +95,7 @@ final class PageIdTitleMap {
 	
 	public static void writeRawFile(Map<String,Integer> idByTitle, File file) throws IOException {
 		long startTime = System.currentTimeMillis();
-		PrintWriter out = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file), 128 * 1024), StandardCharsets.UTF_8));
-		try {
+		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(file), 128 * 1024), StandardCharsets.UTF_8))) {
 			int i = 0;
 			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 			for (String title : idByTitle.keySet()) {
@@ -116,8 +109,6 @@ final class PageIdTitleMap {
 				}
 			}
 			System.out.printf("\rWriting %s: %.3f million entries... Done (%.3f s)%n", file.getName(), i / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
-		} finally {
-			out.close();
 		}
 	}
 	

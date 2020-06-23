@@ -58,8 +58,7 @@ public final class SortTextEncoder {
 		}
 		
 		// Start writing output text file
-		Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8);
-		try {
+		try (Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8)) {
 			// Build and write codebook
 			out.write("a ESC\n");  // Hard-coded escape codeword prefix
 			Map<String,String> wordToCodeword = new HashMap<String,String>();
@@ -118,8 +117,6 @@ public final class SortTextEncoder {
 				}
 				throw new AssertionError();
 			}
-		} finally {
-			out.close();
 		}
 	}
 	

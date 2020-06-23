@@ -39,8 +39,7 @@ public final class HuffmanTextEncoder {
 		Map<String,String> wordToCodeword = makeHuffmanCodebook(tokens);
 		
 		// Start writing output text file
-		Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8);
-		try {
+		try (Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8)) {
 			// Build and write inverted codebook (looks neater for decoding)
 			Map<String,String> codewordToWord = new TreeMap<String,String>();
 			for (String word : wordToCodeword.keySet())
@@ -92,8 +91,6 @@ public final class HuffmanTextEncoder {
 				else
 					throw new AssertionError();
 			}
-		} finally {
-			out.close();
 		}
 	}
 	

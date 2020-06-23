@@ -50,8 +50,7 @@ public final class SortPageTitlesByPagerank {
 		
 		// Read page titles to sort
 		Set<String> titles = new HashSet<>();
-		BufferedReader in0 = new BufferedReader(new InputStreamReader(new FileInputStream(PAGE_TITLES_INPUT_FILE), StandardCharsets.UTF_8));
-		try {
+		try (BufferedReader in0 = new BufferedReader(new InputStreamReader(new FileInputStream(PAGE_TITLES_INPUT_FILE), StandardCharsets.UTF_8))) {
 			while (true) {
 				String line = in0.readLine();
 				if (line == null)
@@ -63,18 +62,13 @@ public final class SortPageTitlesByPagerank {
 				else
 					titles.add(line);
 			}
-		} finally {
-			in0.close();
 		}
 		
 		// Read all PageRanks
 		double[] pageranks = new double[(int)(PAGERANK_RAW_FILE.length() / 8)];
-		DataInputStream in1 = new DataInputStream(new BufferedInputStream(new FileInputStream(PAGERANK_RAW_FILE)));
-		try {
+		try (DataInputStream in1 = new DataInputStream(new BufferedInputStream(new FileInputStream(PAGERANK_RAW_FILE)))) {
 			for (int i = 0; i < pageranks.length; i++)
 				pageranks[i] = in1.readDouble();
-		} finally {
-			in1.close();
 		}
 		
 		// Sort and write output
@@ -82,12 +76,9 @@ public final class SortPageTitlesByPagerank {
 		for (String title : titles)
 			entries.add(new Entry(pageranks[titleToId.get(title)], title));
 		Collections.sort(entries);
-		PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(PAGE_TITLES_OUTPUT_FILE), StandardCharsets.UTF_8));
-		try {
+		try (PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(PAGE_TITLES_OUTPUT_FILE), StandardCharsets.UTF_8))) {
 			for (Entry e : entries)
 				out.printf("%.3f\t%s\n", Math.log10(e.pagerank), e.title);
-		} finally {
-			out.close();
 		}
 	}
 	

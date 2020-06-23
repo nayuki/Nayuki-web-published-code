@@ -30,8 +30,7 @@ public final class HuffmanTextDecoder {
 		}
 		
 		// Start reading input text file
-		BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(args[0]), StandardCharsets.UTF_8));
-		try {
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(args[0]), StandardCharsets.UTF_8))) {
 			// Read codebook
 			Map<String,String> codewordToWords = new HashMap<String,String>();
 			int maxCodeLen = 0;
@@ -47,8 +46,7 @@ public final class HuffmanTextDecoder {
 			}
 			
 			// Write output text file
-			Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8);
-			try {
+			try (Writer out = new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(args[1])), StandardCharsets.UTF_8)) {
 				StringBuilder code = new StringBuilder();  // Current partial codeword being accumulated
 				while (true) {
 					int c = in.read();
@@ -72,11 +70,7 @@ public final class HuffmanTextDecoder {
 						out.write((char)c);
 					}
 				}
-			} finally {
-				out.close();
 			}
-		} finally {
-			in.close();
 		}
 	}
 	

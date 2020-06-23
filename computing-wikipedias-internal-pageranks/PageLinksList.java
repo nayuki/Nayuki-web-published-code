@@ -34,8 +34,7 @@ final class PageLinksList {
 		long[] rawlinks = new long[1];
 		int rawlinksLen = 0;
 		
-		SqlReader in = new SqlReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), StandardCharsets.UTF_8)), "pagelinks");
-		try {
+		try (SqlReader in = new SqlReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)), StandardCharsets.UTF_8)), "pagelinks")) {
 			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 			while (true) {
 				List<List<Object>> multipleRows = in.readInsertionTuples();
@@ -75,8 +74,6 @@ final class PageLinksList {
 					lastPrint = System.currentTimeMillis();
 				}
 			}
-		} finally {
-			in.close();
 		}
 		System.out.printf("\rParsing %s: %.3f million entries stored. Done (%.3f s)%n", file.getName(), rawlinksLen / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
 		return postprocessLinks(rawlinks, rawlinksLen);
@@ -112,8 +109,7 @@ final class PageLinksList {
 	public static int[] readRawFile(File file) throws IOException {
 		long startTime = System.currentTimeMillis();
 		int[] result;
-		DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file), 128 * 1024));
-		try {
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file), 128 * 1024))) {
 			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
 			result = new int[in.readInt()];
 			for (int i = 0; i < result.length; i++) {
@@ -125,8 +121,6 @@ final class PageLinksList {
 				}
 			}
 			System.out.printf("\rReading %s: %.3f of %.3f million raw items... Done (%.3f s)%n", file.getName(), result.length / 1000000.0, result.length / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
-		} finally {
-			in.close();
 		}
 		return result;
 	}
@@ -134,8 +128,7 @@ final class PageLinksList {
 	
 	public static void writeRawFile(int[] links, File file) throws IOException {
 		long startTime = System.currentTimeMillis();
-		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file), 128 * 1024));
-		try {
+		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file), 128 * 1024))) {
 			out.writeInt(links.length);
 			int i = 0;
 			long lastPrint = System.currentTimeMillis() - PRINT_INTERVAL;
@@ -149,8 +142,6 @@ final class PageLinksList {
 				}
 			}
 			System.out.printf("\rWriting %s: %.3f of %.3f million raw items... Done (%.3f s)%n", file.getName(), i / 1000000.0, links.length / 1000000.0, (System.currentTimeMillis() - startTime) / 1000.0);
-		} finally {
-			out.close();
 		}
 	}
 	

@@ -25,16 +25,13 @@ final class TextTokenizer {
 	
 	public static List<TextToken> tokenize(File file) throws IOException {
 		StringBuilder sb = new StringBuilder();
-		Reader in = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.UTF_8);
-		try {
+		try (Reader in = new InputStreamReader(new BufferedInputStream(new FileInputStream(file)), StandardCharsets.UTF_8)) {
 			while (true) {
 				int c = in.read();
 				if (c == -1)
 					break;
 				sb.append((char)c);
 			}
-		} finally {
-			in.close();
 		}
 		return tokenize(sb.toString());
 	}
