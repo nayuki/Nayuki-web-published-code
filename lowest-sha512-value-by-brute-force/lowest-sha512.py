@@ -6,7 +6,7 @@
 # https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
 # 
 
-import hashlib
+import hashlib, itertools
 
 
 def main():
@@ -21,15 +21,14 @@ def main():
 	# Initialize values
 	message = bytearray([START_CHAR] * MSG_LEN)
 	lowesthash = None
-	trials = 0
 	
 	# Test all (END_CHAR - START_CHAR + 1)^MSG_LEN possible messages
-	while True:
+	for trials in itertools.count():
 		# Hash message and compare with lowest
 		hash = hashlib.sha512(message).hexdigest()
 		if lowesthash is None or hash < lowesthash:
-			print(f"Trial #{trials}:  sha512({message.decode('ASCII')}) = {hash[ : 24]}...")
 			lowesthash = hash
+			print(f"Trial #{trials}:  sha512({message.decode('ASCII')}) = {hash[ : 24]}...")
 		
 		# Increment message. For example, "aa" -> "ab", "fnzz" -> "foaa".
 		i = MSG_LEN - 1
@@ -39,7 +38,6 @@ def main():
 		if i < 0:
 			break
 		message[i] += 1
-		trials += 1
 	
 	print("Search space exhausted")
 
