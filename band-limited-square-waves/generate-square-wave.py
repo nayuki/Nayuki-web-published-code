@@ -7,19 +7,22 @@
 # 
 
 import math, pathlib, struct, sys
+from typing import List
 
 
-def main(args):
+def main(args: List[str]) -> None:
 	# Check number of command line arguments
 	if len(args) not in (5, 6):
 		sys.exit("""Usage: python generate-square-wave.py Frequency DutyCycle SampleRate Duration [BandLimited/Naive] Output.wav
 Example: python generate-square-wave.py 440.0 0.5 48000 1.0 BandLimited Output.wav""")
 	
 	# Get all command line arguments
-	frequency = float(args[0])
-	dutycycle = float(args[1])
-	samplerate = int(args[2])
-	duration = float(args[3])
+	frequency: float = float(args[0])
+	dutycycle: float = float(args[1])
+	samplerate: int = int(args[2])
+	duration: float = float(args[3])
+	mode: str
+	outfilepath: str
 	if len(args) == 5:
 		mode = "BandLimited"
 		outfilepath = args[4]
@@ -42,7 +45,7 @@ Example: python generate-square-wave.py 440.0 0.5 48000 1.0 BandLimited Output.w
 		raise ValueError("Invalid mode specification")
 	
 	# Start writing file data
-	numsamples = int(round(duration * samplerate))
+	numsamples: int = int(round(duration * samplerate))
 	with pathlib.Path(outfilepath).open("wb") as fout:
 		# Write WAV header
 		fout.write(b"RIFF")
@@ -53,24 +56,27 @@ Example: python generate-square-wave.py 440.0 0.5 48000 1.0 BandLimited Output.w
 		fout.write(b"data")
 		fout.write(struct.pack("<I", numsamples * 4))
 		
+		scaler: float
+		val: float
+		
 		if mode == "BandLimited":
 			# Calculate harmonic amplitudes
-			coefficients = [dutycycle - 0.5]  # Start with DC coefficient
-			numharmonics = int(samplerate // (frequency * 2))
+			coefficients: List[float] = [dutycycle - 0.5]  # Start with DC coefficient
+			numharmonics: int = int(samplerate // (frequency * 2))
 			coefficients += [math.sin(i * dutycycle * math.pi) * 2 / (i * math.pi)
 				for i in range(1, numharmonics + 1)]
 			
 			# Generate audio samples
 			scaler = frequency * math.pi * 2 / samplerate
 			for i in range(numsamples):
-				temp = scaler * i
+				temp: float = scaler * i
 				val = sum(coef * math.cos(j * temp)
 					for (j, coef) in enumerate(coefficients))
 				fout.write(struct.pack("<f", val))
 		
 		elif mode == "Naive":
 			scaler = frequency / samplerate
-			shift = dutycycle / 2
+			shift: float = dutycycle / 2
 			for i in range(numsamples):
 				val = 0.5 if ((i * scaler + shift) % 1 < dutycycle) else -0.5
 				fout.write(struct.pack("<f", val))

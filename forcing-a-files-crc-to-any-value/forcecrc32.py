@@ -20,16 +20,17 @@
 # 
 
 import os, sys, zlib
+from typing import BinaryIO, List, Optional, Tuple
 
 
 # ---- Main application ----
 
-def main(args):
+def main(args: List[str]) -> Optional[str]:
 	# Handle arguments
 	if len(args) != 3:
 		return "Usage: python forcecrc32.py FileName ByteOffset NewCrc32Value"
 	try:
-		offset = int(args[1])
+		offset: int = int(args[1])
 	except ValueError:
 		return "Error: Invalid byte offset"
 	if offset < 0:
@@ -37,10 +38,10 @@ def main(args):
 	try:
 		if len(args[2]) != 8 or args[2].startswith(("+", "-")):
 			return "Error: Invalid new CRC-32 value"
-		temp = int(args[2], 16)
+		temp: int = int(args[2], 16)
 		if temp & MASK != temp:
 			return "Error: Invalid new CRC-32 value"
-		new_crc = reverse32(temp)
+		new_crc: int = reverse32(temp)
 	except ValueError:
 		return "Error: Invalid new CRC-32 value"
 	
@@ -58,27 +59,27 @@ def main(args):
 
 # ---- Main function ----
 
-# Public library function. path is str, offset is uint, newcrc is uint32, printstatus is bool.
-# Returns None. May raise IOError, ValueError, AssertionError.
-def modify_file_crc32(path, offset, newcrc, printstatus=False):
+# Public library function. offset is uint, and newcrc is uint32.
+# May raise IOError, ValueError, AssertionError.
+def modify_file_crc32(path: str, offset: int, newcrc: int, printstatus: bool = False) -> None:
 	with open(path, "r+b") as raf:
 		raf.seek(0, os.SEEK_END)
-		length = raf.tell()
+		length: int = raf.tell()
 		if offset + 4 > length:
 			raise ValueError("Byte offset plus 4 exceeds file length")
 		
 		# Read entire file and calculate original CRC-32 value
-		crc = get_crc32(raf)
+		crc: int = get_crc32(raf)
 		if printstatus:
 			print(f"Original CRC-32: {reverse32(crc):08X}")
 		
 		# Compute the change to make
-		delta = crc ^ newcrc
+		delta: int = crc ^ newcrc
 		delta = multiply_mod(reciprocal_mod(pow_mod(2, (length - offset) * 8)), delta)
 		
 		# Patch 4 bytes in the file
 		raf.seek(offset)
-		bytes4 = bytearray(raf.read(4))
+		bytes4: bytearray = bytearray(raf.read(4))
 		if len(bytes4) != 4:
 			raise IOError("Cannot read 4 bytes at offset")
 		for i in range(4):
@@ -97,23 +98,23 @@ def modify_file_crc32(path, offset, newcrc, printstatus=False):
 
 # ---- Utilities ----
 
-POLYNOMIAL = 0x104C11DB7  # Generator polynomial. Do not modify, because there are many dependencies
-MASK = (1 << 32) - 1
+POLYNOMIAL: int = 0x104C11DB7  # Generator polynomial. Do not modify, because there are many dependencies
+MASK: int = (1 << 32) - 1
 
 
-def get_crc32(raf):
+def get_crc32(raf: BinaryIO) -> int:
 	raf.seek(0)
-	crc = 0
+	crc: int = 0
 	while True:
-		buffer = raf.read(128 * 1024)
+		buffer: bytes = raf.read(128 * 1024)
 		if len(buffer) == 0:
 			return reverse32(crc)
 		crc = zlib.crc32(buffer, crc)
 
 
-def reverse32(x):
-	y = 0
-	for i in range(32):
+def reverse32(x: int) -> int:
+	y: int = 0
+	for _ in range(32):
 		y = (y << 1) | (x & 1)
 		x >>= 1
 	return y
@@ -122,9 +123,9 @@ def reverse32(x):
 # ---- Polynomial arithmetic ----
 
 # Returns polynomial x multiplied by polynomial y modulo the generator polynomial.
-def multiply_mod(x, y):
+def multiply_mod(x: int, y: int) -> int:
 	# Russian peasant multiplication algorithm
-	z = 0
+	z: int = 0
 	while y != 0:
 		z ^= x * (y & 1)
 		y >>= 1
@@ -135,9 +136,9 @@ def multiply_mod(x, y):
 
 
 # Returns polynomial x to the power of natural number y modulo the generator polynomial.
-def pow_mod(x, y):
+def pow_mod(x: int, y: int) -> int:
 	# Exponentiation by squaring
-	z = 1
+	z: int = 1
 	while y != 0:
 		if y & 1 != 0:
 			z = multiply_mod(z, x)
@@ -147,14 +148,14 @@ def pow_mod(x, y):
 
 
 # Computes polynomial x divided by polynomial y, returning the quotient and remainder.
-def divide_and_remainder(x, y):
+def divide_and_remainder(x: int, y: int) -> Tuple[int,int]:
 	if y == 0:
 		raise ValueError("Division by zero")
 	if x == 0:
 		return (0, 0)
 	
-	ydeg = get_degree(y)
-	z = 0
+	ydeg: int = get_degree(y)
+	z: int = 0
 	for i in range(get_degree(x) - ydeg, -1, -1):
 		if (x >> (i + ydeg)) & 1 != 0:
 			x ^= y << i
@@ -163,12 +164,12 @@ def divide_and_remainder(x, y):
 
 
 # Returns the reciprocal of polynomial x with respect to the modulus polynomial m.
-def reciprocal_mod(x):
+def reciprocal_mod(x: int) -> int:
 	# Based on a simplification of the extended Euclidean algorithm
-	y = x
+	y: int = x
 	x = POLYNOMIAL
-	a = 0
-	b = 1
+	a: int = 0
+	b: int = 1
 	while y != 0:
 		q, r = divide_and_remainder(x, y)
 		c = a ^ multiply_mod(q, b)
@@ -182,7 +183,7 @@ def reciprocal_mod(x):
 		raise ValueError("Reciprocal does not exist")
 
 
-def get_degree(x):
+def get_degree(x: int) -> int:
 	return x.bit_length() - 1
 
 
