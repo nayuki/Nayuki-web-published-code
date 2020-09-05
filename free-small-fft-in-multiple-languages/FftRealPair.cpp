@@ -66,7 +66,7 @@ void Fft::transformRadix2(vector<double> &real, vector<double> &imag) {
 	if (static_cast<size_t>(1U) << levels != n)
 		throw std::domain_error("Length is not a power of 2");
 	
-	// Trignometric tables
+	// Trigonometric tables
 	vector<double> cosTable(n / 2);
 	vector<double> sinTable(n / 2);
 	for (size_t i = 0; i < n / 2; i++) {
@@ -116,7 +116,7 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 		m *= 2;
 	}
 	
-	// Trignometric tables
+	// Trigonometric tables
 	vector<double> cosTable(n), sinTable(n);
 	for (size_t i = 0; i < n; i++) {
 		uintmax_t temp = static_cast<uintmax_t>(i) * i;

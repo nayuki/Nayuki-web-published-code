@@ -130,7 +130,7 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 		m = m.checked_mul(2).expect("Array too large");
 	}
 	
-	// Trignometric tables
+	// Trigonometric tables
 	let mut costable = Vec::<f64>::with_capacity(n);
 	let mut sintable = Vec::<f64>::with_capacity(n);
 	for i in 0 .. n {

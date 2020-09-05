@@ -131,7 +131,7 @@ function transformBluestein(real: Array<number>|Float64Array, imag: Array<number
 	while (m < n * 2 + 1)
 		m *= 2;
 	
-	// Trignometric tables
+	// Trigonometric tables
 	let cosTable = new Array<number>(n);
 	let sinTable = new Array<number>(n);
 	for (let i = 0; i < n; i++) {

@@ -57,7 +57,7 @@ bool Fft_transformRadix2(double real[], double imag[], size_t n) {
 	if ((size_t)1U << levels != n)
 		return false;  // n is not a power of 2
 	
-	// Trignometric tables
+	// Trigonometric tables
 	if (SIZE_MAX / sizeof(double) < n / 2)
 		return false;
 	size_t size = (n / 2) * sizeof(double);
@@ -140,7 +140,7 @@ bool Fft_transformBluestein(double real[], double imag[], size_t n) {
 			|| creal == NULL || cimag == NULL)
 		goto cleanup;
 	
-	// Trignometric tables
+	// Trigonometric tables
 	for (size_t i = 0; i < n; i++) {
 		uintmax_t temp = ((uintmax_t)i * i) % ((uintmax_t)n * 2);
 		double angle = M_PI * temp / n;

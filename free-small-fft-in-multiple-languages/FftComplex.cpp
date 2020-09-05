@@ -57,7 +57,7 @@ void Fft::transformRadix2(vector<complex<double> > &vec, bool inverse) {
 	if (static_cast<size_t>(1U) << levels != n)
 		throw std::domain_error("Length is not a power of 2");
 	
-	// Trignometric table
+	// Trigonometric table
 	vector<complex<double> > expTable(n / 2);
 	for (size_t i = 0; i < n / 2; i++)
 		expTable[i] = std::polar(1.0, (inverse ? 2 : -2) * M_PI * i / n);
@@ -96,7 +96,7 @@ void Fft::transformBluestein(vector<complex<double> > &vec, bool inverse) {
 		m *= 2;
 	}
 	
-	// Trignometric table
+	// Trigonometric table
 	vector<complex<double> > expTable(n);
 	for (size_t i = 0; i < n; i++) {
 		uintmax_t temp = static_cast<uintmax_t>(i) * i;

@@ -133,7 +133,7 @@ function transformBluestein(real, imag) {
 	while (m < n * 2 + 1)
 		m *= 2;
 	
-	// Trignometric tables
+	// Trigonometric tables
 	var cosTable = new Array(n);
 	var sinTable = new Array(n);
 	for (var i = 0; i < n; i++) {

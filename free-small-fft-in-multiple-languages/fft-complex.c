@@ -51,7 +51,7 @@ bool Fft_transformRadix2(double complex vec[], size_t n, bool inverse) {
 	if ((size_t)1U << levels != n)
 		return false;  // n is not a power of 2
 	
-	// Trignometric tables
+	// Trigonometric tables
 	if (SIZE_MAX / sizeof(double complex) < n / 2)
 		return false;
 	double complex *exptable = malloc((n / 2) * sizeof(double complex));
@@ -112,7 +112,7 @@ bool Fft_transformBluestein(double complex vec[], size_t n, bool inverse) {
 	if (exptable == NULL || avec == NULL || bvec == NULL || cvec == NULL)
 		goto cleanup;
 	
-	// Trignometric tables
+	// Trigonometric tables
 	for (size_t i = 0; i < n; i++) {
 		uintmax_t temp = ((uintmax_t)i * i) % ((uintmax_t)n * 2);
 		double angle = (inverse ? M_PI : -M_PI) * temp / n;

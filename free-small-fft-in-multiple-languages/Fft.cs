@@ -102,7 +102,7 @@ public sealed class Fft {
 		while (m < n * 2 + 1)
 			m *= 2;
 		
-		// Trignometric table
+		// Trigonometric table
 		Complex[] expTable = new Complex[n];
 		double coef = Math.PI / n * (inverse ? 1 : -1);
 		for (int i = 0; i < n; i++) {

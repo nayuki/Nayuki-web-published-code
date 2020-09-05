@@ -119,7 +119,7 @@ public final class Fft {
 			throw new IllegalArgumentException("Array too large");
 		int m = Integer.highestOneBit(n) * 4;
 		
-		// Trignometric tables
+		// Trigonometric tables
 		double[] cosTable = new double[n];
 		double[] sinTable = new double[n];
 		for (int i = 0; i < n; i++) {
