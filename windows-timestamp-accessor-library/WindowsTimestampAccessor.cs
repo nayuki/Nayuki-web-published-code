@@ -1,7 +1,7 @@
 /* 
  * Windows timestamp accessor (C#)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2020 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
@@ -18,7 +18,7 @@ public sealed class WindowsTimestampAccessor {
 			return 1;
 		}
 		
-		StreamReader input = new StreamReader(Console.OpenStandardInput(),
+		var input = new StreamReader(Console.OpenStandardInput(),
 			new System.Text.UTF8Encoding(false, false));
 		while (true) {
 			try {
@@ -72,9 +72,9 @@ public sealed class WindowsTimestampAccessor {
 				case "SetAccessTime"      :  filefunc = File.SetLastAccessTimeUtc;  dirfunc = Directory.SetLastAccessTimeUtc;  break;
 				default:  throw new ArgumentException();
 			}
-			DateTime time = new DateTime(Int64.Parse(tokens[2]));
+			var time = new DateTime(Int64.Parse(tokens[2]));
 			if (File.Exists(path)) {
-				FileInfo fi = new FileInfo(path);
+				var fi = new FileInfo(path);
 				bool readOnly = fi.IsReadOnly;
 				if (readOnly)
 					fi.IsReadOnly = false;
