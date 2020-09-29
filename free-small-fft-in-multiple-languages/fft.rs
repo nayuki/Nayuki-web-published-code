@@ -159,9 +159,7 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 	}
 	
 	// Convolution
-	let mut creal = vec![0.0f64; m];
-	let mut cimag = vec![0.0f64; m];
-	convolve_complex(&areal, &aimag, &breal, &bimag, &mut creal, &mut cimag);
+	let (creal, cimag) = convolve_complex(areal, aimag, breal, bimag);
 	
 	// Postprocessing
 	for i in 0 .. n {
@@ -174,34 +172,25 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 /* 
  * Computes the circular convolution of the given real vectors. Each vector's length must be the same.
  */
-pub fn convolve_real(xvec: &[f64], yvec: &[f64], outvec: &mut [f64]) {
+pub fn convolve_real(xvec: Vec<f64>, yvec: Vec<f64>) -> Vec<f64> {
 	let n: usize = xvec.len();
-	assert_eq!(yvec.len(), n);
-	assert_eq!(outvec.len(), n);
-	convolve_complex(
-		xvec, &vec![0.0; n],
-		yvec, &vec![0.0; n],
-		outvec, &mut vec![0.0; n]);
+	convolve_complex(xvec, vec![0.0; n], yvec, vec![0.0; n]).0
 }
 
 
 /* 
  * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
  */
-pub fn convolve_complex(xreal: &[f64], ximag: &[f64], yreal: &[f64], yimag: &[f64],
-		outreal: &mut [f64], outimag: &mut [f64]) {
+pub fn convolve_complex(
+		mut xreal: Vec<f64>, mut ximag: Vec<f64>,
+		mut yreal: Vec<f64>, mut yimag: Vec<f64>,
+		) -> (Vec<f64>,Vec<f64>) {
 	
 	let n: usize = xreal.len();
 	assert_eq!(ximag.len(), n);
 	assert_eq!(yreal.len(), n);
 	assert_eq!(yimag.len(), n);
-	assert_eq!(outreal.len(), n);
-	assert_eq!(outimag.len(), n);
 	
-	let mut xreal: Vec<f64> = xreal.to_vec();
-	let mut ximag: Vec<f64> = ximag.to_vec();
-	let mut yreal: Vec<f64> = yreal.to_vec();
-	let mut yimag: Vec<f64> = yimag.to_vec();
 	transform(&mut xreal, &mut ximag);
 	transform(&mut yreal, &mut yimag);
 	
@@ -212,8 +201,13 @@ pub fn convolve_complex(xreal: &[f64], ximag: &[f64], yreal: &[f64], yimag: &[f6
 	}
 	inverse_transform(&mut xreal, &mut ximag);
 	
-	for i in 0 .. n {  // Scaling (because this FFT implementation omits it)
-		outreal[i] = xreal[i] / (n as f64);
-		outimag[i] = ximag[i] / (n as f64);
+	// Scaling (because this FFT implementation omits it)
+	for x in xreal.iter_mut() {
+		*x /= n as f64;
 	}
+	for x in ximag.iter_mut() {
+		*x /= n as f64;
+	}
+	
+	(xreal, ximag)
 }

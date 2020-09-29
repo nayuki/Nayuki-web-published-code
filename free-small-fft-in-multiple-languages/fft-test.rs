@@ -112,10 +112,7 @@ fn test_convolution(size: usize) -> f64 {
 	naive_convolve(&input0real, &input0imag, &input1real, &input1imag,
 		&mut expectreal, &mut expectimag);
 	
-	let mut actualreal: Vec<f64> = vec![0.0; size];
-	let mut actualimag: Vec<f64> = vec![0.0; size];
-	fft::convolve_complex(&input0real, &input0imag, &input1real, &input1imag,
-		&mut actualreal, &mut actualimag);
+	let (actualreal, actualimag) = fft::convolve_complex(input0real, input0imag, input1real, input1imag);
 	
 	let err: f64 = log10_rms_err(&expectreal, &expectimag, &actualreal, &actualimag);
 	println!("convsize={:4}  logerr={:5.1}", size, err);
