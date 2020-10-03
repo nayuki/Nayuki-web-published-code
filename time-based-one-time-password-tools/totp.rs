@@ -40,7 +40,7 @@ fn main() {
 			.duration_since(std::time::SystemTime::UNIX_EPOCH)
 			.unwrap().as_secs() as i64;
 		let code: String = calc_totp(
-			&secretkey, 0, 30, timestamp, 6, calc_sha1_hash, 64);
+			secretkey, 0, 30, timestamp, 6, calc_sha1_hash, 64);
 		println!("{}", code);
 	} else {
 		eprintln!("Usage: totp [SecretKey]");
@@ -77,12 +77,12 @@ fn decode_base32(s: &str) -> Vec<u8> {
 
 // Time-based One-Time Password algorithm (RFC 6238)
 fn calc_totp(
-		secretkey: &[u8],
+		secretkey: Vec<u8>,
 		epoch: i64,
 		timestep: i64,
 		timestamp: i64,
 		codelen: usize,
-		hashfunc: fn(&[u8])->Vec<u8>,
+		hashfunc: fn(Vec<u8>)->Vec<u8>,
 		blocksize: usize,
 		) -> String {
 	
@@ -99,10 +99,10 @@ fn calc_totp(
 
 // HMAC-based One-Time Password algorithm (RFC 4226)
 fn calc_hotp(
-		secretkey: &[u8],
+		secretkey: Vec<u8>,
 		counter: &[u8],
 		codelen: usize,
-		hashfunc: fn(&[u8])->Vec<u8>,
+		hashfunc: fn(Vec<u8>)->Vec<u8>,
 		blocksize: usize,
 		) -> String {
 	
@@ -125,38 +125,38 @@ fn calc_hotp(
 
 
 fn calc_hmac(
-		key: &[u8],
+		mut key: Vec<u8>,
 		message: &[u8],
-		hashfunc: fn(&[u8])->Vec<u8>,
+		hashfunc: fn(Vec<u8>)->Vec<u8>,
 		blocksize: usize,
 		) -> Vec<u8> {
 	
 	assert!(blocksize >= 1, "Invalid block size");
-	let mut newkey: Vec<u8> = if key.len() <= blocksize
-		{ key.to_vec() } else { hashfunc(key) };
-	newkey.resize(blocksize, 0);
+	if key.len() > blocksize {
+		key = hashfunc(key);
+	}
+	key.resize(blocksize, 0);
 	
-	let mut innermsg: Vec<u8> = newkey.iter().map(|&b| b ^ 0x36).collect();
+	let mut innermsg: Vec<u8> = key.iter().map(|&b| b ^ 0x36).collect();
 	innermsg.extend_from_slice(message);
-	let innerhash: Vec<u8> = hashfunc(&innermsg);
+	let innerhash: Vec<u8> = hashfunc(innermsg);
 	
-	let mut outermsg: Vec<u8> = newkey.iter().map(|&b| b ^ 0x5C).collect();
+	let mut outermsg: Vec<u8> = key.iter().map(|&b| b ^ 0x5C).collect();
 	outermsg.extend_from_slice(&innerhash);
-	hashfunc(&outermsg)
+	hashfunc(outermsg)
 }
 
 
-fn calc_sha1_hash(message: &[u8]) -> Vec<u8> {
+fn calc_sha1_hash(mut message: Vec<u8>) -> Vec<u8> {
 	let bitlenbytes: [u8; 8] = ((message.len() as u64) * 8).to_be_bytes();
-	let mut msg: Vec<u8> = message.to_vec();
-	msg.push(0x80);
-	while (msg.len() + 8) % 64 != 0 {
-		msg.push(0x00);
+	message.push(0x80);
+	while (message.len() + 8) % 64 != 0 {
+		message.push(0x00);
 	}
-	msg.extend_from_slice(&bitlenbytes);
+	message.extend_from_slice(&bitlenbytes);
 	
 	let mut state: [u32; 5] = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
-	for block in msg.chunks(64) {
+	for block in message.chunks(64) {
 		let mut schedule: Vec<u32> = block.chunks(4).map(|bs|
 			u32::from_be_bytes(bs.try_into().unwrap())).collect();
 		for i in schedule.len() .. 80 {
@@ -214,14 +214,9 @@ fn test_hotp() {
 	];
 	let SECRET_KEY: &[u8] = b"12345678901234567890";
 	
-	for &(mut counter, expect) in &CASES {
-		let mut counterbytes = [0u8; 8];
-		for b in counterbytes.iter_mut().rev() {
-			*b = counter as u8;
-			counter >>= 8;
-		}
+	for &(counter, expect) in &CASES {
 		let actual: String = calc_hotp(
-			SECRET_KEY, &counterbytes, 9, calc_sha1_hash, 64);
+			SECRET_KEY.to_vec(), &counter.to_be_bytes(), 9, calc_sha1_hash, 64);
 		assert_eq!(expect, actual);
 	}
 }
@@ -241,7 +236,7 @@ fn test_totp() {
 	
 	for &(timestamp, expect) in &CASES {
 		let actual: String = calc_totp(
-			SECRET_KEY, 0, 30, timestamp, 8, calc_sha1_hash, 64);
+			SECRET_KEY.to_vec(), 0, 30, timestamp, 8, calc_sha1_hash, 64);
 		assert_eq!(expect, actual);
 	}
 }
