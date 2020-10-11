@@ -94,7 +94,7 @@ impl<E: std::cmp::Ord> BinaryArraySet<E> {
 			// Merge two sorted arrays
 			assert_eq!(vals.len(), toput.len());
 			assert!(vals.len() <= std::usize::MAX / 2);
-			toput = BinaryArraySet::merge_vecs(vals, toput);
+			toput = Self::merge_vecs(vals, toput);
 		}
 		self.values.push(toput);
 	}

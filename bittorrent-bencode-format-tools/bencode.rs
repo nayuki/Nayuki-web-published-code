@@ -28,8 +28,8 @@ use std::io;
 pub enum Bencode {
 	Int(i64),
 	Bytes(Vec<u8>),
-	List(Vec<Bencode>),
-	Dict(std::collections::BTreeMap<Vec<u8>,Bencode>),
+	List(Vec<Self>),
+	Dict(std::collections::BTreeMap<Vec<u8>,Self>),
 }
 
 
@@ -93,7 +93,7 @@ impl<'a> Parser<'a> {
 		let mut b = self.read_byte()?;
 		let result = self.parse_value(b)?;
 		if self.input.read(std::slice::from_mut(&mut b))? > 0 {
-			return Parser::err_invalid_data("Unexpected extra data");
+			return Self::err_invalid_data("Unexpected extra data");
 		}
 		Ok(result)
 	}
@@ -105,7 +105,7 @@ impl<'a> Parser<'a> {
 			b'l' => self.parse_list(),
 			b'd' => self.parse_dictionary(),
 			b'0'..=b'9' => Ok(Bencode::Bytes(self.parse_byte_string(head)?)),
-			_ => Parser::err_invalid_data("Unexpected value type"),
+			_ => Self::err_invalid_data("Unexpected value type"),
 		}
 	}
 	
@@ -129,15 +129,15 @@ impl<'a> Parser<'a> {
 			};
 			
 			if !ok {
-				return Parser::err_invalid_data("Unexpected integer character");
+				return Self::err_invalid_data("Unexpected integer character");
 			}
 			s.push(char::from(b));
 		}
 		if s == "" || s == "-" {
-			return Parser::err_invalid_data("Invalid integer syntax");
+			return Self::err_invalid_data("Invalid integer syntax");
 		}
 		s.parse::<i64>().map(Bencode::Int)
-			.map_err(|_| Parser::invalid_data("Integer overflow"))
+			.map_err(|_| Self::invalid_data("Integer overflow"))
 	}
 	
 	
@@ -154,7 +154,7 @@ impl<'a> Parser<'a> {
 		let mut b = head;
 		loop {
 			if b < b'0' || b > b'9' || s == "0" {
-				return Parser::err_invalid_data("Unexpected integer character");
+				return Self::err_invalid_data("Unexpected integer character");
 			}
 			s.push(char::from(b));
 			b = self.read_byte()?;
@@ -163,7 +163,7 @@ impl<'a> Parser<'a> {
 			}
 		}
 		s.parse::<usize>()
-			.map_err(|_| Parser::invalid_data("Integer overflow"))
+			.map_err(|_| Self::invalid_data("Integer overflow"))
 	}
 	
 	
@@ -188,7 +188,7 @@ impl<'a> Parser<'a> {
 			};
 			let prevkey = result.keys().next_back();
 			if prevkey.map_or(false, |k| key <= *k) {
-				return Parser::err_invalid_data("Misordered dictionary key");
+				return Self::err_invalid_data("Misordered dictionary key");
 			}
 			let b = self.read_byte()?;
 			let val = self.parse_value(b)?;
@@ -206,7 +206,7 @@ impl<'a> Parser<'a> {
 	
 	
 	fn err_invalid_data<T>(msg: &str) -> io::Result<T> {
-		Err(Parser::invalid_data(msg))
+		Err(Self::invalid_data(msg))
 	}
 	
 	

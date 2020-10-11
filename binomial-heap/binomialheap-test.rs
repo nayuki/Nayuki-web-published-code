@@ -159,8 +159,7 @@ fn test_against_rust_binary_heap_randomly() {
 				}
 			}
 			if merge {
-				heap.merge(&mut temp);
-				assert_eq!(temp.len(), 0);
+				heap.merge(temp);
 			}
 			size += n;
 			

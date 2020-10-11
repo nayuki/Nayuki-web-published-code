@@ -191,7 +191,7 @@ fn calc_sha1_hash(mut message: Vec<u8>) -> Vec<u8> {
 		state[4] = state[4].wrapping_add(e);
 	}
 	
-	state.iter().flat_map(|&val| val.to_be_bytes().to_vec()).collect()
+	state.iter().flat_map(|val| val.to_be_bytes().to_vec()).collect()
 }
 
 

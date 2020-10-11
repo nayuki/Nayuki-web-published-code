@@ -110,7 +110,7 @@ impl<E: std::cmp::Ord> BinomialHeap<E> {
 	
 	
 	// Moves all the values in the given heap into this heap
-	pub fn merge(&mut self, other: &mut Self) {
+	pub fn merge(&mut self, mut other: Self) {
 		self.merge_nodes(other.head.take());
 	}
 	
