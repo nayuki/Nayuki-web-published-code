@@ -65,7 +65,7 @@ impl<E: std::cmp::Ord> BTreeSet<E> {
 	
 	
 	pub fn clear(&mut self) {
-		*self = BTreeSet::new(self.min_keys + 1);
+		*self = Self::new(self.min_keys + 1);
 	}
 	
 	

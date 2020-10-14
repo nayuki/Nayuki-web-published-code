@@ -79,9 +79,8 @@ fn test_fft(size: usize) -> f64 {
 	let inputreal: Vec<f64> = random_reals(size);
 	let inputimag: Vec<f64> = random_reals(size);
 	
-	let mut expectreal: Vec<f64> = vec![0.0; size];
-	let mut expectimag: Vec<f64> = vec![0.0; size];
-	naive_dft(&inputreal, &inputimag, &mut expectreal, &mut expectimag, false);
+	let (expectreal, expectimag): (Vec<f64>,Vec<f64>) =
+		naive_dft(&inputreal, &inputimag, false);
 	
 	let mut actualreal: Vec<f64> = inputreal.clone();
 	let mut actualimag: Vec<f64> = inputimag.clone();
@@ -107,10 +106,8 @@ fn test_convolution(size: usize) -> f64 {
 	let input1real: Vec<f64> = random_reals(size);
 	let input1imag: Vec<f64> = random_reals(size);
 	
-	let mut expectreal: Vec<f64> = vec![0.0; size];
-	let mut expectimag: Vec<f64> = vec![0.0; size];
-	naive_convolve(&input0real, &input0imag, &input1real, &input1imag,
-		&mut expectreal, &mut expectimag);
+	let (expectreal, expectimag): (Vec<f64>,Vec<f64>) =
+		naive_convolve(&input0real, &input0imag, &input1real, &input1imag);
 	
 	let (actualreal, actualimag) = fft::convolve_complex(input0real, input0imag, input1real, input1imag);
 	
@@ -122,14 +119,11 @@ fn test_convolution(size: usize) -> f64 {
 
 /*---- Naive reference computation functions ----*/
 
-fn naive_dft(inreal: &[f64], inimag: &[f64],
-		outreal: &mut [f64], outimag: &mut [f64],
-		inverse: bool) {
-	
+fn naive_dft(inreal: &[f64], inimag: &[f64], inverse: bool) -> (Vec<f64>,Vec<f64>) {
 	let n: usize = inreal.len();
 	assert_eq!(inreal.len(), n);
-	assert_eq!(outreal.len(), n);
-	assert_eq!(outimag.len(), n);
+	let mut outreal = vec![0.0f64; n];
+	let mut outimag = vec![0.0f64; n];
 	
 	let coef: f64 = if inverse { 2.0 } else { -2.0 } * std::f64::consts::PI;
 	for k in 0 .. n {  // For each output element
@@ -144,27 +138,22 @@ fn naive_dft(inreal: &[f64], inimag: &[f64],
 		outreal[k] = sumreal;
 		outimag[k] = sumimag;
 	}
+	(outreal, outimag)
 }
 
 
 fn naive_convolve(
 		xreal: &[f64], ximag: &[f64],
-		yreal: &[f64], yimag: &[f64],
-		outreal: &mut [f64], outimag: &mut [f64]) {
+		yreal: &[f64], yimag: &[f64])
+		-> (Vec<f64>,Vec<f64>) {
 	
 	let n: usize = xreal.len();
 	assert_eq!(ximag.len(), n);
 	assert_eq!(yreal.len(), n);
 	assert_eq!(yimag.len(), n);
-	assert_eq!(outreal.len(), n);
-	assert_eq!(outimag.len(), n);
 	
-	for v in outreal.iter_mut() {
-		*v = 0.0;
-	}
-	for v in outimag.iter_mut() {
-		*v = 0.0;
-	}
+	let mut outreal = vec![0.0f64; n];
+	let mut outimag = vec![0.0f64; n];
 	for i in 0 .. n {
 		for j in 0 .. n {
 			let k: usize = (i + j) % n;
@@ -172,6 +161,7 @@ fn naive_convolve(
 			outimag[k] += xreal[i] * yimag[j] + ximag[i] * yreal[j];
 		}
 	}
+	(outreal, outimag)
 }
 
 

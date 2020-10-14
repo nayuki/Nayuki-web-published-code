@@ -33,7 +33,7 @@ pub fn transform(real: &mut [f64], imag: &mut [f64]) {
 	assert_eq!(imag.len(), n);
 	if n == 0 {
 		return;
-	} else if n.count_ones() == 1 {  // Is power of 2
+	} else if n.is_power_of_two() {
 		transform_radix2(real, imag);
 	} else {  // More complicated algorithm for arbitrary sizes
 		transform_bluestein(real, imag);
@@ -57,9 +57,11 @@ pub fn inverse_transform(real: &mut [f64], imag: &mut [f64]) {
 pub fn transform_radix2(real: &mut [f64], imag: &mut [f64]) {
 	// Length variables
 	let n: usize = real.len();
-	assert_eq!(imag.len(), n);
-	let levels: u32 = n.trailing_zeros();
-	assert_eq!(1usize << levels, n, "Length is not a power of 2");
+	assert_eq!(imag.len(), n, "Mismatched lengths");
+	assert!(n.is_power_of_two(), "Length is not a power of 2");
+	if n == 1 {
+		return;
+	}
 	
 	// Trigonometric tables
 	let mut costable = Vec::<f64>::with_capacity(n / 2);
@@ -70,18 +72,10 @@ pub fn transform_radix2(real: &mut [f64], imag: &mut [f64]) {
 		sintable.push(angle.sin());
 	}
 	
-	fn reverse_bits(mut val: usize, width: u32) -> usize {
-		let mut result: usize = 0;
-		for _ in 0 .. width {
-			result = (result << 1) | (val & 1);
-			val >>= 1;
-		}
-		result
-	}
-	
 	// Bit-reversed addressing permutation
+	let shift: u32 = n.leading_zeros() + 1;
 	for i in 0 .. n {
-		let j: usize = reverse_bits(i, levels);
+		let j: usize = i.reverse_bits() >> shift;
 		if j > i {
 			real.swap(i, j);
 			imag.swap(i, j);
@@ -124,11 +118,9 @@ pub fn transform_radix2(real: &mut [f64], imag: &mut [f64]) {
 pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
 	let n: usize = real.len();
-	assert_eq!(imag.len(), n);
-	let mut m: usize = 1;
-	while m / 2 <= n {
-		m = m.checked_mul(2).expect("Array too large");
-	}
+	assert_eq!(imag.len(), n, "Mismatched lengths");
+	let m: usize = n.checked_mul(2).unwrap().checked_add(1).unwrap()
+		.checked_next_power_of_two().expect("Array too large");
 	
 	// Trigonometric tables
 	let mut costable = Vec::<f64>::with_capacity(n);

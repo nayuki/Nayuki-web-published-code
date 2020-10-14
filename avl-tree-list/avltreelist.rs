@@ -82,7 +82,7 @@ impl<E> AvlTreeList<E> {
 	
 	
 	pub fn clear(&mut self) {
-		self.root = MaybeNode(None);
+		self.root.0.take();
 	}
 	
 	
