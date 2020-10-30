@@ -119,8 +119,11 @@ pub fn transform_bluestein(real: &mut [f64], imag: &mut [f64]) {
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
 	let n: usize = real.len();
 	assert_eq!(imag.len(), n, "Mismatched lengths");
-	let m: usize = n.checked_mul(2).unwrap().checked_add(1).unwrap()
-		.checked_next_power_of_two().expect("Array too large");
+	let m: usize = Some(n)
+		.and_then(|x| x.checked_mul(2))
+		.and_then(|x| x.checked_add(1))
+		.and_then(|x| x.checked_next_power_of_two())
+		.expect("Array too large");
 	
 	// Trigonometric tables
 	let mut costable = Vec::<f64>::with_capacity(n);
