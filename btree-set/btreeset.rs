@@ -42,9 +42,8 @@ impl<E: std::cmp::Ord> BTreeSet<E> {
 	// The degree is the minimum number of children each non-root internal node must have.
 	pub fn new(degree: usize) -> Self {
 		assert!(degree >= 2, "Degree must be at least 2");
-		// In other words, need maxChildren <= USIZE_MAX
-		assert!(degree <= std::usize::MAX / 2, "Degree too large");
-		let maxkeys = degree * 2 - 1;
+		// In other words, need maxchildren <= usize::MAX
+		let maxkeys = degree.checked_mul(2).expect("Degree too large") - 1;
 		Self {
 			root: Node::new(maxkeys, true),
 			size: 0,
@@ -105,9 +104,8 @@ impl<E: std::cmp::Ord> BTreeSet<E> {
 			if found {
 				return false;  // Key already exists in tree
 			} else if node.is_leaf() {  // Simple insertion into leaf
-				assert!(self.size < std::usize::MAX, "Maximum size reached");
+				self.size = self.size.checked_add(1).expect("Maximum size reached");
 				node.keys.insert(index, val);
-				self.size += 1;
 				return true;
 			} else {  // Handle internal node
 				if node.children[index].keys.len() == self.max_keys {  // Split child node

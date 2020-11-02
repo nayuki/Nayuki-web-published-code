@@ -82,8 +82,7 @@ impl<E: std::cmp::Ord> BinaryArraySet<E> {
 	
 	// Runs in amortized O(1) time, worst-case O(n) time
 	pub fn insert_unique(&mut self, val: E) {
-		assert!(self.size < std::usize::MAX, "Maximum size reached");
-		self.size += 1;
+		self.size = self.size.checked_add(1).expect("Maximum size reached");
 		let mut toput: Vec<E> = vec![val];
 		for vals in &mut self.values {
 			if vals.is_empty() {
@@ -93,7 +92,6 @@ impl<E: std::cmp::Ord> BinaryArraySet<E> {
 			
 			// Merge two sorted arrays
 			assert_eq!(vals.len(), toput.len());
-			assert!(vals.len() <= std::usize::MAX / 2);
 			toput = Self::merge_vecs(vals, toput);
 		}
 		self.values.push(toput);
@@ -117,7 +115,7 @@ impl<E: std::cmp::Ord> BinaryArraySet<E> {
 	// (Private) Assuming that xs and ys are both in ascending order, this
 	// moves all their elements into a new sorted vector zs and returns it.
 	fn merge_vecs(xs: &mut Vec<E>, ys: Vec<E>) -> Vec<E> {
-		let mut result = Vec::<E>::with_capacity(xs.len() + ys.len());
+		let mut result = Vec::<E>::with_capacity(xs.len().checked_add(ys.len()).unwrap());
 		let mut xiter = xs.drain(..);
 		let mut yiter = ys.into_iter();
 		let mut xnext = xiter.next();
