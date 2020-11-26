@@ -22,6 +22,7 @@
  */
 
 use std;
+use std::convert::TryFrom;
 
 
 #[derive(Clone,Default)]
@@ -102,11 +103,11 @@ impl<E: std::cmp::Ord> BinaryArraySet<E> {
 		let mut sum: usize = 0;
 		for (i, vals) in self.values.iter().enumerate() {
 			let len = vals.len();
-			assert!(len == 0 || len == 1 << i, "Invalid sub-vector length");
+			assert!(len == 0 || len == 1usize.checked_shl(u32::try_from(i).unwrap()).unwrap(), "Invalid sub-vector length");
 			for j in 1 .. len {
 				assert!(vals[j - 1] < vals[j], "Invalid ordering of elements in vector");
 			}
-			sum += len;
+			sum = sum.checked_add(len).unwrap();
 		}
 		assert_eq!(sum, self.size, "Size mismatch between counter and sub-vectors");
 	}

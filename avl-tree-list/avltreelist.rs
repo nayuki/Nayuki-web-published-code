@@ -357,8 +357,8 @@ impl<E> Node<E> {
 	fn recalculate(&mut self) {
 		assert!(self.left .height() >= 0);
 		assert!(self.right.height() >= 0);
-		self.height = std::cmp::max(self.left.height(), self.right.height()) + 1;
-		self.size = self.left.size() + self.right.size() + 1;
+		self.height = std::cmp::max(self.left.height(), self.right.height()).checked_add(1).unwrap();
+		self.size = self.left.size().checked_add(self.right.size()).unwrap().checked_add(1).unwrap();
 		assert!(self.height >= 0);
 	}
 	
@@ -371,8 +371,8 @@ impl<E> Node<E> {
 	fn check_structure(&self) {
 		self.left .check_structure();
 		self.right.check_structure();
-		assert_eq!(self.height, std::cmp::max(self.left.height(), self.right.height()) + 1);
-		assert_eq!(self.size, self.left.size() + self.right.size() + 1);
+		assert_eq!(self.height, std::cmp::max(self.left.height(), self.right.height()).checked_add(1).unwrap());
+		assert_eq!(self.size, self.left.size().checked_add(self.right.size()).unwrap().checked_add(1).unwrap());
 		assert!(self.get_balance().abs() <= 1);
 	}
 	

@@ -132,7 +132,8 @@ impl DisjointSet {
 		// Compare ranks
 		let cmp: i8 = self.nodes[repr0].rank - self.nodes[repr1].rank;
 		if cmp == 0 {  // Increment repr0's rank if both nodes have same rank
-			self.nodes[repr0].rank += 1;
+			let rank: &mut i8 = &mut self.nodes[repr0].rank;
+			*rank = rank.checked_add(1).unwrap();
 		} else if cmp < 0 {  // Swap to ensure that repr0's rank >= repr1's rank
 			std::mem::swap(&mut repr0, &mut repr1);
 		}
@@ -152,7 +153,7 @@ impl DisjointSet {
 		let mut numrepr: usize = 0;
 		for (i, node) in self.nodes.iter().enumerate() {
 			let isrepr: bool = node.parent == i;
-			numrepr += isrepr as usize;
+			numrepr = numrepr.checked_add(usize::from(isrepr)).unwrap();
 			assert!(node.parent < self.nodes.len());
 			assert!(0 <= node.rank && (isrepr || node.rank < self.nodes[node.parent].rank));
 			assert!(!isrepr && node.size == 0 || isrepr && node.size >= (1usize << node.rank));

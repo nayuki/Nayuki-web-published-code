@@ -154,7 +154,7 @@ fn reverse_bits(x: u32) -> u32 {
 
 // Returns polynomial x multiplied by polynomial y modulo the generator polynomial.
 fn multiply_mod(mut x: u64, mut y: u64) -> u64 {
-	let degree = get_degree(POLYNOMIAL);
+	let degree: i32 = get_degree(POLYNOMIAL);
 	assert_eq!(x >> degree, 0);
 	assert_eq!(y >> degree, 0);
 	

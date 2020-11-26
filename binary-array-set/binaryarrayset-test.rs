@@ -122,7 +122,7 @@ fn test_against_rust_set_randomly() {
 				let val: i32 = valuedist.ind_sample(rng);
 				let added: bool = set0.insert(val);
 				assert_eq!(added, set1.insert(val), "Insert mismatch");
-				size += added as usize;
+				size += usize::from(added);
 			}
 			
 		} else if op < 100 {  // Contains
