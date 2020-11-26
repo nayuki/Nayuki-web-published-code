@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -170,8 +170,6 @@ class DisjointSet final {
 	private: S getRepr(S elemIndex) const {
 		// Follow parent pointers until we reach a representative
 		S parent = nodes.at(elemIndex).parent;
-		if (parent == elemIndex)
-			return static_cast<std::size_t>(elemIndex);
 		while (true) {
 			S grandparent = nodes.at(static_cast<std::size_t>(parent)).parent;
 			if (grandparent == parent)

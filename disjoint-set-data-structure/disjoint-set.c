@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library implementation (C)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -63,8 +63,6 @@ static size_t getRepr(struct DisjointSet this[static 1], size_t elemIndex) {
 	assert(elemIndex < this->numElements);
 	// Follow parent pointers until we reach a representative
 	size_t parent = this->nodes[elemIndex].parent;
-	if (parent == elemIndex)
-		return elemIndex;
 	while (true) {
 		size_t grandparent = this->nodes[parent].parent;
 		if (grandparent == parent)

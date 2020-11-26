@@ -116,8 +116,6 @@ class DisjointSet {
 			throw "Element index out of bounds";
 		// Follow parent pointers until we reach a representative
 		let parent: number = this.parents[elemIndex];
-		if (parent == elemIndex)
-			return elemIndex;
 		while (true) {
 			const grandparent: number = this.parents[parent];
 			if (grandparent == parent)

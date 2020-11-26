@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -86,8 +86,6 @@ public final class DisjointSet {
 			throw new IndexOutOfBoundsException();
 		// Follow parent pointers until we reach a representative
 		int parent = parents[elemIndex];
-		if (parent == elemIndex)
-			return elemIndex;
 		while (true) {
 			int grandparent = parents[parent];
 			if (grandparent == parent)

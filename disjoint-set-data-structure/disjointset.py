@@ -75,8 +75,6 @@ class DisjointSet:
 			raise IndexError()
 		# Follow parent pointers until we reach a representative
 		parent: int = self.parents[elemindex]
-		if parent == elemindex:
-			return elemindex
 		while True:
 			grandparent: int = self.parents[parent]
 			if grandparent == parent:

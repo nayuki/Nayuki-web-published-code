@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (JavaScript)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -78,8 +78,6 @@ function DisjointSet(numElems) {
 			throw "Element index out of bounds";
 		// Follow parent pointers until we reach a representative
 		var parent = parents[elemIndex];
-		if (parent == elemIndex)
-			return elemIndex;
 		while (true) {
 			var grandparent = parents[parent];
 			if (grandparent == parent)

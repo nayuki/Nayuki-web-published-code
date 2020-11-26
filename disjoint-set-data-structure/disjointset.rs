@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (Rust)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -93,9 +93,6 @@ impl DisjointSet {
 	fn get_repr(&mut self, mut elemindex: usize) -> usize {
 		// Follow parent pointers until we reach a representative
 		let mut parent: usize = self.nodes[elemindex].parent;
-		if parent == elemindex {
-			return elemindex;
-		}
 		loop {
 			let grandparent: usize = self.nodes[parent].parent;
 			if grandparent == parent {
