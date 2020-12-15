@@ -158,3 +158,7 @@ function crossProduct(x0: number, y0: number, x1: number, y1: number, x2: number
 function distance(x0: number, y0: number, x1: number, y1: number): number {
 	return Math.hypot(x0 - x1, y0 - y1);
 }
+
+
+if (!("hypot" in Math))  // Polyfill
+	Math.hypot = (x: number, y: number) => Math.sqrt(x * x + y * y);

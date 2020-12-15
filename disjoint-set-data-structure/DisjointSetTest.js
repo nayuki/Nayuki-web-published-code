@@ -150,6 +150,7 @@ function assertFalse(cond) {
 function assertEquals(expect, actual) {
     assertTrue(actual === expect);
 }
+/*---- Main runner ----*/
 (function () {
     var i = 0;
     function iterate() {

@@ -65,7 +65,7 @@ class BinaryIndexedTree {
 	public get(index: number): number {
 		if (!(0 <= index && index < this.length))
 			throw "Index out of bounds";
-		let result = this.sumTree[index];
+		let result: number = this.sumTree[index];
 		// For each consecutive 1 in the lowest order bits of index
 		for (let i = 1; (index & i) != 0; i <<= 1)
 			result -= this.sumTree[index ^ i];
@@ -98,7 +98,7 @@ class BinaryIndexedTree {
 	public getPrefixSum(end: number): number {
 		if (!(0 <= end && end <= this.length))
 			throw "Index out of bounds";
-		let result = 0;
+		let result: number = 0;
 		while (end > 0) {
 			result += this.sumTree[end - 1];
 			end &= end - 1;  // Clear lowest 1 bit; strictly decreasing

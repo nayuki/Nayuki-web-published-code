@@ -1,9 +1,9 @@
-/* 
- * Binary indexed tree (JavaScript)
- * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+/*
+ * Binary indexed tree (compiled from TypeScript)
+ *
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
@@ -20,96 +20,77 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
-
 "use strict";
-
-
-function BinaryIndexedTree(arg) {
-	
-	/*---- Field ----*/
-	
-	var sumTree;
-	
-	
-	
-	/*---- Constructor ----*/
-	
-	if (typeof arg == "number") {
-		if (arg < 0 || Math.floor(arg) != arg)
-			throw "Illegal argument";
-		sumTree = [];
-		for (var i = 0; i < arg; i++)
-			sumTree.push(0);
-		
-	} else if (arg instanceof Array) {
-		sumTree = arg.slice();
-		sumTree.forEach(function(val, i) {
-			// For each consecutive 1 in the lowest order bits of i
-			for (var j = 1; (i & j) != 0; j <<= 1)
-				val += sumTree[i ^ j];
-			sumTree[i] = val;
-		});
-		
-	} else
-		throw "Illegal argument";
-	
-	
-	
-	/*---- Methods ----*/
-	
-	Object.defineProperty(this, "length",
-		{get: function() { return sumTree.length; }, enumerable: true});
-	
-	
-	this.get = function(index) {
-		if (!(0 <= index && index < sumTree.length))
-			throw "Index out of bounds";
-		var result = sumTree[index];
-		// For each consecutive 1 in the lowest order bits of index
-		for (var i = 1; (index & i) != 0; i <<= 1)
-			result -= sumTree[index ^ i];
-		return result;
-	};
-	
-	
-	this.set = function(index, val) {
-		if (!(0 <= index && index < sumTree.length))
-			throw "Index out of bounds";
-		this.add(index, val - this.get(index));
-	};
-	
-	
-	this.add = function(index, delta) {
-		if (!(0 <= index && index < sumTree.length))
-			throw "Index out of bounds";
-		do {
-			sumTree[index] += delta;
-			index |= index + 1;  // Set lowest 0 bit; strictly increasing
-		} while (index < sumTree.length);
-	};
-	
-	
-	this.getTotal = function() {
-		return this.getPrefixSum(sumTree.length);
-	};
-	
-	
-	this.getPrefixSum = function(end) {
-		if (!(0 <= end && end <= sumTree.length))
-			throw "Index out of bounds";
-		var result = 0;
-		while (end > 0) {
-			result += sumTree[end - 1];
-			end &= end - 1;  // Clear lowest 1 bit; strictly decreasing
-		}
-		return result;
-	};
-	
-	
-	this.getRangeSum = function(start, end) {
-		if (!(0 <= start && start <= end && end <= sumTree.length))
-			throw "Index out of bounds";
-		return this.getPrefixSum(end) - this.getPrefixSum(start);
-	};
-	
-}
+var BinaryIndexedTree = /** @class */ (function () {
+    /*---- Constructor ----*/
+    function BinaryIndexedTree(arg) {
+        var _this = this;
+        if (typeof arg == "number") {
+            if (arg < 0 || Math.floor(arg) != arg)
+                throw "Illegal argument";
+            this.sumTree = [];
+            for (var i = 0; i < arg; i++)
+                this.sumTree.push(0);
+        }
+        else if (arg instanceof Array) {
+            this.sumTree = arg.slice();
+            this.sumTree.forEach(function (val, i) {
+                // For each consecutive 1 in the lowest order bits of i
+                for (var j = 1; (i & j) != 0; j <<= 1)
+                    val += _this.sumTree[i ^ j];
+                _this.sumTree[i] = val;
+            });
+        }
+        else
+            throw "Illegal argument";
+    }
+    Object.defineProperty(BinaryIndexedTree.prototype, "length", {
+        /*---- Methods ----*/
+        get: function () {
+            return this.sumTree.length;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    BinaryIndexedTree.prototype.get = function (index) {
+        if (!(0 <= index && index < this.length))
+            throw "Index out of bounds";
+        var result = this.sumTree[index];
+        // For each consecutive 1 in the lowest order bits of index
+        for (var i = 1; (index & i) != 0; i <<= 1)
+            result -= this.sumTree[index ^ i];
+        return result;
+    };
+    BinaryIndexedTree.prototype.set = function (index, val) {
+        if (!(0 <= index && index < this.length))
+            throw "Index out of bounds";
+        this.add(index, val - this.get(index));
+    };
+    BinaryIndexedTree.prototype.add = function (index, delta) {
+        if (!(0 <= index && index < this.length))
+            throw "Index out of bounds";
+        do {
+            this.sumTree[index] += delta;
+            index |= index + 1; // Set lowest 0 bit; strictly increasing
+        } while (index < this.length);
+    };
+    BinaryIndexedTree.prototype.getTotal = function () {
+        return this.getPrefixSum(this.length);
+    };
+    BinaryIndexedTree.prototype.getPrefixSum = function (end) {
+        if (!(0 <= end && end <= this.length))
+            throw "Index out of bounds";
+        var result = 0;
+        while (end > 0) {
+            result += this.sumTree[end - 1];
+            end &= end - 1; // Clear lowest 1 bit; strictly decreasing
+        }
+        return result;
+    };
+    BinaryIndexedTree.prototype.getRangeSum = function (start, end) {
+        if (!(0 <= start && start <= end && end <= this.length))
+            throw "Index out of bounds";
+        return this.getPrefixSum(end) - this.getPrefixSum(start);
+    };
+    return BinaryIndexedTree;
+}());

@@ -21,8 +21,6 @@
  *   Software.
  */
 
-"use strict";
-
 
 /*---- Test suite ----*/
 
@@ -184,9 +182,12 @@ function assertEquals(expect: number, actual: number): void {
 }
 
 
-(function() {
-	let i = 0;
-	function iterate() {
+
+/*---- Main runner ----*/
+
+(function(): void {
+	let i: number = 0;
+	function iterate(): void {
 		let msg: string;
 		if (i >= TEST_SUITE_FUNCS.length)
 			msg = "Finished";

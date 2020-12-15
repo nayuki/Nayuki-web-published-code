@@ -128,7 +128,7 @@ class AvlTreeList<E> {
 	// means the end of the list, and a missing start means the beginning of the list. The returned list has its
 	// own unique data structure and node objects, but the underlying values being stored are still the same objects.
 	// Note for convenience that lst.slice() returns a clone of the entire list.
-	public slice(start?: number, end?: number) {
+	public slice(start?: number, end?: number): AvlTreeList<E> {
 		if (arguments.length < 2)
 			end = this.length;
 		end = end as number;
