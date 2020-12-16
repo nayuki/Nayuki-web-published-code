@@ -20,20 +20,15 @@
  */
 
 
-// SVG DOM elements
+// DOM elements
 let svgElem = document.querySelector("article svg") as HTMLElement;
-let circleElem = svgElem.querySelector("circle") as Element;
-let offCircleGroupElem: Element = svgElem.querySelectorAll("g")[0];
-let onCircleGroupElem : Element = svgElem.querySelectorAll("g")[1];
-
-// Radio button elements
 let staticRadio = document.getElementById("random-static"  ) as HTMLInputElement;
 let movingRadio = document.getElementById("random-moving"  ) as HTMLInputElement;
 let manualRadio = document.getElementById("manual-position") as HTMLInputElement;
 
 // Constants and mutable state
 const POINT_RADIUS: number = 0.012;
-let points: Array<{x:number,y:number,vx?:number,vy?:number}> = [];
+let points: Array<MovingPoint> = [];
 let draggingPointIndex: number = -1;
 
 
@@ -70,9 +65,9 @@ function initialize(): void {
 					draggingPointIndex = nearestIndex;
 				else {
 					draggingPointIndex = points.length;
-					points.push({x: NaN, y: NaN});
+					points.push(new MovingPoint(NaN, NaN, NaN, NaN));
 				}
-				points[draggingPointIndex] = {x: evX, y: evY};
+				points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
 			} else if (ev.button == 2) {
 				if (nearestIndex != -1 && nearestDist < POINT_RADIUS * 1.5)
 					points.splice(nearestIndex, 1);
@@ -90,7 +85,7 @@ function initialize(): void {
 		} else if (type == "move" || type == "up") {
 			if (draggingPointIndex == -1)
 				return;
-			points[draggingPointIndex] = {x: evX, y: evY};
+			points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
 			if (type == "up")
 				draggingPointIndex = -1;
 		} else
@@ -98,6 +93,8 @@ function initialize(): void {
 		showPointsAndCircle();
 	}
 }
+
+window.addEventListener("DOMContentLoaded", initialize);
 
 
 function handleRadioButtons(): void {
@@ -114,16 +111,12 @@ namespace staticDemo {
 	let timeout: number|null = null;
 	
 	export function start(): void {
-		const numPoints: number = Math.round(Math.pow(40, Math.random()) * 2);
+		const NUM_POINTS: number = Math.round(Math.pow(40, Math.random()) * 2);
 		points = [];
-		for (let i = 0; i < numPoints; i++) {
-			points.push({
-				x: randomGaussian() * 0.14,
-				y: randomGaussian() * 0.14,
-			});
-		}
+		for (let i = 0; i < NUM_POINTS; i++)
+			points.push(new MovingPoint(randomGaussian() * 0.14, randomGaussian() * 0.14, 0, 0));
 		showPointsAndCircle();
-		timeout = window.setTimeout(staticDemo.start, 3000);
+		timeout = window.setTimeout(start, 3000);
 	}
 	
 	export function stop(): void {
@@ -136,53 +129,34 @@ namespace staticDemo {
 
 
 namespace movingDemo {
-	let prevTime: number|null = null;
 	let timeout: number|null = null;
 	
 	export function start(): void {
-		const numPoints: number = 15;
+		const NUM_POINTS: number = 15;
 		points = [];
-		for (let i = 0; i < numPoints; i++) {
-			points.push({
-				x: randomGaussian() * 0.10,
-				y: randomGaussian() * 0.10,
-				vx: randomGaussian() * 0.04,
-				vy: randomGaussian() * 0.04,
-			});
-		}
-		prevTime = performance.now();
-		update(prevTime);
+		for (let i = 0; i < NUM_POINTS; i++)
+			points.push(new MovingPoint(randomGaussian() * 0.10, randomGaussian() * 0.10, randomGaussian() * 0.04, randomGaussian() * 0.04));
+		const time: number = performance.now();
+		update(time, time);
 	}
 	
-	function update(time: number): void {
+	function update(prevTime: number, curTime: number): void {
 		showPointsAndCircle();
-		if (prevTime === null)
-			throw "Assertion error";
-		const dt: number = Math.min(time - prevTime, 1000) / 1000;
+		const deltaTime: number = Math.min(curTime - prevTime, 1000) / 1000;
 		const bounds: DOMRect = svgElem.getBoundingClientRect()
 		const width : number = bounds.width  / Math.min(bounds.width, bounds.height);
 		const height: number = bounds.height / Math.min(bounds.width, bounds.height);
 		for (let i = 0; i < points.length; i++) {
-			const p = points[i];
-			if (p.vx === undefined || p.vy === undefined)
-				throw "Assertion error";
-			p.x += p.vx * dt;
-			p.y += p.vy * dt;
-			if (Math.hypot(p.x, p.y) > 0.5) {
-				points[i] = {
-					x: randomGaussian() * 0.10,
-					y: randomGaussian() * 0.10,
-					vx: randomGaussian() * 0.04,
-					vy: randomGaussian() * 0.04,
-				};
-			}
+			let p: MovingPoint = points[i];
+			p.x += p.vx * deltaTime;
+			p.y += p.vy * deltaTime;
+			if (Math.hypot(p.x, p.y) > 0.5)
+				points[i] = new MovingPoint(randomGaussian() * 0.10, randomGaussian() * 0.10, randomGaussian() * 0.04, randomGaussian() * 0.04);
 		}
-		prevTime = time;
-		timeout = requestAnimationFrame(update);
+		timeout = requestAnimationFrame(nextTime => update(curTime, nextTime));
 	}
 	
 	export function stop(): void {
-		prevTime = null;
 		if (timeout !== null) {
 			cancelAnimationFrame(timeout);
 			timeout = null;
@@ -192,12 +166,15 @@ namespace movingDemo {
 
 
 function showPointsAndCircle(): void {
+	let offCircleGroupElem: Element = svgElem.querySelectorAll("g")[0];
+	let onCircleGroupElem : Element = svgElem.querySelectorAll("g")[1];
 	while (offCircleGroupElem.firstChild !== null)
 		offCircleGroupElem.removeChild(offCircleGroupElem.firstChild);
 	while (onCircleGroupElem.firstChild !== null)
 		onCircleGroupElem.removeChild(onCircleGroupElem.firstChild);
 	
 	let circle: Circle|null = makeCircle(points as Array<Point>);
+	let circleElem = svgElem.querySelector("circle") as Element;
 	if (circle === null) {
 		circleElem.setAttribute("r", "0");
 		return;
@@ -225,4 +202,10 @@ function randomGaussian(): number {
 }
 
 
-window.addEventListener("DOMContentLoaded", initialize);
+class MovingPoint implements Point {
+	public constructor(
+		public x: number,
+		public y: number,
+		public vx: number,
+		public vy: number) {}
+}

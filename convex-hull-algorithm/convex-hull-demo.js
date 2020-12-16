@@ -19,12 +19,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 "use strict";
-// SVG DOM elements
+// DOM elements
 var svgElem = document.querySelector("article svg");
-var pathElem = svgElem.querySelector("path");
-var onHullGroupElem = svgElem.querySelectorAll("g")[1];
-var offHullGroupElem = svgElem.querySelectorAll("g")[0];
-// Radio button elements
 var staticRadio = document.getElementById("random-static");
 var movingRadio = document.getElementById("random-moving");
 var manualRadio = document.getElementById("manual-position");
@@ -61,9 +57,9 @@ function initialize() {
                     draggingPointIndex = nearestIndex_1;
                 else {
                     draggingPointIndex = points.length;
-                    points.push({ x: NaN, y: NaN });
+                    points.push(new MovingPoint(NaN, NaN, NaN, NaN));
                 }
-                points[draggingPointIndex] = { x: evX, y: evY };
+                points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
             }
             else if (ev.button == 2) {
                 if (nearestIndex_1 != -1 && nearestDist_1 < POINT_RADIUS * 1.5)
@@ -83,7 +79,7 @@ function initialize() {
         else if (type == "move" || type == "up") {
             if (draggingPointIndex == -1)
                 return;
-            points[draggingPointIndex] = { x: evX, y: evY };
+            points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
             if (type == "up")
                 draggingPointIndex = -1;
         }
@@ -92,6 +88,7 @@ function initialize() {
         showPointsAndHull();
     }
 }
+window.addEventListener("DOMContentLoaded", initialize);
 function handleRadioButtons() {
     staticDemo.stop();
     movingDemo.stop();
@@ -104,16 +101,12 @@ var staticDemo;
 (function (staticDemo) {
     var timeout = null;
     function start() {
-        var numPoints = Math.round(Math.pow(30, Math.random()) * 3);
+        var NUM_POINTS = Math.round(Math.pow(30, Math.random()) * 3);
         points = [];
-        for (var i = 0; i < numPoints; i++) {
-            points.push({
-                x: randomGaussian() * 0.17,
-                y: randomGaussian() * 0.17,
-            });
-        }
+        for (var i = 0; i < NUM_POINTS; i++)
+            points.push(new MovingPoint(randomGaussian() * 0.17, randomGaussian() * 0.17, 0, 0));
         showPointsAndHull();
-        timeout = window.setTimeout(staticDemo.start, 3000);
+        timeout = window.setTimeout(start, 3000);
     }
     staticDemo.start = start;
     function stop() {
@@ -126,51 +119,32 @@ var staticDemo;
 })(staticDemo || (staticDemo = {}));
 var movingDemo;
 (function (movingDemo) {
-    var prevTime = null;
     var timeout = null;
     function start() {
-        var numPoints = 15;
+        var NUM_POINTS = 15;
         points = [];
-        for (var i = 0; i < numPoints; i++) {
-            points.push({
-                x: randomGaussian() * 0.05,
-                y: randomGaussian() * 0.05,
-                vx: randomGaussian() * 0.10,
-                vy: randomGaussian() * 0.10,
-            });
-        }
-        prevTime = performance.now();
-        update(prevTime);
+        for (var i = 0; i < NUM_POINTS; i++)
+            points.push(new MovingPoint(randomGaussian() * 0.05, randomGaussian() * 0.05, randomGaussian() * 0.10, randomGaussian() * 0.10));
+        var time = performance.now();
+        update(time, time);
     }
     movingDemo.start = start;
-    function update(time) {
+    function update(prevTime, curTime) {
         showPointsAndHull();
-        if (prevTime === null)
-            throw "Assertion error";
-        var dt = Math.min(time - prevTime, 1000) / 1000;
+        var deltaTime = Math.min(curTime - prevTime, 1000) / 1000;
         var bounds = svgElem.getBoundingClientRect();
         var width = bounds.width / Math.min(bounds.width, bounds.height);
         var height = bounds.height / Math.min(bounds.width, bounds.height);
         for (var i = 0; i < points.length; i++) {
             var p = points[i];
-            if (p.vx === undefined || p.vy === undefined)
-                throw "Assertion error";
-            p.x += p.vx * dt;
-            p.y += p.vy * dt;
-            if (Math.abs(p.x) > width / 2 || Math.abs(p.y) > height / 2) {
-                points[i] = {
-                    x: randomGaussian() * 0.05,
-                    y: randomGaussian() * 0.05,
-                    vx: randomGaussian() * 0.10,
-                    vy: randomGaussian() * 0.10,
-                };
-            }
+            p.x += p.vx * deltaTime;
+            p.y += p.vy * deltaTime;
+            if (Math.abs(p.x) > width / 2 || Math.abs(p.y) > height / 2)
+                points[i] = new MovingPoint(randomGaussian() * 0.05, randomGaussian() * 0.05, randomGaussian() * 0.10, randomGaussian() * 0.10);
         }
-        prevTime = time;
-        timeout = requestAnimationFrame(update);
+        timeout = requestAnimationFrame(function (nextTime) { return update(curTime, nextTime); });
     }
     function stop() {
-        prevTime = null;
         if (timeout !== null) {
             cancelAnimationFrame(timeout);
             timeout = null;
@@ -179,16 +153,23 @@ var movingDemo;
     movingDemo.stop = stop;
 })(movingDemo || (movingDemo = {}));
 function showPointsAndHull() {
+    var onHullGroupElem = svgElem.querySelectorAll("g")[1];
+    var offHullGroupElem = svgElem.querySelectorAll("g")[0];
     while (offHullGroupElem.firstChild !== null)
         offHullGroupElem.removeChild(offHullGroupElem.firstChild);
     while (onHullGroupElem.firstChild !== null)
         onHullGroupElem.removeChild(onHullGroupElem.firstChild);
     var hull = convexhull.makeHull(points);
+    var hullSet = new Set();
+    for (var _i = 0, hull_1 = hull; _i < hull_1.length; _i++) {
+        var point = hull_1[_i];
+        hullSet.add(point);
+    }
     var s = hull.map(function (point, i) { return "" + (i == 0 ? "M" : "L") + point.x + "," + point.y; }).join("") + "Z";
+    var pathElem = svgElem.querySelector("path");
     pathElem.setAttribute("d", s);
-    var hullSet = new Set(hull);
-    for (var _i = 0, points_1 = points; _i < points_1.length; _i++) {
-        var point = points_1[_i];
+    for (var _a = 0, points_1 = points; _a < points_1.length; _a++) {
+        var point = points_1[_a];
         var circElem = document.createElementNS(svgElem.namespaceURI, "circle");
         circElem.setAttribute("cx", point.x.toString());
         circElem.setAttribute("cy", point.y.toString());
@@ -202,6 +183,14 @@ function showPointsAndHull() {
 function randomGaussian() {
     return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(Math.random() * Math.PI * 2);
 }
+var MovingPoint = /** @class */ (function () {
+    function MovingPoint(x, y, vx, vy) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+    }
+    return MovingPoint;
+}());
 if (!("hypot" in Math)) // Polyfill
     Math.hypot = function (x, y) { return Math.sqrt(x * x + y * y); };
-window.addEventListener("DOMContentLoaded", initialize);

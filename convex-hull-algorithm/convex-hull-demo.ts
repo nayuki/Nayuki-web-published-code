@@ -20,20 +20,15 @@
  */
 
 
-// SVG DOM elements
+// DOM elements
 let svgElem = document.querySelector("article svg") as HTMLElement;
-let pathElem = svgElem.querySelector("path") as Element;
-let onHullGroupElem : Element = svgElem.querySelectorAll("g")[1];
-let offHullGroupElem: Element = svgElem.querySelectorAll("g")[0];
-
-// Radio button elements
 let staticRadio = document.getElementById("random-static"  ) as HTMLInputElement;
 let movingRadio = document.getElementById("random-moving"  ) as HTMLInputElement;
 let manualRadio = document.getElementById("manual-position") as HTMLInputElement;
 
 // Constants and mutable state
 const POINT_RADIUS: number = 0.012;
-let points: Array<{x:number,y:number,vx?:number,vy?:number}> = [];
+let points: Array<MovingPoint> = [];
 let draggingPointIndex: number = -1;
 
 
@@ -70,9 +65,9 @@ function initialize(): void {
 					draggingPointIndex = nearestIndex;
 				else {
 					draggingPointIndex = points.length;
-					points.push({x: NaN, y: NaN});
+					points.push(new MovingPoint(NaN, NaN, NaN, NaN));
 				}
-				points[draggingPointIndex] = {x: evX, y: evY};
+				points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
 			} else if (ev.button == 2) {
 				if (nearestIndex != -1 && nearestDist < POINT_RADIUS * 1.5)
 					points.splice(nearestIndex, 1);
@@ -90,7 +85,7 @@ function initialize(): void {
 		} else if (type == "move" || type == "up") {
 			if (draggingPointIndex == -1)
 				return;
-			points[draggingPointIndex] = {x: evX, y: evY};
+			points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
 			if (type == "up")
 				draggingPointIndex = -1;
 		} else
@@ -98,6 +93,8 @@ function initialize(): void {
 		showPointsAndHull();
 	}
 }
+
+window.addEventListener("DOMContentLoaded", initialize);
 
 
 function handleRadioButtons(): void {
@@ -114,16 +111,12 @@ namespace staticDemo {
 	let timeout: number|null = null;
 	
 	export function start(): void {
-		const numPoints: number = Math.round(Math.pow(30, Math.random()) * 3);
+		const NUM_POINTS: number = Math.round(Math.pow(30, Math.random()) * 3);
 		points = [];
-		for (let i = 0; i < numPoints; i++) {
-			points.push({
-				x: randomGaussian() * 0.17,
-				y: randomGaussian() * 0.17,
-			});
-		}
+		for (let i = 0; i < NUM_POINTS; i++)
+			points.push(new MovingPoint(randomGaussian() * 0.17, randomGaussian() * 0.17, 0, 0));
 		showPointsAndHull();
-		timeout = window.setTimeout(staticDemo.start, 3000);
+		timeout = window.setTimeout(start, 3000);
 	}
 	
 	export function stop(): void {
@@ -136,53 +129,34 @@ namespace staticDemo {
 
 
 namespace movingDemo {
-	let prevTime: number|null = null;
 	let timeout: number|null = null;
 	
 	export function start(): void {
-		const numPoints: number = 15;
+		const NUM_POINTS: number = 15;
 		points = [];
-		for (let i = 0; i < numPoints; i++) {
-			points.push({
-				x: randomGaussian() * 0.05,
-				y: randomGaussian() * 0.05,
-				vx: randomGaussian() * 0.10,
-				vy: randomGaussian() * 0.10,
-			});
-		}
-		prevTime = performance.now();
-		update(prevTime);
+		for (let i = 0; i < NUM_POINTS; i++)
+			points.push(new MovingPoint(randomGaussian() * 0.05, randomGaussian() * 0.05, randomGaussian() * 0.10, randomGaussian() * 0.10));
+		const time: number = performance.now();
+		update(time, time);
 	}
 	
-	function update(time: number): void {
+	function update(prevTime: number, curTime: number): void {
 		showPointsAndHull();
-		if (prevTime === null)
-			throw "Assertion error";
-		const dt: number = Math.min(time - prevTime, 1000) / 1000;
+		const deltaTime: number = Math.min(curTime - prevTime, 1000) / 1000;
 		const bounds: DOMRect = svgElem.getBoundingClientRect()
 		const width : number = bounds.width  / Math.min(bounds.width, bounds.height);
 		const height: number = bounds.height / Math.min(bounds.width, bounds.height);
 		for (let i = 0; i < points.length; i++) {
-			const p = points[i];
-			if (p.vx === undefined || p.vy === undefined)
-				throw "Assertion error";
-			p.x += p.vx * dt;
-			p.y += p.vy * dt;
-			if (Math.abs(p.x) > width / 2 || Math.abs(p.y) > height / 2) {
-				points[i] = {
-					x: randomGaussian() * 0.05,
-					y: randomGaussian() * 0.05,
-					vx: randomGaussian() * 0.10,
-					vy: randomGaussian() * 0.10,
-				};
-			}
+			let p: MovingPoint = points[i];
+			p.x += p.vx * deltaTime;
+			p.y += p.vy * deltaTime;
+			if (Math.abs(p.x) > width / 2 || Math.abs(p.y) > height / 2)
+				points[i] = new MovingPoint(randomGaussian() * 0.05, randomGaussian() * 0.05, randomGaussian() * 0.10, randomGaussian() * 0.10);
 		}
-		prevTime = time;
-		timeout = requestAnimationFrame(update);
+		timeout = requestAnimationFrame(nextTime => update(curTime, nextTime));
 	}
 	
 	export function stop(): void {
-		prevTime = null;
 		if (timeout !== null) {
 			cancelAnimationFrame(timeout);
 			timeout = null;
@@ -192,16 +166,22 @@ namespace movingDemo {
 
 
 function showPointsAndHull(): void {
+	let onHullGroupElem : Element = svgElem.querySelectorAll("g")[1];
+	let offHullGroupElem: Element = svgElem.querySelectorAll("g")[0];
 	while (offHullGroupElem.firstChild !== null)
 		offHullGroupElem.removeChild(offHullGroupElem.firstChild);
 	while (onHullGroupElem.firstChild !== null)
 		onHullGroupElem.removeChild(onHullGroupElem.firstChild);
 	
-	let hull: Array<Point> = convexhull.makeHull(points as Array<Point>);
+	const hull: Array<MovingPoint> = convexhull.makeHull(points);
+	let hullSet = new Set<MovingPoint>();
+	for (const point of hull)
+		hullSet.add(point);
+	
 	const s: string = hull.map((point, i) => `${i==0?"M":"L"}${point.x},${point.y}`).join("") + "Z";
+	let pathElem = svgElem.querySelector("path") as Element;
 	pathElem.setAttribute("d", s);
 	
-	let hullSet = new Set<Point>(hull);
 	for (const point of points) {
 		let circElem: Element = document.createElementNS(svgElem.namespaceURI, "circle");
 		circElem.setAttribute("cx", point.x.toString());
@@ -220,8 +200,14 @@ function randomGaussian(): number {
 }
 
 
+class MovingPoint implements Point {
+	public constructor(
+		public x: number,
+		public y: number,
+		public vx: number,
+		public vy: number) {}
+}
+
+
 if (!("hypot" in Math))  // Polyfill
 	Math.hypot = (x: number, y: number) => Math.sqrt(x * x + y * y);
-
-
-window.addEventListener("DOMContentLoaded", initialize);

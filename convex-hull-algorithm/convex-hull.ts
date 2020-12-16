@@ -31,15 +31,15 @@ namespace convexhull {
 	// Returns a new array of points representing the convex hull of
 	// the given set of points. The convex hull excludes collinear points.
 	// This algorithm runs in O(n log n) time.
-	export function makeHull(points: Array<Point>): Array<Point> {
-		let newPoints = points.slice();
+	export function makeHull<P extends Point>(points: Array<P>): Array<P> {
+		let newPoints: Array<P> = points.slice();
 		newPoints.sort(convexhull.POINT_COMPARATOR);
 		return convexhull.makeHullPresorted(newPoints);
 	}
 	
 	
 	// Returns the convex hull, assuming that each points[i] <= points[i + 1]. Runs in O(n) time.
-	export function makeHullPresorted(points: Array<Point>): Array<Point> {
+	export function makeHullPresorted<P extends Point>(points: Array<P>): Array<P> {
 		if (points.length <= 1)
 			return points.slice();
 		
@@ -47,12 +47,12 @@ namespace convexhull {
 		// as per the mathematical convention, instead of "down" as per the computer
 		// graphics convention. This doesn't affect the correctness of the result.
 		
-		let upperHull: Array<Point> = [];
+		let upperHull: Array<P> = [];
 		for (let i = 0; i < points.length; i++) {
-			const p: Point = points[i];
+			const p: P = points[i];
 			while (upperHull.length >= 2) {
-				const q: Point = upperHull[upperHull.length - 1];
-				const r: Point = upperHull[upperHull.length - 2];
+				const q: P = upperHull[upperHull.length - 1];
+				const r: P = upperHull[upperHull.length - 2];
 				if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					upperHull.pop();
 				else
@@ -62,12 +62,12 @@ namespace convexhull {
 		}
 		upperHull.pop();
 		
-		let lowerHull: Array<Point> = [];
+		let lowerHull: Array<P> = [];
 		for (let i = points.length - 1; i >= 0; i--) {
-			const p: Point = points[i];
+			const p: P = points[i];
 			while (lowerHull.length >= 2) {
-				const q: Point = lowerHull[lowerHull.length - 1];
-				const r: Point = lowerHull[lowerHull.length - 2];
+				const q: P = lowerHull[lowerHull.length - 1];
+				const r: P = lowerHull[lowerHull.length - 2];
 				if ((q.x - r.x) * (p.y - r.y) >= (q.y - r.y) * (p.x - r.x))
 					lowerHull.pop();
 				else

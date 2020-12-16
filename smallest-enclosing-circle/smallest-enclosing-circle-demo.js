@@ -19,12 +19,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 "use strict";
-// SVG DOM elements
+// DOM elements
 var svgElem = document.querySelector("article svg");
-var circleElem = svgElem.querySelector("circle");
-var offCircleGroupElem = svgElem.querySelectorAll("g")[0];
-var onCircleGroupElem = svgElem.querySelectorAll("g")[1];
-// Radio button elements
 var staticRadio = document.getElementById("random-static");
 var movingRadio = document.getElementById("random-moving");
 var manualRadio = document.getElementById("manual-position");
@@ -61,9 +57,9 @@ function initialize() {
                     draggingPointIndex = nearestIndex_1;
                 else {
                     draggingPointIndex = points.length;
-                    points.push({ x: NaN, y: NaN });
+                    points.push(new MovingPoint(NaN, NaN, NaN, NaN));
                 }
-                points[draggingPointIndex] = { x: evX, y: evY };
+                points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
             }
             else if (ev.button == 2) {
                 if (nearestIndex_1 != -1 && nearestDist_1 < POINT_RADIUS * 1.5)
@@ -83,7 +79,7 @@ function initialize() {
         else if (type == "move" || type == "up") {
             if (draggingPointIndex == -1)
                 return;
-            points[draggingPointIndex] = { x: evX, y: evY };
+            points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
             if (type == "up")
                 draggingPointIndex = -1;
         }
@@ -92,6 +88,7 @@ function initialize() {
         showPointsAndCircle();
     }
 }
+window.addEventListener("DOMContentLoaded", initialize);
 function handleRadioButtons() {
     staticDemo.stop();
     movingDemo.stop();
@@ -104,16 +101,12 @@ var staticDemo;
 (function (staticDemo) {
     var timeout = null;
     function start() {
-        var numPoints = Math.round(Math.pow(40, Math.random()) * 2);
+        var NUM_POINTS = Math.round(Math.pow(40, Math.random()) * 2);
         points = [];
-        for (var i = 0; i < numPoints; i++) {
-            points.push({
-                x: randomGaussian() * 0.14,
-                y: randomGaussian() * 0.14,
-            });
-        }
+        for (var i = 0; i < NUM_POINTS; i++)
+            points.push(new MovingPoint(randomGaussian() * 0.14, randomGaussian() * 0.14, 0, 0));
         showPointsAndCircle();
-        timeout = window.setTimeout(staticDemo.start, 3000);
+        timeout = window.setTimeout(start, 3000);
     }
     staticDemo.start = start;
     function stop() {
@@ -126,51 +119,32 @@ var staticDemo;
 })(staticDemo || (staticDemo = {}));
 var movingDemo;
 (function (movingDemo) {
-    var prevTime = null;
     var timeout = null;
     function start() {
-        var numPoints = 15;
+        var NUM_POINTS = 15;
         points = [];
-        for (var i = 0; i < numPoints; i++) {
-            points.push({
-                x: randomGaussian() * 0.10,
-                y: randomGaussian() * 0.10,
-                vx: randomGaussian() * 0.04,
-                vy: randomGaussian() * 0.04,
-            });
-        }
-        prevTime = performance.now();
-        update(prevTime);
+        for (var i = 0; i < NUM_POINTS; i++)
+            points.push(new MovingPoint(randomGaussian() * 0.10, randomGaussian() * 0.10, randomGaussian() * 0.04, randomGaussian() * 0.04));
+        var time = performance.now();
+        update(time, time);
     }
     movingDemo.start = start;
-    function update(time) {
+    function update(prevTime, curTime) {
         showPointsAndCircle();
-        if (prevTime === null)
-            throw "Assertion error";
-        var dt = Math.min(time - prevTime, 1000) / 1000;
+        var deltaTime = Math.min(curTime - prevTime, 1000) / 1000;
         var bounds = svgElem.getBoundingClientRect();
         var width = bounds.width / Math.min(bounds.width, bounds.height);
         var height = bounds.height / Math.min(bounds.width, bounds.height);
         for (var i = 0; i < points.length; i++) {
             var p = points[i];
-            if (p.vx === undefined || p.vy === undefined)
-                throw "Assertion error";
-            p.x += p.vx * dt;
-            p.y += p.vy * dt;
-            if (Math.hypot(p.x, p.y) > 0.5) {
-                points[i] = {
-                    x: randomGaussian() * 0.10,
-                    y: randomGaussian() * 0.10,
-                    vx: randomGaussian() * 0.04,
-                    vy: randomGaussian() * 0.04,
-                };
-            }
+            p.x += p.vx * deltaTime;
+            p.y += p.vy * deltaTime;
+            if (Math.hypot(p.x, p.y) > 0.5)
+                points[i] = new MovingPoint(randomGaussian() * 0.10, randomGaussian() * 0.10, randomGaussian() * 0.04, randomGaussian() * 0.04);
         }
-        prevTime = time;
-        timeout = requestAnimationFrame(update);
+        timeout = requestAnimationFrame(function (nextTime) { return update(curTime, nextTime); });
     }
     function stop() {
-        prevTime = null;
         if (timeout !== null) {
             cancelAnimationFrame(timeout);
             timeout = null;
@@ -179,11 +153,14 @@ var movingDemo;
     movingDemo.stop = stop;
 })(movingDemo || (movingDemo = {}));
 function showPointsAndCircle() {
+    var offCircleGroupElem = svgElem.querySelectorAll("g")[0];
+    var onCircleGroupElem = svgElem.querySelectorAll("g")[1];
     while (offCircleGroupElem.firstChild !== null)
         offCircleGroupElem.removeChild(offCircleGroupElem.firstChild);
     while (onCircleGroupElem.firstChild !== null)
         onCircleGroupElem.removeChild(onCircleGroupElem.firstChild);
     var circle = makeCircle(points);
+    var circleElem = svgElem.querySelector("circle");
     if (circle === null) {
         circleElem.setAttribute("r", "0");
         return;
@@ -207,4 +184,12 @@ function showPointsAndCircle() {
 function randomGaussian() {
     return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(Math.random() * Math.PI * 2);
 }
-window.addEventListener("DOMContentLoaded", initialize);
+var MovingPoint = /** @class */ (function () {
+    function MovingPoint(x, y, vx, vy) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+    }
+    return MovingPoint;
+}());
