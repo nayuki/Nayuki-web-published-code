@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2020 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,13 +21,35 @@
  *   Software.
  */
 
-#pragma once
+#include <algorithm>
+#include <complex>
+#include <cstddef>
 
-#include <stddef.h>
+using std::complex;
+using std::size_t;
 
 
-void *fft_init(size_t n);
-
-void fft_transform(const void *tables, double real[static 4], double imag[static 4]);
-
-void fft_destroy(void *tables);
+extern "C" void Fft_transformImpl(size_t n, const size_t *bitReversal, const double *rawExpTable, double *rawVec) {
+	const complex<double> *expTable = reinterpret_cast<const complex<double>*>(rawExpTable + (n - 8));
+	complex<double> *vec = reinterpret_cast<complex<double>*>(rawVec);
+	
+	for (size_t i = 0; i < n; i++) {
+		size_t j = bitReversal[i];
+		if (j > i)
+			std::swap(vec[i], vec[j]);
+	}
+	
+	for (size_t size = 2; ; size *= 2) {
+		size_t halfSize = size / 2;
+		size_t tableStep = n / size;
+		for (size_t i = 0; i < n; i += size) {
+			for (size_t j = i, k = 0; j < i + halfSize; j++, k += tableStep) {
+				complex<double> temp = vec[j + halfSize] * expTable[k];
+				vec[j + halfSize] = vec[j] - temp;
+				vec[j] += temp;
+			}
+		}
+		if (size == n)
+			break;
+	}
+}

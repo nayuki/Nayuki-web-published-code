@@ -16,13 +16,13 @@
  *     (Prints to standard output)
  * 
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/notepadcrypt-format-decryptor-java
  * 
  * NotepadCrypt resources:
- * - http://www.andromeda.com/people/ddyer/notepad/NotepadCrypt.html
- * - http://www.andromeda.com/people/ddyer/notepad/NotepadCrypt-technotes.html
+ * - https://www.real-me.net/ddyer/notepad/NotepadCrypt.html
+ * - https://www.real-me.net/ddyer/notepad/NotepadCrypt-technotes.html
  */
 
 import java.io.File;
