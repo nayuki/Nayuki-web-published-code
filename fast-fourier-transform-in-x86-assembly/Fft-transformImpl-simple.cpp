@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,7 +30,7 @@ using std::size_t;
 
 
 extern "C" void Fft_transformImpl(size_t n, const size_t *bitReversal, const double *rawExpTable, double *rawVec) {
-	const complex<double> *expTable = reinterpret_cast<const complex<double>*>(rawExpTable + (n - 8));
+	const complex<double> *expTable = reinterpret_cast<const complex<double>*>(&rawExpTable[n - 8]);
 	complex<double> *vec = reinterpret_cast<complex<double>*>(rawVec);
 	
 	for (size_t i = 0; i < n; i++) {
