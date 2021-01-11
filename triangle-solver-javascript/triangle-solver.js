@@ -1,7 +1,7 @@
 /* 
  * Triangle solver
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/triangle-solver-javascript
  */
@@ -10,7 +10,7 @@
 
 
 // The main function, which handles the HTML input/output for solving a triangle.
-function solve() {
+function doSolve() {
 	function doOutput(nodeId, val, suffix) {
 		if (typeof val == "object" && val.length == 2) {  // Array
 			setElementText(nodeId, formatNumber(val[0]) + suffix);
@@ -50,7 +50,7 @@ function solve() {
 			document.getElementById("formtable").classList.add("onesoln");
 		
 	} catch (e) {
-		clearOutputs();
+		doClearOutputs();
 		setElementText("status", e);
 	}
 }
@@ -213,7 +213,7 @@ function getInputNumber(elemId) {
 }
 
 
-function clearOutputs() {
+function doClearOutputs() {
 	solution = null;
 	document.getElementById("formtable").classList.add("onesoln");
 	ioNames.forEach(function(name) {

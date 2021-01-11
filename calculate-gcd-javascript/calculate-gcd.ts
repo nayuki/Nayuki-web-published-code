@@ -1,7 +1,7 @@
 /* 
  * GCD calculator
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-gcd-javascript
  */
@@ -9,26 +9,18 @@
 
 namespace app {
 	
-	/*---- Preamble definitions ----*/
-	
-	function inputElem(id: string): HTMLInputElement {
-		const result = document.getElementById(id);
-		if (result instanceof HTMLInputElement)
-			return result;
-		throw "Assertion error";
-	}
-	
-	const outputElem = inputElem("output");
-	
-	
-	
 	/*---- Entry points from HTML page ----*/
 	
+	let inputXElem = document.querySelector("#numberX") as HTMLInputElement;
+	let inputYElem = document.querySelector("#numberY") as HTMLInputElement;
+	
+	
 	export function doCalculate(): void {
-		const xStr: string = inputElem("numberX").value;
-		const yStr: string = inputElem("numberY").value;
+		let outputElem = document.querySelector("#output") as HTMLElement;
+		const xStr: string = inputXElem.value;
+		const yStr: string = inputYElem.value;
 		if (xStr == "" || yStr == "") {
-			outputElem.value = "";
+			outputElem.textContent = "";
 			return;
 		}
 		let xInt: Uint;
@@ -37,22 +29,22 @@ namespace app {
 			xInt = new Uint(xStr);
 			yInt = new Uint(yStr);
 		} catch (e) {
-			outputElem.value = "Not an integer";
+			outputElem.textContent = "Not zero or positive integer";
 			return;
 		}
 		try {
-			outputElem.value = xInt.gcd(yInt).toString();
+			outputElem.textContent = xInt.gcd(yInt).toString();
 		} catch (e) {
-			outputElem.value = "Assertion error";
+			outputElem.textContent = "Assertion error";
 		}
 	}
 	
 	
-	let randomClicked: number = 0;
+	let numRandomClicked: number = 0;
 	
 	export function doRandom(): void {
-		randomClicked++;
-		const limit: number = randomClicked / 10;
+		numRandomClicked++;
+		const limit: number = numRandomClicked / 10;
 		const len: number = Math.floor(Math.random() * limit) + 1;
 		function genRandom(): string {
 			let result: string = "";
@@ -60,8 +52,8 @@ namespace app {
 				result += Math.floor(Math.random() * 10);
 			return result.replace(/^0+(.)/g, "$1");
 		}
-		inputElem("numberX").value = genRandom();
-		inputElem("numberY").value = genRandom();
+		inputXElem.value = genRandom();
+		inputYElem.value = genRandom();
 		doCalculate();
 	}
 	

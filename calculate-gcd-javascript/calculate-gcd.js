@@ -1,27 +1,22 @@
 /*
  * GCD calculator (compiled from TypeScript)
  *
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-gcd-javascript
  */
 "use strict";
 var app;
 (function (app) {
-    /*---- Preamble definitions ----*/
-    function inputElem(id) {
-        var result = document.getElementById(id);
-        if (result instanceof HTMLInputElement)
-            return result;
-        throw "Assertion error";
-    }
-    var outputElem = inputElem("output");
     /*---- Entry points from HTML page ----*/
+    var inputXElem = document.querySelector("#numberX");
+    var inputYElem = document.querySelector("#numberY");
     function doCalculate() {
-        var xStr = inputElem("numberX").value;
-        var yStr = inputElem("numberY").value;
+        var outputElem = document.querySelector("#output");
+        var xStr = inputXElem.value;
+        var yStr = inputYElem.value;
         if (xStr == "" || yStr == "") {
-            outputElem.value = "";
+            outputElem.textContent = "";
             return;
         }
         var xInt;
@@ -31,21 +26,21 @@ var app;
             yInt = new Uint(yStr);
         }
         catch (e) {
-            outputElem.value = "Not an integer";
+            outputElem.textContent = "Not zero or positive integer";
             return;
         }
         try {
-            outputElem.value = xInt.gcd(yInt).toString();
+            outputElem.textContent = xInt.gcd(yInt).toString();
         }
         catch (e) {
-            outputElem.value = "Assertion error";
+            outputElem.textContent = "Assertion error";
         }
     }
     app.doCalculate = doCalculate;
-    var randomClicked = 0;
+    var numRandomClicked = 0;
     function doRandom() {
-        randomClicked++;
-        var limit = randomClicked / 10;
+        numRandomClicked++;
+        var limit = numRandomClicked / 10;
         var len = Math.floor(Math.random() * limit) + 1;
         function genRandom() {
             var result = "";
@@ -53,8 +48,8 @@ var app;
                 result += Math.floor(Math.random() * 10);
             return result.replace(/^0+(.)/g, "$1");
         }
-        inputElem("numberX").value = genRandom();
-        inputElem("numberY").value = genRandom();
+        inputXElem.value = genRandom();
+        inputYElem.value = genRandom();
         doCalculate();
     }
     app.doRandom = doRandom;

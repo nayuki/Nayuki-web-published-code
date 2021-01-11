@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Triangle solver (JavaScript)</title>
-		<!-- Copyright (c) 2020 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
+		<!-- Copyright (c) 2021 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
 		<style type="text/css">
 		html {
 			background-color: #FFFFFF;
@@ -57,7 +57,8 @@
 			border: none;
 			border-top: 0.1em solid #808080;
 		}
-		input {
+		input, button {
+			font-family: inherit;
 			font-size: inherit;
 		}
 		var {
@@ -74,10 +75,6 @@
 		#footer a:hover {
 			text-decoration: underline;
 		}
-		.onesoln td:nth-child(4),
-		.onesoln th:nth-child(4) span {
-			display: none;
-		}
 		.letterhover {
 			display: block;
 			position: absolute;
@@ -87,6 +84,13 @@
 			background-color: #808080;
 			opacity: 0.25;
 			filter: alpha(opacity=25);
+		}
+		.onesoln td:nth-child(4),
+		.onesoln th:nth-child(4) span {
+			display: none;
+		}
+		input[type=number] {
+			width: 8em;
 		}
 		</style>
 	</head>
@@ -102,8 +106,8 @@
 			<div id="hoveroutput" style="display:none; position:absolute; padding:0.5em; background-color:#FFFFFF; border:1px solid #A0A0A0; border-radius:3px"></div>
 		</div>
 		
-		<form action="#" method="get" onsubmit="solve(); return false">
-			<table class="noborder onesoln" id="formtable" style="display:table; margin-left:auto; margin-right:auto">
+		<form onsubmit="event.preventDefault(); doSolve();" onreset="doClearOutputs();">
+			<table class="onesoln" id="formtable" style="margin-left:auto; margin-right:auto">
 				<thead>
 					<tr>
 						<th>Variable</th>
@@ -115,37 +119,37 @@
 				<tbody>
 					<tr>
 						<td><label for="sideAin">Side <var>a</var> (units):</label></td>
-						<td><input type="number" id="sideAin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td><input type="number" id="sideAin" min="0" step="any" autocomplete="off" oninput="doSolve();"/></td>
 						<td id="sideAout"></td>
 						<td id="sideAout2"></td>
 					</tr>
 					<tr>
 						<td><label for="sideBin">Side <var>b</var> (units):</label></td>
-						<td><input type="number" id="sideBin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td><input type="number" id="sideBin" min="0" step="any" autocomplete="off" oninput="doSolve();"/></td>
 						<td id="sideBout"></td>
 						<td id="sideBout2"></td>
 					</tr>
 					<tr>
 						<td><label for="sideCin">Side <var>c</var> (units):</label></td>
-						<td><input type="number" id="sideCin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td><input type="number" id="sideCin" min="0" step="any" autocomplete="off" oninput="doSolve();"/></td>
 						<td id="sideCout"></td>
 						<td id="sideCout2"></td>
 					</tr>
 					<tr>
 						<td><label for="angleAin">Angle <var>A</var> (degrees):</label></td>
-						<td><input type="number" id="angleAin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td><input type="number" id="angleAin" min="0" step="any" autocomplete="off" oninput="doSolve();"/></td>
 						<td id="angleAout"></td>
 						<td id="angleAout2"></td>
 					</tr>
 					<tr>
 						<td><label for="angleBin">Angle <var>B</var> (degrees):</label></td>
-						<td><input type="number" id="angleBin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td><input type="number" id="angleBin" min="0" step="any" autocomplete="off" oninput="doSolve();"/></td>
 						<td id="angleBout"></td>
 						<td id="angleBout2"></td>
 					</tr>
 					<tr>
 						<td><label for="angleCin">Angle <var>C</var> (degrees):</label></td>
-						<td><input type="number" id="angleCin" autocomplete="off" step="any" style="width:8em" oninput="solve()"/></td>
+						<td><input type="number" id="angleCin" min="0" step="any" autocomplete="off" oninput="doSolve();"/></td>
 						<td id="angleCout"></td>
 						<td id="angleCout2"></td>
 					</tr>
@@ -161,7 +165,10 @@
 					</tr>
 					<tr>
 						<td></td>
-						<td colspan="3"><input value="Solve" type="submit"/> <input value="Clear" type="reset" onclick="clearOutputs()"/></td>
+						<td colspan="3">
+							<button type="submit">Solve</button>
+							<button type="reset">Clear</button>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -187,7 +194,7 @@
 			<li><a href="http://en.wikipedia.org/wiki/Law_of_sines">Wikipedia: Law of sines</a></li>
 		</ul>
 		<hr>
-		<p id="footer">Copyright © 2020 Project Nayuki – <a href="https://www.nayuki.io/page/triangle-solver-javascript">https://www.nayuki.io/page/triangle-solver-javascript</a></p>
+		<p id="footer">Copyright © 2021 Project Nayuki – <a href="https://www.nayuki.io/page/triangle-solver-javascript">https://www.nayuki.io/page/triangle-solver-javascript</a></p>
 		
 		
 		<script>
@@ -195,7 +202,7 @@
 			
 			
 			// The main function, which handles the HTML input/output for solving a triangle.
-			function solve() {
+			function doSolve() {
 				function doOutput(nodeId, val, suffix) {
 					if (and(typeof val == "object", val.length == 2)) {  // Array
 						setElementText(nodeId, formatNumber(val[0]) + suffix);
@@ -235,7 +242,7 @@
 						document.getElementById("formtable").classList.add("onesoln");
 					
 				} catch (e) {
-					clearOutputs();
+					doClearOutputs();
 					setElementText("status", e);
 				}
 			}
@@ -398,7 +405,7 @@
 			}
 			
 			
-			function clearOutputs() {
+			function doClearOutputs() {
 				solution = null;
 				document.getElementById("formtable").classList.add("onesoln");
 				ioNames.forEach(function(name) {
