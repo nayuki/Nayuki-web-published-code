@@ -1,7 +1,7 @@
 /* 
  * Symmetry sketcher
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/symmetry-sketcher-javascript
  */
@@ -328,7 +328,7 @@ doneButtonElem.onclick = function() {
 	}
 };
 
-document.documentElement.onkeypress = function(ev) {
+document.onkeydown = function(ev) {
 	if (!isMouseDown && undoImages.length > 0 && ev.key == "z" && ev.ctrlKey) {
 		undoButtonElem.onclick();
 		return false;

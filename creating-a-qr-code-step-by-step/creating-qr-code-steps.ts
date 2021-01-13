@@ -1,7 +1,7 @@
 /* 
  * Creating a QR Code step by step
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
@@ -158,10 +158,7 @@ namespace app {
 	
 	/*---- Main application ----*/
 	
-	export function doGenerate(ev?: Event): void {
-		if (ev !== undefined)
-			ev.preventDefault();
-		
+	export function doGenerate(): void {
 		// Get input values
 		const textStr: string = (getElem("input-text") as HTMLTextAreaElement).value;
 		const minVer   : int = parseInt(getInput("force-min-version" ).value, 10);

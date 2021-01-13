@@ -1,7 +1,7 @@
 /* 
  * Random password generator (JavaScript)
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/random-password-generator-javascript
  */
@@ -84,9 +84,7 @@ function initCrypto() {
 
 /*---- Entry points from HTML code ----*/
 
-function doGenerate(ev) {
-	ev.preventDefault();
-	
+function doGenerate() {
 	// Get and check character set
 	var charset = getPasswordCharacterSet();
 	if (charset.length == 0) {

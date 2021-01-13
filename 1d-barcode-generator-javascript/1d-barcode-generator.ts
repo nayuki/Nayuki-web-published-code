@@ -1,7 +1,7 @@
 /* 
  * 1D barcode generator
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/1d-barcode-generator-javascript
  */
@@ -12,7 +12,7 @@
 namespace app {
 	
 	// Sets event handler on form inputs.
-	export function initialize(): void {
+	function initialize(): void {
 		let formElem = document.querySelector("article form") as HTMLFormElement;
 		formElem.onsubmit = () => {
 			doGenerate();
@@ -29,6 +29,8 @@ namespace app {
 		
 		doGenerate();
 	}
+	
+	setTimeout(initialize);
 	
 	
 	// The one and only entry point, called by event handlers of HTML elements.
@@ -408,6 +410,3 @@ namespace barcodegen {
 	}
 
 }
-
-
-app.initialize();

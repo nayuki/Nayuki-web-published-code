@@ -1,7 +1,7 @@
 /*
  * Factorize Gaussian integer (compiled from TypeScript)
  *
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
@@ -11,9 +11,7 @@ var app;
     /*
      * Handles the HTML input/output for factoring a Gaussian integer.
      */
-    function doFactor(ev) {
-        if (ev !== null)
-            ev.preventDefault();
+    function doFactor() {
         var outElem = document.getElementById("factorization");
         while (outElem.firstChild !== null)
             outElem.removeChild(outElem.firstChild);
@@ -72,7 +70,7 @@ var app;
             str = real + (imag >= 0 ? " + " : " - ") + Math.abs(imag) + "i";
         }
         document.getElementById("number").value = str;
-        doFactor(null);
+        doFactor();
     }
     app.doRandom = doRandom;
     var GaussianInteger = /** @class */ (function () {

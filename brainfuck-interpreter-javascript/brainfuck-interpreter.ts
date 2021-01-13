@@ -9,330 +9,429 @@
 
 namespace app {
 	
+	/*---- Mostly HTML input/output elements ----*/
+	
 	type int = number;
 	
+	let inputsElem = queryHtml("#inputs");
+	let inputCodeElem = queryElem("#input-code", HTMLTextAreaElement);
+	let inputTextElem = queryElem("#input-text", HTMLTextAreaElement);
+	let outputsElem   = queryHtml("#outputs");
+	let outputTextPre = queryHtml("#output-text pre");
+	let stepButton    = queryElem("#execute-step" , HTMLButtonElement);
+	let runButton     = queryElem("#execute-run"  , HTMLButtonElement);
+	let pauseButton   = queryElem("#execute-pause", HTMLButtonElement);
+	
 	let instance: Brainfuck|null = null;
-	let stepButton  = document.getElementById("step" ) as HTMLButtonElement;
-	let runButton   = document.getElementById("run"  ) as HTMLButtonElement;
-	let pauseButton = document.getElementById("pause") as HTMLButtonElement;
 	
 	
 	
-	/*---- Entry points from the HTML code ----*/
+	/*---- Entry points ----*/
 	
-	export function doLoad(): void {
+	export function doDemo(code: string): void {
+		doEditCodeInput();
+		inputCodeElem.value = code;
+		queryHtml("h2#program").scrollIntoView({behavior:"smooth"});
+	}
+	
+	
+	export function doExecute(): void {
+		doEditCodeInput();
+		try {
+			instance = new Brainfuck(inputCodeElem.value, inputTextElem.value);
+		} catch (e) {
+			alert("Error: " + e);
+		}
+		inputsElem.style.display = "none";
+		outputsElem.style.removeProperty("display");
+		stepButton.focus();
+	}
+	
+	
+	export function doEditCodeInput(): void {
 		if (instance !== null) {
 			instance.pause();
 			instance = null;
 		}
-		try {
-			instance = new Brainfuck((document.getElementById("code") as HTMLInputElement).value);
-		} catch (e) {
-			alert(e);
-			return;
-		}
-	}
-	
-	
-	export function doDemo(s: string): void {
-		(document.getElementById("code") as HTMLTextAreaElement).value = s;
-		doLoad();
-	}
-	
-	
-	export function doStep(): void {
-		if (instance !== null)
-			instance.step();
-	}
-	
-	
-	export function doRun(): void {
-		if (instance !== null) {
-			stepButton.disabled = true;
-			runButton.disabled = true;
-			pauseButton.disabled = false;
-			instance.run();
-		}
-	}
-	
-	
-	export function doPause(): void {
-		if (instance !== null) {
-			instance.pause();
-			stepButton.disabled = false;
-			runButton.disabled = false;
-			pauseButton.disabled = true;
-		}
+		outputsElem.style.display = "none";
+		inputsElem.style.removeProperty("display");
 	}
 	
 	
 	
-	/*---- Brainfuck interpreter core ----*/
+	/*---- Visual brainfuck machine ----*/
 	
 	class Brainfuck {
 		
-		// State variables
-		private program: Array<int>;
-		private programCounter: int = 0;
+		private readonly instructions: Array<Instruction> = [];
+		private instructionsText: string = "";
+		private instructionIndex: int = 0;
+		private numExecuted: int = 0;
+		
 		private memory: Array<int> = [];
 		private memoryIndex: int = 0;
-		private input: string = (document.getElementById("input") as HTMLTextAreaElement).value;
+		private memoryViewIndex: int = 0;
+		
+		private readonly inputText: string;
 		private inputIndex: int = 0;
-		private output: string = "";
-		private outputChanged: boolean = false;
 		
-		private steps: int = 0;
-		private lastStepsUpdate: number|null = null;
-		private timeout: int|null = null;
-		private minMemoryWrite: int;  // Inclusive
-		private maxMemoryWrite: int;  // Inclusive
+		private runTimeout: int = -1;
+		private runIterations: int = 1;
+		
+		private static MEMORY_VIEW_WINDOW: int = 30;
+		private static TARGET_RUN_TIME: number = 50;  // Milliseconds
 		
 		
-		public constructor(code: string) {
-			this.program = compile(code);
-			this.minMemoryWrite = this.memoryIndex;
-			this.maxMemoryWrite = this.memoryIndex;
-			this.showState();
-			stepButton.disabled = this.isHalted();
-			runButton.disabled = this.isHalted();
-			pauseButton.disabled = true;
-		}
-		
-		
-		// Public controls
-		
-		public run(): void {
-			if (!this.isHalted() && this.timeout === null)
-				this.runInternal(1);
-		}
-		
-		public step(): void {
-			if (!this.isHalted() && this.timeout === null) {
-				this.stepInternal();
-				this.showState();
-				if (this.isHalted()) {
-					stepButton.disabled = true;
-					runButton.disabled = true;
+		public constructor(code: string, text: string) {
+			// Parse/compile the code
+			let openBracketIndexes: Array<int> = [];
+			for (let i = 0; i < code.length; i++) {
+				let inst: Instruction;
+				switch (code.charAt(i)) {
+					case "<":  inst = LEFT  ;  break;
+					case ">":  inst = RIGHT ;  break;
+					case "-":  inst = MINUS ;  break;
+					case "+":  inst = PLUS  ;  break;
+					case ",":  inst = INPUT ;  break;
+					case ".":  inst = OUTPUT;  break;
+					case "[":
+						inst = new BeginLoop(-1);  // Dummy
+						openBracketIndexes.push(this.instructions.length);
+						break;
+					case "]":
+						const j: int|undefined = openBracketIndexes.pop();
+						if (j === undefined)
+							throw "Mismatched brackets (extra right bracket)";
+						inst = new EndLoop(j + 1);
+						this.instructions[j] = new BeginLoop(this.instructions.length + 1);
+						break;
+					default:
+						continue;
 				}
+				this.instructions.push(inst);
+				this.instructionsText += code.charAt(i);
 			}
+			if (openBracketIndexes.length > 0)
+				throw "Mismatched brackets (extra left bracket)";
+			
+			// Set buttons
+			stepButton.disabled = false;
+			runButton.disabled = false;
+			pauseButton.disabled = true;
+			stepButton.onclick = () => {
+				this.step();
+				this.showState();
+			};
+			runButton.onclick = () => {
+				stepButton.disabled = true;
+				runButton.disabled = true;
+				pauseButton.disabled = false;
+				this.run();
+			};
+			pauseButton.onclick = () => {
+				this.pause();
+			};
+			queryHtml("#output-memory p button:nth-child(1)").onclick = () => {
+				this.memoryViewIndex = Math.max(this.memoryViewIndex - Brainfuck.MEMORY_VIEW_WINDOW, 0);
+				this.showMemoryView();
+			};
+			queryHtml("#output-memory p button:nth-child(2)").onclick = () => {
+				this.memoryViewIndex += Brainfuck.MEMORY_VIEW_WINDOW;
+				this.showMemoryView();
+			};
+			
+			// Set UI elements
+			this.inputText = text;
+			outputTextPre.textContent = "";
+			this.showState();
 		}
+		
 		
 		public pause(): void {
-			if (this.timeout !== null) {
-				window.clearTimeout(this.timeout);
-				this.timeout = null;
-				this.showState();
+			pauseButton.disabled = true;
+			if (this.runTimeout != -1) {
+				window.clearTimeout(this.runTimeout);
+				this.runTimeout = -1;
+				stepButton.disabled = false;
+				runButton.disabled = false;
 			}
 		}
 		
-		
-		// Execution
-		
-		private runInternal(iters: int): void {
-			const startTime: number = Date.now();
-			this.outputChanged = false;
-			
-			for (let i = 0; i < iters && this.stepInternal(); i++);
-			
-			if (this.isHalted()) {
-				this.showState();
-				pauseButton.disabled = true;
-			
-			} else {
-				if (this.outputChanged)
-					this.showOutput();
-				if (this.lastStepsUpdate === null || Date.now() - this.lastStepsUpdate >= 100) {
-					this.showSteps();
-					this.lastStepsUpdate = Date.now();
-				}
-				
-				// Regulate the number of iterations to execute before relinquishing control of the main JavaScript thread
-				const execTime: number = Date.now() - startTime;  // How long this execution took
-				const nextIters: int = Brainfuck.calcNextIters(execTime, iters);
-				this.timeout = window.setTimeout(() => {
-						this.timeout = null;
-						this.runInternal(nextIters);
-					}, 1);
-			}
-		}
-		
-		
-		private stepInternal(): boolean {
-			if (this.isHalted())
-				return false;
-			switch (this.program[this.programCounter]) {
-				case Operation.LEFT:
-					this.memoryIndex--;
-					this.programCounter++;
-					break;
-				case Operation.RIGHT:
-					this.memoryIndex++;
-					this.programCounter++;
-					break;
-				case Operation.PLUS:
-					this.setCell((this.getCell() + 1) & 0xFF);
-					this.programCounter++;
-					break;
-				case Operation.MINUS:
-					this.setCell((this.getCell() - 1) & 0xFF);
-					this.programCounter++;
-					break;
-				case Operation.IN:
-					this.setCell(this.getNextInputByte());
-					this.programCounter++;
-					break;
-				case Operation.OUT:
-					this.output += String.fromCharCode(this.getCell());
-					this.outputChanged = true;
-					this.programCounter++;
-					break;
-				case Operation.LOOP:
-					if (this.getCell() == 0)
-						this.programCounter = this.program[this.programCounter + 1];
-					this.programCounter += 2;
-					break;
-				case Operation.BACK:
-					if (this.getCell() != 0)
-						this.programCounter = this.program[this.programCounter + 1];
-					this.programCounter += 2;
-					break;
-				default:
-					throw "Assertion error";
-			}
-			this.steps++;
-			return !this.isHalted();
-		}
-		
-		
-		// Helper functions
 		
 		private isHalted(): boolean {
-			return this.programCounter == this.program.length;
+			return this.instructionIndex >= this.instructions.length;
 		}
 		
-		private getCell(): int {
-			if (this.memory[this.memoryIndex] === undefined)
-				this.memory[this.memoryIndex] = 0;
-			return this.memory[this.memoryIndex];
+		
+		private step(): void {
+			if (this.isHalted())
+				return;
+			const inst: Instruction = this.instructions[this.instructionIndex];
+			this.instructionIndex++;
+			try {
+				inst.execute(this);
+				this.numExecuted++;
+			} catch (e) {
+				alert("Error: " + e);
+				this.instructionIndex = this.instructions.length;
+			}
 		}
 		
-		private setCell(value: int): void {
-			this.memory[this.memoryIndex] = value;
-			this.minMemoryWrite = Math.min(this.memoryIndex, this.minMemoryWrite);
-			this.maxMemoryWrite = Math.max(this.memoryIndex, this.maxMemoryWrite);
-		}
 		
-		private getNextInputByte(): int {
-			if (this.inputIndex == this.input.length)
-				return 0;
-			else if (this.input.charCodeAt(this.inputIndex) >= 256)
-				throw "Error: Input has character code greater than 255";
+		private run(): void {
+			if (this.runTimeout != -1)
+				throw "Assertion error";
+			const startTime: number = Date.now();
+			for (let i = 0; i < this.runIterations; i++)
+				this.step();
+			const elapsedTime: number = Date.now() - startTime;
+			if (elapsedTime <= 0)
+				this.runIterations *= 2;
 			else
-				return this.input.charCodeAt(this.inputIndex++);
+				this.runIterations *= Brainfuck.TARGET_RUN_TIME / elapsedTime;
+			this.showState();
+			if (!this.isHalted()) {
+				this.runTimeout = window.setTimeout(() => {
+						this.runTimeout = -1;
+						this.run();
+					});
+			}
 		}
 		
 		
-		private static calcNextIters(time: number, iters: int): int {
-			const TARGET_TIME: number = 20;
+		public setInstructionIndex(newIndex: int): void {
+			if (!(0 <= newIndex && newIndex <= this.instructions.length))
+				throw "Invalid instruction index";
+			this.instructionIndex = newIndex;
+		}
+		
+		
+		public addMemoryIndex(delta: int): void {
+			const newIndex = this.memoryIndex + delta
+			if (newIndex < 0)
+				throw "Negative memory index";
+			this.memoryIndex = newIndex;
+		}
+		
+		
+		public addMemoryValue(delta: int): void {
+			while (this.memoryIndex >= this.memory.length)
+				this.memory.push(0);
+			this.memory[this.memoryIndex] = (this.memory[this.memoryIndex] + delta) & 0xFF;
+		}
+		
+		
+		public isMemoryZero(): boolean {
+			return this.memoryIndex >= this.memory.length || this.memory[this.memoryIndex] == 0;
+		}
+		
+		
+		public readInput(): void {
+			while (this.memoryIndex >= this.memory.length)
+				this.memory.push(0);
+			let val: int = 0;
+			if (this.inputIndex < this.inputText.length) {
+				val = this.inputText.charCodeAt(this.inputIndex);
+				if (val > 0xFF)
+					throw "Input has character code greater than 255";
+				this.inputIndex++;
+			}
+			this.memory[this.memoryIndex] = val;
+		}
+		
+		
+		public writeOutput(): void {
+			const val: int = this.memoryIndex < this.memory.length ? this.memory[this.memoryIndex] : 0;
+			outputTextPre.textContent += String.fromCharCode(val);
+		}
+		
+		
+		public showState(): void {
+			queryHtml("#output-instructions p").textContent =
+				`Length = ${addSeparators(this.instructions.length)}; ` +
+				`Index = ${addSeparators(this.instructionIndex)}; ` +
+				`Executed = ${addSeparators(this.numExecuted)}` +
+				(this.isHalted() ? "; Finished" : "");
+			{
+				const left: string = this.instructionsText.substring(0, this.instructionIndex);
+				let outputInstructionsPre = queryHtml("#output-instructions pre");
+				clearChildren(outputInstructionsPre);
+				outputInstructionsPre.textContent = left;
+				if (this.instructionIndex < this.instructions.length) {
+					const mid: string = this.instructionsText.charAt(this.instructionIndex);
+					const right: string = this.instructionsText.substring(this.instructionIndex + 1);
+					appendElem(outputInstructionsPre, "strong", mid);
+					outputInstructionsPre.appendChild(document.createTextNode(right));
+				}
+			}
 			
-			let multiplier: number = time > 0 ? TARGET_TIME / time : 2.0;
-			if (multiplier > 10.0) multiplier = 10.0;
-			else if (multiplier < 0.1) multiplier = 0.1;
+			queryHtml("#output-memory p span").textContent =
+				`Index = ${addSeparators(this.memoryIndex)}`;
+			{
+				const MEMORY_VIEW_STEP: int = Math.floor(Brainfuck.MEMORY_VIEW_WINDOW / 2);
+				while (this.memoryIndex < this.memoryViewIndex && this.memoryViewIndex >= MEMORY_VIEW_STEP)
+					this.memoryViewIndex -= MEMORY_VIEW_STEP;
+				while (this.memoryIndex >= this.memoryViewIndex + Brainfuck.MEMORY_VIEW_WINDOW)
+					this.memoryViewIndex += MEMORY_VIEW_STEP;
+				this.showMemoryView();
+			}
 			
-			let nextIters: int = Math.round(multiplier * iters);
-			if (nextIters < 1) nextIters = 1;
-			return nextIters;
+			queryHtml("#output-input p").textContent =
+				`Length = ${addSeparators(this.inputText.length)}; ` +
+				`Index = ${addSeparators(this.inputIndex)}`;
+			{
+				const left: string = this.inputText.substring(0, this.inputIndex);
+				let outputInputPre = queryHtml("#output-input pre");
+				clearChildren(outputInputPre);
+				outputInputPre.textContent = left;
+				if (this.inputIndex < this.inputText.length) {
+					const mid: string = this.inputText.charAt(this.inputIndex);
+					const right: string = this.inputText.substring(this.inputIndex + 1);
+					appendElem(outputInputPre, "strong", mid);
+					outputInputPre.appendChild(document.createTextNode(right));
+				}
+			}
+			
+			{
+				const outputText: string|null = outputTextPre.textContent;
+				if (outputText === null)
+					throw "Assertion error";
+				queryHtml("#output-text p").textContent = `Length = ${addSeparators(outputText.length)}`;
+			}
+			
+			if (this.isHalted()) {
+				stepButton .disabled = true;
+				runButton  .disabled = true;
+				pauseButton.disabled = true;
+			}
 		}
 		
 		
-		private showState(): void {
-			this.showOutput();
-			this.showMemory();
-			this.showSteps();
-		}
-		
-		private showOutput(): void {
-			(document.getElementById("output") as HTMLTextAreaElement).value = this.output;
-		}
-		
-		private showMemory(): void {
-			let s: string = "Address  Value  Pointer\n";
-			const lower: int = Math.min(this.minMemoryWrite, this.memoryIndex);
-			const upper: int = Math.max(this.maxMemoryWrite, this.memoryIndex);
-			const start: int = Math.max(this.memoryIndex - 1000, lower);
-			const end  : int = Math.min(this.memoryIndex + 1000, upper);
-			if (start != lower)
-				s += "(... more values, but truncated ...)\n";
-			for (let i = start; i <= end; i++)
-				s += padNumber(i, 7) + "  " + padNumber(this.memory[i] !== undefined ? this.memory[i] : 0, 5) + (i == this.memoryIndex ? "  <--" : "") + "\n";
-			if (end != upper)
-				s += "(... more values, but truncated ...)\n";
-			(document.getElementById("memory") as HTMLTextAreaElement).value = s;
-		}
-		
-		private showSteps(): void {
-			(document.getElementById("steps") as HTMLInputElement).value = this.steps.toString();
+		private showMemoryView(): void {
+			let outputMemoryTbody = queryHtml("#output-memory tbody");
+			clearChildren(outputMemoryTbody);
+			for (let i = 0; i < Brainfuck.MEMORY_VIEW_WINDOW; i++) {
+				const index: int = this.memoryViewIndex + i;
+				let tr = appendElem(outputMemoryTbody, "tr");
+				if (index == this.memoryIndex)
+					tr.classList.add("active");
+				appendElem(tr, "td", index.toString());
+				const val: int = index < this.memory.length ? this.memory[index] : 0;
+				appendElem(tr, "td", val.toString());
+			}
 		}
 		
 	}
 	
 	
-	// Given the program string, returns an array of numeric opcodes and jump targets.
-	function compile(str: string): Array<int> {
-		let result: Array<int> = [];
-		let openBracketIndices: Array<int> = [];
-		for (let i = 0; i < str.length; i++) {
-			let op: Operation|null = null;
-			switch (str.charAt(i)) {
-				case '<':  op = Operation.LEFT;   break;
-				case '>':  op = Operation.RIGHT;  break;
-				case '+':  op = Operation.PLUS;   break;
-				case '-':  op = Operation.MINUS;  break;
-				case ',':  op = Operation.IN;     break;
-				case '.':  op = Operation.OUT;    break;
-				case '[':  op = Operation.LOOP;   break;
-				case ']':  op = Operation.BACK;   break;
-			}
-			if (op === null)
-				continue;
-			result.push(op);
-			
-			// Add jump targets
-			if (op === Operation.LOOP) {
-				openBracketIndices.push(result.length - 1);
-				result.push(-1);  // Placeholder
-			} else if (op === Operation.BACK) {
-				const index: int|undefined = openBracketIndices.pop();
-				if (index === undefined)
-					throw "Mismatched brackets (extra right bracket)";
-				result[index + 1] = result.length - 1;
-				result.push(index);
-			}
+	
+	/*---- Brainfuck instruction/operation types ----*/
+	
+	abstract class Instruction {
+		public abstract execute(bf: Brainfuck): void;
+	}
+	
+	
+	const LEFT = new class extends Instruction {
+		public execute(bf: Brainfuck): void {
+			bf.addMemoryIndex(-1);
 		}
-		if (openBracketIndices.length > 0)
-			throw "Mismatched brackets (extra left bracket)";
+	};
+	
+	const RIGHT = new class extends Instruction {
+		public execute(bf: Brainfuck): void {
+			bf.addMemoryIndex(+1);
+		}
+	};
+	
+	const MINUS = new class extends Instruction {
+		public execute(bf: Brainfuck): void {
+			bf.addMemoryValue(-1);
+		}
+	};
+	
+	const PLUS = new class extends Instruction {
+		public execute(bf: Brainfuck): void {
+			bf.addMemoryValue(+1);
+		}
+	};
+	
+	const INPUT = new class extends Instruction {
+		public execute(bf: Brainfuck): void {
+			bf.readInput();
+		}
+	};
+	
+	const OUTPUT = new class extends Instruction {
+		public execute(bf: Brainfuck): void {
+			bf.writeOutput();
+		}
+	};
+	
+	
+	class BeginLoop extends Instruction {
+		public constructor(
+				public readonly exitIndex: int) {
+			super();
+		}
+		public execute(bf: Brainfuck): void {
+			if (bf.isMemoryZero())
+				bf.setInstructionIndex(this.exitIndex);
+		}
+	}
+	
+	
+	class EndLoop extends Instruction {
+		public constructor(
+				public readonly enterIndex: int) {
+			super();
+		}
+		public execute(bf: Brainfuck): void {
+			if (!bf.isMemoryZero())
+				bf.setInstructionIndex(this.enterIndex);
+		}
+	}
+	
+	
+	
+	/*---- Utility functions ----*/
+	
+	function addSeparators(val: int): string {
+		let result: string = val.toString();
+		for (let i = result.length - 3; i > 0; i -= 3)
+			result = result.substring(0, i) + "\u00A0" + result.substring(i);  // Non-breaking space
 		return result;
 	}
 	
 	
-	function padNumber(n: int, width: int): string {
-		let s: string = n.toString();
-		while (s.length < width)
-			s = " " + s;
-		return s;
+	function queryHtml(query: string): HTMLElement {
+		return queryElem(query, HTMLElement);
+	}
+	
+	type Constructor<T> = { new(...args: any[]): T };
+	
+	function queryElem<T>(query: string, type: Constructor<T>): T {
+		let result: Element|null = document.querySelector(query);
+		if (result instanceof type)
+			return result;
+		else if (result === null)
+			throw "Element not found";
+		else
+			throw "Invalid element type";
 	}
 	
 	
+	function clearChildren(elem: Element): void {
+		while (elem.firstChild !== null)
+			elem.removeChild(elem.firstChild);
+	}
 	
-	const enum Operation {
-		LEFT,
-		RIGHT,
-		PLUS,
-		MINUS,
-		IN,
-		OUT,
-		LOOP,
-		BACK,
+	
+	function appendElem(container: Element, tagName: string, text?: string): HTMLElement {
+		let result: HTMLElement = document.createElement(tagName);
+		if (text !== undefined)
+			result.textContent = text;
+		return container.appendChild(result);
 	}
 	
 }

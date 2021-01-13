@@ -1,7 +1,7 @@
 /*
  * 1D barcode generator (compiled from TypeScript)
  *
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/1d-barcode-generator-javascript
  */
@@ -28,7 +28,7 @@ var app;
         }
         doGenerate();
     }
-    app.initialize = initialize;
+    setTimeout(initialize);
     // The one and only entry point, called by event handlers of HTML elements.
     function doGenerate() {
         try {
@@ -392,4 +392,3 @@ var barcodegen;
     }());
     barcodegen.Barcode = Barcode;
 })(barcodegen || (barcodegen = {}));
-app.initialize();
