@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,7 +43,7 @@
  *       16  xmm10     Caller's value of rbx (only low 64 bits are used)
  *       16  xmm11     Caller's value of r12 (only low 64 bits are used)
  */
-# void Fft_transformImpl(size_t n, const size_t *bitReversal, const double *expTable, double *vec)
+# void Fft_transformImpl(uint64_t n, const uint64_t *bitReversal, const double *expTable, double *vec)
 .globl Fft_transformImpl
 Fft_transformImpl:
 	# Save registers
