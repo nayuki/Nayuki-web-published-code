@@ -1,7 +1,7 @@
 /* 
  * Number-theoretic transform library (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/number-theoretic-transform-integer-dft
  */
@@ -55,21 +55,21 @@ public final class BigNumberTheoreticTransform {
 		if (1 << levels != n)
 			throw new IllegalArgumentException("Length is not a power of 2");
 		
-		BigInteger[] powTable = new BigInteger[n / 2];
-		{
-			BigInteger temp = BigInteger.ONE;
-			for (int i = 0; i < powTable.length; i++) {
-				powTable[i] = temp;
-				temp = temp.multiply(root).mod(mod);
-			}
-		}
-		
 		for (int i = 0; i < n; i++) {
 			int j = Integer.reverse(i) >>> (32 - levels);
 			if (j > i) {
 				BigInteger temp = vector[i];
 				vector[i] = vector[j];
 				vector[j] = temp;
+			}
+		}
+		
+		BigInteger[] powTable = new BigInteger[n / 2];
+		{
+			BigInteger temp = BigInteger.ONE;
+			for (int i = 0; i < powTable.length; i++) {
+				powTable[i] = temp;
+				temp = temp.multiply(root).mod(mod);
 			}
 		}
 		

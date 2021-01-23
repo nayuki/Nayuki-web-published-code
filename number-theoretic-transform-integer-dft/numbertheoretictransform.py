@@ -1,7 +1,7 @@
 # 
 # Number-theoretic transform library (Python)
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2021 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 # 
@@ -60,12 +60,6 @@ def transform_radix_2(vector, root, mod):
 	if 1 << levels != n:
 		raise ValueError("Length is not a power of 2")
 	
-	powtable = []
-	temp = 1
-	for i in range(n // 2):
-		powtable.append(temp)
-		temp = temp * root % mod
-	
 	def reverse(x, bits):
 		y = 0
 		for i in range(bits):
@@ -76,6 +70,12 @@ def transform_radix_2(vector, root, mod):
 		j = reverse(i, levels)
 		if j > i:
 			vector[i], vector[j] = vector[j], vector[i]
+	
+	powtable = []
+	temp = 1
+	for i in range(n // 2):
+		powtable.append(temp)
+		temp = temp * root % mod
 	
 	size = 2
 	while size <= n:
