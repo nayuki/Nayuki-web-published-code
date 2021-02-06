@@ -45,6 +45,7 @@ var app;
         }
         catch (e) {
             alert("Error: " + e);
+            return;
         }
         inputsElem.style.display = "none";
         outputsElem.style.removeProperty("display");

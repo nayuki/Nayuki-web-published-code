@@ -13,7 +13,7 @@ namespace app {
 	
 	type int = number;
 	
-	let inputsElem = queryHtml("#inputs");
+	let inputsElem    = queryHtml("#inputs");
 	let inputCodeElem = queryElem("#input-code", HTMLTextAreaElement);
 	let inputTextElem = queryElem("#input-text", HTMLTextAreaElement);
 	let outputsElem   = queryHtml("#outputs");
@@ -41,6 +41,7 @@ namespace app {
 			instance = new Brainfuck(inputCodeElem.value, inputTextElem.value);
 		} catch (e) {
 			alert("Error: " + e);
+			return;
 		}
 		inputsElem.style.display = "none";
 		outputsElem.style.removeProperty("display");
