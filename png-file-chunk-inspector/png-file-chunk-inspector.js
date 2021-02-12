@@ -24,122 +24,84 @@ var app;
     }
     setTimeout(initialize);
     class DecodedChunk {
-        constructor(name) {
-            this.name = name;
+        constructor() {
             this.data = [];
             this.errors = [];
         }
     }
-    let tbody = requireType(document.querySelector("article tbody"), HTMLElement);
+    let table = requireType(document.querySelector("article table"), HTMLElement);
+    let tbody = requireType(table.querySelector("tbody"), HTMLElement);
     function parseFile(fileBytes) {
+        table.classList.remove("errors");
         while (tbody.firstChild !== null)
             tbody.removeChild(tbody.firstChild);
         let offset = 0;
         {
             const chunk = fileBytes.slice(offset, Math.min(offset + SIGNATURE_LENGTH, fileBytes.length));
             const [dec, valid] = parseFileSignature(chunk);
-            appendRow(0, chunk, null, dec);
+            appendRow(0, chunk, ["Special: File signature", `Length: ${uintToStrWithThousandsSeparators(chunk.length)} bytes`], dec);
             offset += chunk.length;
             if (!valid) {
                 const chunk = fileBytes.slice(offset, fileBytes.length);
-                let dec = new DecodedChunk("Unsupported");
-                dec.errors.push("Unsupported format");
-                appendRow(offset, chunk, null, dec);
+                let dec = new DecodedChunk();
+                dec.errors.push("Unknown format");
+                appendRow(offset, chunk, ["Special: Unknown", `Length: ${uintToStrWithThousandsSeparators(chunk.length)} bytes`], dec);
                 offset += chunk.length;
                 return;
             }
         }
-        function renderProperties(typeCode) {
-            let result = document.createDocumentFragment();
-            result.appendChild(document.createTextNode("Properties:"));
-            let ul = appendElem(result, "ul");
-            appendElem(ul, "li", ((typeCode[0] & 0x20) == 0 ? "Critical (0)" : "Ancillary (1)"));
-            appendElem(ul, "li", ((typeCode[1] & 0x20) == 0 ? "Public (0)" : "Private (1)"));
-            appendElem(ul, "li", ((typeCode[2] & 0x20) == 0 ? "Reserved (0)" : "Unsupported (1)"));
-            appendElem(ul, "li", ((typeCode[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)"));
-            return result;
-        }
         while (offset < fileBytes.length) {
             const remain = fileBytes.length - offset;
-            let typeCodeStr = null;
-            if (remain < 4) {
+            let chunkOutside = [];
+            let dec = new DecodedChunk();
+            if (remain < 12) {
                 const chunk = fileBytes.slice(offset, fileBytes.length);
-                let dec = new DecodedChunk("Unfinished");
+                chunkOutside.push("Special: Unfinished");
                 dec.errors.push("Premature EOF");
-                appendRow(offset, chunk, typeCodeStr, dec);
+                appendRow(offset, chunk, chunkOutside, dec);
                 break;
             }
-            const dataLen = (fileBytes[offset + 0] << 24
-                | fileBytes[offset + 1] << 16
-                | fileBytes[offset + 2] << 8
-                | fileBytes[offset + 3] << 0) >>> 0;
-            let typeCodeProps = null;
-            if (remain >= 8) {
-                const typeCodeBytes = fileBytes.slice(offset + 4, offset + 8);
-                typeCodeStr = bytesToReadableString(typeCodeBytes);
-                typeCodeProps = renderProperties(typeCodeBytes);
-            }
-            if (dataLen >= 0x80000000) {
-                const chunk = fileBytes.slice(offset, Math.min(offset + 8, fileBytes.length));
-                let dec = new DecodedChunk("Invalid");
-                dec.data.splice(0, 0, `Data length: ${uintToStrWithThousandsSeparators(dataLen)} bytes`);
-                if (typeCodeProps !== null)
-                    dec.data.push(typeCodeProps);
+            const typeCodeBytes = fileBytes.slice(offset + 4, offset + 8);
+            const typeCodeStr = bytesToReadableString(typeCodeBytes);
+            const typeNameAndFunc = CHUNK_TYPES.get(typeCodeStr);
+            chunkOutside.push("Name: " + (typeNameAndFunc !== undefined ? typeNameAndFunc[0] : "Unknown"));
+            chunkOutside.push("Type code: " + typeCodeStr);
+            chunkOutside.push((typeCodeBytes[0] & 0x20) == 0 ? "Critical (0)" : "Ancillary (1)");
+            chunkOutside.push((typeCodeBytes[1] & 0x20) == 0 ? "Public (0)" : "Private (1)");
+            chunkOutside.push((typeCodeBytes[2] & 0x20) == 0 ? "Reserved (0)" : "Unknown (1)");
+            chunkOutside.push((typeCodeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
+            const dataLen = readUint32(fileBytes, offset);
+            chunkOutside.push(`Data length: ${uintToStrWithThousandsSeparators(dataLen)} bytes`);
+            if (dataLen > 0x80000000) {
+                const chunk = fileBytes.slice(offset, fileBytes.length);
                 dec.errors.push("Length out of range");
-                appendRow(offset, chunk, typeCodeStr, dec);
+                appendRow(offset, chunk, chunkOutside, dec);
                 break;
             }
             if (remain < 12 + dataLen) {
                 const chunk = fileBytes.slice(offset, fileBytes.length);
-                let dec = new DecodedChunk("Unfinished");
-                dec.data.splice(0, 0, `Data length: ${uintToStrWithThousandsSeparators(dataLen)} bytes`);
-                if (typeCodeProps !== null)
-                    dec.data.push(typeCodeProps);
                 dec.errors.push("Premature EOF");
-                appendRow(offset, chunk, typeCodeStr, dec);
+                appendRow(offset, chunk, chunkOutside, dec);
                 break;
             }
             const chunk = fileBytes.slice(offset, offset + 12 + dataLen);
-            const storedCrc = (chunk[chunk.length - 4] << 24
-                | chunk[chunk.length - 3] << 16
-                | chunk[chunk.length - 2] << 8
-                | chunk[chunk.length - 1] << 0) >>> 0;
+            const storedCrc = readUint32(chunk, chunk.length - 4);
+            chunkOutside.push(`CRC-32: ${storedCrc.toString(16).padStart(8, "0").toUpperCase()}`);
             const dataCrc = calcCrc32(chunk.slice(4, chunk.length - 4));
             if (dataCrc != storedCrc) {
-                let dec = new DecodedChunk("Invalid");
-                dec.data.push(`Data length: ${uintToStrWithThousandsSeparators(dataLen)} bytes`);
-                dec.data.push(requireType(typeCodeProps, Node));
-                dec.data.push(`CRC-32: ${storedCrc.toString(16).padStart(8, "0").toUpperCase()}`);
                 dec.errors.push(`CRC-32 mismatch (calculated from data: ${dataCrc.toString(16).padStart(8, "0").toUpperCase()})`);
-                appendRow(offset, chunk, typeCodeStr, dec);
-                break;
+                appendRow(offset, chunk, chunkOutside, dec);
             }
-            const data = chunk.slice(8, chunk.length - 4);
-            let dec;
-            switch (typeCodeStr) {
-                case "IDAT":
-                    dec = parse_IDAT_Chunk(data);
-                    break;
-                case "IEND":
-                    dec = parse_IEND_Chunk(data);
-                    break;
-                case "IHDR":
-                    dec = parse_IHDR_Chunk(data);
-                    break;
-                case "pHYs":
-                    dec = parse_pHYs_Chunk(data);
-                    break;
-                default:
-                    dec = new DecodedChunk("Unknown");
-                    break;
+            else {
+                const data = chunk.slice(8, chunk.length - 4);
+                if (typeNameAndFunc !== undefined)
+                    typeNameAndFunc[1](data, dec);
+                appendRow(offset, chunk, chunkOutside, dec);
             }
-            dec.data.splice(0, 0, `Data length: ${uintToStrWithThousandsSeparators(dataLen)} bytes`, requireType(typeCodeProps, Node));
-            dec.data.push(`CRC-32: ${storedCrc.toString(16).padStart(8, "0").toUpperCase()}`);
-            appendRow(offset, chunk, typeCodeStr, dec);
             offset += chunk.length;
         }
     }
-    function appendRow(startOffset, rawBytes, chunkTypeCode, decodedChunk) {
+    function appendRow(startOffset, rawBytes, chunkOutside, decodedChunk) {
         let tr = appendElem(tbody, "tr");
         appendElem(tr, "td", uintToStrWithThousandsSeparators(startOffset));
         {
@@ -158,24 +120,12 @@ var app;
             }
             appendElem(td, "code", hex.join(" "));
         }
-        appendElem(tr, "td", decodedChunk.name + (chunkTypeCode != null ? ` (${chunkTypeCode})` : ""));
-        {
+        for (const list of [chunkOutside, decodedChunk.data, decodedChunk.errors]) {
             let td = appendElem(tr, "td");
             let ul = appendElem(td, "ul");
-            decodedChunk.data.forEach(item => {
-                let li = appendElem(ul, "li");
-                if (typeof item == "string")
-                    li.textContent = item;
-                else if (item instanceof Node)
-                    li.appendChild(item);
-                else
-                    throw "Assertion error";
-            });
-        }
-        {
-            let td = appendElem(tr, "td");
-            let ul = appendElem(td, "ul");
-            decodedChunk.errors.forEach(item => {
+            list.forEach(item => {
+                if (list == decodedChunk.errors)
+                    table.classList.add("errors");
                 let li = appendElem(ul, "li");
                 if (typeof item == "string")
                     li.textContent = item;
@@ -188,20 +138,20 @@ var app;
     }
     const SIGNATURE_LENGTH = 8;
     function parseFileSignature(bytes) {
-        let dec = new DecodedChunk("File signature");
+        let dec = new DecodedChunk();
+        dec.data.push(`\u201C${bytesToReadableString(bytes)}\u201D`);
+        const EXPECTED = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
         let valid = true;
-        const expected = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
-        for (let i = 0; valid && i < expected.length; i++) {
+        for (let i = 0; valid && i < EXPECTED.length; i++) {
             if (i >= bytes.length) {
                 dec.errors.push("Premature EOF");
                 valid = false;
             }
-            else if (bytes[i] != expected[i]) {
+            else if (bytes[i] != EXPECTED[i]) {
                 dec.errors.push("Value mismatch");
                 valid = false;
             }
         }
-        dec.data.push(`\u201C${bytesToReadableString(bytes)}\u201D`);
         return [dec, valid];
     }
     function calcCrc32(bytes) {
@@ -213,18 +163,6 @@ var app;
             }
         }
         return ~crc >>> 0;
-    }
-    function parse_IDAT_Chunk(data) {
-        return new DecodedChunk("Image data");
-    }
-    function parse_IEND_Chunk(data) {
-        return new DecodedChunk("Image trailer");
-    }
-    function parse_IHDR_Chunk(data) {
-        return new DecodedChunk("Image header");
-    }
-    function parse_pHYs_Chunk(data) {
-        return new DecodedChunk("Physical pixel dimensions");
     }
     function bytesToReadableString(bytes) {
         let result = "";
@@ -255,6 +193,222 @@ var app;
         if (text !== undefined)
             result.textContent = text;
         return result;
+    }
+    let CHUNK_TYPES = new Map();
+    CHUNK_TYPES.set("bKGD", ["Background color", function (bytes, dec) {
+        }]);
+    CHUNK_TYPES.set("cHRM", ["Primary chromaticities", function (bytes, dec) {
+            if (bytes.length != 32) {
+                dec.errors.push("Invalid data length");
+                return;
+            }
+            let offset = 0;
+            for (const item of ["White point", "Red", "Green", "Blue"]) {
+                for (const axis of ["x", "y"]) {
+                    const val = readUint32(bytes, offset);
+                    let s = val.toString().padStart(6, "0");
+                    s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
+                    // s basically equals (val/100000).toFixed(5)
+                    dec.data.push(`${item} ${axis}: ${s}`);
+                    offset += 4;
+                }
+            }
+        }]);
+    CHUNK_TYPES.set("gAMA", ["Image gamma", function (bytes, dec) {
+            if (bytes.length != 4) {
+                dec.errors.push("Invalid data length");
+                return;
+            }
+            const gamma = readUint32(bytes, 0);
+            let s = gamma.toString().padStart(6, "0");
+            s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
+            // s basically equals (gamma/100000).toFixed(5)
+            dec.data.push(`Gamma: ${s}`);
+        }]);
+    CHUNK_TYPES.set("hIST", ["Palette histogram", function (bytes, dec) {
+            if (bytes.length % 2 != 0 || bytes.length / 2 > 256) {
+                dec.errors.push("Invalid data length");
+                return;
+            }
+        }]);
+    CHUNK_TYPES.set("iCCP", ["Embedded ICC profile", function (bytes, dec) {
+        }]);
+    CHUNK_TYPES.set("IDAT", ["Image data", function (bytes, dec) {
+        }]);
+    CHUNK_TYPES.set("IEND", ["Image trailer", function (bytes, dec) {
+            if (bytes.length != 0)
+                dec.errors.push("Non-empty data");
+        }]);
+    CHUNK_TYPES.set("IHDR", ["Image header", function (bytes, dec) {
+            if (bytes.length != 13) {
+                dec.errors.push("Invalid data length");
+                return;
+            }
+            const width = readUint32(bytes, 0);
+            const height = readUint32(bytes, 4);
+            const bitDepth = bytes[8];
+            const colorType = bytes[9];
+            const compMeth = bytes[10];
+            const filtMeth = bytes[11];
+            const laceMeth = bytes[12];
+            dec.data.push(`Width: ${width} pixels`);
+            if (width == 0 || width > 0x80000000)
+                dec.errors.push("Width out of range");
+            dec.data.push(`Height: ${height} pixels`);
+            if (height == 0 || height > 0x80000000)
+                dec.errors.push("Width out of range");
+            let colorTypeStr;
+            let validBitDepths;
+            switch (colorType) {
+                case 0:
+                    colorTypeStr = "Grayscale";
+                    validBitDepths = [1, 2, 4, 8, 16];
+                    break;
+                case 2:
+                    colorTypeStr = "RGB";
+                    validBitDepths = [8, 16];
+                    break;
+                case 3:
+                    colorTypeStr = "Palette";
+                    validBitDepths = [1, 2, 4, 8];
+                    break;
+                case 4:
+                    colorTypeStr = "Grayscale+Alpha";
+                    validBitDepths = [8, 16];
+                    break;
+                case 6:
+                    colorTypeStr = "RGBA";
+                    validBitDepths = [8, 16];
+                    break;
+                default:
+                    colorTypeStr = "Unknown";
+                    validBitDepths = [];
+                    break;
+            }
+            dec.data.push(`Bit depth: ${bitDepth} bits per ${colorType != 3 ? "channel" : "pixel"}`);
+            if (!validBitDepths.includes(bitDepth))
+                dec.errors.push("Invalid bit depth");
+            dec.data.push(`Color type: ${colorTypeStr} (${colorType})`);
+            if (colorTypeStr == "Unknown")
+                dec.errors.push("Unknown color type");
+            if (compMeth == 0)
+                dec.data.push(`Compression method: DEFLATE (${compMeth})`);
+            else {
+                dec.data.push(`Compression method: Unknown (${compMeth})`);
+                dec.errors.push("Unknown compression method");
+            }
+            if (filtMeth == 0)
+                dec.data.push(`Filter method: Adaptive (${filtMeth})`);
+            else {
+                dec.data.push(`Filter method: Unknown (${filtMeth})`);
+                dec.errors.push("Unknown filter method");
+            }
+            if (laceMeth == 0)
+                dec.data.push(`Interlace method: None (${laceMeth})`);
+            else if (laceMeth == 1)
+                dec.data.push(`Interlace method: Adam7 (${laceMeth})`);
+            else {
+                dec.data.push(`Interlace method: Unknown (${laceMeth})`);
+                dec.errors.push("Unknown interlace method");
+            }
+        }]);
+    CHUNK_TYPES.set("iTXt", ["International textual data", function (bytes, dec) {
+        }]);
+    CHUNK_TYPES.set("pHYs", ["Physical pixel dimensions", function (bytes, dec) {
+            if (bytes.length != 9) {
+                dec.errors.push("Invalid data length");
+                return;
+            }
+            const horzRes = readUint32(bytes, 0);
+            const vertRes = readUint32(bytes, 4);
+            const unit = bytes[8];
+            dec.data.push(`Horizontal resolution: ${horzRes} pixels per unit${unit == 1 ? " (\u2248 " + (horzRes * 0.0254).toFixed(0) + " DPI)" : ""}`);
+            dec.data.push(`Vertical resolution: ${vertRes} pixels per unit${unit == 1 ? " (\u2248 " + (vertRes * 0.0254).toFixed(0) + " DPI)" : ""}`);
+            if (unit == 0)
+                dec.data.push(`Unit specifier: Arbitrary (aspect ratio only) (${unit})`);
+            else if (unit == 1)
+                dec.data.push(`Unit specifier: Metre (${unit})`);
+            else {
+                dec.data.push(`Unit specifier: Unknown (${unit})`);
+                dec.errors.push("Unknown unit specifier");
+            }
+        }]);
+    CHUNK_TYPES.set("PLTE", ["Palette", function (bytes, dec) {
+        }]);
+    CHUNK_TYPES.set("sBIT", ["Significant bits", function (bytes, dec) {
+            if (bytes.length == 0 || bytes.length > 4)
+                dec.errors.push("Invalid data length");
+            let temp = [];
+            for (let i = 0; i < bytes.length; i++)
+                temp.push(bytes[i].toString());
+            dec.data.push(`Significant bits per channel: ${temp.join(", ")}`);
+        }]);
+    CHUNK_TYPES.set("sPLT", ["Suggested palette", function (bytes, dec) {
+        }]);
+    CHUNK_TYPES.set("sRGB", ["Standard RGB color space", function (bytes, dec) {
+            if (bytes.length != 1) {
+                dec.errors.push("Invalid data length");
+                return;
+            }
+            const renderIntent = bytes[0];
+            let s;
+            switch (renderIntent) {
+                case 0:
+                    s = "Perceptual";
+                    break;
+                case 1:
+                    s = "Relative colorimetric";
+                    break;
+                case 2:
+                    s = "Saturation";
+                    break;
+                case 3:
+                    s = "Absolute colorimetric";
+                    break;
+                default:
+                    s = "Unknown";
+                    dec.errors.push("Unknown rendering intent");
+                    break;
+            }
+            dec.data.push(`Rendering intent: ${s} (${renderIntent})`);
+        }]);
+    CHUNK_TYPES.set("tEXt", ["Textual data", function (bytes, dec) {
+        }]);
+    CHUNK_TYPES.set("tIME", ["Image last-modification time", function (bytes, dec) {
+            if (bytes.length != 7) {
+                dec.errors.push("Invalid data length");
+                return;
+            }
+            const year = readUint16(bytes, 0);
+            const month = bytes[2];
+            const day = bytes[3];
+            const hour = bytes[4];
+            const minute = bytes[5];
+            const second = bytes[6];
+            dec.data.push(`Year: ${year}`);
+            dec.data.push(`Month: ${month}`);
+            dec.data.push(`Day: ${day}`);
+            dec.data.push(`Hour: ${hour}`);
+            dec.data.push(`Minute: ${minute}`);
+            dec.data.push(`Second: ${second}`);
+        }]);
+    CHUNK_TYPES.set("tRNS", ["Transparency", function (bytes, dec) {
+        }]);
+    CHUNK_TYPES.set("zTXt", ["Compressed textual data", function (bytes, dec) {
+        }]);
+    function readUint16(bytes, offset) {
+        if (bytes.length - offset < 2)
+            throw "Index out of range";
+        return bytes[offset + 0] << 8
+            | bytes[offset + 1] << 0;
+    }
+    function readUint32(bytes, offset) {
+        if (bytes.length - offset < 4)
+            throw "Index out of range";
+        return (bytes[offset + 0] << 24
+            | bytes[offset + 1] << 16
+            | bytes[offset + 2] << 8
+            | bytes[offset + 3] << 0) >>> 0;
     }
     function requireType(val, type) {
         if (val instanceof type)
