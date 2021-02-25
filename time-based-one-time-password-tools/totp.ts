@@ -1,7 +1,7 @@
 /* 
  * Time-based One-Time Password tools (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,6 +23,7 @@
 
 
 type byte = number;
+type int = number;
 
 
 
@@ -46,7 +47,7 @@ function main(): void {
 	if (getInput("current-time").checked)
 		getInput("timestamp").value = Math.floor(Date.now() / 1000).toString();
 	
-	let outputElem = getElement("totp-code");
+	let outputElem: HTMLElement = getElement("totp-code");
 	try {
 		outputElem.textContent = calcTotp(
 			decodeBase32(getInput("secret-key").value),
@@ -71,19 +72,19 @@ if (selfCheck()) {
 // Time-based One-Time Password algorithm (RFC 6238)
 function calcTotp(
 		secretKey: Array<byte>,
-		epoch: number = 0,
-		timeStep: number = 30,
-		timestamp: number|null = null,
-		codeLen: number = 6,
+		epoch: int = 0,
+		timeStep: int = 30,
+		timestamp: int|null = null,
+		codeLen: int = 6,
 		hashFunc: ((msg:Array<byte>)=>Array<byte>) = calcSha1Hash,
-		blockSize: number = 64,
+		blockSize: int = 64,
 		): string {
 	
 	if (timestamp === null)
 		timestamp = Date.now();
 	
 	// Calculate counter and HOTP
-	let timeCounter: number = Math.floor((timestamp - epoch) / timeStep);
+	let timeCounter: int = Math.floor((timestamp - epoch) / timeStep);
 	let counter: Array<byte> = [];
 	for (let i = 0; i < 8; i++, timeCounter = Math.floor(timeCounter / 256))
 		counter.push(timeCounter & 0xFF);
@@ -96,9 +97,9 @@ function calcTotp(
 function calcHotp(
 		secretKey: Array<byte>,
 		counter: Array<byte>,
-		codeLen: number = 6,
+		codeLen: int = 6,
 		hashFunc: ((msg:Array<byte>)=>Array<byte>) = calcSha1Hash,
-		blockSize: number = 64,
+		blockSize: int = 64,
 		): string {
 	
 	// Check argument, calculate HMAC
@@ -107,14 +108,14 @@ function calcHotp(
 	const hash: Array<byte> = calcHmac(secretKey, counter, hashFunc, blockSize);
 	
 	// Dynamically truncate the hash value
-	const offset: number = hash[hash.length - 1] % 16;
-	let val: number = 0;
+	const offset: int = hash[hash.length - 1] % 16;
+	let val: int = 0;
 	for (let i = 0; i < 4; i++)
 		val |= hash[offset + i] << ((3 - i) * 8);
 	val &= 0x7FFFFFFF;
 	
 	// Extract base-10 digits
-	let tenPow: number = 1;
+	let tenPow: int = 1;
 	for (let i = 0; i < codeLen; i++)
 		tenPow *= 10;
 	val %= tenPow;
@@ -131,7 +132,7 @@ function calcHmac(
 		key: Array<byte>,
 		message: Array<byte>,
 		hashFunc: ((msg:Array<byte>)=>Array<byte>),
-		blockSize: number,
+		blockSize: int,
 		): Array<byte> {
 	
 	if (blockSize < 1)
@@ -154,7 +155,6 @@ function calcHmac(
 }
 
 
-
 function calcSha1Hash(message: Array<byte>): Array<byte> {
 	let bitLenBytes: Array<byte> = [];
 	for (let i = 0, bitLen = message.length * 8; i < 8; i++, bitLen >>>= 8)
@@ -168,21 +168,21 @@ function calcSha1Hash(message: Array<byte>): Array<byte> {
 	for (const b of bitLenBytes)
 		message.push(b);
 	
-	let state: Array<number> = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
+	let state: Array<int> = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
 	for (let i = 0; i < message.length; i += 64) {
-		let schedule: Array<number> = [];
+		let schedule: Array<int> = [];
 		for (let j = 0; j < 64; j++) {
 			if (j % 4 == 0)
 				schedule.push(0);
 			schedule[Math.floor(j / 4)] |= message[i + j] << ((3 - j % 4) * 8);
 		}
 		for (let j = schedule.length; j < 80; j++) {
-			const temp: number = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
+			const temp: int = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
 			schedule.push((temp << 1) | (temp >>> 31));
 		}
 		let [a, b, c, d, e] = state;
 		schedule.forEach((sch, j) => {
-			let f: number, rc: number;
+			let f: int, rc: int;
 			switch (Math.floor(j / 20)) {
 				case 0:  f = (b & c) | (~b & d);           rc = 0x5A827999;  break;
 				case 1:  f = b ^ c ^ d;                    rc = 0x6ED9EBA1;  break;
@@ -216,12 +216,12 @@ function calcSha1Hash(message: Array<byte>): Array<byte> {
 function decodeBase32(str: string): Array<byte> {
 	const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 	let result: Array<byte> = [];
-	let bits: number = 0;
-	let bitsLen: number = 0;
+	let bits: int = 0;
+	let bitsLen: int = 0;
 	for (const c of str) {
 		if (c == " ")
 			continue;
-		const i: number = ALPHABET.indexOf(c.toUpperCase());
+		const i: int = ALPHABET.indexOf(c.toUpperCase());
 		if (i == -1)
 			throw "Invalid Base32 string";
 		bits = (bits << 5) | i;
@@ -252,7 +252,7 @@ function selfCheck(): boolean {
 
 
 function testHotp(): void {
-	const CASES: Array<[number,string]> = [
+	const CASES: Array<[int,string]> = [
 		[0, "284755224"],
 		[1, "094287082"],
 		[2, "137359152"],
@@ -279,7 +279,7 @@ function testHotp(): void {
 
 
 function testTotp(): void {
-	const CASES: Array<[number,string]> = [
+	const CASES: Array<[int,string]> = [
 		[         59, "94287082"],
 		[ 1111111109, "07081804"],
 		[ 1111111111, "14050471"],
