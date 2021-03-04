@@ -1,8 +1,7 @@
 /* 
  * Fast doubling Fibonacci algorithm (C#)
  * 
- * Copyright (c) 2016 Project Nayuki
- * All rights reserved. Contact Nayuki for licensing.
+ * Copyright (c) 2016 Project Nayuki. Public domain.
  * https://www.nayuki.io/page/fast-fibonacci-algorithms
  */
 
