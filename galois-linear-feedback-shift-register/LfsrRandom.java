@@ -1,7 +1,7 @@
 /* 
  * Galois linear feedback shift register (LFSR) (Java)
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/galois-linear-feedback-shift-register
  */
@@ -17,7 +17,8 @@ import java.util.Random;
  */
 public final class LfsrRandom extends Random {
 	
-	// Demo program
+	/*---- Demo program ----*/
+	
 	public static void main(String[] args) {
 		LfsrRandom r = new LfsrRandom(BigInteger.valueOf(0x16801), BigInteger.valueOf(1));
 		r.printDebug();
@@ -28,8 +29,10 @@ public final class LfsrRandom extends Random {
 	
 	
 	
-	private BigInteger characteristic;
-	private int degree;
+	/*---- Instance members ----*/
+	
+	private final BigInteger characteristic;
+	private final int degree;
 	
 	private BigInteger state;
 	
@@ -40,6 +43,7 @@ public final class LfsrRandom extends Random {
 	 * less than the degree of the characteristic polynomial, and must not be the zero polynomial.
 	 * @param charistic the characteristic polynomial
 	 * @param state the initial state polynomial
+	 * @throws NullPointerException if any argument is {@code null}
 	 * @throws IllegalArgumentException if the polynomials do not satisfy the requirements
 	 */
 	public LfsrRandom(BigInteger charis, BigInteger state) {
@@ -58,7 +62,7 @@ public final class LfsrRandom extends Random {
 	}
 	
 	
-	public boolean nextBoolean() {
+	@Override public boolean nextBoolean() {
 		boolean result = state.testBit(0);      // Use bit 0 in the LFSR state as the result
 		state = state.shiftLeft(1);             // Multiply by x
 		if (state.testBit(degree))              // If degree of state polynomial matches degree of characteristic polynomial
@@ -67,7 +71,7 @@ public final class LfsrRandom extends Random {
 	}
 	
 	
-	protected int next(int bits) {
+	@Override protected int next(int bits) {
 		int result = 0;
 		for (int i = 0; i < bits; i++)
 			result = (result << 1) | (nextBoolean() ? 1 : 0);

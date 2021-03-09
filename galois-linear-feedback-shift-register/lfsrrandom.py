@@ -1,7 +1,7 @@
 # 
 # Galois linear feedback shift register (LFSR) (Python)
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2021 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/galois-linear-feedback-shift-register
 # 
@@ -16,7 +16,7 @@ class LfsrRandom(random.Random):
 		return random.Random.__new__(cls, random.random())
 	
 	
-	def __init__(self, charis, state):
+	def __init__(self, charis: int, state: int):
 		assert isinstance(charis, int)
 		assert isinstance(state, int)
 		
@@ -34,22 +34,22 @@ class LfsrRandom(random.Random):
 		self.state = state
 	
 	
-	def randbit(self):
-		result = self.state & 1                   # Use bit 0 in the LFSR state as the result
+	def randbit(self) -> int:
+		result: int = self.state & 1                   # Use bit 0 in the LFSR state as the result
 		self.state = self.state << 1              # Multiply by x
 		if (self.state >> self.degree) & 1 != 0:  # If degree of state polynomial matches degree of characteristic polynomial
 			self.state ^= self.characteristic     # Then subtract the characteristic polynomial from the state polynomial
 		return result
 	
 	
-	def getrandbits(self, k):
-		result = 0
+	def getrandbits(self, k: int) -> int:
+		result: int = 0
 		for i in range(k):
 			result = (result << 1) | self.randbit()
 		return result
 	
 	
-	def random(self):
+	def random(self) -> float:
 		return self.getrandbits(52) / (1 << 52)
 
 
