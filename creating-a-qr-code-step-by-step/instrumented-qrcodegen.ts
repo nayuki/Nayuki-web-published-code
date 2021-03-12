@@ -1,7 +1,7 @@
 /* 
  * Creating a QR Code step by step
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
@@ -252,20 +252,20 @@ class QrCode {
 		const maxBlockDataLen: int = data[data.length - 1].length;
 		let result: Array<Codeword> = [];
 		for (let i = 0; i < maxBlockDataLen; i++) {
-			data.forEach(block => {
+			for (let block of data) {
 				if (i < block.length) {
 					let cw = block[i];
 					cw.postInterleaveIndex = result.length;
 					result.push(cw);
 				}
-			});
+			}
 		}
 		for (let i = 0; i < blockEccLen; i++) {
-			ecc.forEach(block => {
+			for (let block of ecc) {
 				let cw = block[i];
 				cw.postInterleaveIndex = result.length;
 				result.push(cw);
-			});
+			}
 		}
 		return result;
 	}

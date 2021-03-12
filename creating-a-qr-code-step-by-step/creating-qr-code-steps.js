@@ -225,27 +225,23 @@ var QrCode = /** @class */ (function () {
         var blockEccLen = ecc[0].length;
         var maxBlockDataLen = data[data.length - 1].length;
         var result = [];
-        var _loop_2 = function (i) {
-            data.forEach(function (block) {
+        for (var i = 0; i < maxBlockDataLen; i++) {
+            for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+                var block = data_1[_i];
                 if (i < block.length) {
                     var cw = block[i];
                     cw.postInterleaveIndex = result.length;
                     result.push(cw);
                 }
-            });
-        };
-        for (var i = 0; i < maxBlockDataLen; i++) {
-            _loop_2(i);
+            }
         }
-        var _loop_3 = function (i) {
-            ecc.forEach(function (block) {
+        for (var i = 0; i < blockEccLen; i++) {
+            for (var _a = 0, ecc_1 = ecc; _a < ecc_1.length; _a++) {
+                var block = ecc_1[_a];
                 var cw = block[i];
                 cw.postInterleaveIndex = result.length;
                 result.push(cw);
-            });
-        };
-        for (var i = 0; i < blockEccLen; i++) {
-            _loop_3(i);
+            }
         }
         return result;
     };
@@ -507,7 +503,7 @@ var ReedSolomonGenerator = /** @class */ (function () {
     }
     ReedSolomonGenerator.prototype.getRemainder = function (data) {
         var result = this.coefficients.map(function (_) { return 0; });
-        var _loop_4 = function (b) {
+        var _loop_2 = function (b) {
             var factor = b ^ result.shift();
             result.push(0);
             this_1.coefficients.forEach(function (coef, i) {
@@ -515,9 +511,9 @@ var ReedSolomonGenerator = /** @class */ (function () {
             });
         };
         var this_1 = this;
-        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
-            var b = data_1[_i];
-            _loop_4(b);
+        for (var _i = 0, data_2 = data; _i < data_2.length; _i++) {
+            var b = data_2[_i];
+            _loop_2(b);
         }
         return result;
     };
