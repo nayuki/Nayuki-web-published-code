@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -53,15 +53,17 @@ impl<E> AvlTreeList<E> {
 	}
 	
 	
-	pub fn append(&mut self, vals: &mut Vec<E>) {
+	pub fn extend<I:IntoIterator<Item=E>>(&mut self, iterable: I) {
 		let index = self.len();
-		self.append_at(index, vals);
+		self.insert_iter(index, iterable);
 	}
 	
 	
-	pub fn append_at(&mut self, index: usize, vals: &mut Vec<E>) {
-		while let Some(val) = vals.pop() {
+	pub fn insert_iter<I:IntoIterator<Item=E>>(&mut self, mut index: usize, iterable: I) {
+		let mut iterator = iterable.into_iter();
+		while let Some(val) = iterator.next() {
 			self.insert(index, val);
+			index += 1;
 		}
 	}
 	

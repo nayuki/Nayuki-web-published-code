@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -68,9 +68,9 @@ fn test_add() {
 
 fn test_add_list() {
 	let mut list = AvlTreeList::<&'static str>::new();
-	list.append(&mut vec!["January"]);
-	list.append(&mut vec!["February", "March", "April"]);
-	list.append(&mut vec!["May", "June", "July", "August", "September", "October", "November", "December"]);
+	list.extend(vec!["January"].drain(..));
+	list.extend(vec!["February", "March", "April"].drain(..));
+	list.extend(vec!["May", "June", "July", "August", "September", "October", "November", "December"].drain(..));
 	assert_eq!(list.len(), 12);
 	assert_eq!(list[ 0], "January"  );
 	assert_eq!(list[ 1], "February" );
@@ -162,10 +162,10 @@ fn test_insert_at_middle() {
 
 fn test_insert_list() {
 	let mut list = AvlTreeList::<&'static str>::new();
-	list.append_at(0, &mut vec!["1", "2", "3", "5"]);
-	list.append_at(4, &mut vec!["377", "610", "987"]);
-	list.append_at(4, &mut vec!["8", "13", "21", "144", "233"]);
-	list.append_at(7, &mut vec!["34", "55", "89"]);
+	list.insert_iter(0, vec!["1", "2", "3", "5"].drain(..));
+	list.insert_iter(4, vec!["377", "610", "987"].drain(..));
+	list.insert_iter(4, vec!["8", "13", "21", "144", "233"].drain(..));
+	list.insert_iter(7, vec!["34", "55", "89"].drain(..));
 	assert_eq!(list.len(), 15);
 	assert_eq!(list[ 0],  "1");
 	assert_eq!(list[ 1],  "2");
