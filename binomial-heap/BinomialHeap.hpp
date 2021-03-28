@@ -47,7 +47,7 @@ class BinomialHeap final {
 	public: explicit BinomialHeap() {}
 	
 	
-	public: BinomialHeap(const BinomialHeap &other) {
+	public: explicit BinomialHeap(const BinomialHeap &other) {
 		if (other.head.get() != nullptr)
 			head.reset(new Node(*other.head.get()));
 	}

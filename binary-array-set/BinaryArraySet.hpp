@@ -52,6 +52,9 @@ class BinaryArraySet final {
 		length(0) {}
 	
 	
+	public: explicit BinaryArraySet(const BinaryArraySet &other) = default;
+	
+	
 	
 	/*---- Methods ----*/
 	

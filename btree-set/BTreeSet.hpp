@@ -63,7 +63,7 @@ class BTreeSet final {
 	}
 	
 	
-	public: BTreeSet(const BTreeSet &other) :
+	public: explicit BTreeSet(const BTreeSet &other) :
 		root(new Node(*other.root.get())),
 		count  (other.count  ),
 		minKeys(other.minKeys),

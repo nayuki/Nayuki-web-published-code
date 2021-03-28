@@ -43,7 +43,7 @@ class AvlTreeList final {
 		root(&Node::EMPTY_LEAF) {}
 	
 	
-	public: AvlTreeList(const AvlTreeList &other) :
+	public: explicit AvlTreeList(const AvlTreeList &other) :
 			root(other.root) {
 		if (root != &Node::EMPTY_LEAF)
 			root = new Node(*root);
