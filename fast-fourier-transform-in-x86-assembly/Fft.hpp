@@ -1,7 +1,7 @@
 /* 
  * Fast Fourier transform
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-fourier-transform-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,7 +41,7 @@ class Fft final {
 	
 	/*---- Constructor/destructor ----*/
 	
-	public: Fft(std::size_t n);
+	public: explicit Fft(std::size_t n);
 	
 	public: ~Fft();
 	

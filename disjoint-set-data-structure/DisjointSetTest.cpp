@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,7 +37,7 @@ using std::size_t;
 class NaiveDisjointSet final {
 	private: std::vector<size_t> representatives;
 	
-	public: NaiveDisjointSet(size_t numElems) {
+	public: explicit NaiveDisjointSet(size_t numElems) {
 		for (size_t i = 0; i < numElems; i++)
 			representatives.push_back(i);
 	}

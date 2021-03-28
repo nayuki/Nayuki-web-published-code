@@ -39,15 +39,15 @@ class BinaryIndexedTree final {
 	
 	/*---- Constructors ----*/
 	
-	public: BinaryIndexedTree(std::size_t len) :
+	public: explicit BinaryIndexedTree(std::size_t len) :
 		sumTree(len, T()) {}
 	
 	
-	public: BinaryIndexedTree(const std::vector<T> &vals) :
+	public: explicit BinaryIndexedTree(const std::vector<T> &vals) :
 		BinaryIndexedTree(vals.data(), vals.size()) {}
 	
 	
-	public: BinaryIndexedTree(const T vals[], std::size_t len) :
+	public: explicit BinaryIndexedTree(const T vals[], std::size_t len) :
 			sumTree(vals, vals + len) {
 		for (std::size_t i = 0; i < sumTree.size(); i++) {
 			T val = sumTree.at(i);
