@@ -1,7 +1,7 @@
 /* 
  * Binary array set (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -93,35 +93,20 @@ class BinaryArraySet final {
 	
 	
 	// Runs in average-case O((log n)^2) time, worst-case O(n) time
-	public: void insert(const E &val) {
-		// Checking for duplicates is expensive
-		if (!contains(val))
-			insertUnique(val);
-	}
-	
-	
-	// Move version
-	public: void insert(E &&val) {
+	public: void insert(E val) {
 		if (!contains(val))
 			insertUnique(std::move(val));
 	}
 	
 	
 	// Runs in amortized O(1) time, worst-case O(n) time
-	public: void insertUnique(const E &val) {
-		std::vector<E> toPut{val};
-		insertHelper(std::move(toPut));
-	}
-	
-	
-	// Move version
-	public: void insertUnique(E &&val) {
+	public: void insertUnique(E val) {
 		std::vector<E> toPut{std::move(val)};
 		insertHelper(std::move(toPut));
 	}
 	
 	
-	private: void insertHelper(std::vector<E> &&toPut) {
+	private: void insertHelper(std::vector<E> toPut) {
 		if (length == SIZE_MAX)
 			throw std::length_error("Maximum size reached");
 		for (std::size_t i = 0; ; i++) {

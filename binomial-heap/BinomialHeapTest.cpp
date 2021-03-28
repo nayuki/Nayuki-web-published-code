@@ -1,7 +1,7 @@
 /* 
  * Binomial heap test (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,6 +28,7 @@
 #include <iostream>
 #include <random>
 #include <queue>
+#include <utility>
 #include <vector>
 #include "BinomialHeap.hpp"
 
@@ -163,7 +164,7 @@ static void testAgainstCppPriorityQueueRandomly() {
 				(merge ? temp : heap).push(val);
 			}
 			if (merge) {
-				heap.merge(temp);
+				heap.merge(std::move(temp));
 				assertEquals(temp.size(), static_cast<size_t>(0));
 			}
 			size += n;

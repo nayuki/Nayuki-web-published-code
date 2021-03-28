@@ -1,7 +1,7 @@
 /* 
  * B-tree set (C++)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,8 +44,8 @@ class BTreeSet final {
 	private: std::unique_ptr<Node> root;  // Not nullptr
 	private: std::size_t count;
 	
-	private: const std::uint32_t minKeys;  // At least 1, equal to degree-1
-	private: const std::uint32_t maxKeys;  // At least 3, odd number, equal to minKeys*2+1
+	private: std::uint32_t minKeys;  // At least 1, equal to degree-1
+	private: std::uint32_t maxKeys;  // At least 3, odd number, equal to minKeys*2+1
 	
 	
 	
@@ -63,8 +63,42 @@ class BTreeSet final {
 	}
 	
 	
+	public: BTreeSet(const BTreeSet &other) :
+		root(new Node(*other.root.get())),
+		count  (other.count  ),
+		minKeys(other.minKeys),
+		maxKeys(other.maxKeys) {}
+	
+	
+	public: BTreeSet(BTreeSet &&other) :
+			root(new Node(other.maxKeys, true)),
+			count  (other.count  ),
+			minKeys(other.minKeys),
+			maxKeys(other.maxKeys) {
+		root.swap(other.root);
+	}
+	
+	
 	
 	/*---- Methods ----*/
+	
+	public: BTreeSet &operator=(const BTreeSet &other) {
+		root.reset(new Node(*other.root.get()));
+		count   = other.count  ;
+		minKeys = other.minKeys;
+		maxKeys = other.maxKeys;
+		return *this;
+	}
+	
+	
+	public: BTreeSet &operator=(BTreeSet &&other) {
+		root.swap(other.root);
+		std::swap(count  , other.count  );
+		std::swap(minKeys, other.minKeys);
+		std::swap(maxKeys, other.maxKeys);
+		return *this;
+	}
+	
 	
 	public: bool empty() const {
 		return count == 0;
@@ -99,7 +133,7 @@ class BTreeSet final {
 	}
 	
 	
-	public: void insert(const E &val) {
+	public: void insert(E val) {
 		// Special preprocessing to split root node
 		if (root->keys.size() == maxKeys) {
 			std::unique_ptr<Node> child = std::move(root);
@@ -122,7 +156,7 @@ class BTreeSet final {
 			if (node->isLeaf()) {  // Simple insertion into leaf
 				if (count == SIZE_MAX)
 					throw std::length_error("Maximum size reached");
-				node->keys.insert(node->keys.begin() + index, val);
+				node->keys.insert(node->keys.begin() + index, std::move(val));
 				count++;
 				return;  // Successfully inserted
 				
@@ -242,7 +276,7 @@ class BTreeSet final {
 		public: std::vector<std::unique_ptr<Node> > children;
 		
 		
-		/*-- Constructor --*/
+		/*-- Constructors --*/
 		
 		// Note: Once created, a node's structure never changes between a leaf and internal node.
 		public: Node(std::uint32_t maxKeys, bool leaf) {
@@ -250,6 +284,13 @@ class BTreeSet final {
 			keys.reserve(maxKeys);
 			if (!leaf)
 				children.reserve(maxKeys + 1);
+		}
+		
+		
+		public: Node(const Node &other) :
+				keys(other.keys) {
+			for (auto it = other.children.cbegin(); it != other.children.cend(); ++it)
+				children.push_back(std::make_unique<Node>(*(*it).get()));
 		}
 		
 		

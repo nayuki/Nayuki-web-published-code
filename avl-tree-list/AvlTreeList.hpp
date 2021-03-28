@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,8 +43,36 @@ class AvlTreeList final {
 		root(&Node::EMPTY_LEAF) {}
 	
 	
+	public: AvlTreeList(const AvlTreeList &other) :
+			root(other.root) {
+		if (root != &Node::EMPTY_LEAF)
+			root = new Node(*root);
+	}
+	
+	
+	public: AvlTreeList(AvlTreeList &&other) :
+			root(&Node::EMPTY_LEAF) {
+		std::swap(root, other.root);
+	}
+	
+	
 	public: ~AvlTreeList() {
 		clear();
+	}
+	
+	
+	public: AvlTreeList &operator=(const AvlTreeList &other) {
+		clear();
+		root = other.root;
+		if (root != &Node::EMPTY_LEAF)
+			root = new Node(*root);
+		return *this;
+	}
+	
+	
+	public: AvlTreeList &operator=(AvlTreeList &&other) {
+		std::swap(root, other.root);
+		return *this;
 	}
 	
 	
@@ -72,26 +100,12 @@ class AvlTreeList final {
 	}
 	
 	
-	public: void push_back(const E &val) {
-		insert(size(), val);
-	}
-	
-	
-	public: void push_back(E &&val) {
+	public: void push_back(E val) {
 		insert(size(), std::move(val));
 	}
 	
 	
-	public: void insert(std::size_t index, const E &val) {
-		if (index > size())  // Different constraint than the other methods
-			throw std::out_of_range("Index out of bounds");
-		if (size() == SIZE_MAX)
-			throw std::length_error("Maximum size reached");
-		root = root->insertAt(index, val);
-	}
-	
-	
-	public: void insert(std::size_t index, E &&val) {
+	public: void insert(std::size_t index, E val) {
 		if (index > size())  // Different constraint than the other methods
 			throw std::out_of_range("Index out of bounds");
 		if (size() == SIZE_MAX)
@@ -159,21 +173,25 @@ class AvlTreeList final {
 		
 		
 		// Normal non-leaf nodes.
-		private: explicit Node(const E &val) :
-			value (val),  // Copy constructor on type E
+		private: explicit Node(E val) :
+			value (std::move(val)),
 			height(1),
 			size  (1),
 			left  (&EMPTY_LEAF),
 			right (&EMPTY_LEAF) {}
 		
 		
-		// Normal non-leaf nodes.
-		private: explicit Node(E &&val) :
-			value (std::move(val)),  // Move constructor on type E
-			height(1),
-			size  (1),
-			left  (&EMPTY_LEAF),
-			right (&EMPTY_LEAF) {}
+		public: Node(const Node &other) :
+				value (other.value ),
+				height(other.height),
+				size  (other.size  ),
+				left  (other.left  ),
+				right (other.right ) {
+			if (left != &EMPTY_LEAF)
+				left = new Node(*left);
+			if (right != &EMPTY_LEAF)
+				right = new Node(*right);
+		}
 		
 		
 		public: ~Node() {
@@ -196,21 +214,7 @@ class AvlTreeList final {
 		}
 		
 		
-		public: Node *insertAt(std::size_t index, const E &obj) {
-			assert(index <= size);
-			if (this == &EMPTY_LEAF)  // Automatically implies index == 0, because EMPTY_LEAF.size == 0
-				return new Node(obj);
-			std::size_t leftSize = left->size;
-			if (index <= leftSize)
-				left = left->insertAt(index, obj);
-			else
-				right = right->insertAt(index - leftSize - 1, obj);
-			recalculate();
-			return balance();
-		}
-		
-		
-		public: Node *insertAt(std::size_t index, E &&obj) {
+		public: Node *insertAt(std::size_t index, E obj) {
 			assert(index <= size);
 			if (this == &EMPTY_LEAF)  // Automatically implies index == 0, because EMPTY_LEAF.size == 0
 				return new Node(std::move(obj));

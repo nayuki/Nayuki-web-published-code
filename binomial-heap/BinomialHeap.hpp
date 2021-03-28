@@ -1,7 +1,7 @@
 /* 
  * Binomial heap (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,8 +47,33 @@ class BinomialHeap final {
 	public: explicit BinomialHeap() {}
 	
 	
+	public: BinomialHeap(const BinomialHeap &other) {
+		if (other.head.get() != nullptr)
+			head.reset(new Node(*other.head.get()));
+	}
+	
+	
+	public: BinomialHeap(BinomialHeap &&other) {
+		head.swap(other.head);
+	}
+	
+	
 	
 	/*---- Methods ----*/
+	
+	public: BinomialHeap &operator=(const BinomialHeap &other) {
+		clear();
+		if (other.head.get() != nullptr)
+			head.reset(new Node(*other.head.get()));
+		return *this;
+	}
+	
+	
+	public: BinomialHeap &operator=(BinomialHeap &&other) {
+		head.swap(other.head);
+		return *this;
+	}
+	
 	
 	public: bool empty() const {
 		return isNull(head);
@@ -74,12 +99,7 @@ class BinomialHeap final {
 	}
 	
 	
-	public: void push(const E &val) {
-		mergeNodes(std::make_unique<Node>(val));
-	}
-	
-	
-	public: void push(E &&val) {
+	public: void push(E val) {
 		mergeNodes(std::make_unique<Node>(std::move(val)));
 	}
 	
@@ -122,10 +142,9 @@ class BinomialHeap final {
 	}
 	
 	
-	// Moves all the values in the given heap into this heap
-	public: void merge(BinomialHeap<E> &other) {
-		if (&other == this)
-			throw std::invalid_argument("Merging with self");
+	// Moves all the values in the given heap into this heap.
+	// Using std::move() is strongly recommended to avoid copying the entire argument heap.
+	public: void merge(BinomialHeap other) {
 		mergeNodes(std::move(other.head));
 	}
 	
@@ -216,15 +235,19 @@ class BinomialHeap final {
 		/*-- Constructors --*/
 		
 		// Regular node
-		public: Node(const E &val) :
-			value(val),  // Copy constructor
+		public: Node(E val) :
+			value(std::move(val)),
 			rank(0) {}
 		
 		
-		// Regular node
-		public: Node(E &&val) :
-			value(std::move(val)),  // Move constructor
-			rank(0) {}
+		public: Node(const Node &other) :
+				value(other.value),
+				rank(other.rank) {
+			if (other.down.get() != nullptr)
+				down.reset(new Node(*other.down.get()));
+			if (other.next.get() != nullptr)
+				next.reset(new Node(*other.next.get()));
+		}
 		
 		
 		/*-- Methods --*/
