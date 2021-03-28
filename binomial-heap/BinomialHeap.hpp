@@ -52,20 +52,9 @@ class BinomialHeap final {
 	}
 	
 	
-	public: BinomialHeap(BinomialHeap &&other) {
-		head.swap(other.head);
-	}
-	
-	
 	public: BinomialHeap &operator=(const BinomialHeap &other) {
 		BinomialHeap temp(other);
 		head.swap(temp.head);
-		return *this;
-	}
-	
-	
-	public: BinomialHeap &operator=(BinomialHeap &&other) {
-		head.swap(other.head);
 		return *this;
 	}
 	
