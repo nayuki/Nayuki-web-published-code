@@ -36,8 +36,14 @@ template <typename E>
 class AvlTreeList final {
 	
 	private: class Node;  // Forward declaration
+	
+	/*---- Fields ----*/
+	
 	private: Node *root;  // Never nullptr
 	
+	
+	
+	/*---- Constructors/destructor/assignments ----*/
 	
 	public: explicit AvlTreeList() :
 		root(&Node::EMPTY_LEAF) {}
@@ -73,6 +79,9 @@ class AvlTreeList final {
 		return *this;
 	}
 	
+	
+	
+	/*---- Methods ----*/
 	
 	public: bool empty() const {
 		return root->size == 0;
@@ -136,6 +145,9 @@ class AvlTreeList final {
 		root->checkStructure(visited);
 	}
 	
+	
+	
+	/*---- Helper class ----*/
 	
 	private: class Node final {
 		

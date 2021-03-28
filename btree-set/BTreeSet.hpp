@@ -79,9 +79,6 @@ class BTreeSet final {
 	}
 	
 	
-	
-	/*---- Methods ----*/
-	
 	public: BTreeSet &operator=(const BTreeSet &other) {
 		BTreeSet temp(other);
 		root.swap(temp.root);
@@ -100,6 +97,9 @@ class BTreeSet final {
 		return *this;
 	}
 	
+	
+	
+	/*---- Methods ----*/
 	
 	public: bool empty() const {
 		return count == 0;

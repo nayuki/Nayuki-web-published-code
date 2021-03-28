@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (C++)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -64,6 +64,7 @@ class DisjointSet final {
 	private: S numSets;
 	
 	
+	
 	/*---- Constructors ----*/
 	
 	// Constructs a new set containing the given number of singleton sets.
@@ -79,6 +80,7 @@ class DisjointSet final {
 		for (S i = 0; i < numElems; i++)
 			nodes.push_back(Node{i, 0, 1});
 	}
+	
 	
 	
 	/*---- Methods ----*/

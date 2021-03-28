@@ -35,14 +35,13 @@ class BinomialHeap final {
 	
 	private: class Node;  // Forward declaration
 	
-	
 	/*---- Fields ----*/
 	
 	private: std::unique_ptr<Node> head;
 	
 	
 	
-	/*---- Constructors ----*/
+	/*---- Constructors/assignments ----*/
 	
 	public: explicit BinomialHeap() {}
 	
@@ -58,9 +57,6 @@ class BinomialHeap final {
 	}
 	
 	
-	
-	/*---- Methods ----*/
-	
 	public: BinomialHeap &operator=(const BinomialHeap &other) {
 		BinomialHeap temp(other);
 		head.swap(temp.head);
@@ -73,6 +69,9 @@ class BinomialHeap final {
 		return *this;
 	}
 	
+	
+	
+	/*---- Methods ----*/
 	
 	public: bool empty() const {
 		return isNull(head);
