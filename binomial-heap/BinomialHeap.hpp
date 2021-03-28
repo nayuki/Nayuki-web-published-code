@@ -62,9 +62,8 @@ class BinomialHeap final {
 	/*---- Methods ----*/
 	
 	public: BinomialHeap &operator=(const BinomialHeap &other) {
-		clear();
-		if (other.head.get() != nullptr)
-			head.reset(new Node(*other.head.get()));
+		BinomialHeap temp(other);
+		head.swap(temp.head);
 		return *this;
 	}
 	

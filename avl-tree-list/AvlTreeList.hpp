@@ -62,10 +62,8 @@ class AvlTreeList final {
 	
 	
 	public: AvlTreeList &operator=(const AvlTreeList &other) {
-		clear();
-		root = other.root;
-		if (root != &Node::EMPTY_LEAF)
-			root = new Node(*root);
+		AvlTreeList temp(other);
+		std::swap(root, temp.root);
 		return *this;
 	}
 	

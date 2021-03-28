@@ -83,10 +83,11 @@ class BTreeSet final {
 	/*---- Methods ----*/
 	
 	public: BTreeSet &operator=(const BTreeSet &other) {
-		root.reset(new Node(*other.root.get()));
-		count   = other.count  ;
-		minKeys = other.minKeys;
-		maxKeys = other.maxKeys;
+		BTreeSet temp(other);
+		root.swap(temp.root);
+		std::swap(count  , temp.count  );
+		std::swap(minKeys, temp.minKeys);
+		std::swap(maxKeys, temp.maxKeys);
 		return *this;
 	}
 	
