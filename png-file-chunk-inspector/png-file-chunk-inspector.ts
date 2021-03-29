@@ -21,7 +21,7 @@ namespace app {
 			let reader = new FileReader();
 			reader.onload = (): void => {
 				const bytes = requireType(reader.result, ArrayBuffer);
-				parseFile(new Uint8Array(bytes));
+				visualizeFile(new Uint8Array(bytes));
 			};
 			reader.readAsArrayBuffer(files[0]);
 		};
@@ -30,168 +30,473 @@ namespace app {
 	setTimeout(initialize);
 	
 	
-	
-	class DecodedChunk {
-		public data: Array<string|Node> = [];
-		public errors: Array<string|Node> = [];
-	}
-	
-	
-	type ChunkDecoder = (bytes: Uint8Array, dec: DecodedChunk) => void;
-	
-	
-	
-	let table = requireType(document.querySelector("article table"), HTMLElement);
-	let tbody = requireType(table.querySelector("tbody"), HTMLElement);
-	
-	
-	function parseFile(fileBytes: Uint8Array): void {
+	function visualizeFile(fileBytes: Uint8Array): void {
+		let table = requireType(document.querySelector("article table"), HTMLElement);
 		table.classList.remove("errors");
+		let tbody = requireType(table.querySelector("tbody"), HTMLElement);
 		while (tbody.firstChild !== null)
 			tbody.removeChild(tbody.firstChild);
+		
+		for (const part of parseFile(fileBytes)) {
+			let tr = appendElem(tbody, "tr");
+			appendElem(tr, "td", uintToStrWithThousandsSeparators(part.offset));
+			
+			{
+				let td = appendElem(tr, "td");
+				let hex: Array<string> = [];
+				const bytes: Uint8Array = part.bytes;
+				function pushHex(index: int): void {
+					hex.push(bytes[index].toString(16).padStart(2, "0"));
+				}
+				
+				if (bytes.length <= 100) {
+					for (let i = 0; i < bytes.length; i++)
+						pushHex(i);
+				} else {
+					for (let i = 0; i < 70; i++)
+						pushHex(i);
+					hex.push("...");
+					for (let i = bytes.length - 30; i < bytes.length; i++)
+						pushHex(i);
+				}
+				appendElem(td, "code", hex.join(" "));
+			}
+			
+			for (const list of [part.outerNotes, part.innerNotes, part.errorNotes]) {
+				let td = appendElem(tr, "td");
+				let ul = appendElem(td, "ul");
+				for (const item of list) {
+					if (list == part.errorNotes)
+						table.classList.add("errors");
+					let li = appendElem(ul, "li");
+					if (typeof item == "string")
+						li.textContent = item;
+					else if (item instanceof Node)
+						li.appendChild(item);
+					else
+						throw "Assertion error";
+				}
+			}
+		}
+	}
+	
+	
+	function parseFile(fileBytes: Uint8Array): Array<FilePart> {
+		let fileParts: Array<FilePart> = [];
 		let offset: int = 0;
 		
-		{
-			const chunk: Uint8Array = fileBytes.slice(offset, Math.min(offset + FILE_SIGNATURE.length, fileBytes.length));
-			const dec: DecodedChunk = parseFileSignature(chunk);
-			appendRow(0, chunk, ["Special: File signature", `Length: ${uintToStrWithThousandsSeparators(chunk.length)} bytes`], dec)
-			offset += chunk.length;
+		{  // Parse file signature
+			const bytes: Uint8Array = fileBytes.slice(offset, Math.min(offset + SignaturePart.FILE_SIGNATURE.length, fileBytes.length));
+			fileParts.push(new SignaturePart(offset, bytes));
+			offset += bytes.length;
+		}
+		
+		// Parse chunks but carefully handle erroneous file structures
+		while (offset < fileBytes.length) {
+			// Begin by assuming that the next chunk is invalid
+			let bytes: Uint8Array = fileBytes.slice(offset, fileBytes.length);
+			if (fileParts[0].errorNotes.length > 0) {  // Signature is wrong
+				fileParts.push(new UnknownPart(offset, bytes));
+				offset += bytes.length;
+			} else {
+				const remain: int = bytes.length;
+				if (remain >= 4) {
+					const innerLen: int = readUint32(fileBytes, offset);
+					const outerLen: int = innerLen + 12;
+					if (innerLen <= ChunkPart.MAX_DATA_LENGTH && outerLen <= remain)
+						bytes = fileBytes.slice(offset, offset + outerLen);  // Chunk is now valid with respect to length
+				}
+				fileParts.push(new ChunkPart(offset, bytes));
+				offset += bytes.length;
+			}
+		}
+		
+		{  // Annotate chunks
+			let earlierChunks: Array<ChunkPart> = [];
+			for (const part of fileParts) {
+				if (part instanceof ChunkPart) {
+					part.annotate(earlierChunks);
+					earlierChunks.push(part);
+				}
+			}
+		}
+		
+		if (offset != fileBytes.length)
+			throw "Assertion error";
+		return fileParts;
+	}
+	
+	
+	
+	abstract class FilePart {
+		
+		public outerNotes: Array<string|Node> = [];
+		public innerNotes: Array<string|Node> = [];
+		public errorNotes: Array<string|Node> = [];
+		
+		public constructor(
+			public readonly offset: int,
+			public readonly bytes: Uint8Array) {}
+		
+	}
+	
+	
+	class SignaturePart extends FilePart {
+		
+		public constructor(
+				offset: int,
+				bytes: Uint8Array) {
+			super(offset, bytes);
 			
-			if (dec.errors.length > 0) {
-				const chunk: Uint8Array = fileBytes.slice(offset, fileBytes.length);
-				let dec = new DecodedChunk();
-				dec.errors.push("Unknown format");
-				appendRow(offset, chunk, ["Special: Unknown", `Length: ${uintToStrWithThousandsSeparators(chunk.length)} bytes`], dec);
-				offset += chunk.length;
+			this.outerNotes.push("Special: File signature");
+			this.outerNotes.push(`Length: ${uintToStrWithThousandsSeparators(bytes.length)} bytes`);
+			this.innerNotes.push(`\u201C${bytesToReadableString(bytes)}\u201D`);
+			
+			for (let i = 0; i < SignaturePart.FILE_SIGNATURE.length && this.errorNotes.length == 0; i++) {
+				if (i >= bytes.length)
+					this.errorNotes.push("Premature EOF");
+				else if (bytes[i] != SignaturePart.FILE_SIGNATURE[i])
+					this.errorNotes.push("Value mismatch");
+			}
+		}
+		
+		public static FILE_SIGNATURE: Array<int> = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+		
+	}
+	
+	
+	class UnknownPart extends FilePart {
+		
+		public constructor(
+				offset: int,
+				bytes: Uint8Array) {
+			super(offset, bytes);
+			this.outerNotes.push("Special: Unknown");
+			this.outerNotes.push(`Length: ${uintToStrWithThousandsSeparators(bytes.length)} bytes`);
+			this.errorNotes.push("Unknown format");
+		}
+		
+	}
+	
+	
+	
+	class ChunkPart extends FilePart {
+		
+		private typeCodeStr: string = "";
+		private data: Uint8Array = new Uint8Array();
+		
+		
+		public constructor(
+				offset: int,
+				bytes: Uint8Array) {
+			super(offset, bytes);
+			
+			if (bytes.length < 4) {
+				this.outerNotes.push("Data length: Unfinished");
+				this.errorNotes.push("Premature EOF");
 				return;
 			}
-		}
-		
-		while (offset < fileBytes.length) {
-			const remain: int = fileBytes.length - offset;
-			let chunkOutside: Array<string|Node> = [];
-			let dec = new DecodedChunk();
 			
-			if (remain < 12) {
-				const chunk: Uint8Array = fileBytes.slice(offset, fileBytes.length);
-				chunkOutside.push("Special: Unfinished");
-				dec.errors.push("Premature EOF");
-				appendRow(offset, chunk, chunkOutside, dec);
-				break;
+			const dataLen: int = readUint32(bytes, 0);
+			this.outerNotes.push(`Data length: ${uintToStrWithThousandsSeparators(dataLen)} bytes`);
+			if (dataLen > ChunkPart.MAX_DATA_LENGTH)
+				this.errorNotes.push("Length out of range");
+			else if (bytes.length < dataLen + 12)
+				this.errorNotes.push("Premature EOF");
+			
+			if (bytes.length < 8) {
+				this.outerNotes.push("Type code: Unfinished");
+				return;
 			}
 			
-			const typeCodeBytes: Uint8Array = fileBytes.slice(offset + 4, offset + 8);
+			const typeCodeBytes: Uint8Array = bytes.slice(4, 8);
 			const typeCodeStr: string = bytesToReadableString(typeCodeBytes);
-			const typeNameAndFunc: [string,ChunkDecoder]|undefined = CHUNK_TYPES.get(typeCodeStr);
-			chunkOutside.push("Name: " + (typeNameAndFunc !== undefined ? typeNameAndFunc[0] : "Unknown"));
-			chunkOutside.push("Type code: " + typeCodeStr);
-			chunkOutside.push((typeCodeBytes[0] & 0x20) == 0 ? "Critical (0)"       : "Ancillary (1)"   );
-			chunkOutside.push((typeCodeBytes[1] & 0x20) == 0 ? "Public (0)"         : "Private (1)"     );
-			chunkOutside.push((typeCodeBytes[2] & 0x20) == 0 ? "Reserved (0)"       : "Unknown (1)" );
-			chunkOutside.push((typeCodeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
-			
-			const dataLen: int = readUint32(fileBytes, offset);
-			chunkOutside.push(`Data length: ${uintToStrWithThousandsSeparators(dataLen)} bytes`);
-			
-			if (dataLen > 0x80000000) {
-				const chunk: Uint8Array = fileBytes.slice(offset, fileBytes.length);
-				dec.errors.push("Length out of range");
-				appendRow(offset, chunk, chunkOutside, dec);
-				break;
+			this.outerNotes.push("Type code: " + typeCodeStr);
+			let typeName: string|null = null;
+			for (const [code, name, _] of ChunkPart.TYPE_HANDLERS) {
+				if (code == typeCodeStr) {
+					if (typeName !== null)
+						throw "Table has duplicate keys";
+					typeName = name;
+				}
 			}
-			if (remain < 12 + dataLen) {
-				const chunk: Uint8Array = fileBytes.slice(offset, fileBytes.length);
-				dec.errors.push("Premature EOF");
-				appendRow(offset, chunk, chunkOutside, dec);
-				break;
+			if (typeName === null)
+				typeName = "Unknown";
+			this.outerNotes.push("Name: " + typeName);
+			this.outerNotes.push((typeCodeBytes[0] & 0x20) == 0 ? "Critical (0)"       : "Ancillary (1)"   );
+			this.outerNotes.push((typeCodeBytes[1] & 0x20) == 0 ? "Public (0)"         : "Private (1)"     );
+			this.outerNotes.push((typeCodeBytes[2] & 0x20) == 0 ? "Reserved (0)"       : "Unknown (1)"     );
+			this.outerNotes.push((typeCodeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
+			
+			if (dataLen > ChunkPart.MAX_DATA_LENGTH)
+				return;
+			if (bytes.length < dataLen + 12) {
+				this.outerNotes.push("CRC-32: Unfinished");
+				return;
 			}
 			
-			const chunk: Uint8Array = fileBytes.slice(offset, offset + 12 + dataLen);
-			const storedCrc: int = readUint32(chunk, chunk.length - 4);
-			chunkOutside.push(`CRC-32: ${storedCrc.toString(16).padStart(8,"0").toUpperCase()}`);
+			const storedCrc: int = readUint32(bytes, bytes.length - 4);
+			this.outerNotes.push(`CRC-32: ${storedCrc.toString(16).padStart(8,"0").toUpperCase()}`);
+			const dataCrc: int = calcCrc32(bytes.slice(4, bytes.length - 4));
+			if (dataCrc != storedCrc)
+				this.errorNotes.push(`CRC-32 mismatch (calculated from data: ${dataCrc.toString(16).padStart(8,"0").toUpperCase()})`);
 			
-			const dataCrc: int = calcCrc32(chunk.slice(4, chunk.length - 4));
-			if (dataCrc != storedCrc) {
-				dec.errors.push(`CRC-32 mismatch (calculated from data: ${dataCrc.toString(16).padStart(8,"0").toUpperCase()})`);
-				appendRow(offset, chunk, chunkOutside, dec);
-			}
-			else {
-				const data: Uint8Array = chunk.slice(8, chunk.length - 4);
-				if (typeNameAndFunc !== undefined)
-					typeNameAndFunc[1](data, dec);
-				appendRow(offset, chunk, chunkOutside, dec);
-			}
-			offset += chunk.length;
+			this.typeCodeStr = typeCodeStr;
+			this.data = bytes.slice(8, bytes.length - 4);
 		}
+		
+		
+		public annotate(earlierChunks: Array<ChunkPart>): void {
+			if (this.innerNotes.length > 0)
+				throw "Already annotated";
+			for (const [code, _, func] of ChunkPart.TYPE_HANDLERS) {
+				if (code == this.typeCodeStr) {
+					func(this, earlierChunks);
+					return;
+				}
+			}
+		}
+		
+		
+		// The maximum length of a chunk's payload data, in bytes.
+		// Although this number does not fit in a signed 32-bit integer type,
+		// the PNG specification says that lengths "must not exceed 2^31 bytes".
+		public static MAX_DATA_LENGTH: int = 0x80000000;
+		
+		
+		private static TYPE_HANDLERS: Array<[string,string,((chunk:ChunkPart,earlier:Array<ChunkPart>)=>void)]> = [
+			
+			["bKGD", "Background color", function(chunk, earlier) {}],
+			
+			
+			["cHRM", "Primary chromaticities", function(chunk, earlier) {
+				if (chunk.data.length != 32) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				let offset: int = 0;
+				for (const item of ["White point", "Red", "Green", "Blue"]) {
+					for (const axis of ["x", "y"]) {
+						const val: int = readUint32(chunk.data, offset);
+						let s: string = val.toString().padStart(6, "0");
+						s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
+						// s basically equals (val/100000).toFixed(5)
+						chunk.innerNotes.push(`${item} ${axis}: ${s}`);
+						offset += 4;
+					}
+				}
+			}],
+			
+			
+			["gAMA", "Image gamma", function(chunk, earlier) {
+				if (chunk.data.length != 4) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const gamma: int = readUint32(chunk.data, 0);
+				let s: string = gamma.toString().padStart(6, "0");
+				s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
+				// s basically equals (gamma/100000).toFixed(5)
+				chunk.innerNotes.push(`Gamma: ${s}`);
+			}],
+			
+			
+			["hIST", "Palette histogram", function(chunk, earlier) {
+				if (chunk.data.length % 2 != 0 || chunk.data.length / 2 > 256) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+			}],
+			
+			
+			["iCCP", "Embedded ICC profile", function(chunk, earlier) {}],
+			
+			
+			["IDAT", "Image data", function(chunk, earlier) {}],
+			
+			
+			["IEND", "Image trailer", function(chunk, earlier) {
+				if (chunk.data.length != 0)
+					chunk.errorNotes.push("Non-empty data");
+			}],
+			
+			
+			["IHDR", "Image header", function(chunk, earlier) {
+				if (chunk.data.length != 13) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const width    : int = readUint32(chunk.data, 0);
+				const height   : int = readUint32(chunk.data, 4);
+				const bitDepth : int = chunk.data[ 8];
+				const colorType: int = chunk.data[ 9];
+				const compMeth : int = chunk.data[10];
+				const filtMeth : int = chunk.data[11];
+				const laceMeth : int = chunk.data[12];
+				
+				chunk.innerNotes.push(`Width: ${width} pixels`);
+				if (width == 0 || width > 0x80000000)
+					chunk.errorNotes.push("Width out of range");
+				
+				chunk.innerNotes.push(`Height: ${height} pixels`);
+				if (height == 0 || height > 0x80000000)
+					chunk.errorNotes.push("Height out of range");
+				
+				{
+					let colorTypeStr: string;
+					let validBitDepths: Array<int>;
+					const temp: [string,Array<int>]|null = lookUpTable(colorType, [
+						[0, ["Grayscale"      ,  [1, 2, 4, 8, 16]]],
+						[2, ["RGB"            ,  [8, 16]         ]],
+						[3, ["Palette"        ,  [1, 2, 4, 8]    ]],
+						[4, ["Grayscale+Alpha",  [8, 16]         ]],
+						[6, ["RGBA"           ,  [8, 16]         ]],
+					]);
+					colorTypeStr   = temp !== null ? temp[0] : "Unknown";
+					validBitDepths = temp !== null ? temp[1] : []       ;
+					chunk.innerNotes.push(`Bit depth: ${bitDepth} bits per ${colorType!=3?"channel":"pixel"}`);
+					chunk.innerNotes.push(`Color type: ${colorTypeStr} (${colorType})`);
+					if (temp === null)
+						chunk.errorNotes.push("Unknown color type");
+					else if (!validBitDepths.includes(bitDepth))
+						chunk.errorNotes.push("Invalid bit depth");
+				}
+				{
+					let s: string|null = lookUpTable(compMeth, [
+						[0, "DEFLATE"],
+					]);
+					if (s === null) {
+						s = "Unknown";
+						chunk.errorNotes.push("Unknown compression method");
+					}
+					chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
+				}
+				{
+					let s: string|null = lookUpTable(filtMeth, [
+						[0, "Adaptive"],
+					]);
+					if (s === null) {
+						s = "Unknown";
+						chunk.errorNotes.push("Unknown filter method");
+					}
+					chunk.innerNotes.push(`Filter method: ${s} (${filtMeth})`);
+				}
+				{
+					let s: string|null = lookUpTable(laceMeth, [
+						[0, "None" ],
+						[1, "Adam7"],
+					]);
+					if (s === null) {
+						s = "Unknown";
+						chunk.errorNotes.push("Unknown interlace method");
+					}
+					chunk.innerNotes.push(`Interlace method: ${s} (${laceMeth})`);
+				}
+			}],
+			
+			
+			["iTXt", "International textual data", function(chunk, earlier) {}],
+			
+			
+			["pHYs", "Physical pixel dimensions", function(chunk, earlier) {
+				if (chunk.data.length != 9) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const horzRes: int = readUint32(chunk.data, 0);
+				const vertRes: int = readUint32(chunk.data, 4);
+				const unit   : int = chunk.data[8];
+				chunk.innerNotes.push(`Horizontal resolution: ${horzRes} pixels per unit${unit==1?" (\u2248 "+(horzRes*0.0254).toFixed(0)+" DPI)":""}`);
+				chunk.innerNotes.push(`Vertical resolution: ${vertRes} pixels per unit${unit==1?" (\u2248 "+(vertRes*0.0254).toFixed(0)+" DPI)":""}`);
+				{
+					let s: string|null = lookUpTable(unit, [
+						[0, "Arbitrary (aspect ratio only)"],
+						[1, "Metre"                        ],
+					]);
+					if (s === null) {
+						s = "Unknown";
+						chunk.errorNotes.push("Unknown unit specifier");
+					}
+					chunk.innerNotes.push(`Unit specifier: ${s} (${unit})`);
+				}
+			}],
+			
+			
+			["PLTE", "Palette", function(chunk, earlier) {}],
+			
+			
+			["sBIT", "Significant bits", function(chunk, earlier) {
+				if (chunk.data.length == 0 || chunk.data.length > 4)
+					chunk.errorNotes.push("Invalid data length");
+				let temp: Array<string> = [];
+				for (let i = 0; i < chunk.data.length; i++)
+					temp.push(chunk.data[i].toString());
+				chunk.innerNotes.push(`Significant bits per channel: ${temp.join(", ")}`);
+			}],
+			
+			
+			["sPLT", "Suggested palette", function(chunk, earlier) {}],
+			
+			
+			["sRGB", "Standard RGB color space", function(chunk, earlier) {
+				if (chunk.data.length != 1) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const renderIntent: int = chunk.data[0];
+				let s: string|null = lookUpTable(renderIntent, [
+					[0, "Perceptual"           ],
+					[1, "Relative colorimetric"],
+					[2, "Saturation"           ],
+					[3, "Absolute colorimetric"],
+				]);
+				if (s === null) {
+					s = "Unknown";
+					chunk.errorNotes.push("Unknown rendering intent");
+				}
+				chunk.innerNotes.push(`Rendering intent: ${s} (${renderIntent})`);
+			}],
+			
+			
+			["tEXt", "Textual data", function(chunk, earlier) {}],
+			
+			
+			["tIME", "Image last-modification time", function(chunk, earlier) {
+				if (chunk.data.length != 7) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const year  : int = readUint16(chunk.data, 0);
+				const month : int = chunk.data[2];
+				const day   : int = chunk.data[3];
+				const hour  : int = chunk.data[4];
+				const minute: int = chunk.data[5];
+				const second: int = chunk.data[6];
+				chunk.innerNotes.push(`Year: ${year}`);
+				chunk.innerNotes.push(`Month: ${month}`);
+				chunk.innerNotes.push(`Day: ${day}`);
+				chunk.innerNotes.push(`Hour: ${hour}`);
+				chunk.innerNotes.push(`Minute: ${minute}`);
+				chunk.innerNotes.push(`Second: ${second}`);
+			}],
+			
+			
+			["tRNS", "Transparency", function(chunk, earlier) {}],
+			
+			
+			["zTXt", "Compressed textual data", function(chunk, earlier) {}],
+			
+		];
+		
 	}
 	
-	
-	function appendRow(
-			startOffset: int,
-			rawBytes: Uint8Array,
-			chunkOutside: Array<string|Node>,
-			decodedChunk: DecodedChunk)
-			: void {
-		
-		let tr = appendElem(tbody, "tr");
-		appendElem(tr, "td", uintToStrWithThousandsSeparators(startOffset));
-		
-		{
-			let td = appendElem(tr, "td");
-			let hex: Array<string> = [];
-			if (rawBytes.length <= 100) {
-				for (let i = 0; i < rawBytes.length; i++)
-					hex.push(rawBytes[i].toString(16).padStart(2, "0"));
-			} else {
-				for (let i = 0; i < 70; i++)
-					hex.push(rawBytes[i].toString(16).padStart(2, "0"));
-				hex.push("...");
-				for (let i = rawBytes.length - 30; i < rawBytes.length; i++)
-					hex.push(rawBytes[i].toString(16).padStart(2, "0"));
-			}
-			appendElem(td, "code", hex.join(" "));
-		}
-		
-		for (const list of [chunkOutside, decodedChunk.data, decodedChunk.errors]) {
-			let td = appendElem(tr, "td");
-			let ul = appendElem(td, "ul");
-			for (const item of list) {
-				if (list == decodedChunk.errors)
-					table.classList.add("errors");
-				let li = appendElem(ul, "li");
-				if (typeof item == "string")
-					li.textContent = item;
-				else if (item instanceof Node)
-					li.appendChild(item);
-				else
-					throw "Assertion error";
-			}
-		}
-	}
-	
-	
-	
-	const FILE_SIGNATURE: Array<int> = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
-	
-	function parseFileSignature(bytes: Uint8Array): DecodedChunk {
-		let dec = new DecodedChunk();
-		dec.data.push(`\u201C${bytesToReadableString(bytes)}\u201D`);
-		
-		for (let i = 0; i < FILE_SIGNATURE.length && dec.errors.length == 0; i++) {
-			if (i >= bytes.length)
-				dec.errors.push("Premature EOF");
-			else if (bytes[i] != FILE_SIGNATURE[i])
-				dec.errors.push("Value mismatch");
-		}
-		return dec;
-	}
 	
 	
 	function calcCrc32(bytes: Uint8Array): int {
 		let crc: int = ~0;
-		for (let i = 0; i < bytes.length; i++) {
-			for (let b = bytes[i], j = 0; j < 8; j++) {
-				crc ^= (b >>> j) & 1;
+		for (const b of bytes) {
+			for (let i = 0; i < 8; i++) {
+				crc ^= (b >>> i) & 1;
 				crc = (crc >>> 1) ^ (-(crc & 1) & 0xEDB88320);
 			}
 		}
@@ -233,241 +538,6 @@ namespace app {
 			result.textContent = text;
 		return result;
 	}
-	
-	
-	
-	let CHUNK_TYPES = new Map<string,[string,ChunkDecoder]>();
-	
-	
-	CHUNK_TYPES.set("bKGD", ["Background color", function(bytes: Uint8Array, dec: DecodedChunk): void {
-	}]);
-	
-	
-	CHUNK_TYPES.set("cHRM", ["Primary chromaticities", function(bytes: Uint8Array, dec: DecodedChunk): void {
-		if (bytes.length != 32) {
-			dec.errors.push("Invalid data length");
-			return;
-		}
-		let offset: int = 0;
-		for (const item of ["White point", "Red", "Green", "Blue"]) {
-			for (const axis of ["x", "y"]) {
-				const val: int = readUint32(bytes, offset);
-				let s: string = val.toString().padStart(6, "0");
-				s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
-				// s basically equals (val/100000).toFixed(5)
-				dec.data.push(`${item} ${axis}: ${s}`);
-				offset += 4;
-			}
-		}
-	}]);
-	
-	
-	CHUNK_TYPES.set("gAMA", ["Image gamma", function(bytes: Uint8Array, dec: DecodedChunk): void {
-		if (bytes.length != 4) {
-			dec.errors.push("Invalid data length");
-			return;
-		}
-		const gamma: int = readUint32(bytes, 0);
-		let s: string = gamma.toString().padStart(6, "0");
-		s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
-		// s basically equals (gamma/100000).toFixed(5)
-		dec.data.push(`Gamma: ${s}`);
-	}]);
-	
-	
-	CHUNK_TYPES.set("hIST", ["Palette histogram", function(bytes: Uint8Array, dec: DecodedChunk): void {
-		if (bytes.length % 2 != 0 || bytes.length / 2 > 256) {
-			dec.errors.push("Invalid data length");
-			return;
-		}
-	}]);
-	
-	
-	CHUNK_TYPES.set("iCCP", ["Embedded ICC profile", function(bytes: Uint8Array, dec: DecodedChunk): void {
-	}]);
-	
-	
-	CHUNK_TYPES.set("IDAT", ["Image data", function(bytes: Uint8Array, dec: DecodedChunk): void {
-	}]);
-	
-	
-	CHUNK_TYPES.set("IEND", ["Image trailer", function(bytes: Uint8Array, dec: DecodedChunk): void {
-		if (bytes.length != 0)
-			dec.errors.push("Non-empty data");
-	}]);
-	
-	
-	CHUNK_TYPES.set("IHDR", ["Image header", function(bytes: Uint8Array, dec: DecodedChunk): void {
-		if (bytes.length != 13) {
-			dec.errors.push("Invalid data length");
-			return;
-		}
-		const width    : int = readUint32(bytes, 0);
-		const height   : int = readUint32(bytes, 4);
-		const bitDepth : int = bytes[ 8];
-		const colorType: int = bytes[ 9];
-		const compMeth : int = bytes[10];
-		const filtMeth : int = bytes[11];
-		const laceMeth : int = bytes[12];
-		
-		dec.data.push(`Width: ${width} pixels`);
-		if (width == 0 || width > 0x80000000)
-			dec.errors.push("Width out of range");
-		
-		dec.data.push(`Height: ${height} pixels`);
-		if (height == 0 || height > 0x80000000)
-			dec.errors.push("Width out of range");
-		
-		{
-			let colorTypeStr: string;
-			let validBitDepths: Array<int>;
-			const temp: [string,Array<int>]|null = lookUpTable(colorType, [
-				[0, ["Grayscale"      ,  [1, 2, 4, 8, 16]]],
-				[2, ["RGB"            ,  [8, 16]         ]],
-				[3, ["Palette"        ,  [1, 2, 4, 8]    ]],
-				[4, ["Grayscale+Alpha",  [8, 16]         ]],
-				[6, ["RGBA"           ,  [8, 16]         ]],
-			]);
-			colorTypeStr   = temp !== null ? temp[0] : "Unknown";
-			validBitDepths = temp !== null ? temp[1] : []       ;
-			dec.data.push(`Bit depth: ${bitDepth} bits per ${colorType!=3?"channel":"pixel"}`);
-			dec.data.push(`Color type: ${colorTypeStr} (${colorType})`);
-			if (temp === null)
-				dec.errors.push("Unknown color type");
-			else if (!validBitDepths.includes(bitDepth))
-				dec.errors.push("Invalid bit depth");
-		}
-		{
-			let s: string|null = lookUpTable(compMeth, [
-				[0, "DEFLATE"],
-			]);
-			if (s === null) {
-				s = "Unknown";
-				dec.errors.push("Unknown compression method");
-			}
-			dec.data.push(`Compression method: ${s} (${compMeth})`);
-		}
-		{
-			let s: string|null = lookUpTable(filtMeth, [
-				[0, "Adaptive"],
-			]);
-			if (s === null) {
-				s = "Unknown";
-				dec.errors.push("Unknown filter method");
-			}
-			dec.data.push(`Filter method: ${s} (${filtMeth})`);
-		}
-		{
-			let s: string|null = lookUpTable(laceMeth, [
-				[0, "None" ],
-				[1, "Adam7"],
-			]);
-			if (s === null) {
-				s = "Unknown";
-				dec.errors.push("Unknown interlace method");
-			}
-			dec.data.push(`Interlace method: ${s} (${laceMeth})`);
-		}
-	}]);
-	
-	
-	CHUNK_TYPES.set("iTXt", ["International textual data", function(bytes: Uint8Array, dec: DecodedChunk): void {
-	}]);
-	
-	
-	CHUNK_TYPES.set("pHYs", ["Physical pixel dimensions", function(bytes: Uint8Array, dec: DecodedChunk): void {
-		if (bytes.length != 9) {
-			dec.errors.push("Invalid data length");
-			return;
-		}
-		const horzRes: int = readUint32(bytes, 0);
-		const vertRes: int = readUint32(bytes, 4);
-		const unit   : int = bytes[8];
-		dec.data.push(`Horizontal resolution: ${horzRes} pixels per unit${unit==1?" (\u2248 "+(horzRes*0.0254).toFixed(0)+" DPI)":""}`);
-		dec.data.push(`Vertical resolution: ${vertRes} pixels per unit${unit==1?" (\u2248 "+(vertRes*0.0254).toFixed(0)+" DPI)":""}`);
-		{
-			let s: string|null = lookUpTable(unit, [
-				[0, "Arbitrary (aspect ratio only)"],
-				[1, "Metre"                        ],
-			]);
-			if (s === null) {
-				s = "Unknown";
-				dec.errors.push("Unknown unit specifier");
-			}
-			dec.data.push(`Unit specifier: ${s} (${unit})`);
-		}
-	}]);
-	
-	
-	CHUNK_TYPES.set("PLTE", ["Palette", function(bytes: Uint8Array, dec: DecodedChunk): void {
-	}]);
-	
-	
-	CHUNK_TYPES.set("sBIT", ["Significant bits", function(bytes: Uint8Array, dec: DecodedChunk): void {
-		if (bytes.length == 0 || bytes.length > 4)
-			dec.errors.push("Invalid data length");
-		let temp: Array<string> = [];
-		for (let i = 0; i < bytes.length; i++)
-			temp.push(bytes[i].toString());
-		dec.data.push(`Significant bits per channel: ${temp.join(", ")}`);
-	}]);
-	
-	
-	CHUNK_TYPES.set("sPLT", ["Suggested palette", function(bytes: Uint8Array, dec: DecodedChunk): void {
-	}]);
-	
-	
-	CHUNK_TYPES.set("sRGB", ["Standard RGB color space", function(bytes: Uint8Array, dec: DecodedChunk): void {
-		if (bytes.length != 1) {
-			dec.errors.push("Invalid data length");
-			return;
-		}
-		const renderIntent: int = bytes[0];
-		let s: string|null = lookUpTable(renderIntent, [
-			[0, "Perceptual"           ],
-			[1, "Relative colorimetric"],
-			[2, "Saturation"           ],
-			[3, "Absolute colorimetric"],
-		]);
-		if (s === null) {
-			s = "Unknown";
-			dec.errors.push("Unknown rendering intent");
-		}
-		dec.data.push(`Rendering intent: ${s} (${renderIntent})`);
-	}]);
-	
-	
-	CHUNK_TYPES.set("tEXt", ["Textual data", function(bytes: Uint8Array, dec: DecodedChunk): void {
-	}]);
-	
-	
-	CHUNK_TYPES.set("tIME", ["Image last-modification time", function(bytes: Uint8Array, dec: DecodedChunk): void {
-		if (bytes.length != 7) {
-			dec.errors.push("Invalid data length");
-			return;
-		}
-		const year  : int = readUint16(bytes, 0);
-		const month : int = bytes[2];
-		const day   : int = bytes[3];
-		const hour  : int = bytes[4];
-		const minute: int = bytes[5];
-		const second: int = bytes[6];
-		dec.data.push(`Year: ${year}`);
-		dec.data.push(`Month: ${month}`);
-		dec.data.push(`Day: ${day}`);
-		dec.data.push(`Hour: ${hour}`);
-		dec.data.push(`Minute: ${minute}`);
-		dec.data.push(`Second: ${second}`);
-	}]);
-	
-	
-	CHUNK_TYPES.set("tRNS", ["Transparency", function(bytes: Uint8Array, dec: DecodedChunk): void {
-	}]);
-	
-	
-	CHUNK_TYPES.set("zTXt", ["Compressed textual data", function(bytes: Uint8Array, dec: DecodedChunk): void {
-	}]);
-	
 	
 	
 	function lookUpTable<V>(key: int, table: Array<[int,V]>): V|null {
