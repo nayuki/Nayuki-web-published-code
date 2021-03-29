@@ -318,44 +318,55 @@ namespace app {
 		if (height == 0 || height > 0x80000000)
 			dec.errors.push("Width out of range");
 		
-		let colorTypeStr: string;
-		let validBitDepths: Array<int>;
-		switch (colorType) {
-			case  0:  colorTypeStr = "Grayscale"      ;  validBitDepths = [1, 2, 4, 8, 16];  break;
-			case  2:  colorTypeStr = "RGB"            ;  validBitDepths = [8, 16]         ;  break;
-			case  3:  colorTypeStr = "Palette"        ;  validBitDepths = [1, 2, 4, 8]    ;  break;
-			case  4:  colorTypeStr = "Grayscale+Alpha";  validBitDepths = [8, 16]         ;  break;
-			case  6:  colorTypeStr = "RGBA"           ;  validBitDepths = [8, 16]         ;  break;
-			default:  colorTypeStr = "Unknown"        ;  validBitDepths = []              ;  break;
+		{
+			let colorTypeStr: string;
+			let validBitDepths: Array<int>;
+			const temp: [string,Array<int>]|null = lookUpTable(colorType, [
+				[0, ["Grayscale"      ,  [1, 2, 4, 8, 16]]],
+				[2, ["RGB"            ,  [8, 16]         ]],
+				[3, ["Palette"        ,  [1, 2, 4, 8]    ]],
+				[4, ["Grayscale+Alpha",  [8, 16]         ]],
+				[6, ["RGBA"           ,  [8, 16]         ]],
+			]);
+			colorTypeStr   = temp !== null ? temp[0] : "Unknown";
+			validBitDepths = temp !== null ? temp[1] : []       ;
+			dec.data.push(`Bit depth: ${bitDepth} bits per ${colorType!=3?"channel":"pixel"}`);
+			dec.data.push(`Color type: ${colorTypeStr} (${colorType})`);
+			if (temp === null)
+				dec.errors.push("Unknown color type");
+			else if (!validBitDepths.includes(bitDepth))
+				dec.errors.push("Invalid bit depth");
 		}
-		dec.data.push(`Bit depth: ${bitDepth} bits per ${colorType!=3?"channel":"pixel"}`);
-		if (!validBitDepths.includes(bitDepth))
-			dec.errors.push("Invalid bit depth");
-		dec.data.push(`Color type: ${colorTypeStr} (${colorType})`);
-		if (colorTypeStr == "Unknown")
-			dec.errors.push("Unknown color type");
-		
-		if (compMeth == 0)
-			dec.data.push(`Compression method: DEFLATE (${compMeth})`);
-		else {
-			dec.data.push(`Compression method: Unknown (${compMeth})`);
-			dec.errors.push("Unknown compression method");
+		{
+			let s: string|null = lookUpTable(compMeth, [
+				[0, "DEFLATE"],
+			]);
+			if (s === null) {
+				s = "Unknown";
+				dec.errors.push("Unknown compression method");
+			}
+			dec.data.push(`Compression method: ${s} (${compMeth})`);
 		}
-		
-		if (filtMeth == 0)
-			dec.data.push(`Filter method: Adaptive (${filtMeth})`);
-		else {
-			dec.data.push(`Filter method: Unknown (${filtMeth})`);
-			dec.errors.push("Unknown filter method");
+		{
+			let s: string|null = lookUpTable(filtMeth, [
+				[0, "Adaptive"],
+			]);
+			if (s === null) {
+				s = "Unknown";
+				dec.errors.push("Unknown filter method");
+			}
+			dec.data.push(`Filter method: ${s} (${filtMeth})`);
 		}
-		
-		if (laceMeth == 0)
-			dec.data.push(`Interlace method: None (${laceMeth})`);
-		else if (laceMeth == 1)
-			dec.data.push(`Interlace method: Adam7 (${laceMeth})`);
-		else {
-			dec.data.push(`Interlace method: Unknown (${laceMeth})`);
-			dec.errors.push("Unknown interlace method");
+		{
+			let s: string|null = lookUpTable(laceMeth, [
+				[0, "None" ],
+				[1, "Adam7"],
+			]);
+			if (s === null) {
+				s = "Unknown";
+				dec.errors.push("Unknown interlace method");
+			}
+			dec.data.push(`Interlace method: ${s} (${laceMeth})`);
 		}
 	}]);
 	
@@ -374,13 +385,16 @@ namespace app {
 		const unit   : int = bytes[8];
 		dec.data.push(`Horizontal resolution: ${horzRes} pixels per unit${unit==1?" (\u2248 "+(horzRes*0.0254).toFixed(0)+" DPI)":""}`);
 		dec.data.push(`Vertical resolution: ${vertRes} pixels per unit${unit==1?" (\u2248 "+(vertRes*0.0254).toFixed(0)+" DPI)":""}`);
-		if (unit == 0)
-			dec.data.push(`Unit specifier: Arbitrary (aspect ratio only) (${unit})`);
-		else if (unit == 1)
-			dec.data.push(`Unit specifier: Metre (${unit})`);
-		else {
-			dec.data.push(`Unit specifier: Unknown (${unit})`);
-			dec.errors.push("Unknown unit specifier");
+		{
+			let s: string|null = lookUpTable(unit, [
+				[0, "Arbitrary (aspect ratio only)"],
+				[1, "Metre"                        ],
+			]);
+			if (s === null) {
+				s = "Unknown";
+				dec.errors.push("Unknown unit specifier");
+			}
+			dec.data.push(`Unit specifier: ${s} (${unit})`);
 		}
 	}]);
 	
@@ -409,13 +423,15 @@ namespace app {
 			return;
 		}
 		const renderIntent: int = bytes[0];
-		let s: string;
-		switch (renderIntent) {
-			case  0:  s = "Perceptual"           ;  break;
-			case  1:  s = "Relative colorimetric";  break;
-			case  2:  s = "Saturation"           ;  break;
-			case  3:  s = "Absolute colorimetric";  break;
-			default:  s = "Unknown";  dec.errors.push("Unknown rendering intent");  break;
+		let s: string|null = lookUpTable(renderIntent, [
+			[0, "Perceptual"           ],
+			[1, "Relative colorimetric"],
+			[2, "Saturation"           ],
+			[3, "Absolute colorimetric"],
+		]);
+		if (s === null) {
+			s = "Unknown";
+			dec.errors.push("Unknown rendering intent");
 		}
 		dec.data.push(`Rendering intent: ${s} (${renderIntent})`);
 	}]);
@@ -452,6 +468,19 @@ namespace app {
 	CHUNK_TYPES.set("zTXt", ["Compressed textual data", function(bytes: Uint8Array, dec: DecodedChunk): void {
 	}]);
 	
+	
+	
+	function lookUpTable<V>(key: int, table: Array<[int,V]>): V|null {
+		let result: V|null = null;
+		for (const [k, v] of table) {
+			if (k == key) {
+				if (result !== null)
+					throw "Table has duplicate keys";
+				result = v;
+			}
+		}
+		return result;
+	}
 	
 	
 	function readUint16(bytes: Uint8Array, offset: int): int {
