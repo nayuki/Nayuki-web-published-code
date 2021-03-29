@@ -37,11 +37,11 @@ var app;
             tbody.removeChild(tbody.firstChild);
         let offset = 0;
         {
-            const chunk = fileBytes.slice(offset, Math.min(offset + SIGNATURE_LENGTH, fileBytes.length));
-            const [dec, valid] = parseFileSignature(chunk);
+            const chunk = fileBytes.slice(offset, Math.min(offset + FILE_SIGNATURE.length, fileBytes.length));
+            const dec = parseFileSignature(chunk);
             appendRow(0, chunk, ["Special: File signature", `Length: ${uintToStrWithThousandsSeparators(chunk.length)} bytes`], dec);
             offset += chunk.length;
-            if (!valid) {
+            if (dec.errors.length > 0) {
                 const chunk = fileBytes.slice(offset, fileBytes.length);
                 let dec = new DecodedChunk();
                 dec.errors.push("Unknown format");
@@ -123,7 +123,7 @@ var app;
         for (const list of [chunkOutside, decodedChunk.data, decodedChunk.errors]) {
             let td = appendElem(tr, "td");
             let ul = appendElem(td, "ul");
-            list.forEach(item => {
+            for (const item of list) {
                 if (list == decodedChunk.errors)
                     table.classList.add("errors");
                 let li = appendElem(ul, "li");
@@ -133,26 +133,20 @@ var app;
                     li.appendChild(item);
                 else
                     throw "Assertion error";
-            });
+            }
         }
     }
-    const SIGNATURE_LENGTH = 8;
+    const FILE_SIGNATURE = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
     function parseFileSignature(bytes) {
         let dec = new DecodedChunk();
         dec.data.push(`\u201C${bytesToReadableString(bytes)}\u201D`);
-        const EXPECTED = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
-        let valid = true;
-        for (let i = 0; valid && i < EXPECTED.length; i++) {
-            if (i >= bytes.length) {
+        for (let i = 0; i < FILE_SIGNATURE.length && dec.errors.length == 0; i++) {
+            if (i >= bytes.length)
                 dec.errors.push("Premature EOF");
-                valid = false;
-            }
-            else if (bytes[i] != EXPECTED[i]) {
+            else if (bytes[i] != FILE_SIGNATURE[i])
                 dec.errors.push("Value mismatch");
-                valid = false;
-            }
         }
-        return [dec, valid];
+        return dec;
     }
     function calcCrc32(bytes) {
         let crc = ~0;

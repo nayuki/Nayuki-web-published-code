@@ -52,12 +52,12 @@ namespace app {
 		let offset: int = 0;
 		
 		{
-			const chunk: Uint8Array = fileBytes.slice(offset, Math.min(offset + SIGNATURE_LENGTH, fileBytes.length));
-			const [dec, valid]: [DecodedChunk,boolean] = parseFileSignature(chunk);
+			const chunk: Uint8Array = fileBytes.slice(offset, Math.min(offset + FILE_SIGNATURE.length, fileBytes.length));
+			const dec: DecodedChunk = parseFileSignature(chunk);
 			appendRow(0, chunk, ["Special: File signature", `Length: ${uintToStrWithThousandsSeparators(chunk.length)} bytes`], dec)
 			offset += chunk.length;
 			
-			if (!valid) {
+			if (dec.errors.length > 0) {
 				const chunk: Uint8Array = fileBytes.slice(offset, fileBytes.length);
 				let dec = new DecodedChunk();
 				dec.errors.push("Unknown format");
@@ -155,7 +155,7 @@ namespace app {
 		for (const list of [chunkOutside, decodedChunk.data, decodedChunk.errors]) {
 			let td = appendElem(tr, "td");
 			let ul = appendElem(td, "ul");
-			list.forEach(item => {
+			for (const item of list) {
 				if (list == decodedChunk.errors)
 					table.classList.add("errors");
 				let li = appendElem(ul, "li");
@@ -165,30 +165,25 @@ namespace app {
 					li.appendChild(item);
 				else
 					throw "Assertion error";
-			});
+			}
 		}
 	}
 	
 	
 	
-	const SIGNATURE_LENGTH: int = 8;
+	const FILE_SIGNATURE: Array<int> = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 	
-	function parseFileSignature(bytes: Uint8Array): [DecodedChunk,boolean] {
+	function parseFileSignature(bytes: Uint8Array): DecodedChunk {
 		let dec = new DecodedChunk();
 		dec.data.push(`\u201C${bytesToReadableString(bytes)}\u201D`);
 		
-		const EXPECTED: Array<int> = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
-		let valid: boolean = true;
-		for (let i = 0; valid && i < EXPECTED.length; i++) {
-			if (i >= bytes.length) {
+		for (let i = 0; i < FILE_SIGNATURE.length && dec.errors.length == 0; i++) {
+			if (i >= bytes.length)
 				dec.errors.push("Premature EOF");
-				valid = false;
-			} else if (bytes[i] != EXPECTED[i]) {
+			else if (bytes[i] != FILE_SIGNATURE[i])
 				dec.errors.push("Value mismatch");
-				valid = false;
-			}
 		}
-		return [dec, valid];
+		return dec;
 	}
 	
 	
@@ -477,7 +472,7 @@ namespace app {
 	}
 	
 	
-	type Constructor<T> = { new(...args: any[]): T };
+	type Constructor<T> = { new(...args: Array<any>): T };
 	
 	function requireType<T>(val: unknown, type: Constructor<T>): T {
 		if (val instanceof type)
