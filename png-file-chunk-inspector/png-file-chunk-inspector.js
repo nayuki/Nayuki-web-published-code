@@ -99,11 +99,21 @@ var app;
         }
         { // Annotate chunks
             let earlierChunks = [];
+            let earlierTypes = new Set();
             for (const part of fileParts) {
-                if (part instanceof ChunkPart) {
-                    part.annotate(earlierChunks);
-                    earlierChunks.push(part);
-                }
+                if (!(part instanceof ChunkPart))
+                    continue;
+                const code = part.typeCodeStr;
+                if (code != "IHDR" && !earlierTypes.has("IHDR"))
+                    part.errorNotes.push("Chunk must be after IHDR chunk");
+                if (code != "IEND" && earlierTypes.has("IEND"))
+                    part.errorNotes.push("Chunk must be before IEND chunk");
+                const typeInfo = part.getTypeInfo();
+                if (typeInfo !== null && !typeInfo[1] && earlierTypes.has(code))
+                    part.errorNotes.push("Multiple chunks of this type disallowed");
+                part.annotate(earlierChunks);
+                earlierChunks.push(part);
+                earlierTypes.add(code);
             }
         }
         if (offset != fileBytes.length)
@@ -163,27 +173,22 @@ var app;
                 return;
             }
             const typeCodeBytes = bytes.slice(4, 8);
-            const typeCodeStr = bytesToReadableString(typeCodeBytes);
-            this.outerNotes.push("Type code: " + typeCodeStr);
-            let typeName = null;
-            for (const [code, name, _] of ChunkPart.TYPE_HANDLERS) {
-                if (code == typeCodeStr) {
-                    if (typeName !== null)
-                        throw "Table has duplicate keys";
-                    typeName = name;
-                }
-            }
-            if (typeName === null)
-                typeName = "Unknown";
+            this.typeCodeStr = bytesToReadableString(typeCodeBytes);
+            this.outerNotes.push("Type code: " + this.typeCodeStr);
+            const typeInfo = this.getTypeInfo();
+            const typeName = typeInfo !== null ? typeInfo[0] : "Unknown";
             this.outerNotes.push("Name: " + typeName);
             this.outerNotes.push((typeCodeBytes[0] & 0x20) == 0 ? "Critical (0)" : "Ancillary (1)");
             this.outerNotes.push((typeCodeBytes[1] & 0x20) == 0 ? "Public (0)" : "Private (1)");
             this.outerNotes.push((typeCodeBytes[2] & 0x20) == 0 ? "Reserved (0)" : "Unknown (1)");
             this.outerNotes.push((typeCodeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
-            if (dataLen > ChunkPart.MAX_DATA_LENGTH)
+            if (dataLen > ChunkPart.MAX_DATA_LENGTH) {
+                this.typeCodeStr = "";
                 return;
+            }
             if (bytes.length < dataLen + 12) {
                 this.outerNotes.push("CRC-32: Unfinished");
+                this.typeCodeStr = "";
                 return;
             }
             const storedCrc = readUint32(bytes, bytes.length - 4);
@@ -191,18 +196,25 @@ var app;
             const dataCrc = calcCrc32(bytes.slice(4, bytes.length - 4));
             if (dataCrc != storedCrc)
                 this.errorNotes.push(`CRC-32 mismatch (calculated from data: ${dataCrc.toString(16).padStart(8, "0").toUpperCase()})`);
-            this.typeCodeStr = typeCodeStr;
             this.data = bytes.slice(8, bytes.length - 4);
         }
         annotate(earlierChunks) {
             if (this.innerNotes.length > 0)
                 throw "Already annotated";
-            for (const [code, _, func] of ChunkPart.TYPE_HANDLERS) {
+            const temp = this.getTypeInfo();
+            if (temp !== null)
+                temp[2](this, earlierChunks);
+        }
+        getTypeInfo() {
+            let result = null;
+            for (const [code, name, multiple, func] of ChunkPart.TYPE_HANDLERS) {
                 if (code == this.typeCodeStr) {
-                    func(this, earlierChunks);
-                    return;
+                    if (result !== null)
+                        throw "Table has duplicate keys";
+                    result = [name, multiple, func];
                 }
             }
+            return result;
         }
     }
     // The maximum length of a chunk's payload data, in bytes.
@@ -210,8 +222,15 @@ var app;
     // the PNG specification says that lengths "must not exceed 2^31 bytes".
     ChunkPart.MAX_DATA_LENGTH = 0x80000000;
     ChunkPart.TYPE_HANDLERS = [
-        ["bKGD", "Background color", function (chunk, earlier) { }],
-        ["cHRM", "Primary chromaticities", function (chunk, earlier) {
+        ["bKGD", "Background color", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
+            }],
+        ["cHRM", "Primary chromaticities", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+                    chunk.errorNotes.push("Chunk must be before PLTE chunk");
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 if (chunk.data.length != 32) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -228,7 +247,11 @@ var app;
                     }
                 }
             }],
-        ["gAMA", "Image gamma", function (chunk, earlier) {
+        ["gAMA", "Image gamma", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+                    chunk.errorNotes.push("Chunk must be before PLTE chunk");
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 if (chunk.data.length != 4) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -239,19 +262,31 @@ var app;
                 // s basically equals (gamma/100000).toFixed(5)
                 chunk.innerNotes.push(`Gamma: ${s}`);
             }],
-        ["hIST", "Palette histogram", function (chunk, earlier) {
+        ["hIST", "Palette histogram", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 if (chunk.data.length % 2 != 0 || chunk.data.length / 2 > 256) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
                 }
             }],
-        ["iCCP", "Embedded ICC profile", function (chunk, earlier) { }],
-        ["IDAT", "Image data", function (chunk, earlier) { }],
-        ["IEND", "Image trailer", function (chunk, earlier) {
+        ["iCCP", "Embedded ICC profile", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+                    chunk.errorNotes.push("Chunk must be before PLTE chunk");
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
+            }],
+        ["IDAT", "Image data", true, function (chunk, earlier) {
+                if (earlier.length > 0 && earlier[earlier.length - 1].typeCodeStr != "IDAT"
+                    && earlier.some(ch => ch.typeCodeStr == "IDAT")) {
+                    chunk.errorNotes.push("Non-consecutive IDAT chunk");
+                }
+            }],
+        ["IEND", "Image trailer", false, function (chunk, earlier) {
                 if (chunk.data.length != 0)
                     chunk.errorNotes.push("Non-empty data");
             }],
-        ["IHDR", "Image header", function (chunk, earlier) {
+        ["IHDR", "Image header", false, function (chunk, earlier) {
                 if (chunk.data.length != 13) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -320,8 +355,10 @@ var app;
                     chunk.innerNotes.push(`Interlace method: ${s} (${laceMeth})`);
                 }
             }],
-        ["iTXt", "International textual data", function (chunk, earlier) { }],
-        ["pHYs", "Physical pixel dimensions", function (chunk, earlier) {
+        ["iTXt", "International textual data", true, function (chunk, earlier) { }],
+        ["pHYs", "Physical pixel dimensions", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 if (chunk.data.length != 9) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -343,8 +380,21 @@ var app;
                     chunk.innerNotes.push(`Unit specifier: ${s} (${unit})`);
                 }
             }],
-        ["PLTE", "Palette", function (chunk, earlier) { }],
-        ["sBIT", "Significant bits", function (chunk, earlier) {
+        ["PLTE", "Palette", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "bKGD"))
+                    chunk.errorNotes.push("Chunk must be before bKGD chunk");
+                if (earlier.some(ch => ch.typeCodeStr == "hIST"))
+                    chunk.errorNotes.push("Chunk must be before hIST chunk");
+                if (earlier.some(ch => ch.typeCodeStr == "tRNS"))
+                    chunk.errorNotes.push("Chunk must be before tRNS chunk");
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
+            }],
+        ["sBIT", "Significant bits", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+                    chunk.errorNotes.push("Chunk must be before PLTE chunk");
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 if (chunk.data.length == 0 || chunk.data.length > 4)
                     chunk.errorNotes.push("Invalid data length");
                 let temp = [];
@@ -352,8 +402,15 @@ var app;
                     temp.push(chunk.data[i].toString());
                 chunk.innerNotes.push(`Significant bits per channel: ${temp.join(", ")}`);
             }],
-        ["sPLT", "Suggested palette", function (chunk, earlier) { }],
-        ["sRGB", "Standard RGB color space", function (chunk, earlier) {
+        ["sPLT", "Suggested palette", true, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
+            }],
+        ["sRGB", "Standard RGB color space", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+                    chunk.errorNotes.push("Chunk must be before PLTE chunk");
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 if (chunk.data.length != 1) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -371,8 +428,8 @@ var app;
                 }
                 chunk.innerNotes.push(`Rendering intent: ${s} (${renderIntent})`);
             }],
-        ["tEXt", "Textual data", function (chunk, earlier) { }],
-        ["tIME", "Image last-modification time", function (chunk, earlier) {
+        ["tEXt", "Textual data", true, function (chunk, earlier) { }],
+        ["tIME", "Image last-modification time", false, function (chunk, earlier) {
                 if (chunk.data.length != 7) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -390,8 +447,11 @@ var app;
                 chunk.innerNotes.push(`Minute: ${minute}`);
                 chunk.innerNotes.push(`Second: ${second}`);
             }],
-        ["tRNS", "Transparency", function (chunk, earlier) { }],
-        ["zTXt", "Compressed textual data", function (chunk, earlier) { }],
+        ["tRNS", "Transparency", false, function (chunk, earlier) {
+                if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+                    chunk.errorNotes.push("Chunk must be before IDAT chunk");
+            }],
+        ["zTXt", "Compressed textual data", true, function (chunk, earlier) { }],
     ];
     function calcCrc32(bytes) {
         let crc = ~0;
