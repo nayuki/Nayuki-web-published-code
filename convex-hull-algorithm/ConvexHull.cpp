@@ -1,7 +1,7 @@
 /* 
  * Convex hull algorithm - Library (C++)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -54,10 +54,9 @@ bool Point::operator>=(const Point &other) const {
 }
 
 
-vector<Point> makeConvexHull(const vector<Point> &points) {
-	vector<Point> newPoints = points;
-	std::sort(newPoints.begin(), newPoints.end());
-	return makeConvexHullPresorted(newPoints);
+vector<Point> makeConvexHull(vector<Point> points) {
+	std::sort(points.begin(), points.end());
+	return makeConvexHullPresorted(points);
 }
 
 

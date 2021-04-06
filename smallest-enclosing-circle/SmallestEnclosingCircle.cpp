@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (C++)
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -78,17 +78,16 @@ static std::default_random_engine randGen((std::random_device())());
 
 
 // Initially: No boundary points known
-Circle makeSmallestEnclosingCircle(const vector<Point> &points) {
-	// Clone list to preserve the caller's data, randomize order
-	vector<Point> shuffled = points;
-	std::shuffle(shuffled.begin(), shuffled.end(), randGen);
+Circle makeSmallestEnclosingCircle(vector<Point> points) {
+	// Randomize order
+	std::shuffle(points.begin(), points.end(), randGen);
 	
 	// Progressively add points to circle or recompute circle
 	Circle c = Circle::INVALID;
-	for (size_t i = 0; i < shuffled.size(); i++) {
-		const Point &p = shuffled.at(i);
+	for (size_t i = 0; i < points.size(); i++) {
+		const Point &p = points.at(i);
 		if (c.r < 0 || !c.contains(p))
-			c = makeSmallestEnclosingCircleOnePoint(shuffled, i + 1, p);
+			c = makeSmallestEnclosingCircleOnePoint(points, i + 1, p);
 	}
 	return c;
 }

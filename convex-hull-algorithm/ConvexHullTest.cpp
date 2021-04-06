@@ -1,7 +1,7 @@
 /* 
  * Convex hull algorithm - Test suite (C++)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <random>
+#include <utility>
 #include "ConvexHull.hpp"
 
 using std::size_t;
@@ -251,8 +252,8 @@ static void testVsNaiveRandomly() {
 				points.push_back(Point{static_cast<double>(valDist(randGen)), static_cast<double>(valDist(randGen))});
 		}
 		
-		const vector<Point> actual = makeConvexHull(points);
 		const vector<Point> expected = makeHullNaive(points);
+		const vector<Point> actual = makeConvexHull(std::move(points));
 		if (actual != expected)
 			throw "Value mismatch";
 	}
@@ -293,7 +294,7 @@ static void testHullPropertiesRandomly() {
 				std::uniform_int_distribution<size_t> sizeDist(0, points.size() - 1);
 				points.push_back(points.at(sizeDist(randGen)));
 			}
-			const vector<Point> nextHull = makeConvexHull(points);
+			const vector<Point> nextHull = makeConvexHull(std::move(points));
 			if (nextHull != hull)
 				throw "Value mismatch";
 		}

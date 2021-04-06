@@ -1,7 +1,7 @@
 /* 
  * Convex hull algorithm - Library (C++)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -43,7 +43,7 @@ struct Point final {
 // Returns a new list of points representing the convex hull of
 // the given set of points. The convex hull excludes collinear points.
 // This algorithm runs in O(n log n) time.
-std::vector<Point> makeConvexHull(const std::vector<Point> &points);
+std::vector<Point> makeConvexHull(std::vector<Point> points);
 
 
 // Returns the convex hull, assuming that each points[i] <= points[i + 1]. Runs in O(n) time.

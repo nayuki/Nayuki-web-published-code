@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (C++)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -63,7 +63,7 @@ struct Circle final {
  * Runs in expected O(n) time, randomized. Note: If 0 points are given, a circle of
  * negative radius is returned. If 1 point is given, a circle of radius 0 is returned.
  */
-Circle makeSmallestEnclosingCircle(const std::vector<Point> &points);
+Circle makeSmallestEnclosingCircle(std::vector<Point> points);
 
 // For unit tests
 Circle makeDiameter(const Point &a, const Point &b);

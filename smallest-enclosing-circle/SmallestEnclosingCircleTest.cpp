@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Test suite (C++)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -24,6 +24,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <random>
+#include <utility>
 #include "SmallestEnclosingCircle.hpp"
 
 using std::size_t;
@@ -67,7 +68,7 @@ static void testMatchingNaiveAlgorithm() {
 	for (long i = 0; i < trials; i++) {
 		const vector<Point> points = makeRandomPoints(numPointsDist(randGen));
 		Circle reference = smallestEnclosingCircleNaive(points);
-		Circle actual = makeSmallestEnclosingCircle(points);
+		Circle actual = makeSmallestEnclosingCircle(std::move(points));
 		assertApproxEqual(reference.c.x, actual.c.x, EPSILON);
 		assertApproxEqual(reference.c.y, actual.c.y, EPSILON);
 		assertApproxEqual(reference.r  , actual.r  , EPSILON);
@@ -90,7 +91,7 @@ static void testTranslation() {
 			for (const Point &p : points)
 				newPoints.push_back(Point{p.x + dx, p.y + dy});
 			
-			Circle translated = makeSmallestEnclosingCircle(newPoints);
+			Circle translated = makeSmallestEnclosingCircle(std::move(newPoints));
 			assertApproxEqual(reference.c.x + dx, translated.c.x, EPSILON);
 			assertApproxEqual(reference.c.y + dy, translated.c.y, EPSILON);
 			assertApproxEqual(reference.r       , translated.r  , EPSILON);
@@ -113,7 +114,7 @@ static void testScaling() {
 			for (const Point &p : points)
 				newPoints.push_back(Point{p.x * scale, p.y * scale});
 			
-			Circle scaled = makeSmallestEnclosingCircle(newPoints);
+			Circle scaled = makeSmallestEnclosingCircle(std::move(newPoints));
 			assertApproxEqual(reference.c.x * scale, scaled.c.x, EPSILON);
 			assertApproxEqual(reference.c.y * scale, scaled.c.y, EPSILON);
 			assertApproxEqual(reference.r * std::fabs(scale), scaled.r, EPSILON);
