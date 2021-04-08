@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max test (C++)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -66,7 +66,7 @@ vector<E> computeSlidingWindowMinOrMaxNaive(const vector<E> &array, size_t windo
 	if (array.size() < window)
 		return result;
 	
-	for (vector<int>::const_iterator start = array.cbegin(), end = array.cbegin() + window; ; ++start, ++end) {
+	for (vector<E>::const_iterator start = array.cbegin(), end = array.cbegin() + window; ; ++start, ++end) {
 		if (!maximize)
 			result.push_back(*std::min_element(start, end));
 		else
