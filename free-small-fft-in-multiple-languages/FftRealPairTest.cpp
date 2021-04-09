@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C++)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@
 #include <iomanip>
 #include <iostream>
 #include <random>
+#include <utility>
 #include <vector>
 #include "FftRealPair.hpp"
 
@@ -129,9 +130,9 @@ static void testConvolution(int n) {
 	vector<double> expectimag(n);
 	naiveConvolve(input0real, input0imag, input1real, input1imag, expectreal, expectimag);
 	
-	vector<double> actualreal(n);
-	vector<double> actualimag(n);
-	Fft::convolve(input0real, input0imag, input1real, input1imag, actualreal, actualimag);
+	std::pair<vector<double>, vector<double> > actual = Fft::convolve(std::move(input0real), std::move(input0imag), std::move(input1real), std::move(input1imag));
+	vector<double> actualreal = std::move(actual.first );
+	vector<double> actualimag = std::move(actual.second);
 	
 	cout << "convsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)

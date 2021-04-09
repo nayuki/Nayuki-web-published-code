@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C++)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
-#include <utility>
 #include "FftRealPair.hpp"
 
 using std::size_t;
@@ -141,8 +140,9 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 	}
 	
 	// Convolution
-	vector<double> creal(m), cimag(m);
-	convolve(areal, aimag, breal, bimag, creal, cimag);
+	std::pair<vector<double>, vector<double> > cvec = convolve(areal, aimag, breal, bimag);
+	vector<double> creal = std::move(cvec.first );
+	vector<double> cimag = std::move(cvec.second);
 	
 	// Postprocessing
 	for (size_t i = 0; i < n; i++) {
@@ -152,43 +152,37 @@ void Fft::transformBluestein(vector<double> &real, vector<double> &imag) {
 }
 
 
-void Fft::convolve(const vector<double> &xvec, const vector<double> &yvec, vector<double> &outvec) {
+vector<double> Fft::convolve(vector<double> xvec, vector<double> yvec) {
 	size_t n = xvec.size();
-	if (n != yvec.size() || n != outvec.size())
+	if (n != yvec.size())
 		throw std::invalid_argument("Mismatched lengths");
-	vector<double> outimag(n);
-	convolve(xvec, vector<double>(n), yvec, vector<double>(n), outvec, outimag);
+	return convolve(std::move(xvec), vector<double>(n), std::move(yvec), vector<double>(n)).first;
 }
 
 
-void Fft::convolve(
-		const vector<double> &xreal, const vector<double> &ximag,
-		const vector<double> &yreal, const vector<double> &yimag,
-		vector<double> &outreal, vector<double> &outimag) {
+std::pair<vector<double>, vector<double> > Fft::convolve(
+		vector<double> xreal, vector<double> ximag,
+		vector<double> yreal, vector<double> yimag) {
 	
 	size_t n = xreal.size();
-	if (n != ximag.size() || n != yreal.size() || n != yimag.size()
-			|| n != outreal.size() || n != outimag.size())
+	if (n != ximag.size() || n != yreal.size() || n != yimag.size())
 		throw std::invalid_argument("Mismatched lengths");
 	
-	vector<double> xr = xreal;
-	vector<double> xi = ximag;
-	vector<double> yr = yreal;
-	vector<double> yi = yimag;
-	transform(xr, xi);
-	transform(yr, yi);
+	transform(xreal, ximag);
+	transform(yreal, yimag);
 	
 	for (size_t i = 0; i < n; i++) {
-		double temp = xr[i] * yr[i] - xi[i] * yi[i];
-		xi[i] = xi[i] * yr[i] + xr[i] * yi[i];
-		xr[i] = temp;
+		double temp = xreal[i] * yreal[i] - ximag[i] * yimag[i];
+		ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
+		xreal[i] = temp;
 	}
-	inverseTransform(xr, xi);
+	inverseTransform(xreal, ximag);
 	
 	for (size_t i = 0; i < n; i++) {  // Scaling (because this FFT implementation omits it)
-		outreal[i] = xr[i] / n;
-		outimag[i] = xi[i] / n;
+		xreal[i] /= n;
+		ximag[i] /= n;
 	}
+	return std::pair<vector<double>, vector<double> >(std::move(xreal), std::move(ximag));
 }
 
 

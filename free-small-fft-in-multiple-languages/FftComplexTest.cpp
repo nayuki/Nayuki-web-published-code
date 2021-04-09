@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C++)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,6 +28,7 @@
 #include <iomanip>
 #include <iostream>
 #include <random>
+#include <utility>
 #include <vector>
 #include "FftComplex.hpp"
 
@@ -113,8 +114,7 @@ static void testConvolution(int n) {
 	const vector<complex<double> > input0 = randomComplexes(n);
 	const vector<complex<double> > input1 = randomComplexes(n);
 	const vector<complex<double> > expect = naiveConvolve(input0, input1);
-	vector<complex<double> > actual(n);
-	Fft::convolve(input0, input1, actual);
+	const vector<complex<double> > actual = Fft::convolve(std::move(input0), std::move(input1));
 	cout << "convsize=" << std::setw(4) << std::setfill(' ') << n << "  "
 	     << "logerr=" << std::setw(5) << std::setprecision(3) << std::setiosflags(std::ios::showpoint)
 	     << log10RmsErr(expect, actual) << endl;

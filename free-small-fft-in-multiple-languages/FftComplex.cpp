@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C++)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -115,8 +115,7 @@ void Fft::transformBluestein(vector<complex<double> > &vec, bool inverse) {
 		bvec[i] = bvec[m - i] = std::conj(expTable[i]);
 	
 	// Convolution
-	vector<complex<double> > cvec(m);
-	convolve(avec, bvec, cvec);
+	vector<complex<double> > cvec = convolve(std::move(avec), std::move(bvec));
 	
 	// Postprocessing
 	for (size_t i = 0; i < n; i++)
@@ -124,23 +123,21 @@ void Fft::transformBluestein(vector<complex<double> > &vec, bool inverse) {
 }
 
 
-void Fft::convolve(
-		const vector<complex<double> > &xvec,
-		const vector<complex<double> > &yvec,
-		vector<complex<double> > &outvec) {
+vector<complex<double> > Fft::convolve(
+		vector<complex<double> > xvec,
+		vector<complex<double> > yvec) {
 	
 	size_t n = xvec.size();
-	if (n != yvec.size() || n != outvec.size())
+	if (n != yvec.size())
 		throw std::domain_error("Mismatched lengths");
-	vector<complex<double> > xv = xvec;
-	vector<complex<double> > yv = yvec;
-	transform(xv, false);
-	transform(yv, false);
+	transform(xvec, false);
+	transform(yvec, false);
 	for (size_t i = 0; i < n; i++)
-		xv[i] *= yv[i];
-	transform(xv, true);
+		xvec[i] *= yvec[i];
+	transform(xvec, true);
 	for (size_t i = 0; i < n; i++)  // Scaling (because this FFT implementation omits it)
-		outvec[i] = xv[i] / static_cast<double>(n);
+		xvec[i] /= static_cast<double>(n);
+	return xvec;
 }
 
 

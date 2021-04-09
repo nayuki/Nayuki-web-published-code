@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C++)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <utility>
 #include <vector>
 
 
@@ -60,15 +61,14 @@ namespace Fft {
 	/* 
 	 * Computes the circular convolution of the given real vectors. Each vector's length must be the same.
 	 */
-	void convolve(const std::vector<double> &xvec, const std::vector<double> &yvec, std::vector<double> &outvec);
+	std::vector<double> convolve(std::vector<double> xvec, std::vector<double> yvec);
 	
 	
 	/* 
 	 * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
 	 */
-	void convolve(
-		const std::vector<double> &xreal, const std::vector<double> &ximag,
-		const std::vector<double> &yreal, const std::vector<double> &yimag,
-		std::vector<double> &outreal, std::vector<double> &outimag);
+	std::pair<std::vector<double>, std::vector<double> > convolve(
+		std::vector<double> xreal, std::vector<double> ximag,
+		std::vector<double> yreal, std::vector<double> yimag);
 	
 }
