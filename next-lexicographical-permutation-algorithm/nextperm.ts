@@ -1,6 +1,6 @@
 /* 
  * Next lexicographical permutation algorithm (TypeScript)
- * by Project Nayuki, 2020. Public domain.
+ * by Project Nayuki, 2021. Public domain.
  * https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
 
@@ -53,7 +53,7 @@ function nextPermutation(array: Array<number>): boolean {
  * comp is a compare function - comp(x, y) returns a negative number if x is considered to be less than y,
  * a positive number if x is considered to be greater than y, or 0 if x is considered to be equal to y.
  */
-function nextPermutationComparator<E>(array: Array<E>, comp: (x: E, y: E) => number): boolean {
+function nextPermutationComparator<T>(array: Array<T>, comp: (x:T,y:T)=>number): boolean {
 	// Find non-increasing suffix
 	let i: number = array.length - 1;
 	while (i > 0 && comp(array[i - 1], array[i]) >= 0)
@@ -65,14 +65,14 @@ function nextPermutationComparator<E>(array: Array<E>, comp: (x: E, y: E) => num
 	let j: number = array.length - 1;
 	while (comp(array[j], array[i - 1]) <= 0)
 		j--;
-	let temp: E = array[i - 1];
+	let temp: T = array[i - 1];
 	array[i - 1] = array[j];
 	array[j] = temp;
 	
 	// Reverse suffix
 	j = array.length - 1;
 	while (i < j) {
-		let temp: E = array[i];
+		let temp: T = array[i];
 		array[i] = array[j];
 		array[j] = temp;
 		i++;
