@@ -135,16 +135,20 @@ function doGenerate() {
 
 
 function doCopy() {
-	var container = document.querySelector("article");
-	var textarea = document.createElement("textarea");
-	textarea.style.position = "fixed";
-	textarea.style.opacity = "0";
-	container.insertBefore(textarea, container.firstChild);
-	textarea.value = currentPassword;
-	textarea.focus();
-	textarea.select();
-	document.execCommand("copy");
-	container.removeChild(textarea);
+	if ("clipboard" in navigator)
+		navigator.clipboard.writeText(currentPassword);
+	else {
+		var container = document.querySelector("article");
+		var textarea = document.createElement("textarea");
+		textarea.style.position = "fixed";
+		textarea.style.opacity = "0";
+		container.insertBefore(textarea, container.firstChild);
+		textarea.value = currentPassword;
+		textarea.focus();
+		textarea.select();
+		document.execCommand("copy");
+		container.removeChild(textarea);
+	}
 }
 
 
