@@ -41,9 +41,9 @@ static void testFft(int n);
 static void testConvolution(int n);
 static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
 	vector<double> &outreal, vector<double> &outimag, bool inverse);
-static void naiveConvolve(const vector<double> &xreal, const vector<double> &ximag,
-	const vector<double> &yreal, const vector<double> &yimag,
-	vector<double> &outreal, vector<double> &outimag);
+static std::pair<vector<double>, vector<double> > naiveConvolve(
+	const vector<double> &xreal, const vector<double> &ximag,
+	const vector<double> &yreal, const vector<double> &yimag);
 static double log10RmsErr(const vector<double> &xreal, const vector<double> &ximag,
 	const vector<double> &yreal, const vector<double> &yimag);
 static vector<double> randomReals(int n);
@@ -126,9 +126,9 @@ static void testConvolution(int n) {
 	const vector<double> input1real = randomReals(n);
 	const vector<double> input1imag = randomReals(n);
 	
-	vector<double> expectreal(n);
-	vector<double> expectimag(n);
-	naiveConvolve(input0real, input0imag, input1real, input1imag, expectreal, expectimag);
+	std::pair<vector<double>, vector<double> > expect = naiveConvolve(input0real, input0imag, input1real, input1imag);
+	vector<double> expectreal = std::move(expect.first );
+	vector<double> expectimag = std::move(expect.second);
 	
 	std::pair<vector<double>, vector<double> > actual = Fft::convolve(std::move(input0real), std::move(input0imag), std::move(input1real), std::move(input1imag));
 	vector<double> actualreal = std::move(actual.first );
@@ -161,15 +161,12 @@ static void naiveDft(const vector<double> &inreal, const vector<double> &inimag,
 }
 
 
-static void naiveConvolve(
+static std::pair<vector<double>, vector<double> > naiveConvolve(
 		const vector<double> &xreal, const vector<double> &ximag,
-		const vector<double> &yreal, const vector<double> &yimag,
-		vector<double> &outreal, vector<double> &outimag) {
+		const vector<double> &yreal, const vector<double> &yimag) {
 	
 	int n = static_cast<int>(xreal.size());
-	std::fill(outreal.begin(), outreal.end(), 0.0);
-	std::fill(outimag.begin(), outimag.end(), 0.0);
-	
+	vector<double> outreal(n), outimag(n);
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
 			int k = (i + j) % n;
@@ -177,6 +174,7 @@ static void naiveConvolve(
 			outimag[k] += xreal[i] * yimag[j] + ximag[i] * yreal[j];
 		}
 	}
+	return std::pair<vector<double>, vector<double> >(std::move(outreal), std::move(outimag));
 }
 
 
