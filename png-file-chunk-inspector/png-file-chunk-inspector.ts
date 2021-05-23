@@ -12,6 +12,9 @@ namespace app {
 	type int = number;
 	
 	
+	
+	/*---- Graphical user interface ----*/
+	
 	function initialize(): void {
 		let fileElem = requireType(document.querySelector("article input[type=file]"), HTMLInputElement);
 		fileElem.onchange = (): void => {
@@ -38,14 +41,14 @@ namespace app {
 			tbody.removeChild(tbody.firstChild);
 		
 		for (const part of parseFile(fileBytes)) {
-			let tr = appendElem(tbody, "tr");
+			let tr: HTMLElement = appendElem(tbody, "tr");
 			appendElem(tr, "td", uintToStrWithThousandsSeparators(part.offset));
 			
 			{
-				let td = appendElem(tr, "td");
+				let td: HTMLElement = appendElem(tr, "td");
 				let hex: Array<string> = [];
 				const bytes: Uint8Array = part.bytes;
-				function pushHex(index: int): void {
+				const pushHex = function(index: int): void {
 					hex.push(bytes[index].toString(16).padStart(2, "0"));
 				}
 				
@@ -63,12 +66,12 @@ namespace app {
 			}
 			
 			for (const list of [part.outerNotes, part.innerNotes, part.errorNotes]) {
-				let td = appendElem(tr, "td");
-				let ul = appendElem(td, "ul");
+				let td: HTMLElement = appendElem(tr, "td");
+				let ul: HTMLElement = appendElem(td, "ul");
 				for (const item of list) {
 					if (list == part.errorNotes)
 						table.classList.add("errors");
-					let li = appendElem(ul, "li");
+					let li: HTMLElement = appendElem(ul, "li");
 					if (typeof item == "string")
 						li.textContent = item;
 					else if (item instanceof Node)
@@ -81,47 +84,56 @@ namespace app {
 	}
 	
 	
+	
+	/*---- PNG file parser ----*/
+	
 	function parseFile(fileBytes: Uint8Array): Array<FilePart> {
-		let fileParts: Array<FilePart> = [];
+		let result: Array<FilePart> = [];
+		let isSignatureValid: boolean;
 		let offset: int = 0;
 		
 		{  // Parse file signature
-			const bytes: Uint8Array = fileBytes.slice(offset, Math.min(offset + SignaturePart.FILE_SIGNATURE.length, fileBytes.length));
-			fileParts.push(new SignaturePart(offset, bytes));
+			const bytes: Uint8Array = fileBytes.subarray(offset, Math.min(offset + SignaturePart.FILE_SIGNATURE.length, fileBytes.length));
+			const part = new SignaturePart(offset, bytes);
+			result.push(part);
+			isSignatureValid = part.errorNotes.length == 0;
 			offset += bytes.length;
 		}
 		
-		// Parse chunks but carefully handle erroneous file structures
-		while (offset < fileBytes.length) {
-			// Begin by assuming that the next chunk is invalid
-			let bytes: Uint8Array = fileBytes.slice(offset, fileBytes.length);
-			if (fileParts[0].errorNotes.length > 0) {  // Signature is wrong
-				fileParts.push(new UnknownPart(offset, bytes));
-				offset += bytes.length;
-			} else {
+		if (!isSignatureValid && offset < fileBytes.length) {
+			const bytes: Uint8Array = fileBytes.subarray(offset, fileBytes.length);
+			let part = new UnknownPart(offset, bytes);
+			part.errorNotes.push("Unknown format");
+			result.push(part);
+			offset += bytes.length;
+			
+		} else if (isSignatureValid) {
+			// Parse chunks but carefully handle erroneous file structures
+			while (offset < fileBytes.length) {
+				// Begin by assuming that the next chunk is invalid
+				let bytes: Uint8Array = fileBytes.subarray(offset, fileBytes.length);
 				const remain: int = bytes.length;
 				if (remain >= 4) {
 					const innerLen: int = readUint32(fileBytes, offset);
 					const outerLen: int = innerLen + 12;
 					if (innerLen <= ChunkPart.MAX_DATA_LENGTH && outerLen <= remain)
-						bytes = fileBytes.slice(offset, offset + outerLen);  // Chunk is now valid with respect to length
+						bytes = fileBytes.subarray(offset, offset + outerLen);  // Chunk is now valid with respect to length
 				}
-				fileParts.push(new ChunkPart(offset, bytes));
+				result.push(new ChunkPart(offset, bytes));
 				offset += bytes.length;
 			}
-		}
-		
-		{  // Annotate chunks
+			
+			// Annotate chunks
 			let earlierChunks: Array<ChunkPart> = [];
 			let earlierTypes = new Set<string>();
-			for (const part of fileParts) {
+			for (const part of result) {
 				if (!(part instanceof ChunkPart))
 					continue;
 				
 				const code: string = part.typeCodeStr;
-				if (code != "IHDR" && !earlierTypes.has("IHDR"))
+				if (code != "IHDR" && code != "" && !earlierTypes.has("IHDR"))
 					part.errorNotes.push("Chunk must be after IHDR chunk");
-				if (code != "IEND" && earlierTypes.has("IEND"))
+				if (code != "IEND" && code != "" && earlierTypes.has("IEND"))
 					part.errorNotes.push("Chunk must be before IEND chunk");
 				const typeInfo = part.getTypeInfo();
 				if (typeInfo !== null && !typeInfo[1] && earlierTypes.has(code))
@@ -131,14 +143,26 @@ namespace app {
 				earlierChunks.push(part);
 				earlierTypes.add(code);
 			}
+			
+			let part = new UnknownPart(offset, new Uint8Array());
+			if (!earlierTypes.has("IHDR"))
+				part.errorNotes.push("Missing IHDR chunk");
+			if (!earlierTypes.has("IDAT"))
+				part.errorNotes.push("Missing IDAT chunk");
+			if (!earlierTypes.has("IEND"))
+				part.errorNotes.push("Missing IEND chunk");
+			if (part.errorNotes.length > 0)
+				result.push(part);
 		}
 		
 		if (offset != fileBytes.length)
 			throw "Assertion error";
-		return fileParts;
+		return result;
 	}
 	
 	
+	
+	/*---- Classes representing different file parts ----*/
 	
 	abstract class FilePart {
 		
@@ -185,7 +209,6 @@ namespace app {
 			super(offset, bytes);
 			this.outerNotes.push("Special: Unknown");
 			this.outerNotes.push(`Length: ${uintToStrWithThousandsSeparators(bytes.length)} bytes`);
-			this.errorNotes.push("Unknown format");
 		}
 		
 	}
@@ -221,16 +244,18 @@ namespace app {
 				return;
 			}
 			
-			const typeCodeBytes: Uint8Array = bytes.slice(4, 8);
-			this.typeCodeStr = bytesToReadableString(typeCodeBytes);
-			this.outerNotes.push("Type code: " + this.typeCodeStr);
-			const typeInfo = this.getTypeInfo();
-			const typeName: string = typeInfo !== null ? typeInfo[0] : "Unknown";
-			this.outerNotes.push("Name: " + typeName);
-			this.outerNotes.push((typeCodeBytes[0] & 0x20) == 0 ? "Critical (0)"       : "Ancillary (1)"   );
-			this.outerNotes.push((typeCodeBytes[1] & 0x20) == 0 ? "Public (0)"         : "Private (1)"     );
-			this.outerNotes.push((typeCodeBytes[2] & 0x20) == 0 ? "Reserved (0)"       : "Unknown (1)"     );
-			this.outerNotes.push((typeCodeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
+			{
+				const typeCodeBytes: Uint8Array = bytes.subarray(4, 8);
+				this.typeCodeStr = bytesToReadableString(typeCodeBytes);
+				this.outerNotes.push("Type code: " + this.typeCodeStr);
+				const typeInfo = this.getTypeInfo();
+				const typeName: string = typeInfo !== null ? typeInfo[0] : "Unknown";
+				this.outerNotes.push("Name: " + typeName);
+				this.outerNotes.push((typeCodeBytes[0] & 0x20) == 0 ? "Critical (0)"       : "Ancillary (1)"   );
+				this.outerNotes.push((typeCodeBytes[1] & 0x20) == 0 ? "Public (0)"         : "Private (1)"     );
+				this.outerNotes.push((typeCodeBytes[2] & 0x20) == 0 ? "Reserved (0)"       : "Unknown (1)"     );
+				this.outerNotes.push((typeCodeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
+			}
 			
 			if (dataLen > ChunkPart.MAX_DATA_LENGTH) {
 				this.typeCodeStr = "";
@@ -242,12 +267,14 @@ namespace app {
 				return;
 			}
 			
-			const storedCrc: int = readUint32(bytes, bytes.length - 4);
-			this.outerNotes.push(`CRC-32: ${storedCrc.toString(16).padStart(8,"0").toUpperCase()}`);
-			const dataCrc: int = calcCrc32(bytes.slice(4, bytes.length - 4));
-			if (dataCrc != storedCrc)
-				this.errorNotes.push(`CRC-32 mismatch (calculated from data: ${dataCrc.toString(16).padStart(8,"0").toUpperCase()})`);
-			this.data = bytes.slice(8, bytes.length - 4);
+			{
+				const storedCrc: int = readUint32(bytes, bytes.length - 4);
+				this.outerNotes.push(`CRC-32: ${storedCrc.toString(16).padStart(8,"0").toUpperCase()}`);
+				const dataCrc: int = calcCrc32(bytes.subarray(4, bytes.length - 4));
+				if (dataCrc != storedCrc)
+					this.errorNotes.push(`CRC-32 mismatch (calculated from data: ${dataCrc.toString(16).padStart(8,"0").toUpperCase()})`);
+				this.data = bytes.subarray(8, bytes.length - 4);
+			}
 		}
 		
 		
@@ -260,7 +287,7 @@ namespace app {
 		}
 		
 		
-		// The maximum length of a chunk's payload data, in bytes.
+		// The maximum length of a chunk's payload data, in bytes, inclusive.
 		// Although this number does not fit in a signed 32-bit integer type,
 		// the PNG specification says that lengths "must not exceed 2^31 bytes".
 		public static MAX_DATA_LENGTH: int = 0x80000000;
@@ -278,6 +305,9 @@ namespace app {
 			return result;
 		}
 		
+		
+		
+		/*---- Handlers and metadata for all known PNG chunk types ----*/
 		
 		private static TYPE_HANDLERS: Array<[string,string,boolean,((chunk:ChunkPart,earlier:Array<ChunkPart>)=>void)]> = [
 			
@@ -332,6 +362,8 @@ namespace app {
 			["hIST", "Palette histogram", false, function(chunk, earlier) {
 				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
+				if (!earlier.some(ch => ch.typeCodeStr == "PLTE"))
+					chunk.errorNotes.push("Chunk requires earlier PLTE chunk");
 				
 				if (chunk.data.length % 2 != 0 || chunk.data.length / 2 > 256) {
 					chunk.errorNotes.push("Invalid data length");
@@ -345,6 +377,8 @@ namespace app {
 					chunk.errorNotes.push("Chunk must be before PLTE chunk");
 				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
+				if (earlier.some(ch => ch.typeCodeStr == "sRGB"))
+					chunk.errorNotes.push("Chunk should not exist because sRGB chunk exists");
 			}],
 			
 			
@@ -399,7 +433,7 @@ namespace app {
 					chunk.innerNotes.push(`Color type: ${colorTypeStr} (${colorType})`);
 					if (temp === null)
 						chunk.errorNotes.push("Unknown color type");
-					else if (!validBitDepths.includes(bitDepth))
+					else if (validBitDepths.indexOf(bitDepth) == -1)
 						chunk.errorNotes.push("Invalid bit depth");
 				}
 				{
@@ -450,8 +484,17 @@ namespace app {
 				const horzRes: int = readUint32(chunk.data, 0);
 				const vertRes: int = readUint32(chunk.data, 4);
 				const unit   : int = chunk.data[8];
-				chunk.innerNotes.push(`Horizontal resolution: ${horzRes} pixels per unit${unit==1?" (\u2248 "+(horzRes*0.0254).toFixed(0)+" DPI)":""}`);
-				chunk.innerNotes.push(`Vertical resolution: ${vertRes} pixels per unit${unit==1?" (\u2248 "+(vertRes*0.0254).toFixed(0)+" DPI)":""}`);
+				for (const [dir, val] of ([["Horizontal", horzRes], ["Vertical", vertRes]] as Array<[string,number]>)) {
+					let frag: DocumentFragment = document.createDocumentFragment();
+					frag.appendChild(document.createTextNode(`${dir} resolution: ${val} pixels per unit`));
+					if (unit == 1) {
+						frag.appendChild(document.createTextNode(` (\u2248 ${(val*0.0254).toFixed(0)} `));
+						let abbr = appendElem(frag, "abbr", "DPI");
+						abbr.title = "dots per inch";
+						frag.appendChild(document.createTextNode(")"));
+					}
+					chunk.innerNotes.push(frag);
+				}
 				{
 					let s: string|null = lookUpTable(unit, [
 						[0, "Arbitrary (aspect ratio only)"],
@@ -504,6 +547,8 @@ namespace app {
 					chunk.errorNotes.push("Chunk must be before PLTE chunk");
 				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
+				if (earlier.some(ch => ch.typeCodeStr == "iCCP"))
+					chunk.errorNotes.push("Chunk should not exist because iCCP chunk exists");
 				
 				if (chunk.data.length != 1) {
 					chunk.errorNotes.push("Invalid data length");
@@ -524,7 +569,45 @@ namespace app {
 			}],
 			
 			
-			["tEXt", "Textual data", true, function(chunk, earlier) {}],
+			["tEXt", "Textual data", true, function(chunk, earlier) {
+				let data: Array<int> = [];
+				for (let i = 0; i < chunk.data.length; i++)
+					data.push(chunk.data[i]);
+				
+				let keyword: string;
+				let text: string;
+				let separatorIndex: int = data.indexOf(0);
+				if (separatorIndex == -1) {
+					chunk.errorNotes.push("Missing null separator");
+					keyword = decodeIso8859_1(data);
+					text = "";
+					chunk.innerNotes.push(`Keyword: ${keyword}`);
+				} else {
+					keyword = decodeIso8859_1(data.slice(0, separatorIndex));
+					text = decodeIso8859_1(data.slice(separatorIndex + 1));
+					chunk.innerNotes.push(`Keyword: ${keyword}`);
+					chunk.innerNotes.push(`Text string: ${text}`);
+				}
+				
+				if (!(1 <= keyword.length || keyword.length <= 79))
+					chunk.errorNotes.push("Invalid keyword length");
+				for (let i = 0; i < keyword.length; i++) {
+					const c: int = keyword.charCodeAt(i);
+					if (0x20 <= c && c <= 0x7E || 0xA1 <= c && c <= 0xFF)
+						continue;
+					else {
+						chunk.errorNotes.push("Invalid character in keyword");
+						break;
+					}
+				}
+				if (keyword.indexOf(" ") == 0 || keyword.lastIndexOf(" ") == keyword.length - 1 || keyword.indexOf("  ") != -1)
+					chunk.errorNotes.push("Invalid space in keyword");
+				
+				if (text.indexOf("\u0000") != -1)
+					chunk.errorNotes.push("Null character in text string");
+				if (text.indexOf("\uFFFD") != -1)
+					chunk.errorNotes.push("Invalid ISO-8859-1 byte in text string");
+			}],
 			
 			
 			["tIME", "Image last-modification time", false, function(chunk, earlier) {
@@ -544,6 +627,16 @@ namespace app {
 				chunk.innerNotes.push(`Hour: ${hour}`);
 				chunk.innerNotes.push(`Minute: ${minute}`);
 				chunk.innerNotes.push(`Second: ${second}`);
+				if (!(1 <= month && month <= 12))
+					chunk.errorNotes.push("Invalid month");
+				if (!(1 <= day && day <= 31))
+					chunk.errorNotes.push("Invalid day");
+				if (!(0 <= hour && hour <= 23))
+					chunk.errorNotes.push("Invalid hour");
+				if (!(0 <= minute && minute <= 59))
+					chunk.errorNotes.push("Invalid minute");
+				if (!(0 <= second && second <= 60))
+					chunk.errorNotes.push("Invalid second");
 			}],
 			
 			
@@ -560,6 +653,8 @@ namespace app {
 	}
 	
 	
+	
+	/*---- Utility functions ----*/
 	
 	function calcCrc32(bytes: Uint8Array): int {
 		let crc: int = ~0;
@@ -585,6 +680,20 @@ namespace app {
 			else if (0x80 <= b && b < 0xA0)
 				cc = 0x25AF;
 			result += String.fromCharCode(cc);
+		}
+		return result;
+	}
+	
+	
+	function decodeIso8859_1(bytes: Array<int>): string {
+		let result: string = "";
+		for (const b of bytes) {
+			if (!(0x00 <= b && b <= 0xFF))
+				throw "Invalid byte";
+			else if (0x80 <= b && b < 0xA0)
+				result += "\uFFFD";
+			else
+				result += String.fromCharCode(b);  // ISO-8859-1 is a subset of Unicode
 		}
 		return result;
 	}
@@ -631,7 +740,7 @@ namespace app {
 	
 	
 	function readUint32(bytes: Uint8Array, offset: int): int {
-		if (bytes.length - offset < 4)
+		if (offset < 0 || bytes.length - offset < 4)
 			throw "Index out of range";
 		return (bytes[offset + 0] << 24
 		      | bytes[offset + 1] << 16
@@ -647,6 +756,19 @@ namespace app {
 			return val;
 		else
 			throw "Invalid value type";
+	}
+	
+	
+	
+	/*---- Polyfills ----*/
+	
+	if (!("padStart" in String.prototype)) {
+		String.prototype.padStart = function(len: int, padder: string): string {
+			let result: string = this as string;
+			while (result.length < len)
+				result = padder.substring(0, Math.min(len - result.length, padder.length)) + result;
+			return result;
+		};
 	}
 	
 }
