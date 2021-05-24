@@ -130,17 +130,17 @@ var app;
                 var part_1 = result_1[_i];
                 if (!(part_1 instanceof ChunkPart))
                     continue;
-                var code = part_1.typeCodeStr;
-                if (code != "IHDR" && code != "" && !earlierTypes.has("IHDR"))
+                var type = part_1.typeStr;
+                if (type != "IHDR" && type != "" && !earlierTypes.has("IHDR"))
                     part_1.errorNotes.push("Chunk must be after IHDR chunk");
-                if (code != "IEND" && code != "" && earlierTypes.has("IEND"))
+                if (type != "IEND" && type != "" && earlierTypes.has("IEND"))
                     part_1.errorNotes.push("Chunk must be before IEND chunk");
                 var typeInfo = part_1.getTypeInfo();
-                if (typeInfo !== null && !typeInfo[1] && earlierTypes.has(code))
+                if (typeInfo !== null && !typeInfo[1] && earlierTypes.has(type))
                     part_1.errorNotes.push("Multiple chunks of this type disallowed");
                 part_1.annotate(earlierChunks);
                 earlierChunks.push(part_1);
-                earlierTypes.add(code);
+                earlierTypes.add(type);
             }
             var part = new UnknownPart(offset, new Uint8Array());
             if (!earlierTypes.has("IHDR"))
@@ -199,7 +199,7 @@ var app;
         __extends(ChunkPart, _super);
         function ChunkPart(offset, bytes) {
             var _this = _super.call(this, offset, bytes) || this;
-            _this.typeCodeStr = "";
+            _this.typeStr = "";
             _this.data = new Uint8Array();
             if (bytes.length < 4) {
                 _this.outerNotes.push("Data length: Unfinished");
@@ -213,28 +213,28 @@ var app;
             else if (bytes.length < dataLen + 12)
                 _this.errorNotes.push("Premature EOF");
             if (bytes.length < 8) {
-                _this.outerNotes.push("Type code: Unfinished");
+                _this.outerNotes.push("Type: Unfinished");
                 return _this;
             }
             {
-                var typeCodeBytes = bytes.subarray(4, 8);
-                _this.typeCodeStr = bytesToReadableString(typeCodeBytes);
-                _this.outerNotes.push("Type code: " + _this.typeCodeStr);
+                var typeBytes = bytes.subarray(4, 8);
+                _this.typeStr = bytesToReadableString(typeBytes);
+                _this.outerNotes.push("Type: " + _this.typeStr);
                 var typeInfo = _this.getTypeInfo();
                 var typeName = typeInfo !== null ? typeInfo[0] : "Unknown";
                 _this.outerNotes.push("Name: " + typeName);
-                _this.outerNotes.push((typeCodeBytes[0] & 0x20) == 0 ? "Critical (0)" : "Ancillary (1)");
-                _this.outerNotes.push((typeCodeBytes[1] & 0x20) == 0 ? "Public (0)" : "Private (1)");
-                _this.outerNotes.push((typeCodeBytes[2] & 0x20) == 0 ? "Reserved (0)" : "Unknown (1)");
-                _this.outerNotes.push((typeCodeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
+                _this.outerNotes.push((typeBytes[0] & 0x20) == 0 ? "Critical (0)" : "Ancillary (1)");
+                _this.outerNotes.push((typeBytes[1] & 0x20) == 0 ? "Public (0)" : "Private (1)");
+                _this.outerNotes.push((typeBytes[2] & 0x20) == 0 ? "Reserved (0)" : "Unknown (1)");
+                _this.outerNotes.push((typeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
             }
             if (dataLen > ChunkPart.MAX_DATA_LENGTH) {
-                _this.typeCodeStr = "";
+                _this.typeStr = "";
                 return _this;
             }
             if (bytes.length < dataLen + 12) {
                 _this.outerNotes.push("CRC-32: Unfinished");
-                _this.typeCodeStr = "";
+                _this.typeStr = "";
                 return _this;
             }
             {
@@ -257,8 +257,8 @@ var app;
         ChunkPart.prototype.getTypeInfo = function () {
             var result = null;
             for (var _i = 0, _a = ChunkPart.TYPE_HANDLERS; _i < _a.length; _i++) {
-                var _b = _a[_i], code = _b[0], name_1 = _b[1], multiple = _b[2], func = _b[3];
-                if (code == this.typeCodeStr) {
+                var _b = _a[_i], type = _b[0], name_1 = _b[1], multiple = _b[2], func = _b[3];
+                if (type == this.typeStr) {
                     if (result !== null)
                         throw "Table has duplicate keys";
                     result = [name_1, multiple, func];
@@ -267,19 +267,17 @@ var app;
             return result;
         };
         // The maximum length of a chunk's payload data, in bytes, inclusive.
-        // Although this number does not fit in a signed 32-bit integer type,
-        // the PNG specification says that lengths "must not exceed 2^31 bytes".
-        ChunkPart.MAX_DATA_LENGTH = 0x80000000;
+        ChunkPart.MAX_DATA_LENGTH = 0x7FFFFFFF;
         /*---- Handlers and metadata for all known PNG chunk types ----*/
         ChunkPart.TYPE_HANDLERS = [
             ["bKGD", "Background color", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 }],
             ["cHRM", "Primary chromaticities", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "PLTE"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
                         chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                     if (chunk.data.length != 32) {
                         chunk.errorNotes.push("Invalid data length");
@@ -300,9 +298,9 @@ var app;
                     }
                 }],
             ["gAMA", "Image gamma", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "PLTE"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
                         chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                     if (chunk.data.length != 4) {
                         chunk.errorNotes.push("Invalid data length");
@@ -315,9 +313,9 @@ var app;
                     chunk.innerNotes.push("Gamma: " + s);
                 }],
             ["hIST", "Palette histogram", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
-                    if (!earlier.some(function (ch) { return ch.typeCodeStr == "PLTE"; }))
+                    if (!earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
                         chunk.errorNotes.push("Chunk requires earlier PLTE chunk");
                     if (chunk.data.length % 2 != 0 || chunk.data.length / 2 > 256) {
                         chunk.errorNotes.push("Invalid data length");
@@ -325,16 +323,16 @@ var app;
                     }
                 }],
             ["iCCP", "Embedded ICC profile", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "PLTE"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
                         chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "sRGB"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "sRGB"; }))
                         chunk.errorNotes.push("Chunk should not exist because sRGB chunk exists");
                 }],
             ["IDAT", "Image data", true, function (chunk, earlier) {
-                    if (earlier.length > 0 && earlier[earlier.length - 1].typeCodeStr != "IDAT"
-                        && earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; })) {
+                    if (earlier.length > 0 && earlier[earlier.length - 1].typeStr != "IDAT"
+                        && earlier.some(function (ch) { return ch.typeStr == "IDAT"; })) {
                         chunk.errorNotes.push("Non-consecutive IDAT chunk");
                     }
                 }],
@@ -355,10 +353,10 @@ var app;
                     var filtMeth = chunk.data[11];
                     var laceMeth = chunk.data[12];
                     chunk.innerNotes.push("Width: " + width + " pixels");
-                    if (width == 0 || width > 0x80000000)
+                    if (width == 0 || width > 0x7FFFFFFF)
                         chunk.errorNotes.push("Width out of range");
                     chunk.innerNotes.push("Height: " + height + " pixels");
-                    if (height == 0 || height > 0x80000000)
+                    if (height == 0 || height > 0x7FFFFFFF)
                         chunk.errorNotes.push("Height out of range");
                     {
                         var colorTypeStr = void 0;
@@ -413,7 +411,7 @@ var app;
                 }],
             ["iTXt", "International textual data", true, function (chunk, earlier) { }],
             ["pHYs", "Physical pixel dimensions", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                     if (chunk.data.length != 9) {
                         chunk.errorNotes.push("Invalid data length");
@@ -447,19 +445,19 @@ var app;
                     }
                 }],
             ["PLTE", "Palette", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "bKGD"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "bKGD"; }))
                         chunk.errorNotes.push("Chunk must be before bKGD chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "hIST"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "hIST"; }))
                         chunk.errorNotes.push("Chunk must be before hIST chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "tRNS"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "tRNS"; }))
                         chunk.errorNotes.push("Chunk must be before tRNS chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 }],
             ["sBIT", "Significant bits", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "PLTE"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
                         chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                     if (chunk.data.length == 0 || chunk.data.length > 4)
                         chunk.errorNotes.push("Invalid data length");
@@ -469,15 +467,15 @@ var app;
                     chunk.innerNotes.push("Significant bits per channel: " + temp.join(", "));
                 }],
             ["sPLT", "Suggested palette", true, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 }],
             ["sRGB", "Standard RGB color space", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "PLTE"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
                         chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "iCCP"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "iCCP"; }))
                         chunk.errorNotes.push("Chunk should not exist because iCCP chunk exists");
                     if (chunk.data.length != 1) {
                         chunk.errorNotes.push("Invalid data length");
@@ -531,7 +529,7 @@ var app;
                     if (text.indexOf("\u0000") != -1)
                         chunk.errorNotes.push("Null character in text string");
                     if (text.indexOf("\uFFFD") != -1)
-                        chunk.errorNotes.push("Invalid ISO-8859-1 byte in text string");
+                        chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
                 }],
             ["tIME", "Image last-modification time", false, function (chunk, earlier) {
                     if (chunk.data.length != 7) {
@@ -562,7 +560,7 @@ var app;
                         chunk.errorNotes.push("Invalid second");
                 }],
             ["tRNS", "Transparency", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeCodeStr == "IDAT"; }))
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 }],
             ["zTXt", "Compressed textual data", true, function (chunk, earlier) { }],
@@ -605,7 +603,7 @@ var app;
             else if (0x80 <= b && b < 0xA0)
                 result += "\uFFFD";
             else
-                result += String.fromCharCode(b); // ISO-8859-1 is a subset of Unicode
+                result += String.fromCharCode(b); // ISO 8859-1 is a subset of Unicode
         }
         return result;
     }

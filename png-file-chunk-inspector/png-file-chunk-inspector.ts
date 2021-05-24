@@ -130,18 +130,18 @@ namespace app {
 				if (!(part instanceof ChunkPart))
 					continue;
 				
-				const code: string = part.typeCodeStr;
-				if (code != "IHDR" && code != "" && !earlierTypes.has("IHDR"))
+				const type: string = part.typeStr;
+				if (type != "IHDR" && type != "" && !earlierTypes.has("IHDR"))
 					part.errorNotes.push("Chunk must be after IHDR chunk");
-				if (code != "IEND" && code != "" && earlierTypes.has("IEND"))
+				if (type != "IEND" && type != "" && earlierTypes.has("IEND"))
 					part.errorNotes.push("Chunk must be before IEND chunk");
 				const typeInfo = part.getTypeInfo();
-				if (typeInfo !== null && !typeInfo[1] && earlierTypes.has(code))
+				if (typeInfo !== null && !typeInfo[1] && earlierTypes.has(type))
 					part.errorNotes.push("Multiple chunks of this type disallowed");
 				
 				part.annotate(earlierChunks);
 				earlierChunks.push(part);
-				earlierTypes.add(code);
+				earlierTypes.add(type);
 			}
 			
 			let part = new UnknownPart(offset, new Uint8Array());
@@ -217,7 +217,7 @@ namespace app {
 	
 	class ChunkPart extends FilePart {
 		
-		public typeCodeStr: string = "";
+		public typeStr: string = "";
 		private data: Uint8Array = new Uint8Array();
 		
 		
@@ -240,30 +240,30 @@ namespace app {
 				this.errorNotes.push("Premature EOF");
 			
 			if (bytes.length < 8) {
-				this.outerNotes.push("Type code: Unfinished");
+				this.outerNotes.push("Type: Unfinished");
 				return;
 			}
 			
 			{
-				const typeCodeBytes: Uint8Array = bytes.subarray(4, 8);
-				this.typeCodeStr = bytesToReadableString(typeCodeBytes);
-				this.outerNotes.push("Type code: " + this.typeCodeStr);
+				const typeBytes: Uint8Array = bytes.subarray(4, 8);
+				this.typeStr = bytesToReadableString(typeBytes);
+				this.outerNotes.push("Type: " + this.typeStr);
 				const typeInfo = this.getTypeInfo();
 				const typeName: string = typeInfo !== null ? typeInfo[0] : "Unknown";
 				this.outerNotes.push("Name: " + typeName);
-				this.outerNotes.push((typeCodeBytes[0] & 0x20) == 0 ? "Critical (0)"       : "Ancillary (1)"   );
-				this.outerNotes.push((typeCodeBytes[1] & 0x20) == 0 ? "Public (0)"         : "Private (1)"     );
-				this.outerNotes.push((typeCodeBytes[2] & 0x20) == 0 ? "Reserved (0)"       : "Unknown (1)"     );
-				this.outerNotes.push((typeCodeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
+				this.outerNotes.push((typeBytes[0] & 0x20) == 0 ? "Critical (0)"       : "Ancillary (1)"   );
+				this.outerNotes.push((typeBytes[1] & 0x20) == 0 ? "Public (0)"         : "Private (1)"     );
+				this.outerNotes.push((typeBytes[2] & 0x20) == 0 ? "Reserved (0)"       : "Unknown (1)"     );
+				this.outerNotes.push((typeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
 			}
 			
 			if (dataLen > ChunkPart.MAX_DATA_LENGTH) {
-				this.typeCodeStr = "";
+				this.typeStr = "";
 				return;
 			}
 			if (bytes.length < dataLen + 12) {
 				this.outerNotes.push("CRC-32: Unfinished");
-				this.typeCodeStr = "";
+				this.typeStr = "";
 				return;
 			}
 			
@@ -288,15 +288,13 @@ namespace app {
 		
 		
 		// The maximum length of a chunk's payload data, in bytes, inclusive.
-		// Although this number does not fit in a signed 32-bit integer type,
-		// the PNG specification says that lengths "must not exceed 2^31 bytes".
-		public static MAX_DATA_LENGTH: int = 0x80000000;
+		public static MAX_DATA_LENGTH: int = 0x7FFFFFFF;
 		
 		
 		public getTypeInfo(): [string,boolean,((chunk:ChunkPart,earlier:Array<ChunkPart>)=>void)]|null {
 			let result: [string,boolean,((chunk:ChunkPart,earlier:Array<ChunkPart>)=>void)]|null = null;
-			for (const [code, name, multiple, func] of ChunkPart.TYPE_HANDLERS) {
-				if (code == this.typeCodeStr) {
+			for (const [type, name, multiple, func] of ChunkPart.TYPE_HANDLERS) {
+				if (type == this.typeStr) {
 					if (result !== null)
 						throw "Table has duplicate keys";
 					result = [name, multiple, func];
@@ -312,15 +310,15 @@ namespace app {
 		private static TYPE_HANDLERS: Array<[string,string,boolean,((chunk:ChunkPart,earlier:Array<ChunkPart>)=>void)]> = [
 			
 			["bKGD", "Background color", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
 			}],
 			
 			
 			["cHRM", "Primary chromaticities", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+				if (earlier.some(ch => ch.typeStr == "PLTE"))
 					chunk.errorNotes.push("Chunk must be before PLTE chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
 				
 				if (chunk.data.length != 32) {
@@ -342,9 +340,9 @@ namespace app {
 			
 			
 			["gAMA", "Image gamma", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+				if (earlier.some(ch => ch.typeStr == "PLTE"))
 					chunk.errorNotes.push("Chunk must be before PLTE chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
 				
 				if (chunk.data.length != 4) {
@@ -360,9 +358,9 @@ namespace app {
 			
 			
 			["hIST", "Palette histogram", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
-				if (!earlier.some(ch => ch.typeCodeStr == "PLTE"))
+				if (!earlier.some(ch => ch.typeStr == "PLTE"))
 					chunk.errorNotes.push("Chunk requires earlier PLTE chunk");
 				
 				if (chunk.data.length % 2 != 0 || chunk.data.length / 2 > 256) {
@@ -373,18 +371,18 @@ namespace app {
 			
 			
 			["iCCP", "Embedded ICC profile", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+				if (earlier.some(ch => ch.typeStr == "PLTE"))
 					chunk.errorNotes.push("Chunk must be before PLTE chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "sRGB"))
+				if (earlier.some(ch => ch.typeStr == "sRGB"))
 					chunk.errorNotes.push("Chunk should not exist because sRGB chunk exists");
 			}],
 			
 			
 			["IDAT", "Image data", true, function(chunk, earlier) {
-				if (earlier.length > 0 && earlier[earlier.length - 1].typeCodeStr != "IDAT"
-						&& earlier.some(ch => ch.typeCodeStr == "IDAT")) {
+				if (earlier.length > 0 && earlier[earlier.length - 1].typeStr != "IDAT"
+						&& earlier.some(ch => ch.typeStr == "IDAT")) {
 					chunk.errorNotes.push("Non-consecutive IDAT chunk");
 				}
 			}],
@@ -410,11 +408,11 @@ namespace app {
 				const laceMeth : int = chunk.data[12];
 				
 				chunk.innerNotes.push(`Width: ${width} pixels`);
-				if (width == 0 || width > 0x80000000)
+				if (width == 0 || width > 0x7FFFFFFF)
 					chunk.errorNotes.push("Width out of range");
 				
 				chunk.innerNotes.push(`Height: ${height} pixels`);
-				if (height == 0 || height > 0x80000000)
+				if (height == 0 || height > 0x7FFFFFFF)
 					chunk.errorNotes.push("Height out of range");
 				
 				{
@@ -474,7 +472,7 @@ namespace app {
 			
 			
 			["pHYs", "Physical pixel dimensions", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
 				
 				if (chunk.data.length != 9) {
@@ -510,21 +508,21 @@ namespace app {
 			
 			
 			["PLTE", "Palette", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "bKGD"))
+				if (earlier.some(ch => ch.typeStr == "bKGD"))
 					chunk.errorNotes.push("Chunk must be before bKGD chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "hIST"))
+				if (earlier.some(ch => ch.typeStr == "hIST"))
 					chunk.errorNotes.push("Chunk must be before hIST chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "tRNS"))
+				if (earlier.some(ch => ch.typeStr == "tRNS"))
 					chunk.errorNotes.push("Chunk must be before tRNS chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
 			}],
 			
 			
 			["sBIT", "Significant bits", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+				if (earlier.some(ch => ch.typeStr == "PLTE"))
 					chunk.errorNotes.push("Chunk must be before PLTE chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
 				
 				if (chunk.data.length == 0 || chunk.data.length > 4)
@@ -537,17 +535,17 @@ namespace app {
 			
 			
 			["sPLT", "Suggested palette", true, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
 			}],
 			
 			
 			["sRGB", "Standard RGB color space", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "PLTE"))
+				if (earlier.some(ch => ch.typeStr == "PLTE"))
 					chunk.errorNotes.push("Chunk must be before PLTE chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
-				if (earlier.some(ch => ch.typeCodeStr == "iCCP"))
+				if (earlier.some(ch => ch.typeStr == "iCCP"))
 					chunk.errorNotes.push("Chunk should not exist because iCCP chunk exists");
 				
 				if (chunk.data.length != 1) {
@@ -606,7 +604,7 @@ namespace app {
 				if (text.indexOf("\u0000") != -1)
 					chunk.errorNotes.push("Null character in text string");
 				if (text.indexOf("\uFFFD") != -1)
-					chunk.errorNotes.push("Invalid ISO-8859-1 byte in text string");
+					chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
 			}],
 			
 			
@@ -641,7 +639,7 @@ namespace app {
 			
 			
 			["tRNS", "Transparency", false, function(chunk, earlier) {
-				if (earlier.some(ch => ch.typeCodeStr == "IDAT"))
+				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
 			}],
 			
@@ -693,7 +691,7 @@ namespace app {
 			else if (0x80 <= b && b < 0xA0)
 				result += "\uFFFD";
 			else
-				result += String.fromCharCode(b);  // ISO-8859-1 is a subset of Unicode
+				result += String.fromCharCode(b);  // ISO 8859-1 is a subset of Unicode
 		}
 		return result;
 	}
