@@ -1,7 +1,7 @@
 /* 
  * SHA-224 hash in C and x86 assembly
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -127,7 +127,8 @@ void sha224_hash(const uint8_t message[], size_t len, uint32_t hash[static HASH_
 	
 	uint8_t block[BLOCK_LEN] = {0};
 	size_t rem = len - off;
-	memcpy(block, &message[off], rem);
+	if (rem > 0)
+		memcpy(block, &message[off], rem);
 	
 	block[rem] = 0x80;
 	rem++;
