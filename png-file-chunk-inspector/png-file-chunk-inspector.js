@@ -142,6 +142,49 @@ var app;
                 earlierChunks.push(part_1);
                 earlierTypes.add(type);
             }
+            {
+                var ihdrIndex = 0;
+                while (ihdrIndex < result.length && (!(result[ihdrIndex] instanceof ChunkPart) || result[ihdrIndex].typeStr != "IHDR"))
+                    ihdrIndex++;
+                var iendIndex = 0;
+                while (iendIndex < result.length && (!(result[iendIndex] instanceof ChunkPart) || result[iendIndex].typeStr != "IEND"))
+                    iendIndex++;
+                var processedDsigs = new Set();
+                if (ihdrIndex < result.length && iendIndex < result.length) {
+                    var start = ihdrIndex + 1;
+                    var end = iendIndex - 1;
+                    for (; start < end; start++, end--) {
+                        var startPart = result[start];
+                        var endPart = result[end];
+                        if (!(startPart instanceof ChunkPart && startPart.typeStr == "dSIG" &&
+                            endPart instanceof ChunkPart && endPart.typeStr == "dSIG"))
+                            break;
+                        startPart.innerNotes.push("Introductory");
+                        endPart.innerNotes.push("Terminating");
+                        processedDsigs.add(startPart);
+                        processedDsigs.add(endPart);
+                    }
+                    for (; start < end; start++) {
+                        var part_2 = result[start];
+                        if (!(part_2 instanceof ChunkPart && part_2.typeStr == "dSIG"))
+                            break;
+                        part_2.innerNotes.push("Introductory");
+                        part_2.errorNotes.push("Missing corresponding terminating dSIG chunk");
+                    }
+                    for (; start < end; end--) {
+                        var part_3 = result[start];
+                        if (!(part_3 instanceof ChunkPart && part_3.typeStr == "dSIG"))
+                            break;
+                        part_3.innerNotes.push("Terminating");
+                        part_3.errorNotes.push("Missing corresponding introductory dSIG chunk");
+                    }
+                }
+                for (var _a = 0, result_2 = result; _a < result_2.length; _a++) {
+                    var part_4 = result_2[_a];
+                    if (part_4 instanceof ChunkPart && part_4.typeStr == "dSIG" && !processedDsigs.has(part_4))
+                        part_4.errorNotes.push("Chunk must be consecutively after IHDR chunk or consecutively before IEND chunk");
+                }
+            }
             var part = new UnknownPart(offset, new Uint8Array());
             if (!earlierTypes.has("IHDR"))
                 part.errorNotes.push("Missing IHDR chunk");
@@ -297,6 +340,9 @@ var app;
                         }
                     }
                 }],
+            ["dSIG", "Digital signature", true, function (chunk, earlier) { }],
+            ["eXIf", "Exchangeable Image File (Exif) Profile", false, function (chunk, earlier) { }],
+            ["fRAc", "Fractal image parameters", true, function (chunk, earlier) { }],
             ["gAMA", "Image gamma", false, function (chunk, earlier) {
                     if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
                         chunk.errorNotes.push("Chunk must be before PLTE chunk");
@@ -311,6 +357,67 @@ var app;
                     s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
                     // s basically equals (gamma/100000).toFixed(5)
                     chunk.innerNotes.push("Gamma: " + s);
+                }],
+            ["gIFg", "GIF Graphic Control Extension", true, function (chunk, earlier) {
+                    if (chunk.data.length != 4) {
+                        chunk.errorNotes.push("Invalid data length");
+                        return;
+                    }
+                    var disposalMethod = chunk.data[0];
+                    var userInputFlag = chunk.data[1];
+                    var delayTime = readUint16(chunk.data, 2);
+                    chunk.innerNotes.push("Disposal method: " + disposalMethod);
+                    chunk.innerNotes.push("User input flag: " + userInputFlag);
+                    var s = delayTime.toString().padStart(3, "0");
+                    s = s.substring(0, s.length - 2) + "." + s.substring(s.length - 2);
+                    // s basically equals (delayTime/100).toFixed(2)
+                    chunk.innerNotes.push("Delay time: " + s + " s");
+                }],
+            ["gIFt", "GIF Plain Text Extension", true, function (chunk, earlier) {
+                    if (chunk.data.length < 24) {
+                        chunk.errorNotes.push("Invalid data length");
+                        return;
+                    }
+                    var gridLeft = readInt32(chunk.data, 0);
+                    var gridTop = readInt32(chunk.data, 4);
+                    var gridWidth = readInt32(chunk.data, 8);
+                    var gridHeight = readInt32(chunk.data, 12);
+                    var cellWidth = chunk.data[16];
+                    var cellHeight = chunk.data[17];
+                    var foregroundColor = chunk.data[18] << 16 | chunk.data[19] << 8 | chunk.data[20] << 0;
+                    var backgroundColor = chunk.data[21] << 16 | chunk.data[22] << 8 | chunk.data[23] << 0;
+                    var text = bytesToReadableString(chunk.data.subarray(24));
+                    chunk.innerNotes.push("Deprecated");
+                    chunk.innerNotes.push("Text grid left position: " + gridLeft);
+                    chunk.innerNotes.push("Text grid top position: " + gridTop);
+                    chunk.innerNotes.push("Text grid width: " + gridWidth);
+                    chunk.innerNotes.push("Text grid height: " + gridHeight);
+                    chunk.innerNotes.push("Character cell width: " + cellWidth);
+                    chunk.innerNotes.push("Character cell height: " + cellHeight);
+                    chunk.innerNotes.push("Text foreground color: #" + foregroundColor.toString(16).padStart(2, "0"));
+                    chunk.innerNotes.push("Text background color: #" + backgroundColor.toString(16).padStart(2, "0"));
+                    chunk.innerNotes.push("Plain text data: " + text);
+                }],
+            ["gIFx", "GIF Application Extension", true, function (chunk, earlier) {
+                    if (chunk.data.length < 11) {
+                        chunk.errorNotes.push("Invalid data length");
+                        return;
+                    }
+                    chunk.innerNotes.push("Application identifier: " + bytesToReadableString(chunk.data.subarray(0, 8)));
+                    {
+                        var hex = [];
+                        for (var i = 0; i < 3; i++)
+                            hex.push(chunk.data[8 + i].toString(16).padStart(2, "0"));
+                        chunk.innerNotes.push("Authentication code: " + hex.join(" "));
+                    }
+                    {
+                        var hex = [];
+                        for (var _i = 0, _a = chunk.data.subarray(11); _i < _a.length; _i++) {
+                            var b = _a[_i];
+                            hex.push(b.toString(16).padStart(2, "0"));
+                        }
+                        chunk.innerNotes.push("Application data: " + hex.join(" "));
+                    }
                 }],
             ["hIST", "Palette histogram", false, function (chunk, earlier) {
                     if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
@@ -410,6 +517,34 @@ var app;
                     }
                 }],
             ["iTXt", "International textual data", true, function (chunk, earlier) { }],
+            ["oFFs", "Image offset", false, function (chunk, earlier) {
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
+                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    if (chunk.data.length != 9) {
+                        chunk.errorNotes.push("Invalid data length");
+                        return;
+                    }
+                    var xPos = readInt32(chunk.data, 0);
+                    var yPos = readInt32(chunk.data, 4);
+                    var unit = chunk.data[8];
+                    chunk.innerNotes.push("X position: " + xPos + " units");
+                    chunk.innerNotes.push("Y position: " + yPos + " units");
+                    {
+                        var s = lookUpTable(unit, [
+                            [0, "Pixel"],
+                            [1, "Micrometre"],
+                        ]);
+                        if (s === null) {
+                            s = "Unknown";
+                            chunk.errorNotes.push("Unknown unit specifier");
+                        }
+                        chunk.innerNotes.push("Unit specifier: " + s + " (" + unit + ")");
+                    }
+                }],
+            ["pCAL", "Calibration of pixel values", false, function (chunk, earlier) {
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
+                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                }],
             ["pHYs", "Physical pixel dimensions", false, function (chunk, earlier) {
                     if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
@@ -454,6 +589,10 @@ var app;
                     if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 }],
+            ["sCAL", "Physical scale of image subject", false, function (chunk, earlier) {
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
+                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                }],
             ["sBIT", "Significant bits", false, function (chunk, earlier) {
                     if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
                         chunk.errorNotes.push("Chunk must be before PLTE chunk");
@@ -493,6 +632,24 @@ var app;
                         chunk.errorNotes.push("Unknown rendering intent");
                     }
                     chunk.innerNotes.push("Rendering intent: " + s + " (" + renderIntent + ")");
+                }],
+            ["sTER", "Indicator of Stereo Image", false, function (chunk, earlier) {
+                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
+                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    if (chunk.data.length != 1) {
+                        chunk.errorNotes.push("Invalid data length");
+                        return;
+                    }
+                    var mode = chunk.data[0];
+                    var s = lookUpTable(mode, [
+                        [0, "Cross-fuse layout"],
+                        [1, "Diverging-fuse layout"],
+                    ]);
+                    if (s === null) {
+                        s = "Unknown";
+                        chunk.errorNotes.push("Unknown mode");
+                    }
+                    chunk.innerNotes.push("Mode: " + s + " (" + mode + ")");
                 }],
             ["tEXt", "Textual data", true, function (chunk, earlier) {
                     var data = [];
@@ -647,6 +804,9 @@ var app;
             | bytes[offset + 1] << 16
             | bytes[offset + 2] << 8
             | bytes[offset + 3] << 0) >>> 0;
+    }
+    function readInt32(bytes, offset) {
+        return readUint32(bytes, offset) | 0;
     }
     function requireType(val, type) {
         if (val instanceof type)
