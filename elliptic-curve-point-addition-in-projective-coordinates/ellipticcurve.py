@@ -1,7 +1,7 @@
 # 
 # Elliptic curve point addition in projective coordinates
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/elliptic-curve-point-addition-in-projective-coordinates
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,8 +27,13 @@
 class AffineCurvePoint:
 	
 	def __init__(self, x, y, a, b, mod):
-		if not ((x is None and y is None) or (isinstance(x, FieldInt) and isinstance(y, FieldInt))):
+		if (x is None) and (y is None):
+			pass
+		elif isinstance(x, FieldInt) and isinstance(y, FieldInt):
+			pass
+		else:
 			raise ValueError("Both coordinates must be FieldInt or None")
+		
 		if not isinstance(a, FieldInt) or not isinstance(b, FieldInt):
 			raise TypeError("Expected FieldInt")
 		if x is not None and (x.modulus != mod or y.modulus != mod) or a.modulus != mod or b.modulus != mod:
@@ -74,7 +79,7 @@ class AffineCurvePoint:
 			else:
 				return self._create(None, None)
 		else:
-			s = (self.y - other.y) * (self.x - other.x).reciprocal()
+			s = (self.y - other.y) / (self.x - other.x)
 			rx = s * s - self.x - other.x
 			ry = s * (self.x - rx) - self.y
 			return self._create(rx, ry)
@@ -84,7 +89,7 @@ class AffineCurvePoint:
 		if self.is_zero() or self.y == 0:
 			return self._create(None, None)
 		else:
-			s = (self.x * self.x * FieldInt(3, self.modulus) + self.a) * (self.y * FieldInt(2, self.modulus)).reciprocal()
+			s = (self.x * self.x * FieldInt(3, self.modulus) + self.a) / (self.y * FieldInt(2, self.modulus))
 			rx = s * s - self.x * FieldInt(2, self.modulus)
 			ry = s * (self.x - rx) - self.y
 			return self._create(rx, ry)
@@ -116,14 +121,13 @@ class AffineCurvePoint:
 	
 	
 	def __eq__(self, other):
-		if self.is_zero() or other.is_zero():
+		if not isinstance(other, AffineCurvePoint):
+			return False
+		elif self.is_zero() or other.is_zero():
 			return self.is_zero() and other.is_zero()
 		else:
-			return isinstance(other, AffineCurvePoint) and \
-				(self.x, self.y, self.a, self.b, self.modulus) == (other.x, other.y, other.a, other.b, other.modulus)
-	
-	def __ne__(self, other):
-		return not (self == other)
+			return (self.x, self.y, self.a, self.b, self.modulus) \
+				== (other.x, other.y, other.a, other.b, other.modulus)
 	
 	
 	def __str__(self):
@@ -142,12 +146,12 @@ class AffineCurvePoint:
 class ProjectiveCurvePoint:
 	
 	def __init__(self, x, y, z, a, b, mod):
-		if x is None and y is None and z is None:
+		if (x is None) and (y is None) and (z is None):
 			pass
 		elif isinstance(x, FieldInt) and isinstance(y, FieldInt) and isinstance(z, FieldInt):
 			pass
 		else:
-			raise ValueError("Both coordinates must be FieldInt or None")
+			raise ValueError("All three coordinates must be FieldInt or None")
 		
 		if not isinstance(a, FieldInt) or not isinstance(b, FieldInt):
 			raise TypeError("Expected FieldInt")
@@ -178,8 +182,7 @@ class ProjectiveCurvePoint:
 		if self.is_zero():
 			return AffineCurvePoint(None, None, self.a, self.b, self.modulus)
 		else:
-			div = self.z.reciprocal()
-			return AffineCurvePoint(self.x * div, self.y * div, self.a, self.b, self.modulus)
+			return AffineCurvePoint(self.x / self.z, self.y / self.z, self.a, self.b, self.modulus)
 	
 	
 	def __add__(self, other):
@@ -256,15 +259,13 @@ class ProjectiveCurvePoint:
 	
 	
 	def __eq__(self, other):
+		if not isinstance(other, ProjectiveCurvePoint):
+			return False
 		if self.is_zero() or other.is_zero():
 			return self.is_zero() and other.is_zero()
 		else:
-			return isinstance(other, ProjectiveCurvePoint) and \
-				(self.x * other.z, self.y * other.z, self.a , self.b , self.modulus ) == \
-				(other.x * self.z, other.y * self.z, other.a, other.b, other.modulus)
-	
-	def __ne__(self, other):
-		return not (self == other)
+			return (self.x * other.z, self.y * other.z, self.a, self.b, self.modulus) \
+				== (other.x * self.z, other.y * self.z, other.a, other.b, other.modulus)
 	
 	
 	def __str__(self):
@@ -323,6 +324,10 @@ class FieldInt:
 		self._check(other)
 		return self._create(self.value * other.value)
 	
+	def __truediv__(self, other):
+		self._check(other)
+		return self._create(self.value * other.reciprocal().value)
+	
 	
 	def reciprocal(self):
 		if self.value == 0:
@@ -339,16 +344,10 @@ class FieldInt:
 			raise ValueError("Value and modulus not coprime")
 	
 	
-	# -- Comparison methods --
+	# -- Miscellaneous methods --
 	
 	def __eq__(self, other):
 		return isinstance(other, FieldInt) and (self.value, self.modulus) == (other.value, other.modulus)
-	
-	def __ne__(self, other):
-		return not (self == other)
-	
-	
-	# -- Miscellaneous methods --
 	
 	def __str__(self):
 		return str(self.value)
