@@ -1,7 +1,7 @@
 /* 
  * Whirlpool hash in C
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-whirlpool-hash-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 #include <string.h>
 
 
-static void whirlpool_round(uint8_t block[static 64], const uint8_t key[static 64]);
+static void whirlpool_round(uint8_t block[static restrict 64], const uint8_t key[static restrict 64]);
 
 
 // S-box for gamma (SubBytes) and round constants
@@ -49,7 +49,7 @@ static uint8_t SBOX[256] = {
 };
 
 
-void whirlpool_compress(uint8_t state[static 64], const uint8_t block[static 64]) {
+void whirlpool_compress(uint8_t state[static restrict 64], const uint8_t block[static restrict 64]) {
 	const int NUM_ROUNDS = 10;  // Any number from 0 to 32 is allowed
 	uint8_t tempState[64];
 	uint8_t tempBlock[64];
@@ -88,7 +88,7 @@ static uint8_t MULTIPLY[8][256] = {
 };
 
 
-static void whirlpool_round(uint8_t block[static 64], const uint8_t key[static 64]) {
+static void whirlpool_round(uint8_t block[static restrict 64], const uint8_t key[static restrict 64]) {
 	uint8_t temp[64];
 	
 	// Non-linear layer (gamma, SubBytes)

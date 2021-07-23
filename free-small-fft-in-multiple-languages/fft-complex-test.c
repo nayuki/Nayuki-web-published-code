@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,8 +36,8 @@
 // Private function prototypes
 static void test_fft(int n);
 static void test_convolution(int n);
-static void naive_dft(const double complex *invec, double complex *outvec, int n, bool inverse);
-static void naive_convolve(const double complex *xvec, const double complex *yvec, double complex *outvec, int n);
+static void naive_dft(const double complex *restrict invec, double complex *restrict outvec, int n, bool inverse);
+static void naive_convolve(const double complex *restrict xvec, const double complex *restrict yvec, double complex *restrict outvec, int n);
 static double log10_rms_err(const double complex *xvec, const double complex *yvec, int n);
 static double complex *random_complexes(int n);
 static void *memdup(const void *src, size_t n);
@@ -123,7 +123,7 @@ static void test_convolution(int n) {
 
 /*---- Naive reference computation functions ----*/
 
-static void naive_dft(const double complex *invec, double complex *outvec, int n, bool inverse) {
+static void naive_dft(const double complex *restrict invec, double complex *restrict outvec, int n, bool inverse) {
 	double coef = (inverse ? 2 : -2) * M_PI;
 	for (int k = 0; k < n; k++) {  // For each output element
 		double complex sum = 0.0;
@@ -136,7 +136,7 @@ static void naive_dft(const double complex *invec, double complex *outvec, int n
 }
 
 
-static void naive_convolve(const double complex *xvec, const double complex *yvec, double complex *outvec, int n) {
+static void naive_convolve(const double complex *restrict xvec, const double complex *restrict yvec, double complex *restrict outvec, int n) {
 	for (int i = 0; i < n; i++)
 		outvec[i] = 0;
 	for (int i = 0; i < n; i++) {

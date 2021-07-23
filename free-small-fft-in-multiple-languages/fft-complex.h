@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -61,7 +61,7 @@ bool Fft_transformBluestein(double complex vec[], size_t n, bool inverse);
  * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
  * Returns true if successful, false otherwise (out of memory).
  */
-bool Fft_convolve(const double complex xvec[], const double complex yvec[], double complex outvec[], size_t n);
+bool Fft_convolve(const double complex xvec[restrict], const double complex yvec[restrict], double complex outvec[restrict], size_t n);
 
 
 #ifdef __cplusplus

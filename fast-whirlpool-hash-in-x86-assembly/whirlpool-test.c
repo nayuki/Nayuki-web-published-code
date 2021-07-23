@@ -36,10 +36,10 @@
 #define STATE_LEN 64  // In bytes
 
 static bool self_check(void);
-void whirlpool_hash(const uint8_t message[], size_t len, uint8_t hash[static STATE_LEN]);
+void whirlpool_hash(const uint8_t message[restrict], size_t len, uint8_t hash[static restrict STATE_LEN]);
 
 // Link this program with an external C or x86 compression function
-extern void whirlpool_compress(uint8_t state[static STATE_LEN], const uint8_t block[static BLOCK_LEN]);
+extern void whirlpool_compress(uint8_t state[static restrict STATE_LEN], const uint8_t block[static restrict BLOCK_LEN]);
 
 
 /* Main program */
@@ -115,7 +115,7 @@ static bool self_check(void) {
 
 /* Full message hasher */
 
-void whirlpool_hash(const uint8_t message[], size_t len, uint8_t hash[static STATE_LEN]) {
+void whirlpool_hash(const uint8_t message[restrict], size_t len, uint8_t hash[static restrict STATE_LEN]) {
 	memset(hash, 0, STATE_LEN * sizeof(uint8_t));
 	
 	#define LENGTH_SIZE 32  // In bytes

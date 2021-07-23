@@ -1,7 +1,7 @@
 /*
  * Whirlpool hash in x86-64 assembly
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-whirlpool-hash-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void whirlpool_compress(uint8_t state[static 64], const uint8_t block[static 64]) */
+/* void whirlpool_compress(uint8_t state[static restrict 64], const uint8_t block[static restrict 64]) */
 /* state and block can be optionally aligned to 8 bytes for slightly better performance. */
 .globl whirlpool_compress
 whirlpool_compress:

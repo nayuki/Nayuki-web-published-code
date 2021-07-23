@@ -1,7 +1,7 @@
 /* 
  * Tiny Encryption Algorithm (TEA) in C and x86 assembly
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/tiny-encryption-algorithm-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,10 +28,10 @@
 
 
 /* x86 assembly version */
-extern void tea_encrypt_x86(uint32_t msg[static 2], const uint32_t key[static 4]);
+extern void tea_encrypt_x86(uint32_t msg[static restrict 2], const uint32_t key[static restrict 4]);
 
 /* C version */
-void tea_encrypt_c(uint32_t msg[static 2], const uint32_t key[static 4]) {
+void tea_encrypt_c(uint32_t msg[static restrict 2], const uint32_t key[static restrict 4]) {
 	uint32_t
 		y = msg[0],
 		z = msg[1],

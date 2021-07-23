@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (C)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,11 +34,11 @@
 // Private function prototypes
 static void test_fft(int n);
 static void test_convolution(int n);
-static void naive_dft(const double *inreal, const double *inimag,
-	double *outreal, double *outimag, int n, bool inverse);
-static void naive_convolve(const double *xreal, const double *ximag,
-	const double *yreal, const double *yimag,
-	double *outreal, double *outimag, int n);
+static void naive_dft(const double *restrict inreal, const double *restrict inimag,
+	double *restrict outreal, double *restrict outimag, int n, bool inverse);
+static void naive_convolve(const double *restrict xreal, const double *restrict ximag,
+	const double *restrict yreal, const double *restrict yimag,
+	double *restrict outreal, double *restrict outimag, int n);
 static double log10_rms_err(const double *xreal, const double *ximag,
 	const double *yreal, const double *yimag, int n);
 static double *random_reals(int n);
@@ -149,8 +149,8 @@ static void test_convolution(int n) {
 
 /*---- Naive reference computation functions ----*/
 
-static void naive_dft(const double *inreal, const double *inimag,
-		double *outreal, double *outimag, int n, bool inverse) {
+static void naive_dft(const double *restrict inreal, const double *restrict inimag,
+		double *restrict outreal, double *restrict outimag, int n, bool inverse) {
 	
 	double coef = (inverse ? 2 : -2) * M_PI;
 	for (int k = 0; k < n; k++) {  // For each output element
@@ -167,9 +167,9 @@ static void naive_dft(const double *inreal, const double *inimag,
 }
 
 
-static void naive_convolve(const double *xreal, const double *ximag,
-		const double *yreal, const double *yimag,
-		double *outreal, double *outimag, int n) {
+static void naive_convolve(const double *restrict xreal, const double *restrict ximag,
+		const double *restrict yreal, const double *restrict yimag,
+		double *restrict outreal, double *restrict outimag, int n) {
 	
 	for (int i = 0; i < n; i++) {
 		outreal[i] = 0;

@@ -1,6 +1,6 @@
 /* 
  * Discrete Fourier transform (C)
- * by Project Nayuki, 2020. Public domain.
+ * by Project Nayuki, 2021. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
 
@@ -12,7 +12,7 @@
 #include <complex.h>
 #include <math.h>
 #include <stddef.h>
-void compute_dft_complex(const double complex input[], double complex output[], size_t n) {
+void compute_dft_complex(const double complex input[restrict], double complex output[restrict], size_t n) {
 	for (size_t k = 0; k < n; k++) {  // For each output element
 		double complex sum = 0.0;
 		for (size_t t = 0; t < n; t++) {  // For each input element
@@ -31,8 +31,8 @@ void compute_dft_complex(const double complex input[], double complex output[], 
  */
 #include <math.h>
 #include <stddef.h>
-void compute_dft_real_pair(const double inreal[], const double inimag[],
-		double outreal[], double outimag[], size_t n) {
+void compute_dft_real_pair(const double inreal[restrict], const double inimag[restrict],
+		double outreal[restrict], double outimag[restrict], size_t n) {
 	
 	for (size_t k = 0; k < n; k++) {  // For each output element
 		double sumreal = 0;

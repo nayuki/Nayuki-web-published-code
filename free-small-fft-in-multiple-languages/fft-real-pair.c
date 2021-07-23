@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,7 +33,7 @@ static size_t reverse_bits(size_t val, int width);
 static void *memdup(const void *src, size_t n);
 
 
-bool Fft_transform(double real[], double imag[], size_t n) {
+bool Fft_transform(double real[restrict], double imag[restrict], size_t n) {
 	if (n == 0)
 		return true;
 	else if ((n & (n - 1)) == 0)  // Is power of 2
@@ -43,12 +43,12 @@ bool Fft_transform(double real[], double imag[], size_t n) {
 }
 
 
-bool Fft_inverseTransform(double real[], double imag[], size_t n) {
+bool Fft_inverseTransform(double real[restrict], double imag[restrict], size_t n) {
 	return Fft_transform(imag, real, n);
 }
 
 
-bool Fft_transformRadix2(double real[], double imag[], size_t n) {
+bool Fft_transformRadix2(double real[restrict], double imag[restrict], size_t n) {
 	// Length variables
 	bool status = false;
 	int levels = 0;  // Compute levels = floor(log2(n))
@@ -110,7 +110,7 @@ cleanup:
 }
 
 
-bool Fft_transformBluestein(double real[], double imag[], size_t n) {
+bool Fft_transformBluestein(double real[restrict], double imag[restrict], size_t n) {
 	bool status = false;
 	
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
@@ -185,7 +185,7 @@ cleanup:
 }
 
 
-bool Fft_convolveReal(const double xvec[], const double yvec[], double outvec[], size_t n) {
+bool Fft_convolveReal(const double xvec[restrict], const double yvec[restrict], double outvec[restrict], size_t n) {
 	bool status = false;
 	double *ximag = calloc(n, sizeof(double));
 	double *yimag = calloc(n, sizeof(double));
@@ -203,9 +203,9 @@ cleanup:
 
 
 bool Fft_convolveComplex(
-		const double xreal[], const double ximag[],
-		const double yreal[], const double yimag[],
-		double outreal[], double outimag[], size_t n) {
+		const double xreal[restrict], const double ximag[restrict],
+		const double yreal[restrict], const double yimag[restrict],
+		double outreal[restrict], double outimag[restrict], size_t n) {
 	
 	bool status = false;
 	if (SIZE_MAX / sizeof(double) < n)
