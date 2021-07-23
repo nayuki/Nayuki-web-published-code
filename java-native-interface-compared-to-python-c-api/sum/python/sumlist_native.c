@@ -1,7 +1,7 @@
 /* 
  * Sum list (Python version)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/java-native-interface-compared-to-python-c-api
  */
@@ -17,14 +17,14 @@
  * Given a sequence of integers, this returns the sum of all the numbers modulo 2^32.
  */
 static PyObject *get_sum32(PyObject *self, PyObject *seq) {
-	uint32_t result = 0;
+	uint32_t sum = 0;
 	Py_ssize_t len = PySequence_Length(seq);
 	for (Py_ssize_t i = 0; i < len; i++) {  // Sum every element
 		PyObject *item = PySequence_GetItem(seq, i);
-		result += (uint32_t)PyLong_AsUnsignedLongMask(item);
+		sum = (uint32_t)(sum + 0U + PyLong_AsUnsignedLongMask(item));
 		Py_DECREF(item);
 	}
-	return PyLong_FromUnsignedLong(result);
+	return PyLong_FromUnsignedLong(sum);
 }
 
 

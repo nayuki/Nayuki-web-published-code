@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,6 +24,16 @@
 #pragma once
 
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+
 void FastDct8_transform(double vector[static 8]);
 
 void FastDct8_inverseTransform(double vector[static 8]);
+
+
+#ifdef __cplusplus
+}
+#endif

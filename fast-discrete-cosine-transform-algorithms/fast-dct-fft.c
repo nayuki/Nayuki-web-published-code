@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "fast-dct-fft.h"
-#include "fft.h"
+#include "fft-real-pair.h"
 
 
 // DCT type II, unscaled

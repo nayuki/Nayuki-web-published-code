@@ -29,6 +29,7 @@
 
 #ifdef __cplusplus
 extern "C" {
+#define restrict
 #endif
 
 
@@ -78,5 +79,6 @@ bool Fft_convolveComplex(const double xreal[restrict], const double ximag[restri
 
 
 #ifdef __cplusplus
+#undef restrict
 }
 #endif

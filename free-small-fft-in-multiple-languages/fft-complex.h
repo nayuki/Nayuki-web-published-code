@@ -30,6 +30,7 @@
 
 #ifdef __cplusplus
 extern "C" {
+#define restrict
 #endif
 
 
@@ -65,5 +66,6 @@ bool Fft_convolve(const double complex xvec[restrict], const double complex yvec
 
 
 #ifdef __cplusplus
+#undef restrict
 }
 #endif

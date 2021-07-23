@@ -36,9 +36,9 @@
 // Private function prototypes
 static void test_fft(int n);
 static void test_convolution(int n);
-static void naive_dft(const double complex *restrict invec, double complex *restrict outvec, int n, bool inverse);
-static void naive_convolve(const double complex *restrict xvec, const double complex *restrict yvec, double complex *restrict outvec, int n);
-static double log10_rms_err(const double complex *xvec, const double complex *yvec, int n);
+static void naive_dft(const double complex invec[restrict], double complex outvec[restrict], int n, bool inverse);
+static void naive_convolve(const double complex xvec[restrict], const double complex yvec[restrict], double complex outvec[restrict], int n);
+static double log10_rms_err(const double complex xvec[], const double complex yvec[], int n);
 static double complex *random_complexes(int n);
 static void *memdup(const void *src, size_t n);
 
@@ -123,7 +123,7 @@ static void test_convolution(int n) {
 
 /*---- Naive reference computation functions ----*/
 
-static void naive_dft(const double complex *restrict invec, double complex *restrict outvec, int n, bool inverse) {
+static void naive_dft(const double complex invec[restrict], double complex outvec[restrict], int n, bool inverse) {
 	double coef = (inverse ? 2 : -2) * M_PI;
 	for (int k = 0; k < n; k++) {  // For each output element
 		double complex sum = 0.0;
@@ -136,7 +136,7 @@ static void naive_dft(const double complex *restrict invec, double complex *rest
 }
 
 
-static void naive_convolve(const double complex *restrict xvec, const double complex *restrict yvec, double complex *restrict outvec, int n) {
+static void naive_convolve(const double complex xvec[restrict], const double complex yvec[restrict], double complex outvec[restrict], int n) {
 	for (int i = 0; i < n; i++)
 		outvec[i] = 0;
 	for (int i = 0; i < n; i++) {
@@ -148,7 +148,7 @@ static void naive_convolve(const double complex *restrict xvec, const double com
 
 /*---- Utility functions ----*/
 
-static double log10_rms_err(const double complex *xvec, const double complex *yvec, int n) {
+static double log10_rms_err(const double complex xvec[], const double complex yvec[], int n) {
 	double err = pow(10, -99 * 2);
 	for (int i = 0; i < n; i++) {
 		double temp = cabs(xvec[i] - yvec[i]);

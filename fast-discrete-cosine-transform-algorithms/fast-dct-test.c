@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,7 +42,7 @@ static void testFastDctLeeInvertibility(void);
 static void testFastDct8VsNaive(void);
 static void testFastDctFftVsNaive(void);
 static void testFastDctFftInvertibility(void);
-static void assertArrayEquals(double expect[], double actual[], size_t len, double epsilon);
+static void assertArrayEquals(const double expect[], const double actual[], size_t len, double epsilon);
 static double *randomVector(size_t len);
 
 
@@ -176,7 +176,7 @@ static void testFastDctFftInvertibility(void) {
 }
 
 
-static void assertArrayEquals(double expect[], double actual[], size_t len, double epsilon) {
+static void assertArrayEquals(const double expect[], const double actual[], size_t len, double epsilon) {
 	for (size_t i = 0; i < len; i++)
 		assert(fabs(expect[i] - actual[i]) < epsilon);
 }
