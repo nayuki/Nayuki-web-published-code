@@ -1,7 +1,7 @@
 /*
  * QR Code generator input demo (compiled from TypeScript)
  *
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/qr-code-generator-library
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@ var app;
     function initialize() {
         getElem("loading").style.display = "none";
         getElem("loaded").style.removeProperty("display");
-        var elems = document.querySelectorAll("input[type=number], textarea");
+        var elems = document.querySelectorAll("input[type=number], input[type=text], textarea");
         for (var _i = 0, elems_1 = elems; _i < elems_1.length; _i++) {
             var el = elems_1[_i];
             if (el.id.indexOf("version-") != 0)
@@ -81,23 +81,27 @@ var app;
         var qr = qrcodegen.QrCode.encodeSegments(segs, ecl, minVer, maxVer, mask, boostEcc);
         // Draw image output
         var border = parseInt(getInput("border-input").value, 10);
+        var lightColor = getInput("light-color-input").value;
+        var darkColor = getInput("dark-color-input").value;
         if (border < 0 || border > 100)
             return;
         if (bitmapOutput) {
             var scale = parseInt(getInput("scale-input").value, 10);
             if (scale <= 0 || scale > 30)
                 return;
-            qr.drawCanvas(scale, border, canvas);
+            drawCanvas(qr, scale, border, lightColor, darkColor, canvas);
             canvas.style.removeProperty("display");
         }
         else {
-            var code = qr.toSvgString(border);
+            var code = toSvgString(qr, border, lightColor, darkColor);
             var viewBox = / viewBox="([^"]*)"/.exec(code)[1];
             var pathD = / d="([^"]*)"/.exec(code)[1];
             svg.setAttribute("viewBox", viewBox);
             svg.querySelector("path").setAttribute("d", pathD);
+            svg.querySelector("rect").setAttribute("fill", lightColor);
+            svg.querySelector("path").setAttribute("fill", darkColor);
             svg.style.removeProperty("display");
-            svgXml.value = qr.toSvgString(border);
+            svgXml.value = code;
         }
         // Returns a string to describe the given list of segments.
         function describeSegments(segs) {
@@ -143,6 +147,38 @@ var app;
             ("encoding mode = " + describeSegments(segs) + ", ") +
             ("error correction = level " + "LMQH".charAt(qr.errorCorrectionLevel.ordinal) + ", ") +
             ("data bits = " + qrcodegen.QrSegment.getTotalBits(segs, qr.version) + ".");
+    }
+    // Draws the given QR Code, with the given module scale and border modules, onto the given HTML
+    // canvas element. The canvas's width and height is resized to (qr.size + border * 2) * scale.
+    // The drawn image is purely dark and light, and fully opaque.
+    // The scale must be a positive integer and the border must be a non-negative integer.
+    function drawCanvas(qr, scale, border, lightColor, darkColor, canvas) {
+        if (scale <= 0 || border < 0)
+            throw "Value out of range";
+        var width = (qr.size + border * 2) * scale;
+        canvas.width = width;
+        canvas.height = width;
+        var ctx = canvas.getContext("2d");
+        for (var y = -border; y < qr.size + border; y++) {
+            for (var x = -border; x < qr.size + border; x++) {
+                ctx.fillStyle = qr.getModule(x, y) ? darkColor : lightColor;
+                ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
+            }
+        }
+    }
+    // Returns a string of SVG code for an image depicting the given QR Code, with the given number
+    // of border modules. The string always uses Unix newlines (\n), regardless of the platform.
+    function toSvgString(qr, border, lightColor, darkColor) {
+        if (border < 0)
+            throw "Border must be non-negative";
+        var parts = [];
+        for (var y = 0; y < qr.size; y++) {
+            for (var x = 0; x < qr.size; x++) {
+                if (qr.getModule(x, y))
+                    parts.push("M" + (x + border) + "," + (y + border) + "h1v1h-1z");
+            }
+        }
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\" viewBox=\"0 0 " + (qr.size + border * 2) + " " + (qr.size + border * 2) + "\" stroke=\"none\">\n\t<rect width=\"100%\" height=\"100%\" fill=\"" + lightColor + "\"/>\n\t<path d=\"" + parts.join(" ") + "\" fill=\"" + darkColor + "\"/>\n</svg>\n";
     }
     function handleVersionMinMax(which) {
         var minElem = getInput("version-min-input");
