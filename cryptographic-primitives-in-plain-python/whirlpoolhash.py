@@ -22,13 +22,13 @@
 # 
 
 import cryptocommon
-from typing import List
+from typing import List, Sequence, Union
 
 
 # ---- Public functions ----
 
-def hash(message: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the hash of the given bytelist message, returning a new 64-element bytelist."""
+def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given bytelist message, returning 64 bytes."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	msg = bytearray(message)
@@ -56,9 +56,9 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
-	# Return the final state as a bytelist
+	# Return the final state
 	if printdebug:  print()
-	return list(state)
+	return state
 
 
 # ---- Private functions ----
@@ -74,11 +74,11 @@ def _compress(block: bytes, state: bytes, printdebug: bool) -> bytes:
 	tempmsg = _add_round_key(block, state)
 	i = 0
 	for rcon in _ROUND_CONSTANTS:
-		if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(tempmsg))}")
+		if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(tempmsg)}")
 		tempkey = _compute_round(tempkey, rcon)  # Compute key schedule on the fly
 		tempmsg = _compute_round(tempmsg, tempkey)
 		i += 1
-	if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(tempmsg))}")
+	if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(tempmsg)}")
 	
 	# Combine data using the Miyaguchi-Preneel construction
 	newstate = bytearray()

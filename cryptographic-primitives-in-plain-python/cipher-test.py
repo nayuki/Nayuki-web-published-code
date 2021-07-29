@@ -23,7 +23,7 @@
 # 
 
 import unittest
-from typing import Callable, List, Tuple
+from typing import Callable, List, Sequence, Tuple, Union
 from cryptocommon import hexstr_to_bytelist
 
 
@@ -625,7 +625,7 @@ class CipherTest(unittest.TestCase):
 	
 	# Private utilities
 	
-	def _check_cipher(self, encfunc: Callable[[List[int],List[int]],List[int]], decfunc: Callable[[List[int],List[int]],List[int]], cases: List[Tuple[str,str,str]]) -> None:
+	def _check_cipher(self, encfunc: Callable[[Union[bytes,Sequence[int]],Union[bytes,Sequence[int]]],bytes], decfunc: Callable[[Union[bytes,Sequence[int]],Union[bytes,Sequence[int]]],bytes], cases: List[Tuple[str,str,str]]) -> None:
 		global num_test_cases
 		
 		for (plaintexthex, keyhex, expectedciphertexthex) in cases:

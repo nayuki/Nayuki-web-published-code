@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import List, Sequence
+from typing import List, Sequence, Union
 
 
 # ---- Low-level arithmetic functions and constants ----
@@ -61,21 +61,21 @@ def rotate_right_uint64(value: int, amount: int) -> int:
 # ---- Data conversion functions ----
 
 # For example: asciistr_to_bytelist("0Az") -> [48, 65, 122].
-def asciistr_to_bytelist(asciistr: str) -> List[int]:
-	return list(map(ord, asciistr))
+def asciistr_to_bytelist(asciistr: str) -> bytes:
+	return bytes(map(ord, asciistr))
 
 
 # For example: hexstr_to_bytelist("FF00C0") -> [255, 0, 192].
-def hexstr_to_bytelist(hexstr: str) -> List[int]:
+def hexstr_to_bytelist(hexstr: str) -> bytes:
 	assert len(hexstr) % 2 == 0
-	return [int(hexstr[i : i + 2], 16) for i in range(0, len(hexstr), 2)]
+	return bytes(int(hexstr[i : i + 2], 16) for i in range(0, len(hexstr), 2))
 
 
 # For example: bytelist_to_hexstr([255, 0, 192]) -> "FF00C0".
-def bytelist_to_hexstr(bytelist: Sequence[int]) -> str:
+def bytelist_to_hexstr(bytelist: Union[bytes,Sequence[int]]) -> str:
 	return "".join(f"{b:02X}" for b in bytelist)
 
 
 # For example: bytelist_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
-def bytelist_to_debugstr(bytelist: Sequence[int]) -> str:
+def bytelist_to_debugstr(bytelist: Union[bytes,Sequence[int]]) -> str:
 	return "[" + " ".join(f"{b:02X}" for b in bytelist) + "]"

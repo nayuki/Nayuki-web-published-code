@@ -22,13 +22,13 @@
 # 
 
 import cryptocommon
-from typing import List, Tuple
+from typing import List, Sequence, Tuple, Union
 
 
 # ---- Public functions ----
 
-def hash(message: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the hash of the given bytelist message, returning a new 20-element bytelist."""
+def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given bytelist message, returning 20 bytes."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	msg = bytearray(message)
@@ -56,8 +56,8 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
-	# Serialize the final state as a bytelist in big endian
-	result = []
+	# Serialize the final state as bytes in big endian
+	result = bytearray()
 	for x in state:
 		for i in reversed(range(4)):
 			result.append(int((x >> (i * 8)) & 0xFF))

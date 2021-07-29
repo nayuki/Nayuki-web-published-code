@@ -23,14 +23,14 @@
 # 
 
 import cryptocommon
-from typing import List, Tuple
+from typing import List, Sequence, Tuple, Union
 
 
 # ---- Public functions ----
 
-def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the encryption of the given block (16-element bytelist) with
-	the given key (16/24/32-element bytelist), returning a new 16-element bytelist."""
+def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the encryption of the given block (16 bytes)
+	with the given key (16/24/32 bytes), returning 16 bytes."""
 	
 	# Check input arguments
 	assert len(block) == 16
@@ -43,13 +43,13 @@ def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 	# Perform special first round
 	i = 0
 	newblock = bytes(block)
-	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
+	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	i += 1
 	
 	# Perform 9/11/13 regular rounds of encryption
 	for subkey in keyschedule[1 : -1]:
-		if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
+		if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
 		newblock = _sub_bytes(newblock, _SBOX_FORWARD)
 		newblock = _shift_rows(newblock, 1)
 		newblock = _mix_columns(newblock, _MULTIPLIERS_FORWARD)
@@ -57,19 +57,19 @@ def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 		i += 1
 	
 	# Perform special last round
-	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
+	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
 	newblock = _sub_bytes(newblock, _SBOX_FORWARD)
 	newblock = _shift_rows(newblock, 1)
 	newblock = _add_round_key(newblock, keyschedule[-1])
 	
-	# Return the final block as a bytelist
+	# Return the final block
 	if printdebug:  print()
-	return list(newblock)
+	return newblock
 
 
-def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the decryption of the given block (16-element bytelist) with
-	the given key (16/24/32-element bytelist), returning a new 16-element bytelist."""
+def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the decryption of the given block (16 bytes)
+	with the given key (16/24/32 bytes), returning 16 bytes."""
 	
 	# Check input arguments
 	assert len(block) == 16
@@ -82,7 +82,7 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 	# Perform special first round
 	i = 0
 	newblock = bytes(block)
-	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
+	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	newblock = _shift_rows(newblock, -1)
 	newblock = _sub_bytes(newblock, _SBOX_INVERSE)
@@ -90,7 +90,7 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 	
 	# Perform 9/11/13 regular rounds of decryption
 	for subkey in keyschedule[1 : -1]:
-		if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
+		if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
 		newblock = _add_round_key(newblock, subkey)
 		newblock = _mix_columns(newblock, _MULTIPLIERS_INVERSE)
 		newblock = _shift_rows(newblock, -1)
@@ -98,18 +98,18 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 		i += 1
 	
 	# Perform special last round
-	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
+	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[-1])
 	
 	# Return the final block as a bytelist
 	if printdebug:  print()
-	return list(newblock)
+	return newblock
 
 
 # ---- Private functions ----
 
 # Given 16/24/32 bytes, this computes and returns a tuple containing 11/13/15 tuples of 16 bytes each.
-def _expand_key_schedule(key: List[int]) -> Tuple[bytes,...]:
+def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
 	# Initialize key schedule with the verbatim key
 	nk = len(key) // 4  # Number of 32-bit words in original key
 	assert nk in (4, 6, 8)

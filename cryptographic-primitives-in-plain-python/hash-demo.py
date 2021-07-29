@@ -31,8 +31,8 @@ def main() -> None:
 	hashbytelist = md5hash.hash(msgbytelist, printdebug=True)
 	hashhexstr = cryptocommon.bytelist_to_hexstr(hashbytelist)
 	print(f"Message string (hex): {message}")
-	print(f"Message bytelist: {msgbytelist}")
-	print(f"Hash bytelist: {hashbytelist}")
+	print(f"Message bytelist: {list(msgbytelist)}")
+	print(f"Hash bytelist: {list(hashbytelist)}")
 	print(f"MD5 hash (hex): {hashhexstr}")
 	print()
 	print("-" * 100)
@@ -43,8 +43,8 @@ def main() -> None:
 	hashbytelist = sha256hash.hash(msgbytelist, printdebug=True)
 	hashhexstr = cryptocommon.bytelist_to_hexstr(hashbytelist)
 	print(f'Message string: "{message}"')
-	print(f"Message bytelist: {msgbytelist}")
-	print(f"Hash bytelist: {hashbytelist}")
+	print(f"Message bytelist: {list(msgbytelist)}")
+	print(f"Hash bytelist: {list(hashbytelist)}")
 	print(f"SHA-256 hash (hex): {hashhexstr}")
 
 

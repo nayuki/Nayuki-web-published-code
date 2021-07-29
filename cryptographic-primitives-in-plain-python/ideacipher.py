@@ -22,26 +22,26 @@
 # 
 
 import cryptocommon
-from typing import List, Tuple
+from typing import List, Sequence, Tuple, Union
 
 
 # ---- Public functions ----
 
-def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the encryption of the given block (8-element bytelist) with
-	the given key (16-element bytelist), returning a new 8-element bytelist."""
+def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the encryption of the given block (8 bytes)
+	with the given key (16 bytes), returning 8 bytes."""
 	return _crypt(block, key, "encrypt", printdebug)
 
 
-def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the decryption of the given block (8-element bytelist) with
-	the given key (16-element bytelist), returning a new 8-element bytelist."""
+def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the decryption of the given block (8 bytes)
+	with the given key (16 bytes), returning 8 bytes."""
 	return _crypt(block, key, "decrypt", printdebug)
 
 
 # ---- Private cipher functions ----
 
-def _crypt(block: List[int], key: List[int], direction: str, printdebug: bool) -> List[int]:
+def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], direction: str, printdebug: bool) -> bytes:
 	# Check input arguments
 	assert len(block) == 8
 	assert len(key) == 16
@@ -84,16 +84,16 @@ def _crypt(block: List[int], key: List[int], direction: str, printdebug: bool) -
 	y = _add(y, keyschedule[-2])
 	z = _multiply(z, keyschedule[-1])
 	
-	# Serialize the final block as a bytelist in big endian
-	return [
+	# Serialize the final block as bytes in big endian
+	return bytes([
 		w >> 8, w & 0xFF,
 		x >> 8, x & 0xFF,
 		y >> 8, y & 0xFF,
-		z >> 8, z & 0xFF]
+		z >> 8, z & 0xFF])
 
 
-# Given a 16-element bytelist, this computes and returns a tuple containing 52 elements of uint16.
-def _expand_key_schedule(key: List[int]) -> Tuple[int,...]:
+# Given 16 bytes, this computes and returns a tuple containing 52 elements of uint16.
+def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 	# Pack all key bytes into a single uint128
 	bigkey = 0
 	for b in key:

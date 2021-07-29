@@ -22,35 +22,35 @@
 # 
 
 import cryptocommon
-from typing import List, Tuple
+from typing import List, Sequence, Tuple, Union
 
 
 # ---- Public functions ----
 
-def hash224(message: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the hash of the given bytelist message, returning a new 28-element bytelist."""
+def hash224(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given bytelist message, returning 28 bytes."""
 	return _hash(message, 224, printdebug)
 
 
-def hash256(message: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the hash of the given bytelist message, returning a new 32-element bytelist."""
+def hash256(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given bytelist message, returning 32 bytes."""
 	return _hash(message, 256, printdebug)
 
 
-def hash384(message: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the hash of the given bytelist message, returning a new 48-element bytelist."""
+def hash384(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given bytelist message, returning 48 bytes."""
 	return _hash(message, 384, printdebug)
 
 
-def hash512(message: List[int], printdebug: bool = False) -> List[int]:
-	"""Computes the hash of the given bytelist message, returning a new 64-element bytelist."""
+def hash512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given bytelist message, returning 64 bytes."""
 	return _hash(message, 512, printdebug)
 
 
 # ---- Private functions ----
 
-# Computes the hash of the given bytelist message, returning a new (outbitlen/8)-element bytelist.
-def _hash(message: List[int], outbitlen: int, printdebug: bool) -> List[int]:
+# Computes the hash of the given bytelist message, returning (outbitlen/8) bytes.
+def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool) -> bytes:
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	msg = bytearray(message)
 	blocksize = 200 - outbitlen // 4
@@ -75,8 +75,8 @@ def _hash(message: List[int], outbitlen: int, printdebug: bool) -> List[int]:
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		_compress(block, state, printdebug)
 	
-	# Serialize a prefix of the final state as a bytelist in little endian
-	result = []
+	# Serialize a prefix of the final state as bytes in little endian
+	result = bytearray()
 	for i in range(outbitlen // 8):
 		j = i >> 3
 		x, y = j % _MATRIX_SIZE, j // _MATRIX_SIZE
