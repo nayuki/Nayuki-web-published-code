@@ -113,7 +113,7 @@ def _feistel_function(data, subkey):
 	b = a ^ subkey     # uint48
 	c = _do_sboxes(b)  # uint32
 	d = _extract_bits(c, 32, _FEISTEL_PERMUTATION)   # uint32
-	assert 0 <= d < cryptocommon.UINT32_MASK
+	assert 0 <= d <= cryptocommon.UINT32_MASK
 	return d
 
 
@@ -124,7 +124,7 @@ def _do_sboxes(data):
 	result = 0
 	for i in range(8):  # Topmost 6 bits use _SBOXES[0], next lower 6 bits use _SBOXES[1], ..., lowest 6 bits use _SBOXES[7].
 		result |= _SBOXES[7 - i][(data >> (i * 6)) & mask] << (i * 4)
-	assert 0 <= result < cryptocommon.UINT32_MASK
+	assert 0 <= result <= cryptocommon.UINT32_MASK
 	return result
 
 
