@@ -2,7 +2,7 @@
 # This program shows how to call a cipher, and displays debugging information.
 # Run with no arguments.
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 import cryptocommon, aescipher
 
 
-def main():
+def main() -> None:
 	message = "3243F6A8885A308D313198A2E0370734"
 	key = "2B7E151628AED2A6ABF7158809CF4F3C"
 	

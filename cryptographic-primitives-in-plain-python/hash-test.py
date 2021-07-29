@@ -2,7 +2,7 @@
 # This program tests the implementations of all the known cryptographic hash functions.
 # Run with no arguments.
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,13 +24,14 @@
 
 import hashlib, random, unittest
 from cryptocommon import asciistr_to_bytelist, hexstr_to_bytelist
+from typing import Callable, List, Tuple, Union
 
 
 # ---- Test suite functions ----
 
 class HashTest(unittest.TestCase):
 	
-	def test_md2_hash(self):
+	def test_md2_hash(self) -> None:
 		import md2hash
 		self._check_hash_function(md2hash.hash, [
 			("8350E5A3E24C153DF2275C9F80692773", ""),
@@ -43,7 +44,7 @@ class HashTest(unittest.TestCase):
 		])
 	
 	
-	def test_md4_hash(self):
+	def test_md4_hash(self) -> None:
 		import md4hash
 		self._check_hash_function(md4hash.hash, [
 			("31D6CFE0D16AE931B73C59D7E0C089C0", ""),
@@ -56,7 +57,7 @@ class HashTest(unittest.TestCase):
 		])
 	
 	
-	def test_md5_hash(self):
+	def test_md5_hash(self) -> None:
 		import md5hash
 		self._check_hash_function(md5hash.hash, [
 			("D41D8CD98F00B204E9800998ECF8427E", ""),
@@ -70,7 +71,7 @@ class HashTest(unittest.TestCase):
 		self._check_vs_stdlib(md5hash.hash, hashlib.md5)
 	
 	
-	def test_sha1_hash(self):
+	def test_sha1_hash(self) -> None:
 		import sha1hash
 		self._check_hash_function(sha1hash.hash, [
 			("DA39A3EE5E6B4B0D3255BFEF95601890AFD80709", ""),
@@ -84,7 +85,7 @@ class HashTest(unittest.TestCase):
 		self._check_vs_stdlib(sha1hash.hash, hashlib.sha1)
 	
 	
-	def test_sha256_hash(self):
+	def test_sha256_hash(self) -> None:
 		import sha256hash
 		self._check_hash_function(sha256hash.hash, [
 			("E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855", ""),
@@ -98,7 +99,7 @@ class HashTest(unittest.TestCase):
 		self._check_vs_stdlib(sha256hash.hash, hashlib.sha256)
 	
 	
-	def test_sha512_hash(self):
+	def test_sha512_hash(self) -> None:
 		import sha512hash
 		self._check_hash_function(sha512hash.hash, [
 			("CF83E1357EEFB8BDF1542850D66D8007D620E4050B5715DC83F4A921D36CE9CE47D0D13C5D85F2B0FF8318D2877EEC2F63B931BD47417A81A538327AF927DA3E", ""),
@@ -112,7 +113,7 @@ class HashTest(unittest.TestCase):
 		self._check_vs_stdlib(sha512hash.hash, hashlib.sha512)
 	
 	
-	def test_sha3_224_hash(self):
+	def test_sha3_224_hash(self) -> None:
 		import sha3hash
 		self._check_hash_function(sha3hash.hash224, [
 			("6B4E03423667DBB73B6E15454F0EB1ABD4597F9A1B078E3F5B5A6BC7", ""),
@@ -123,7 +124,7 @@ class HashTest(unittest.TestCase):
 		self._check_vs_stdlib(sha3hash.hash224, hashlib.sha3_224)
 	
 	
-	def test_sha3_256_hash(self):
+	def test_sha3_256_hash(self) -> None:
 		import sha3hash
 		self._check_hash_function(sha3hash.hash256, [
 			("A7FFC6F8BF1ED76651C14756A061D662F580FF4DE43B49FA82D80A4B80F8434A", ""),
@@ -134,7 +135,7 @@ class HashTest(unittest.TestCase):
 		self._check_vs_stdlib(sha3hash.hash256, hashlib.sha3_256)
 	
 	
-	def test_sha3_384_hash(self):
+	def test_sha3_384_hash(self) -> None:
 		import sha3hash
 		self._check_hash_function(sha3hash.hash384, [
 			("0C63A75B845E4F7D01107D852E4C2485C51A50AAAA94FC61995E71BBEE983A2AC3713831264ADB47FB6BD1E058D5F004", ""),
@@ -145,7 +146,7 @@ class HashTest(unittest.TestCase):
 		self._check_vs_stdlib(sha3hash.hash384, hashlib.sha3_384)
 	
 	
-	def test_sha3_512_hash(self):
+	def test_sha3_512_hash(self) -> None:
 		import sha3hash
 		self._check_hash_function(sha3hash.hash512, [
 			("A69F73CCA23A9AC5C8B567DC185A756E97C982164FE25859E0D1DCC1475C80A615B2123AF1F5F94C11E3E9402C3AC558F500199D95B6D3E301758586281DCD26", ""),
@@ -156,7 +157,7 @@ class HashTest(unittest.TestCase):
 		self._check_vs_stdlib(sha3hash.hash512, hashlib.sha3_512)
 	
 	
-	def test_whirlpool_hash(self):
+	def test_whirlpool_hash(self) -> None:
 		import whirlpoolhash
 		self._check_hash_function(whirlpoolhash.hash, [
 			("19FA61D75522A4669B44E39C1D2E1726C530232130D407F89AFEE0964997F7A73E83BE698B288FEBCF88E3E03C4F0757EA8964E59B63D93708B138CC42A66EB3", ""),
@@ -167,7 +168,7 @@ class HashTest(unittest.TestCase):
 	
 	# Private utilities
 	
-	def _check_hash_function(self, func, cases):
+	def _check_hash_function(self, func: Callable[[List[int]],List[int]], cases: List[Tuple[str,str]]) -> None:
 		global num_test_cases
 		assert isinstance(cases, list)
 		
@@ -184,7 +185,7 @@ class HashTest(unittest.TestCase):
 			num_test_cases += 1
 	
 	
-	def _check_vs_stdlib(self, ourfunc, stdfunc):
+	def _check_vs_stdlib(self, ourfunc: Callable[[List[int]],List[int]], stdfunc: Callable[[bytes],hashlib._Hash]):
 		global num_test_cases
 		trials = 1000
 		for _ in range(trials):

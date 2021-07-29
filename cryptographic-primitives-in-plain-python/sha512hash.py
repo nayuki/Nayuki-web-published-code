@@ -22,11 +22,12 @@
 # 
 
 import cryptocommon
+from typing import List, Tuple
 
 
 # ---- Public functions ----
 
-def hash(message, printdebug=False):
+def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 64-element bytelist."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
@@ -69,7 +70,7 @@ def hash(message, printdebug=False):
 # ---- Private functions ----
 
 # Requirement: All elements of block and state must be uint64.
-def _compress(block, state, printdebug):
+def _compress(block: Tuple[int,...], state: Tuple[int,int,int,int,int,int,int,int], printdebug: bool) -> Tuple[int,int,int,int,int,int,int,int]:
 	# Check argument types and lengths
 	assert isinstance(block, tuple) and len(block) == _BLOCK_SIZE
 	assert isinstance(state, tuple) and len(state) == 8
@@ -129,9 +130,9 @@ def _compress(block, state, printdebug):
 
 # ---- Numerical constants/tables ----
 
-_BLOCK_SIZE = 128  # In bytes
+_BLOCK_SIZE: int = 128  # In bytes
 
-_ROUND_CONSTANTS = [  # 80 elements of uint64
+_ROUND_CONSTANTS: List[int] = [  # 80 elements of uint64
 	0x428A2F98D728AE22, 0x7137449123EF65CD, 0xB5C0FBCFEC4D3B2F, 0xE9B5DBA58189DBBC,
 	0x3956C25BF348B538, 0x59F111F1B605D019, 0x923F82A4AF194F9B, 0xAB1C5ED5DA6D8118,
 	0xD807AA98A3030242, 0x12835B0145706FBE, 0x243185BE4EE4B28C, 0x550C7DC3D5FFB4E2,

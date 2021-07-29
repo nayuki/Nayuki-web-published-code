@@ -22,26 +22,27 @@
 # 
 
 import cryptocommon
+from typing import List, Tuple
 
 
 # ---- Public functions ----
 
-def hash224(message, printdebug=False):
+def hash224(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 28-element bytelist."""
 	return _hash(message, 224, printdebug)
 
 
-def hash256(message, printdebug=False):
+def hash256(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 32-element bytelist."""
 	return _hash(message, 256, printdebug)
 
 
-def hash384(message, printdebug=False):
+def hash384(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 48-element bytelist."""
 	return _hash(message, 384, printdebug)
 
 
-def hash512(message, printdebug=False):
+def hash512(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 64-element bytelist."""
 	return _hash(message, 512, printdebug)
 
@@ -49,7 +50,7 @@ def hash512(message, printdebug=False):
 # ---- Private functions ----
 
 # Computes the hash of the given bytelist message, returning a new (outbitlen/8)-element bytelist.
-def _hash(message, outbitlen, printdebug):
+def _hash(message: List[int], outbitlen: int, printdebug: bool) -> List[int]:
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	assert isinstance(message, list)
 	msg = list(message)
@@ -86,7 +87,7 @@ def _hash(message, outbitlen, printdebug):
 
 
 # All elements of block must be uint8. State is a mutable 5*5 matrix of uint64.
-def _compress(block, state, printdebug):
+def _compress(block: List[int], state: List[List[int]], printdebug: bool) -> None:
 	# Alias shorter names for readability
 	rotl64 = cryptocommon.rotate_left_uint64
 	sz = _MATRIX_SIZE
@@ -151,11 +152,11 @@ def _compress(block, state, printdebug):
 
 # ---- Numerical constants/tables ----
 
-_MATRIX_SIZE = 5
+_MATRIX_SIZE: int = 5
 
-_NUM_ROUNDS = 24
+_NUM_ROUNDS: int = 24
 
-_ROTATION = (
+_ROTATION: Tuple[Tuple[int,...],...] = (
 	( 0, 36,  3, 41, 18),
 	( 1, 44, 10, 45,  2),
 	(62,  6, 43, 15, 61),

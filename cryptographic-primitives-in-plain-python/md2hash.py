@@ -22,11 +22,12 @@
 # 
 
 import cryptocommon
+from typing import List, Tuple
 
 
 # ---- Public functions ----
 
-def hash(message, printdebug=False):
+def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 16-element bytelist."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
@@ -60,7 +61,7 @@ def hash(message, printdebug=False):
 
 # ---- Private functions ----
 
-def _compress(block, state, checksum, printdebug):
+def _compress(block: Tuple[int,...], state: Tuple[int,...], checksum: Tuple[int,...], printdebug: bool) -> Tuple[Tuple[int,...],Tuple[int,...]]:
 	# Check argument types and lengths
 	assert isinstance(block, tuple) and len(block) == _BLOCK_SIZE
 	assert isinstance(state, tuple) and len(state) == 48
@@ -95,9 +96,9 @@ def _compress(block, state, checksum, printdebug):
 
 # ---- Numerical constants/tables ----
 
-_BLOCK_SIZE = 16  # In bytes
+_BLOCK_SIZE: int = 16  # In bytes
 
-_SBOX = [  # A permutation of the 256 byte values, from 0x00 to 0xFF
+_SBOX: List[int] = [  # A permutation of the 256 byte values, from 0x00 to 0xFF
 	0x29, 0x2E, 0x43, 0xC9, 0xA2, 0xD8, 0x7C, 0x01, 0x3D, 0x36, 0x54, 0xA1, 0xEC, 0xF0, 0x06, 0x13,
 	0x62, 0xA7, 0x05, 0xF3, 0xC0, 0xC7, 0x73, 0x8C, 0x98, 0x93, 0x2B, 0xD9, 0xBC, 0x4C, 0x82, 0xCA,
 	0x1E, 0x9B, 0x57, 0x3C, 0xFD, 0xD4, 0xE0, 0x16, 0x67, 0x42, 0x6F, 0x18, 0x8A, 0x17, 0xE5, 0x12,

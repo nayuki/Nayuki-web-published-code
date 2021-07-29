@@ -22,17 +22,18 @@
 # 
 
 import cryptocommon
+from typing import List, Tuple
 
 
 # ---- Public functions ----
 
-def encrypt(block, key, printdebug=False):
+def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the encryption of the given block (8-element bytelist) with
 	the given key (16-element bytelist), returning a new 8-element bytelist."""
 	return _crypt(block, key, "encrypt", printdebug)
 
 
-def decrypt(block, key, printdebug=False):
+def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the decryption of the given block (8-element bytelist) with
 	the given key (16-element bytelist), returning a new 8-element bytelist."""
 	return _crypt(block, key, "decrypt", printdebug)
@@ -40,7 +41,7 @@ def decrypt(block, key, printdebug=False):
 
 # ---- Private cipher functions ----
 
-def _crypt(block, key, direction, printdebug):
+def _crypt(block: List[int], key: List[int], direction: str, printdebug: bool) -> List[int]:
 	# Check input arguments
 	assert isinstance(block, list) and len(block) == 8
 	assert isinstance(key, list) and len(key) == 16
@@ -92,7 +93,7 @@ def _crypt(block, key, direction, printdebug):
 
 
 # Given a 16-element bytelist, this computes and returns a tuple containing 52 elements of uint16.
-def _expand_key_schedule(key):
+def _expand_key_schedule(key: List[int]) -> Tuple[int,...]:
 	# Pack all key bytes into a single uint128
 	bigkey = 0
 	for b in key:
@@ -113,7 +114,7 @@ def _expand_key_schedule(key):
 
 # Given an encryption key schedule, this computes and returns the
 # decryption key schedule as a tuple containing 52 elements of uint16.
-def _invert_key_schedule(keysch):
+def _invert_key_schedule(keysch: Tuple[int,...]) -> Tuple[int,...]:
 	assert isinstance(keysch, tuple) and len(keysch) % 6 == 4
 	result = []
 	result.append(_reciprocal(keysch[-4]))
@@ -142,7 +143,7 @@ def _invert_key_schedule(keysch):
 # ---- Private arithmetic functions ----
 
 # Returns x + y modulo 2^16. Inputs and output are uint16. Only used by _crypt().
-def _add(x, y):
+def _add(x: int, y: int) -> int:
 	assert 0 <= x <= 0xFFFF
 	assert 0 <= y <= 0xFFFF
 	return (x + y) & 0xFFFF
@@ -150,7 +151,7 @@ def _add(x, y):
 
 # Returns x * y modulo (2^16 + 1), where 0x0000 is treated as 0x10000.
 # Inputs and output are uint16. Note that 2^16 + 1 is prime. Only used by _crypt().
-def _multiply(x, y):
+def _multiply(x: int, y: int) -> int:
 	assert 0 <= x <= 0xFFFF
 	assert 0 <= y <= 0xFFFF
 	if x == 0x0000:
@@ -166,14 +167,14 @@ def _multiply(x, y):
 
 # Returns the additive inverse of x modulo 2^16.
 # Input and output are uint16. Only used by _invert_key_schedule().
-def _negate(x):
+def _negate(x: int) -> int:
 	assert 0 <= x <= 0xFFFF
 	return (-x) & 0xFFFF
 
 
 # Returns the multiplicative inverse of x modulo (2^16 + 1), where 0x0000 is
 # treated as 0x10000. Input and output are uint16. Only used by _invert_key_schedule().
-def _reciprocal(x):
+def _reciprocal(x: int) -> int:
 	assert 0 <= x <= 0xFFFF
 	if x == 0:
 		return 0
@@ -183,4 +184,4 @@ def _reciprocal(x):
 
 # ---- Numerical constants/tables ----
 
-_NUM_ROUNDS = 8
+_NUM_ROUNDS: int = 8

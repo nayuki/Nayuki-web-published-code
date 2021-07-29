@@ -2,7 +2,7 @@
 # This program shows how to call a hash function, and displays debugging information.
 # Run with no arguments.
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 import cryptocommon, md5hash, sha256hash
 
 
-def main():
+def main() -> None:
 	message = "FF00CA9634"
 	msgbytelist = cryptocommon.hexstr_to_bytelist(message)
 	hashbytelist = md5hash.hash(msgbytelist, printdebug=True)

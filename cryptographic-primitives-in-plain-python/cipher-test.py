@@ -2,7 +2,7 @@
 # This program tests the implementations of all the known cryptographic ciphers.
 # Run with no arguments.
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,6 +23,7 @@
 # 
 
 import unittest
+from typing import Callable, List, Tuple
 from cryptocommon import hexstr_to_bytelist
 
 
@@ -30,7 +31,7 @@ from cryptocommon import hexstr_to_bytelist
 	
 class CipherTest(unittest.TestCase):
 	
-	def test_aes_cipher(self):
+	def test_aes_cipher(self) -> None:
 		import aescipher
 		self._check_cipher(aescipher.encrypt, aescipher.decrypt, [
 			# AES-128
@@ -299,7 +300,7 @@ class CipherTest(unittest.TestCase):
 		])
 	
 	
-	def test_des_cipher(self):
+	def test_des_cipher(self) -> None:
 		import descipher
 		self._check_cipher(descipher.encrypt, descipher.decrypt, [
 			("0000000000000000", "0000000000000000", "8CA64DE9C1B123A7"),
@@ -481,7 +482,7 @@ class CipherTest(unittest.TestCase):
 		])
 	
 	
-	def test_idea_cipher(self):
+	def test_idea_cipher(self) -> None:
 		import ideacipher
 		self._check_cipher(ideacipher.encrypt, ideacipher.decrypt, [
 			("0000000100020003", "00010002000300040005000600070008", "11FBED2B01986DE5"),
@@ -490,7 +491,7 @@ class CipherTest(unittest.TestCase):
 		])
 	
 	
-	def test_tea_cipher(self):
+	def test_tea_cipher(self) -> None:
 		import teacipher
 		self._check_cipher(teacipher.encrypt, teacipher.decrypt, [
 			("0000000000000000", "00000000000000000000000000000000", "41EA3A0A94BAA940"),
@@ -624,7 +625,7 @@ class CipherTest(unittest.TestCase):
 	
 	# Private utilities
 	
-	def _check_cipher(self, encfunc, decfunc, cases):
+	def _check_cipher(self, encfunc: Callable[[List[int],List[int]],List[int]], decfunc: Callable[[List[int],List[int]],List[int]], cases: List[Tuple[str,str,str]]) -> None:
 		global num_test_cases
 		assert isinstance(cases, list)
 		

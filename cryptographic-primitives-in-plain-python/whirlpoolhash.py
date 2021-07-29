@@ -22,11 +22,12 @@
 # 
 
 import cryptocommon
+from typing import List, Tuple
 
 
 # ---- Public functions ----
 
-def hash(message, printdebug=False):
+def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 64-element bytelist."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
@@ -64,7 +65,7 @@ def hash(message, printdebug=False):
 # ---- Private functions ----
 
 # Requirement: All elements of block and state must be uint8 (byte).
-def _compress(block, state, printdebug):
+def _compress(block: Tuple[int,...], state: Tuple[int,...], printdebug: bool) -> Tuple[int,...]:
 	# Check argument types and lengths
 	assert isinstance(block, tuple) and len(block) == _BLOCK_SIZE
 	assert isinstance(state, tuple) and len(state) == _BLOCK_SIZE
@@ -88,7 +89,7 @@ def _compress(block, state, printdebug):
 
 
 # 'msg' and 'key' are 64-byte tuples. Returns a 64-byte tuple.
-def _compute_round(msg, key):
+def _compute_round(msg: Tuple[int,...], key: Tuple[int,...]) -> Tuple[int,...]:
 	msg = _sub_bytes(msg)
 	msg = _shift_columns(msg)
 	msg = _mix_rows(msg)
@@ -97,7 +98,7 @@ def _compute_round(msg, key):
 
 
 # 'msg' is a 64-byte tuple. Returns a 64-byte tuple.
-def _sub_bytes(msg):
+def _sub_bytes(msg: Tuple[int,...]) -> Tuple[int,...]:
 	newmsg = []
 	for b in msg:
 		newmsg.append(_SBOX[b])
@@ -105,7 +106,7 @@ def _sub_bytes(msg):
 
 
 # 'msg' is a 64-byte tuple. Returns a 64-byte tuple.
-def _shift_columns(msg):
+def _shift_columns(msg: Tuple[int,...]) -> Tuple[int,...]:
 	newmsg = [None] * 64
 	for col in range(8):
 		for row in range(8):
@@ -114,7 +115,7 @@ def _shift_columns(msg):
 
 
 # 'msg' is a 64-byte tuple. Returns a 64-byte tuple.
-def _mix_rows(msg):
+def _mix_rows(msg: Tuple[int,...]) -> Tuple[int,...]:
 	newmsg = [None] * 64
 	for row in range(8):
 		for col in range(8):
@@ -126,7 +127,7 @@ def _mix_rows(msg):
 
 
 # 'msg' and 'key' are 64-byte tuples. Returns a 64-byte tuple.
-def _add_round_key(msg, key):
+def _add_round_key(msg: Tuple[int,...], key: Tuple[int,...]) -> Tuple[int,...]:
 	result = []
 	for (x, y) in zip(msg, key):
 		result.append(x ^ y)
@@ -134,7 +135,7 @@ def _add_round_key(msg, key):
 
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
-def _multiply(x, y):
+def _multiply(x: int, y: int) -> int:
 	assert 0 <= x <= 0xFF
 	assert 0 <= y <= 0xFF
 	z = 0
@@ -150,13 +151,13 @@ def _multiply(x, y):
 
 # ---- Numerical constants/tables ----
 
-_BLOCK_SIZE = 64  # In bytes
+_BLOCK_SIZE: int = 64  # In bytes
 
-_NUM_ROUNDS = 10
+_NUM_ROUNDS: int = 10
 
-_MULTIPLIERS = [0x01, 0x09, 0x02, 0x05, 0x08, 0x01, 0x04, 0x01]
+_MULTIPLIERS: List[int] = [0x01, 0x09, 0x02, 0x05, 0x08, 0x01, 0x04, 0x01]
 
-_SBOX = []  # A permutation of the 256 byte values, from 0x00 to 0xFF
+_SBOX: List[int] = []  # A permutation of the 256 byte values, from 0x00 to 0xFF
 def _init_sbox():
 	E = [0x1, 0xB, 0x9, 0xC, 0xD, 0x6, 0xF, 0x3, 0xE, 0x8, 0x7, 0x4, 0xA, 0x2, 0x5, 0x0]  # The E mini-box
 	R = [0x7, 0xC, 0xB, 0xD, 0xE, 0x4, 0x9, 0xF, 0x6, 0x3, 0x8, 0xA, 0x2, 0x5, 0x1, 0x0]  # The R mini-box
@@ -170,7 +171,7 @@ def _init_sbox():
 		_SBOX.append(E[left ^ temp] << 4 | EINV[right ^ temp])
 _init_sbox()
 
-_ROUND_CONSTANTS = []  # Each element of this list is a tuple of 64 bytes
+_ROUND_CONSTANTS: List[Tuple[int,...]] = []  # Each element of this list is a tuple of 64 bytes
 def _init_round_constants():
 	for i in range(_NUM_ROUNDS):
 		# Each round constant takes the next 8 bytes from the S-box, and appends 56 zeros to fill the 64-byte block

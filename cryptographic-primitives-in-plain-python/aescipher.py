@@ -23,11 +23,12 @@
 # 
 
 import cryptocommon
+from typing import List, Tuple
 
 
 # ---- Public functions ----
 
-def encrypt(block, key, printdebug=False):
+def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the encryption of the given block (16-element bytelist) with
 	the given key (16/24/32-element bytelist), returning a new 16-element bytelist."""
 	
@@ -66,7 +67,7 @@ def encrypt(block, key, printdebug=False):
 	return list(newblock)
 
 
-def decrypt(block, key, printdebug=False):
+def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the decryption of the given block (16-element bytelist) with
 	the given key (16/24/32-element bytelist), returning a new 16-element bytelist."""
 	
@@ -108,7 +109,7 @@ def decrypt(block, key, printdebug=False):
 # ---- Private functions ----
 
 # Given a 16/24/32-element bytelist, this computes and returns a tuple containing 11/13/15 tuples of 16 bytes each.
-def _expand_key_schedule(key):
+def _expand_key_schedule(key: List[int]) -> Tuple[Tuple[int,...],...]:
 	# Initialize key schedule with the verbatim key
 	nk = len(key) // 4  # Number of 32-bit words in original key
 	assert isinstance(key, list) and nk in (4, 6, 8)
@@ -142,7 +143,7 @@ def _expand_key_schedule(key):
 
 
 # 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
-def _sub_bytes(msg, sbox):
+def _sub_bytes(msg: Tuple[int,...], sbox: List[int]) -> Tuple[int,...]:
 	assert len(sbox) == 256
 	newmsg = []
 	for b in msg:
@@ -151,7 +152,7 @@ def _sub_bytes(msg, sbox):
 
 
 # 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
-def _shift_rows(msg, direction):
+def _shift_rows(msg: Tuple[int,...], direction: int) -> Tuple[int,...]:
 	assert direction in (-1, 1)
 	newmsg = [None] * 16
 	for row in range(4):
@@ -161,7 +162,7 @@ def _shift_rows(msg, direction):
 
 
 # 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
-def _mix_columns(msg, multipliers):
+def _mix_columns(msg: Tuple[int,...], multipliers: List[int]) -> Tuple[int,...]:
 	assert len(multipliers) == 4
 	newmsg = [None] * 16
 	for col in range(4):
@@ -174,7 +175,7 @@ def _mix_columns(msg, multipliers):
 
 
 # 'msg' and 'key' are 16-byte tuples. Returns a 16-byte tuple.
-def _add_round_key(msg, key):
+def _add_round_key(msg: Tuple[int,...], key: Tuple[int,...]) -> Tuple[int,...]:
 	result = []
 	for (x, y) in zip(msg, key):
 		result.append(x ^ y)
@@ -182,7 +183,7 @@ def _add_round_key(msg, key):
 
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
-def _multiply(x, y):
+def _multiply(x: int, y: int) -> int:
 	assert 0 <= x <= 0xFF
 	assert 0 <= y <= 0xFF
 	z = 0
@@ -197,7 +198,7 @@ def _multiply(x, y):
 
 
 # Computes the multiplicative inverse of the given byte, returning a byte.
-def _reciprocal(x):
+def _reciprocal(x: int) -> int:
 	assert 0 <= x <= 0xFF
 	if x == 0:
 		return 0
@@ -208,7 +209,7 @@ def _reciprocal(x):
 
 
 # Rotates the given 8-bit integer left by the given number of bits.
-def _rotl8(value, amount):
+def _rotl8(value: int, amount: int) -> int:
 	assert 0 <= value <= 0xFF
 	assert 0 <= amount < 8
 	return ((value << amount) | (value >> (8 - amount))) & 0xFF
@@ -217,13 +218,13 @@ def _rotl8(value, amount):
 # ---- Numerical constants/tables ----
 
 # For _mix_columns()
-_MULTIPLIERS_FORWARD = [0x02, 0x03, 0x01, 0x01]
-_MULTIPLIERS_INVERSE = [0x0E, 0x0B, 0x0D, 0x09]
+_MULTIPLIERS_FORWARD: List[int] = [0x02, 0x03, 0x01, 0x01]
+_MULTIPLIERS_INVERSE: List[int] = [0x0E, 0x0B, 0x0D, 0x09]
 
 # For _sub_bytes()
-_SBOX_FORWARD = []  # A permutation of the 256 byte values, from 0x00 to 0xFF
-_SBOX_INVERSE = [0] * 256  # Also a permutation
-def _init_sbox():
+_SBOX_FORWARD: List[int] = []  # A permutation of the 256 byte values, from 0x00 to 0xFF
+_SBOX_INVERSE: List[int] = [0] * 256  # Also a permutation
+def _init_sbox() -> None:
 	for i in range(256):
 		j = _reciprocal(i)
 		j = j ^ _rotl8(j, 1) ^ _rotl8(j, 2) ^ _rotl8(j, 3) ^ _rotl8(j, 4) ^ 0x63

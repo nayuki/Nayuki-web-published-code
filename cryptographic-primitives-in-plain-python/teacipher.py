@@ -22,11 +22,12 @@
 # 
 
 import cryptocommon
+from typing import List
 
 
 # ---- Public functions ----
 
-def encrypt(block, key, printdebug=False):
+def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the encryption of the given block (8-element bytelist) with
 	the given key (16-element bytelist), returning a new 8-element bytelist."""
 	
@@ -60,7 +61,7 @@ def encrypt(block, key, printdebug=False):
 	return result
 
 
-def decrypt(block, key, printdebug=False):
+def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the decryption of the given block (8-element bytelist) with
 	the given key (16-element bytelist), returning a new 8-element bytelist."""
 	
@@ -97,7 +98,7 @@ def decrypt(block, key, printdebug=False):
 # ---- Private functions ----
 
 # For example: _bytes_to_uint32_list_big_endian([0xFF, 0x00, 0xAB, 0xCD, 0x27, 0x18, 0x28, 0x44]) -> [0xFF00ABCD, 0x27182844].
-def _bytes_to_uint32_list_big_endian(bytelist):
+def _bytes_to_uint32_list_big_endian(bytelist: List[int]) -> List[int]:
 	assert len(bytelist) % 4 == 0
 	result = [0] * (len(bytelist) // 4)
 	for (i, b) in enumerate(bytelist):
@@ -108,7 +109,7 @@ def _bytes_to_uint32_list_big_endian(bytelist):
 
 # ---- Numerical constants/tables ----
 
-_NUM_ROUNDS = 64  # Must be even
-_NUM_CYCLES = _NUM_ROUNDS // 2
+_NUM_ROUNDS: int = 64  # Must be even
+_NUM_CYCLES: int = _NUM_ROUNDS // 2
 
-_ROUND_CONSTANT = 0x9E3779B9  # uint32, equal to floor((sqrt(5) - 1) / 2 * 2^32)
+_ROUND_CONSTANT: int = 0x9E3779B9  # uint32, equal to floor((sqrt(5) - 1) / 2 * 2^32)
