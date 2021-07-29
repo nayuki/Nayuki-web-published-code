@@ -33,8 +33,8 @@ def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 	the given key (16/24/32-element bytelist), returning a new 16-element bytelist."""
 	
 	# Check input arguments
-	assert isinstance(block, list) and len(block) == 16
-	assert isinstance(key, list) and len(key) in (16, 24, 32)
+	assert len(block) == 16
+	assert len(key) in (16, 24, 32)
 	if printdebug:  print(f"aescipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Compute key schedule from key
@@ -72,8 +72,8 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 	the given key (16/24/32-element bytelist), returning a new 16-element bytelist."""
 	
 	# Check input arguments
-	assert isinstance(block, list) and len(block) == 16
-	assert isinstance(key, list) and len(key) in (16, 24, 32)
+	assert len(block) == 16
+	assert len(key) in (16, 24, 32)
 	if printdebug:  print(f"aescipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Compute key schedule from key
@@ -112,7 +112,7 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 def _expand_key_schedule(key: List[int]) -> Tuple[Tuple[int,...],...]:
 	# Initialize key schedule with the verbatim key
 	nk = len(key) // 4  # Number of 32-bit words in original key
-	assert isinstance(key, list) and nk in (4, 6, 8)
+	assert nk in (4, 6, 8)
 	schedule = list(key)
 	
 	# Extend the key schedule by blending previous values

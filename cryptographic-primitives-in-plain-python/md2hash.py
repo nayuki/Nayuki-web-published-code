@@ -31,7 +31,6 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 16-element bytelist."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	assert isinstance(message, list)
 	msg = list(message)
 	if printdebug:  print(f"md2.hash(message = {len(message)} bytes)")
 	
@@ -62,10 +61,10 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 # ---- Private functions ----
 
 def _compress(block: Tuple[int,...], state: Tuple[int,...], checksum: Tuple[int,...], printdebug: bool) -> Tuple[Tuple[int,...],Tuple[int,...]]:
-	# Check argument types and lengths
-	assert isinstance(block, tuple) and len(block) == _BLOCK_SIZE
-	assert isinstance(state, tuple) and len(state) == 48
-	assert isinstance(checksum, tuple) and len(checksum) == 16
+	# Check argument lengths
+	assert len(block) == _BLOCK_SIZE
+	assert len(state) == 48
+	assert len(checksum) == 16
 	
 	# Copy the block into the state
 	newstate = list(state)

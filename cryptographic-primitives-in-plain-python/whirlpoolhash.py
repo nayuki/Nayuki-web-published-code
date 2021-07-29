@@ -31,7 +31,6 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 64-element bytelist."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	assert isinstance(message, list)
 	msg = list(message)
 	if printdebug:  print(f"whirlpool.hash(message = {len(message)} bytes)")
 	
@@ -66,9 +65,9 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 
 # Requirement: All elements of block and state must be uint8 (byte).
 def _compress(block: Tuple[int,...], state: Tuple[int,...], printdebug: bool) -> Tuple[int,...]:
-	# Check argument types and lengths
-	assert isinstance(block, tuple) and len(block) == _BLOCK_SIZE
-	assert isinstance(state, tuple) and len(state) == _BLOCK_SIZE
+	# Check argument lengths
+	assert len(block) == _BLOCK_SIZE
+	assert len(state) == _BLOCK_SIZE
 	
 	# Perform 10 rounds of hashing
 	tempkey = state

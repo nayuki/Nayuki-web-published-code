@@ -31,7 +31,6 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 20-element bytelist."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	assert isinstance(message, list)
 	msg = list(message)
 	if printdebug:  print(f"sha1.hash(message = {len(message)} bytes)")
 	
@@ -70,9 +69,9 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 
 # Requirement: All elements of block and state must be uint32.
 def _compress(block: Tuple[int,...], state: Tuple[int,int,int,int,int], printdebug: bool) -> Tuple[int,int,int,int,int]:
-	# Check argument types and lengths
-	assert isinstance(block, tuple) and len(block) == _BLOCK_SIZE
-	assert isinstance(state, tuple) and len(state) == 5
+	# Check argument lengths
+	assert len(block) == _BLOCK_SIZE
+	assert len(state) == 5
 	
 	# Alias shorter names for readability
 	mask32 = cryptocommon.UINT32_MASK

@@ -43,8 +43,8 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 
 def _crypt(block: List[int], key: List[int], direction: str, printdebug: bool) -> List[int]:
 	# Check input arguments
-	assert isinstance(block, list) and len(block) == 8
-	assert isinstance(key, list) and len(key) == 16
+	assert len(block) == 8
+	assert len(key) == 16
 	assert direction in ("encrypt", "decrypt")
 	if printdebug:  print(f"ideacipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
@@ -115,7 +115,7 @@ def _expand_key_schedule(key: List[int]) -> Tuple[int,...]:
 # Given an encryption key schedule, this computes and returns the
 # decryption key schedule as a tuple containing 52 elements of uint16.
 def _invert_key_schedule(keysch: Tuple[int,...]) -> Tuple[int,...]:
-	assert isinstance(keysch, tuple) and len(keysch) % 6 == 4
+	assert len(keysch) % 6 == 4
 	result = []
 	result.append(_reciprocal(keysch[-4]))
 	result.append(_negate(keysch[-3]))

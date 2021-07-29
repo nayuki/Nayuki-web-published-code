@@ -73,11 +73,9 @@ def hexstr_to_bytelist(hexstr: str) -> List[int]:
 
 # For example: bytelist_to_hexstr([255, 0, 192]) -> "FF00C0".
 def bytelist_to_hexstr(bytelist: Sequence[int]) -> str:
-	assert isinstance(bytelist, (list, tuple))
 	return "".join(f"{b:02X}" for b in bytelist)
 
 
 # For example: bytelist_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
 def bytelist_to_debugstr(bytelist: Sequence[int]) -> str:
-	assert isinstance(bytelist, (list, tuple))
 	return "[" + " ".join(f"{b:02X}" for b in bytelist) + "]"

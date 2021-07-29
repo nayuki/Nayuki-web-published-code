@@ -627,21 +627,14 @@ class CipherTest(unittest.TestCase):
 	
 	def _check_cipher(self, encfunc: Callable[[List[int],List[int]],List[int]], decfunc: Callable[[List[int],List[int]],List[int]], cases: List[Tuple[str,str,str]]) -> None:
 		global num_test_cases
-		assert isinstance(cases, list)
 		
 		for (plaintexthex, keyhex, expectedciphertexthex) in cases:
-			assert isinstance(keyhex, str)
-			assert isinstance(plaintexthex, str)
-			assert isinstance(expectedciphertexthex, str)
-			
 			keybytelist = hexstr_to_bytelist(keyhex)
 			plaintextbytelist = hexstr_to_bytelist(plaintexthex)
 			actualciphertextbytelist = encfunc(plaintextbytelist, keybytelist)
 			expectedciphertextbytelist = hexstr_to_bytelist(expectedciphertexthex)
 			decryptedbytelist = decfunc(actualciphertextbytelist, keybytelist)
 			
-			assert isinstance(actualciphertextbytelist, list)
-			assert isinstance(decryptedbytelist, list)
 			self.assertEqual(actualciphertextbytelist, expectedciphertextbytelist)
 			self.assertEqual(decryptedbytelist, plaintextbytelist)
 			num_test_cases += 1

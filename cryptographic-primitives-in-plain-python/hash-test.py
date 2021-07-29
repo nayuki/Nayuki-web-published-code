@@ -170,17 +170,12 @@ class HashTest(unittest.TestCase):
 	
 	def _check_hash_function(self, func: Callable[[List[int]],List[int]], cases: List[Tuple[str,str]]) -> None:
 		global num_test_cases
-		assert isinstance(cases, list)
 		
 		for (expecthash, messagestr) in cases:
-			assert isinstance(expecthash, str)
-			assert isinstance(messagestr, str)
-			
 			msgbytelist = asciistr_to_bytelist(messagestr)
 			actualhashbytelist = func(msgbytelist)
 			expectedhashbytelist = hexstr_to_bytelist(expecthash)
 			
-			assert isinstance(actualhashbytelist, list)
 			self.assertEqual(actualhashbytelist, expectedhashbytelist)
 			num_test_cases += 1
 	

@@ -44,8 +44,8 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 
 def _crypt(block: List[int], key: List[int], direction: str, printdebug: bool) -> List[int]:
 	# Check input arguments
-	assert isinstance(block, list) and len(block) == 8
-	assert isinstance(key, list) and len(key) == 8
+	assert len(block) == 8
+	assert len(key) == 8
 	assert direction in ("encrypt", "decrypt")
 	if printdebug:  print(f"descipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	

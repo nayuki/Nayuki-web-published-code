@@ -32,8 +32,8 @@ def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 	the given key (16-element bytelist), returning a new 8-element bytelist."""
 	
 	# Check input arguments
-	assert isinstance(block, list) and len(block) == 8
-	assert isinstance(key, list) and len(key) == 16
+	assert len(block) == 8
+	assert len(key) == 16
 	if printdebug:  print(f"teacipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Pack key and block bytes into lists of uint32 in big endian
@@ -66,8 +66,8 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 	the given key (16-element bytelist), returning a new 8-element bytelist."""
 	
 	# Check input arguments
-	assert isinstance(block, list) and len(block) == 8
-	assert isinstance(key, list) and len(key) == 16
+	assert len(block) == 8
+	assert len(key) == 16
 	if printdebug:  print(f"teacipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Pack key and block bytes into lists of uint32 in big endian

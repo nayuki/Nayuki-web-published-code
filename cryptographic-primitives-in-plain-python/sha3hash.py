@@ -52,7 +52,6 @@ def hash512(message: List[int], printdebug: bool = False) -> List[int]:
 # Computes the hash of the given bytelist message, returning a new (outbitlen/8)-element bytelist.
 def _hash(message: List[int], outbitlen: int, printdebug: bool) -> List[int]:
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	assert isinstance(message, list)
 	msg = list(message)
 	blocksize = 200 - outbitlen // 4
 	if printdebug:  print(f"sha3.hash{outbitlen}(message = {len(message)} bytes)")
@@ -92,11 +91,11 @@ def _compress(block: List[int], state: List[List[int]], printdebug: bool) -> Non
 	rotl64 = cryptocommon.rotate_left_uint64
 	sz = _MATRIX_SIZE
 	
-	# Check argument types and lengths
-	assert isinstance(block, list) and len(block) <= sz * sz * 8
-	assert isinstance(state, list) and len(state) == sz
+	# Check argument lengths
+	assert len(block) <= sz * sz * 8
+	assert len(state) == sz
 	for column in state:
-		assert isinstance(column, list) and len(column) == sz
+		assert len(column) == sz
 	
 	# XOR block bytes into first part of state as uint64 in little endian
 	for (i, bv) in enumerate(block):
