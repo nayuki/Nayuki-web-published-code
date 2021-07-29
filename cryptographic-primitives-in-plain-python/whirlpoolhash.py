@@ -107,7 +107,7 @@ def _sub_bytes(msg: Tuple[int,...]) -> Tuple[int,...]:
 
 # 'msg' is a 64-byte tuple. Returns a 64-byte tuple.
 def _shift_columns(msg: Tuple[int,...]) -> Tuple[int,...]:
-	newmsg = [None] * 64
+	newmsg = [0] * 64  # Dummy initial values, all will be overwritten
 	for col in range(8):
 		for row in range(8):
 			newmsg[(row + col) % 8 * 8 + col] = msg[row * 8 + col]
@@ -116,7 +116,7 @@ def _shift_columns(msg: Tuple[int,...]) -> Tuple[int,...]:
 
 # 'msg' is a 64-byte tuple. Returns a 64-byte tuple.
 def _mix_rows(msg: Tuple[int,...]) -> Tuple[int,...]:
-	newmsg = [None] * 64
+	newmsg = [0] * 64  # Dummy initial values, all will be overwritten
 	for row in range(8):
 		for col in range(8):
 			val = 0

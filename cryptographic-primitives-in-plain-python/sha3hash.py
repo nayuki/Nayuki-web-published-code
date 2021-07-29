@@ -99,10 +99,10 @@ def _compress(block: List[int], state: List[List[int]], printdebug: bool) -> Non
 		assert isinstance(column, list) and len(column) == sz
 	
 	# XOR block bytes into first part of state as uint64 in little endian
-	for (i, b) in enumerate(block):
+	for (i, bv) in enumerate(block):
 		j = i >> 3
 		x, y = j % sz, j // sz
-		state[x][y] ^= b << ((i % 8) * 8)
+		state[x][y] ^= bv << ((i % 8) * 8)
 	
 	# Perform 24 rounds of hashing
 	a = state
@@ -134,7 +134,7 @@ def _compress(block: List[int], state: List[List[int]], printdebug: bool) -> Non
 			for y in range(sz)] for x in range(sz)]
 		
 		# Pi step
-		b = [[None] * sz for _ in range(sz)]
+		b = [[0] * sz for _ in range(sz)]  # Dummy initial values, all will be overwritten
 		for x in range(sz):
 			for y in range(sz):
 				b[y][(x * 2 + y * 3) % sz] = e[x][y]

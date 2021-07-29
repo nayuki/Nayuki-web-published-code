@@ -193,8 +193,7 @@ class HashTest(unittest.TestCase):
 			msglist = [random.randrange(256) for _ in range(msglen)]
 			msgstr = bytes(msglist)
 			actualhash = ourfunc(msglist)
-			expecthash = stdfunc(msgstr).digest()
-			expecthash = list(expecthash)
+			expecthash = list(stdfunc(msgstr).digest())
 			self.assertEqual(actualhash, expecthash)
 			num_test_cases += 1
 

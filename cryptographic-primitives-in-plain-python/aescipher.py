@@ -154,7 +154,7 @@ def _sub_bytes(msg: Tuple[int,...], sbox: List[int]) -> Tuple[int,...]:
 # 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
 def _shift_rows(msg: Tuple[int,...], direction: int) -> Tuple[int,...]:
 	assert direction in (-1, 1)
-	newmsg = [None] * 16
+	newmsg = [0] * 16  # Dummy initial values, all will be overwritten
 	for row in range(4):
 		for col in range(4):
 			newmsg[col * 4 + row] = msg[(col + row * direction) % 4 * 4 + row]
@@ -164,7 +164,7 @@ def _shift_rows(msg: Tuple[int,...], direction: int) -> Tuple[int,...]:
 # 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
 def _mix_columns(msg: Tuple[int,...], multipliers: List[int]) -> Tuple[int,...]:
 	assert len(multipliers) == 4
-	newmsg = [None] * 16
+	newmsg = [0] * 16  # Dummy initial values, all will be overwritten
 	for col in range(4):
 		for row in range(4):
 			val = 0
