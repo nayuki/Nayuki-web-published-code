@@ -27,9 +27,9 @@ import cryptocommon, md5hash, sha256hash
 
 def main() -> None:
 	message = "FF00CA9634"
-	msgbytelist = cryptocommon.hexstr_to_bytelist(message)
-	hashbytelist = md5hash.hash(msgbytelist, printdebug=True)
-	hashhexstr = cryptocommon.bytelist_to_hexstr(hashbytelist)
+	msgbytelist: bytes = cryptocommon.hexstr_to_bytelist(message)
+	hashbytelist: bytes = md5hash.hash(msgbytelist, printdebug=True)
+	hashhexstr: str = cryptocommon.bytelist_to_hexstr(hashbytelist)
 	print(f"Message string (hex): {message}")
 	print(f"Message bytelist: {list(msgbytelist)}")
 	print(f"Hash bytelist: {list(hashbytelist)}")

@@ -172,9 +172,9 @@ class HashTest(unittest.TestCase):
 		global num_test_cases
 		
 		for (expecthash, messagestr) in cases:
-			msgbytelist = asciistr_to_bytelist(messagestr)
-			actualhashbytelist = func(msgbytelist)
-			expectedhashbytelist = hexstr_to_bytelist(expecthash)
+			msgbytelist: bytes = asciistr_to_bytelist(messagestr)
+			actualhashbytelist: bytes = func(msgbytelist)
+			expectedhashbytelist: bytes = hexstr_to_bytelist(expecthash)
 			
 			self.assertEqual(actualhashbytelist, expectedhashbytelist)
 			num_test_cases += 1
@@ -184,11 +184,11 @@ class HashTest(unittest.TestCase):
 		global num_test_cases
 		trials = 1000
 		for _ in range(trials):
-			msglen = random.randrange(1000)
+			msglen: int = random.randrange(1000)
 			msglist = bytes(random.randrange(256) for _ in range(msglen))
 			msgstr = bytes(msglist)
-			actualhash = ourfunc(msglist)
-			expecthash = stdfunc(msgstr).digest()
+			actualhash: bytes = ourfunc(msglist)
+			expecthash: bytes = stdfunc(msgstr).digest()
 			self.assertEqual(actualhash, expecthash)
 			num_test_cases += 1
 
@@ -197,6 +197,6 @@ class HashTest(unittest.TestCase):
 # ---- Main runner ----
 
 if __name__ == "__main__":
-	num_test_cases = 0
+	num_test_cases: int = 0
 	unittest.main(exit=False)
 	print(f"Tested {num_test_cases} vectors")

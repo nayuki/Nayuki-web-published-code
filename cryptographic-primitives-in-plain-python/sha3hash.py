@@ -22,7 +22,7 @@
 # 
 
 import cryptocommon
-from typing import List, Sequence, Tuple, Union
+from typing import Callable, List, Sequence, Tuple, Union
 
 
 # ---- Public functions ----
@@ -53,7 +53,7 @@ def hash512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> by
 def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool) -> bytes:
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	msg = bytearray(message)
-	blocksize = 200 - outbitlen // 4
+	blocksize: int = 200 - outbitlen // 4
 	if printdebug:  print(f"sha3.hash{outbitlen}(message = {len(message)} bytes)")
 	
 	# Append the suffix bits and termination bit (rounded up to a whole byte)
@@ -67,18 +67,18 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 	msg[-1] |= 0x80
 	
 	# Initialize the hash state
-	state = [[0] * _MATRIX_SIZE for _ in range(_MATRIX_SIZE)]
+	state: List[List[int]] = [[0] * _MATRIX_SIZE for _ in range(_MATRIX_SIZE)]
 	
 	# Compress each block in the augmented message
 	for i in range(len(msg) // blocksize):
-		block = msg[i * blocksize : (i + 1) * blocksize]
+		block: bytes = msg[i * blocksize : (i + 1) * blocksize]
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		_compress(block, state, printdebug)
 	
 	# Serialize a prefix of the final state as bytes in little endian
 	result = bytearray()
 	for i in range(outbitlen // 8):
-		j = i >> 3
+		j: int = i >> 3
 		x, y = j % _MATRIX_SIZE, j // _MATRIX_SIZE
 		result.append(int(state[x][y] >> ((i % 8) * 8)) & 0xFF)
 	if printdebug:  print()
@@ -88,8 +88,8 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 # All elements of block must be uint8. State is a mutable 5*5 matrix of uint64.
 def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 	# Alias shorter names for readability
-	rotl64 = cryptocommon.rotate_left_uint64
-	sz = _MATRIX_SIZE
+	rotl64: Callable[[int,int],int] = cryptocommon.rotate_left_uint64
+	sz: int = _MATRIX_SIZE
 	
 	# Check argument lengths
 	assert len(block) <= sz * sz * 8
@@ -99,41 +99,41 @@ def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 	
 	# XOR block bytes into first part of state as uint64 in little endian
 	for (i, bv) in enumerate(block):
-		j = i >> 3
+		j: int = i >> 3
 		x, y = j % sz, j // sz
 		state[x][y] ^= bv << ((i % 8) * 8)
 	
 	# Perform 24 rounds of hashing
-	a = state
-	r = 1  # 8-bit LFSR
+	a: List[List[int]] = state
+	r: int = 1  # 8-bit LFSR
 	for i in range(_NUM_ROUNDS):
 		if printdebug:
 			print(f"        Round {i:2d}:")
 			for j in range(sz):
 				y = (sz // 2 - j) % sz
-				parts = []
+				parts: List[str] = []
 				for j in range(sz):
 					x = (j - sz // 2) % sz
 					parts.append(f"[{x},{y}]={a[x][y]:016X}")
 				print("            " + ", ".join(parts))
 		
 		# Theta step
-		c = [0] * sz
+		c: List[int] = [0] * sz
 		for x in range(sz):
 			for y in range(sz):
 				c[x] ^= a[x][y]
-		d = [(c[(x - 1) % sz] ^ rotl64(c[(x + 1) % sz], 1))
+		d: List[int] = [(c[(x - 1) % sz] ^ rotl64(c[(x + 1) % sz], 1))
 			for x in range(sz)]
 		for x in range(sz):
 			for y in range(sz):
 				a[x][y] ^= d[x]
 		
 		# Rho step
-		e = [[rotl64(a[x][y], _ROTATION[x][y])
+		e: List[List[int]] = [[rotl64(a[x][y], _ROTATION[x][y])
 			for y in range(sz)] for x in range(sz)]
 		
 		# Pi step
-		b = [[0] * sz for _ in range(sz)]  # Dummy initial values, all will be overwritten
+		b: List[List[int]] = [[0] * sz for _ in range(sz)]  # Dummy initial values, all will be overwritten
 		for x in range(sz):
 			for y in range(sz):
 				b[y][(x * 2 + y * 3) % sz] = e[x][y]

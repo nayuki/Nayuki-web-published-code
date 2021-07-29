@@ -629,11 +629,11 @@ class CipherTest(unittest.TestCase):
 		global num_test_cases
 		
 		for (plaintexthex, keyhex, expectedciphertexthex) in cases:
-			keybytelist = hexstr_to_bytelist(keyhex)
-			plaintextbytelist = hexstr_to_bytelist(plaintexthex)
-			actualciphertextbytelist = encfunc(plaintextbytelist, keybytelist)
-			expectedciphertextbytelist = hexstr_to_bytelist(expectedciphertexthex)
-			decryptedbytelist = decfunc(actualciphertextbytelist, keybytelist)
+			keybytelist: bytes = hexstr_to_bytelist(keyhex)
+			plaintextbytelist: bytes = hexstr_to_bytelist(plaintexthex)
+			actualciphertextbytelist: bytes = encfunc(plaintextbytelist, keybytelist)
+			expectedciphertextbytelist: bytes = hexstr_to_bytelist(expectedciphertexthex)
+			decryptedbytelist: bytes = decfunc(actualciphertextbytelist, keybytelist)
 			
 			self.assertEqual(actualciphertextbytelist, expectedciphertextbytelist)
 			self.assertEqual(decryptedbytelist, plaintextbytelist)
@@ -644,6 +644,6 @@ class CipherTest(unittest.TestCase):
 # ---- Main runner ----
 
 if __name__ == "__main__":
-	num_test_cases = 0
+	num_test_cases: int = 0
 	unittest.main(exit=False)
 	print(f"Tested {num_test_cases} vectors")

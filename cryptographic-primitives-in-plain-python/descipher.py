@@ -50,19 +50,19 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	if printdebug:  print(f"descipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Pack key bytes into uint64 in big endian
-	k = 0
+	k: int = 0
 	for b in key:
 		assert 0 <= b <= 0xFF
 		k = (k << 8) | b
 	assert 0 <= k < (1 << 64)
 	
 	# Compute and handle the key schedule
-	keyschedule = _expand_key_schedule(k)
+	keyschedule: Tuple[int,...] = _expand_key_schedule(k)
 	if direction == "decrypt":
 		keyschedule = tuple(reversed(keyschedule))
 	
 	# Pack block bytes into uint64 in big endian
-	m = 0
+	m: int = 0
 	for b in block:
 		assert 0 <= b <= 0xFF
 		m = (m << 8) | b
@@ -70,8 +70,8 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	
 	# Do initial permutation on block and split into two uint32 words
 	m = _extract_bits(m, 64, _INITIAL_PERMUTATION)
-	left  = (m >> 32) & cryptocommon.UINT32_MASK
-	right = (m >>  0) & cryptocommon.UINT32_MASK
+	left : int = (m >> 32) & cryptocommon.UINT32_MASK
+	right: int = (m >>  0) & cryptocommon.UINT32_MASK
 	
 	# Perform 16 rounds of encryption/decryption
 	for (i, subkey) in enumerate(keyschedule):
@@ -93,16 +93,16 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 
 # Given a uint64 key, this computes and returns a tuple containing 16 elements of uint48.
 def _expand_key_schedule(key: int) -> Tuple[int,...]:
-	result = []
-	left  = _extract_bits(key, 64, _PERMUTED_CHOICE_1_LEFT )
-	right = _extract_bits(key, 64, _PERMUTED_CHOICE_1_RIGHT)
+	result: List[int] = []
+	left : int = _extract_bits(key, 64, _PERMUTED_CHOICE_1_LEFT )
+	right: int = _extract_bits(key, 64, _PERMUTED_CHOICE_1_RIGHT)
 	for shift in _ROUND_KEY_SHIFTS:
 		left  = _rotate_left_uint28(left , shift)
 		right = _rotate_left_uint28(right, shift)
 		assert 0 <= left  < (1 << 28)
 		assert 0 <= right < (1 << 28)
-		packed = left << 28 | right
-		subkey = _extract_bits(packed, 56, _PERMUTED_CHOICE_2)
+		packed: int = left << 28 | right
+		subkey: int = _extract_bits(packed, 56, _PERMUTED_CHOICE_2)
 		assert 0 <= subkey < (1 << 48)
 		result.append(subkey)
 	return tuple(result)
@@ -110,10 +110,10 @@ def _expand_key_schedule(key: int) -> Tuple[int,...]:
 
 # 'data' is uint32, 'subkey' is uint48, and result is uint32.
 def _feistel_function(data: int, subkey: int) -> int:
-	a = _extract_bits(data, 32, _FEISTEL_EXPANSION)  # uint48
-	b = a ^ subkey     # uint48
-	c = _do_sboxes(b)  # uint32
-	d = _extract_bits(c, 32, _FEISTEL_PERMUTATION)   # uint32
+	a: int = _extract_bits(data, 32, _FEISTEL_EXPANSION)  # uint48
+	b: int = a ^ subkey     # uint48
+	c: int = _do_sboxes(b)  # uint32
+	d: int = _extract_bits(c, 32, _FEISTEL_PERMUTATION)   # uint32
 	assert 0 <= d <= cryptocommon.UINT32_MASK
 	return d
 
@@ -121,8 +121,8 @@ def _feistel_function(data: int, subkey: int) -> int:
 # 'data' is uint48, and result is uint32.
 def _do_sboxes(data: int) -> int:
 	assert 0 <= data < (1 << 48)
-	mask = (1 << 6) - 1
-	result = 0
+	mask: int = (1 << 6) - 1
+	result: int = 0
 	for i in range(8):  # Topmost 6 bits use _SBOXES[0], next lower 6 bits use _SBOXES[1], ..., lowest 6 bits use _SBOXES[7].
 		result |= _SBOXES[7 - i][(data >> (i * 6)) & mask] << (i * 4)
 	assert 0 <= result <= cryptocommon.UINT32_MASK
@@ -135,7 +135,7 @@ def _do_sboxes(data: int) -> int:
 # For example: _extract_bits(0b10000, 5, [5, 1, 2]) = 0b010.
 def _extract_bits(value: int, bitwidth: int, indices: List[int]) -> int:
 	assert 0 <= value < (1 << bitwidth)
-	result = 0
+	result: int = 0
 	for i in indices:
 		result <<= 1
 		result |= (value >> (bitwidth - i)) & 1
@@ -145,7 +145,7 @@ def _extract_bits(value: int, bitwidth: int, indices: List[int]) -> int:
 
 # 'value' is uint28, 'amount' is in the range [0, 28), and result is uint28.
 def _rotate_left_uint28(value: int, amount: int) -> int:
-	mask = (1 << 28) - 1
+	mask: int = (1 << 28) - 1
 	assert 0 <= value <= mask
 	assert 0 <= amount < 28
 	return ((value << amount) | (value >> (28 - amount))) & mask

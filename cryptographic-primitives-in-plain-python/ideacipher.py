@@ -49,26 +49,26 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	if printdebug:  print(f"ideacipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Compute and handle the key schedule
-	keyschedule = _expand_key_schedule(key)
+	keyschedule: Tuple[int,...] = _expand_key_schedule(key)
 	if direction == "decrypt":
 		keyschedule = _invert_key_schedule(keyschedule)
 	
 	# Pack block bytes into variables as uint16 in big endian
-	w = block[0] << 8 | block[1]
-	x = block[2] << 8 | block[3]
-	y = block[4] << 8 | block[5]
-	z = block[6] << 8 | block[7]
+	w: int = block[0] << 8 | block[1]
+	x: int = block[2] << 8 | block[3]
+	y: int = block[4] << 8 | block[5]
+	z: int = block[6] << 8 | block[7]
 	
 	# Perform 8 rounds of encryption/decryption
 	for i in range(_NUM_ROUNDS):
 		if printdebug:  print(f"    Round {i}: block = [{w:04X} {x:04X} {y:04X} {z:04X}]")
-		j = i * 6
+		j: int = i * 6
 		w = _multiply(w, keyschedule[j + 0])
 		x = _add(x, keyschedule[j + 1])
 		y = _add(y, keyschedule[j + 2])
 		z = _multiply(z, keyschedule[j + 3])
-		u = _multiply(w ^ y, keyschedule[j + 4])
-		v = _multiply(_add(x ^ z, u), keyschedule[j + 5])
+		u: int = _multiply(w ^ y, keyschedule[j + 4])
+		v: int = _multiply(_add(x ^ z, u), keyschedule[j + 5])
 		u = _add(u, v)
 		w ^= v
 		x ^= u
@@ -95,7 +95,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 # Given 16 bytes, this computes and returns a tuple containing 52 elements of uint16.
 def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 	# Pack all key bytes into a single uint128
-	bigkey = 0
+	bigkey: int = 0
 	for b in key:
 		assert 0 <= b <= 0xFF
 		bigkey = (bigkey << 8) | b
@@ -105,7 +105,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 	bigkey = (bigkey << 16) | (bigkey >> 112)
 	
 	# Extract consecutive 16 bits at different offsets to form the key schedule
-	result = []
+	result: List[int] = []
 	for i in range(_NUM_ROUNDS * 6 + 4):
 		offset = (i * 16 + i // 8 * 25) % 128
 		result.append((bigkey >> (128 - offset)) & 0xFFFF)
@@ -116,7 +116,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 # decryption key schedule as a tuple containing 52 elements of uint16.
 def _invert_key_schedule(keysch: Tuple[int,...]) -> Tuple[int,...]:
 	assert len(keysch) % 6 == 4
-	result = []
+	result: List[int] = []
 	result.append(_reciprocal(keysch[-4]))
 	result.append(_negate(keysch[-3]))
 	result.append(_negate(keysch[-2]))
@@ -125,7 +125,7 @@ def _invert_key_schedule(keysch: Tuple[int,...]) -> Tuple[int,...]:
 	result.append(keysch[-5])
 	
 	for i in range(1, _NUM_ROUNDS):
-		j = i * 6
+		j: int = i * 6
 		result.append(_reciprocal(keysch[-j - 4]))
 		result.append(_negate(keysch[-j - 2]))
 		result.append(_negate(keysch[-j - 3]))
@@ -158,7 +158,7 @@ def _multiply(x: int, y: int) -> int:
 		x = 0x10000
 	if y == 0x0000:
 		y = 0x10000
-	z = (x * y) % 0x10001
+	z: int = (x * y) % 0x10001
 	if z == 0x10000:
 		z = 0x0000
 	assert 0 <= z <= 0xFFFF

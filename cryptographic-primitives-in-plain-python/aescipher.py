@@ -38,10 +38,10 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	if printdebug:  print(f"aescipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Compute key schedule from key
-	keyschedule = _expand_key_schedule(key)
+	keyschedule: Tuple[bytes,...] = _expand_key_schedule(key)
 	
 	# Perform special first round
-	i = 0
+	i: int = 0
 	newblock = bytes(block)
 	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[0])
@@ -77,10 +77,10 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	if printdebug:  print(f"aescipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Compute key schedule from key
-	keyschedule = tuple(reversed(_expand_key_schedule(key)))
+	keyschedule: Tuple[bytes,...] = tuple(reversed(_expand_key_schedule(key)))
 	
 	# Perform special first round
-	i = 0
+	i: int = 0
 	newblock = bytes(block)
 	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[0])
@@ -111,17 +111,17 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 # Given 16/24/32 bytes, this computes and returns a tuple containing 11/13/15 tuples of 16 bytes each.
 def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
 	# Initialize key schedule with the verbatim key
-	nk = len(key) // 4  # Number of 32-bit words in original key
+	nk: int = len(key) // 4  # Number of 32-bit words in original key
 	assert nk in (4, 6, 8)
 	schedule = bytearray(key)
 	
 	# Extend the key schedule by blending previous values
-	numrounds = nk + 6
-	rcon = 1
+	numrounds: int = nk + 6
+	rcon: int = 1
 	for i in range(len(schedule), (numrounds + 1) * 16):
-		j = i // 4
+		j: int = i // 4
 		if j % nk == 0:
-			val = schedule[(j - 1) * 4 + (i + 1) % 4]
+			val: int = schedule[(j - 1) * 4 + (i + 1) % 4]
 			val = _SBOX_FORWARD[val]
 			if i % 4 == 0:
 				val ^= rcon
@@ -134,7 +134,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
 		schedule.append(val)
 	
 	# Split up the schedule into chunks of 16-byte subkeys
-	result = []
+	result: List[bytes] = []
 	for i in range(0, len(schedule), 16):
 		result.append(schedule[i : i + 16])
 	
@@ -167,7 +167,7 @@ def _mix_columns(msg: bytes, multipliers: List[int]) -> bytes:
 	newmsg = bytearray([0] * 16)  # Dummy initial values, all will be overwritten
 	for col in range(4):
 		for row in range(4):
-			val = 0
+			val: int = 0
 			for i in range(4):
 				val ^= _multiply(msg[col * 4 + (row + i) % 4], multipliers[i])
 			newmsg[col * 4 + row] = val
@@ -186,7 +186,7 @@ def _add_round_key(msg: bytes, key: bytes) -> bytes:
 def _multiply(x: int, y: int) -> int:
 	assert 0 <= x <= 0xFF
 	assert 0 <= y <= 0xFF
-	z = 0
+	z: int = 0
 	for i in reversed(range(8)):
 		z <<= 1
 		if z >= 0x100:
@@ -226,7 +226,7 @@ _SBOX_FORWARD = bytearray()  # A permutation of the 256 byte values, from 0x00 t
 _SBOX_INVERSE = bytearray([0] * 256)  # Also a permutation
 def _init_sbox() -> None:
 	for i in range(256):
-		j = _reciprocal(i)
+		j: int = _reciprocal(i)
 		j = j ^ _rotl8(j, 1) ^ _rotl8(j, 2) ^ _rotl8(j, 3) ^ _rotl8(j, 4) ^ 0x63
 		assert 0 <= j <= 0xFF
 		_SBOX_FORWARD.append(j)

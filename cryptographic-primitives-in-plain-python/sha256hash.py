@@ -22,7 +22,7 @@
 # 
 
 import cryptocommon
-from typing import List, Sequence, Tuple, Union
+from typing import Callable, List, Sequence, Tuple, Union
 
 
 # ---- Public functions ----
@@ -42,18 +42,18 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 		msg.append(0x00)
 	
 	# Append the length of the original message in bits, as 8 bytes in big endian
-	bitlength = len(message) * 8
+	bitlength: int = len(message) * 8
 	for i in reversed(range(8)):
 		msg.append((bitlength >> (i * 8)) & 0xFF)
 	
 	# Initialize the hash state
-	state = (0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
+	state: Tuple[int,int,int,int,int,int,int,int] = (0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
 	         0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19)
 	
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
-		block = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
+		block: bytes = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
@@ -75,22 +75,22 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 	assert len(state) == 8
 	
 	# Alias shorter names for readability
-	mask32 = cryptocommon.UINT32_MASK
-	rotr32 = cryptocommon.rotate_right_uint32
+	mask32: int = cryptocommon.UINT32_MASK
+	rotr32: Callable[[int,int],int] = cryptocommon.rotate_right_uint32
 	
 	# Pack block bytes into first part of schedule as uint32 in big endian
-	schedule = [0] * 16
+	schedule: List[int] = [0] * 16
 	for (i, b) in enumerate(block):
 		assert 0 <= b <= 0xFF
 		schedule[i // 4] |= b << ((3 - (i % 4)) * 8)
 	
 	# Extend the message schedule by blending previous values
 	for i in range(len(schedule), len(_ROUND_CONSTANTS)):
-		x = schedule[i - 15]
-		y = schedule[i -  2]
-		smallsigma0 = rotr32(x,  7) ^ rotr32(x, 18) ^ (x >>  3)
-		smallsigma1 = rotr32(y, 17) ^ rotr32(y, 19) ^ (y >> 10)
-		temp = (schedule[i - 16] + schedule[i - 7] + smallsigma0 + smallsigma1) & mask32
+		x: int = schedule[i - 15]
+		y: int = schedule[i -  2]
+		smallsigma0: int = rotr32(x,  7) ^ rotr32(x, 18) ^ (x >>  3)
+		smallsigma1: int = rotr32(y, 17) ^ rotr32(y, 19) ^ (y >> 10)
+		temp: int = (schedule[i - 16] + schedule[i - 7] + smallsigma0 + smallsigma1) & mask32
 		schedule.append(temp)
 	
 	# Unpack state into variables; each one is a uint32
@@ -100,12 +100,12 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 	for i in range(len(schedule)):
 		# Perform the round calculation
 		if printdebug:  print(f"        Round {i:2d}: a={a:08X}, b={b:08X}, c={c:08X}, d={d:08X}, e={e:08X}, f={f:08X}, g={g:08X}, h={h:08X}")
-		bigsigma0 = rotr32(a, 2) ^ rotr32(a, 13) ^ rotr32(a, 22)
-		bigsigma1 = rotr32(e, 6) ^ rotr32(e, 11) ^ rotr32(e, 25)
-		choose = (e & f) ^ (~e & g)
-		majority = (a & b) ^ (a & c) ^ (b & c)
-		t1 = (h + bigsigma1 + choose + schedule[i] + _ROUND_CONSTANTS[i]) & mask32
-		t2 = (bigsigma0 + majority) & mask32
+		bigsigma0: int = rotr32(a, 2) ^ rotr32(a, 13) ^ rotr32(a, 22)
+		bigsigma1: int = rotr32(e, 6) ^ rotr32(e, 11) ^ rotr32(e, 25)
+		choose: int = (e & f) ^ (~e & g)
+		majority: int = (a & b) ^ (a & c) ^ (b & c)
+		t1: int = (h + bigsigma1 + choose + schedule[i] + _ROUND_CONSTANTS[i]) & mask32
+		t2: int = (bigsigma0 + majority) & mask32
 		h = g
 		g = f
 		f = e

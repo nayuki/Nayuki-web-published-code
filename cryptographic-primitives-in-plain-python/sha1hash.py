@@ -22,7 +22,7 @@
 # 
 
 import cryptocommon
-from typing import List, Sequence, Tuple, Union
+from typing import Callable, List, Sequence, Tuple, Union
 
 
 # ---- Public functions ----
@@ -42,17 +42,17 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 		msg.append(0x00)
 	
 	# Append the length of the original message in bits, as 8 bytes in big endian
-	bitlength = len(message) * 8
+	bitlength: int = len(message) * 8
 	for i in reversed(range(8)):
 		msg.append((bitlength >> (i * 8)) & 0xFF)
 	
 	# Initialize the hash state
-	state = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0)
+	state: Tuple[int,int,int,int,int] = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0)
 	
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
-		block = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
+		block: bytes = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
@@ -74,18 +74,18 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int], printdebug: bool)
 	assert len(state) == 5
 	
 	# Alias shorter names for readability
-	mask32 = cryptocommon.UINT32_MASK
-	rotl32 = cryptocommon.rotate_left_uint32
+	mask32: int = cryptocommon.UINT32_MASK
+	rotl32: Callable[[int,int],int] = cryptocommon.rotate_left_uint32
 	
 	# Pack block bytes into first part of schedule as uint32 in big endian
-	schedule = [0] * 16
+	schedule: List[int] = [0] * 16
 	for (i, b) in enumerate(block):
 		assert 0 <= b <= 0xFF
 		schedule[i // 4] |= b << ((3 - (i % 4)) * 8)
 	
 	# Extend the message schedule by blending previous values
 	for i in range(len(schedule), 80):
-		temp = schedule[i - 3] ^ schedule[i - 8] ^ schedule[i - 14] ^ schedule[i - 16]
+		temp: int = schedule[i - 3] ^ schedule[i - 8] ^ schedule[i - 14] ^ schedule[i - 16]
 		schedule.append(rotl32(temp, 1))
 	
 	# Unpack state into variables; each one is a uint32
@@ -95,7 +95,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int], printdebug: bool)
 	for i in range(len(schedule)):
 		# Compute f value based on the round index i
 		if printdebug:  print(f"        Round {i:2d}: a={a:08X}, b={b:08X}, c={c:08X}, d={d:08X}, e={e:08X}")
-		j = i // 20
+		j: int = i // 20
 		if   j == 0:  f = (b & c) | (~b & d)
 		elif j == 1:  f = b ^ c ^ d
 		elif j == 2:  f = (b & c) ^ (b & d) ^ (c & d)

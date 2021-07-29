@@ -42,7 +42,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 		msg.append(0x00)
 	
 	# Append the length of the original message in bits, as 32 bytes in big endian
-	bitlength = len(message) * 8
+	bitlength: int = len(message) * 8
 	for i in reversed(range(32)):
 		msg.append((bitlength >> (i * 8)) & 0xFF)
 	
@@ -52,7 +52,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
-		block = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
+		block: bytes = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
@@ -70,8 +70,8 @@ def _compress(block: bytes, state: bytes, printdebug: bool) -> bytes:
 	assert len(state) == _BLOCK_SIZE
 	
 	# Perform 10 rounds of hashing
-	tempkey = state
-	tempmsg = _add_round_key(block, state)
+	tempkey: bytes = state
+	tempmsg: bytes = _add_round_key(block, state)
 	i = 0
 	for rcon in _ROUND_CONSTANTS:
 		if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(tempmsg)}")
@@ -118,7 +118,7 @@ def _mix_rows(msg: bytes) -> bytes:
 	newmsg = bytearray([0] * 64)  # Dummy initial values, all will be overwritten
 	for row in range(8):
 		for col in range(8):
-			val = 0
+			val: int = 0
 			for i in range(8):
 				val ^= _multiply(msg[row * 8 + (col + i) % 8], _MULTIPLIERS[i])
 			newmsg[row * 8 + col] = val
@@ -137,7 +137,7 @@ def _add_round_key(msg: bytes, key: bytes) -> bytes:
 def _multiply(x: int, y: int) -> int:
 	assert 0 <= x <= 0xFF
 	assert 0 <= y <= 0xFF
-	z = 0
+	z: int = 0
 	for i in reversed(range(8)):
 		z <<= 1
 		if z >= 0x100:
@@ -158,15 +158,15 @@ _MULTIPLIERS: List[int] = [0x01, 0x09, 0x02, 0x05, 0x08, 0x01, 0x04, 0x01]
 
 _SBOX = bytearray()  # A permutation of the 256 byte values, from 0x00 to 0xFF
 def _init_sbox():
-	E = [0x1, 0xB, 0x9, 0xC, 0xD, 0x6, 0xF, 0x3, 0xE, 0x8, 0x7, 0x4, 0xA, 0x2, 0x5, 0x0]  # The E mini-box
-	R = [0x7, 0xC, 0xB, 0xD, 0xE, 0x4, 0x9, 0xF, 0x6, 0x3, 0x8, 0xA, 0x2, 0x5, 0x1, 0x0]  # The R mini-box
-	EINV = [0] * 16  # The inverse of E
+	E: List[int] = [0x1, 0xB, 0x9, 0xC, 0xD, 0x6, 0xF, 0x3, 0xE, 0x8, 0x7, 0x4, 0xA, 0x2, 0x5, 0x0]  # The E mini-box
+	R: List[int] = [0x7, 0xC, 0xB, 0xD, 0xE, 0x4, 0x9, 0xF, 0x6, 0x3, 0x8, 0xA, 0x2, 0x5, 0x1, 0x0]  # The R mini-box
+	EINV: List[int] = [0] * 16  # The inverse of E
 	for (i, x) in enumerate(E):
 		EINV[x] = i
 	for i in range(256):
-		left = E[i >> 4]
-		right = EINV[i & 0xF]
-		temp = R[left ^ right]
+		left: int = E[i >> 4]
+		right: int = EINV[i & 0xF]
+		temp: int = R[left ^ right]
 		_SBOX.append(E[left ^ temp] << 4 | EINV[right ^ temp])
 _init_sbox()
 
@@ -174,6 +174,6 @@ _ROUND_CONSTANTS: List[bytes] = []  # Each element of this list is 64 bytes
 def _init_round_constants():
 	for i in range(_NUM_ROUNDS):
 		# Each round constant takes the next 8 bytes from the S-box, and appends 56 zeros to fill the 64-byte block
-		rcon = _SBOX[i * 8 : (i + 1) * 8] + bytes([0] * 56)
+		rcon: bytes = _SBOX[i * 8 : (i + 1) * 8] + bytes([0] * 56)
 		_ROUND_CONSTANTS.append(rcon)
 _init_round_constants()

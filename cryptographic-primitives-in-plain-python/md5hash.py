@@ -42,17 +42,17 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 		msg.append(0x00)
 	
 	# Append the length of the original message in bits, as 8 bytes in little endian
-	bitlength = len(message) * 8
+	bitlength: int = len(message) * 8
 	for i in range(8):
 		msg.append((bitlength >> (i * 8)) & 0xFF)
 	
 	# Initialize the hash state
-	state = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476)
+	state: Tuple[int,int,int,int] = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476)
 	
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
-		block = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
+		block: bytes = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
@@ -76,7 +76,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> 
 	assert len(state) == 4
 	
 	# Pack block bytes into schedule as uint32 in little endian
-	schedule = [0] * 16
+	schedule: List[int] = [0] * 16
 	for (i, b) in enumerate(block):
 		assert 0 <= b <= 0xFF
 		schedule[i // 4] |= b << ((i % 4) * 8)
@@ -88,6 +88,8 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> 
 	for i in range(len(_ROUND_CONSTANTS)):
 		# Compute f value and schedule index based on the round index i
 		if printdebug:  print(f"        Round {i:2d}: a={a:08X}, b={b:08X}, c={c:08X}, d={d:08X}")
+		f: int
+		k: int
 		if i < 16:
 			f = (b & c) | (~b & d)
 			k = i
@@ -102,8 +104,8 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> 
 			k = (7 * i) % 16
 		
 		# Perform the round calculation
-		rot = _ROTATION_AMOUNTS[((i >> 2) & 0xC) | (i & 0x3)]
-		temp = (a + f + schedule[k] + _ROUND_CONSTANTS[i]) & cryptocommon.UINT32_MASK
+		rot: int = _ROTATION_AMOUNTS[((i >> 2) & 0xC) | (i & 0x3)]
+		temp: int = (a + f + schedule[k] + _ROUND_CONSTANTS[i]) & cryptocommon.UINT32_MASK
 		temp = cryptocommon.rotate_left_uint32(temp, rot)
 		a = d
 		d = c

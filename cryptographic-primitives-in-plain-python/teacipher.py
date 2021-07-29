@@ -37,11 +37,11 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	if printdebug:  print(f"teacipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Pack key and block bytes into lists of uint32 in big endian
-	k = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
-	m = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
+	k: List[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
+	m: List[int] = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
 	
 	# Perform 64 rounds of encryption
-	rcon = 0
+	rcon: int = 0
 	for i in range(_NUM_CYCLES):
 		if printdebug:  print(f"    Round {i:2d}: block = [{m[0]:08X} {m[1]:08X}]")
 		rcon = (rcon + _ROUND_CONSTANT) & cryptocommon.UINT32_MASK
@@ -71,11 +71,11 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	if printdebug:  print(f"teacipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Pack key and block bytes into lists of uint32 in big endian
-	k = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
-	m = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
+	k: List[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
+	m: List[int] = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
 	
 	# Perform 64 rounds of decryption
-	rcon = (_ROUND_CONSTANT * _NUM_CYCLES) & cryptocommon.UINT32_MASK
+	rcon: int = (_ROUND_CONSTANT * _NUM_CYCLES) & cryptocommon.UINT32_MASK
 	for i in range(_NUM_CYCLES):
 		if printdebug:  print(f"    Round {i:2d}: block = [{m[0]:08X} {m[1]:08X}]")
 		m[1] -= ((m[0] << 4) + k[2]) ^ (m[0] + rcon) ^ ((m[0] >> 5) + k[3])
@@ -100,7 +100,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 # For example: _bytes_to_uint32_list_big_endian([0xFF, 0x00, 0xAB, 0xCD, 0x27, 0x18, 0x28, 0x44]) -> [0xFF00ABCD, 0x27182844].
 def _bytes_to_uint32_list_big_endian(bytelist: Union[bytes,Sequence[int]]) -> List[int]:
 	assert len(bytelist) % 4 == 0
-	result = [0] * (len(bytelist) // 4)
+	result: List[int] = [0] * (len(bytelist) // 4)
 	for (i, b) in enumerate(bytelist):
 		assert 0 <= b <= 0xFF
 		result[i // 4] |= b << ((3 - (i % 4)) * 8)

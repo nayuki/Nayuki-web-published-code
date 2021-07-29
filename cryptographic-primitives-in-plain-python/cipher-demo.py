@@ -26,13 +26,13 @@ import cryptocommon, aescipher
 
 
 def main() -> None:
-	message = "3243F6A8885A308D313198A2E0370734"
-	key = "2B7E151628AED2A6ABF7158809CF4F3C"
+	message: str = "3243F6A8885A308D313198A2E0370734"
+	key: str = "2B7E151628AED2A6ABF7158809CF4F3C"
 	
-	plaintextbytelist = cryptocommon.hexstr_to_bytelist(message)
-	keybytelist = cryptocommon.hexstr_to_bytelist(key)
-	ciphertextbytelist = aescipher.encrypt(plaintextbytelist, keybytelist, printdebug=True)
-	ciphertexthexstr = cryptocommon.bytelist_to_hexstr(ciphertextbytelist)
+	plaintextbytelist: bytes = cryptocommon.hexstr_to_bytelist(message)
+	keybytelist: bytes = cryptocommon.hexstr_to_bytelist(key)
+	ciphertextbytelist: bytes = aescipher.encrypt(plaintextbytelist, keybytelist, printdebug=True)
+	ciphertexthexstr: str = cryptocommon.bytelist_to_hexstr(ciphertextbytelist)
 	assert aescipher.decrypt(ciphertextbytelist, keybytelist) == plaintextbytelist
 	
 	print(f"Plaintext  (hex): {message}")

@@ -35,7 +35,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	if printdebug:  print(f"md2.hash(message = {len(message)} bytes)")
 	
 	# Append the termination padding
-	padlen = _BLOCK_SIZE - (len(msg) % _BLOCK_SIZE)
+	padlen: int = _BLOCK_SIZE - (len(msg) % _BLOCK_SIZE)
 	msg.extend([padlen] * padlen)
 	
 	# Initialize the hash state
@@ -45,7 +45,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
-		block = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
+		block: bytes = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state, checksum = _compress(block, state, checksum, printdebug)
 	
@@ -69,13 +69,13 @@ def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> 
 	# Copy the block into the state
 	newstate = bytearray(state)
 	for i in range(16):
-		b = block[i]
+		b: int = block[i]
 		assert 0 <= b <= 0xFF
 		newstate[i + 16] = b
 		newstate[i + 32] = b ^ newstate[i]
 	
 	# Perform 18 rounds of hashing
-	t = 0
+	t: int = 0
 	for i in range(18):
 		for j in range(len(newstate)):
 			newstate[j] ^= _SBOX[t]
@@ -84,7 +84,7 @@ def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> 
 	
 	# Checksum the block
 	newchecksum = bytearray(checksum)
-	l = newchecksum[-1]
+	l: int = newchecksum[-1]
 	for i in range(16):
 		l = newchecksum[i] ^ _SBOX[block[i] ^ l]
 		newchecksum[i] = l
