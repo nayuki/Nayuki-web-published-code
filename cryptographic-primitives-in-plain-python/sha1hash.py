@@ -31,7 +31,7 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 20-element bytelist."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	msg = list(message)
+	msg = bytearray(message)
 	if printdebug:  print(f"sha1.hash(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
@@ -52,7 +52,7 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
-		block = tuple(msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE])
+		block = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
@@ -68,7 +68,7 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 # ---- Private functions ----
 
 # Requirement: All elements of block and state must be uint32.
-def _compress(block: Tuple[int,...], state: Tuple[int,int,int,int,int], printdebug: bool) -> Tuple[int,int,int,int,int]:
+def _compress(block: bytes, state: Tuple[int,int,int,int,int], printdebug: bool) -> Tuple[int,int,int,int,int]:
 	# Check argument lengths
 	assert len(block) == _BLOCK_SIZE
 	assert len(state) == 5

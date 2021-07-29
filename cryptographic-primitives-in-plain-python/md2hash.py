@@ -31,7 +31,7 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 16-element bytelist."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	msg = list(message)
+	msg = bytearray(message)
 	if printdebug:  print(f"md2.hash(message = {len(message)} bytes)")
 	
 	# Append the termination padding
@@ -39,13 +39,13 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	msg.extend([padlen] * padlen)
 	
 	# Initialize the hash state
-	state    = tuple([0] * 48)
-	checksum = tuple([0] * 16)
+	state    = bytes([0] * 48)
+	checksum = bytes([0] * 16)
 	
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
-		block = tuple(msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE])
+		block = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state, checksum = _compress(block, state, checksum, printdebug)
 	
@@ -60,14 +60,14 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 
 # ---- Private functions ----
 
-def _compress(block: Tuple[int,...], state: Tuple[int,...], checksum: Tuple[int,...], printdebug: bool) -> Tuple[Tuple[int,...],Tuple[int,...]]:
+def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> Tuple[bytes,bytes]:
 	# Check argument lengths
 	assert len(block) == _BLOCK_SIZE
 	assert len(state) == 48
 	assert len(checksum) == 16
 	
 	# Copy the block into the state
-	newstate = list(state)
+	newstate = bytearray(state)
 	for i in range(16):
 		b = block[i]
 		assert 0 <= b <= 0xFF
@@ -83,21 +83,21 @@ def _compress(block: Tuple[int,...], state: Tuple[int,...], checksum: Tuple[int,
 		t = (t + i) & 0xFF
 	
 	# Checksum the block
-	newchecksum = list(checksum)
+	newchecksum = bytearray(checksum)
 	l = newchecksum[-1]
 	for i in range(16):
 		l = newchecksum[i] ^ _SBOX[block[i] ^ l]
 		newchecksum[i] = l
 	
 	# Return new state and checksum as a tuples
-	return (tuple(newstate), tuple(newchecksum))
+	return (newstate, newchecksum)
 
 
 # ---- Numerical constants/tables ----
 
 _BLOCK_SIZE: int = 16  # In bytes
 
-_SBOX: List[int] = [  # A permutation of the 256 byte values, from 0x00 to 0xFF
+_SBOX = bytes([  # A permutation of the 256 byte values, from 0x00 to 0xFF
 	0x29, 0x2E, 0x43, 0xC9, 0xA2, 0xD8, 0x7C, 0x01, 0x3D, 0x36, 0x54, 0xA1, 0xEC, 0xF0, 0x06, 0x13,
 	0x62, 0xA7, 0x05, 0xF3, 0xC0, 0xC7, 0x73, 0x8C, 0x98, 0x93, 0x2B, 0xD9, 0xBC, 0x4C, 0x82, 0xCA,
 	0x1E, 0x9B, 0x57, 0x3C, 0xFD, 0xD4, 0xE0, 0x16, 0x67, 0x42, 0x6F, 0x18, 0x8A, 0x17, 0xE5, 0x12,
@@ -114,4 +114,4 @@ _SBOX: List[int] = [  # A permutation of the 256 byte values, from 0x00 to 0xFF
 	0x78, 0x88, 0x95, 0x8B, 0xE3, 0x63, 0xE8, 0x6D, 0xE9, 0xCB, 0xD5, 0xFE, 0x3B, 0x00, 0x1D, 0x39,
 	0xF2, 0xEF, 0xB7, 0x0E, 0x66, 0x58, 0xD0, 0xE4, 0xA6, 0x77, 0x72, 0xF8, 0xEB, 0x75, 0x4B, 0x0A,
 	0x31, 0x44, 0x50, 0xB4, 0x8F, 0xED, 0x1F, 0x1A, 0xDB, 0x99, 0x8D, 0x33, 0x9F, 0x11, 0x83, 0x14,
-]
+])

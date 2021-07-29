@@ -22,7 +22,7 @@
 # 
 
 import cryptocommon
-from typing import List, Tuple
+from typing import List
 
 
 # ---- Public functions ----
@@ -31,7 +31,7 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 	"""Computes the hash of the given bytelist message, returning a new 64-element bytelist."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	msg = list(message)
+	msg = bytearray(message)
 	if printdebug:  print(f"whirlpool.hash(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
@@ -47,12 +47,12 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 		msg.append((bitlength >> (i * 8)) & 0xFF)
 	
 	# Initialize the hash state
-	state = tuple([0] * _BLOCK_SIZE)
+	state = bytes([0] * _BLOCK_SIZE)
 	
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
-		block = tuple(msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE])
+		block = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
@@ -64,7 +64,7 @@ def hash(message: List[int], printdebug: bool = False) -> List[int]:
 # ---- Private functions ----
 
 # Requirement: All elements of block and state must be uint8 (byte).
-def _compress(block: Tuple[int,...], state: Tuple[int,...], printdebug: bool) -> Tuple[int,...]:
+def _compress(block: bytes, state: bytes, printdebug: bool) -> bytes:
 	# Check argument lengths
 	assert len(block) == _BLOCK_SIZE
 	assert len(state) == _BLOCK_SIZE
@@ -81,14 +81,14 @@ def _compress(block: Tuple[int,...], state: Tuple[int,...], printdebug: bool) ->
 	if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(tempmsg))}")
 	
 	# Combine data using the Miyaguchi-Preneel construction
-	newstate = []
+	newstate = bytearray()
 	for (x, y, z) in zip(state, block, tempmsg):
 		newstate.append(x ^ y ^ z)
-	return tuple(newstate)
+	return newstate
 
 
-# 'msg' and 'key' are 64-byte tuples. Returns a 64-byte tuple.
-def _compute_round(msg: Tuple[int,...], key: Tuple[int,...]) -> Tuple[int,...]:
+# 'msg' and 'key' are 64 bytes. Returns 64 bytes.
+def _compute_round(msg: bytes, key: bytes) -> bytes:
 	msg = _sub_bytes(msg)
 	msg = _shift_columns(msg)
 	msg = _mix_rows(msg)
@@ -96,41 +96,41 @@ def _compute_round(msg: Tuple[int,...], key: Tuple[int,...]) -> Tuple[int,...]:
 	return msg
 
 
-# 'msg' is a 64-byte tuple. Returns a 64-byte tuple.
-def _sub_bytes(msg: Tuple[int,...]) -> Tuple[int,...]:
-	newmsg = []
+# 'msg' is 64 bytes. Returns 64 bytes.
+def _sub_bytes(msg: bytes) -> bytes:
+	newmsg = bytearray()
 	for b in msg:
 		newmsg.append(_SBOX[b])
-	return tuple(newmsg)
+	return newmsg
 
 
-# 'msg' is a 64-byte tuple. Returns a 64-byte tuple.
-def _shift_columns(msg: Tuple[int,...]) -> Tuple[int,...]:
-	newmsg = [0] * 64  # Dummy initial values, all will be overwritten
+# 'msg' is 64 bytes. Returns 64 bytes.
+def _shift_columns(msg: bytes) -> bytes:
+	newmsg = bytearray([0] * 64)  # Dummy initial values, all will be overwritten
 	for col in range(8):
 		for row in range(8):
 			newmsg[(row + col) % 8 * 8 + col] = msg[row * 8 + col]
-	return tuple(newmsg)
+	return newmsg
 
 
-# 'msg' is a 64-byte tuple. Returns a 64-byte tuple.
-def _mix_rows(msg: Tuple[int,...]) -> Tuple[int,...]:
-	newmsg = [0] * 64  # Dummy initial values, all will be overwritten
+# 'msg' is 64 bytes. Returns 64 bytes.
+def _mix_rows(msg: bytes) -> bytes:
+	newmsg = bytearray([0] * 64)  # Dummy initial values, all will be overwritten
 	for row in range(8):
 		for col in range(8):
 			val = 0
 			for i in range(8):
 				val ^= _multiply(msg[row * 8 + (col + i) % 8], _MULTIPLIERS[i])
 			newmsg[row * 8 + col] = val
-	return tuple(newmsg)
+	return newmsg
 
 
-# 'msg' and 'key' are 64-byte tuples. Returns a 64-byte tuple.
-def _add_round_key(msg: Tuple[int,...], key: Tuple[int,...]) -> Tuple[int,...]:
-	result = []
+# 'msg' and 'key' are 64 bytes. Returns 64 bytes.
+def _add_round_key(msg: bytes, key: bytes) -> bytes:
+	result = bytearray()
 	for (x, y) in zip(msg, key):
 		result.append(x ^ y)
-	return tuple(result)
+	return result
 
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
@@ -156,7 +156,7 @@ _NUM_ROUNDS: int = 10
 
 _MULTIPLIERS: List[int] = [0x01, 0x09, 0x02, 0x05, 0x08, 0x01, 0x04, 0x01]
 
-_SBOX: List[int] = []  # A permutation of the 256 byte values, from 0x00 to 0xFF
+_SBOX = bytearray()  # A permutation of the 256 byte values, from 0x00 to 0xFF
 def _init_sbox():
 	E = [0x1, 0xB, 0x9, 0xC, 0xD, 0x6, 0xF, 0x3, 0xE, 0x8, 0x7, 0x4, 0xA, 0x2, 0x5, 0x0]  # The E mini-box
 	R = [0x7, 0xC, 0xB, 0xD, 0xE, 0x4, 0x9, 0xF, 0x6, 0x3, 0x8, 0xA, 0x2, 0x5, 0x1, 0x0]  # The R mini-box
@@ -170,10 +170,10 @@ def _init_sbox():
 		_SBOX.append(E[left ^ temp] << 4 | EINV[right ^ temp])
 _init_sbox()
 
-_ROUND_CONSTANTS: List[Tuple[int,...]] = []  # Each element of this list is a tuple of 64 bytes
+_ROUND_CONSTANTS: List[bytes] = []  # Each element of this list is 64 bytes
 def _init_round_constants():
 	for i in range(_NUM_ROUNDS):
 		# Each round constant takes the next 8 bytes from the S-box, and appends 56 zeros to fill the 64-byte block
-		rcon = _SBOX[i * 8 : (i + 1) * 8] + [0] * 56
-		_ROUND_CONSTANTS.append(tuple(rcon))
+		rcon = _SBOX[i * 8 : (i + 1) * 8] + bytes([0] * 56)
+		_ROUND_CONSTANTS.append(rcon)
 _init_round_constants()

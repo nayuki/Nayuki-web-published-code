@@ -42,7 +42,7 @@ def encrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 	
 	# Perform special first round
 	i = 0
-	newblock = tuple(block)
+	newblock = bytes(block)
 	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	i += 1
@@ -77,11 +77,11 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 	if printdebug:  print(f"aescipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Compute key schedule from key
-	keyschedule = list(reversed(_expand_key_schedule(key)))
+	keyschedule = tuple(reversed(_expand_key_schedule(key)))
 	
 	# Perform special first round
 	i = 0
-	newblock = tuple(block)
+	newblock = bytes(block)
 	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(newblock))}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	newblock = _shift_rows(newblock, -1)
@@ -108,12 +108,12 @@ def decrypt(block: List[int], key: List[int], printdebug: bool = False) -> List[
 
 # ---- Private functions ----
 
-# Given a 16/24/32-element bytelist, this computes and returns a tuple containing 11/13/15 tuples of 16 bytes each.
-def _expand_key_schedule(key: List[int]) -> Tuple[Tuple[int,...],...]:
+# Given 16/24/32 bytes, this computes and returns a tuple containing 11/13/15 tuples of 16 bytes each.
+def _expand_key_schedule(key: List[int]) -> Tuple[bytes,...]:
 	# Initialize key schedule with the verbatim key
 	nk = len(key) // 4  # Number of 32-bit words in original key
 	assert nk in (4, 6, 8)
-	schedule = list(key)
+	schedule = bytearray(key)
 	
 	# Extend the key schedule by blending previous values
 	numrounds = nk + 6
@@ -136,50 +136,50 @@ def _expand_key_schedule(key: List[int]) -> Tuple[Tuple[int,...],...]:
 	# Split up the schedule into chunks of 16-byte subkeys
 	result = []
 	for i in range(0, len(schedule), 16):
-		result.append(tuple(schedule[i : i + 16]))
+		result.append(schedule[i : i + 16])
 	
 	# Return the list of subkeys as a tuple
 	return tuple(result)
 
 
-# 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
-def _sub_bytes(msg: Tuple[int,...], sbox: List[int]) -> Tuple[int,...]:
+# 'msg' is 16 bytes. Returns 16 bytes.
+def _sub_bytes(msg: bytes, sbox: bytes) -> bytes:
 	assert len(sbox) == 256
-	newmsg = []
+	newmsg = bytearray()
 	for b in msg:
 		newmsg.append(sbox[b])
-	return tuple(newmsg)
+	return newmsg
 
 
-# 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
-def _shift_rows(msg: Tuple[int,...], direction: int) -> Tuple[int,...]:
+# 'msg' is 16 bytes. Returns 16 bytes.
+def _shift_rows(msg: bytes, direction: int) -> bytes:
 	assert direction in (-1, 1)
-	newmsg = [0] * 16  # Dummy initial values, all will be overwritten
+	newmsg = bytearray([0] * 16)  # Dummy initial values, all will be overwritten
 	for row in range(4):
 		for col in range(4):
 			newmsg[col * 4 + row] = msg[(col + row * direction) % 4 * 4 + row]
-	return tuple(newmsg)
+	return newmsg
 
 
-# 'msg' is a 16-byte tuple. Returns a 16-byte tuple.
-def _mix_columns(msg: Tuple[int,...], multipliers: List[int]) -> Tuple[int,...]:
+# 'msg' is 16 bytes. Returns 16 bytes.
+def _mix_columns(msg: bytes, multipliers: List[int]) -> bytes:
 	assert len(multipliers) == 4
-	newmsg = [0] * 16  # Dummy initial values, all will be overwritten
+	newmsg = bytearray([0] * 16)  # Dummy initial values, all will be overwritten
 	for col in range(4):
 		for row in range(4):
 			val = 0
 			for i in range(4):
 				val ^= _multiply(msg[col * 4 + (row + i) % 4], multipliers[i])
 			newmsg[col * 4 + row] = val
-	return tuple(newmsg)
+	return newmsg
 
 
-# 'msg' and 'key' are 16-byte tuples. Returns a 16-byte tuple.
-def _add_round_key(msg: Tuple[int,...], key: Tuple[int,...]) -> Tuple[int,...]:
-	result = []
+# 'msg' and 'key' are 16 bytes. Returns 16 bytes.
+def _add_round_key(msg: bytes, key: bytes) -> bytes:
+	result = bytearray()
 	for (x, y) in zip(msg, key):
 		result.append(x ^ y)
-	return tuple(result)
+	return result
 
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
@@ -222,8 +222,8 @@ _MULTIPLIERS_FORWARD: List[int] = [0x02, 0x03, 0x01, 0x01]
 _MULTIPLIERS_INVERSE: List[int] = [0x0E, 0x0B, 0x0D, 0x09]
 
 # For _sub_bytes()
-_SBOX_FORWARD: List[int] = []  # A permutation of the 256 byte values, from 0x00 to 0xFF
-_SBOX_INVERSE: List[int] = [0] * 256  # Also a permutation
+_SBOX_FORWARD = bytearray()  # A permutation of the 256 byte values, from 0x00 to 0xFF
+_SBOX_INVERSE = bytearray([0] * 256)  # Also a permutation
 def _init_sbox() -> None:
 	for i in range(256):
 		j = _reciprocal(i)

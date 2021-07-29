@@ -52,7 +52,7 @@ def hash512(message: List[int], printdebug: bool = False) -> List[int]:
 # Computes the hash of the given bytelist message, returning a new (outbitlen/8)-element bytelist.
 def _hash(message: List[int], outbitlen: int, printdebug: bool) -> List[int]:
 	# Make a shallow copy of the list to prevent modifying the caller's list object
-	msg = list(message)
+	msg = bytearray(message)
 	blocksize = 200 - outbitlen // 4
 	if printdebug:  print(f"sha3.hash{outbitlen}(message = {len(message)} bytes)")
 	
@@ -86,7 +86,7 @@ def _hash(message: List[int], outbitlen: int, printdebug: bool) -> List[int]:
 
 
 # All elements of block must be uint8. State is a mutable 5*5 matrix of uint64.
-def _compress(block: List[int], state: List[List[int]], printdebug: bool) -> None:
+def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 	# Alias shorter names for readability
 	rotl64 = cryptocommon.rotate_left_uint64
 	sz = _MATRIX_SIZE
