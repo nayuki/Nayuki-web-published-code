@@ -1,7 +1,7 @@
 # 
 # The MD2 hash function. It is described in RFC 1319.
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@ def hash(message, printdebug=False):
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	assert isinstance(message, list)
 	msg = list(message)
-	if printdebug: print(f"md2.hash(message = {len(message)} bytes)")
+	if printdebug:  print(f"md2.hash(message = {len(message)} bytes)")
 	
 	# Append the termination padding
 	padlen = _BLOCK_SIZE - (len(msg) % _BLOCK_SIZE)
@@ -45,15 +45,15 @@ def hash(message, printdebug=False):
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
 		block = tuple(msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE])
-		if printdebug: print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
+		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state, checksum = _compress(block, state, checksum, printdebug)
 	
 	# Compress the checksum as the final block
-	if printdebug: print(f"    Final block = {cryptocommon.bytelist_to_debugstr(list(checksum))}")
+	if printdebug:  print(f"    Final block = {cryptocommon.bytelist_to_debugstr(list(checksum))}")
 	state, checksum = _compress(checksum, state, checksum, printdebug)
 	
 	# Return a prefix of the final state as a bytelist
-	if printdebug: print()
+	if printdebug:  print()
 	return list(state[ : 16])
 
 

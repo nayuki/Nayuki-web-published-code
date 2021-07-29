@@ -1,7 +1,7 @@
 # 
 # The IDEA (International Data Encryption Algorithm) block cipher.
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,7 +45,7 @@ def _crypt(block, key, direction, printdebug):
 	assert isinstance(block, list) and len(block) == 8
 	assert isinstance(key, list) and len(key) == 16
 	assert direction in ("encrypt", "decrypt")
-	if printdebug: print(f"ideacipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
+	if printdebug:  print(f"ideacipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Compute and handle the key schedule
 	keyschedule = _expand_key_schedule(key)
@@ -60,7 +60,7 @@ def _crypt(block, key, direction, printdebug):
 	
 	# Perform 8 rounds of encryption/decryption
 	for i in range(_NUM_ROUNDS):
-		if printdebug: print(f"    Round {i}: block = [{w:04X} {x:04X} {y:04X} {z:04X}]")
+		if printdebug:  print(f"    Round {i}: block = [{w:04X} {x:04X} {y:04X} {z:04X}]")
 		j = i * 6
 		w = _multiply(w, keyschedule[j + 0])
 		x = _add(x, keyschedule[j + 1])
@@ -76,7 +76,7 @@ def _crypt(block, key, direction, printdebug):
 		x, y = y, x
 	
 	# Perform final half-round
-	if printdebug: print(f"    Round {_NUM_ROUNDS}: block = [{w:04X} {x:04X} {y:04X} {z:04X}]")
+	if printdebug:  print(f"    Round {_NUM_ROUNDS}: block = [{w:04X} {x:04X} {y:04X} {z:04X}]")
 	x, y = y, x
 	w = _multiply(w, keyschedule[-4])
 	x = _add(x, keyschedule[-3])

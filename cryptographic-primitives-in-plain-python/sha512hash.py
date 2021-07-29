@@ -1,7 +1,7 @@
 # 
 # The SHA-512 hash function. It is described in FIPS Publication 180.
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@ def hash(message, printdebug=False):
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	assert isinstance(message, list)
 	msg = list(message)
-	if printdebug: print(f"sha512.hash(message = {len(message)} bytes)")
+	if printdebug:  print(f"sha512.hash(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
 	msg.append(0x80)
@@ -53,7 +53,7 @@ def hash(message, printdebug=False):
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
 		block = tuple(msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE])
-		if printdebug: print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
+		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
 	# Serialize the final state as a bytelist in big endian
@@ -61,7 +61,7 @@ def hash(message, printdebug=False):
 	for x in state:
 		for i in reversed(range(8)):
 			result.append(int((x >> (i * 8)) & 0xFF))
-	if printdebug: print()
+	if printdebug:  print()
 	return result
 
 
@@ -98,7 +98,7 @@ def _compress(block, state, printdebug):
 	# Perform 80 rounds of hashing
 	for i in range(len(schedule)):
 		# Perform the round calculation
-		if printdebug: print(f"        Round {i:2d}: a={a:016X}, b={b:016X}, c={c:016X}, d={d:016X}, e={e:016X}, f={f:016X}, g={g:016X}, h={h:016X}")
+		if printdebug:  print(f"        Round {i:2d}: a={a:016X}, b={b:016X}, c={c:016X}, d={d:016X}, e={e:016X}, f={f:016X}, g={g:016X}, h={h:016X}")
 		bigsigma0 = rotr64(a, 28) ^ rotr64(a, 34) ^ rotr64(a, 39)
 		bigsigma1 = rotr64(e, 14) ^ rotr64(e, 18) ^ rotr64(e, 41)
 		choose = (e & f) ^ (~e & g)

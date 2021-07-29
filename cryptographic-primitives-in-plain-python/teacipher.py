@@ -1,7 +1,7 @@
 # 
 # The TEA (Tiny Encryption Algorithm) block cipher.
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,7 +32,7 @@ def encrypt(block, key, printdebug=False):
 	# Check input arguments
 	assert isinstance(block, list) and len(block) == 8
 	assert isinstance(key, list) and len(key) == 16
-	if printdebug: print(f"teacipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
+	if printdebug:  print(f"teacipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Pack key and block bytes into lists of uint32 in big endian
 	k = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
@@ -41,7 +41,7 @@ def encrypt(block, key, printdebug=False):
 	# Perform 64 rounds of encryption
 	rcon = 0
 	for i in range(_NUM_CYCLES):
-		if printdebug: print(f"    Round {i:2d}: block = [{m[0]:08X} {m[1]:08X}]")
+		if printdebug:  print(f"    Round {i:2d}: block = [{m[0]:08X} {m[1]:08X}]")
 		rcon = (rcon + _ROUND_CONSTANT) & cryptocommon.UINT32_MASK
 		m[0] += ((m[1] << 4) + k[0]) ^ (m[1] + rcon) ^ ((m[1] >> 5) + k[1])
 		m[0] &= cryptocommon.UINT32_MASK
@@ -55,7 +55,7 @@ def encrypt(block, key, printdebug=False):
 		result.append(int((x >> 16) & 0xFF))
 		result.append(int((x >>  8) & 0xFF))
 		result.append(int((x >>  0) & 0xFF))
-	if printdebug: print()
+	if printdebug:  print()
 	return result
 
 
@@ -65,7 +65,7 @@ def decrypt(block, key, printdebug=False):
 	# Check input arguments
 	assert isinstance(block, list) and len(block) == 8
 	assert isinstance(key, list) and len(key) == 16
-	if printdebug: print(f"teacipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
+	if printdebug:  print(f"teacipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Pack key and block bytes into lists of uint32 in big endian
 	k = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
@@ -74,7 +74,7 @@ def decrypt(block, key, printdebug=False):
 	# Perform 64 rounds of decryption
 	rcon = (_ROUND_CONSTANT * _NUM_CYCLES) & cryptocommon.UINT32_MASK
 	for i in range(_NUM_CYCLES):
-		if printdebug: print(f"    Round {i:2d}: block = [{m[0]:08X} {m[1]:08X}]")
+		if printdebug:  print(f"    Round {i:2d}: block = [{m[0]:08X} {m[1]:08X}]")
 		m[1] -= ((m[0] << 4) + k[2]) ^ (m[0] + rcon) ^ ((m[0] >> 5) + k[3])
 		m[1] &= cryptocommon.UINT32_MASK
 		m[0] -= ((m[1] << 4) + k[0]) ^ (m[1] + rcon) ^ ((m[1] >> 5) + k[1])
@@ -88,7 +88,7 @@ def decrypt(block, key, printdebug=False):
 		result.append(int((x >> 16) & 0xFF))
 		result.append(int((x >>  8) & 0xFF))
 		result.append(int((x >>  0) & 0xFF))
-	if printdebug: print()
+	if printdebug:  print()
 	return result
 
 

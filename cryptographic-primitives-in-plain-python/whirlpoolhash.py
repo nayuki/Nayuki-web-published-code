@@ -1,7 +1,7 @@
 # 
 # The Whirlpool hash function.
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@ def hash(message, printdebug=False):
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	assert isinstance(message, list)
 	msg = list(message)
-	if printdebug: print(f"whirlpool.hash(message = {len(message)} bytes)")
+	if printdebug:  print(f"whirlpool.hash(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
 	msg.append(0x80)
@@ -52,11 +52,11 @@ def hash(message, printdebug=False):
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
 		block = tuple(msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE])
-		if printdebug: print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
+		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
 	# Return the final state as a bytelist
-	if printdebug: print()
+	if printdebug:  print()
 	return list(state)
 
 
@@ -73,11 +73,11 @@ def _compress(block, state, printdebug):
 	tempmsg = _add_round_key(block, state)
 	i = 0
 	for rcon in _ROUND_CONSTANTS:
-		if printdebug: print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(tempmsg))}")
+		if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(tempmsg))}")
 		tempkey = _compute_round(tempkey, rcon)  # Compute key schedule on the fly
 		tempmsg = _compute_round(tempmsg, tempkey)
 		i += 1
-	if printdebug: print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(tempmsg))}")
+	if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(list(tempmsg))}")
 	
 	# Combine data using the Miyaguchi-Preneel construction
 	newstate = []
