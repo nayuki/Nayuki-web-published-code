@@ -26,8 +26,9 @@ import cryptocommon
 
 # ---- Public functions ----
 
-# Computes the hash of the given bytelist message, returning a new 64-element bytelist.
 def hash(message, printdebug=False):
+	"""Computes the hash of the given bytelist message, returning a new 64-element bytelist."""
+	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	assert isinstance(message, list)
 	msg = list(message)

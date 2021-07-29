@@ -26,23 +26,23 @@ import cryptocommon
 
 # ---- Public functions ----
 
-# Computes the hash of the given bytelist message, returning a new 28-element bytelist.
 def hash224(message, printdebug=False):
+	"""Computes the hash of the given bytelist message, returning a new 28-element bytelist."""
 	return _hash(message, 224, printdebug)
 
 
-# Computes the hash of the given bytelist message, returning a new 32-element bytelist.
 def hash256(message, printdebug=False):
+	"""Computes the hash of the given bytelist message, returning a new 32-element bytelist."""
 	return _hash(message, 256, printdebug)
 
 
-# Computes the hash of the given bytelist message, returning a new 48-element bytelist.
 def hash384(message, printdebug=False):
+	"""Computes the hash of the given bytelist message, returning a new 48-element bytelist."""
 	return _hash(message, 384, printdebug)
 
 
-# Computes the hash of the given bytelist message, returning a new 64-element bytelist.
 def hash512(message, printdebug=False):
+	"""Computes the hash of the given bytelist message, returning a new 64-element bytelist."""
 	return _hash(message, 512, printdebug)
 
 

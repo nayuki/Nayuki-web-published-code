@@ -26,15 +26,15 @@ import cryptocommon
 
 # ---- Public functions ----
 
-# Computes the encryption of the given block (8-element bytelist) with
-# the given key (16-element bytelist), returning a new 8-element bytelist.
 def encrypt(block, key, printdebug=False):
+	"""Computes the encryption of the given block (8-element bytelist) with
+	the given key (16-element bytelist), returning a new 8-element bytelist."""
 	return _crypt(block, key, "encrypt", printdebug)
 
 
-# Computes the decryption of the given block (8-element bytelist) with
-# the given key (16-element bytelist), returning a new 8-element bytelist.
 def decrypt(block, key, printdebug=False):
+	"""Computes the decryption of the given block (8-element bytelist) with
+	the given key (16-element bytelist), returning a new 8-element bytelist."""
 	return _crypt(block, key, "decrypt", printdebug)
 
 

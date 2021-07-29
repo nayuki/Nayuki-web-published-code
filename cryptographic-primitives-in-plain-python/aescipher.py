@@ -27,9 +27,10 @@ import cryptocommon
 
 # ---- Public functions ----
 
-# Computes the encryption of the given block (16-element bytelist) with
-# the given key (16/24/32-element bytelist), returning a new 16-element bytelist.
 def encrypt(block, key, printdebug=False):
+	"""Computes the encryption of the given block (16-element bytelist) with
+	the given key (16/24/32-element bytelist), returning a new 16-element bytelist."""
+	
 	# Check input arguments
 	assert isinstance(block, list) and len(block) == 16
 	assert isinstance(key, list) and len(key) in (16, 24, 32)
@@ -65,9 +66,10 @@ def encrypt(block, key, printdebug=False):
 	return list(newblock)
 
 
-# Computes the decryption of the given block (16-element bytelist) with
-# the given key (16/24/32-element bytelist), returning a new 16-element bytelist.
 def decrypt(block, key, printdebug=False):
+	"""Computes the decryption of the given block (16-element bytelist) with
+	the given key (16/24/32-element bytelist), returning a new 16-element bytelist."""
+	
 	# Check input arguments
 	assert isinstance(block, list) and len(block) == 16
 	assert isinstance(key, list) and len(key) in (16, 24, 32)
