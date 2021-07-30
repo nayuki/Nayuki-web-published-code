@@ -23,6 +23,7 @@
 
 from typing import List, Sequence, Tuple, Union
 import cryptocommon
+from cryptocommon import UINT16_MASK
 
 
 # ---- Public functions ----
@@ -105,7 +106,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 	result: List[int] = []
 	for i in range(_NUM_ROUNDS * 6 + 4):
 		offset = (i * 16 + i // 8 * 25) % 128
-		val = (bigkey >> (128 - offset)) & 0xFFFF
+		val = (bigkey >> (128 - offset)) & UINT16_MASK
 		assert cryptocommon.is_uint16(val)
 		result.append(val)
 	assert len(result) == 52
@@ -147,7 +148,7 @@ def _invert_key_schedule(keysch: Tuple[int,...]) -> Tuple[int,...]:
 def _add(x: int, y: int) -> int:
 	assert cryptocommon.is_uint16(x)
 	assert cryptocommon.is_uint16(y)
-	return (x + y) & 0xFFFF
+	return (x + y) & UINT16_MASK
 
 
 # Returns x * y modulo (2^16 + 1), where 0x0000 is treated as 0x10000.
@@ -170,7 +171,7 @@ def _multiply(x: int, y: int) -> int:
 # Input and output are uint16. Only used by _invert_key_schedule().
 def _negate(x: int) -> int:
 	assert cryptocommon.is_uint16(x)
-	return (-x) & 0xFFFF
+	return (-x) & UINT16_MASK
 
 
 # Returns the multiplicative inverse of x modulo (2^16 + 1), where 0x0000 is

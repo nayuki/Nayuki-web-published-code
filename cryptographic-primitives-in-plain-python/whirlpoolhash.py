@@ -165,8 +165,8 @@ def _init_sbox():
 		_SBOX.append(E[left ^ temp] << 4 | EINV[right ^ temp])
 _init_sbox()
 
-# Each element of this list is 64 bytes. Each round constant takes the next
-# 8 bytes from the S-box, and appends 56 zeros to fill the 64-byte block.
+# Each element of this list is 64 bytes, which comprises
+# the next 8 bytes from the S-box followed by 56 zeros.
 _ROUND_CONSTANTS: List[bytes] = [
 	_SBOX[i * 8 : (i + 1) * 8] + bytes([0] * 56)
 	for i in range(_NUM_ROUNDS)]

@@ -77,12 +77,10 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 	
 	# Serialize a prefix of the final state as bytes in little endian
 	result = bytearray()
-	for i in range(outbitlen // 8):
-		j: int = i >> 3
-		x, y = j % _MATRIX_SIZE, j // _MATRIX_SIZE
-		result.append(int(state[x][y] >> ((i % 8) * 8)) & 0xFF)
-	if printdebug:  print()
-	return result
+	for y in range(_MATRIX_SIZE):
+		for x in range(_MATRIX_SIZE):
+			result.extend(state[x][y].to_bytes(8, "little"))
+	return result[ : outbitlen // 8]
 
 
 # All elements of block must be uint8. State is a mutable 5*5 matrix of uint64.

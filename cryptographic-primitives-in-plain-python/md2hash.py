@@ -36,6 +36,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	
 	# Append the termination padding
 	padlen: int = _BLOCK_SIZE - (len(msg) % _BLOCK_SIZE)
+	assert 1 <= padlen <= _BLOCK_SIZE
 	msg.extend([padlen] * padlen)
 	
 	# Initialize the hash state

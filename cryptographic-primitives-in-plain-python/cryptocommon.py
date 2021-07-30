@@ -26,8 +26,9 @@ from typing import List, Sequence, Union
 
 # ---- Low-level arithmetic functions and constants ----
 
-UINT32_MASK: int = (1 << 32) - 1  # 0xFFFF FFFF
-UINT64_MASK: int = (1 << 64) - 1  # 0xFFFF FFFF FFFF FFFF
+UINT16_MASK: int = (1 << 16) - 1  # 0xFFFF
+UINT32_MASK: int = (1 << 32) - 1  # 0xFFFF_FFFF
+UINT64_MASK: int = (1 << 64) - 1  # 0xFFFF_FFFF_FFFF_FFFF
 
 
 # Tests whether 'value' is an unsigned 8-bit integer.
