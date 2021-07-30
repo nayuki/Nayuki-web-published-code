@@ -57,11 +57,8 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 		state = _compress(block, state, printdebug)
 	
 	# Serialize the final state as bytes in little endian
-	result = bytearray()
-	for x in state:
-		result.extend(x.to_bytes(4, "little"))
 	if printdebug:  print()
-	return result
+	return b"".join(x.to_bytes(4, "little") for x in state)
 
 
 # ---- Private functions ----
@@ -73,9 +70,8 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> 
 	assert len(state) == 4
 	
 	# Pack block bytes into schedule as uint32 in little endian
-	schedule: List[int] = []
-	for i in range(0, len(block), 4):
-		schedule.append(int.from_bytes(block[i : i + 4], "little"))
+	schedule: List[int] = [int.from_bytes(block[i : i + 4], "little")
+		for i in range(0, len(block), 4)]
 	
 	# Unpack state into variables; each one is a uint32
 	a, b, c, d = state

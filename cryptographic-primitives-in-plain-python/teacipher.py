@@ -52,11 +52,8 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 		m[1] &= UINT32_MASK
 	
 	# Serialize the final block as bytes in big endian
-	result = bytearray()
-	for x in m:
-		result.extend(x.to_bytes(4, "big"))
 	if printdebug:  print()
-	return result
+	return b"".join(x.to_bytes(4, "big") for x in m)
 
 
 def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
@@ -83,11 +80,8 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 		rcon = (rcon - _ROUND_CONSTANT) & UINT32_MASK
 	
 	# Serialize the final block as bytes in big endian
-	result = bytearray()
-	for x in m:
-		result.extend(x.to_bytes(4, "big"))
 	if printdebug:  print()
-	return result
+	return b"".join(x.to_bytes(4, "big") for x in m)
 
 
 # ---- Private functions ----
@@ -95,10 +89,8 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 # For example: _bytes_to_uint32_list_big_endian([0xFF, 0x00, 0xAB, 0xCD, 0x27, 0x18, 0x28, 0x44]) -> [0xFF00ABCD, 0x27182844].
 def _bytes_to_uint32_list_big_endian(bytelist: Union[bytes,Sequence[int]]) -> List[int]:
 	assert len(bytelist) % 4 == 0
-	result: List[int] = []
-	for i in range(0, len(bytelist), 4):
-		result.append(int.from_bytes(bytelist[i : i + 4], "big"))
-	return result
+	return [int.from_bytes(bytelist[i : i + 4], "big")
+		for i in range(0, len(bytelist), 4)]
 
 
 # ---- Numerical constants/tables ----

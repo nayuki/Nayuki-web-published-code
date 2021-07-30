@@ -80,10 +80,7 @@ def _compress(block: bytes, state: bytes, printdebug: bool) -> bytes:
 	if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(tempmsg)}")
 	
 	# Combine data using the Miyaguchi-Preneel construction
-	newstate = bytearray()
-	for (x, y, z) in zip(state, block, tempmsg):
-		newstate.append(x ^ y ^ z)
-	return newstate
+	return bytes((x ^ y ^ z) for (x, y, z) in zip(state, block, tempmsg))
 
 
 # 'msg' and 'key' are 64 bytes. Returns 64 bytes.
@@ -97,10 +94,7 @@ def _compute_round(msg: bytes, key: bytes) -> bytes:
 
 # 'msg' is 64 bytes. Returns 64 bytes.
 def _sub_bytes(msg: bytes) -> bytes:
-	newmsg = bytearray()
-	for b in msg:
-		newmsg.append(_SBOX[b])
-	return newmsg
+	return bytes(_SBOX[b] for b in msg)
 
 
 # 'msg' is 64 bytes. Returns 64 bytes.
@@ -126,10 +120,7 @@ def _mix_rows(msg: bytes) -> bytes:
 
 # 'msg' and 'key' are 64 bytes. Returns 64 bytes.
 def _add_round_key(msg: bytes, key: bytes) -> bytes:
-	result = bytearray()
-	for (x, y) in zip(msg, key):
-		result.append(x ^ y)
-	return result
+	return bytes((x ^ y) for (x, y) in zip(msg, key))
 
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
@@ -169,10 +160,8 @@ def _init_sbox():
 		_SBOX.append(E[left ^ temp] << 4 | EINV[right ^ temp])
 _init_sbox()
 
-_ROUND_CONSTANTS: List[bytes] = []  # Each element of this list is 64 bytes
-def _init_round_constants():
-	for i in range(_NUM_ROUNDS):
-		# Each round constant takes the next 8 bytes from the S-box, and appends 56 zeros to fill the 64-byte block
-		rcon: bytes = _SBOX[i * 8 : (i + 1) * 8] + bytes([0] * 56)
-		_ROUND_CONSTANTS.append(rcon)
-_init_round_constants()
+# Each element of this list is 64 bytes. Each round constant takes the next
+# 8 bytes from the S-box, and appends 56 zeros to fill the 64-byte block.
+_ROUND_CONSTANTS: List[bytes] = [
+	_SBOX[i * 8 : (i + 1) * 8] + bytes([0] * 56)
+	for i in range(_NUM_ROUNDS)]

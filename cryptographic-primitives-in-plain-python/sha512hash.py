@@ -58,11 +58,8 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 		state = _compress(block, state, printdebug)
 	
 	# Serialize the final state as bytes in big endian
-	result = bytearray()
-	for x in state:
-		result.extend(x.to_bytes(8, "big"))
 	if printdebug:  print()
-	return result
+	return b"".join(x.to_bytes(8, "big") for x in state)
 
 
 # ---- Private functions ----
@@ -77,9 +74,8 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 	rotr64: Callable[[int,int],int] = cryptocommon.rotate_right_uint64
 	
 	# Pack block bytes into first part of schedule as uint64 in big endian
-	schedule: List[int] = []
-	for i in range(0, len(block), 8):
-		schedule.append(int.from_bytes(block[i : i + 8], "big"))
+	schedule: List[int] = [int.from_bytes(block[i : i + 8], "big")
+		for i in range(0, len(block), 8)]
 	
 	# Extend the message schedule by blending previous values
 	for i in range(len(schedule), len(_ROUND_CONSTANTS)):

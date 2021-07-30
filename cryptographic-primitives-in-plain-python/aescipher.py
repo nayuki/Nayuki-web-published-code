@@ -134,21 +134,14 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
 		schedule.append(val)
 	
 	# Split up the schedule into chunks of 16-byte subkeys
-	result: List[bytes] = []
-	for i in range(0, len(schedule), 16):
-		result.append(schedule[i : i + 16])
-	
-	# Return the list of subkeys as a tuple
-	return tuple(result)
+	return tuple(schedule[i : i + 16]
+		for i in range(0, len(schedule), 16))
 
 
 # 'msg' is 16 bytes. Returns 16 bytes.
 def _sub_bytes(msg: bytes, sbox: bytes) -> bytes:
 	assert len(sbox) == 256
-	newmsg = bytearray()
-	for b in msg:
-		newmsg.append(sbox[b])
-	return newmsg
+	return bytes(sbox[b] for b in msg)
 
 
 # 'msg' is 16 bytes. Returns 16 bytes.
@@ -176,10 +169,7 @@ def _mix_columns(msg: bytes, multipliers: List[int]) -> bytes:
 
 # 'msg' and 'key' are 16 bytes. Returns 16 bytes.
 def _add_round_key(msg: bytes, key: bytes) -> bytes:
-	result = bytearray()
-	for (x, y) in zip(msg, key):
-		result.append(x ^ y)
-	return result
+	return bytes((x ^ y) for (x, y) in zip(msg, key))
 
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
