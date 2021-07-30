@@ -77,8 +77,8 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int], printdebug: bool)
 		for i in range(0, len(block), 4)]
 	
 	# Extend the message schedule by blending previous values
-	for i in range(len(schedule), 80):
-		temp: int = schedule[i - 3] ^ schedule[i - 8] ^ schedule[i - 14] ^ schedule[i - 16]
+	for _ in range(len(schedule), 80):
+		temp: int = schedule[-3] ^ schedule[-8] ^ schedule[-14] ^ schedule[-16]
 		schedule.append(rotl32(temp, 1))
 	
 	# Unpack state into variables; each one is a uint32
