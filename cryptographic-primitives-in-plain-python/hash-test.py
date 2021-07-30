@@ -24,7 +24,7 @@
 
 import hashlib, random, unittest
 from cryptocommon import asciistr_to_bytelist, hexstr_to_bytelist
-from typing import Callable, List, Tuple, Union
+from typing import Any, Callable, List, Tuple, Union
 
 
 # ---- Test suite functions ----
@@ -180,7 +180,7 @@ class HashTest(unittest.TestCase):
 			num_test_cases += 1
 	
 	
-	def _check_vs_stdlib(self, ourfunc: Callable[[bytes],bytes], stdfunc: Callable[[bytes],hashlib._Hash]):
+	def _check_vs_stdlib(self, ourfunc: Callable[[bytes],bytes], stdfunc: Callable[[bytes],Any]):
 		global num_test_cases
 		trials = 1000
 		for _ in range(trials):

@@ -66,7 +66,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 # ---- Private functions ----
 
 # Requirement: All elements of block and state must be uint32.
-def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: int) -> Tuple[int,int,int,int]:
+def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> Tuple[int,int,int,int]:
 	# Check argument lengths
 	assert len(block) == _BLOCK_SIZE
 	assert len(state) == 4
