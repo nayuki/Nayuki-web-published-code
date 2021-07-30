@@ -88,7 +88,6 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 # All elements of block must be uint8. State is a mutable 5*5 matrix of uint64.
 def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 	# Alias shorter names for readability
-	rotl64: Callable[[int,int],int] = cryptocommon.rotate_left_uint64
 	sz: int = _MATRIX_SIZE
 	
 	# Check argument lengths
@@ -122,14 +121,14 @@ def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 		for x in range(sz):
 			for y in range(sz):
 				c[x] ^= a[x][y]
-		d: List[int] = [(c[(x - 1) % sz] ^ rotl64(c[(x + 1) % sz], 1))
+		d: List[int] = [(c[(x - 1) % sz] ^ cryptocommon.rotate_left_uint64(c[(x + 1) % sz], 1))
 			for x in range(sz)]
 		for x in range(sz):
 			for y in range(sz):
 				a[x][y] ^= d[x]
 		
 		# Rho step
-		e: List[List[int]] = [[rotl64(a[x][y], _ROTATION[x][y])
+		e: List[List[int]] = [[cryptocommon.rotate_left_uint64(a[x][y], _ROTATION[x][y])
 			for y in range(sz)] for x in range(sz)]
 		
 		# Pi step

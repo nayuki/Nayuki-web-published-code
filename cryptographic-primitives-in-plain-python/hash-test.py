@@ -24,7 +24,7 @@
 
 import hashlib, random, unittest
 from typing import Any, Callable, List, Tuple, Union
-from cryptocommon import asciistr_to_bytelist, hexstr_to_bytelist
+import cryptocommon
 
 
 # ---- Test suite functions ----
@@ -172,9 +172,9 @@ class HashTest(unittest.TestCase):
 		global num_test_cases
 		
 		for (expecthash, messagestr) in cases:
-			msgbytelist: bytes = asciistr_to_bytelist(messagestr)
+			msgbytelist: bytes = cryptocommon.asciistr_to_bytelist(messagestr)
 			actualhashbytelist: bytes = func(msgbytelist)
-			expectedhashbytelist: bytes = hexstr_to_bytelist(expecthash)
+			expectedhashbytelist: bytes = cryptocommon.hexstr_to_bytelist(expecthash)
 			
 			self.assertEqual(actualhashbytelist, expectedhashbytelist)
 			num_test_cases += 1

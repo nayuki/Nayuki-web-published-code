@@ -24,7 +24,7 @@
 
 import unittest
 from typing import Callable, List, Sequence, Tuple, Union
-from cryptocommon import hexstr_to_bytelist
+import cryptocommon
 
 
 # ---- Test suite functions ----
@@ -629,10 +629,10 @@ class CipherTest(unittest.TestCase):
 		global num_test_cases
 		
 		for (plaintexthex, keyhex, expectedciphertexthex) in cases:
-			keybytelist: bytes = hexstr_to_bytelist(keyhex)
-			plaintextbytelist: bytes = hexstr_to_bytelist(plaintexthex)
+			keybytelist: bytes = cryptocommon.hexstr_to_bytelist(keyhex)
+			plaintextbytelist: bytes = cryptocommon.hexstr_to_bytelist(plaintexthex)
 			actualciphertextbytelist: bytes = encfunc(plaintextbytelist, keybytelist)
-			expectedciphertextbytelist: bytes = hexstr_to_bytelist(expectedciphertexthex)
+			expectedciphertextbytelist: bytes = cryptocommon.hexstr_to_bytelist(expectedciphertexthex)
 			decryptedbytelist: bytes = decfunc(actualciphertextbytelist, keybytelist)
 			
 			self.assertEqual(actualciphertextbytelist, expectedciphertextbytelist)
