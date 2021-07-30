@@ -62,11 +62,9 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 
 # ---- Private functions ----
 
-# Requirement: All elements of block and state must be uint8 (byte).
 def _compress(block: bytes, state: bytes, printdebug: bool) -> bytes:
 	# Check argument lengths
-	assert len(block) == _BLOCK_SIZE
-	assert len(state) == _BLOCK_SIZE
+	assert len(block) == len(state) == _BLOCK_SIZE
 	
 	# Perform 10 rounds of hashing
 	tempkey: bytes = state
@@ -83,31 +81,35 @@ def _compress(block: bytes, state: bytes, printdebug: bool) -> bytes:
 	return bytes((x ^ y ^ z) for (x, y, z) in zip(state, block, tempmsg))
 
 
-# 'msg' and 'key' are 64 bytes. Returns 64 bytes.
 def _compute_round(msg: bytes, key: bytes) -> bytes:
+	assert len(msg) == len(key) == _BLOCK_SIZE
 	msg = _sub_bytes(msg)
 	msg = _shift_columns(msg)
 	msg = _mix_rows(msg)
 	msg = _add_round_key(msg, key)
+	assert len(msg) == _BLOCK_SIZE
 	return msg
 
 
-# 'msg' is 64 bytes. Returns 64 bytes.
 def _sub_bytes(msg: bytes) -> bytes:
-	return bytes(_SBOX[b] for b in msg)
+	assert len(msg) == _BLOCK_SIZE
+	newmsg = bytes(_SBOX[b] for b in msg)
+	assert len(newmsg) == _BLOCK_SIZE
+	return newmsg
 
 
-# 'msg' is 64 bytes. Returns 64 bytes.
 def _shift_columns(msg: bytes) -> bytes:
+	assert len(msg) == _BLOCK_SIZE
 	newmsg = bytearray([0] * 64)  # Dummy initial values, all will be overwritten
 	for col in range(8):
 		for row in range(8):
 			newmsg[(row + col) % 8 * 8 + col] = msg[row * 8 + col]
+	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 
 
-# 'msg' is 64 bytes. Returns 64 bytes.
 def _mix_rows(msg: bytes) -> bytes:
+	assert len(msg) == _BLOCK_SIZE
 	newmsg = bytearray([0] * 64)  # Dummy initial values, all will be overwritten
 	for row in range(8):
 		for col in range(8):
@@ -115,12 +117,15 @@ def _mix_rows(msg: bytes) -> bytes:
 			for i in range(8):
 				val ^= _multiply(msg[row * 8 + (col + i) % 8], _MULTIPLIERS[i])
 			newmsg[row * 8 + col] = val
+	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 
 
-# 'msg' and 'key' are 64 bytes. Returns 64 bytes.
 def _add_round_key(msg: bytes, key: bytes) -> bytes:
-	return bytes((x ^ y) for (x, y) in zip(msg, key))
+	assert len(msg) == len(key) == _BLOCK_SIZE
+	newmsg = bytes((x ^ y) for (x, y) in zip(msg, key))
+	assert len(newmsg) == _BLOCK_SIZE
+	return newmsg
 
 
 # Performs finite field multiplication on the given two bytes, returning a byte.

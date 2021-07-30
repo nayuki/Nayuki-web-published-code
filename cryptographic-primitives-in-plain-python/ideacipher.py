@@ -91,8 +91,9 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	     + z.to_bytes(2, "big")
 
 
-# Given 16 bytes, this computes and returns a tuple containing 52 elements of uint16.
 def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
+	assert len(key) == 16
+	
 	# Pack all key bytes into a single uint128
 	bigkey: int = int.from_bytes(key, "big")
 	assert 0 <= bigkey < (1 << 128)
@@ -104,7 +105,10 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 	result: List[int] = []
 	for i in range(_NUM_ROUNDS * 6 + 4):
 		offset = (i * 16 + i // 8 * 25) % 128
-		result.append((bigkey >> (128 - offset)) & 0xFFFF)
+		val = (bigkey >> (128 - offset)) & 0xFFFF
+		assert cryptocommon.is_uint16(val)
+		result.append(val)
+	assert len(result) == 52
 	return tuple(result)
 
 
@@ -133,6 +137,7 @@ def _invert_key_schedule(keysch: Tuple[int,...]) -> Tuple[int,...]:
 	result.append(_negate(keysch[1]))
 	result.append(_negate(keysch[2]))
 	result.append(_reciprocal(keysch[3]))
+	assert len(result) == len(keysch)
 	return tuple(result)
 
 

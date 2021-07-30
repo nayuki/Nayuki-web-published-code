@@ -138,24 +138,27 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
 		for i in range(0, len(schedule), 16))
 
 
-# 'msg' is 16 bytes. Returns 16 bytes.
 def _sub_bytes(msg: bytes, sbox: bytes) -> bytes:
+	assert len(msg) == 16
 	assert len(sbox) == 256
-	return bytes(sbox[b] for b in msg)
+	newmsg = bytes(sbox[b] for b in msg)
+	assert len(newmsg) == 16
+	return newmsg
 
 
-# 'msg' is 16 bytes. Returns 16 bytes.
 def _shift_rows(msg: bytes, direction: int) -> bytes:
+	assert len(msg) == 16
 	assert direction in (-1, 1)
 	newmsg = bytearray([0] * 16)  # Dummy initial values, all will be overwritten
 	for row in range(4):
 		for col in range(4):
 			newmsg[col * 4 + row] = msg[(col + row * direction) % 4 * 4 + row]
+	assert len(newmsg) == 16
 	return newmsg
 
 
-# 'msg' is 16 bytes. Returns 16 bytes.
 def _mix_columns(msg: bytes, multipliers: List[int]) -> bytes:
+	assert len(msg) == 16
 	assert len(multipliers) == 4
 	newmsg = bytearray([0] * 16)  # Dummy initial values, all will be overwritten
 	for col in range(4):
@@ -164,12 +167,15 @@ def _mix_columns(msg: bytes, multipliers: List[int]) -> bytes:
 			for i in range(4):
 				val ^= _multiply(msg[col * 4 + (row + i) % 4], multipliers[i])
 			newmsg[col * 4 + row] = val
+	assert len(newmsg) == 16
 	return newmsg
 
 
-# 'msg' and 'key' are 16 bytes. Returns 16 bytes.
 def _add_round_key(msg: bytes, key: bytes) -> bytes:
-	return bytes((x ^ y) for (x, y) in zip(msg, key))
+	assert len(msg) == len(key) == 16
+	newmsg = bytes((x ^ y) for (x, y) in zip(msg, key))
+	assert len(newmsg) == 16
+	return newmsg
 
 
 # Performs finite field multiplication on the given two bytes, returning a byte.

@@ -82,8 +82,8 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	return m.to_bytes(8, "big")
 
 
-# Given a uint64 key, this computes and returns a tuple containing 16 elements of uint48.
 def _expand_key_schedule(key: int) -> Tuple[int,...]:
+	assert cryptocommon.is_uint64(key)
 	result: List[int] = []
 	left : int = _extract_bits(key, 64, _PERMUTED_CHOICE_1_LEFT )
 	right: int = _extract_bits(key, 64, _PERMUTED_CHOICE_1_RIGHT)
@@ -96,11 +96,13 @@ def _expand_key_schedule(key: int) -> Tuple[int,...]:
 		subkey: int = _extract_bits(packed, 56, _PERMUTED_CHOICE_2)
 		assert 0 <= subkey < (1 << 48)
 		result.append(subkey)
+	assert len(result) == 16
 	return tuple(result)
 
 
-# 'data' is uint32, 'subkey' is uint48, and result is uint32.
 def _feistel_function(data: int, subkey: int) -> int:
+	assert cryptocommon.is_uint32(data)
+	assert 0 <= subkey < (1 << 48)
 	a: int = _extract_bits(data, 32, _FEISTEL_EXPANSION)  # uint48
 	b: int = a ^ subkey     # uint48
 	c: int = _do_sboxes(b)  # uint32
@@ -109,7 +111,6 @@ def _feistel_function(data: int, subkey: int) -> int:
 	return d
 
 
-# 'data' is uint48, and result is uint32.
 def _do_sboxes(data: int) -> int:
 	assert 0 <= data < (1 << 48)
 	mask: int = (1 << 6) - 1
