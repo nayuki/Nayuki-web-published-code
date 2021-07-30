@@ -53,10 +53,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	# Serialize the final block as bytes in big endian
 	result = bytearray()
 	for x in m:
-		result.append(int((x >> 24) & 0xFF))
-		result.append(int((x >> 16) & 0xFF))
-		result.append(int((x >>  8) & 0xFF))
-		result.append(int((x >>  0) & 0xFF))
+		result.extend(x.to_bytes(4, "big"))
 	if printdebug:  print()
 	return result
 
@@ -87,10 +84,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	# Serialize the final block as bytes in big endian
 	result = bytearray()
 	for x in m:
-		result.append(int((x >> 24) & 0xFF))
-		result.append(int((x >> 16) & 0xFF))
-		result.append(int((x >>  8) & 0xFF))
-		result.append(int((x >>  0) & 0xFF))
+		result.extend(x.to_bytes(4, "big"))
 	if printdebug:  print()
 	return result
 
@@ -100,10 +94,9 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 # For example: _bytes_to_uint32_list_big_endian([0xFF, 0x00, 0xAB, 0xCD, 0x27, 0x18, 0x28, 0x44]) -> [0xFF00ABCD, 0x27182844].
 def _bytes_to_uint32_list_big_endian(bytelist: Union[bytes,Sequence[int]]) -> List[int]:
 	assert len(bytelist) % 4 == 0
-	result: List[int] = [0] * (len(bytelist) // 4)
-	for (i, b) in enumerate(bytelist):
-		assert cryptocommon.is_uint8(b)
-		result[i // 4] |= b << ((3 - (i % 4)) * 8)
+	result: List[int] = []
+	for i in range(0, len(bytelist), 4):
+		result.append(int.from_bytes(bytelist[i : i + 4], "big"))
 	return result
 
 

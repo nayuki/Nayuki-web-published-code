@@ -43,8 +43,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	
 	# Append the length of the original message in bits, as 32 bytes in big endian
 	bitlength: int = len(message) * 8
-	for i in reversed(range(32)):
-		msg.append((bitlength >> (i * 8)) & 0xFF)
+	msg.extend(bitlength.to_bytes(32, "big"))
 	
 	# Initialize the hash state
 	state = bytes([0] * _BLOCK_SIZE)

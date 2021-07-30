@@ -54,10 +54,10 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 		keyschedule = _invert_key_schedule(keyschedule)
 	
 	# Pack block bytes into variables as uint16 in big endian
-	w: int = block[0] << 8 | block[1]
-	x: int = block[2] << 8 | block[3]
-	y: int = block[4] << 8 | block[5]
-	z: int = block[6] << 8 | block[7]
+	w: int = int.from_bytes(block[0 : 2], "big")
+	x: int = int.from_bytes(block[2 : 4], "big")
+	y: int = int.from_bytes(block[4 : 6], "big")
+	z: int = int.from_bytes(block[6 : 8], "big")
 	
 	# Perform 8 rounds of encryption/decryption
 	for i in range(_NUM_ROUNDS):
@@ -85,20 +85,16 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	z = _multiply(z, keyschedule[-1])
 	
 	# Serialize the final block as bytes in big endian
-	return bytes([
-		w >> 8, w & 0xFF,
-		x >> 8, x & 0xFF,
-		y >> 8, y & 0xFF,
-		z >> 8, z & 0xFF])
+	return w.to_bytes(2, "big") \
+	     + x.to_bytes(2, "big") \
+	     + y.to_bytes(2, "big") \
+	     + z.to_bytes(2, "big")
 
 
 # Given 16 bytes, this computes and returns a tuple containing 52 elements of uint16.
 def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 	# Pack all key bytes into a single uint128
-	bigkey: int = 0
-	for b in key:
-		assert cryptocommon.is_uint8(b)
-		bigkey = (bigkey << 8) | b
+	bigkey: int = int.from_bytes(key, "big")
 	assert 0 <= bigkey < (1 << 128)
 	
 	# Append the 16-bit prefix onto the suffix to yield a uint144

@@ -43,8 +43,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	
 	# Append the length of the original message in bits, as 8 bytes in little endian
 	bitlength: int = len(message) * 8
-	for i in range(8):
-		msg.append((bitlength >> (i * 8)) & 0xFF)
+	msg.extend(bitlength.to_bytes(8, "little"))
 	
 	# Initialize the hash state
 	state: Tuple[int,int,int,int] = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476)
@@ -59,10 +58,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	# Serialize the final state as bytes in little endian
 	result = bytearray()
 	for x in state:
-		result.append(int((x >>  0) & 0xFF))
-		result.append(int((x >>  8) & 0xFF))
-		result.append(int((x >> 16) & 0xFF))
-		result.append(int((x >> 24) & 0xFF))
+		result.extend(x.to_bytes(4, "little"))
 	if printdebug:  print()
 	return result
 
@@ -76,10 +72,9 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: int) -> T
 	assert len(state) == 4
 	
 	# Pack block bytes into schedule as uint32 in little endian
-	schedule: List[int] = [0] * 16
-	for (i, b) in enumerate(block):
-		assert cryptocommon.is_uint8(b)
-		schedule[i // 4] |= b << ((i % 4) * 8)
+	schedule: List[int] = []
+	for i in range(0, len(block), 4):
+		schedule.append(int.from_bytes(block[i : i + 4], "little"))
 	
 	# Unpack state into variables; each one is a uint32
 	a, b, c, d = state

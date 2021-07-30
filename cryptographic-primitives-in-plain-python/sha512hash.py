@@ -43,8 +43,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	
 	# Append the length of the original message in bits, as 16 bytes in big endian
 	bitlength: int = len(message) * 8
-	for i in reversed(range(16)):
-		msg.append((bitlength >> (i * 8)) & 0xFF)
+	msg.extend(bitlength.to_bytes(16, "big"))
 	
 	# Initialize the hash state
 	state: Tuple[int,int,int,int,int,int,int,int] = (0x6A09E667F3BCC908, 0xBB67AE8584CAA73B, 0x3C6EF372FE94F82B, 0xA54FF53A5F1D36F1,
@@ -60,8 +59,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	# Serialize the final state as bytes in big endian
 	result = bytearray()
 	for x in state:
-		for i in reversed(range(8)):
-			result.append(int((x >> (i * 8)) & 0xFF))
+		result.extend(x.to_bytes(8, "big"))
 	if printdebug:  print()
 	return result
 
@@ -79,10 +77,9 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 	rotr64: Callable[[int,int],int] = cryptocommon.rotate_right_uint64
 	
 	# Pack block bytes into first part of schedule as uint64 in big endian
-	schedule: List[int] = [0] * 16
-	for (i, b) in enumerate(block):
-		assert cryptocommon.is_uint8(b)
-		schedule[i // 8] |= b << ((7 - (i % 8)) * 8)
+	schedule: List[int] = []
+	for i in range(0, len(block), 8):
+		schedule.append(int.from_bytes(block[i : i + 8], "big"))
 	
 	# Extend the message schedule by blending previous values
 	for i in range(len(schedule), len(_ROUND_CONSTANTS)):

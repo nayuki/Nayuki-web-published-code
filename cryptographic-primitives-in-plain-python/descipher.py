@@ -50,10 +50,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	if printdebug:  print(f"descipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
 	# Pack key bytes into uint64 in big endian
-	k: int = 0
-	for b in key:
-		assert cryptocommon.is_uint8(b)
-		k = (k << 8) | b
+	k: int = int.from_bytes(key, "big")
 	assert cryptocommon.is_uint64(k)
 	
 	# Compute and handle the key schedule
@@ -62,10 +59,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 		keyschedule = tuple(reversed(keyschedule))
 	
 	# Pack block bytes into uint64 in big endian
-	m: int = 0
-	for b in block:
-		assert cryptocommon.is_uint8(b)
-		m = (m << 8) | b
+	m: int = int.from_bytes(block, "big")
 	assert cryptocommon.is_uint64(m)
 	
 	# Do initial permutation on block and split into two uint32 words
@@ -85,10 +79,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	assert cryptocommon.is_uint64(m)
 	
 	# Serialize the new block as bytes in big endian
-	result = bytearray()
-	for i in reversed(range(8)):
-		result.append(int((m >> (i * 8)) & 0xFF))
-	return result
+	return m.to_bytes(8, "big")
 
 
 # Given a uint64 key, this computes and returns a tuple containing 16 elements of uint48.
