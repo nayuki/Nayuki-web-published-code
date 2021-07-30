@@ -102,7 +102,7 @@ def _bytes_to_uint32_list_big_endian(bytelist: Union[bytes,Sequence[int]]) -> Li
 	assert len(bytelist) % 4 == 0
 	result: List[int] = [0] * (len(bytelist) // 4)
 	for (i, b) in enumerate(bytelist):
-		assert 0 <= b <= 0xFF
+		assert cryptocommon.is_uint8(b)
 		result[i // 4] |= b << ((3 - (i % 4)) * 8)
 	return result
 

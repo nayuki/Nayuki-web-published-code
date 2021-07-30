@@ -184,8 +184,8 @@ def _add_round_key(msg: bytes, key: bytes) -> bytes:
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
 def _multiply(x: int, y: int) -> int:
-	assert 0 <= x <= 0xFF
-	assert 0 <= y <= 0xFF
+	assert cryptocommon.is_uint8(x)
+	assert cryptocommon.is_uint8(y)
 	z: int = 0
 	for i in reversed(range(8)):
 		z <<= 1
@@ -193,13 +193,13 @@ def _multiply(x: int, y: int) -> int:
 			z ^= 0x11B
 		if ((y >> i) & 1) != 0:
 			z ^= x
-	assert 0 <= z <= 0xFF
+	assert cryptocommon.is_uint8(z)
 	return z
 
 
 # Computes the multiplicative inverse of the given byte, returning a byte.
 def _reciprocal(x: int) -> int:
-	assert 0 <= x <= 0xFF
+	assert cryptocommon.is_uint8(x)
 	if x == 0:
 		return 0
 	for y in range(256):
@@ -210,7 +210,7 @@ def _reciprocal(x: int) -> int:
 
 # Rotates the given 8-bit integer left by the given number of bits.
 def _rotl8(value: int, amount: int) -> int:
-	assert 0 <= value <= 0xFF
+	assert cryptocommon.is_uint8(value)
 	assert 0 <= amount < 8
 	return ((value << amount) | (value >> (8 - amount))) & 0xFF
 
@@ -228,7 +228,7 @@ def _init_sbox() -> None:
 	for i in range(256):
 		j: int = _reciprocal(i)
 		j = j ^ _rotl8(j, 1) ^ _rotl8(j, 2) ^ _rotl8(j, 3) ^ _rotl8(j, 4) ^ 0x63
-		assert 0 <= j <= 0xFF
+		assert cryptocommon.is_uint8(j)
 		_SBOX_FORWARD.append(j)
 		_SBOX_INVERSE[j] = i
 _init_sbox()

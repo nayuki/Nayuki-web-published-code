@@ -81,7 +81,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 	# Pack block bytes into first part of schedule as uint64 in big endian
 	schedule: List[int] = [0] * 16
 	for (i, b) in enumerate(block):
-		assert 0 <= b <= 0xFF
+		assert cryptocommon.is_uint8(b)
 		schedule[i // 8] |= b << ((7 - (i % 8)) * 8)
 	
 	# Extend the message schedule by blending previous values

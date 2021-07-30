@@ -135,8 +135,8 @@ def _add_round_key(msg: bytes, key: bytes) -> bytes:
 
 # Performs finite field multiplication on the given two bytes, returning a byte.
 def _multiply(x: int, y: int) -> int:
-	assert 0 <= x <= 0xFF
-	assert 0 <= y <= 0xFF
+	assert cryptocommon.is_uint8(x)
+	assert cryptocommon.is_uint8(y)
 	z: int = 0
 	for i in reversed(range(8)):
 		z <<= 1
@@ -144,7 +144,7 @@ def _multiply(x: int, y: int) -> int:
 			z ^= 0x11D
 		if ((y >> i) & 1) != 0:
 			z ^= x
-	assert 0 <= z <= 0xFF
+	assert cryptocommon.is_uint8(z)
 	return z
 
 

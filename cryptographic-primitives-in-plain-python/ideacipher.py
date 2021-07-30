@@ -97,7 +97,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 	# Pack all key bytes into a single uint128
 	bigkey: int = 0
 	for b in key:
-		assert 0 <= b <= 0xFF
+		assert cryptocommon.is_uint8(b)
 		bigkey = (bigkey << 8) | b
 	assert 0 <= bigkey < (1 << 128)
 	
@@ -144,16 +144,16 @@ def _invert_key_schedule(keysch: Tuple[int,...]) -> Tuple[int,...]:
 
 # Returns x + y modulo 2^16. Inputs and output are uint16. Only used by _crypt().
 def _add(x: int, y: int) -> int:
-	assert 0 <= x <= 0xFFFF
-	assert 0 <= y <= 0xFFFF
+	assert cryptocommon.is_uint16(x)
+	assert cryptocommon.is_uint16(y)
 	return (x + y) & 0xFFFF
 
 
 # Returns x * y modulo (2^16 + 1), where 0x0000 is treated as 0x10000.
 # Inputs and output are uint16. Note that 2^16 + 1 is prime. Only used by _crypt().
 def _multiply(x: int, y: int) -> int:
-	assert 0 <= x <= 0xFFFF
-	assert 0 <= y <= 0xFFFF
+	assert cryptocommon.is_uint16(x)
+	assert cryptocommon.is_uint16(y)
 	if x == 0x0000:
 		x = 0x10000
 	if y == 0x0000:
@@ -161,21 +161,21 @@ def _multiply(x: int, y: int) -> int:
 	z: int = (x * y) % 0x10001
 	if z == 0x10000:
 		z = 0x0000
-	assert 0 <= z <= 0xFFFF
+	assert cryptocommon.is_uint16(z)
 	return z
 
 
 # Returns the additive inverse of x modulo 2^16.
 # Input and output are uint16. Only used by _invert_key_schedule().
 def _negate(x: int) -> int:
-	assert 0 <= x <= 0xFFFF
+	assert cryptocommon.is_uint16(x)
 	return (-x) & 0xFFFF
 
 
 # Returns the multiplicative inverse of x modulo (2^16 + 1), where 0x0000 is
 # treated as 0x10000. Input and output are uint16. Only used by _invert_key_schedule().
 def _reciprocal(x: int) -> int:
-	assert 0 <= x <= 0xFFFF
+	assert cryptocommon.is_uint16(x)
 	if x == 0:
 		return 0
 	else:

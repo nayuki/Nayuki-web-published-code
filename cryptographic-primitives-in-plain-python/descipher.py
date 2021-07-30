@@ -52,9 +52,9 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	# Pack key bytes into uint64 in big endian
 	k: int = 0
 	for b in key:
-		assert 0 <= b <= 0xFF
+		assert cryptocommon.is_uint8(b)
 		k = (k << 8) | b
-	assert 0 <= k < (1 << 64)
+	assert cryptocommon.is_uint64(k)
 	
 	# Compute and handle the key schedule
 	keyschedule: Tuple[int,...] = _expand_key_schedule(k)
@@ -64,9 +64,9 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	# Pack block bytes into uint64 in big endian
 	m: int = 0
 	for b in block:
-		assert 0 <= b <= 0xFF
+		assert cryptocommon.is_uint8(b)
 		m = (m << 8) | b
-	assert 0 <= m < (1 << 64)
+	assert cryptocommon.is_uint64(m)
 	
 	# Do initial permutation on block and split into two uint32 words
 	m = _extract_bits(m, 64, _INITIAL_PERMUTATION)
@@ -77,12 +77,12 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	for (i, subkey) in enumerate(keyschedule):
 		if printdebug:  print(f"    Round {i:2d}: block = [{left:08X} {right:08X}]")
 		left, right = right, (left ^ _feistel_function(right, subkey))
-		assert 0 <= right <= cryptocommon.UINT32_MASK
+		assert cryptocommon.is_uint32(right)
 	
 	# Merge the halves back into a uint64 and do final permutation on new block
 	m = right << 32 | left
 	m = _extract_bits(m, 64, _FINAL_PERMUTATION)
-	assert 0 <= m < (1 << 64)
+	assert cryptocommon.is_uint64(m)
 	
 	# Serialize the new block as bytes in big endian
 	result = bytearray()
@@ -114,7 +114,7 @@ def _feistel_function(data: int, subkey: int) -> int:
 	b: int = a ^ subkey     # uint48
 	c: int = _do_sboxes(b)  # uint32
 	d: int = _extract_bits(c, 32, _FEISTEL_PERMUTATION)   # uint32
-	assert 0 <= d <= cryptocommon.UINT32_MASK
+	assert cryptocommon.is_uint32(d)
 	return d
 
 
@@ -125,7 +125,7 @@ def _do_sboxes(data: int) -> int:
 	result: int = 0
 	for i in range(8):  # Topmost 6 bits use _SBOXES[0], next lower 6 bits use _SBOXES[1], ..., lowest 6 bits use _SBOXES[7].
 		result |= _SBOXES[7 - i][(data >> (i * 6)) & mask] << (i * 4)
-	assert 0 <= result <= cryptocommon.UINT32_MASK
+	assert cryptocommon.is_uint32(result)
 	return result
 
 
