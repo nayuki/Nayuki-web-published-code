@@ -23,8 +23,8 @@
 # 
 
 import hashlib, random, unittest
-from cryptocommon import asciistr_to_bytelist, hexstr_to_bytelist
 from typing import Any, Callable, List, Tuple, Union
+from cryptocommon import asciistr_to_bytelist, hexstr_to_bytelist
 
 
 # ---- Test suite functions ----

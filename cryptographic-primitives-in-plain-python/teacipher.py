@@ -21,8 +21,8 @@
 #   Software.
 # 
 
-import cryptocommon
 from typing import List, Sequence, Union
+import cryptocommon
 
 
 # ---- Public functions ----
