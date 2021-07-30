@@ -23,6 +23,7 @@
 
 from typing import Callable, List, Sequence, Tuple, Union
 import cryptocommon
+from cryptocommon import UINT32_MASK
 
 
 # ---- Public functions ----
@@ -72,7 +73,6 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int], printdebug: bool)
 	assert len(state) == 5
 	
 	# Alias shorter names for readability
-	mask32: int = cryptocommon.UINT32_MASK
 	rotl32: Callable[[int,int],int] = cryptocommon.rotate_left_uint32
 	
 	# Pack block bytes into first part of schedule as uint32 in big endian
@@ -100,7 +100,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int], printdebug: bool)
 		else:  raise AssertionError()
 		
 		# Perform the round calculation
-		temp = (rotl32(a, 5) + f + e + schedule[i] + _ROUND_CONSTANTS[j]) & mask32
+		temp = (rotl32(a, 5) + f + e + schedule[i] + _ROUND_CONSTANTS[j]) & UINT32_MASK
 		e = d
 		d = c
 		c = rotl32(b, 30)
@@ -109,11 +109,11 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int], printdebug: bool)
 	
 	# Return new state as a tuple
 	return (
-		(state[0] + a) & mask32,
-		(state[1] + b) & mask32,
-		(state[2] + c) & mask32,
-		(state[3] + d) & mask32,
-		(state[4] + e) & mask32)
+		(state[0] + a) & UINT32_MASK,
+		(state[1] + b) & UINT32_MASK,
+		(state[2] + c) & UINT32_MASK,
+		(state[3] + d) & UINT32_MASK,
+		(state[4] + e) & UINT32_MASK)
 
 
 # ---- Numerical constants/tables ----

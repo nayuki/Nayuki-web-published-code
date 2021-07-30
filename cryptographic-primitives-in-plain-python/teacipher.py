@@ -23,6 +23,7 @@
 
 from typing import List, Sequence, Union
 import cryptocommon
+from cryptocommon import UINT32_MASK
 
 
 # ---- Public functions ----
@@ -44,11 +45,11 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	rcon: int = 0
 	for i in range(_NUM_CYCLES):
 		if printdebug:  print(f"    Round {i:2d}: block = [{m[0]:08X} {m[1]:08X}]")
-		rcon = (rcon + _ROUND_CONSTANT) & cryptocommon.UINT32_MASK
+		rcon = (rcon + _ROUND_CONSTANT) & UINT32_MASK
 		m[0] += ((m[1] << 4) + k[0]) ^ (m[1] + rcon) ^ ((m[1] >> 5) + k[1])
-		m[0] &= cryptocommon.UINT32_MASK
+		m[0] &= UINT32_MASK
 		m[1] += ((m[0] << 4) + k[2]) ^ (m[0] + rcon) ^ ((m[0] >> 5) + k[3])
-		m[1] &= cryptocommon.UINT32_MASK
+		m[1] &= UINT32_MASK
 	
 	# Serialize the final block as bytes in big endian
 	result = bytearray()
@@ -72,14 +73,14 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	m: List[int] = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
 	
 	# Perform 64 rounds of decryption
-	rcon: int = (_ROUND_CONSTANT * _NUM_CYCLES) & cryptocommon.UINT32_MASK
+	rcon: int = (_ROUND_CONSTANT * _NUM_CYCLES) & UINT32_MASK
 	for i in range(_NUM_CYCLES):
 		if printdebug:  print(f"    Round {i:2d}: block = [{m[0]:08X} {m[1]:08X}]")
 		m[1] -= ((m[0] << 4) + k[2]) ^ (m[0] + rcon) ^ ((m[0] >> 5) + k[3])
-		m[1] &= cryptocommon.UINT32_MASK
+		m[1] &= UINT32_MASK
 		m[0] -= ((m[1] << 4) + k[0]) ^ (m[1] + rcon) ^ ((m[1] >> 5) + k[1])
-		m[0] &= cryptocommon.UINT32_MASK
-		rcon = (rcon - _ROUND_CONSTANT) & cryptocommon.UINT32_MASK
+		m[0] &= UINT32_MASK
+		rcon = (rcon - _ROUND_CONSTANT) & UINT32_MASK
 	
 	# Serialize the final block as bytes in big endian
 	result = bytearray()

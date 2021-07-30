@@ -23,6 +23,7 @@
 
 from typing import Callable, List, Sequence, Tuple, Union
 import cryptocommon
+from cryptocommon import UINT64_MASK
 
 
 # ---- Public functions ----
@@ -73,7 +74,6 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 	assert len(state) == 8
 	
 	# Alias shorter names for readability
-	mask64: int = cryptocommon.UINT64_MASK
 	rotr64: Callable[[int,int],int] = cryptocommon.rotate_right_uint64
 	
 	# Pack block bytes into first part of schedule as uint64 in big endian
@@ -87,7 +87,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 		y: int = schedule[i -  2]
 		smallsigma0: int = rotr64(x,  1) ^ rotr64(x,  8) ^ (x >> 7)
 		smallsigma1: int = rotr64(y, 19) ^ rotr64(y, 61) ^ (y >> 6)
-		temp: int = (schedule[i - 16] + schedule[i - 7] + smallsigma0 + smallsigma1) & mask64
+		temp: int = (schedule[i - 16] + schedule[i - 7] + smallsigma0 + smallsigma1) & UINT64_MASK
 		schedule.append(temp)
 	
 	# Unpack state into variables; each one is a uint64
@@ -101,27 +101,27 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 		bigsigma1: int = rotr64(e, 14) ^ rotr64(e, 18) ^ rotr64(e, 41)
 		choose: int = (e & f) ^ (~e & g)
 		majority: int = (a & b) ^ (a & c) ^ (b & c)
-		t1: int = (h + bigsigma1 + choose + schedule[i] + _ROUND_CONSTANTS[i]) & mask64
-		t2: int = (bigsigma0 + majority) & mask64
+		t1: int = (h + bigsigma1 + choose + schedule[i] + _ROUND_CONSTANTS[i]) & UINT64_MASK
+		t2: int = (bigsigma0 + majority) & UINT64_MASK
 		h = g
 		g = f
 		f = e
-		e = (d + t1) & mask64
+		e = (d + t1) & UINT64_MASK
 		d = c
 		c = b
 		b = a
-		a = (t1 + t2) & mask64
+		a = (t1 + t2) & UINT64_MASK
 	
 	# Return new state as a tuple
 	return (
-		(state[0] + a) & mask64,
-		(state[1] + b) & mask64,
-		(state[2] + c) & mask64,
-		(state[3] + d) & mask64,
-		(state[4] + e) & mask64,
-		(state[5] + f) & mask64,
-		(state[6] + g) & mask64,
-		(state[7] + h) & mask64)
+		(state[0] + a) & UINT64_MASK,
+		(state[1] + b) & UINT64_MASK,
+		(state[2] + c) & UINT64_MASK,
+		(state[3] + d) & UINT64_MASK,
+		(state[4] + e) & UINT64_MASK,
+		(state[5] + f) & UINT64_MASK,
+		(state[6] + g) & UINT64_MASK,
+		(state[7] + h) & UINT64_MASK)
 
 
 # ---- Numerical constants/tables ----

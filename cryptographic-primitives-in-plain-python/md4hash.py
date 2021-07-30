@@ -23,6 +23,7 @@
 
 from typing import List, Sequence, Tuple, Union
 import cryptocommon
+from cryptocommon import UINT32_MASK
 
 
 # ---- Public functions ----
@@ -101,7 +102,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> 
 		
 		# Perform the round calculation
 		rot: int = _ROTATION_AMOUNTS[((i >> 2) & 0xC) | (i & 0x3)]
-		temp: int = (a + f + schedule[k] + add) & cryptocommon.UINT32_MASK
+		temp: int = (a + f + schedule[k] + add) & UINT32_MASK
 		temp = cryptocommon.rotate_left_uint32(temp, rot)
 		a = d
 		d = c
@@ -110,10 +111,10 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> 
 	
 	# Return new state as a tuple
 	return (
-		(state[0] + a) & cryptocommon.UINT32_MASK,
-		(state[1] + b) & cryptocommon.UINT32_MASK,
-		(state[2] + c) & cryptocommon.UINT32_MASK,
-		(state[3] + d) & cryptocommon.UINT32_MASK)
+		(state[0] + a) & UINT32_MASK,
+		(state[1] + b) & UINT32_MASK,
+		(state[2] + c) & UINT32_MASK,
+		(state[3] + d) & UINT32_MASK)
 
 
 # ---- Numerical constants/tables ----
