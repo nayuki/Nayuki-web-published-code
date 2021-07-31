@@ -75,7 +75,7 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		_compress(block, state, printdebug)
 	
-	# Serialize a prefix of the final state as bytes in little endian
+	# Serialize a prefix of the final state
 	result = bytearray()
 	for y in range(_MATRIX_SIZE):
 		for x in range(_MATRIX_SIZE):

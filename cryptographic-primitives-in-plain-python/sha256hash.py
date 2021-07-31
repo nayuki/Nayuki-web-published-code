@@ -58,7 +58,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
-	# Serialize the final state as bytes in big endian
+	# Serialize the final state
 	if printdebug:  print()
 	return b"".join(x.to_bytes(4, "big") for x in state)
 
