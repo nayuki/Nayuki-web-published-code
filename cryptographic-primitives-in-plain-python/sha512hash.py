@@ -68,7 +68,6 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], printdebug: bool) -> Tuple[int,int,int,int,int,int,int,int]:
 	# Check argument lengths
 	assert len(block) == _BLOCK_SIZE
-	assert len(state) == 8
 	
 	# Alias shorter names for readability
 	rotr64: Callable[[int,int],int] = cryptocommon.rotate_right_uint64
