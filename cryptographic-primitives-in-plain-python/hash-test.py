@@ -188,7 +188,7 @@ class HashTest(unittest.TestCase):
 			stdfunc: Callable[[bytes],Any]) -> None:
 		
 		global num_test_cases
-		TRIALS = 1000
+		TRIALS = 300
 		for _ in range(TRIALS):
 			msglen: int = random.randrange(1000)
 			msglist = bytes(random.randrange(256) for _ in range(msglen))
