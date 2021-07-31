@@ -72,7 +72,7 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 	# Compress each block in the augmented message
 	for i in range(len(msg) // blocksize):
 		block: bytes = msg[i * blocksize : (i + 1) * blocksize]
-		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
+		if printdebug:  print(f"    Block {i} = {cryptocommon.bytes_to_debugstr(block)}")
 		_compress(block, state, printdebug)
 	
 	# Serialize a prefix of the final state

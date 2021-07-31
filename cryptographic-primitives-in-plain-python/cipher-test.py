@@ -639,10 +639,10 @@ class CipherTest(unittest.TestCase):
 		global num_test_cases
 		
 		for (plaintexthex, keyhex, expectedciphertexthex) in cases:
-			keybytelist: bytes = cryptocommon.hexstr_to_bytelist(keyhex)
-			plaintextbytelist: bytes = cryptocommon.hexstr_to_bytelist(plaintexthex)
+			keybytelist: bytes = cryptocommon.hexstr_to_bytes(keyhex)
+			plaintextbytelist: bytes = cryptocommon.hexstr_to_bytes(plaintexthex)
 			actualciphertextbytelist: bytes = encfunc(plaintextbytelist, keybytelist)
-			expectedciphertextbytelist: bytes = cryptocommon.hexstr_to_bytelist(expectedciphertexthex)
+			expectedciphertextbytelist: bytes = cryptocommon.hexstr_to_bytes(expectedciphertexthex)
 			decryptedbytelist: bytes = decfunc(actualciphertextbytelist, keybytelist)
 			
 			self.assertEqual(actualciphertextbytelist, expectedciphertextbytelist)

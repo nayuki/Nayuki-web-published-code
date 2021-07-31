@@ -29,10 +29,10 @@ def main() -> None:
 	message: str = "3243F6A8885A308D313198A2E0370734"
 	key: str = "2B7E151628AED2A6ABF7158809CF4F3C"
 	
-	plaintextbytes: bytes = cryptocommon.hexstr_to_bytelist(message)
-	keybytes: bytes = cryptocommon.hexstr_to_bytelist(key)
+	plaintextbytes: bytes = cryptocommon.hexstr_to_bytes(message)
+	keybytes: bytes = cryptocommon.hexstr_to_bytes(key)
 	ciphertextbytes: bytes = aescipher.encrypt(plaintextbytes, keybytes, printdebug=True)
-	ciphertexthexstr: str = cryptocommon.bytelist_to_hexstr(ciphertextbytes)
+	ciphertexthexstr: str = cryptocommon.bytes_to_hexstr(ciphertextbytes)
 	assert aescipher.decrypt(ciphertextbytes, keybytes) == plaintextbytes
 	
 	print(f"Plaintext  (hex): {message}")

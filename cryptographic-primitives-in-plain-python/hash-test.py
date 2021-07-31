@@ -175,9 +175,9 @@ class HashTest(unittest.TestCase):
 		global num_test_cases
 		
 		for (expecthash, messagestr) in cases:
-			msgbytelist: bytes = cryptocommon.asciistr_to_bytelist(messagestr)
+			msgbytelist: bytes = cryptocommon.asciistr_to_bytes(messagestr)
 			actualhashbytelist: bytes = func(msgbytelist)
-			expectedhashbytelist: bytes = cryptocommon.hexstr_to_bytelist(expecthash)
+			expectedhashbytelist: bytes = cryptocommon.hexstr_to_bytes(expecthash)
 			
 			self.assertEqual(actualhashbytelist, expectedhashbytelist)
 			num_test_cases += 1

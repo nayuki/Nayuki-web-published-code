@@ -35,7 +35,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	# Check input arguments
 	assert len(block) == 8
 	assert len(key) == 16
-	if printdebug:  print(f"teacipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
+	if printdebug:  print(f"teacipher.encrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Pack key and block bytes into lists of uint32 in big endian
 	k: List[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
@@ -63,7 +63,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	# Check input arguments
 	assert len(block) == 8
 	assert len(key) == 16
-	if printdebug:  print(f"teacipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
+	if printdebug:  print(f"teacipher.decrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Pack key and block bytes into lists of uint32 in big endian
 	k: List[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32

@@ -35,7 +35,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	# Check input arguments
 	assert len(block) == _BLOCK_SIZE
 	assert len(key) in (16, 24, 32)
-	if printdebug:  print(f"aescipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
+	if printdebug:  print(f"aescipher.encrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Compute key schedule from key
 	keyschedule: Tuple[bytes,...] = _expand_key_schedule(key)
@@ -43,13 +43,13 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	# Perform special first round
 	i: int = 0
 	newblock = bytes(block)
-	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
+	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	i += 1
 	
 	# Perform 9/11/13 regular rounds of encryption
 	for subkey in keyschedule[1 : -1]:
-		if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
+		if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(newblock)}")
 		newblock = _sub_bytes(newblock, _SBOX_FORWARD)
 		newblock = _shift_rows(newblock, 1)
 		newblock = _mix_columns(newblock, _MULTIPLIERS_FORWARD)
@@ -57,7 +57,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 		i += 1
 	
 	# Perform special last round
-	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
+	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(newblock)}")
 	newblock = _sub_bytes(newblock, _SBOX_FORWARD)
 	newblock = _shift_rows(newblock, 1)
 	newblock = _add_round_key(newblock, keyschedule[-1])
@@ -74,7 +74,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	# Check input arguments
 	assert len(block) == _BLOCK_SIZE
 	assert len(key) in (16, 24, 32)
-	if printdebug:  print(f"aescipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
+	if printdebug:  print(f"aescipher.decrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Compute key schedule from key
 	keyschedule: Tuple[bytes,...] = tuple(reversed(_expand_key_schedule(key)))
@@ -82,7 +82,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	# Perform special first round
 	i: int = 0
 	newblock = bytes(block)
-	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
+	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	newblock = _shift_rows(newblock, -1)
 	newblock = _sub_bytes(newblock, _SBOX_INVERSE)
@@ -90,7 +90,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	
 	# Perform 9/11/13 regular rounds of decryption
 	for subkey in keyschedule[1 : -1]:
-		if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
+		if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(newblock)}")
 		newblock = _add_round_key(newblock, subkey)
 		newblock = _mix_columns(newblock, _MULTIPLIERS_INVERSE)
 		newblock = _shift_rows(newblock, -1)
@@ -98,7 +98,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 		i += 1
 	
 	# Perform special last round
-	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
+	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[-1])
 	
 	# Return the final block

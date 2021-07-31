@@ -47,7 +47,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	assert len(block) == 8
 	assert len(key) == 16
 	assert direction in ("encrypt", "decrypt")
-	if printdebug:  print(f"ideacipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
+	if printdebug:  print(f"ideacipher.{direction}(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Compute and handle the key schedule
 	keyschedule: Tuple[int,...] = _expand_key_schedule(key)

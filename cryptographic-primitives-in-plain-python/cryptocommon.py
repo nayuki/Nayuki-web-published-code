@@ -81,22 +81,22 @@ def rotate_right_uint64(value: int, amount: int) -> int:
 
 # ---- Data conversion functions ----
 
-# For example: asciistr_to_bytelist("0Az") -> [48, 65, 122].
-def asciistr_to_bytelist(asciistr: str) -> bytes:
+# For example: asciistr_to_bytes("0Az") -> [48, 65, 122].
+def asciistr_to_bytes(asciistr: str) -> bytes:
 	return bytes(map(ord, asciistr))
 
 
-# For example: hexstr_to_bytelist("FF00C0") -> [255, 0, 192].
-def hexstr_to_bytelist(hexstr: str) -> bytes:
+# For example: hexstr_to_bytes("FF00C0") -> [255, 0, 192].
+def hexstr_to_bytes(hexstr: str) -> bytes:
 	assert len(hexstr) % 2 == 0
 	return bytes(int(hexstr[i : i + 2], 16) for i in range(0, len(hexstr), 2))
 
 
-# For example: bytelist_to_hexstr([255, 0, 192]) -> "FF00C0".
-def bytelist_to_hexstr(bytelist: Union[bytes,Sequence[int]]) -> str:
+# For example: bytes_to_hexstr([255, 0, 192]) -> "FF00C0".
+def bytes_to_hexstr(bytelist: Union[bytes,Sequence[int]]) -> str:
 	return "".join(f"{b:02X}" for b in bytelist)
 
 
-# For example: bytelist_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
-def bytelist_to_debugstr(bytelist: Union[bytes,Sequence[int]]) -> str:
+# For example: bytes_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
+def bytes_to_debugstr(bytelist: Union[bytes,Sequence[int]]) -> str:
 	return "[" + " ".join(f"{b:02X}" for b in bytelist) + "]"

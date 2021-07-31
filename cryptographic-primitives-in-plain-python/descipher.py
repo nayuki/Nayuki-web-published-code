@@ -47,7 +47,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	assert len(block) == 8
 	assert len(key) == 8
 	assert direction in ("encrypt", "decrypt")
-	if printdebug:  print(f"descipher.{direction}(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
+	if printdebug:  print(f"descipher.{direction}(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Pack key bytes into uint64 in big endian
 	k: int = int.from_bytes(key, "big")

@@ -47,11 +47,11 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
 		block: bytes = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
-		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
+		if printdebug:  print(f"    Block {i} = {cryptocommon.bytes_to_debugstr(block)}")
 		state, checksum = _compress(block, state, checksum, printdebug)
 	
 	# Compress the checksum as the final block
-	if printdebug:  print(f"    Final block = {cryptocommon.bytelist_to_debugstr(checksum)}")
+	if printdebug:  print(f"    Final block = {cryptocommon.bytes_to_debugstr(checksum)}")
 	state, checksum = _compress(checksum, state, checksum, printdebug)
 	
 	# Return a prefix of the final state

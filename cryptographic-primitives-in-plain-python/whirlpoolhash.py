@@ -52,7 +52,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	assert len(msg) % _BLOCK_SIZE == 0
 	for i in range(len(msg) // _BLOCK_SIZE):
 		block: bytes = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
-		if printdebug:  print(f"    Block {i} = {cryptocommon.bytelist_to_debugstr(block)}")
+		if printdebug:  print(f"    Block {i} = {cryptocommon.bytes_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
 	# Return the final state
@@ -71,11 +71,11 @@ def _compress(block: bytes, state: bytes, printdebug: bool) -> bytes:
 	tempmsg: bytes = _add_round_key(block, state)
 	i = 0
 	for rcon in _ROUND_CONSTANTS:
-		if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(tempmsg)}")
+		if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(tempmsg)}")
 		tempkey = _compute_round(tempkey, rcon)  # Compute key schedule on the fly
 		tempmsg = _compute_round(tempmsg, tempkey)
 		i += 1
-	if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(tempmsg)}")
+	if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(tempmsg)}")
 	
 	# Combine data using the Miyaguchi-Preneel construction
 	return bytes((x ^ y ^ z) for (x, y, z) in zip(state, block, tempmsg))
