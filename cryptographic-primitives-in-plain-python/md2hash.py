@@ -40,8 +40,8 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	msg.extend([padlen] * padlen)
 	
 	# Initialize the hash state
-	state    = bytes([0] * 48)
-	checksum = bytes([0] * 16)
+	checksum = b"\x00" * _BLOCK_SIZE
+	state    = checksum * 3
 	
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0

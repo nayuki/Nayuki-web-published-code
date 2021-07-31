@@ -46,7 +46,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	msg.extend(bitlength.to_bytes(32, "big"))
 	
 	# Initialize the hash state
-	state = bytes([0] * _BLOCK_SIZE)
+	state = b"\x00" * _BLOCK_SIZE
 	
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
@@ -168,5 +168,5 @@ _init_sbox()
 # Each element of this list is 64 bytes, which comprises
 # the next 8 bytes from the S-box followed by 56 zeros.
 _ROUND_CONSTANTS: List[bytes] = [
-	_SBOX[i * 8 : (i + 1) * 8] + bytes([0] * 56)
+	_SBOX[i * 8 : (i + 1) * 8] + b"\x00" * 56
 	for i in range(_NUM_ROUNDS)]
