@@ -625,7 +625,11 @@ class CipherTest(unittest.TestCase):
 	
 	# Private utilities
 	
-	def _check_cipher(self, encfunc: Callable[[bytes,bytes],bytes], decfunc: Callable[[bytes,bytes],bytes], cases: List[Tuple[str,str,str]]) -> None:
+	def _check_cipher(self,
+			encfunc: Callable[[bytes,bytes],bytes],
+			decfunc: Callable[[bytes,bytes],bytes],
+			cases: List[Tuple[str,str,str]]) -> None:
+		
 		global num_test_cases
 		
 		for (plaintexthex, keyhex, expectedciphertexthex) in cases:

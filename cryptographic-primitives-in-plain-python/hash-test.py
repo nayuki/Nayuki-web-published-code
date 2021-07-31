@@ -168,7 +168,10 @@ class HashTest(unittest.TestCase):
 	
 	# Private utilities
 	
-	def _check_hash_function(self, func: Callable[[bytes],bytes], cases: List[Tuple[str,str]]) -> None:
+	def _check_hash_function(self,
+			func: Callable[[bytes],bytes],
+			cases: List[Tuple[str,str]]) -> None:
+		
 		global num_test_cases
 		
 		for (expecthash, messagestr) in cases:
@@ -180,7 +183,10 @@ class HashTest(unittest.TestCase):
 			num_test_cases += 1
 	
 	
-	def _check_vs_stdlib(self, ourfunc: Callable[[bytes],bytes], stdfunc: Callable[[bytes],Any]) -> None:
+	def _check_vs_stdlib(self,
+			ourfunc: Callable[[bytes],bytes],
+			stdfunc: Callable[[bytes],Any]) -> None:
+		
 		global num_test_cases
 		trials = 1000
 		for _ in range(trials):
