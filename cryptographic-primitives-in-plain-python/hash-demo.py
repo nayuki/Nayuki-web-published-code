@@ -26,7 +26,7 @@ import cryptocommon, md5hash, sha256hash
 
 
 def main() -> None:
-	message_hex = "FF00CA9634"
+	message_hex: str = "FF00CA9634"
 	message_bin: bytes = cryptocommon.hexstr_to_bytes(message_hex)
 	hash_bin: bytes = md5hash.hash(message_bin, printdebug=True)
 	hash_hex: str = cryptocommon.bytes_to_hexstr(hash_bin)
@@ -38,7 +38,7 @@ def main() -> None:
 	print("-" * 100)
 	print()
 	
-	message_ascii = "the quick brown fox"
+	message_ascii: str = "the quick brown fox"
 	message_bin = cryptocommon.asciistr_to_bytes(message_ascii)
 	hash_bin = sha256hash.hash(message_bin, printdebug=True)
 	hash_hex = cryptocommon.bytes_to_hexstr(hash_bin)
