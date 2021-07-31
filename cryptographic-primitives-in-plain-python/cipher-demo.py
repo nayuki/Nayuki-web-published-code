@@ -38,9 +38,9 @@ def main() -> None:
 	print(f"Plaintext  (hex): {message_hex}")
 	print(f"Ciphertext (hex): {ciphertext_hex}")
 	print(f"Key        (hex): {key_hex}")
-	print(f"Plaintext  (bytelist): {list(plaintext_bin)}")
-	print(f"Ciphertext (bytelist): {list(ciphertext_bin)}")
-	print(f"Key        (bytelist): {list(key_bin)}")
+	print(f"Plaintext  (bytes): {list(plaintext_bin)}")
+	print(f"Ciphertext (bytes): {list(ciphertext_bin)}")
+	print(f"Key        (bytes): {list(key_bin)}")
 
 
 if __name__ == "__main__":
