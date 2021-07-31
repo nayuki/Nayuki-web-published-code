@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import List, Sequence, Tuple, Union
+from typing import List, Sequence, Union
 import cryptocommon
 
 
@@ -89,16 +89,16 @@ def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 	sz: int = _MATRIX_SIZE
 	
 	# Check argument lengths
-	assert len(block) <= sz * sz * 8
+	assert (len(block) % 8 == 0) and (len(block) <= sz * sz * 8)
 	assert len(state) == sz
 	for column in state:
 		assert len(column) == sz
 	
-	# XOR block bytes into first part of state as uint64 in little endian
-	for (i, bv) in enumerate(block):
-		j: int = i >> 3
+	# XOR block bytes into first part of state
+	for i in range(0, len(block), 8):
+		j: int = i // 8
 		x, y = j % sz, j // sz
-		state[x][y] ^= bv << ((i % 8) * 8)
+		state[x][y] ^= int.from_bytes(block[i : i + 8], "little")
 	
 	# Perform 24 rounds of hashing
 	a: List[List[int]] = state
@@ -152,10 +152,10 @@ _MATRIX_SIZE: int = 5
 
 _NUM_ROUNDS: int = 24
 
-_ROTATION: Tuple[Tuple[int,...],...] = (
-	( 0, 36,  3, 41, 18),
-	( 1, 44, 10, 45,  2),
-	(62,  6, 43, 15, 61),
-	(28, 55, 25, 21, 56),
-	(27, 20, 39,  8, 14),
-)
+_ROTATION: List[List[int]] = [
+	[ 0, 36,  3, 41, 18],
+	[ 1, 44, 10, 45,  2],
+	[62,  6, 43, 15, 61],
+	[28, 55, 25, 21, 56],
+	[27, 20, 39,  8, 14],
+]
