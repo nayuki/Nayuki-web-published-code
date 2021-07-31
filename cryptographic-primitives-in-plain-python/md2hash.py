@@ -56,7 +56,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	
 	# Return a prefix of the final state
 	if printdebug:  print()
-	return state[ : 16]
+	return state[ : _BLOCK_SIZE]
 
 
 # ---- Private functions ----
@@ -64,16 +64,16 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> Tuple[bytes,bytes]:
 	# Check argument lengths
 	assert len(block) == _BLOCK_SIZE
-	assert len(state) == 48
-	assert len(checksum) == 16
+	assert len(state) == _BLOCK_SIZE * 3
+	assert len(checksum) == _BLOCK_SIZE
 	
 	# Copy the block into the state
 	newstate = bytearray(state)
-	for i in range(16):
+	for i in range(_BLOCK_SIZE):
 		b: int = block[i]
 		assert cryptocommon.is_uint8(b)
-		newstate[i + 16] = b
-		newstate[i + 32] = b ^ newstate[i]
+		newstate[i + _BLOCK_SIZE] = b
+		newstate[i + _BLOCK_SIZE * 2] = b ^ newstate[i]
 	
 	# Perform 18 rounds of hashing
 	t: int = 0
@@ -86,7 +86,7 @@ def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> 
 	# Checksum the block
 	newchecksum = bytearray(checksum)
 	l: int = newchecksum[-1]
-	for i in range(16):
+	for i in range(_BLOCK_SIZE):
 		l = newchecksum[i] ^ _SBOX[block[i] ^ l]
 		newchecksum[i] = l
 	

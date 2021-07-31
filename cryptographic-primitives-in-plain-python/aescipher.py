@@ -33,7 +33,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	with the given key (16/24/32 bytes), returning 16 bytes."""
 	
 	# Check input arguments
-	assert len(block) == 16
+	assert len(block) == _BLOCK_SIZE
 	assert len(key) in (16, 24, 32)
 	if printdebug:  print(f"aescipher.encrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
@@ -72,7 +72,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	with the given key (16/24/32 bytes), returning 16 bytes."""
 	
 	# Check input arguments
-	assert len(block) == 16
+	assert len(block) == _BLOCK_SIZE
 	assert len(key) in (16, 24, 32)
 	if printdebug:  print(f"aescipher.decrypt(block = {cryptocommon.bytelist_to_debugstr(block)}, key = {cryptocommon.bytelist_to_debugstr(key)})")
 	
@@ -134,47 +134,47 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
 		schedule.append(val)
 	
 	# Split up the schedule into chunks of 16-byte subkeys
-	return tuple(schedule[i : i + 16]
-		for i in range(0, len(schedule), 16))
+	return tuple(schedule[i : i + _BLOCK_SIZE]
+		for i in range(0, len(schedule), _BLOCK_SIZE))
 
 
 def _sub_bytes(msg: bytes, sbox: bytes) -> bytes:
-	assert len(msg) == 16
+	assert len(msg) == _BLOCK_SIZE
 	assert len(sbox) == 256
 	newmsg = bytes(sbox[b] for b in msg)
-	assert len(newmsg) == 16
+	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 
 
 def _shift_rows(msg: bytes, direction: int) -> bytes:
-	assert len(msg) == 16
+	assert len(msg) == _BLOCK_SIZE
 	assert direction in (-1, 1)
-	newmsg = bytearray([0] * 16)  # Dummy initial values, all will be overwritten
+	newmsg = bytearray([0] * _BLOCK_SIZE)  # Dummy initial values, all will be overwritten
 	for row in range(4):
 		for col in range(4):
 			newmsg[col * 4 + row] = msg[(col + row * direction) % 4 * 4 + row]
-	assert len(newmsg) == 16
+	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 
 
 def _mix_columns(msg: bytes, multipliers: List[int]) -> bytes:
-	assert len(msg) == 16
+	assert len(msg) == _BLOCK_SIZE
 	assert len(multipliers) == 4
-	newmsg = bytearray([0] * 16)  # Dummy initial values, all will be overwritten
+	newmsg = bytearray([0] * _BLOCK_SIZE)  # Dummy initial values, all will be overwritten
 	for col in range(4):
 		for row in range(4):
 			val: int = 0
 			for i in range(4):
 				val ^= _multiply(msg[col * 4 + (row + i) % 4], multipliers[i])
 			newmsg[col * 4 + row] = val
-	assert len(newmsg) == 16
+	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 
 
 def _add_round_key(msg: bytes, key: bytes) -> bytes:
-	assert len(msg) == len(key) == 16
+	assert len(msg) == len(key) == _BLOCK_SIZE
 	newmsg = bytes((x ^ y) for (x, y) in zip(msg, key))
-	assert len(newmsg) == 16
+	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 
 
@@ -212,6 +212,8 @@ def _rotl8(value: int, amount: int) -> int:
 
 
 # ---- Numerical constants/tables ----
+
+_BLOCK_SIZE: int = 16  # In bytes
 
 # For _mix_columns()
 _MULTIPLIERS_FORWARD: List[int] = [0x02, 0x03, 0x01, 0x01]
