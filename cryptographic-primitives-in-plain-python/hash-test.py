@@ -23,7 +23,7 @@
 # 
 
 import hashlib, random, unittest
-from typing import Any, Callable, List, Tuple, Union
+from typing import Any, Callable, List, Tuple
 import cryptocommon
 
 

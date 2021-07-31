@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import List, Sequence, Union
+from typing import Sequence, Union
 
 
 # ---- Low-level arithmetic functions and constants ----

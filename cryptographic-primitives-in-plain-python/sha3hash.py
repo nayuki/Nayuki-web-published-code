@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Callable, List, Sequence, Tuple, Union
+from typing import List, Sequence, Tuple, Union
 import cryptocommon
 
 

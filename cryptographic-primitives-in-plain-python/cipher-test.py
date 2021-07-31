@@ -23,7 +23,7 @@
 # 
 
 import unittest
-from typing import Callable, List, Sequence, Tuple, Union
+from typing import Callable, List, Tuple
 import cryptocommon
 
 
