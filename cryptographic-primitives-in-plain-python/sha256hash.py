@@ -73,7 +73,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 	# Alias shorter names for readability
 	rotr32: Callable[[int,int],int] = cryptocommon.rotate_right_uint32
 	
-	# Pack block bytes into first part of schedule as uint32 in big endian
+	# Pack block bytes into first part of schedule
 	schedule: List[int] = [int.from_bytes(block[i : i + 4], "big")
 		for i in range(0, len(block), 4)]
 	

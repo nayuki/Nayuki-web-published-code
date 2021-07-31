@@ -69,7 +69,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> 
 	# Check argument lengths
 	assert len(block) == _BLOCK_SIZE
 	
-	# Pack block bytes into schedule as uint32 in little endian
+	# Pack block bytes into schedule
 	schedule: List[int] = [int.from_bytes(block[i : i + 4], "little")
 		for i in range(0, len(block), 4)]
 	
