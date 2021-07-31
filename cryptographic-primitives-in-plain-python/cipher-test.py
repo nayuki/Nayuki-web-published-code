@@ -22,7 +22,7 @@
 #   Software.
 # 
 
-import unittest
+import random, unittest
 from typing import Callable, List, Tuple
 import cryptocommon
 
@@ -33,6 +33,9 @@ class CipherTest(unittest.TestCase):
 	
 	def test_aes_cipher(self) -> None:
 		import aescipher
+		self._check_invertibility(aescipher.encrypt, aescipher.decrypt, 16, 16)
+		self._check_invertibility(aescipher.encrypt, aescipher.decrypt, 16, 24)
+		self._check_invertibility(aescipher.encrypt, aescipher.decrypt, 16, 32)
 		self._check_cipher(aescipher.encrypt, aescipher.decrypt, [
 			# AES-128
 			("00000000000000000000000000000000", "00000000000000000000000000000000", "66E94BD4EF8A2C3B884CFA59CA342B2E"),
@@ -302,6 +305,7 @@ class CipherTest(unittest.TestCase):
 	
 	def test_des_cipher(self) -> None:
 		import descipher
+		self._check_invertibility(descipher.encrypt, descipher.decrypt, 8, 8)
 		self._check_cipher(descipher.encrypt, descipher.decrypt, [
 			("0000000000000000", "0000000000000000", "8CA64DE9C1B123A7"),
 			("FFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFF", "7359B2163E4EDC58"),
@@ -484,6 +488,7 @@ class CipherTest(unittest.TestCase):
 	
 	def test_idea_cipher(self) -> None:
 		import ideacipher
+		self._check_invertibility(ideacipher.encrypt, ideacipher.decrypt, 8, 16)
 		self._check_cipher(ideacipher.encrypt, ideacipher.decrypt, [
 			("0000000100020003", "00010002000300040005000600070008", "11FBED2B01986DE5"),
 			("DB2D4A92AA68273F", "000102030405060708090A0B0C0D0E0F", "0011223344556677"),
@@ -493,6 +498,7 @@ class CipherTest(unittest.TestCase):
 	
 	def test_tea_cipher(self) -> None:
 		import teacipher
+		self._check_invertibility(teacipher.encrypt, teacipher.decrypt, 8, 16)
 		self._check_cipher(teacipher.encrypt, teacipher.decrypt, [
 			("0000000000000000", "00000000000000000000000000000000", "41EA3A0A94BAA940"),
 			("FFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "319BBEFB016ABDB2"),
@@ -641,6 +647,22 @@ class CipherTest(unittest.TestCase):
 			
 			self.assertEqual(actualciphertextbytelist, expectedciphertextbytelist)
 			self.assertEqual(decryptedbytelist, plaintextbytelist)
+			num_test_cases += 1
+	
+	
+	def _check_invertibility(self,
+			encfunc: Callable[[bytes,bytes],bytes],
+			decfunc: Callable[[bytes,bytes],bytes],
+			blocklen: int, keylen: int) -> None:
+		
+		global num_test_cases
+		TRIALS = 300
+		for _ in range(TRIALS):
+			key = bytes(random.randrange(256) for _ in range(keylen))
+			message = bytes(random.randrange(256) for _ in range(blocklen))
+			encrypted: bytes = encfunc(message, key)
+			decrypted: bytes = decfunc(encrypted, key)
+			self.assertEqual(decrypted, message)
 			num_test_cases += 1
 
 
