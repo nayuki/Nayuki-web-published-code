@@ -90,7 +90,7 @@ def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> 
 		l = newchecksum[i] ^ _SBOX[block[i] ^ l]
 		newchecksum[i] = l
 	
-	# Return new state and checksum as a tuples
+	# Return the new state
 	return (newstate, newchecksum)
 
 

@@ -108,7 +108,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 		b = a
 		a = (t1 + t2) & UINT64_MASK
 	
-	# Return new state as a tuple
+	# Return the new state
 	return (
 		(state[0] + a) & UINT64_MASK,
 		(state[1] + b) & UINT64_MASK,
