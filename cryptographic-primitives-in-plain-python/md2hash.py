@@ -71,7 +71,6 @@ def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> 
 	newstate = bytearray(state)
 	for i in range(_BLOCK_SIZE):
 		b: int = block[i]
-		assert cryptocommon.is_uint8(b)
 		newstate[i + _BLOCK_SIZE] = b
 		newstate[i + _BLOCK_SIZE * 2] = b ^ newstate[i]
 	

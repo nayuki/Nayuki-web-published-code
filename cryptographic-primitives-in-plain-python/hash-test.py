@@ -180,7 +180,7 @@ class HashTest(unittest.TestCase):
 			num_test_cases += 1
 	
 	
-	def _check_vs_stdlib(self, ourfunc: Callable[[bytes],bytes], stdfunc: Callable[[bytes],Any]):
+	def _check_vs_stdlib(self, ourfunc: Callable[[bytes],bytes], stdfunc: Callable[[bytes],Any]) -> None:
 		global num_test_cases
 		trials = 1000
 		for _ in range(trials):
