@@ -638,15 +638,15 @@ class CipherTest(unittest.TestCase):
 		
 		global num_test_cases
 		
-		for (plaintexthex, keyhex, expectedciphertexthex) in cases:
-			keybytelist: bytes = cryptocommon.hexstr_to_bytes(keyhex)
-			plaintextbytelist: bytes = cryptocommon.hexstr_to_bytes(plaintexthex)
-			actualciphertextbytelist: bytes = encfunc(plaintextbytelist, keybytelist)
-			expectedciphertextbytelist: bytes = cryptocommon.hexstr_to_bytes(expectedciphertexthex)
-			decryptedbytelist: bytes = decfunc(actualciphertextbytelist, keybytelist)
+		for (plaintext_hex, key_hex, expectciphertext_hex) in cases:
+			key_bin: bytes = cryptocommon.hexstr_to_bytes(key_hex)
+			plaintext_bin: bytes = cryptocommon.hexstr_to_bytes(plaintext_hex)
+			actualciphertext_bin: bytes = encfunc(plaintext_bin, key_bin)
+			expectciphertext_bin: bytes = cryptocommon.hexstr_to_bytes(expectciphertext_hex)
+			decrypted_bin: bytes = decfunc(actualciphertext_bin, key_bin)
 			
-			self.assertEqual(actualciphertextbytelist, expectedciphertextbytelist)
-			self.assertEqual(decryptedbytelist, plaintextbytelist)
+			self.assertEqual(actualciphertext_bin, expectciphertext_bin)
+			self.assertEqual(decrypted_bin, plaintext_bin)
 			num_test_cases += 1
 	
 	
