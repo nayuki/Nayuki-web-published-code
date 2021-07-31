@@ -49,9 +49,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	state = b"\x00" * _BLOCK_SIZE
 	
 	# Compress each block in the augmented message
-	assert len(msg) % _BLOCK_SIZE == 0
-	for i in range(len(msg) // _BLOCK_SIZE):
-		block: bytes = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
+	for (i, block) in enumerate(cryptocommon.iter_blocks(msg, _BLOCK_SIZE)):
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytes_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	

@@ -52,9 +52,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 		0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19)
 	
 	# Compress each block in the augmented message
-	assert len(msg) % _BLOCK_SIZE == 0
-	for i in range(len(msg) // _BLOCK_SIZE):
-		block: bytes = msg[i * _BLOCK_SIZE : (i + 1) * _BLOCK_SIZE]
+	for (i, block) in enumerate(cryptocommon.iter_blocks(msg, _BLOCK_SIZE)):
 		if printdebug:  print(f"    Block {i} = {cryptocommon.bytes_to_debugstr(block)}")
 		state = _compress(block, state, printdebug)
 	
@@ -74,8 +72,8 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 	rotr32: Callable[[int,int],int] = cryptocommon.rotate_right_uint32
 	
 	# Pack block bytes into first part of schedule
-	schedule: List[int] = [int.from_bytes(block[i : i + 4], "big")
-		for i in range(0, len(block), 4)]
+	schedule: List[int] = [int.from_bytes(chunk, "big")
+		for chunk in cryptocommon.iter_blocks(block, 4)]
 	
 	# Extend the message schedule by blending previous values
 	for _ in range(len(schedule), len(_ROUND_CONSTANTS)):

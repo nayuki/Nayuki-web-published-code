@@ -89,8 +89,8 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 # For example: _bytes_to_uint32_list_big_endian([0xFF, 0x00, 0xAB, 0xCD, 0x27, 0x18, 0x28, 0x44]) -> [0xFF00ABCD, 0x27182844].
 def _bytes_to_uint32_list_big_endian(bytelist: Union[bytes,Sequence[int]]) -> List[int]:
 	assert len(bytelist) % 4 == 0
-	return [int.from_bytes(bytelist[i : i + 4], "big")
-		for i in range(0, len(bytelist), 4)]
+	return [int.from_bytes(chunk, "big")
+		for chunk in cryptocommon.iter_blocks(bytes(bytelist), 4)]
 
 
 # ---- Numerical constants/tables ----

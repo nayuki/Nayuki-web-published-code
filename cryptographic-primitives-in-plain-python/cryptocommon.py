@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Sequence, Union
+from typing import Generator, Sequence, TypeVar, Union
 
 
 # ---- Low-level arithmetic functions and constants ----
@@ -79,6 +79,17 @@ def rotate_right_uint64(value: int, amount: int) -> int:
 	return ((value << (64 - amount)) | (value >> amount)) & UINT64_MASK
 
 
+# ---- Miscellaneous functions ----
+
+T = TypeVar("T", bytes, str)
+
+
+def iter_blocks(seq: T, blocksize: int) -> Generator[T,None,None]:
+	assert len(seq) % blocksize == 0
+	for i in range(0, len(seq), blocksize):
+		yield seq[i : i + blocksize]
+
+
 # ---- Data conversion functions ----
 
 # For example: asciistr_to_bytes("0Az") -> [48, 65, 122].
@@ -88,8 +99,7 @@ def asciistr_to_bytes(asciistr: str) -> bytes:
 
 # For example: hexstr_to_bytes("FF00C0") -> [255, 0, 192].
 def hexstr_to_bytes(hexstr: str) -> bytes:
-	assert len(hexstr) % 2 == 0
-	return bytes(int(hexstr[i : i + 2], 16) for i in range(0, len(hexstr), 2))
+	return bytes(int(s, 16) for s in iter_blocks(hexstr, 2))
 
 
 # For example: bytes_to_hexstr([255, 0, 192]) -> "FF00C0".

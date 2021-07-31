@@ -95,10 +95,9 @@ def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 		assert len(column) == sz
 	
 	# XOR block bytes into first part of state
-	for i in range(0, len(block), 8):
-		j: int = i // 8
-		x, y = j % sz, j // sz
-		state[x][y] ^= int.from_bytes(block[i : i + 8], "little")
+	for (i, chunk) in enumerate(cryptocommon.iter_blocks(block, 8)):
+		x, y = i % sz, i // sz
+		state[x][y] ^= int.from_bytes(chunk, "little")
 	
 	# Perform 24 rounds of hashing
 	a: List[List[int]] = state

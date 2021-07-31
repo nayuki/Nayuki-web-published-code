@@ -134,8 +134,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
 		schedule.append(val)
 	
 	# Split up the schedule into chunks of 16-byte subkeys
-	return tuple(schedule[i : i + _BLOCK_SIZE]
-		for i in range(0, len(schedule), _BLOCK_SIZE))
+	return tuple(cryptocommon.iter_blocks(schedule, _BLOCK_SIZE))
 
 
 def _sub_bytes(msg: bytes, sbox: bytes) -> bytes:
