@@ -27,24 +27,24 @@ import cryptocommon, md5hash, sha256hash
 
 def main() -> None:
 	message = "FF00CA9634"
-	msgbytelist: bytes = cryptocommon.hexstr_to_bytelist(message)
-	hashbytelist: bytes = md5hash.hash(msgbytelist, printdebug=True)
-	hashhexstr: str = cryptocommon.bytelist_to_hexstr(hashbytelist)
+	msgbytes: bytes = cryptocommon.hexstr_to_bytelist(message)
+	hashbytes: bytes = md5hash.hash(msgbytes, printdebug=True)
+	hashhexstr: str = cryptocommon.bytelist_to_hexstr(hashbytes)
 	print(f"Message string (hex): {message}")
-	print(f"Message bytelist: {list(msgbytelist)}")
-	print(f"Hash bytelist: {list(hashbytelist)}")
+	print(f"Message bytelist: {list(msgbytes)}")
+	print(f"Hash bytelist: {list(hashbytes)}")
 	print(f"MD5 hash (hex): {hashhexstr}")
 	print()
 	print("-" * 100)
 	print()
 	
 	message = "the quick brown fox"
-	msgbytelist = cryptocommon.asciistr_to_bytelist(message)
-	hashbytelist = sha256hash.hash(msgbytelist, printdebug=True)
-	hashhexstr = cryptocommon.bytelist_to_hexstr(hashbytelist)
+	msgbytes = cryptocommon.asciistr_to_bytelist(message)
+	hashbytes = sha256hash.hash(msgbytes, printdebug=True)
+	hashhexstr = cryptocommon.bytelist_to_hexstr(hashbytes)
 	print(f'Message string: "{message}"')
-	print(f"Message bytelist: {list(msgbytelist)}")
-	print(f"Hash bytelist: {list(hashbytelist)}")
+	print(f"Message bytelist: {list(msgbytes)}")
+	print(f"Hash bytelist: {list(hashbytes)}")
 	print(f"SHA-256 hash (hex): {hashhexstr}")
 
 

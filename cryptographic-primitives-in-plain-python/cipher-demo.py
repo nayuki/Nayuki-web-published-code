@@ -29,18 +29,18 @@ def main() -> None:
 	message: str = "3243F6A8885A308D313198A2E0370734"
 	key: str = "2B7E151628AED2A6ABF7158809CF4F3C"
 	
-	plaintextbytelist: bytes = cryptocommon.hexstr_to_bytelist(message)
-	keybytelist: bytes = cryptocommon.hexstr_to_bytelist(key)
-	ciphertextbytelist: bytes = aescipher.encrypt(plaintextbytelist, keybytelist, printdebug=True)
-	ciphertexthexstr: str = cryptocommon.bytelist_to_hexstr(ciphertextbytelist)
-	assert aescipher.decrypt(ciphertextbytelist, keybytelist) == plaintextbytelist
+	plaintextbytes: bytes = cryptocommon.hexstr_to_bytelist(message)
+	keybytes: bytes = cryptocommon.hexstr_to_bytelist(key)
+	ciphertextbytes: bytes = aescipher.encrypt(plaintextbytes, keybytes, printdebug=True)
+	ciphertexthexstr: str = cryptocommon.bytelist_to_hexstr(ciphertextbytes)
+	assert aescipher.decrypt(ciphertextbytes, keybytes) == plaintextbytes
 	
 	print(f"Plaintext  (hex): {message}")
 	print(f"Ciphertext (hex): {ciphertexthexstr}")
 	print(f"Key        (hex): {key}")
-	print(f"Plaintext  (bytelist): {list(plaintextbytelist)}")
-	print(f"Ciphertext (bytelist): {list(ciphertextbytelist)}")
-	print(f"Key        (bytelist): {list(keybytelist)}")
+	print(f"Plaintext  (bytelist): {list(plaintextbytes)}")
+	print(f"Ciphertext (bytelist): {list(ciphertextbytes)}")
+	print(f"Key        (bytelist): {list(keybytes)}")
 
 
 if __name__ == "__main__":
