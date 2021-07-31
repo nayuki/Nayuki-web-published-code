@@ -83,7 +83,7 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 	return result[ : outbitlen // 8]
 
 
-# All elements of block must be uint8. State is a mutable 5*5 matrix of uint64.
+# State is a mutable 5*5 matrix of uint64.
 def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 	# Alias shorter names for readability
 	sz: int = _MATRIX_SIZE

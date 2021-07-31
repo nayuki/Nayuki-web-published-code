@@ -101,7 +101,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytelist_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[-1])
 	
-	# Return the final block as a bytelist
+	# Return the final block
 	if printdebug:  print()
 	return newblock
 
