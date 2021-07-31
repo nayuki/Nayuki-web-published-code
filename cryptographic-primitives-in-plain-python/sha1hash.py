@@ -31,7 +31,7 @@ from cryptocommon import UINT32_MASK
 def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 20 bytes."""
 	
-	# Make a shallow copy of the list to prevent modifying the caller's list object
+	# Make a mutable copy for use within this function
 	msg = bytearray(message)
 	if printdebug:  print(f"sha1.hash(message = {len(message)} bytes)")
 	

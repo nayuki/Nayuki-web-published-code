@@ -51,7 +51,7 @@ def hash512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> by
 
 # Computes the hash of the given message, returning (outbitlen/8) bytes.
 def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool) -> bytes:
-	# Make a shallow copy of the list to prevent modifying the caller's list object
+	# Make a mutable copy for use within this function
 	msg = bytearray(message)
 	blocksize: int = 200 - outbitlen // 4
 	if printdebug:  print(f"sha3.hash{outbitlen}(message = {len(message)} bytes)")

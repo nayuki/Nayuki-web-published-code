@@ -30,7 +30,7 @@ import cryptocommon
 def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 16 bytes."""
 	
-	# Make a shallow copy of the list to prevent modifying the caller's list object
+	# Make a mutable copy for use within this function
 	msg = bytearray(message)
 	if printdebug:  print(f"md2.hash(message = {len(message)} bytes)")
 	
