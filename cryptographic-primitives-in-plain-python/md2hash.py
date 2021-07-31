@@ -28,7 +28,7 @@ import cryptocommon
 # ---- Public functions ----
 
 def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
-	"""Computes the hash of the given bytelist message, returning 16 bytes."""
+	"""Computes the hash of the given message, returning 16 bytes."""
 	
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	msg = bytearray(message)

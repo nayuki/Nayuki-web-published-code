@@ -28,28 +28,28 @@ import cryptocommon
 # ---- Public functions ----
 
 def hash224(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
-	"""Computes the hash of the given bytelist message, returning 28 bytes."""
+	"""Computes the hash of the given message, returning 28 bytes."""
 	return _hash(message, 224, printdebug)
 
 
 def hash256(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
-	"""Computes the hash of the given bytelist message, returning 32 bytes."""
+	"""Computes the hash of the given message, returning 32 bytes."""
 	return _hash(message, 256, printdebug)
 
 
 def hash384(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
-	"""Computes the hash of the given bytelist message, returning 48 bytes."""
+	"""Computes the hash of the given message, returning 48 bytes."""
 	return _hash(message, 384, printdebug)
 
 
 def hash512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
-	"""Computes the hash of the given bytelist message, returning 64 bytes."""
+	"""Computes the hash of the given message, returning 64 bytes."""
 	return _hash(message, 512, printdebug)
 
 
 # ---- Private functions ----
 
-# Computes the hash of the given bytelist message, returning (outbitlen/8) bytes.
+# Computes the hash of the given message, returning (outbitlen/8) bytes.
 def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool) -> bytes:
 	# Make a shallow copy of the list to prevent modifying the caller's list object
 	msg = bytearray(message)
