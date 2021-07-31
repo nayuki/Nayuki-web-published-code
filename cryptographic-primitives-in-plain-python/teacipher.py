@@ -37,7 +37,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	assert len(key) == 16
 	if printdebug:  print(f"teacipher.encrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
-	# Pack key and block bytes into lists of uint32 in big endian
+	# Pack key and block bytes
 	k: List[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
 	m: List[int] = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
 	
@@ -51,7 +51,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 		m[1] += ((m[0] << 4) + k[2]) ^ (m[0] + rcon) ^ ((m[0] >> 5) + k[3])
 		m[1] &= UINT32_MASK
 	
-	# Serialize the final block as bytes in big endian
+	# Serialize the final block
 	if printdebug:  print()
 	return b"".join(x.to_bytes(4, "big") for x in m)
 
@@ -65,7 +65,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	assert len(key) == 16
 	if printdebug:  print(f"teacipher.decrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
-	# Pack key and block bytes into lists of uint32 in big endian
+	# Pack key and block bytes
 	k: List[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
 	m: List[int] = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
 	
@@ -79,7 +79,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 		m[0] &= UINT32_MASK
 		rcon = (rcon - _ROUND_CONSTANT) & UINT32_MASK
 	
-	# Serialize the final block as bytes in big endian
+	# Serialize the final block
 	if printdebug:  print()
 	return b"".join(x.to_bytes(4, "big") for x in m)
 

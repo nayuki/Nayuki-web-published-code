@@ -49,7 +49,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	assert direction in ("encrypt", "decrypt")
 	if printdebug:  print(f"descipher.{direction}(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
-	# Pack key bytes into uint64 in big endian
+	# Pack key bytes
 	k: int = int.from_bytes(key, "big")
 	assert cryptocommon.is_uint64(k)
 	
@@ -58,7 +58,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	if direction == "decrypt":
 		keyschedule = tuple(reversed(keyschedule))
 	
-	# Pack block bytes into uint64 in big endian
+	# Pack block bytes
 	m: int = int.from_bytes(block, "big")
 	assert cryptocommon.is_uint64(m)
 	
@@ -78,7 +78,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	m = _extract_bits(m, 64, _FINAL_PERMUTATION)
 	assert cryptocommon.is_uint64(m)
 	
-	# Serialize the new block as bytes in big endian
+	# Serialize the new block
 	return m.to_bytes(8, "big")
 
 

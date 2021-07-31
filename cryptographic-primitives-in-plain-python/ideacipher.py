@@ -54,7 +54,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	if direction == "decrypt":
 		keyschedule = _invert_key_schedule(keyschedule)
 	
-	# Pack block bytes into variables as uint16 in big endian
+	# Pack block bytes into variables
 	w: int = int.from_bytes(block[0 : 2], "big")
 	x: int = int.from_bytes(block[2 : 4], "big")
 	y: int = int.from_bytes(block[4 : 6], "big")
@@ -85,7 +85,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	y = _add(y, keyschedule[-2])
 	z = _multiply(z, keyschedule[-1])
 	
-	# Serialize the final block as bytes in big endian
+	# Serialize the final block
 	return w.to_bytes(2, "big") \
 	     + x.to_bytes(2, "big") \
 	     + y.to_bytes(2, "big") \
