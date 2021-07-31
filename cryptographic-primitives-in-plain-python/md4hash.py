@@ -47,7 +47,8 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	msg.extend(bitlength.to_bytes(8, "little"))
 	
 	# Initialize the hash state
-	state: Tuple[int,int,int,int] = (0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476)
+	state: Tuple[int,int,int,int] = (
+		0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476)
 	
 	# Compress each block in the augmented message
 	assert len(msg) % _BLOCK_SIZE == 0
