@@ -22,7 +22,7 @@
  */
 
 
-/* void tea_encrypt_x86(uint32_t msg[static restrict 2], const uint32_t key[static restrict 4]) */
+/* void tea_encrypt_x86(uint32_t msg[restrict static 2], const uint32_t key[restrict static 4]) */
 .globl tea_encrypt_x86
 tea_encrypt_x86:
 	/* 
