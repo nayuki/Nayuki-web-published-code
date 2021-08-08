@@ -101,7 +101,7 @@ sha512_compress:
 		andq  %e, %rcx;    \
 		xorq  %g, %rcx;    \
 		addq  %rax, %h;    \
-		movabs $k, %rax;   \
+		movabs  $k, %rax;  \
 		addq  %rcx, %h;    \
 		addq  %rax, %h;    \
 		/* Part 1 */       \

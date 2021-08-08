@@ -1,4 +1,4 @@
-/*
+/* 
  * Whirlpool hash in x86-64 assembly
  * 
  * Copyright (c) 2021 Project Nayuki. (MIT License)
