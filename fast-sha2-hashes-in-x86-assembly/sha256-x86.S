@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in x86 assembly
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void sha256_compress(uint32_t state[static 8], const uint8_t block[static 64]) */
+/* void sha256_compress(const uint8_t block[static 64], uint32_t state[static 8]) */
 .globl sha256_compress
 sha256_compress:
 	/* 
@@ -130,7 +130,7 @@ sha256_compress:
 	movl  %ebp, 108(%esp)
 	
 	/* Copy state */
-	movl  116(%esp), %esi  /* Argument: state */
+	movl  120(%esp), %esi  /* Argument: state */
 	movl   0(%esi), %eax;  movl %eax,  0(%esp)
 	movl   4(%esi), %eax;  movl %eax,  4(%esp)
 	movl   8(%esi), %eax;  movl %eax,  8(%esp)
@@ -141,7 +141,7 @@ sha256_compress:
 	movl  28(%esi), %eax;  movl %eax, 28(%esp)
 	
 	/* Do 64 rounds of hashing */
-	movl    120(%esp), %edi  /* Argument: block */
+	movl    116(%esp), %edi  /* Argument: block */
 	ROUNDa( 0, 0, 1, 2, 3, 4, 5, 6, 7, 0x428A2F98)
 	ROUNDa( 1, 7, 0, 1, 2, 3, 4, 5, 6, 0x71374491)
 	ROUNDa( 2, 6, 7, 0, 1, 2, 3, 4, 5, 0xB5C0FBCF)
@@ -208,7 +208,7 @@ sha256_compress:
 	ROUNDb(63, 1, 2, 3, 4, 5, 6, 7, 0, 0xC67178F2)
 	
 	/* Add to state */
-	movl  116(%esp), %esi  /* Argument: state */
+	movl  120(%esp), %esi  /* Argument: state */
 	movl   0(%esp), %eax;  addl %eax,  0(%esi)
 	movl   4(%esp), %eax;  addl %eax,  4(%esi)
 	movl   8(%esp), %eax;  addl %eax,  8(%esi)

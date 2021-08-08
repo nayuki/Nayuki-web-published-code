@@ -49,7 +49,7 @@ static uint8_t SBOX[256] = {
 };
 
 
-void whirlpool_compress(uint8_t state[restrict static 64], const uint8_t block[restrict static 64]) {
+void whirlpool_compress(const uint8_t block[restrict static 64], uint8_t state[restrict static 64]) {
 	const int NUM_ROUNDS = 10;  // Any number from 0 to 32 is allowed
 	uint8_t tempState[64];
 	uint8_t tempBlock[64];

@@ -39,7 +39,7 @@ static bool self_check(void);
 void md5_hash(const uint8_t message[], size_t len, uint32_t hash[static STATE_LEN]);
 
 // Link this program with an external C or x86 compression function
-extern void md5_compress(uint32_t state[static STATE_LEN], const uint8_t block[static BLOCK_LEN]);
+extern void md5_compress(const uint8_t block[static BLOCK_LEN], uint32_t state[static STATE_LEN]);
 
 
 /* Main program */
@@ -58,7 +58,7 @@ int main(void) {
 	const long ITERS = 10000000;
 	clock_t start_time = clock();
 	for (long i = 0; i < ITERS; i++)
-		md5_compress(state, block);
+		md5_compress(block, state);
 	printf("Speed: %.1f MB/s\n", (double)ITERS * (sizeof(block) / sizeof(block[0]))
 		/ (clock() - start_time) * CLOCKS_PER_SEC / 1000000);
 	
@@ -121,7 +121,7 @@ void md5_hash(const uint8_t message[], size_t len, uint32_t hash[static STATE_LE
 	
 	size_t off;
 	for (off = 0; len - off >= BLOCK_LEN; off += BLOCK_LEN)
-		md5_compress(hash, &message[off]);
+		md5_compress(&message[off], hash);
 	
 	uint8_t block[BLOCK_LEN] = {0};
 	size_t rem = len - off;
@@ -131,7 +131,7 @@ void md5_hash(const uint8_t message[], size_t len, uint32_t hash[static STATE_LE
 	block[rem] = 0x80;
 	rem++;
 	if (BLOCK_LEN - rem < LENGTH_SIZE) {
-		md5_compress(hash, block);
+		md5_compress(block, hash);
 		memset(block, 0, sizeof(block));
 	}
 	
@@ -139,5 +139,5 @@ void md5_hash(const uint8_t message[], size_t len, uint32_t hash[static STATE_LE
 	len >>= 5;
 	for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
 		block[BLOCK_LEN - LENGTH_SIZE + i] = (uint8_t)(len & 0xFFU);
-	md5_compress(hash, block);
+	md5_compress(block, hash);
 }

@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in x86-64 assembly
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha1-hash-implementation-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void sha1_compress(uint32_t state[static 5], const uint8_t block[static 64]) */
+/* void sha1_compress(const uint8_t block[static 64], uint32_t state[static 5]) */
 .globl sha1_compress
 sha1_compress:
 	/* 
@@ -108,13 +108,12 @@ sha1_compress:
 	subq    $64, %rsp
 	
 	/* Load arguments */
-	movq    %rdi, %r8
-	movl     0(%rdi), %eax  /* a */
-	movl     4(%rdi), %ebx  /* b */
-	movl     8(%rdi), %ecx  /* c */
-	movl    12(%rdi), %edx  /* d */
-	movl    16(%rdi), %ebp  /* e */
-	movq    %rsi, %rdi
+	movq    %rsi, %r8
+	movl     0(%rsi), %eax  /* a */
+	movl     4(%rsi), %ebx  /* b */
+	movl     8(%rsi), %ecx  /* c */
+	movl    12(%rsi), %edx  /* d */
+	movl    16(%rsi), %ebp  /* e */
 	
 	/* 80 rounds of hashing */
 	ROUND0a(eax, ebx, ecx, edx, ebp,  0)

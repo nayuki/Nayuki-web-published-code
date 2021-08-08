@@ -40,7 +40,7 @@ static uint64_t ROUND_CONSTANTS[32] = {
 };
 
 
-void whirlpool_compress(uint8_t state[restrict static 64], const uint8_t block[restrict static 64]) {
+void whirlpool_compress(const uint8_t block[restrict static 64], uint8_t state[restrict static 64]) {
 	const int NUM_ROUNDS = 10;  // Any number from 0 to 32 is allowed
 	uint64_t tempState[8];
 	uint64_t tempBlock[8];

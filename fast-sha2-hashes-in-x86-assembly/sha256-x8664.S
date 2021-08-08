@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in x86-64 assembly
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void sha256_compress(uint32_t state[static 8], const uint8_t block[static 64]) */
+/* void sha256_compress(const uint8_t block[static 64], uint32_t state[static 8]) */
 .globl sha256_compress
 sha256_compress:
 	/* 
@@ -32,8 +32,8 @@ sha256_compress:
 	 *       4  ebx       Temporary for calculation per round
 	 *       4  ecx       Temporary for calculation per round
 	 *       4  edx       Temporary for calculation per round
-	 *       8  rsi       Base address of block array argument (read-only)
-	 *       8  rdi       Base address of state array argument (read-only)
+	 *       8  rsi       Base address of state array argument (read-only)
+	 *       8  rdi       Base address of block array argument (read-only)
 	 *       8  rsp       x86-64 stack pointer
 	 *       4  r8d       SHA-256 state variable A
 	 *       4  r9d       SHA-256 state variable B
@@ -56,7 +56,7 @@ sha256_compress:
 	#define SCHED(i)  (((i)&0xF)*4)(%rsp)
 	
 	#define ROUNDa(i, a, b, c, d, e, f, g, h, k)  \
-		movl    (i*4)(%rsi), %ebx;  \
+		movl    (i*4)(%rdi), %ebx;  \
 		bswapl  %ebx;               \
 		movl    %ebx, SCHED(i);     \
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
@@ -133,14 +133,14 @@ sha256_compress:
 	subq  $64, %rsp
 	
 	/* Load state */
-	movl   0(%rdi), %r8d   /* a */
-	movl   4(%rdi), %r9d   /* b */
-	movl   8(%rdi), %r10d  /* c */
-	movl  12(%rdi), %r11d  /* d */
-	movl  16(%rdi), %r12d  /* e */
-	movl  20(%rdi), %r13d  /* f */
-	movl  24(%rdi), %r14d  /* g */
-	movl  28(%rdi), %r15d  /* h */
+	movl   0(%rsi), %r8d   /* a */
+	movl   4(%rsi), %r9d   /* b */
+	movl   8(%rsi), %r10d  /* c */
+	movl  12(%rsi), %r11d  /* d */
+	movl  16(%rsi), %r12d  /* e */
+	movl  20(%rsi), %r13d  /* f */
+	movl  24(%rsi), %r14d  /* g */
+	movl  28(%rsi), %r15d  /* h */
 	
 	/* Do 64 rounds of hashing */
 	ROUNDa( 0, r8d , r9d , r10d, r11d, r12d, r13d, r14d, r15d,  0x428A2F98)
@@ -209,14 +209,14 @@ sha256_compress:
 	ROUNDb(63, r9d , r10d, r11d, r12d, r13d, r14d, r15d, r8d , -0x398E870E)
 	
 	/* Add to state */
-	addl  %r8d ,  0(%rdi)
-	addl  %r9d ,  4(%rdi)
-	addl  %r10d,  8(%rdi)
-	addl  %r11d, 12(%rdi)
-	addl  %r12d, 16(%rdi)
-	addl  %r13d, 20(%rdi)
-	addl  %r14d, 24(%rdi)
-	addl  %r15d, 28(%rdi)
+	addl  %r8d ,  0(%rsi)
+	addl  %r9d ,  4(%rsi)
+	addl  %r10d,  8(%rsi)
+	addl  %r11d, 12(%rsi)
+	addl  %r12d, 16(%rsi)
+	addl  %r13d, 20(%rsi)
+	addl  %r14d, 24(%rsi)
+	addl  %r15d, 28(%rsi)
 	
 	/* Restore registers */
 	movq  %xmm0, %r10

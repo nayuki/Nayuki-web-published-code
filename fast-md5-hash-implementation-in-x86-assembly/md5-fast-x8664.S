@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in x86-64 assembly
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void md5_compress(uint32_t state[static 4], const uint8_t block[static 64]) */
+/* void md5_compress(const uint8_t block[static 64], uint32_t state[static 4]) */
 .globl md5_compress
 md5_compress:
 	/* 
@@ -86,12 +86,12 @@ md5_compress:
 	movq  %rbp, %xmm1
 	
 	/* Load arguments */
-	movq  %rsi, %rbp
-	movl   0(%rdi), %eax  /* a */
-	movl   4(%rdi), %ebx  /* b */
-	movl   8(%rdi), %ecx  /* c */
-	movl  12(%rdi), %edx  /* d */
-	movq  %rdi, %r8
+	movq  %rdi, %rbp
+	movl   0(%rsi), %eax  /* a */
+	movl   4(%rsi), %ebx  /* b */
+	movl   8(%rsi), %ecx  /* c */
+	movl  12(%rsi), %edx  /* d */
+	movq  %rsi, %r8
 	
 	/* 64 rounds of hashing */
 	ROUND0(eax, ebx, ecx, edx,  0,  7, -0x28955B88)

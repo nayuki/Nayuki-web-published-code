@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in C
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 
-void md5_compress(uint32_t state[static 4], const uint8_t block[static 64]) {
+void md5_compress(const uint8_t block[static 64], uint32_t state[static 4]) {
 	#define LOADSCHEDULE(i)  \
 		schedule[i] = (uint32_t)block[i * 4 + 0] <<  0  \
 		            | (uint32_t)block[i * 4 + 1] <<  8  \

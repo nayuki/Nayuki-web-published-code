@@ -22,7 +22,7 @@
  */
 
 
-/* void whirlpool_compress(uint8_t state[restrict static 64], const uint8_t block[restrict static 64]) */
+/* void whirlpool_compress(const uint8_t block[restrict static 64], uint8_t state[restrict static 64]) */
 /* state and block can be optionally aligned to 8 bytes for slightly better performance. */
 .globl whirlpool_compress
 whirlpool_compress:
@@ -81,8 +81,8 @@ whirlpool_compress:
 	/* Save registers, load arguments */
 	pushl   %ebx
 	pushl   %esi
-	movl    12(%esp), %edx  /* state */
-	movl    16(%esp), %esi  /* block */
+	movl    16(%esp), %edx  /* state */
+	movl    12(%esp), %esi  /* block */
 	subl    $8, %esp
 	
 	/* Load state into XMM */

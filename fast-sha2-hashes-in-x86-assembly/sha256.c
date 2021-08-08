@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in C
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,7 +24,7 @@
 #include <stdint.h>
 
 
-void sha256_compress(uint32_t state[static 8], const uint8_t block[static 64]) {
+void sha256_compress(const uint8_t block[static 64], uint32_t state[static 8]) {
 	#define ROTR32(x, n)  (((0U + (x)) << (32 - (n))) | ((x) >> (n)))  // Assumes that x is uint32_t and 0 < n < 32
 	
 	#define LOADSCHEDULE(i)  \

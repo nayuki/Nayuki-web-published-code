@@ -22,7 +22,7 @@
  */
 
 
-/* void whirlpool_compress(uint8_t state[restrict static 64], const uint8_t block[restrict static 64]) */
+/* void whirlpool_compress(const uint8_t block[restrict static 64], uint8_t state[restrict static 64]) */
 /* state and block can be optionally aligned to 8 bytes for slightly better performance. */
 .globl whirlpool_compress
 whirlpool_compress:
@@ -32,8 +32,8 @@ whirlpool_compress:
 	 *       8  rax         Temporary 16-bit value for each pair of bytes processed during a round
 	 *       8  rdx         Temporary byte value
 	 *       8  rcx         Upward loop counter for 10 rounds
-	 *       8  rsi         Base address of block array argument (read-only)
-	 *       8  rdi         Base address of state array argument (read-only)
+	 *       8  rsi         Base address of state array argument (read-only)
+	 *       8  rdi         Base address of block array argument (read-only)
 	 *       8  rbx         Base address of magictable0 array (read-only)
 	 *       8  rbp         Base address of magictable1 array (read-only)
 	 *       8  rsp         x86-64 stack pointer
@@ -96,16 +96,16 @@ whirlpool_compress:
 	subq    $8, %rsp
 	
 	/* Load state into XMM */
-	movdqu   0(%rdi), %xmm0
-	movdqu  16(%rdi), %xmm1
-	movdqu  32(%rdi), %xmm2
-	movdqu  48(%rdi), %xmm3
+	movdqu   0(%rsi), %xmm0
+	movdqu  16(%rsi), %xmm1
+	movdqu  32(%rsi), %xmm2
+	movdqu  48(%rsi), %xmm3
 	
 	/* Load block into XMM */
-	movdqu   0(%rsi), %xmm4
-	movdqu  16(%rsi), %xmm5
-	movdqu  32(%rsi), %xmm6
-	movdqu  48(%rsi), %xmm7
+	movdqu   0(%rdi), %xmm4
+	movdqu  16(%rdi), %xmm5
+	movdqu  32(%rdi), %xmm6
+	movdqu  48(%rdi), %xmm7
 	
 	/* XOR block with state */
 	XOR_XMM0_3_TO_XMM4_7()
@@ -219,20 +219,20 @@ whirlpool_compress:
 	jne     .looptop
 	
 	/* XOR old state (in memory) with old block (in memory) and new block (in XMM) */
-	movdqu   0(%rdi), %xmm0  /* Load old state */
-	movdqu  16(%rdi), %xmm1
-	movdqu  32(%rdi), %xmm2
-	movdqu  48(%rdi), %xmm3
-	XOR_XMM0_3_TO_XMM4_7()   /* XOR into new block */
-	movdqu   0(%rsi), %xmm0  /* Load old block */
+	movdqu   0(%rsi), %xmm0  /* Load old state */
 	movdqu  16(%rsi), %xmm1
 	movdqu  32(%rsi), %xmm2
 	movdqu  48(%rsi), %xmm3
 	XOR_XMM0_3_TO_XMM4_7()   /* XOR into new block */
-	movdqu  %xmm4,  0(%rdi)  /* Store new state */
-	movdqu  %xmm5, 16(%rdi)
-	movdqu  %xmm6, 32(%rdi)
-	movdqu  %xmm7, 48(%rdi)
+	movdqu   0(%rdi), %xmm0  /* Load old block */
+	movdqu  16(%rdi), %xmm1
+	movdqu  32(%rdi), %xmm2
+	movdqu  48(%rdi), %xmm3
+	XOR_XMM0_3_TO_XMM4_7()   /* XOR into new block */
+	movdqu  %xmm4,  0(%rsi)  /* Store new state */
+	movdqu  %xmm5, 16(%rsi)
+	movdqu  %xmm6, 32(%rsi)
+	movdqu  %xmm7, 48(%rsi)
 	
 	/* Clean up, restore registers, return */
 	addq    $8, %rsp

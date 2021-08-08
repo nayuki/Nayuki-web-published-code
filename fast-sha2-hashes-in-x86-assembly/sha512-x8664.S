@@ -1,7 +1,7 @@
 /* 
  * SHA-512 hash in x86-64 assembly
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-/* void sha512_compress(uint64_t state[static 8], const uint8_t block[static 128]) */
+/* void sha512_compress(const uint8_t block[static 128], uint64_t state[static 8]) */
 .globl sha512_compress
 sha512_compress:
 	/* 
@@ -32,8 +32,8 @@ sha512_compress:
 	 *       8  rbx       Temporary for calculation per round
 	 *       8  rcx       Temporary for calculation per round
 	 *       8  rdx       Temporary for calculation per round
-	 *       8  rsi       Base address of block array argument (read-only)
-	 *       8  rdi       Base address of state array argument (read-only)
+	 *       8  rsi       Base address of state array argument (read-only)
+	 *       8  rdi       Base address of block array argument (read-only)
 	 *       8  rsp       x86-64 stack pointer
 	 *       8  r8        SHA-512 state variable A
 	 *       8  r9        SHA-512 state variable B
@@ -56,7 +56,7 @@ sha512_compress:
 	#define SCHED(i)  (((i)&0xF)*8)(%rsp)
 	
 	#define ROUNDa(i, a, b, c, d, e, f, g, h, k)  \
-		movq    (i*8)(%rsi), %rbx;  \
+		movq    (i*8)(%rdi), %rbx;  \
 		bswapq  %rbx;               \
 		movq    %rbx, SCHED(i);     \
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
@@ -135,14 +135,14 @@ sha512_compress:
 	subq  $128, %rsp
 	
 	/* Load state */
-	movq   0(%rdi), %r8   /* a */
-	movq   8(%rdi), %r9   /* b */
-	movq  16(%rdi), %r10  /* c */
-	movq  24(%rdi), %r11  /* d */
-	movq  32(%rdi), %r12  /* e */
-	movq  40(%rdi), %r13  /* f */
-	movq  48(%rdi), %r14  /* g */
-	movq  56(%rdi), %r15  /* h */
+	movq   0(%rsi), %r8   /* a */
+	movq   8(%rsi), %r9   /* b */
+	movq  16(%rsi), %r10  /* c */
+	movq  24(%rsi), %r11  /* d */
+	movq  32(%rsi), %r12  /* e */
+	movq  40(%rsi), %r13  /* f */
+	movq  48(%rsi), %r14  /* g */
+	movq  56(%rsi), %r15  /* h */
 	
 	/* Do 80 rounds of hashing */
 	ROUNDa( 0, r8 , r9 , r10, r11, r12, r13, r14, r15, 0x428A2F98D728AE22)
@@ -227,14 +227,14 @@ sha512_compress:
 	ROUNDb(79, r9 , r10, r11, r12, r13, r14, r15, r8 , 0x6C44198C4A475817)
 	
 	/* Add to state */
-	addq  %r8 ,  0(%rdi)
-	addq  %r9 ,  8(%rdi)
-	addq  %r10, 16(%rdi)
-	addq  %r11, 24(%rdi)
-	addq  %r12, 32(%rdi)
-	addq  %r13, 40(%rdi)
-	addq  %r14, 48(%rdi)
-	addq  %r15, 56(%rdi)
+	addq  %r8 ,  0(%rsi)
+	addq  %r9 ,  8(%rsi)
+	addq  %r10, 16(%rsi)
+	addq  %r11, 24(%rsi)
+	addq  %r12, 32(%rsi)
+	addq  %r13, 40(%rsi)
+	addq  %r14, 48(%rsi)
+	addq  %r15, 56(%rsi)
 	
 	/* Restore registers */
 	movq  %xmm0, %r10
