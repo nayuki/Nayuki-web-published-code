@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -49,7 +49,7 @@ fn submain(argv: Vec<String>) -> Option<String> {
 		return Some("Error: Invalid new CRC-32 value".to_string());
 	}
 	let newcrc = match u32::from_str_radix(&argv[3], 16) {
-		Ok(x) => reverse_bits(x),
+		Ok(x) => x.reverse_bits(),
 		Err(_) => return Some("Error: Invalid new CRC-32 value".to_string()),
 	};
 	
@@ -76,9 +76,9 @@ fn submain(argv: Vec<String>) -> Option<String> {
 pub fn modify_file_crc32(file: &std::path::Path, offset: u64, newcrc: u32, printstatus: bool)
 		-> io::Result<()> {
 	
-	let filelen = std::fs::metadata(file)?.len();
+	let length = std::fs::metadata(file)?.len();
 	let mut raf = std::fs::OpenOptions::new().read(true).write(true).open(file)?;
-	if offset + 4 > filelen {
+	if length < 4 || offset > length - 4 {
 		return Err(io::Error::new(
 			io::ErrorKind::InvalidInput, "Byte offset plus 4 exceeds file length"));
 	}
@@ -86,12 +86,12 @@ pub fn modify_file_crc32(file: &std::path::Path, offset: u64, newcrc: u32, print
 	// Read entire file and calculate original CRC-32 value
 	let crc: u32 = get_crc32(&mut raf)?;
 	if printstatus {
-		println!("Original CRC-32: {:08X}", reverse_bits(crc));
+		println!("Original CRC-32: {:08X}", crc.reverse_bits());
 	}
 	
 	// Compute the change to make
 	let delta = multiply_mod(
-		reciprocal_mod(pow_mod(2, (filelen - offset) * 8)),
+		reciprocal_mod(pow_mod(2, (length - offset) * 8)),
 		u64::from(crc ^ newcrc)) as u32;
 	
 	// Patch 4 bytes in the file
@@ -99,7 +99,7 @@ pub fn modify_file_crc32(file: &std::path::Path, offset: u64, newcrc: u32, print
 	let mut bytes4 = [0u8; 4];
 	raf.read_exact(&mut bytes4)?;
 	for (i, b) in bytes4.iter_mut().enumerate() {
-		*b ^= (reverse_bits(delta) >> (i * 8)) as u8;
+		*b ^= (delta.reverse_bits() >> (i * 8)) as u8;
 	}
 	raf.seek(io::SeekFrom::Start(offset))?;
 	raf.write_all(&bytes4)?;
@@ -138,15 +138,6 @@ fn get_crc32(raf: &mut std::fs::File) -> io::Result<u32> {
 			}
 		}
 	}
-}
-
-
-fn reverse_bits(x: u32) -> u32 {
-	let mut result: u32 = 0;
-	for i in 0 .. 32 {
-		result |= ((x >> i) & 1) << (31 - i);
-	}
-	result
 }
 
 

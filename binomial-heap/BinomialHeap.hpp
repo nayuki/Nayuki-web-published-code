@@ -194,7 +194,7 @@ class BinomialHeap final {
 		if (shift < 0)
 			throw std::domain_error("Negative shift");
 		for (int i = 0; i < shift && val != 0; i++)
-			val <<= 1;
+			val = (0U + val) << 1;
 		return val;
 	}
 	

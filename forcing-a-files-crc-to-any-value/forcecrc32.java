@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (Java)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -88,7 +88,8 @@ public final class forcecrc32 {
 			throw new IllegalArgumentException("Negative file offset");
 		
 		try (RandomAccessFile raf = new RandomAccessFile(file, "rws")) {
-			if (offset + 4 > raf.length())
+			long length = raf.length();
+			if (length < 4 || offset > length - 4)
 				throw new IllegalArgumentException("Byte offset plus 4 exceeds file length");
 			
 			// Read entire file and calculate original CRC-32 value
@@ -98,7 +99,7 @@ public final class forcecrc32 {
 			
 			// Compute the change to make
 			int delta = crc ^ newCrc;
-			delta = (int)multiplyMod(reciprocalMod(powMod(2, (raf.length() - offset) * 8)), delta & 0xFFFFFFFFL);
+			delta = (int)multiplyMod(reciprocalMod(powMod(2, (length - offset) * 8)), delta & 0xFFFFFFFFL);
 			
 			// Patch 4 bytes in the file
 			raf.seek(offset);

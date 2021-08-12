@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (C)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -100,7 +100,7 @@ const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc
 	// To be portable, we also avoid using POSIX fseeko()+ftello() or Windows GetFileSizeEx()/_filelength().
 	uint64_t length;
 	uint32_t crc = get_crc32_and_length(f, &length);
-	if (offset > UINT64_MAX - 4 || offset + 4 > length) {
+	if (length < 4 || offset > length - 4) {
 		fclose(f);
 		return "Error: Byte offset plus 4 exceeds file length";
 	}
@@ -175,7 +175,7 @@ static uint32_t get_crc32_and_length(FILE f[static 1], uint64_t length[static 1]
 					crc ^= (uint32_t)POLYNOMIAL;
 			}
 		}
-		*length += n;
+		*length = 0U + *length + n;
 		if (feof(f) != 0)
 			return ~crc;
 	}
@@ -196,8 +196,8 @@ static void fseek64(FILE f[static 1], uint64_t offset) {
 
 static uint32_t reverse_bits(uint32_t x) {
 	uint32_t result = 0;
-	for (int i = 0; i < 32; i++)
-		result = (result << 1) | ((x >> i) & 1U);
+	for (int i = 0; i < 32; i++, x >>= 1)
+		result = (result << 1) | (x & 1U);
 	return result;
 }
 
