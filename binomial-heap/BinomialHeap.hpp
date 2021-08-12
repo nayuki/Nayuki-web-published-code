@@ -52,9 +52,11 @@ class BinomialHeap final {
 	}
 	
 	
-	public: BinomialHeap &operator=(const BinomialHeap &other) {
-		BinomialHeap temp(other);
-		head.swap(temp.head);
+	public: BinomialHeap(BinomialHeap &&other) = default;
+	
+	
+	public: BinomialHeap &operator=(BinomialHeap other) {
+		std::swap(head, other.head);
 		return *this;
 	}
 	

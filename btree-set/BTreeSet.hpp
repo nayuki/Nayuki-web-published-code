@@ -70,27 +70,11 @@ class BTreeSet final {
 		maxKeys(other.maxKeys) {}
 	
 	
-	public: BTreeSet(BTreeSet &&other) :
-			root(new Node(other.maxKeys, true)),
-			count  (other.count  ),
-			minKeys(other.minKeys),
-			maxKeys(other.maxKeys) {
-		root.swap(other.root);
-	}
+	public: BTreeSet(BTreeSet &&other) = default;
 	
 	
-	public: BTreeSet &operator=(const BTreeSet &other) {
-		BTreeSet temp(other);
-		root.swap(temp.root);
-		std::swap(count  , temp.count  );
-		std::swap(minKeys, temp.minKeys);
-		std::swap(maxKeys, temp.maxKeys);
-		return *this;
-	}
-	
-	
-	public: BTreeSet &operator=(BTreeSet &&other) {
-		root.swap(other.root);
+	public: BTreeSet &operator=(BTreeSet other) {
+		std::swap(root   , other.root   );
 		std::swap(count  , other.count  );
 		std::swap(minKeys, other.minKeys);
 		std::swap(maxKeys, other.maxKeys);

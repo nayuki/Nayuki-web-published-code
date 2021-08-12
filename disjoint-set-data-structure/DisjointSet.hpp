@@ -82,6 +82,19 @@ class DisjointSet final {
 	}
 	
 	
+	public: explicit DisjointSet(const DisjointSet &other) = default;
+	
+	
+	public: DisjointSet(DisjointSet &&other) = default;
+	
+	
+	public: DisjointSet &operator=(DisjointSet other) {
+		std::swap(nodes  , other.nodes  );
+		std::swap(numSets, other.numSets);
+		return *this;
+	}
+	
+	
 	
 	/*---- Methods ----*/
 	

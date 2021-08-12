@@ -26,6 +26,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
+#include <utility>
 
 
 template <typename T>
@@ -56,6 +57,18 @@ class BinaryIndexedTree final {
 				val += sumTree.at(i ^ j);
 			sumTree.at(i) = val;
 		}
+	}
+	
+	
+	public: explicit BinaryIndexedTree(const BinaryIndexedTree &other) = default;
+	
+	
+	public: BinaryIndexedTree(BinaryIndexedTree &&other) = default;
+	
+	
+	public: BinaryIndexedTree &operator=(BinaryIndexedTree other) {
+		std::swap(sumTree, other.sumTree);
+		return *this;
 	}
 	
 	

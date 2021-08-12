@@ -55,6 +55,16 @@ class BinaryArraySet final {
 	public: explicit BinaryArraySet(const BinaryArraySet &other) = default;
 	
 	
+	public: BinaryArraySet(BinaryArraySet &&other) = default;
+	
+	
+	public: BinaryArraySet &operator=(BinaryArraySet other) {
+		std::swap(values, other.values);
+		std::swap(length, other.length);
+		return *this;
+	}
+	
+	
 	
 	/*---- Methods ----*/
 	

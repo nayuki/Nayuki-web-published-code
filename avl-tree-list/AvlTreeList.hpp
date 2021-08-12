@@ -67,14 +67,7 @@ class AvlTreeList final {
 	}
 	
 	
-	public: AvlTreeList &operator=(const AvlTreeList &other) {
-		AvlTreeList temp(other);
-		std::swap(root, temp.root);
-		return *this;
-	}
-	
-	
-	public: AvlTreeList &operator=(AvlTreeList &&other) {
+	public: AvlTreeList &operator=(AvlTreeList other) {
 		std::swap(root, other.root);
 		return *this;
 	}
