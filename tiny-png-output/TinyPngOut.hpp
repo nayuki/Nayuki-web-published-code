@@ -1,7 +1,7 @@
 /* 
  * Tiny PNG Output (C++)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/tiny-png-output
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -59,6 +59,11 @@ class TinyPngOut final {
 	public: explicit TinyPngOut(std::uint32_t w, std::uint32_t h, std::ostream &out);
 	
 	
+	private: TinyPngOut(const TinyPngOut &other) = delete;
+	
+	public: TinyPngOut(TinyPngOut &&other) = default;
+	
+	
 	/* 
 	 * Writes 'count' pixels from the given array to the output stream. This reads count*3
 	 * bytes from the array. Pixels are presented from top to bottom, left to right, and with
@@ -67,18 +72,18 @@ class TinyPngOut final {
 	 * Once exactly width*height pixels have been written with this TinyPngOut object,
 	 * there are no more valid operations on the object and it should be discarded.
 	 */
-	public: void write(const std::uint8_t pixels[], size_t count);
+	public: void write(const std::uint8_t pixels[], std::size_t count);
 	
 	
 	
 	/*---- Private checksum methods ----*/
 	
 	// Reads the 'crc' field and updates its value based on the given array of new data.
-	private: void crc32(const std::uint8_t data[], size_t len);
+	private: void crc32(const std::uint8_t data[], std::size_t len);
 	
 	
 	// Reads the 'adler' field and updates its value based on the given array of new data.
-	private: void adler32(const std::uint8_t data[], size_t len);
+	private: void adler32(const std::uint8_t data[], std::size_t len);
 	
 	
 	
@@ -93,6 +98,6 @@ class TinyPngOut final {
 	private: static void putBigUint32(std::uint32_t val, std::uint8_t array[4]);
 	
 	
-	private: static constexpr std::uint16_t DEFLATE_MAX_BLOCK_SIZE = 65535;
+	private: static constexpr std::uint16_t DEFLATE_MAX_BLOCK_SIZE = UINT16_C(65535);
 	
 };

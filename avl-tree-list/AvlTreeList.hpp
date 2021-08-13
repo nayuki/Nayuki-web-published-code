@@ -217,7 +217,7 @@ class AvlTreeList final {
 		}
 		
 		
-		public: Node *insertAt(std::size_t index, E obj) {
+		public: Node *insertAt(std::size_t index, E &&obj) {
 			assert(index <= size);
 			if (this == &EMPTY_LEAF)  // Automatically implies index == 0, because EMPTY_LEAF.size == 0
 				return new Node(std::move(obj));

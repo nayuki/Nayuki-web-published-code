@@ -66,7 +66,7 @@ vector<E> computeSlidingWindowMinOrMaxNaive(const vector<E> &array, size_t windo
 	if (array.size() < window)
 		return result;
 	
-	for (vector<E>::const_iterator start = array.cbegin(), end = array.cbegin() + window; ; ++start, ++end) {
+	for (typename vector<E>::const_iterator start = array.cbegin(), end = array.cbegin() + window; ; ++start, ++end) {
 		if (!maximize)
 			result.push_back(*std::min_element(start, end));
 		else
