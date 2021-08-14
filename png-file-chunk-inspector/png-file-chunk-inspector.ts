@@ -708,8 +708,8 @@ namespace app {
 				if (chunk.data.length == 0 || chunk.data.length > 4)
 					chunk.errorNotes.push("Invalid data length");
 				let temp: Array<string> = [];
-				for (let i = 0; i < chunk.data.length; i++)
-					temp.push(chunk.data[i].toString());
+				for (const b of chunk.data)
+					temp.push(b.toString());
 				chunk.innerNotes.push(`Significant bits per channel: ${temp.join(", ")}`);
 			}],
 			
@@ -770,8 +770,8 @@ namespace app {
 			
 			["tEXt", "Textual data", true, function(chunk, earlier) {
 				let data: Array<int> = [];
-				for (let i = 0; i < chunk.data.length; i++)
-					data.push(chunk.data[i]);
+				for (const b of chunk.data)
+					data.push(b);
 				
 				let keyword: string;
 				let text: string;
@@ -869,8 +869,7 @@ namespace app {
 	
 	function bytesToReadableString(bytes: Uint8Array): string {
 		let result: string = "";
-		for (let i = 0; i < bytes.length; i++) {
-			const b: byte = bytes[i];
+		for (const b of bytes) {
 			let cc: int = b;
 			if (b < 0x20)
 				cc += 0x2400;

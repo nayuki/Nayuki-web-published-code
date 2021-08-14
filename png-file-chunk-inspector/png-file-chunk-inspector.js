@@ -622,8 +622,10 @@ var app;
                     if (chunk.data.length == 0 || chunk.data.length > 4)
                         chunk.errorNotes.push("Invalid data length");
                     var temp = [];
-                    for (var i = 0; i < chunk.data.length; i++)
-                        temp.push(chunk.data[i].toString());
+                    for (var _i = 0, _a = chunk.data; _i < _a.length; _i++) {
+                        var b = _a[_i];
+                        temp.push(b.toString());
+                    }
                     chunk.innerNotes.push("Significant bits per channel: " + temp.join(", "));
                 }],
             ["sPLT", "Suggested palette", true, function (chunk, earlier) {
@@ -674,8 +676,10 @@ var app;
                 }],
             ["tEXt", "Textual data", true, function (chunk, earlier) {
                     var data = [];
-                    for (var i = 0; i < chunk.data.length; i++)
-                        data.push(chunk.data[i]);
+                    for (var _i = 0, _a = chunk.data; _i < _a.length; _i++) {
+                        var b = _a[_i];
+                        data.push(b);
+                    }
                     var keyword;
                     var text;
                     var separatorIndex = data.indexOf(0);
@@ -759,8 +763,8 @@ var app;
     }
     function bytesToReadableString(bytes) {
         var result = "";
-        for (var i = 0; i < bytes.length; i++) {
-            var b = bytes[i];
+        for (var _i = 0, bytes_3 = bytes; _i < bytes_3.length; _i++) {
+            var b = bytes_3[_i];
             var cc = b;
             if (b < 0x20)
                 cc += 0x2400;
@@ -774,8 +778,8 @@ var app;
     }
     function decodeIso8859_1(bytes) {
         var result = "";
-        for (var _i = 0, bytes_3 = bytes; _i < bytes_3.length; _i++) {
-            var b = bytes_3[_i];
+        for (var _i = 0, bytes_4 = bytes; _i < bytes_4.length; _i++) {
+            var b = bytes_4[_i];
             if (!(0x00 <= b && b <= 0xFF))
                 throw "Invalid byte";
             else if (0x80 <= b && b < 0xA0)
