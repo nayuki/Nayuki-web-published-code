@@ -43,6 +43,27 @@ var app;
         var tbody = requireType(table.querySelector("tbody"), HTMLElement);
         while (tbody.firstChild !== null)
             tbody.removeChild(tbody.firstChild);
+        var parts = parseFile(fileBytes);
+        var summary = "";
+        for (var i = 0; i < parts.length; i++) {
+            var part = parts[i];
+            if (part instanceof ChunkPart) {
+                if (summary != "")
+                    summary += ", ";
+                summary += part.typeStr;
+                if (part.typeStr == "IDAT") {
+                    var count = 1;
+                    for (; i + 1 < parts.length; i++, count++) {
+                        var nextPart = parts[i + 1];
+                        if (!(nextPart instanceof ChunkPart) || nextPart.typeStr != "IDAT")
+                            break;
+                    }
+                    if (count > 1)
+                        summary += " \u00D7" + count;
+                }
+            }
+        }
+        requireType(document.querySelector("article span#summary"), HTMLElement).textContent = summary;
         var _loop_1 = function (part) {
             var tr = appendElem(tbody, "tr");
             appendElem(tr, "td", uintToStrWithThousandsSeparators(part.offset));
@@ -84,8 +105,8 @@ var app;
                 }
             }
         };
-        for (var _i = 0, _a = parseFile(fileBytes); _i < _a.length; _i++) {
-            var part = _a[_i];
+        for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
+            var part = parts_1[_i];
             _loop_1(part);
         }
     }

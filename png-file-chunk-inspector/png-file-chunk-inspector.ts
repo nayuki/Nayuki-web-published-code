@@ -40,7 +40,29 @@ namespace app {
 		while (tbody.firstChild !== null)
 			tbody.removeChild(tbody.firstChild);
 		
-		for (const part of parseFile(fileBytes)) {
+		const parts: Array<FilePart> = parseFile(fileBytes);
+		let summary: string = "";
+		for (let i = 0; i < parts.length; i++) {
+			const part: FilePart = parts[i];
+			if (part instanceof ChunkPart) {
+				if (summary != "")
+					summary += ", ";
+				summary += part.typeStr;
+				if (part.typeStr == "IDAT") {
+					let count: int = 1;
+					for (; i + 1 < parts.length; i++, count++) {
+						let nextPart: FilePart = parts[i + 1];
+						if (!(nextPart instanceof ChunkPart) || nextPart.typeStr != "IDAT")
+							break;
+					}
+					if (count > 1)
+						summary += " \u00D7" + count;
+				}
+			}
+		}
+		requireType(document.querySelector("article span#summary"), HTMLElement).textContent = summary;
+		
+		for (const part of parts) {
 			let tr: HTMLElement = appendElem(tbody, "tr");
 			appendElem(tr, "td", uintToStrWithThousandsSeparators(part.offset));
 			
