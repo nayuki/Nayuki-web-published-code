@@ -9,6 +9,7 @@
 
 namespace app {
 	
+	type byte = number;
 	type int = number;
 	
 	
@@ -262,7 +263,7 @@ namespace app {
 			}
 		}
 		
-		public static FILE_SIGNATURE: Array<int> = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+		public static FILE_SIGNATURE: Array<byte> = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 		
 	}
 	
@@ -437,8 +438,8 @@ namespace app {
 					chunk.errorNotes.push("Invalid data length");
 					return;
 				}
-				const disposalMethod: int = chunk.data[0];
-				const userInputFlag : int = chunk.data[1];
+				const disposalMethod: byte = chunk.data[0];
+				const userInputFlag : byte = chunk.data[1];
 				const delayTime     : int = readUint16(chunk.data, 2);
 				chunk.innerNotes.push(`Disposal method: ${disposalMethod}`);
 				chunk.innerNotes.push(`User input flag: ${userInputFlag}`);
@@ -458,8 +459,8 @@ namespace app {
 				const gridTop   : int = readInt32(chunk.data,  4);
 				const gridWidth : int = readInt32(chunk.data,  8);
 				const gridHeight: int = readInt32(chunk.data, 12);
-				const cellWidth : int = chunk.data[16];
-				const cellHeight: int = chunk.data[17];
+				const cellWidth : byte = chunk.data[16];
+				const cellHeight: byte = chunk.data[17];
 				const foregroundColor: int = chunk.data[18] << 16 | chunk.data[19] << 8 | chunk.data[20] << 0;
 				const backgroundColor: int = chunk.data[21] << 16 | chunk.data[22] << 8 | chunk.data[23] << 0;
 				const text: string = bytesToReadableString(chunk.data.subarray(24));
@@ -541,11 +542,11 @@ namespace app {
 				}
 				const width    : int = readUint32(chunk.data, 0);
 				const height   : int = readUint32(chunk.data, 4);
-				const bitDepth : int = chunk.data[ 8];
-				const colorType: int = chunk.data[ 9];
-				const compMeth : int = chunk.data[10];
-				const filtMeth : int = chunk.data[11];
-				const laceMeth : int = chunk.data[12];
+				const bitDepth : byte = chunk.data[ 8];
+				const colorType: byte = chunk.data[ 9];
+				const compMeth : byte = chunk.data[10];
+				const filtMeth : byte = chunk.data[11];
+				const laceMeth : byte = chunk.data[12];
 				
 				chunk.innerNotes.push(`Width: ${width} pixels`);
 				if (width == 0 || width > 0x7FFFFFFF)
@@ -621,7 +622,7 @@ namespace app {
 				}
 				const xPos: int = readInt32(chunk.data, 0);
 				const yPos: int = readInt32(chunk.data, 4);
-				const unit: int = chunk.data[8];
+				const unit: byte = chunk.data[8];
 				chunk.innerNotes.push(`X position: ${xPos} units`);
 				chunk.innerNotes.push(`Y position: ${yPos} units`);
 				{
@@ -654,7 +655,7 @@ namespace app {
 				}
 				const horzRes: int = readUint32(chunk.data, 0);
 				const vertRes: int = readUint32(chunk.data, 4);
-				const unit   : int = chunk.data[8];
+				const unit   : byte = chunk.data[8];
 				for (const [dir, val] of ([["Horizontal", horzRes], ["Vertical", vertRes]] as Array<[string,number]>)) {
 					let frag: DocumentFragment = document.createDocumentFragment();
 					frag.appendChild(document.createTextNode(`${dir} resolution: ${val} pixels per unit`));
@@ -731,7 +732,7 @@ namespace app {
 					chunk.errorNotes.push("Invalid data length");
 					return;
 				}
-				const renderIntent: int = chunk.data[0];
+				const renderIntent: byte = chunk.data[0];
 				let s: string|null = lookUpTable(renderIntent, [
 					[0, "Perceptual"           ],
 					[1, "Relative colorimetric"],
@@ -754,7 +755,7 @@ namespace app {
 					chunk.errorNotes.push("Invalid data length");
 					return;
 				}
-				const mode: int = chunk.data[0];
+				const mode: byte = chunk.data[0];
 				let s: string|null = lookUpTable(mode, [
 					[0, "Cross-fuse layout"    ],
 					[1, "Diverging-fuse layout"],
@@ -814,11 +815,11 @@ namespace app {
 					return;
 				}
 				const year  : int = readUint16(chunk.data, 0);
-				const month : int = chunk.data[2];
-				const day   : int = chunk.data[3];
-				const hour  : int = chunk.data[4];
-				const minute: int = chunk.data[5];
-				const second: int = chunk.data[6];
+				const month : byte = chunk.data[2];
+				const day   : byte = chunk.data[3];
+				const hour  : byte = chunk.data[4];
+				const minute: byte = chunk.data[5];
+				const second: byte = chunk.data[6];
 				chunk.innerNotes.push(`Year: ${year}`);
 				chunk.innerNotes.push(`Month: ${month}`);
 				chunk.innerNotes.push(`Day: ${day}`);
@@ -869,7 +870,7 @@ namespace app {
 	function bytesToReadableString(bytes: Uint8Array): string {
 		let result: string = "";
 		for (let i = 0; i < bytes.length; i++) {
-			const b: int = bytes[i];
+			const b: byte = bytes[i];
 			let cc: int = b;
 			if (b < 0x20)
 				cc += 0x2400;
@@ -883,7 +884,7 @@ namespace app {
 	}
 	
 	
-	function decodeIso8859_1(bytes: Array<int>): string {
+	function decodeIso8859_1(bytes: Array<byte>): string {
 		let result: string = "";
 		for (const b of bytes) {
 			if (!(0x00 <= b && b <= 0xFF))
