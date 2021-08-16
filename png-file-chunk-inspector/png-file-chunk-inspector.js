@@ -537,7 +537,143 @@ var app;
                         chunk.innerNotes.push("Interlace method: " + s + " (" + laceMeth + ")");
                     }
                 }],
-            ["iTXt", "International textual data", true, function (chunk, earlier) { }],
+            ["iTXt", "International textual data", true, function (chunk, earlier) {
+                    var data = [];
+                    for (var _i = 0, _a = chunk.data; _i < _a.length; _i++) {
+                        var b = _a[_i];
+                        data.push(b);
+                    }
+                    var dataIndex = 0;
+                    function parseNullTerminatedBytes() {
+                        var nulIndex = data.indexOf(0, dataIndex);
+                        var result;
+                        if (nulIndex != -1) {
+                            result = data.slice(dataIndex, nulIndex);
+                            dataIndex = nulIndex + 1;
+                        }
+                        else {
+                            result = data.slice(dataIndex);
+                            dataIndex = data.length;
+                        }
+                        return result;
+                    }
+                    var compFlag = null;
+                    var compMeth = null;
+                    loop: for (var state = 0; state < 6; state++) {
+                        switch (state) {
+                            case 0: {
+                                var keyword = decodeIso8859_1(parseNullTerminatedBytes());
+                                annotateTextKeyword(keyword, chunk);
+                                if (dataIndex == data.length) {
+                                    chunk.errorNotes.push("Missing null separator");
+                                    break loop;
+                                }
+                                break;
+                            }
+                            case 1: {
+                                if (dataIndex == data.length) {
+                                    chunk.errorNotes.push("Missing compression flag");
+                                    break loop;
+                                }
+                                compFlag = data[dataIndex];
+                                dataIndex++;
+                                var s = lookUpTable(compFlag, [
+                                    [0, "Uncompressed"],
+                                    [1, "Compressed"],
+                                ]);
+                                if (s === null) {
+                                    s = "Unknown";
+                                    chunk.errorNotes.push("Unknown compression flag");
+                                }
+                                chunk.innerNotes.push("Compression flag: " + s + " (" + compFlag + ")");
+                                break;
+                            }
+                            case 2: {
+                                if (dataIndex == data.length) {
+                                    chunk.errorNotes.push("Missing compression method");
+                                    break loop;
+                                }
+                                compMeth = data[dataIndex];
+                                dataIndex++;
+                                var s = lookUpTable(compMeth, [
+                                    [0, "DEFLATE"],
+                                ]);
+                                if (s === null) {
+                                    s = "Unknown";
+                                    chunk.errorNotes.push("Unknown compression method");
+                                }
+                                chunk.innerNotes.push("Compression method: " + s + " (" + compMeth + ")");
+                                break;
+                            }
+                            case 3: {
+                                var bytes = parseNullTerminatedBytes();
+                                var langTag = null;
+                                try {
+                                    langTag = decodeUtf8(bytes);
+                                }
+                                catch (e) {
+                                    chunk.errorNotes.push("Invalid UTF-8 in language tag");
+                                }
+                                if (langTag !== null)
+                                    chunk.innerNotes.push("Language tag: " + langTag);
+                                if (dataIndex == data.length) {
+                                    chunk.errorNotes.push("Missing null separator");
+                                    break loop;
+                                }
+                                break;
+                            }
+                            case 4: {
+                                var bytes = parseNullTerminatedBytes();
+                                var transKey = null;
+                                try {
+                                    transKey = decodeUtf8(bytes);
+                                }
+                                catch (e) {
+                                    chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
+                                }
+                                if (transKey !== null)
+                                    chunk.innerNotes.push("Translated keyword: " + transKey);
+                                if (dataIndex == data.length) {
+                                    chunk.errorNotes.push("Missing null separator");
+                                    break loop;
+                                }
+                                break;
+                            }
+                            case 5: {
+                                var textBytes = data.slice(dataIndex);
+                                if (compFlag === 1) {
+                                    if (compMeth == 0) {
+                                        try {
+                                            textBytes = deflate.decompressZlib(textBytes);
+                                        }
+                                        catch (e) {
+                                            chunk.errorNotes.push("Text decompression error: " + e);
+                                            break;
+                                        }
+                                    }
+                                    else
+                                        break;
+                                }
+                                var text = void 0;
+                                try {
+                                    text = decodeUtf8(textBytes);
+                                }
+                                catch (e) {
+                                    chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
+                                    break;
+                                }
+                                var frag = document.createDocumentFragment();
+                                frag.appendChild(document.createTextNode("Text string: "));
+                                var span = appendElem(frag, "span", text);
+                                span.style.wordBreak = "break-all";
+                                chunk.innerNotes.push(frag);
+                                break;
+                            }
+                            default:
+                                throw "Assertion error";
+                        }
+                    }
+                }],
             ["oFFs", "Image offset", false, function (chunk, earlier) {
                     if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
@@ -729,7 +865,52 @@ var app;
                     if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
                         chunk.errorNotes.push("Chunk must be before IDAT chunk");
                 }],
-            ["zTXt", "Compressed textual data", true, function (chunk, earlier) { }],
+            ["zTXt", "Compressed textual data", true, function (chunk, earlier) {
+                    var data = [];
+                    for (var _i = 0, _a = chunk.data; _i < _a.length; _i++) {
+                        var b = _a[_i];
+                        data.push(b);
+                    }
+                    var separatorIndex = data.indexOf(0);
+                    if (separatorIndex == -1) {
+                        chunk.errorNotes.push("Missing null separator");
+                        var keyword = decodeIso8859_1(data);
+                        annotateTextKeyword(keyword, chunk);
+                    }
+                    else {
+                        var keyword = decodeIso8859_1(data.slice(0, separatorIndex));
+                        annotateTextKeyword(keyword, chunk);
+                        if (separatorIndex + 1 >= data.length)
+                            chunk.errorNotes.push("Missing compression method");
+                        else {
+                            var compMeth = data[separatorIndex + 1];
+                            var s = lookUpTable(compMeth, [
+                                [0, "DEFLATE"],
+                            ]);
+                            if (s === null) {
+                                s = "Unknown";
+                                chunk.errorNotes.push("Unknown compression method");
+                            }
+                            chunk.innerNotes.push("Compression method: " + s + " (" + compMeth + ")");
+                            if (compMeth == 0) {
+                                try {
+                                    var textBytes = deflate.decompressZlib(data.slice(separatorIndex + 2));
+                                    var text = decodeIso8859_1(textBytes);
+                                    var frag = document.createDocumentFragment();
+                                    frag.appendChild(document.createTextNode("Text string: "));
+                                    var span = appendElem(frag, "span", text);
+                                    span.style.wordBreak = "break-all";
+                                    chunk.innerNotes.push(frag);
+                                    if (text.indexOf("\uFFFD") != -1)
+                                        chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
+                                }
+                                catch (e) {
+                                    chunk.errorNotes.push("Text decompression error: " + e);
+                                }
+                            }
+                        }
+                    }
+                }],
         ];
         return ChunkPart;
     }(FilePart));
@@ -788,6 +969,17 @@ var app;
                 result += String.fromCharCode(b); // ISO 8859-1 is a subset of Unicode
         }
         return result;
+    }
+    function decodeUtf8(bytes) {
+        var temp = "";
+        for (var _i = 0, bytes_5 = bytes; _i < bytes_5.length; _i++) {
+            var b = bytes_5[_i];
+            if (b == "%".charCodeAt(0) || b >= 128)
+                temp += "%" + b.toString(16).padStart(2, "0");
+            else
+                temp += String.fromCharCode(b);
+        }
+        return decodeURI(temp);
     }
     function uintToStrWithThousandsSeparators(val) {
         if (val < 0 || Math.floor(val) != val)
@@ -849,3 +1041,304 @@ var app;
         };
     }
 })(app || (app = {}));
+var deflate;
+(function (deflate) {
+    function decompressZlib(bytes) {
+        if (bytes.length < 2)
+            throw "Invalid zlib container";
+        var compMeth = bytes[0] & 0xF;
+        var compInfo = bytes[0] >>> 4;
+        var presetDict = (bytes[1] & 0x20) != 0;
+        var compLevel = bytes[1] >>> 6;
+        if ((bytes[0] << 8 | bytes[1]) % 31 != 0)
+            throw "zlib header checksum mismatch";
+        if (compMeth != 8)
+            throw "Unsupported compression method (" + compMeth + ")";
+        if (compInfo > 7)
+            throw "Unsupported compression info (" + compInfo + ")";
+        if (presetDict)
+            throw "Unsupported preset dictionary";
+        var _a = decompressDeflate(bytes.slice(2)), result = _a[0], input = _a[1];
+        var dataAdler;
+        {
+            var s1 = 1;
+            var s2 = 0;
+            for (var _i = 0, result_3 = result; _i < result_3.length; _i++) {
+                var b = result_3[_i];
+                s1 = (s1 + b) % 65521;
+                s2 = (s2 + s1) % 65521;
+            }
+            dataAdler = s2 << 16 | s1;
+        }
+        var storedAdler = 0;
+        input.readUint((8 - input.getBitPosition()) % 8);
+        for (var i = 0; i < 4; i++)
+            storedAdler = storedAdler << 8 | input.readUint(8);
+        if (input.readBitMaybe() != -1)
+            throw "Unexpected data after zlib container";
+        if (storedAdler != dataAdler)
+            throw "Adler-32 mismatch";
+        return result;
+    }
+    deflate.decompressZlib = decompressZlib;
+    function decompressDeflate(bytes) {
+        var input = new BitInputStream(bytes);
+        var output = [];
+        var dictionary = new ByteHistory(32 * 1024);
+        while (true) {
+            var isFinal = input.readUint(1) != 0;
+            var type = input.readUint(2);
+            switch (type) {
+                case 0:
+                    decompressUncompressedBlock();
+                    break;
+                case 1:
+                    decompressHuffmanBlock(FIXED_LITERAL_LENGTH_CODE, FIXED_DISTANCE_CODE);
+                    break;
+                case 2:
+                    var _a = decodeHuffmanCodes(), litLenCode = _a[0], distCode = _a[1];
+                    decompressHuffmanBlock(litLenCode, distCode);
+                    break;
+                case 3:
+                    throw "Reserved block type";
+                default:
+                    throw "Assertion error";
+            }
+            if (isFinal)
+                return [output, input];
+        }
+        function decodeHuffmanCodes() {
+            var numLitLenCodes = input.readUint(5) + 257;
+            var numDistCodes = input.readUint(5) + 1;
+            var numCodeLenCodes = input.readUint(4) + 4;
+            var codeLenCodeLen = [];
+            for (var i = 0; i < 19; i++)
+                codeLenCodeLen.push(0);
+            codeLenCodeLen[16] = input.readUint(3);
+            codeLenCodeLen[17] = input.readUint(3);
+            codeLenCodeLen[18] = input.readUint(3);
+            codeLenCodeLen[0] = input.readUint(3);
+            for (var i = 0; i < numCodeLenCodes - 4; i++) {
+                var j = (i % 2 == 0) ? (8 + Math.floor(i / 2)) : (7 - Math.floor(i / 2));
+                codeLenCodeLen[j] = input.readUint(3);
+            }
+            var codeLenCode = new CanonicalCode(codeLenCodeLen);
+            var codeLens = [];
+            while (codeLens.length < numLitLenCodes + numDistCodes) {
+                var sym = codeLenCode.decodeNextSymbol(input);
+                if (0 <= sym && sym <= 15)
+                    codeLens.push(sym);
+                else if (sym == 16) {
+                    if (codeLens.length == 0)
+                        throw "No code length value to copy";
+                    var runLen = input.readUint(2) + 3;
+                    for (var i = 0; i < runLen; i++)
+                        codeLens.push(codeLens[codeLens.length - 1]);
+                }
+                else if (sym == 17) {
+                    var runLen = input.readUint(3) + 3;
+                    for (var i = 0; i < runLen; i++)
+                        codeLens.push(0);
+                }
+                else if (sym == 18) {
+                    var runLen = input.readUint(7) + 11;
+                    for (var i = 0; i < runLen; i++)
+                        codeLens.push(0);
+                }
+                else
+                    throw "Symbol out of range";
+            }
+            if (codeLens.length > numLitLenCodes + numDistCodes)
+                throw "Run exceeds number of codes";
+            var litLenCode = new CanonicalCode(codeLens.slice(0, numLitLenCodes));
+            var distCodeLen = codeLens.slice(numLitLenCodes);
+            var distCode;
+            if (distCodeLen.length == 1 && distCodeLen[0] == 0)
+                distCode = null;
+            else {
+                var oneCount = distCodeLen.filter(function (x) { return x == 1; }).length;
+                var otherPositiveCount = distCodeLen.filter(function (x) { return x > 1; }).length;
+                if (oneCount == 1 && otherPositiveCount == 0) {
+                    while (distCodeLen.length < 32)
+                        distCodeLen.push(0);
+                    distCodeLen[31] = 1;
+                }
+                distCode = new CanonicalCode(distCodeLen);
+            }
+            return [litLenCode, distCode];
+        }
+        function decompressUncompressedBlock() {
+            input.readUint((8 - input.getBitPosition()) % 8);
+            var len = input.readUint(16);
+            var nlen = input.readUint(16);
+            if ((len ^ 0xFFFF) != nlen)
+                throw "Invalid length in uncompressed block";
+            for (var i = 0; i < len; i++) {
+                var b = input.readUint(8);
+                output.push(b);
+                dictionary.append(b);
+            }
+        }
+        function decompressHuffmanBlock(litLenCode, distCode) {
+            while (true) {
+                var sym = litLenCode.decodeNextSymbol(input);
+                if (sym == 256)
+                    break;
+                else if (sym < 256) {
+                    output.push(sym);
+                    dictionary.append(sym);
+                }
+                else {
+                    var run = decodeRunLength(sym);
+                    if (!(3 <= run && run <= 258))
+                        throw "Invalid run length";
+                    if (distCode === null)
+                        throw "Length symbol encountered with empty distance code";
+                    var distSym = distCode.decodeNextSymbol(input);
+                    var dist = decodeDistance(distSym);
+                    if (!(1 <= dist && dist <= 32768))
+                        throw "Invalid distance";
+                    dictionary.copy(dist, run, output);
+                }
+            }
+        }
+        function decodeRunLength(sym) {
+            if (!(257 <= sym && sym <= 287))
+                throw "Invalid run length symbol";
+            if (sym <= 264)
+                return sym - 254;
+            else if (sym <= 284) {
+                var numExtraBits = Math.floor((sym - 261) / 4);
+                return (((sym - 265) % 4 + 4) << numExtraBits) + 3 + input.readUint(numExtraBits);
+            }
+            else if (sym == 285)
+                return 258;
+            else
+                throw "Reserved length symbol";
+        }
+        function decodeDistance(sym) {
+            if (!(0 <= sym && sym <= 31))
+                throw "Invalid distance symbol";
+            if (sym <= 3)
+                return sym + 1;
+            else if (sym <= 29) {
+                var numExtraBits = Math.floor(sym / 2) - 1;
+                return ((sym % 2 + 2) << numExtraBits) + 1 + input.readUint(numExtraBits);
+            }
+            else
+                throw "Reserved distance symbol";
+        }
+    }
+    deflate.decompressDeflate = decompressDeflate;
+    var CanonicalCode = /** @class */ (function () {
+        function CanonicalCode(codeLengths) {
+            var _this = this;
+            this.codeBitsToSymbol = new Map();
+            var nextCode = 0;
+            var _loop_2 = function (codeLength) {
+                nextCode <<= 1;
+                var startBit = 1 << codeLength;
+                codeLengths.forEach(function (cl, symbol) {
+                    if (cl != codeLength)
+                        return;
+                    if (nextCode >= startBit)
+                        throw "This canonical code produces an over-full Huffman code tree";
+                    _this.codeBitsToSymbol.set(startBit | nextCode, symbol);
+                    nextCode++;
+                });
+            };
+            for (var codeLength = 1; codeLength <= CanonicalCode.MAX_CODE_LENGTH; codeLength++) {
+                _loop_2(codeLength);
+            }
+            if (nextCode != 1 << CanonicalCode.MAX_CODE_LENGTH)
+                throw "This canonical code produces an under-full Huffman code tree";
+        }
+        CanonicalCode.prototype.decodeNextSymbol = function (inp) {
+            var codeBits = 1;
+            while (true) {
+                codeBits = codeBits << 1 | inp.readUint(1);
+                var result = this.codeBitsToSymbol.get(codeBits);
+                if (result !== undefined)
+                    return result;
+            }
+        };
+        CanonicalCode.MAX_CODE_LENGTH = 15;
+        return CanonicalCode;
+    }());
+    var FIXED_LITERAL_LENGTH_CODE;
+    {
+        var codeLens = [];
+        for (var i = 0; i < 144; i++)
+            codeLens.push(8);
+        for (var i = 0; i < 112; i++)
+            codeLens.push(9);
+        for (var i = 0; i < 24; i++)
+            codeLens.push(7);
+        for (var i = 0; i < 8; i++)
+            codeLens.push(8);
+        FIXED_LITERAL_LENGTH_CODE = new CanonicalCode(codeLens);
+    }
+    var FIXED_DISTANCE_CODE;
+    {
+        var codeLens = [];
+        for (var i = 0; i < 32; i++)
+            codeLens.push(5);
+        FIXED_DISTANCE_CODE = new CanonicalCode(codeLens);
+    }
+    var ByteHistory = /** @class */ (function () {
+        function ByteHistory(size) {
+            this.index = 0;
+            if (size < 1)
+                throw "Size must be positive";
+            this.data = new Uint8Array(size);
+        }
+        ByteHistory.prototype.append = function (b) {
+            if (!(0 <= this.index && this.index < this.data.length))
+                throw "Assertion error";
+            this.data[this.index] = b;
+            this.index = (this.index + 1) % this.data.length;
+        };
+        ByteHistory.prototype.copy = function (dist, count, out) {
+            if (count < 0 || !(1 <= dist && dist <= this.data.length))
+                throw "Invalid argument";
+            var readIndex = (this.index + this.data.length - dist) % this.data.length;
+            for (var i = 0; i < count; i++) {
+                var b = this.data[readIndex];
+                readIndex = (readIndex + 1) % this.data.length;
+                out.push(b);
+                this.append(b);
+            }
+        };
+        return ByteHistory;
+    }());
+    var BitInputStream = /** @class */ (function () {
+        function BitInputStream(data) {
+            this.data = data;
+            this.bitIndex = 0;
+        }
+        BitInputStream.prototype.getBitPosition = function () {
+            return this.bitIndex % 8;
+        };
+        BitInputStream.prototype.readBitMaybe = function () {
+            var byteIndex = this.bitIndex >>> 3;
+            if (byteIndex >= this.data.length)
+                return -1;
+            var result = ((this.data[byteIndex] >>> (this.bitIndex & 7)) & 1);
+            this.bitIndex++;
+            return result;
+        };
+        BitInputStream.prototype.readUint = function (numBits) {
+            if (numBits < 0)
+                throw "Invalid argument";
+            var result = 0;
+            for (var i = 0; i < numBits; i++) {
+                var bit = this.readBitMaybe();
+                if (bit == -1)
+                    throw "Unexpected end of data";
+                result |= bit << i;
+            }
+            return result;
+        };
+        return BitInputStream;
+    }());
+})(deflate || (deflate = {}));
