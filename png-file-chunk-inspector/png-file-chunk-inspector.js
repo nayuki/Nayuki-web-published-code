@@ -680,38 +680,22 @@ var app;
                         var b = _a[_i];
                         data.push(b);
                     }
-                    var keyword;
-                    var text;
                     var separatorIndex = data.indexOf(0);
                     if (separatorIndex == -1) {
                         chunk.errorNotes.push("Missing null separator");
-                        keyword = decodeIso8859_1(data);
-                        text = "";
-                        chunk.innerNotes.push("Keyword: " + keyword);
+                        var keyword = decodeIso8859_1(data);
+                        annotateTextKeyword(keyword, chunk);
                     }
                     else {
-                        keyword = decodeIso8859_1(data.slice(0, separatorIndex));
-                        text = decodeIso8859_1(data.slice(separatorIndex + 1));
-                        chunk.innerNotes.push("Keyword: " + keyword);
+                        var keyword = decodeIso8859_1(data.slice(0, separatorIndex));
+                        annotateTextKeyword(keyword, chunk);
+                        var text = decodeIso8859_1(data.slice(separatorIndex + 1));
                         chunk.innerNotes.push("Text string: " + text);
+                        if (text.indexOf("\u0000") != -1)
+                            chunk.errorNotes.push("Null character in text string");
+                        if (text.indexOf("\uFFFD") != -1)
+                            chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
                     }
-                    if (!(1 <= keyword.length || keyword.length <= 79))
-                        chunk.errorNotes.push("Invalid keyword length");
-                    for (var i = 0; i < keyword.length; i++) {
-                        var c = keyword.charCodeAt(i);
-                        if (0x20 <= c && c <= 0x7E || 0xA1 <= c && c <= 0xFF)
-                            continue;
-                        else {
-                            chunk.errorNotes.push("Invalid character in keyword");
-                            break;
-                        }
-                    }
-                    if (keyword.indexOf(" ") == 0 || keyword.lastIndexOf(" ") == keyword.length - 1 || keyword.indexOf("  ") != -1)
-                        chunk.errorNotes.push("Invalid space in keyword");
-                    if (text.indexOf("\u0000") != -1)
-                        chunk.errorNotes.push("Null character in text string");
-                    if (text.indexOf("\uFFFD") != -1)
-                        chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
                 }],
             ["tIME", "Image last-modification time", false, function (chunk, earlier) {
                     if (chunk.data.length != 7) {
@@ -750,6 +734,22 @@ var app;
         return ChunkPart;
     }(FilePart));
     /*---- Utility functions ----*/
+    function annotateTextKeyword(keyword, chunk) {
+        chunk.innerNotes.push("Keyword: " + keyword);
+        if (!(1 <= keyword.length || keyword.length <= 79))
+            chunk.errorNotes.push("Invalid keyword length");
+        for (var i = 0; i < keyword.length; i++) {
+            var c = keyword.charCodeAt(i);
+            if (0x20 <= c && c <= 0x7E || 0xA1 <= c && c <= 0xFF)
+                continue;
+            else {
+                chunk.errorNotes.push("Invalid character in keyword");
+                break;
+            }
+        }
+        if (keyword.indexOf(" ") == 0 || keyword.lastIndexOf(" ") == keyword.length - 1 || keyword.indexOf("  ") != -1)
+            chunk.errorNotes.push("Invalid space in keyword");
+    }
     function calcCrc32(bytes) {
         var crc = ~0;
         for (var _i = 0, bytes_2 = bytes; _i < bytes_2.length; _i++) {

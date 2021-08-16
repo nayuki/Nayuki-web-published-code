@@ -46,7 +46,7 @@ def _crypt_outer(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[in
 	# Check input arguments
 	assert len(block) == 8
 	assert direction in ("encrypt", "decrypt")
-	if printdebug:  print(f"descipher.{direction}(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
+	if printdebug:  print(f"blowfishcipher.{direction}(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Pack block bytes into variables
 	left : int = int.from_bytes(block[0 : 4], "big")
@@ -57,7 +57,7 @@ def _crypt_outer(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[in
 	if direction == "decrypt":
 		keyschedule = tuple(reversed(keyschedule))
 	
-	# Perform the encryption
+	# Perform the encryption/decryption
 	left, right = _crypt_inner(left, right, keyschedule, sboxes, printdebug)
 	
 	# Serialize the new block
@@ -75,7 +75,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[int,...
 	
 	# Prepare to repeatedly encrypt a block with current key schedule and S-boxes
 	sboxes: List[List[int]] = [list(sbox) for sbox in _INITIAL_SBOXES]
-	left: int = 0
+	left : int = 0
 	right: int = 0
 	
 	# Iteratively store the encrypted block into key schedule

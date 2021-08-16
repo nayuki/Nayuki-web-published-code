@@ -73,7 +73,7 @@ namespace app {
 				const bytes: Uint8Array = part.bytes;
 				const pushHex = function(index: int): void {
 					hex.push(bytes[index].toString(16).padStart(2, "0"));
-				}
+				};
 				
 				if (bytes.length <= 100) {
 					for (let i = 0; i < bytes.length; i++)
@@ -769,43 +769,25 @@ namespace app {
 			
 			
 			["tEXt", "Textual data", true, function(chunk, earlier) {
-				let data: Array<int> = [];
+				let data: Array<byte> = [];
 				for (const b of chunk.data)
 					data.push(b);
 				
-				let keyword: string;
-				let text: string;
-				let separatorIndex: int = data.indexOf(0);
+				const separatorIndex: int = data.indexOf(0);
 				if (separatorIndex == -1) {
 					chunk.errorNotes.push("Missing null separator");
-					keyword = decodeIso8859_1(data);
-					text = "";
-					chunk.innerNotes.push(`Keyword: ${keyword}`);
+					const keyword: string = decodeIso8859_1(data);
+					annotateTextKeyword(keyword, chunk);
 				} else {
-					keyword = decodeIso8859_1(data.slice(0, separatorIndex));
-					text = decodeIso8859_1(data.slice(separatorIndex + 1));
-					chunk.innerNotes.push(`Keyword: ${keyword}`);
+					const keyword: string = decodeIso8859_1(data.slice(0, separatorIndex));
+					annotateTextKeyword(keyword, chunk);
+					const text: string = decodeIso8859_1(data.slice(separatorIndex + 1));
 					chunk.innerNotes.push(`Text string: ${text}`);
+					if (text.indexOf("\u0000") != -1)
+						chunk.errorNotes.push("Null character in text string");
+					if (text.indexOf("\uFFFD") != -1)
+						chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
 				}
-				
-				if (!(1 <= keyword.length || keyword.length <= 79))
-					chunk.errorNotes.push("Invalid keyword length");
-				for (let i = 0; i < keyword.length; i++) {
-					const c: int = keyword.charCodeAt(i);
-					if (0x20 <= c && c <= 0x7E || 0xA1 <= c && c <= 0xFF)
-						continue;
-					else {
-						chunk.errorNotes.push("Invalid character in keyword");
-						break;
-					}
-				}
-				if (keyword.indexOf(" ") == 0 || keyword.lastIndexOf(" ") == keyword.length - 1 || keyword.indexOf("  ") != -1)
-					chunk.errorNotes.push("Invalid space in keyword");
-				
-				if (text.indexOf("\u0000") != -1)
-					chunk.errorNotes.push("Null character in text string");
-				if (text.indexOf("\uFFFD") != -1)
-					chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
 			}],
 			
 			
@@ -854,6 +836,24 @@ namespace app {
 	
 	
 	/*---- Utility functions ----*/
+	
+	function annotateTextKeyword(keyword: string, chunk: ChunkPart): void {
+		chunk.innerNotes.push(`Keyword: ${keyword}`);
+		if (!(1 <= keyword.length || keyword.length <= 79))
+			chunk.errorNotes.push("Invalid keyword length");
+		for (let i = 0; i < keyword.length; i++) {
+			const c: int = keyword.charCodeAt(i);
+			if (0x20 <= c && c <= 0x7E || 0xA1 <= c && c <= 0xFF)
+				continue;
+			else {
+				chunk.errorNotes.push("Invalid character in keyword");
+				break;
+			}
+		}
+		if (keyword.indexOf(" ") == 0 || keyword.lastIndexOf(" ") == keyword.length - 1 || keyword.indexOf("  ") != -1)
+			chunk.errorNotes.push("Invalid space in keyword");
+	}
+	
 	
 	function calcCrc32(bytes: Uint8Array): int {
 		let crc: int = ~0;
