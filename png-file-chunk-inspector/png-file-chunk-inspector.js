@@ -264,6 +264,7 @@ var app;
         function ChunkPart(offset, bytes) {
             var _this = _super.call(this, offset, bytes) || this;
             _this.typeStr = "";
+            _this.isDataComplete = false;
             _this.data = new Uint8Array();
             if (bytes.length < 4) {
                 _this.outerNotes.push("Data length: Unfinished");
@@ -292,28 +293,26 @@ var app;
                 _this.outerNotes.push((typeBytes[2] & 0x20) == 0 ? "Reserved (0)" : "Unknown (1)");
                 _this.outerNotes.push((typeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
             }
-            if (dataLen > ChunkPart.MAX_DATA_LENGTH) {
-                _this.typeStr = "";
+            if (dataLen > ChunkPart.MAX_DATA_LENGTH)
                 return _this;
-            }
-            if (bytes.length < dataLen + 12) {
+            if (bytes.length < dataLen + 12)
                 _this.outerNotes.push("CRC-32: Unfinished");
-                _this.typeStr = "";
-                return _this;
-            }
-            {
+            else {
                 var storedCrc = readUint32(bytes, bytes.length - 4);
                 _this.outerNotes.push("CRC-32: " + storedCrc.toString(16).padStart(8, "0").toUpperCase());
                 var dataCrc = calcCrc32(bytes.subarray(4, bytes.length - 4));
                 if (dataCrc != storedCrc)
                     _this.errorNotes.push("CRC-32 mismatch (calculated from data: " + dataCrc.toString(16).padStart(8, "0").toUpperCase() + ")");
-                _this.data = bytes.subarray(8, bytes.length - 4);
             }
+            _this.isDataComplete = 8 + dataLen <= bytes.length;
+            _this.data = bytes.subarray(8, Math.min(8 + dataLen, bytes.length));
             return _this;
         }
         ChunkPart.prototype.annotate = function (earlierChunks) {
             if (this.innerNotes.length > 0)
                 throw "Already annotated";
+            if (!this.isDataComplete)
+                return;
             var temp = this.getTypeInfo();
             if (temp !== null)
                 temp[2](this, earlierChunks);
@@ -546,25 +545,23 @@ var app;
                     var dataIndex = 0;
                     function parseNullTerminatedBytes() {
                         var nulIndex = data.indexOf(0, dataIndex);
-                        var result;
-                        if (nulIndex != -1) {
-                            result = data.slice(dataIndex, nulIndex);
-                            dataIndex = nulIndex + 1;
-                        }
+                        if (nulIndex == -1)
+                            return [false, data.slice(dataIndex)];
                         else {
-                            result = data.slice(dataIndex);
-                            dataIndex = data.length;
+                            var bytes = data.slice(dataIndex, nulIndex);
+                            dataIndex = nulIndex + 1;
+                            return [true, bytes];
                         }
-                        return result;
                     }
                     var compFlag = null;
                     var compMeth = null;
                     loop: for (var state = 0; state < 6; state++) {
                         switch (state) {
                             case 0: {
-                                var keyword = decodeIso8859_1(parseNullTerminatedBytes());
+                                var _b = parseNullTerminatedBytes(), found = _b[0], bytes = _b[1];
+                                var keyword = decodeIso8859_1(bytes);
                                 annotateTextKeyword(keyword, chunk);
-                                if (dataIndex == data.length) {
+                                if (!found) {
                                     chunk.errorNotes.push("Missing null separator");
                                     break loop;
                                 }
@@ -606,7 +603,7 @@ var app;
                                 break;
                             }
                             case 3: {
-                                var bytes = parseNullTerminatedBytes();
+                                var _c = parseNullTerminatedBytes(), found = _c[0], bytes = _c[1];
                                 var langTag = null;
                                 try {
                                     langTag = decodeUtf8(bytes);
@@ -616,14 +613,14 @@ var app;
                                 }
                                 if (langTag !== null)
                                     chunk.innerNotes.push("Language tag: " + langTag);
-                                if (dataIndex == data.length) {
+                                if (!found) {
                                     chunk.errorNotes.push("Missing null separator");
                                     break loop;
                                 }
                                 break;
                             }
                             case 4: {
-                                var bytes = parseNullTerminatedBytes();
+                                var _d = parseNullTerminatedBytes(), found = _d[0], bytes = _d[1];
                                 var transKey = null;
                                 try {
                                     transKey = decodeUtf8(bytes);
@@ -633,7 +630,7 @@ var app;
                                 }
                                 if (transKey !== null)
                                     chunk.innerNotes.push("Translated keyword: " + transKey);
-                                if (dataIndex == data.length) {
+                                if (!found) {
                                     chunk.errorNotes.push("Missing null separator");
                                     break loop;
                                 }
@@ -641,25 +638,31 @@ var app;
                             }
                             case 5: {
                                 var textBytes = data.slice(dataIndex);
-                                if (compFlag === 1) {
-                                    if (compMeth == 0) {
-                                        try {
-                                            textBytes = deflate.decompressZlib(textBytes);
-                                        }
-                                        catch (e) {
-                                            chunk.errorNotes.push("Text decompression error: " + e);
-                                            break;
-                                        }
-                                    }
-                                    else
+                                switch (compFlag) {
+                                    case 0: // Uncompressed
                                         break;
+                                    case 1:
+                                        if (compMeth == 0) {
+                                            try {
+                                                textBytes = deflate.decompressZlib(textBytes);
+                                            }
+                                            catch (e) {
+                                                chunk.errorNotes.push("Text decompression error: " + e);
+                                                break loop;
+                                            }
+                                        }
+                                        else
+                                            break loop;
+                                        break;
+                                    default:
+                                        break loop;
                                 }
                                 var text = void 0;
                                 try {
                                     text = decodeUtf8(textBytes);
                                 }
                                 catch (e) {
-                                    chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
+                                    chunk.errorNotes.push("Invalid UTF-8 in text string");
                                     break;
                                 }
                                 var frag = document.createDocumentFragment();
@@ -684,8 +687,8 @@ var app;
                     var xPos = readInt32(chunk.data, 0);
                     var yPos = readInt32(chunk.data, 4);
                     var unit = chunk.data[8];
-                    chunk.innerNotes.push("X position: " + xPos + " units");
-                    chunk.innerNotes.push("Y position: " + yPos + " units");
+                    chunk.innerNotes.push("X position: " + xPos.toString().replace(/-/, "\u2212") + " units");
+                    chunk.innerNotes.push("Y position: " + yPos.toString().replace(/-/, "\u2212") + " units");
                     {
                         var s = lookUpTable(unit, [
                             [0, "Pixel"],
@@ -917,7 +920,7 @@ var app;
     /*---- Utility functions ----*/
     function annotateTextKeyword(keyword, chunk) {
         chunk.innerNotes.push("Keyword: " + keyword);
-        if (!(1 <= keyword.length || keyword.length <= 79))
+        if (!(1 <= keyword.length && keyword.length <= 79))
             chunk.errorNotes.push("Invalid keyword length");
         for (var i = 0; i < keyword.length; i++) {
             var c = keyword.charCodeAt(i);
@@ -928,7 +931,7 @@ var app;
                 break;
             }
         }
-        if (keyword.indexOf(" ") == 0 || keyword.lastIndexOf(" ") == keyword.length - 1 || keyword.indexOf("  ") != -1)
+        if (/^ |  | $/.test(keyword))
             chunk.errorNotes.push("Invalid space in keyword");
     }
     function calcCrc32(bytes) {
@@ -1074,10 +1077,10 @@ var deflate;
         input.readUint((8 - input.getBitPosition()) % 8);
         for (var i = 0; i < 4; i++)
             storedAdler = storedAdler << 8 | input.readUint(8);
-        if (input.readBitMaybe() != -1)
-            throw "Unexpected data after zlib container";
         if (storedAdler != dataAdler)
             throw "Adler-32 mismatch";
+        if (input.readBitMaybe() != -1)
+            throw "Unexpected data after zlib container";
         return result;
     }
     deflate.decompressZlib = decompressZlib;

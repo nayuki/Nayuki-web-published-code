@@ -284,6 +284,7 @@ namespace app {
 	class ChunkPart extends FilePart {
 		
 		public typeStr: string = "";
+		private isDataComplete: boolean = false;
 		private data: Uint8Array = new Uint8Array();
 		
 		
@@ -323,30 +324,29 @@ namespace app {
 				this.outerNotes.push((typeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
 			}
 			
-			if (dataLen > ChunkPart.MAX_DATA_LENGTH) {
-				this.typeStr = "";
+			if (dataLen > ChunkPart.MAX_DATA_LENGTH)
 				return;
-			}
-			if (bytes.length < dataLen + 12) {
-				this.outerNotes.push("CRC-32: Unfinished");
-				this.typeStr = "";
-				return;
-			}
 			
-			{
+			if (bytes.length < dataLen + 12)
+				this.outerNotes.push("CRC-32: Unfinished");
+			else {
 				const storedCrc: int = readUint32(bytes, bytes.length - 4);
 				this.outerNotes.push(`CRC-32: ${storedCrc.toString(16).padStart(8,"0").toUpperCase()}`);
 				const dataCrc: int = calcCrc32(bytes.subarray(4, bytes.length - 4));
 				if (dataCrc != storedCrc)
 					this.errorNotes.push(`CRC-32 mismatch (calculated from data: ${dataCrc.toString(16).padStart(8,"0").toUpperCase()})`);
-				this.data = bytes.subarray(8, bytes.length - 4);
 			}
+			
+			this.isDataComplete = 8 + dataLen <= bytes.length;
+			this.data = bytes.subarray(8, Math.min(8 + dataLen, bytes.length));
 		}
 		
 		
 		public annotate(earlierChunks: Array<ChunkPart>): void {
 			if (this.innerNotes.length > 0)
 				throw "Already annotated";
+			if (!this.isDataComplete)
+				return;
 			const temp = this.getTypeInfo();
 			if (temp !== null)
 				temp[2](this, earlierChunks);
@@ -614,17 +614,15 @@ namespace app {
 					data.push(b);
 				let dataIndex: int = 0;
 				
-				function parseNullTerminatedBytes(): Array<byte> {
+				function parseNullTerminatedBytes(): [boolean,Array<byte>] {
 					const nulIndex = data.indexOf(0, dataIndex);
-					let result: Array<byte>;
-					if (nulIndex != -1) {
-						result = data.slice(dataIndex, nulIndex);
+					if (nulIndex == -1)
+						return [false, data.slice(dataIndex)];
+					else {
+						const bytes: Array<byte> = data.slice(dataIndex, nulIndex);
 						dataIndex = nulIndex + 1;
-					} else {
-						result = data.slice(dataIndex);
-						dataIndex = data.length;
+						return [true, bytes];
 					}
-					return result;
 				}
 				
 				let compFlag: byte|null = null;
@@ -633,9 +631,10 @@ namespace app {
 				for (let state = 0; state < 6; state++) {
 					switch (state) {
 						case 0: {
-							const keyword: string = decodeIso8859_1(parseNullTerminatedBytes());
+							const [found, bytes] = parseNullTerminatedBytes();
+							const keyword: string = decodeIso8859_1(bytes);
 							annotateTextKeyword(keyword, chunk);
-							if (dataIndex == data.length) {
+							if (!found) {
 								chunk.errorNotes.push("Missing null separator");
 								break loop;
 							}
@@ -680,7 +679,7 @@ namespace app {
 						}
 						
 						case 3: {
-							const bytes: Array<byte> = parseNullTerminatedBytes();
+							const [found, bytes] = parseNullTerminatedBytes();
 							let langTag: string|null = null;
 							try {
 								langTag = decodeUtf8(bytes);
@@ -689,7 +688,7 @@ namespace app {
 							}
 							if (langTag !== null)
 								chunk.innerNotes.push(`Language tag: ${langTag}`);
-							if (dataIndex == data.length) {
+							if (!found) {
 								chunk.errorNotes.push("Missing null separator");
 								break loop;
 							}
@@ -697,7 +696,7 @@ namespace app {
 						}
 						
 						case 4: {
-							const bytes: Array<byte> = parseNullTerminatedBytes();
+							const [found, bytes] = parseNullTerminatedBytes();
 							let transKey: string|null = null;
 							try {
 								transKey = decodeUtf8(bytes);
@@ -706,7 +705,7 @@ namespace app {
 							}
 							if (transKey !== null)
 								chunk.innerNotes.push(`Translated keyword: ${transKey}`);
-							if (dataIndex == data.length) {
+							if (!found) {
 								chunk.errorNotes.push("Missing null separator");
 								break loop;
 							}
@@ -715,23 +714,28 @@ namespace app {
 						
 						case 5: {
 							let textBytes: Array<byte> = data.slice(dataIndex);
-							if (compFlag === 1) {
-								if (compMeth == 0) {
-									try {
-										textBytes = deflate.decompressZlib(textBytes);
-									} catch (e) {
-										chunk.errorNotes.push("Text decompression error: " + e);
-										break;
-									}
-								}
-								else
+							switch (compFlag) {
+								case 0:  // Uncompressed
 									break;
+								case 1:
+									if (compMeth == 0) {
+										try {
+											textBytes = deflate.decompressZlib(textBytes);
+										} catch (e) {
+											chunk.errorNotes.push("Text decompression error: " + e);
+											break loop;
+										}
+									} else
+										break loop;
+									break;
+								default:
+									break loop;
 							}
 							let text: string;
 							try {
 								text = decodeUtf8(textBytes);
 							} catch (e) {
-								chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
+								chunk.errorNotes.push("Invalid UTF-8 in text string");
 								break;
 							}
 							let frag: DocumentFragment = document.createDocumentFragment();
@@ -760,8 +764,8 @@ namespace app {
 				const xPos: int = readInt32(chunk.data, 0);
 				const yPos: int = readInt32(chunk.data, 4);
 				const unit: byte = chunk.data[8];
-				chunk.innerNotes.push(`X position: ${xPos} units`);
-				chunk.innerNotes.push(`Y position: ${yPos} units`);
+				chunk.innerNotes.push(`X position: ${xPos.toString().replace(/-/,"\u2212")} units`);
+				chunk.innerNotes.push(`Y position: ${yPos.toString().replace(/-/,"\u2212")} units`);
 				{
 					let s: string|null = lookUpTable(unit, [
 						[0, "Pixel"     ],
@@ -1018,7 +1022,7 @@ namespace app {
 	
 	function annotateTextKeyword(keyword: string, chunk: ChunkPart): void {
 		chunk.innerNotes.push(`Keyword: ${keyword}`);
-		if (!(1 <= keyword.length || keyword.length <= 79))
+		if (!(1 <= keyword.length && keyword.length <= 79))
 			chunk.errorNotes.push("Invalid keyword length");
 		for (let i = 0; i < keyword.length; i++) {
 			const c: int = keyword.charCodeAt(i);
@@ -1029,7 +1033,7 @@ namespace app {
 				break;
 			}
 		}
-		if (keyword.indexOf(" ") == 0 || keyword.lastIndexOf(" ") == keyword.length - 1 || keyword.indexOf("  ") != -1)
+		if (/^ |  | $/.test(keyword))
 			chunk.errorNotes.push("Invalid space in keyword");
 	}
 	
@@ -1204,10 +1208,10 @@ namespace deflate {
 		input.readUint((8 - input.getBitPosition()) % 8);
 		for (let i = 0; i < 4; i++)
 			storedAdler = storedAdler << 8 | input.readUint(8);
-		if (input.readBitMaybe() != -1)
-			throw "Unexpected data after zlib container";
 		if (storedAdler != dataAdler)
 			throw "Adler-32 mismatch";
+		if (input.readBitMaybe() != -1)
+			throw "Unexpected data after zlib container";
 		return result;
 	}
 	
