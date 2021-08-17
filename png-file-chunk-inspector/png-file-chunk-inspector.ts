@@ -211,8 +211,11 @@ namespace app {
 			}
 			
 			let part = new UnknownPart(offset, new Uint8Array());
+			const ihdr: Uint8Array|null = ChunkPart.getValidIhdrData(earlierChunks);
 			if (!earlierTypes.has("IHDR"))
 				part.errorNotes.push("Missing IHDR chunk");
+			if (ihdr !== null && ihdr[9] == 3 && !earlierTypes.has("PLTE"))
+				part.errorNotes.push("Missing PLTE chunk");
 			if (!earlierTypes.has("IDAT"))
 				part.errorNotes.push("Missing IDAT chunk");
 			if (!earlierTypes.has("IEND"))
@@ -378,6 +381,47 @@ namespace app {
 			["bKGD", "Background color", false, function(chunk, earlier) {
 				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
+				
+				const ihdr: Uint8Array|null = ChunkPart.getValidIhdrData(earlier);
+				if (ihdr === null)
+					return;
+				const bitDepth : byte = ihdr[8];
+				const colorType: byte = ihdr[9];
+				
+				if (colorType == 3) {
+					if (chunk.data.length != 1) {
+						chunk.errorNotes.push("Invalid data length");
+						return;
+					}
+					const paletteIndex: byte = chunk.data[0];
+					chunk.innerNotes.push(`Palette index: ${paletteIndex}`);
+					const plteNumEntries: int|null = ChunkPart.getValidPlteNumEntries(earlier);
+					if (plteNumEntries === null)
+						return;
+					if (paletteIndex >= plteNumEntries)
+						chunk.errorNotes.push("Color index out of range");
+					
+				} else {
+					if ((colorType == 0 || colorType == 4) && chunk.data.length != 2) {
+						chunk.errorNotes.push("Invalid data length");
+						return;
+					} else if ((colorType == 2 || colorType == 6) && chunk.data.length != 6) {
+						chunk.errorNotes.push("Invalid data length");
+						return;
+					} else {
+						if (colorType == 0 || colorType == 4)
+							chunk.innerNotes.push(`White: ${readUint16(chunk.data,0)}`);
+						else if (colorType == 2 || colorType == 6) {
+							chunk.innerNotes.push(  `Red: ${readUint16(chunk.data,0)}`);
+							chunk.innerNotes.push(`Green: ${readUint16(chunk.data,2)}`);
+							chunk.innerNotes.push( `Blue: ${readUint16(chunk.data,4)}`);
+						}
+						for (let i = 0; i < chunk.data.length; i += 2) {
+							if (readUint16(chunk.data, i) >= (1 << bitDepth))
+								chunk.errorNotes.push("Color value out of range");
+						}
+					}
+				}
 			}],
 			
 			
@@ -503,10 +547,17 @@ namespace app {
 				if (!earlier.some(ch => ch.typeStr == "PLTE"))
 					chunk.errorNotes.push("Chunk requires earlier PLTE chunk");
 				
-				if (chunk.data.length % 2 != 0 || chunk.data.length / 2 > 256) {
+				if (chunk.data.length % 2 != 0) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
 				}
+				const numEntries: int = chunk.data.length / 2;
+				chunk.innerNotes.push(`Number of entries: ${numEntries}`);
+				const plteNumEntries: int|null = ChunkPart.getValidPlteNumEntries(earlier);
+				if (plteNumEntries === null)
+					return;
+				if (numEntries != plteNumEntries)
+					chunk.errorNotes.push("Invalid data length");
 			}],
 			
 			
@@ -633,7 +684,7 @@ namespace app {
 						case 0: {
 							const [found, bytes] = parseNullTerminatedBytes();
 							const keyword: string = decodeIso8859_1(bytes);
-							annotateTextKeyword(keyword, chunk);
+							annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
 							if (!found) {
 								chunk.errorNotes.push("Missing null separator");
 								break loop;
@@ -831,6 +882,25 @@ namespace app {
 					chunk.errorNotes.push("Chunk must be before tRNS chunk");
 				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
+				
+				if (chunk.data.length % 3 != 0) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const numEntries: int = Math.ceil(chunk.data.length / 3);
+				chunk.innerNotes.push(`Number of entries: ${numEntries}`);
+				if (numEntries == 0)
+					chunk.errorNotes.push("Empty palette");
+				
+				const ihdr: Uint8Array|null = ChunkPart.getValidIhdrData(earlier);
+				if (ihdr === null)
+					return;
+				const bitDepth : byte = ihdr[8];
+				const colorType: byte = ihdr[9];
+				if (colorType == 0 || colorType == 4)
+					chunk.errorNotes.push("Palette disallowed for grayscale color type");
+				if (colorType == 3 && numEntries > (1 << bitDepth))
+					chunk.errorNotes.push("Number of palette entries exceeds bit depth");
 			}],
 			
 			
@@ -846,18 +916,96 @@ namespace app {
 				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
 				
-				if (chunk.data.length == 0 || chunk.data.length > 4)
+				const ihdr: Uint8Array|null = ChunkPart.getValidIhdrData(earlier);
+				if (ihdr === null)
+					return;
+				const colorType: byte = ihdr[9];
+				const bitDepth: byte = colorType != 3 ? ihdr[8] : 8;
+				
+				let channels: Array<string>;
+				switch (colorType) {
+					case 0:
+						channels = ["White"];
+						break;
+					case 2:
+					case 3:
+						channels = ["Red", "Green", "Blue"];
+						break;
+					case 4:
+						channels = ["White", "Alpha"];
+						break;
+					case 6:
+						channels = ["Red", "Green", "Blue", "Alpha"];
+						break;
+					default:
+						return;
+				}
+				
+				if (chunk.data.length != channels.length) {
 					chunk.errorNotes.push("Invalid data length");
-				let temp: Array<string> = [];
-				for (const b of chunk.data)
-					temp.push(b.toString());
-				chunk.innerNotes.push(`Significant bits per channel: ${temp.join(", ")}`);
+					return;
+				}
+				let hasChanErr: boolean = false;
+				channels.forEach((chan: string, i: int) => {
+					const bits: int = chunk.data[i];
+					chunk.innerNotes.push(`${chan} bits: ${bits}`);
+					if (!hasChanErr && !(1 <= bits && bits <= bitDepth)) {
+						chunk.errorNotes.push("Bit depth out of range");
+						hasChanErr = true;
+					}
+				});
 			}],
 			
 			
 			["sPLT", "Suggested palette", true, function(chunk, earlier) {
 				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
+				
+				let index: int;
+				let name: string;
+				{
+					let data: Array<byte> = [];
+					for (const b of chunk.data)
+						data.push(b);
+					index = data.indexOf(0);
+					if (index == -1)
+						chunk.errorNotes.push("Missing null separator");
+					else
+						data = data.slice(0, index);
+					name = decodeIso8859_1(data);
+				}
+				annotateTextKeyword(name, "Palette name", "name", chunk);
+				if (ChunkPart.getSpltNames(earlier).has(name))
+					chunk.errorNotes.push("Duplicate palette name");
+				if (index == -1)
+					return;
+				index++;
+				
+				if (index >= chunk.data.length) {
+					chunk.errorNotes.push("Missing sample depth");
+					return;
+				}
+				const sampDepth: byte = chunk.data[index];
+				index++;
+				chunk.innerNotes.push(`Sample depth: ${sampDepth}`);
+				
+				switch (sampDepth) {
+					case 8:
+						if ((chunk.data.length - index) % 6 == 0)
+							chunk.innerNotes.push(`Number of entries: ${(chunk.data.length-index)/6}`);
+						else
+							chunk.errorNotes.push("Invalid data length");
+						break;
+					case 16:
+						if ((chunk.data.length - index) % 10 == 0)
+							chunk.innerNotes.push(`Number of entries: ${(chunk.data.length-index)/10}`);
+						else
+							chunk.errorNotes.push("Invalid data length");
+						break;
+					default:
+						chunk.errorNotes.push("Invalid sample depth");
+						break;
+				}
 			}],
 			
 			
@@ -918,10 +1066,10 @@ namespace app {
 				if (separatorIndex == -1) {
 					chunk.errorNotes.push("Missing null separator");
 					const keyword: string = decodeIso8859_1(data);
-					annotateTextKeyword(keyword, chunk);
+					annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
 				} else {
 					const keyword: string = decodeIso8859_1(data.slice(0, separatorIndex));
-					annotateTextKeyword(keyword, chunk);
+					annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
 					const text: string = decodeIso8859_1(data.slice(separatorIndex + 1));
 					chunk.innerNotes.push(`Text string: ${text}`);
 					if (text.indexOf("\u0000") != -1)
@@ -965,6 +1113,45 @@ namespace app {
 			["tRNS", "Transparency", false, function(chunk, earlier) {
 				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
+				
+				const ihdr: Uint8Array|null = ChunkPart.getValidIhdrData(earlier);
+				if (ihdr === null)
+					return;
+				const bitDepth : byte = ihdr[8];
+				const colorType: byte = ihdr[9];
+				
+				if (colorType == 4 || colorType == 6)
+					chunk.errorNotes.push("Transparency chunk disallowed for RGBA color type");
+				else if (colorType == 3) {
+					const numEntries: int = chunk.data.length;
+					chunk.innerNotes.push(`Number of entries: ${numEntries}`);
+					const plteNumEntries: int|null = ChunkPart.getValidPlteNumEntries(earlier);
+					if (plteNumEntries === null)
+						return;
+					if (numEntries > plteNumEntries)
+						chunk.errorNotes.push("Number of alpha values exceeds palette size");
+					
+				} else {
+					if (colorType == 0 && chunk.data.length != 2) {
+						chunk.errorNotes.push("Invalid data length");
+						return;
+					} else if (colorType == 2 && chunk.data.length != 6) {
+						chunk.errorNotes.push("Invalid data length");
+						return;
+					} else {
+						if (colorType == 0)
+							chunk.innerNotes.push(`White: ${readUint16(chunk.data,0)}`);
+						else if (colorType == 2) {
+							chunk.innerNotes.push(  `Red: ${readUint16(chunk.data,0)}`);
+							chunk.innerNotes.push(`Green: ${readUint16(chunk.data,2)}`);
+							chunk.innerNotes.push( `Blue: ${readUint16(chunk.data,4)}`);
+						}
+						for (let i = 0; i < chunk.data.length; i += 2) {
+							if (readUint16(chunk.data, i) >= (1 << bitDepth))
+								chunk.errorNotes.push("Color value out of range");
+						}
+					}
+				}
 			}],
 			
 			
@@ -977,10 +1164,10 @@ namespace app {
 				if (separatorIndex == -1) {
 					chunk.errorNotes.push("Missing null separator");
 					const keyword: string = decodeIso8859_1(data);
-					annotateTextKeyword(keyword, chunk);
+					annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
 				} else {
 					const keyword: string = decodeIso8859_1(data.slice(0, separatorIndex));
-					annotateTextKeyword(keyword, chunk);
+					annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
 					if (separatorIndex + 1 >= data.length)
 						chunk.errorNotes.push("Missing compression method");
 					else {
@@ -1014,27 +1201,79 @@ namespace app {
 			
 		];
 		
+		
+		public static getValidIhdrData(chunks: Array<ChunkPart>): Uint8Array|null {
+			let result: Uint8Array|null = null;
+			let count: int = 0;
+			for (const chunk of chunks) {
+				if (chunk.typeStr == "IHDR") {
+					count++;
+					if (chunk.data.length == 13)
+						result = chunk.data;
+				}
+			}
+			if (count != 1)
+				result = null;
+			return result;
+		}
+		
+		
+		private static getValidPlteNumEntries(chunks: Array<ChunkPart>): int|null {
+			let result: int|null = null;
+			let count: int = 0;
+			for (const chunk of chunks) {
+				if (chunk.typeStr == "PLTE") {
+					count++;
+					if (chunk.data.length % 3 == 0) {
+						const numEntries: int = chunk.data.length / 3;
+						if (1 <= numEntries && numEntries <= 256)
+							result = numEntries;
+					}
+				}
+			}
+			if (count != 1)
+				result = null;
+			return result;
+		}
+		
+		
+		private static getSpltNames(chunks: Array<ChunkPart>): Set<string> {
+			let result = new Set<string>();
+			for (const chunk of chunks) {
+				if (chunk.typeStr == "sPLT") {
+					let data: Array<byte> = [];
+					for (const b of chunk.data)
+						data.push(b);
+					const separatorIndex: int = data.indexOf(0);
+					if (separatorIndex != -1)
+						data = data.slice(0, separatorIndex);
+					result.add(decodeIso8859_1(data));
+				}
+			}
+			return result;
+		}
+		
 	}
 	
 	
 	
 	/*---- Utility functions ----*/
 	
-	function annotateTextKeyword(keyword: string, chunk: ChunkPart): void {
-		chunk.innerNotes.push(`Keyword: ${keyword}`);
+	function annotateTextKeyword(keyword: string, noteName: string, errorName: string, chunk: ChunkPart): void {
+		chunk.innerNotes.push(`${noteName}: ${keyword}`);
 		if (!(1 <= keyword.length && keyword.length <= 79))
-			chunk.errorNotes.push("Invalid keyword length");
+			chunk.errorNotes.push(`Invalid ${errorName} length`);
 		for (let i = 0; i < keyword.length; i++) {
 			const c: int = keyword.charCodeAt(i);
 			if (0x20 <= c && c <= 0x7E || 0xA1 <= c && c <= 0xFF)
 				continue;
 			else {
-				chunk.errorNotes.push("Invalid character in keyword");
+				chunk.errorNotes.push(`Invalid character in ${errorName}`);
 				break;
 			}
 		}
 		if (/^ |  | $/.test(keyword))
-			chunk.errorNotes.push("Invalid space in keyword");
+			chunk.errorNotes.push(`Invalid space in ${errorName}`);
 	}
 	
 	
