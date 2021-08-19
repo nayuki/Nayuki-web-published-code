@@ -147,26 +147,27 @@ namespace app {
 	
 	
 	const SAMPLE_FILES: Array<[boolean,Array<string>,string]> = [
-		[true , ["Normal", "Tiny RGB gray"], "good_normal_tiny-rgb-gray.png"],
-		[true , ["Normal", "One black pixel", "Paletted"], "good_normal_one-black-pixel_paletted.png"],
 		[true , ["Normal", "One black pixel"], "good_normal_one-black-pixel.png"],
+		[true , ["Normal", "One black pixel", "Paletted"], "good_normal_one-black-pixel_paletted.png"],
+		[true , ["Normal", "Tiny RGB gray"], "good_normal_tiny-rgb-gray.png"],
 		
 		[false, ["Signature", "Empty"], "bad_signature_empty.png"],
 		[false, ["Signature", "Mismatch, truncated"], "bad_signature_mismatch-truncated.png"],
 		[false, ["Signature", "Mismatch"], "bad_signature_mismatch.png"],
 		[false, ["Signature", "Truncated"], "bad_signature_truncated.png"],
-		[false, ["Chunk", "CRC", "Mismatch"], "bad_chunk_crc_mismatch.png"],
-		[false, ["Chunk", "CRC", "Truncated"], "bad_chunk_crc_truncated.png"],
-		[false, ["Chunk", "Data", "Truncated"], "bad_chunk_data_truncated.png"],
-		[false, ["Chunk", "Length", "Overflow"], "bad_chunk_length_overflow.png"],
-		[false, ["Chunk", "Length", "Truncated"], "bad_chunk_length_truncated.png"],
 		[false, ["Chunks", "Empty"], "bad_chunks_empty.png"],
+		[false, ["Chunk", "Length", "Truncated"], "bad_chunk_length_truncated.png"],
+		[false, ["Chunk", "Length", "Overflow"], "bad_chunk_length_overflow.png"],
+		[false, ["Chunk", "Type", "Truncated"], "bad_chunk_type_truncated.png"],
+		[false, ["Chunk", "Data", "Truncated"], "bad_chunk_data_truncated.png"],
+		[false, ["Chunk", "CRC", "Truncated"], "bad_chunk_crc_truncated.png"],
+		[false, ["Chunk", "CRC", "Mismatch"], "bad_chunk_crc_mismatch.png"],
 		
 		[true , ["bKGD", "Sans palette"], "good_bkgd_sans-palette.png"],
 		[true , ["bKGD", "With palette"], "good_bkgd_with-palette.png"],
+		[false, ["bKGD", "Wrong length"], "bad_bkgd_wrong-length.png"],
 		[false, ["bKGD", "Wrong color"], "bad_bkgd_wrong-color.png"],
 		[false, ["bKGD", "Wrong index"], "bad_bkgd_wrong-index.png"],
-		[false, ["bKGD", "Wrong length"], "bad_bkgd_wrong-length.png"],
 		[true , ["cHRM", "Rec. 709"], "good_chrm_rec-709.png"],
 		[true , ["cHRM", "Rec. 2020"], "good_chrm_rec-2020.png"],
 		[false, ["cHRM", "Wrong length"], "bad_chrm_wrong-length.png"],
@@ -178,15 +179,15 @@ namespace app {
 		[true , ["IDAT", "Multiple"], "good_idat_multiple.png"],
 		[true , ["IDAT", "Some empty"], "good_idat_some-empty.png"],
 		[false, ["IDAT", "Non-consecutive"], "bad_idat_nonconsecutive.png"],
-		[false, ["IHDR", "Wrong bit depth"], "bad_ihdr_wrong-bit-depth.png"],
-		[false, ["IHDR", "Wrong dimensions"], "bad_ihdr_wrong-dimensions.png"],
 		[false, ["IHDR", "Wrong length"], "bad_ihdr_wrong-length.png"],
+		[false, ["IHDR", "Wrong dimensions"], "bad_ihdr_wrong-dimensions.png"],
+		[false, ["IHDR", "Wrong bit depth"], "bad_ihdr_wrong-bit-depth.png"],
 		[false, ["IHDR", "Wrong methods"], "bad_ihdr_wrong-methods.png"],
 		[true , ["iTXt"], "good_itxt.png"],
-		[false, ["iTXt", "Wrong compressed data"], "bad_itxt_wrong-compressed-data.png"],
-		[false, ["iTXt", "Wrong compression methods"], "bad_itxt_wrong-compression-methods.png"],
 		[false, ["iTXt", "Wrong separators"], "bad_itxt_wrong-separators.png"],
 		[false, ["iTXt", "Wrong UTF-8"], "bad_itxt_wrong-utf8.png"],
+		[false, ["iTXt", "Wrong compression methods"], "bad_itxt_wrong-compression-methods.png"],
+		[false, ["iTXt", "Wrong compressed data"], "bad_itxt_wrong-compressed-data.png"],
 		[true , ["oFFs", "Micrometre unit"], "good_offs_micrometre-unit.png"],
 		[true , ["oFFs", "Pixel unit"], "good_offs_pixel-unit.png"],
 		[false, ["oFFs", "Wrong length"], "bad_offs_wrong-length.png"],
@@ -195,17 +196,17 @@ namespace app {
 		[true , ["pHYs", "Horizontal stretch"], "good_phys_horizontal-stretch.png"],
 		[false, ["pHYs", "Wrong unit"], "bad_phys_wrong-unit.png"],
 		[true , ["sBIT"], "good_sbit.png"],
-		[false, ["sBIT", "Excess"], "bad_sbit_excess.png"],
 		[false, ["sBIT", "Zero"], "bad_sbit_zero.png"],
+		[false, ["sBIT", "Excess"], "bad_sbit_excess.png"],
 		[true , ["sPLT"], "good_splt.png"],
+		[false, ["sPLT", "Wrong names"], "bad_splt_wrong-names.png"],
 		[false, ["sPLT", "Duplicate name"], "bad_splt_duplicate-name.png"],
 		[false, ["sPLT", "Wrong bit depth"], "bad_splt_wrong-bit-depth.png"],
 		[false, ["sPLT", "Wrong length"], "bad_splt_wrong-length.png"],
-		[false, ["sPLT", "Wrong names"], "bad_splt_wrong-names.png"],
 		[true , ["sRGB"], "good_srgb.png"],
+		[false, ["sRGB", "Wrong length"], "bad_srgb_wrong-length.png"],
 		[false, ["sRGB", "Duplicate"], "bad_srgb_duplicate.png"],
 		[false, ["sRGB", "Misordered"], "bad_srgb_misordered.png"],
-		[false, ["sRGB", "Wrong length"], "bad_srgb_wrong-length.png"],
 		[true , ["sTER"], "good_ster.png"],
 		[false, ["sTER", "Wrong length"], "bad_ster_wrong-length.png"],
 		[true , ["tEXt"], "good_text.png"],
@@ -213,17 +214,18 @@ namespace app {
 		[false, ["tEXt", "Wrong text"], "bad_text_wrong-text.png"],
 		[true , ["tIME", "Leap second"], "good_time_leap-second.png"],
 		[true , ["tIME", "Unix epoch"], "good_time_unix-epoch.png"],
-		[false, ["tIME", "Misordered"], "bad_time_misordered.png"],
-		[false, ["tIME", "Wrong fields"], "bad_time_wrong-fields.png"],
 		[false, ["tIME", "Wrong length"], "bad_time_wrong-length.png"],
+		[false, ["tIME", "Wrong fields"], "bad_time_wrong-fields.png"],
+		[false, ["tIME", "Wrong day"], "bad_time_wrong-day.png"],
+		[false, ["tIME", "Misordered"], "bad_time_misordered.png"],
 		[true , ["tRNS", "Sans palette"], "good_trns_sans-palette.png"],
 		[true , ["tRNS", "With palette"], "good_trns_with-palette.png"],
 		[false, ["tRNS", "Wrong color"], "bad_trns_wrong-color.png"],
 		[false, ["tRNS", "Wrong length"], "bad_trns_wrong-length.png"],
 		[true , ["zTXt"], "good_ztxt.png"],
-		[false, ["zTXt", "Wrong compressed data"], "bad_ztxt_wrong-compressed-data.png"],
-		[false, ["zTXt", "Wrong compression methods"], "bad_ztxt_wrong-compression-methods.png"],
 		[false, ["zTXt", "Wrong keywords"], "bad_ztxt_wrong-keywords.png"],
+		[false, ["zTXt", "Wrong compression methods"], "bad_ztxt_wrong-compression-methods.png"],
+		[false, ["zTXt", "Wrong compressed data"], "bad_ztxt_wrong-compressed-data.png"],
 	];
 	
 	
@@ -1028,6 +1030,58 @@ namespace app {
 			["sCAL", "Physical scale of image subject", false, function(chunk, earlier) {
 				if (earlier.some(ch => ch.typeStr == "IDAT"))
 					chunk.errorNotes.push("Chunk must be before IDAT chunk");
+				
+				if (chunk.data.length == 0) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const unit: byte = chunk.data[0];
+				{
+					let s: string|null = lookUpTable(unit, [
+						[0, "Metre" ],
+						[1, "Radian"],
+					]);
+					if (s === null) {
+						s = "Unknown";
+						chunk.errorNotes.push("Unknown unit specifier");
+					}
+					chunk.innerNotes.push(`Unit specifier: ${s} (${unit})`);
+				}
+				
+				let index: int = 1;
+				const ASCII_FLOAT: RegExp = /^([+-]?)(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+				
+				{
+					let strBytes: Array<byte> = [];
+					for (; index < chunk.data.length && chunk.data[index] != 0; index++)
+						strBytes.push(chunk.data[index]);
+					const width: string = decodeIso8859_1(strBytes);
+					chunk.innerNotes.push(`Pixel width: ${width} units`)
+					const match: Array<string>|null = ASCII_FLOAT.exec(width);
+					if (match === null)
+						chunk.errorNotes.push("Invalid width floating-point string");
+					else if (match[1] == "-" || !/[1-9]/.test(match[2]))
+						chunk.errorNotes.push("Non-positive width");
+				}
+				
+				if (index == chunk.data.length) {
+					chunk.errorNotes.push("Missing null separator");
+					return;
+				}
+				index++;
+				
+				{
+					let strBytes: Array<byte> = [];
+					for (; index < chunk.data.length; index++)
+						strBytes.push(chunk.data[index]);
+					const height: string = decodeIso8859_1(strBytes);
+					chunk.innerNotes.push(`Pixel height: ${height} units`)
+					const match: Array<string>|null = ASCII_FLOAT.exec(height);
+					if (match === null)
+						chunk.errorNotes.push("Invalid height floating-point string");
+					else if (match[1] == "-" || !/[1-9]/.test(match[2]))
+						chunk.errorNotes.push("Non-positive height");
+				}
 			}],
 			
 			
@@ -1220,7 +1274,7 @@ namespace app {
 				chunk.innerNotes.push(`Second: ${second}`);
 				if (!(1 <= month && month <= 12))
 					chunk.errorNotes.push("Invalid month");
-				if (!(1 <= day && day <= 31))
+				if (!(1 <= day && day <= 31) || 1 <= month && month <= 12 && day > new Date(year, month, 0).getDate())
 					chunk.errorNotes.push("Invalid day");
 				if (!(0 <= hour && hour <= 23))
 					chunk.errorNotes.push("Invalid hour");
@@ -1241,7 +1295,9 @@ namespace app {
 				const bitDepth : byte = ihdr[8];
 				const colorType: byte = ihdr[9];
 				
-				if (colorType == 4 || colorType == 6)
+				if (colorType == 4)
+					chunk.errorNotes.push("Transparency chunk disallowed for gray+alpha color type");
+				else if (colorType == 6)
 					chunk.errorNotes.push("Transparency chunk disallowed for RGBA color type");
 				else if (colorType == 3) {
 					const numEntries: int = chunk.data.length;
@@ -1533,6 +1589,7 @@ namespace app {
 
 
 
+// See https://www.nayuki.io/page/simple-deflate-decompressor
 namespace deflate {
 	
 	export function decompressZlib(bytes: Array<byte>): Array<byte> {

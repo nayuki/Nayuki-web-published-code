@@ -491,6 +491,9 @@ namespace app {
 		let alignPatContainer = getElem("alignment-patterns-container");
 		if (qr.version == 1) alignPatContainer.style.display = "none";
 		else alignPatContainer.style.removeProperty("display");
+		let alignOverlapTiming = getElem("alignment-patterns-overlap-timing");
+		if (qr.version < 7) alignOverlapTiming.style.display = "none";
+		else alignOverlapTiming.style.removeProperty("display");
 		
 		qr.drawFormatBits(-1);
 		getSvgAndDrawQrCode("dummy-format-bits", qr);

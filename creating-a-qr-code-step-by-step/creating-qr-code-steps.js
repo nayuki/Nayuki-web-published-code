@@ -1322,6 +1322,11 @@ var app;
             alignPatContainer.style.display = "none";
         else
             alignPatContainer.style.removeProperty("display");
+        var alignOverlapTiming = getElem("alignment-patterns-overlap-timing");
+        if (qr.version < 7)
+            alignOverlapTiming.style.display = "none";
+        else
+            alignOverlapTiming.style.removeProperty("display");
         qr.drawFormatBits(-1);
         getSvgAndDrawQrCode("dummy-format-bits", qr);
         qr.clearNewFlags();
