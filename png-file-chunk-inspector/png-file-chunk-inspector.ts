@@ -91,7 +91,7 @@ namespace app {
 				if (part.typeStr == "IDAT") {
 					let count: int = 1;
 					for (; i + 1 < parts.length; i++, count++) {
-						let nextPart: FilePart = parts[i + 1];
+						const nextPart: FilePart = parts[i + 1];
 						if (!(nextPart instanceof ChunkPart) || nextPart.typeStr != "IDAT")
 							break;
 					}
@@ -289,7 +289,7 @@ namespace app {
 				earlierTypes.add(type);
 			}
 			
-			{
+			{  // Find, pair up, and annotate dSIG chunks
 				let ihdrIndex: int = 0;
 				while (ihdrIndex < result.length && (!(result[ihdrIndex] instanceof ChunkPart) || (result[ihdrIndex] as ChunkPart).typeStr != "IHDR"))
 					ihdrIndex++;
@@ -480,7 +480,7 @@ namespace app {
 		
 		
 		// The maximum length of a chunk's payload data, in bytes, inclusive.
-		public static MAX_DATA_LENGTH: int = 0x7FFFFFFF;
+		public static MAX_DATA_LENGTH: int = 0x7FFF_FFFF;
 		
 		
 		public getTypeInfo(): [string,boolean,((chunk:ChunkPart,earlier:Array<ChunkPart>)=>void)]|null {
@@ -525,13 +525,11 @@ namespace app {
 						chunk.errorNotes.push("Color index out of range");
 					
 				} else {
-					if ((colorType == 0 || colorType == 4) && chunk.data.length != 2) {
+					if ((colorType == 0 || colorType == 4) && chunk.data.length != 2)
 						chunk.errorNotes.push("Invalid data length");
-						return;
-					} else if ((colorType == 2 || colorType == 6) && chunk.data.length != 6) {
+					else if ((colorType == 2 || colorType == 6) && chunk.data.length != 6)
 						chunk.errorNotes.push("Invalid data length");
-						return;
-					} else {
+					else {
 						if (colorType == 0 || colorType == 4)
 							chunk.innerNotes.push(`White: ${readUint16(chunk.data,0)}`);
 						else if (colorType == 2 || colorType == 6) {
@@ -606,7 +604,7 @@ namespace app {
 				}
 				const disposalMethod: byte = chunk.data[0];
 				const userInputFlag : byte = chunk.data[1];
-				const delayTime     : int = readUint16(chunk.data, 2);
+				const delayTime: int = readUint16(chunk.data, 2);
 				chunk.innerNotes.push(`Disposal method: ${disposalMethod}`);
 				chunk.innerNotes.push(`User input flag: ${userInputFlag}`);
 				let s: string = delayTime.toString().padStart(3, "0");
@@ -713,8 +711,8 @@ namespace app {
 					chunk.errorNotes.push("Invalid data length");
 					return;
 				}
-				const width    : int = readUint32(chunk.data, 0);
-				const height   : int = readUint32(chunk.data, 4);
+				const width : int = readUint32(chunk.data, 0);
+				const height: int = readUint32(chunk.data, 4);
 				const bitDepth : byte = chunk.data[ 8];
 				const colorType: byte = chunk.data[ 9];
 				const compMeth : byte = chunk.data[10];
@@ -722,11 +720,10 @@ namespace app {
 				const laceMeth : byte = chunk.data[12];
 				
 				chunk.innerNotes.push(`Width: ${width} pixels`);
-				if (width == 0 || width > 0x7FFFFFFF)
+				if (width == 0 || width > 0x7FFF_FFFF)
 					chunk.errorNotes.push("Width out of range");
-				
 				chunk.innerNotes.push(`Height: ${height} pixels`);
-				if (height == 0 || height > 0x7FFFFFFF)
+				if (height == 0 || height > 0x7FFF_FFFF)
 					chunk.errorNotes.push("Height out of range");
 				
 				{
@@ -970,7 +967,7 @@ namespace app {
 				}
 				const horzRes: int = readUint32(chunk.data, 0);
 				const vertRes: int = readUint32(chunk.data, 4);
-				const unit   : byte = chunk.data[8];
+				const unit: byte = chunk.data[8];
 				for (const [dir, val] of ([["Horizontal", horzRes], ["Vertical", vertRes]] as Array<[string,number]>)) {
 					let frag: DocumentFragment = document.createDocumentFragment();
 					frag.appendChild(document.createTextNode(`${dir} resolution: ${val} pixels per unit`));
@@ -1035,8 +1032,8 @@ namespace app {
 					chunk.errorNotes.push("Invalid data length");
 					return;
 				}
-				const unit: byte = chunk.data[0];
 				{
+					const unit: byte = chunk.data[0];
 					let s: string|null = lookUpTable(unit, [
 						[0, "Metre" ],
 						[1, "Radian"],
@@ -1097,25 +1094,15 @@ namespace app {
 				const colorType: byte = ihdr[9];
 				const bitDepth: byte = colorType != 3 ? ihdr[8] : 8;
 				
-				let channels: Array<string>;
-				switch (colorType) {
-					case 0:
-						channels = ["White"];
-						break;
-					case 2:
-					case 3:
-						channels = ["Red", "Green", "Blue"];
-						break;
-					case 4:
-						channels = ["White", "Alpha"];
-						break;
-					case 6:
-						channels = ["Red", "Green", "Blue", "Alpha"];
-						break;
-					default:
-						return;
-				}
-				
+				const channels: Array<string>|null = lookUpTable(colorType, [
+					[0, ["White"]                        ],
+					[2, ["Red", "Green", "Blue"]         ],
+					[3, ["Red", "Green", "Blue"]         ],
+					[4, ["White", "Alpha"]               ],
+					[6, ["Red", "Green", "Blue", "Alpha"]],
+				]);
+				if (channels === null)
+					return;
 				if (chunk.data.length != channels.length) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
@@ -1164,23 +1151,16 @@ namespace app {
 				index++;
 				chunk.innerNotes.push(`Sample depth: ${sampDepth}`);
 				
-				switch (sampDepth) {
-					case 8:
-						if ((chunk.data.length - index) % 6 == 0)
-							chunk.innerNotes.push(`Number of entries: ${(chunk.data.length-index)/6}`);
-						else
-							chunk.errorNotes.push("Invalid data length");
-						break;
-					case 16:
-						if ((chunk.data.length - index) % 10 == 0)
-							chunk.innerNotes.push(`Number of entries: ${(chunk.data.length-index)/10}`);
-						else
-							chunk.errorNotes.push("Invalid data length");
-						break;
-					default:
-						chunk.errorNotes.push("Invalid sample depth");
-						break;
-				}
+				const bytesPerEntry: int|null = lookUpTable(sampDepth, [
+					[ 8,  6],
+					[16, 10],
+				]);
+				if (bytesPerEntry === null)
+					return;
+				else if ((chunk.data.length - index) % bytesPerEntry == 0)
+					chunk.innerNotes.push(`Number of entries: ${(chunk.data.length-index)/bytesPerEntry}`);
+				else
+					chunk.errorNotes.push("Invalid data length");
 			}],
 			
 			
@@ -1309,13 +1289,11 @@ namespace app {
 						chunk.errorNotes.push("Number of alpha values exceeds palette size");
 					
 				} else {
-					if (colorType == 0 && chunk.data.length != 2) {
+					if (colorType == 0 && chunk.data.length != 2)
 						chunk.errorNotes.push("Invalid data length");
-						return;
-					} else if (colorType == 2 && chunk.data.length != 6) {
+					else if (colorType == 2 && chunk.data.length != 6)
 						chunk.errorNotes.push("Invalid data length");
-						return;
-					} else {
+					else {
 						if (colorType == 0)
 							chunk.innerNotes.push(`White: ${readUint16(chunk.data,0)}`);
 						else if (colorType == 2) {
@@ -1378,6 +1356,8 @@ namespace app {
 			
 		];
 		
+		
+		/*---- Helper functions ----*/
 		
 		public static getValidIhdrData(chunks: Array<ChunkPart>): Uint8Array|null {
 			let result: Uint8Array|null = null;
@@ -1661,9 +1641,9 @@ namespace deflate {
 		}
 		
 		function decodeHuffmanCodes(): [CanonicalCode,CanonicalCode|null] {
-			const numLitLenCodes: int = input.readUint(5) + 257;
-			const numDistCodes: int = input.readUint(5) + 1;
-			const numCodeLenCodes: int = input.readUint(4) + 4;
+			const numLitLenCodes : int = input.readUint(5) + 257;
+			const numDistCodes   : int = input.readUint(5) +   1;
+			const numCodeLenCodes: int = input.readUint(4) +   4;
 			let codeLenCodeLen: Array<int> = [];
 			for (let i = 0; i < 19; i++)
 				codeLenCodeLen.push(0);

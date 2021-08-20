@@ -277,7 +277,7 @@ var app;
                 earlierChunks.push(part_1);
                 earlierTypes.add(type);
             }
-            {
+            { // Find, pair up, and annotate dSIG chunks
                 var ihdrIndex = 0;
                 while (ihdrIndex < result.length && (!(result[ihdrIndex] instanceof ChunkPart) || result[ihdrIndex].typeStr != "IHDR"))
                     ihdrIndex++;
@@ -446,6 +446,7 @@ var app;
             }
             return result;
         };
+        /*---- Helper functions ----*/
         ChunkPart.getValidIhdrData = function (chunks) {
             var result = null;
             var count = 0;
@@ -498,7 +499,7 @@ var app;
             return result;
         };
         // The maximum length of a chunk's payload data, in bytes, inclusive.
-        ChunkPart.MAX_DATA_LENGTH = 0x7FFFFFFF;
+        ChunkPart.MAX_DATA_LENGTH = 2147483647;
         /*---- Handlers and metadata for all known PNG chunk types ----*/
         ChunkPart.TYPE_HANDLERS = [
             ["bKGD", "Background color", false, function (chunk, earlier) {
@@ -523,14 +524,10 @@ var app;
                             chunk.errorNotes.push("Color index out of range");
                     }
                     else {
-                        if ((colorType == 0 || colorType == 4) && chunk.data.length != 2) {
+                        if ((colorType == 0 || colorType == 4) && chunk.data.length != 2)
                             chunk.errorNotes.push("Invalid data length");
-                            return;
-                        }
-                        else if ((colorType == 2 || colorType == 6) && chunk.data.length != 6) {
+                        else if ((colorType == 2 || colorType == 6) && chunk.data.length != 6)
                             chunk.errorNotes.push("Invalid data length");
-                            return;
-                        }
                         else {
                             if (colorType == 0 || colorType == 4)
                                 chunk.innerNotes.push("White: " + readUint16(chunk.data, 0));
@@ -696,10 +693,10 @@ var app;
                     var filtMeth = chunk.data[11];
                     var laceMeth = chunk.data[12];
                     chunk.innerNotes.push("Width: " + width + " pixels");
-                    if (width == 0 || width > 0x7FFFFFFF)
+                    if (width == 0 || width > 2147483647)
                         chunk.errorNotes.push("Width out of range");
                     chunk.innerNotes.push("Height: " + height + " pixels");
-                    if (height == 0 || height > 0x7FFFFFFF)
+                    if (height == 0 || height > 2147483647)
                         chunk.errorNotes.push("Height out of range");
                     {
                         var colorTypeStr = void 0;
@@ -989,8 +986,8 @@ var app;
                         chunk.errorNotes.push("Invalid data length");
                         return;
                     }
-                    var unit = chunk.data[0];
                     {
+                        var unit = chunk.data[0];
                         var s = lookUpTable(unit, [
                             [0, "Metre"],
                             [1, "Radian"],
@@ -1043,24 +1040,15 @@ var app;
                         return;
                     var colorType = ihdr[9];
                     var bitDepth = colorType != 3 ? ihdr[8] : 8;
-                    var channels;
-                    switch (colorType) {
-                        case 0:
-                            channels = ["White"];
-                            break;
-                        case 2:
-                        case 3:
-                            channels = ["Red", "Green", "Blue"];
-                            break;
-                        case 4:
-                            channels = ["White", "Alpha"];
-                            break;
-                        case 6:
-                            channels = ["Red", "Green", "Blue", "Alpha"];
-                            break;
-                        default:
-                            return;
-                    }
+                    var channels = lookUpTable(colorType, [
+                        [0, ["White"]],
+                        [2, ["Red", "Green", "Blue"]],
+                        [3, ["Red", "Green", "Blue"]],
+                        [4, ["White", "Alpha"]],
+                        [6, ["Red", "Green", "Blue", "Alpha"]],
+                    ]);
+                    if (channels === null)
+                        return;
                     if (chunk.data.length != channels.length) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
@@ -1106,23 +1094,16 @@ var app;
                     var sampDepth = chunk.data[index];
                     index++;
                     chunk.innerNotes.push("Sample depth: " + sampDepth);
-                    switch (sampDepth) {
-                        case 8:
-                            if ((chunk.data.length - index) % 6 == 0)
-                                chunk.innerNotes.push("Number of entries: " + (chunk.data.length - index) / 6);
-                            else
-                                chunk.errorNotes.push("Invalid data length");
-                            break;
-                        case 16:
-                            if ((chunk.data.length - index) % 10 == 0)
-                                chunk.innerNotes.push("Number of entries: " + (chunk.data.length - index) / 10);
-                            else
-                                chunk.errorNotes.push("Invalid data length");
-                            break;
-                        default:
-                            chunk.errorNotes.push("Invalid sample depth");
-                            break;
-                    }
+                    var bytesPerEntry = lookUpTable(sampDepth, [
+                        [8, 6],
+                        [16, 10],
+                    ]);
+                    if (bytesPerEntry === null)
+                        return;
+                    else if ((chunk.data.length - index) % bytesPerEntry == 0)
+                        chunk.innerNotes.push("Number of entries: " + (chunk.data.length - index) / bytesPerEntry);
+                    else
+                        chunk.errorNotes.push("Invalid data length");
                 }],
             ["sRGB", "Standard RGB color space", false, function (chunk, earlier) {
                     if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
@@ -1239,14 +1220,10 @@ var app;
                             chunk.errorNotes.push("Number of alpha values exceeds palette size");
                     }
                     else {
-                        if (colorType == 0 && chunk.data.length != 2) {
+                        if (colorType == 0 && chunk.data.length != 2)
                             chunk.errorNotes.push("Invalid data length");
-                            return;
-                        }
-                        else if (colorType == 2 && chunk.data.length != 6) {
+                        else if (colorType == 2 && chunk.data.length != 6)
                             chunk.errorNotes.push("Invalid data length");
-                            return;
-                        }
                         else {
                             if (colorType == 0)
                                 chunk.innerNotes.push("White: " + readUint16(chunk.data, 0));
