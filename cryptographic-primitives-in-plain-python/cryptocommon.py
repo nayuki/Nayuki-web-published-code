@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Generator, Sequence, TypeVar, Union
+from typing import Iterator, Protocol, Sequence, TypeVar, Union
 
 
 # ---- Low-level arithmetic functions and constants ----
@@ -81,10 +81,13 @@ def rotate_right_uint64(value: int, amount: int) -> int:
 
 # ---- Miscellaneous functions ----
 
-T = TypeVar("T", bytes, str)
+T = TypeVar("T", bound="_Sliceable")
 
+class _Sliceable(Protocol):
+	def __len__(self) -> int: ...
+	def __getitem__(self: T, i: slice) -> T: ...
 
-def iter_blocks(seq: T, blocksize: int) -> Generator[T,None,None]:
+def iter_blocks(seq: T, blocksize: int) -> Iterator[T]:
 	assert len(seq) % blocksize == 0
 	for i in range(0, len(seq), blocksize):
 		yield seq[i : i + blocksize]
