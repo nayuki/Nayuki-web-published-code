@@ -54,7 +54,7 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 	# Make a mutable copy for use within this function
 	msg = bytearray(message)
 	blocksize: int = 200 - outbitlen // 4
-	if printdebug:  print(f"sha3.hash{outbitlen}(message = {len(message)} bytes)")
+	if printdebug:  print(f"sha3hash.hash{outbitlen}(message = {len(message)} bytes)")
 	
 	# Append the suffix bits and termination bit (rounded up to a whole byte)
 	msg.append(0x06)

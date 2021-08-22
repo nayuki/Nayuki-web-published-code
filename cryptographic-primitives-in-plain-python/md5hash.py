@@ -33,7 +33,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	
 	# Make a mutable copy for use within this function
 	msg = bytearray(message)
-	if printdebug:  print(f"md5.hash(message = {len(message)} bytes)")
+	if printdebug:  print(f"md5hash.hash(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
 	msg.append(0x80)

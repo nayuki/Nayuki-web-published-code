@@ -32,7 +32,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	
 	# Make a mutable copy for use within this function
 	msg = bytearray(message)
-	if printdebug:  print(f"md2.hash(message = {len(message)} bytes)")
+	if printdebug:  print(f"md2hash.hash(message = {len(message)} bytes)")
 	
 	# Append the termination padding
 	padlen: int = _BLOCK_SIZE - (len(msg) % _BLOCK_SIZE)
