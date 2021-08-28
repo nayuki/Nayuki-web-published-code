@@ -157,6 +157,7 @@ var app;
         [false, ["Chunk", "Length", "Truncated"], "bad_chunk_length_truncated.png"],
         [false, ["Chunk", "Length", "Overflow"], "bad_chunk_length_overflow.png"],
         [false, ["Chunk", "Type", "Truncated"], "bad_chunk_type_truncated.png"],
+        [false, ["Chunk", "Type", "Wrong characters"], "bad_chunk_type_wrong-characters.png"],
         [false, ["Chunk", "Data", "Truncated"], "bad_chunk_data_truncated.png"],
         [false, ["Chunk", "CRC", "Truncated"], "bad_chunk_crc_truncated.png"],
         [false, ["Chunk", "CRC", "Mismatch"], "bad_chunk_crc_mismatch.png"],
@@ -402,6 +403,8 @@ var app;
                 var typeBytes = bytes.subarray(4, 8);
                 _this.typeStr = bytesToReadableString(typeBytes);
                 _this.outerNotes.push("Type: " + _this.typeStr);
+                if (!/^[A-Za-z]{4}$/.test(_this.typeStr))
+                    _this.errorNotes.push("Type contains non-alphabetic characters");
                 var typeInfo = _this.getTypeInfo();
                 var typeName = typeInfo !== null ? typeInfo[0] : "Unknown";
                 _this.outerNotes.push("Name: " + typeName);
@@ -503,8 +506,7 @@ var app;
         /*---- Handlers and metadata for all known PNG chunk types ----*/
         ChunkPart.TYPE_HANDLERS = [
             ["bKGD", "Background color", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     var ihdr = ChunkPart.getValidIhdrData(earlier);
                     if (ihdr === null)
                         return;
@@ -544,10 +546,8 @@ var app;
                     }
                 }],
             ["cHRM", "Primary chromaticities", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
-                        chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     if (chunk.data.length != 32) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
@@ -570,10 +570,8 @@ var app;
             ["eXIf", "Exchangeable Image File (Exif) Profile", false, function (chunk, earlier) { }],
             ["fRAc", "Fractal image parameters", true, function (chunk, earlier) { }],
             ["gAMA", "Image gamma", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
-                        chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     if (chunk.data.length != 4) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
@@ -646,8 +644,7 @@ var app;
                     }
                 }],
             ["hIST", "Palette histogram", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     if (!earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
                         chunk.errorNotes.push("Chunk requires earlier PLTE chunk");
                     if (chunk.data.length % 2 != 0) {
@@ -663,12 +660,9 @@ var app;
                         chunk.errorNotes.push("Invalid data length");
                 }],
             ["iCCP", "Embedded ICC profile", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
-                        chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "sRGB"; }))
-                        chunk.errorNotes.push("Chunk should not exist because sRGB chunk exists");
+                    addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "sRGB", chunk, "Chunk should not exist because sRGB chunk exists");
                 }],
             ["IDAT", "Image data", true, function (chunk, earlier) {
                     if (earlier.length > 0 && earlier[earlier.length - 1].typeStr != "IDAT"
@@ -891,8 +885,7 @@ var app;
                     }
                 }],
             ["oFFs", "Image offset", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     if (chunk.data.length != 9) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
@@ -915,12 +908,10 @@ var app;
                     }
                 }],
             ["pCAL", "Calibration of pixel values", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 }],
             ["pHYs", "Physical pixel dimensions", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     if (chunk.data.length != 9) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
@@ -953,14 +944,10 @@ var app;
                     }
                 }],
             ["PLTE", "Palette", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "bKGD"; }))
-                        chunk.errorNotes.push("Chunk must be before bKGD chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "hIST"; }))
-                        chunk.errorNotes.push("Chunk must be before hIST chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "tRNS"; }))
-                        chunk.errorNotes.push("Chunk must be before tRNS chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "bKGD", chunk, "Chunk must be before bKGD chunk");
+                    addErrorIfHasType(earlier, "hIST", chunk, "Chunk must be before hIST chunk");
+                    addErrorIfHasType(earlier, "tRNS", chunk, "Chunk must be before tRNS chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     if (chunk.data.length % 3 != 0) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
@@ -980,8 +967,7 @@ var app;
                         chunk.errorNotes.push("Number of palette entries exceeds bit depth");
                 }],
             ["sCAL", "Physical scale of image subject", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     if (chunk.data.length == 0) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
@@ -1031,10 +1017,8 @@ var app;
                     }
                 }],
             ["sBIT", "Significant bits", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
-                        chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     var ihdr = ChunkPart.getValidIhdrData(earlier);
                     if (ihdr === null)
                         return;
@@ -1064,8 +1048,7 @@ var app;
                     });
                 }],
             ["sPLT", "Suggested palette", true, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     var index;
                     var name;
                     {
@@ -1106,12 +1089,9 @@ var app;
                         chunk.errorNotes.push("Invalid data length");
                 }],
             ["sRGB", "Standard RGB color space", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "PLTE"; }))
-                        chunk.errorNotes.push("Chunk must be before PLTE chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
-                    if (earlier.some(function (ch) { return ch.typeStr == "iCCP"; }))
-                        chunk.errorNotes.push("Chunk should not exist because iCCP chunk exists");
+                    addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "iCCP", chunk, "Chunk should not exist because iCCP chunk exists");
                     if (chunk.data.length != 1) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
@@ -1130,8 +1110,7 @@ var app;
                     chunk.innerNotes.push("Rendering intent: " + s + " (" + renderIntent + ")");
                 }],
             ["sTER", "Indicator of Stereo Image", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     if (chunk.data.length != 1) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
@@ -1199,8 +1178,7 @@ var app;
                         chunk.errorNotes.push("Invalid second");
                 }],
             ["tRNS", "Transparency", false, function (chunk, earlier) {
-                    if (earlier.some(function (ch) { return ch.typeStr == "IDAT"; }))
-                        chunk.errorNotes.push("Chunk must be before IDAT chunk");
+                    addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                     var ihdr = ChunkPart.getValidIhdrData(earlier);
                     if (ihdr === null)
                         return;
@@ -1362,6 +1340,10 @@ var app;
         for (var i = result.length - 3; i > 0; i -= 3)
             result = result.substring(0, i) + "\u00A0" + result.substring(i);
         return result;
+    }
+    function addErrorIfHasType(earlier, type, chunk, message) {
+        if (earlier.some(function (ch) { return ch.typeStr == type; }))
+            chunk.errorNotes.push(message);
     }
     function appendElem(container, tagName, text) {
         var result = document.createElement(tagName);
