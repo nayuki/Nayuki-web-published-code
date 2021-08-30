@@ -1,5 +1,5 @@
 /* 
- * PNG file chunk inspector (TypeScript)
+ * PNG file chunk inspector
  * 
  * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.

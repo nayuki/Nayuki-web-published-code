@@ -938,9 +938,8 @@ var app;
             checkbox.onchange = onChange;
             onChange();
             appendNewElem(label, "span", stepStr);
-            var button = document.createElement("input");
-            button.type = "button";
-            button.value = "Hide";
+            var button = document.createElement("button");
+            button.textContent = "Hide";
             button.onclick = function () {
                 checkbox.checked = false;
                 onChange();

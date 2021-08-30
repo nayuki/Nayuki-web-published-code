@@ -96,9 +96,8 @@ namespace app {
 			onChange();
 			appendNewElem(label, "span", stepStr);
 			
-			let button = document.createElement("input");
-			button.type = "button";
-			button.value = "Hide";
+			let button = document.createElement("button");
+			button.textContent = "Hide";
 			button.onclick = () => {
 				checkbox.checked = false;
 				onChange();
