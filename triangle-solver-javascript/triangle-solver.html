@@ -99,7 +99,7 @@
 		
 		<h2 style="display:none">Program</h2>
 		<div style="position:relative">
-			<div id="diagramcontainer" style="width:500px; margin:0em auto; position:relative">
+			<div id="diagramcontainer" style="width:32em; margin:0em auto; position:relative">
 				<svg style="display:block; width:100%" viewBox="0 0 18000 9000" fill="none" stroke="none">
 					<path stroke="#000000" stroke-width="100" stroke-linejoin="round" d="M1160,7405L16964,7405,6522,914,1160,7405Z"/>
 					<g fill="#000000">
@@ -111,8 +111,8 @@
 						<path d="M3086,6308l-43,186l-15,0c-2,-51,-15,-89,-38,-114c-23,-25,-53,-38,-90,-38c-40,0,-80,17,-120,51c-40,34,-74,86,-101,156c-23,56,-34,112,-34,168c0,49,12,87,37,113c24,26,58,39,100,39c34,0,66,-7,94,-22c28,-15,57,-39,86,-73l21,0c-36,54,-71,91,-108,113c-36,21,-80,32,-133,32c-70,0,-127,-21,-170,-64c-43,-43,-64,-98,-64,-167c0,-64,17,-126,51,-184c35,-59,84,-106,148,-142c64,-36,128,-54,192,-54c24,0,54,5,90,15c18,5,31,7,38,7c15,0,29,-7,44,-22l15,0z"/>
 					</g>
 				</svg>
+				<div id="hoveroutput" style="display:none; position:absolute; padding:0.5em; background-color:#FFFFFF; border:0.06em solid #A0A0A0; border-radius:0.2em"></div>
 			</div>
-			<div id="hoveroutput" style="display:none; position:absolute; padding:0.5em; background-color:#FFFFFF; border:0.06em solid #A0A0A0; border-radius:0.2em"></div>
 		</div>
 		
 		<form onsubmit="event.preventDefault(); doSolve();" onreset="doClearOutputs();">
@@ -439,16 +439,17 @@
 			
 			function initImageMap() {
 				var container = document.getElementById("diagramcontainer");
+				var containerWidth = parseEm(container.style.width);
 				rectangles.forEach(function(rect, i) {
-					var elem = container.appendChild(document.createElement("a"));
+					var elem = document.createElement("a");
+					container.insertBefore(elem, container.querySelector("#hoveroutput"));
 					elem.href = "#";
 					elem.classList.add("letterhover");
-					rect[0] -= Math.round((RECT_PADDED_SIZE - rect[2]) / 2);
-					rect[1] -= Math.round((RECT_PADDED_SIZE - rect[3]) / 2);
-					elem.style.left   = rect[0] + "px";
-					elem.style.top    = rect[1]  + "px";
-					elem.style.width  = RECT_PADDED_SIZE + "px";
-					elem.style.height = RECT_PADDED_SIZE + "px";
+					rect[0] -= (RECT_PADDED_SIZE - rect[2]) / 2;
+					rect[1] -= (RECT_PADDED_SIZE - rect[3]) / 2;
+					elem.style.left = rect[0] / 500 * containerWidth + "em";
+					elem.style.top  = rect[1] / 500 * containerWidth + "em";
+					elem.style.width = elem.style.height = RECT_PADDED_SIZE / 500 * containerWidth + "em";
 					
 					elem.onmouseover = function() {
 						if (solution === null)
@@ -466,19 +467,11 @@
 						var hovelem = document.getElementById("hoveroutput");
 						hovelem.style.display = "block";
 						try {
-							var compStyle = window.getComputedStyle(hovelem, null);
-							var height = parsePixels(compStyle.getPropertyValue("height"));
-							height    += parsePixels(compStyle.getPropertyValue("padding-top"));
-							height    += parsePixels(compStyle.getPropertyValue("padding-bottom"));
-							hovelem.style.top = rect[1] - height - 8 + "px";
-							
-							var temp = document.getElementById("diagramcontainer");
-							var containerWidth = parsePixels(window.getComputedStyle(temp, null).getPropertyValue("width"));
-							var bodyWidth = parsePixels(window.getComputedStyle(temp.parentNode, null).getPropertyValue("width"));
-							hovelem.style.left = Math.round((bodyWidth - containerWidth) / 2) + rect[0] + "px";
+							hovelem.style.bottom = ((250 - rect[1]) / 500 * containerWidth + 0.5) + "em";
+							hovelem.style.left = rect[0] / 500 * containerWidth + "em";
 						} catch (e) {
-							hovelem.style.left = "0px";
-							hovelem.style.top = "0px";
+							hovelem.style.left = "0em";
+							hovelem.style.top = "0em";
 						}
 					};
 					
@@ -500,8 +493,8 @@
 				document.getElementById(nodeId).textContent = str;
 			}
 			
-			function parsePixels(str) {
-				var match = /^(\d+(?:\.\d*)?)px$/.exec(str);
+			function parseEm(str) {
+				var match = /^(\d+(?:\.\d*)?)em$/.exec(str);
 				if (match !== null)
 					return parseFloat(match[1]);
 				else

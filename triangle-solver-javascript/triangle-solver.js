@@ -238,22 +238,23 @@ var rectangles = [
 
 function initImageMap() {
 	var container = document.getElementById("diagramcontainer");
+	var containerWidth = parseEm(container.style.width);
 	rectangles.forEach(function(rect, i) {
-		var elem = container.appendChild(document.createElement("a"));
+		var elem = document.createElement("a");
+		container.insertBefore(elem, container.querySelector("#hoveroutput"));
 		elem.href = "#";
 		elem.classList.add("letterhover");
-		rect[0] -= Math.round((RECT_PADDED_SIZE - rect[2]) / 2);
-		rect[1] -= Math.round((RECT_PADDED_SIZE - rect[3]) / 2);
-		elem.style.left   = rect[0] + "px";
-		elem.style.top    = rect[1]  + "px";
-		elem.style.width  = RECT_PADDED_SIZE + "px";
-		elem.style.height = RECT_PADDED_SIZE + "px";
+		rect[0] -= (RECT_PADDED_SIZE - rect[2]) / 2;
+		rect[1] -= (RECT_PADDED_SIZE - rect[3]) / 2;
+		elem.style.left = rect[0] / 500 * containerWidth + "em";
+		elem.style.top  = rect[1] / 500 * containerWidth + "em";
+		elem.style.width = elem.style.height = RECT_PADDED_SIZE / 500 * containerWidth + "em";
 		
 		elem.onmouseover = function() {
 			if (solution === null)
 				return;
 			
-			var suffix = i >= 3 && i < 6 ? DEGREE : "";
+			var suffix = 3 <= i && i < 6 ? DEGREE : "";
 			var text;
 			if (typeof solution[i] == "object")
 				text = formatNumber(solution[i][0]) + suffix + " or " + formatNumber(solution[i][1]) + suffix;
@@ -265,19 +266,11 @@ function initImageMap() {
 			var hovelem = document.getElementById("hoveroutput");
 			hovelem.style.display = "block";
 			try {
-				var compStyle = window.getComputedStyle(hovelem, null);
-				var height = parsePixels(compStyle.getPropertyValue("height"));
-				height    += parsePixels(compStyle.getPropertyValue("padding-top"));
-				height    += parsePixels(compStyle.getPropertyValue("padding-bottom"));
-				hovelem.style.top = rect[1] - height - 8 + "px";
-				
-				var temp = document.getElementById("diagramcontainer");
-				var containerWidth = parsePixels(window.getComputedStyle(temp, null).getPropertyValue("width"));
-				var bodyWidth = parsePixels(window.getComputedStyle(temp.parentNode, null).getPropertyValue("width"));
-				hovelem.style.left = Math.round((bodyWidth - containerWidth) / 2) + rect[0] + "px";
+				hovelem.style.bottom = ((250 - rect[1]) / 500 * containerWidth + 0.5) + "em";
+				hovelem.style.left = rect[0] / 500 * containerWidth + "em";
 			} catch (e) {
-				hovelem.style.left = "0px";
-				hovelem.style.top = "0px";
+				hovelem.style.left = "0em";
+				hovelem.style.top = "0em";
 			}
 		};
 		
@@ -299,8 +292,8 @@ function setElementText(nodeId, str) {
 	document.getElementById(nodeId).textContent = str;
 }
 
-function parsePixels(str) {
-	var match = /^(\d+(?:\.\d*)?)px$/.exec(str);
+function parseEm(str) {
+	var match = /^(\d+(?:\.\d*)?)em$/.exec(str);
 	if (match !== null)
 		return parseFloat(match[1]);
 	else
