@@ -224,16 +224,16 @@ function doClearOutputs() {
 }
 
 
-var RECT_PADDED_SIZE = 36;
+var RECT_PADDED_SIZE = 0.0720;
 
 // List of tuples (left, top, width, height). Values will be modified by initImageMap() to include padding.
 var rectangles = [
-	[246, 221, 12, 12],
-	[ 89,  89, 12, 18],
-	[321,  87, 11, 13],
-	[177,  48, 15, 17],  // Tweaked for better aesthetics. True dimensions are [175,48,15,17]
-	[391, 176, 16, 17],
-	[ 69, 175, 17, 18],
+	[0.4922, 0.4419, 0.0227, 0.0229],
+	[0.1784, 0.1789, 0.0221, 0.0339],
+	[0.6424, 0.1754, 0.0201, 0.0229],
+	[0.3492, 0.0964, 0.0322, 0.0333],
+	[0.7803, 0.3531, 0.0330, 0.0326],
+	[0.1393, 0.3504, 0.0322, 0.0340],
 ];
 
 function initImageMap() {
@@ -246,9 +246,9 @@ function initImageMap() {
 		elem.classList.add("letterhover");
 		rect[0] -= (RECT_PADDED_SIZE - rect[2]) / 2;
 		rect[1] -= (RECT_PADDED_SIZE - rect[3]) / 2;
-		elem.style.left = rect[0] / 500 * containerWidth + "em";
-		elem.style.top  = rect[1] / 500 * containerWidth + "em";
-		elem.style.width = elem.style.height = RECT_PADDED_SIZE / 500 * containerWidth + "em";
+		elem.style.left = rect[0] * containerWidth + "em";
+		elem.style.top  = rect[1] * containerWidth + "em";
+		elem.style.width = elem.style.height = RECT_PADDED_SIZE * containerWidth + "em";
 		
 		elem.onmouseover = function() {
 			if (solution === null)
@@ -266,8 +266,8 @@ function initImageMap() {
 			var hovelem = document.getElementById("hoveroutput");
 			hovelem.style.display = "block";
 			try {
-				hovelem.style.bottom = ((250 - rect[1]) / 500 * containerWidth + 0.5) + "em";
-				hovelem.style.left = rect[0] / 500 * containerWidth + "em";
+				hovelem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
+				hovelem.style.left = rect[0] * containerWidth + "em";
 			} catch (e) {
 				hovelem.style.left = "0em";
 				hovelem.style.top = "0em";
