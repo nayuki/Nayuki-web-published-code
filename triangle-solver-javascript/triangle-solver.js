@@ -257,7 +257,7 @@ function initImageMap() {
 			var suffix = 3 <= i && i < 6 ? DEGREE : "";
 			var text;
 			if (typeof solution[i] == "object")
-				text = formatNumber(solution[i][0]) + suffix + " or " + formatNumber(solution[i][1]) + suffix;
+				text = formatNumber(solution[i][0]) + suffix + " or\n" + formatNumber(solution[i][1]) + suffix;
 			else
 				text = formatNumber(solution[i]) + suffix;
 			setElementText("hoveroutput", text);
@@ -265,25 +265,22 @@ function initImageMap() {
 			// Set hover element style
 			var hovelem = document.getElementById("hoveroutput");
 			hovelem.style.display = "block";
-			try {
-				hovelem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
-				hovelem.style.left = rect[0] * containerWidth + "em";
-			} catch (e) {
-				hovelem.style.left = "0em";
-				hovelem.style.top = "0em";
-			}
+			hovelem.style.left = rect[0] * containerWidth + "em";
+			hovelem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
 		};
 		
 		elem.onmouseout = function() {
 			setElementText("hoveroutput", "");
 			document.getElementById("hoveroutput").style.display = "none";
 		};
-		elem.onclick = function() {
+		elem.onclick = function(ev) {
+			ev.preventDefault();
 			document.getElementById(ioNames[i] + "in").select();
-			return false;
 		};
 	});
 }
+
+setTimeout(initImageMap);
 
 
 /*---- Simple functions ----*/
@@ -313,5 +310,3 @@ function radToDeg(x) {
 }
 
 var DEGREE = "\u00B0";
-
-initImageMap();

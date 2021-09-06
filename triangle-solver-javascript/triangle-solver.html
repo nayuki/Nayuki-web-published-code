@@ -111,7 +111,7 @@
 						<path d="M3086,6308l-43,186l-15,0c-2,-51,-15,-89,-38,-114c-23,-25,-53,-38,-90,-38c-40,0,-80,17,-120,51c-40,34,-74,86,-101,156c-23,56,-34,112,-34,168c0,49,12,87,37,113c24,26,58,39,100,39c34,0,66,-7,94,-22c28,-15,57,-39,86,-73l21,0c-36,54,-71,91,-108,113c-36,21,-80,32,-133,32c-70,0,-127,-21,-170,-64c-43,-43,-64,-98,-64,-167c0,-64,17,-126,51,-184c35,-59,84,-106,148,-142c64,-36,128,-54,192,-54c24,0,54,5,90,15c18,5,31,7,38,7c15,0,29,-7,44,-22l15,0z"/>
 					</g>
 				</svg>
-				<div id="hoveroutput" style="display:none; position:absolute; padding:0.5em; background-color:#FFFFFF; border:0.06em solid #A0A0A0; border-radius:0.2em"></div>
+				<div id="hoveroutput" style="display:none; position:absolute; padding:0.5em; background-color:#FFFFFF; border:0.06em solid #A0A0A0; border-radius:0.2em; white-space:pre"></div>
 			</div>
 		</div>
 		
@@ -458,7 +458,7 @@
 						var suffix = and(i >= 3, 6 > i) ? DEGREE : "";
 						var text;
 						if (typeof solution[i] == "object")
-							text = formatNumber(solution[i][0]) + suffix + " or " + formatNumber(solution[i][1]) + suffix;
+							text = formatNumber(solution[i][0]) + suffix + " or\n" + formatNumber(solution[i][1]) + suffix;
 						else
 							text = formatNumber(solution[i]) + suffix;
 						setElementText("hoveroutput", text);
@@ -466,25 +466,22 @@
 						// Set hover element style
 						var hovelem = document.getElementById("hoveroutput");
 						hovelem.style.display = "block";
-						try {
-							hovelem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
-							hovelem.style.left = rect[0] * containerWidth + "em";
-						} catch (e) {
-							hovelem.style.left = "0em";
-							hovelem.style.top = "0em";
-						}
+						hovelem.style.left = rect[0] * containerWidth + "em";
+						hovelem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
 					};
 					
 					elem.onmouseout = function() {
 						setElementText("hoveroutput", "");
 						document.getElementById("hoveroutput").style.display = "none";
 					};
-					elem.onclick = function() {
+					elem.onclick = function(ev) {
+						ev.preventDefault();
 						document.getElementById(ioNames[i] + "in").select();
-						return false;
 					};
 				});
 			}
+			
+			setTimeout(initImageMap);
 			
 			
 			/*---- Simple functions ----*/
@@ -519,8 +516,6 @@
 			}
 			
 			var DEGREE = "\u00B0";
-			
-			initImageMap();
 		</script>
 	</body>
 </html>
