@@ -21,9 +21,9 @@
 #   Software.
 # 
 
-import itertools
 from typing import List, Sequence, Tuple, Union
 import cryptocommon
+from cryptocommon import UINT32_MASK
 
 
 byte = int
@@ -168,8 +168,8 @@ def _feistel_function(r0: uint32, r1: uint32, subkey0: uint32, subkey1: uint32, 
 	t0: uint32 = _function_g(r0, s)
 	t1: uint32 = _function_g(cryptocommon.rotate_left_uint32(r1, 8), s)
 	t0, t1 = _pseudo_hadamard_transform(t0, t1)
-	t0 = (t0 + subkey0) & cryptocommon.UINT32_MASK
-	t1 = (t1 + subkey1) & cryptocommon.UINT32_MASK
+	t0 = (t0 + subkey0) & UINT32_MASK
+	t1 = (t1 + subkey1) & UINT32_MASK
 	return (t0, t1)
 
 
@@ -230,8 +230,8 @@ def _pseudo_hadamard_transform(a: uint32, b: uint32) -> Tuple[uint32,uint32]:
 	assert cryptocommon.is_uint32(a)
 	assert cryptocommon.is_uint32(b)
 	return (
-		(a + 1 * b) & cryptocommon.UINT32_MASK,
-		(a + 2 * b) & cryptocommon.UINT32_MASK,
+		(a + 1 * b) & UINT32_MASK,
+		(a + 2 * b) & UINT32_MASK,
 	)
 
 
