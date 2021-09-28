@@ -179,16 +179,16 @@ class DisjointSet final {
 	}
 	
 	
-	// (Private) Returns the representative element for the set containing the given element. This method is also
+	// Returns the representative element for the set containing the given element. This method is also
 	// known as "find" in the literature. Also performs path compression, which alters the internal state to
 	// improve the speed of future queries, but has no externally visible effect on the values returned.
 	private: S getRepr(S elemIndex) const {
 		// Follow parent pointers until we reach a representative
-		S parent = nodes.at(elemIndex).parent;
+		S parent = nodes.at(static_cast<std::size_t>(elemIndex)).parent;
 		while (true) {
 			S grandparent = nodes.at(static_cast<std::size_t>(parent)).parent;
 			if (grandparent == parent)
-				return static_cast<std::size_t>(parent);
+				return parent;
 			nodes.at(static_cast<std::size_t>(elemIndex)).parent = grandparent;  // Partial path compression
 			elemIndex = parent;
 			parent = grandparent;
