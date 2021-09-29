@@ -1,7 +1,7 @@
 /*
  * Disjoint-set data structure - Library (compiled from TypeScript)
  *
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -71,15 +71,15 @@ var DisjointSet = /** @class */ (function () {
         var repr1 = this.getRepr(elemIndex1);
         if (repr0 == repr1)
             return false;
-        // Compare ranks
-        var cmp = this.ranks[repr0] - this.ranks[repr1];
-        if (cmp == 0) // Increment repr0's rank if both nodes have same rank
+        // Compare ranks to choose parent node
+        if (this.ranks[repr0] == this.ranks[repr1])
             this.ranks[repr0]++;
-        else if (cmp < 0) { // Swap to ensure that repr0's rank >= repr1's rank
+        else if (this.ranks[repr0] < this.ranks[repr1]) {
             var temp = repr0;
             repr0 = repr1;
             repr1 = temp;
         }
+        // Now repr0's rank >= repr1's rank
         // Graft repr1's subtree onto node repr0
         this.parents[repr1] = repr0;
         this.sizes[repr0] += this.sizes[repr1];

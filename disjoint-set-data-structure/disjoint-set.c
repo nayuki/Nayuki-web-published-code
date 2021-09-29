@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library implementation (C)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -91,19 +91,15 @@ bool DisjointSet_mergeSets(struct DisjointSet this[static 1], size_t elemIndex0,
 	if (repr0 == repr1)
 		return false;
 	
-	// Compare ranks
-	int cmp = this->nodes[repr0].rank - this->nodes[repr1].rank;
-	// Note: The computation of cmp does not overflow. 0 <= ranks[i] <= SCHAR_MAX,
-	// so SCHAR_MIN <= -SCHAR_MAX <= ranks[i] - ranks[j] <= SCHAR_MAX.
-	// The result actually fits in a signed char, and with sizeof(char) <= sizeof(int),
-	// the promotion to int still guarantees the result fits.
-	if (cmp == 0)  // Increment repr0's rank if both nodes have same rank
+	// Compare ranks to choose parent node
+	if (this->nodes[repr0].rank == this->nodes[repr1].rank)
 		this->nodes[repr0].rank++;
-	else if (cmp < 0) {  // Swap to ensure that repr0's rank >= repr1's rank
+	else if (this->nodes[repr0].rank < this->nodes[repr1].rank) {
 		size_t temp = repr0;
 		repr0 = repr1;
 		repr1 = temp;
 	}
+	// Now repr0's rank >= repr1's rank
 	
 	// Graft repr1's subtree onto node repr0
 	this->nodes[repr1].parent = repr0;

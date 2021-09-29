@@ -135,16 +135,12 @@ class DisjointSet final {
 		if (repr0 == repr1)
 			return false;
 		
-		// Compare ranks
-		int cmp = nodes.at(repr0).rank - nodes.at(repr1).rank;
-		// Note: The computation of cmp does not overflow. 0 <= ranks[i] <= SCHAR_MAX,
-		// so SCHAR_MIN <= -SCHAR_MAX <= ranks[i] - ranks[j] <= SCHAR_MAX.
-		// The result actually fits in a signed char, and with sizeof(char) <= sizeof(int),
-		// the promotion to int still guarantees the result fits.
-		if (cmp == 0)  // Increment repr0's rank if both nodes have same rank
+		// Compare ranks to choose parent node
+		if (nodes.at(repr0).rank == nodes.at(repr1).rank)
 			nodes.at(repr0).rank++;
-		else if (cmp < 0)  // Swap to ensure that repr0's rank >= repr1's rank
+		else if (nodes.at(repr0).rank < nodes.at(repr1).rank)
 			std::swap(repr0, repr1);
+		// Now repr0's rank >= repr1's rank
 		
 		// Graft repr1's subtree onto node repr0
 		nodes.at(repr1).parent = repr0;

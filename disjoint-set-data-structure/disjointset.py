@@ -1,7 +1,7 @@
 # 
 # Disjoint-set data structure - Library (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/disjoint-set-data-structure
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -104,12 +104,12 @@ class DisjointSet:
 		if repr0 == repr1:
 			return False
 		
-		# Compare ranks
-		cmp: int = self.ranks[repr0] - self.ranks[repr1]
-		if cmp == 0:  # Increment repr0's rank if both nodes have same rank
+		# Compare ranks to choose parent node
+		if self.ranks[repr0] == self.ranks[repr1]:
 			self.ranks[repr0] += 1
-		elif cmp < 0:  # Swap to ensure that repr0's rank >= repr1's rank
+		elif self.ranks[repr0] < self.ranks[repr1]:
 			repr0, repr1 = repr1, repr0
+		# Now repr0's rank >= repr1's rank
 		
 		# Graft repr1's subtree onto node repr0
 		self.parents[repr1] = repr0
