@@ -34,7 +34,6 @@ class DisjointSet {
 	
 	// Per-node property arrays. This representation is more space-efficient than creating one node object per element.
 	private parents: Array<number> = [];  // The index of the parent element. An element is a representative iff its parent is itself.
-	private ranks  : Array<number> = [];  // Always in the range [0, floor(log2(numElems))].
 	private sizes  : Array<number> = [];  // Positive number if the element is a representative, otherwise zero.
 	
 	
@@ -46,7 +45,6 @@ class DisjointSet {
 		this.numSets = numElems;
 		for (let i = 0; i < numElems; i++) {
 			this.parents.push(i);
-			this.ranks  .push(0);
 			this.sizes  .push(1);
 		}
 	}
@@ -89,15 +87,13 @@ class DisjointSet {
 		if (repr0 == repr1)
 			return false;
 		
-		// Compare ranks to choose parent node
-		if (this.ranks[repr0] == this.ranks[repr1])
-			this.ranks[repr0]++;
-		else if (this.ranks[repr0] < this.ranks[repr1]) {
+		// Compare sizes to choose parent node
+		if (this.sizes[repr0] < this.sizes[repr1]) {
 			let temp: number = repr0;
 			repr0 = repr1;
 			repr1 = temp;
 		}
-		// Now repr0's rank >= repr1's rank
+		// Now repr0's size >= repr1's size
 		
 		// Graft repr1's subtree onto node repr0
 		this.parents[repr1] = repr0;
@@ -133,7 +129,6 @@ class DisjointSet {
 		let numRepr: number = 0;
 		for (let i = 0; i < this.parents.length; i++) {
 			const parent: number = this.parents[i];
-			const rank  : number = this.ranks  [i];
 			const size  : number = this.sizes  [i];
 			const isRepr: boolean = parent == i;
 			if (isRepr)
@@ -141,8 +136,7 @@ class DisjointSet {
 			
 			let ok: boolean = true;
 			ok = ok && 0 <= parent && parent < this.parents.length;
-			ok = ok && 0 <= rank && (isRepr || rank < this.ranks[parent]);
-			ok = ok && (!isRepr && size == 0 || isRepr && size >= (1 << rank));
+			ok = ok && (!isRepr && size == 0 || isRepr && 1 <= size && size <= this.parents.length);
 			if (!ok)
 				throw "Assertion error";
 		}

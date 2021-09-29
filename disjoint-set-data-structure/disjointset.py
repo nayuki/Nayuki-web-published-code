@@ -32,7 +32,6 @@ class DisjointSet:
 	
 	num_sets: int
 	parents: List[int]
-	ranks: List[int]
 	sizes: List[int]
 	
 	
@@ -45,11 +44,9 @@ class DisjointSet:
 		# A global property
 		self.num_sets = numelems
 		
-		# Per-node properties (three):
+		# Per-node properties (two):
 		# The index of the parent element. An element is a representative iff its parent is itself.
 		self.parents = list(range(numelems))
-		# Always in the range [0, floor(log2(numelems))].
-		self.ranks = [0] * numelems
 		# Positive number if the element is a representative, otherwise zero.
 		self.sizes = [1] * numelems
 	
@@ -104,12 +101,10 @@ class DisjointSet:
 		if repr0 == repr1:
 			return False
 		
-		# Compare ranks to choose parent node
-		if self.ranks[repr0] == self.ranks[repr1]:
-			self.ranks[repr0] += 1
-		elif self.ranks[repr0] < self.ranks[repr1]:
+		# Compare sizes to choose parent node
+		if self.sizes[repr0] < self.sizes[repr1]:
 			repr0, repr1 = repr1, repr0
-		# Now repr0's rank >= repr1's rank
+		# Now repr0's size >= repr1's size
 		
 		# Graft repr1's subtree onto node repr0
 		self.parents[repr1] = repr0
@@ -123,8 +118,8 @@ class DisjointSet:
 	# if a structural invariant is known to be violated. This always returns silently on a valid object.
 	def check_structure(self) -> None:
 		numrepr: int = 0
-		for (i, parent, rank, size) in zip(
-				itertools.count(), self.parents, self.ranks, self.sizes):
+		for (i, parent, size) in zip(
+				itertools.count(), self.parents, self.sizes):
 			
 			isrepr: bool = parent == i
 			if isrepr:
@@ -132,8 +127,7 @@ class DisjointSet:
 			
 			ok: bool = True
 			ok &= 0 <= parent < len(self.parents)
-			ok &= 0 <= rank and (isrepr or rank < self.ranks[parent])
-			ok &= ((not isrepr) and size == 0) or (isrepr and size >= (1 << rank))
+			ok &= ((not isrepr) and size == 0) or (isrepr and 1 <= size <= len(self.parents))
 			if not ok:
 				raise AssertionError()
 		if not (0 <= self.num_sets == numrepr <= len(self.parents)):

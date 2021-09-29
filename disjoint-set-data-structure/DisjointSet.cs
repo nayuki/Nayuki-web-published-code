@@ -54,7 +54,6 @@ public sealed class DisjointSet {
 		nodes = new Node[numElems];
 		for (int i = 0; i < numElems; i++) {
 			nodes[i].Parent = i;
-			nodes[i].Rank = 0;
 			nodes[i].Size = 1;
 		}
 		NumberOfSets = numElems;
@@ -115,15 +114,13 @@ public sealed class DisjointSet {
 		if (repr0 == repr1)
 			return false;
 		
-		// Compare ranks to choose parent node
-		if (nodes[repr0].Rank == nodes[repr1].Rank)
-			nodes[repr0].Rank++;
-		else if (nodes[repr0].Rank < nodes[repr1].Rank) {
+		// Compare sizes to choose parent node
+		if (nodes[repr0].Size < nodes[repr1].Size) {
 			int temp = repr0;
 			repr0 = repr1;
 			repr1 = temp;
 		}
-		// Now repr0's rank >= repr1's rank
+		// Now repr0's size >= repr1's size
 		
 		// Graft repr1's subtree onto node repr0
 		nodes[repr1].Parent = repr0;
@@ -140,7 +137,6 @@ public sealed class DisjointSet {
 		int numRepr = 0;
 		for (int i = 0; i < nodes.Length; i++) {
 			int parent = nodes[i].Parent;
-			int rank = nodes[i].Rank;
 			int size = nodes[i].Size;
 			bool isRepr = parent == i;
 			if (isRepr)
@@ -148,8 +144,7 @@ public sealed class DisjointSet {
 			
 			bool ok = true;
 			ok &= 0 <= parent && parent < nodes.Length;
-			ok &= 0 <= rank && (isRepr || rank < nodes[parent].Rank);
-			ok &= !isRepr && size == 0 || isRepr && size >= (1 << rank);
+			ok &= !isRepr && size == 0 || isRepr && 1 <= size && size <= nodes.Length;
 			if (!ok)
 				throw new SystemException();
 		}
@@ -163,9 +158,6 @@ public sealed class DisjointSet {
 		
 		// The index of the parent element. An element is a representative iff its parent is itself.
 		public int Parent;
-		
-		// Always in the range [0, floor(log2(NumberOfElements))]. Thus has a maximum value of 30.
-		public byte Rank;
 		
 		// Positive number if the element is a representative, otherwise zero.
 		public int Size;

@@ -48,10 +48,6 @@ class DisjointSet final {
 		// iff its parent is itself. Mutable due to path compression.
 		mutable S parent;
 		
-		// Always in the range [0, floor(log2(numElems))]. For practical computers, this has a maximum value of 64.
-		// Note that signed char is guaranteed to cover at least the range [0, 127].
-		signed char rank;
-		
 		// Positive number if the element is a representative, otherwise zero.
 		S size;
 	};
@@ -78,7 +74,7 @@ class DisjointSet final {
 			throw std::length_error("Number of elements too large");
 		nodes.reserve(static_cast<std::size_t>(numElems));
 		for (S i = 0; i < numElems; i++)
-			nodes.push_back(Node{i, 0, 1});
+			nodes.push_back(Node{i, 1});
 	}
 	
 	
@@ -135,12 +131,10 @@ class DisjointSet final {
 		if (repr0 == repr1)
 			return false;
 		
-		// Compare ranks to choose parent node
-		if (nodes.at(repr0).rank == nodes.at(repr1).rank)
-			nodes.at(repr0).rank++;
-		else if (nodes.at(repr0).rank < nodes.at(repr1).rank)
+		// Compare sizes to choose parent node
+		if (nodes.at(repr0).size < nodes.at(repr1).size)
 			std::swap(repr0, repr1);
-		// Now repr0's rank >= repr1's rank
+		// Now repr0's size >= repr1's size
 		
 		// Graft repr1's subtree onto node repr0
 		nodes.at(repr1).parent = repr0;
@@ -163,9 +157,8 @@ class DisjointSet final {
 			
 			bool ok = true;
 			ok &= 0 <= node.parent && safeLessThan(node.parent, nodes.size());
-			ok &= 0 <= node.rank && (isRepr || node.rank < nodes.at(node.parent).rank);
 			ok &= 0 <= node.size && safeLessEquals(node.size, nodes.size());
-			ok &= (!isRepr && node.size == 0) || (isRepr && node.size >= (static_cast<S>(1) << node.rank));
+			ok &= (!isRepr && node.size == 0) || (isRepr && 1 <= node.size && safeLessEquals(node.size, nodes.size()));
 			if (!ok)
 				throw std::logic_error("Assertion error");
 			i++;

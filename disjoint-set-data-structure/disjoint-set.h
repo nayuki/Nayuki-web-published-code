@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library header (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,10 +35,6 @@ struct DisjointSetNode {
 	// The index of the parent element. An element is a representative
 	// iff its parent is itself. Mutable due to path compression.
 	size_t parent;
-	
-	// Always in the range [0, floor(log2(numElems))]. For practical computers, this has a maximum
-	// value of 64. Note that signed char is guaranteed to cover at least the range [0, 127].
-	signed char rank;
 	
 	// Positive number if the element is a representative, otherwise zero.
 	size_t size;

@@ -36,7 +36,6 @@ public final class DisjointSet {
 	
 	// Per-node properties. This representation is more space-efficient than creating one node object per element.
 	private int[] parents;  // The index of the parent element. An element is a representative iff its parent is itself.
-	private byte[] ranks;   // Always in the range [0, floor(log2(numElems))]. Thus has a maximum value of 30.
 	private int[] sizes;    // Positive number if the element is a representative, otherwise zero.
 	
 	
@@ -49,11 +48,9 @@ public final class DisjointSet {
 		if (numElems < 0)
 			throw new IllegalArgumentException("Number of elements must be non-negative");
 		parents = new int[numElems];
-		ranks = new byte[numElems];
 		sizes = new int[numElems];
 		for (int i = 0; i < numElems; i++) {
 			parents[i] = i;
-			ranks[i] = 0;
 			sizes[i] = 1;
 		}
 		numSets = numElems;
@@ -119,15 +116,13 @@ public final class DisjointSet {
 		if (repr0 == repr1)
 			return false;
 		
-		// Compare ranks to choose parent node
-		if (ranks[repr0] == ranks[repr1])
-			ranks[repr0]++;
-		else if (ranks[repr0] < ranks[repr1]) {
+		// Compare sizes to choose parent node
+		else if (sizes[repr0] < sizes[repr1]) {
 			int temp = repr0;
 			repr0 = repr1;
 			repr1 = temp;
 		}
-		// Now repr0's rank >= repr1's rank
+		// Now repr0's size >= repr1's size
 		
 		// Graft repr1's subtree onto node repr0
 		parents[repr1] = repr0;
@@ -144,7 +139,6 @@ public final class DisjointSet {
 		int numRepr = 0;
 		for (int i = 0; i < parents.length; i++) {
 			int parent = parents[i];
-			int rank = ranks[i];
 			int size = sizes[i];
 			boolean isRepr = parent == i;
 			if (isRepr)
@@ -152,8 +146,7 @@ public final class DisjointSet {
 			
 			boolean ok = true;
 			ok &= 0 <= parent && parent < parents.length;
-			ok &= 0 <= rank && (isRepr || rank < ranks[parent]);
-			ok &= !isRepr && size == 0 || isRepr && size >= (1 << rank);
+			ok &= !isRepr && size == 0 || isRepr && 1 <= size && size <= parents.length;
 			if (!ok)
 				throw new AssertionError();
 		}

@@ -45,7 +45,7 @@ struct DisjointSet *DisjointSet_init(size_t numElems) {
 	result->numElements = numElems;
 	result->numSets = numElems;
 	for (size_t i = 0; i < numElems; i++)
-		result->nodes[i] = (struct DisjointSetNode){i, 0, 1};
+		result->nodes[i] = (struct DisjointSetNode){i, 1};
 	return result;
 }
 
@@ -91,15 +91,13 @@ bool DisjointSet_mergeSets(struct DisjointSet this[static 1], size_t elemIndex0,
 	if (repr0 == repr1)
 		return false;
 	
-	// Compare ranks to choose parent node
-	if (this->nodes[repr0].rank == this->nodes[repr1].rank)
-		this->nodes[repr0].rank++;
-	else if (this->nodes[repr0].rank < this->nodes[repr1].rank) {
+	// Compare sizes to choose parent node
+	if (this->nodes[repr0].size < this->nodes[repr1].size) {
 		size_t temp = repr0;
 		repr0 = repr1;
 		repr1 = temp;
 	}
-	// Now repr0's rank >= repr1's rank
+	// Now repr0's size >= repr1's size
 	
 	// Graft repr1's subtree onto node repr0
 	this->nodes[repr1].parent = repr0;
@@ -119,8 +117,7 @@ void DisjointSet_checkStructure(const struct DisjointSet this[static 1]) {
 			numRepr++;
 		
 		assert(node->parent < this->numElements);
-		assert(0 <= node->rank && (isRepr || node->rank < this->nodes[node->parent].rank));
-		assert((!isRepr && node->size == 0) || (isRepr && node->size >= ((size_t)1 << node->rank)));
+		assert((!isRepr && node->size == 0) || (isRepr && 1 <= node-> size && node->size <= this->numElements));
 	}
 	assert(this->numSets == numRepr && this->numSets <= this->numElements);
 }

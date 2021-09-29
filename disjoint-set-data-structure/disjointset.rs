@@ -46,9 +46,6 @@ struct DisjointSetNode {
 	// The index of the parent element. An element is a representative iff its parent is itself.
 	parent: usize,
 	
-	// Always in the range [0, floor(log2(NumberOfElements))]. Thus has a maximum value of 63.
-	rank: i8,
-	
 	// Positive number if the element is a representative, otherwise zero.
 	size: usize,
 	
@@ -65,7 +62,6 @@ impl DisjointSet {
 			nodes: (0 .. numelems).map(|i|
 				DisjointSetNode{
 					parent: i,
-					rank: 0,
 					size: 1,
 				}).collect(),
 		}
@@ -129,14 +125,11 @@ impl DisjointSet {
 			return false;
 		}
 		
-		// Compare ranks to choose parent node
-		if self.nodes[repr0].rank == self.nodes[repr1].rank {
-			let rank: &mut i8 = &mut self.nodes[repr0].rank;
-			*rank = rank.checked_add(1).unwrap();
-		} else if self.nodes[repr0].rank < self.nodes[repr1].rank {
+		// Compare sizes to choose parent node
+		if self.nodes[repr0].size < self.nodes[repr1].size {
 			std::mem::swap(&mut repr0, &mut repr1);
 		}
-		// Now repr0's rank >= repr1's rank
+		// Now repr0's size >= repr1's size
 		
 		// Graft repr1's subtree onto node repr0
 		self.nodes[repr1].parent = repr0;
@@ -155,8 +148,7 @@ impl DisjointSet {
 			let isrepr: bool = node.parent == i;
 			numrepr = numrepr.checked_add(usize::from(isrepr)).unwrap();
 			assert!(node.parent < self.nodes.len());
-			assert!(0 <= node.rank && (isrepr || node.rank < self.nodes[node.parent].rank));
-			assert!(!isrepr && node.size == 0 || isrepr && node.size >= (1usize << node.rank));
+			assert!(!isrepr && node.size == 0 || isrepr && (1 ..= self.nodes.len()).contains(&node.size));
 		}
 		assert_eq!(self.numberofsets, numrepr);
 		assert!(self.numberofsets <= self.nodes.len());
