@@ -75,7 +75,7 @@ impl DisjointSet {
 	}
 	
 	
-	// The number of disjoint sets overall. 0 <= get_num_sets() <= get_num_elements().
+	// The number of disjoint sets overall. 0 <= result <= get_num_elements().
 	pub fn get_num_sets(&self) -> usize {
 		self.num_sets
 	}
