@@ -95,14 +95,14 @@ class DisjointSet final {
 	/*---- Methods ----*/
 	
 	// Returns the number of elements among the set of disjoint sets. All the other methods
-	// require the argument elemIndex to satisfy 0 <= elemIndex < getNumberOfElements().
-	public: S getNumberOfElements() const {
+	// require the argument elemIndex to satisfy 0 <= elemIndex < getNumElements().
+	public: S getNumElements() const {
 		return static_cast<S>(nodes.size());
 	}
 	
 	
-	// Returns the number of disjoint sets overall. 0 <= result <= getNumberOfElements().
-	public: S getNumberOfSets() const {
+	// Returns the number of disjoint sets overall. 0 <= result <= getNumElements().
+	public: S getNumSets() const {
 		return numSets;
 	}
 	
@@ -124,7 +124,7 @@ class DisjointSet final {
 	}
 	
 	
-	// Returns the size of the set that the given element is a member of. 1 <= result <= getNumberOfElements().
+	// Returns the size of the set that the given element is a member of. 1 <= result <= getNumElements().
 	public: S getSizeOfSet(S elemIndex) const {
 		return nodes.at(getRepr(elemIndex)).size;
 	}
@@ -136,10 +136,10 @@ class DisjointSet final {
 	}
 	
 	
-	// Adds a new singleton set, incrementing getNumberOfElements() and getNumberOfSets().
-	// Returns the identity of the new element, which equals the old value of getNumberOfElements().
+	// Adds a new singleton set, incrementing getNumElements() and getNumSets().
+	// Returns the identity of the new element, which equals the old value of getNumElements().
 	public: S addSet() {
-		S elemIndex = getNumberOfElements();
+		S elemIndex = getNumElements();
 		if (elemIndex == std::numeric_limits<S>::max())
 			throw std::overflow_error("Maximum set size reached");
 		nodes.push_back(Node{elemIndex, 1});

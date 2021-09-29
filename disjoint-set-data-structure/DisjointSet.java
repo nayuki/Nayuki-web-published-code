@@ -62,15 +62,15 @@ public final class DisjointSet {
 	
 	// Returns the number of elements among the set of disjoint sets; this was the number passed
 	// into the constructor and is constant for the lifetime of the object. All the other methods
-	// require the argument elemIndex to satisfy 0 <= elemIndex < getNumberOfElements().
-	public int getNumberOfElements() {
+	// require the argument elemIndex to satisfy 0 <= elemIndex < getNumElements().
+	public int getNumElements() {
 		return parents.length;
 	}
 	
 	
 	// Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 0 <= result <= getNumberOfElements().
-	public int getNumberOfSets() {
+	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 0 <= result <= getNumElements().
+	public int getNumSets() {
 		return numSets;
 	}
 	
@@ -94,7 +94,7 @@ public final class DisjointSet {
 	}
 	
 	
-	// Returns the size of the set that the given element is a member of. 1 <= result <= getNumberOfElements().
+	// Returns the size of the set that the given element is a member of. 1 <= result <= getNumElements().
 	public int getSizeOfSet(int elemIndex) {
 		return sizes[getRepr(elemIndex)];
 	}

@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (C#)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,7 +41,7 @@ public sealed class DisjointSetTest {
 	
 	private static void TestNew() {
 		DisjointSet ds = new DisjointSet(10);
-		AssertEquals(10, ds.NumberOfSets);
+		AssertEquals(10, ds.NumSets);
 		AssertEquals(1, ds.GetSizeOfSet(0));
 		AssertEquals(1, ds.GetSizeOfSet(2));
 		AssertEquals(1, ds.GetSizeOfSet(9));
@@ -56,22 +56,22 @@ public sealed class DisjointSetTest {
 		DisjointSet ds = new DisjointSet(10);
 		AssertTrue(ds.MergeSets(0, 1));
 		ds.CheckStructure();
-		AssertEquals(9, ds.NumberOfSets);
+		AssertEquals(9, ds.NumSets);
 		AssertTrue(ds.AreInSameSet(0, 1));
 		
 		AssertTrue(ds.MergeSets(2, 3));
 		ds.CheckStructure();
-		AssertEquals(8, ds.NumberOfSets);
+		AssertEquals(8, ds.NumSets);
 		AssertTrue(ds.AreInSameSet(2, 3));
 		
 		AssertFalse(ds.MergeSets(2, 3));
 		ds.CheckStructure();
-		AssertEquals(8, ds.NumberOfSets);
+		AssertEquals(8, ds.NumSets);
 		AssertFalse(ds.AreInSameSet(0, 2));
 		
 		AssertTrue(ds.MergeSets(0, 3));
 		ds.CheckStructure();
-		AssertEquals(7, ds.NumberOfSets);
+		AssertEquals(7, ds.NumSets);
 		AssertTrue(ds.AreInSameSet(0, 2));
 		AssertTrue(ds.AreInSameSet(3, 0));
 		AssertTrue(ds.AreInSameSet(1, 3));
@@ -120,7 +120,7 @@ public sealed class DisjointSetTest {
 				AssertTrue(nds.AreInSameSet(k, l) == ds.AreInSameSet(k, l));
 				if (rand.NextDouble() < 0.1)
 					AssertTrue(nds.MergeSets(k, l) == ds.MergeSets(k, l));
-				AssertEquals(nds.NumberOfSets, ds.NumberOfSets);
+				AssertEquals(nds.NumSets, ds.NumSets);
 				if (rand.NextDouble() < 0.001)
 					ds.CheckStructure();
 			}
@@ -165,7 +165,7 @@ sealed class NaiveDisjointSet {
 	}
 	
 	
-	public int NumberOfSets {
+	public int NumSets {
 		get {
 			int result = 0;
 			for (int i = 0; i < representatives.Length; i++) {

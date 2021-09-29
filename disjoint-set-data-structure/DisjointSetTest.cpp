@@ -42,7 +42,7 @@ class NaiveDisjointSet final {
 			representatives.push_back(i);
 	}
 	
-	public: size_t getNumberOfSets() const {
+	public: size_t getNumSets() const {
 		size_t result = 0;
 		for (size_t i = 0; i < representatives.size(); i++) {
 			if (representatives[i] == i)
@@ -102,7 +102,7 @@ static void assertEquals(std::int64_t expected, std::int64_t actual) {
 
 static void testNew() {
 	DisjointSet<signed char> ds(10);
-	assertEquals(10, ds.getNumberOfSets());
+	assertEquals(10, ds.getNumSets());
 	assertEquals(1, ds.getSizeOfSet(0));
 	assertEquals(1, ds.getSizeOfSet(2));
 	assertEquals(1, ds.getSizeOfSet(9));
@@ -117,22 +117,22 @@ static void testMerge() {
 	DisjointSet<std::uint16_t> ds(10);
 	assertTrue(ds.mergeSets(0, 1));
 	ds.checkStructure();
-	assertEquals(9, ds.getNumberOfSets());
+	assertEquals(9, ds.getNumSets());
 	assertTrue(ds.areInSameSet(0, 1));
 	
 	assertTrue(ds.mergeSets(2, 3));
 	ds.checkStructure();
-	assertEquals(8, ds.getNumberOfSets());
+	assertEquals(8, ds.getNumSets());
 	assertTrue(ds.areInSameSet(2, 3));
 	
 	assertFalse(ds.mergeSets(2, 3));
 	ds.checkStructure();
-	assertEquals(8, ds.getNumberOfSets());
+	assertEquals(8, ds.getNumSets());
 	assertFalse(ds.areInSameSet(0, 2));
 	
 	assertTrue(ds.mergeSets(0, 3));
 	ds.checkStructure();
-	assertEquals(7, ds.getNumberOfSets());
+	assertEquals(7, ds.getNumSets());
 	assertTrue(ds.areInSameSet(0, 2));
 	assertTrue(ds.areInSameSet(3, 0));
 	assertTrue(ds.areInSameSet(1, 3));
@@ -181,7 +181,7 @@ static void testAgainstNaiveRandomly() {
 			assertTrue(ds.areInSameSet(k, l) == nds.areInSameSet(k, l));
 			if (realDist(randGen) < 0.1)
 				assertTrue(ds.mergeSets(k, l) == nds.mergeSets(k, l));
-			assertEquals(nds.getNumberOfSets(), ds.getNumberOfSets());
+			assertEquals(nds.getNumSets(), ds.getNumSets());
 			if (realDist(randGen) < 0.001)
 				ds.checkStructure();
 		}

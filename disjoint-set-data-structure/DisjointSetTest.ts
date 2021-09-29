@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@ const TEST_SUITE_FUNCS: Array<()=>void> = [
 	
 	function testNew(): void {
 		let ds = new DisjointSet(10);
-		assertEquals(10, ds.getNumberOfSets());
+		assertEquals(10, ds.getNumSets());
 		assertEquals(1, ds.getSizeOfSet(0));
 		assertEquals(1, ds.getSizeOfSet(2));
 		assertEquals(1, ds.getSizeOfSet(9));
@@ -43,22 +43,22 @@ const TEST_SUITE_FUNCS: Array<()=>void> = [
 		let ds = new DisjointSet(10);
 		assertTrue(ds.mergeSets(0, 1));
 		ds.checkStructure();
-		assertEquals(9, ds.getNumberOfSets());
+		assertEquals(9, ds.getNumSets());
 		assertTrue(ds.areInSameSet(0, 1));
 		
 		assertTrue(ds.mergeSets(2, 3));
 		ds.checkStructure();
-		assertEquals(8, ds.getNumberOfSets());
+		assertEquals(8, ds.getNumSets());
 		assertTrue(ds.areInSameSet(2, 3));
 		
 		assertFalse(ds.mergeSets(2, 3));
 		ds.checkStructure();
-		assertEquals(8, ds.getNumberOfSets());
+		assertEquals(8, ds.getNumSets());
 		assertFalse(ds.areInSameSet(0, 2));
 		
 		assertTrue(ds.mergeSets(0, 3));
 		ds.checkStructure();
-		assertEquals(7, ds.getNumberOfSets());
+		assertEquals(7, ds.getNumSets());
 		assertTrue(ds.areInSameSet(0, 2));
 		assertTrue(ds.areInSameSet(3, 0));
 		assertTrue(ds.areInSameSet(1, 3));
@@ -107,7 +107,7 @@ const TEST_SUITE_FUNCS: Array<()=>void> = [
 				assertTrue(nds.areInSameSet(k, l) == ds.areInSameSet(k, l));
 				if (Math.random() < 0.1)
 					assertTrue(nds.mergeSets(k, l) == ds.mergeSets(k, l));
-				assertEquals(nds.getNumberOfSets(), ds.getNumberOfSets());
+				assertEquals(nds.getNumSets(), ds.getNumSets());
 				if (Math.random() < 0.001)
 					ds.checkStructure();
 			}
@@ -130,7 +130,7 @@ class NaiveDisjointSet {
 			this.representatives.push(i);
 	}
 	
-	public getNumberOfSets(): number {
+	public getNumSets(): number {
 		let result: number = 0;
 		this.representatives.forEach((repr, i) => {
 			if (repr == i)

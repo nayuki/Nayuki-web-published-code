@@ -34,8 +34,8 @@ public sealed class DisjointSet {
 	/*---- Fields ----*/
 	
 	// The number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to MergeSets() either decrements the number by one or leaves it unchanged. 0 <= NumberOfSets <= NumberOfElements.
-	public int NumberOfSets {
+	// each call to MergeSets() either decrements the number by one or leaves it unchanged. 0 <= NumSets <= NumElements.
+	public int NumSets {
 		get;
 		private set;
 	}
@@ -56,7 +56,7 @@ public sealed class DisjointSet {
 			nodes[i].Parent = i;
 			nodes[i].Size = 1;
 		}
-		NumberOfSets = numElems;
+		NumSets = numElems;
 	}
 	
 	
@@ -65,8 +65,8 @@ public sealed class DisjointSet {
 	
 	// Returns the number of elements among the set of disjoint sets; this was the number passed
 	// into the constructor and is constant for the lifetime of the object. All the other methods
-	// require the argument elemIndex to satisfy 0 <= elemIndex < NumberOfElements.
-	public int NumberOfElements {
+	// require the argument elemIndex to satisfy 0 <= elemIndex < NumElements.
+	public int NumElements {
 		get {
 			return nodes.Length;
 		}
@@ -92,7 +92,7 @@ public sealed class DisjointSet {
 	}
 	
 	
-	// Returns the size of the set that the given element is a member of. 1 <= result <= NumberOfElements.
+	// Returns the size of the set that the given element is a member of. 1 <= result <= NumElements.
 	public int GetSizeOfSet(int elemIndex) {
 		return nodes[getRepr(elemIndex)].Size;
 	}
@@ -126,7 +126,7 @@ public sealed class DisjointSet {
 		nodes[repr1].Parent = repr0;
 		nodes[repr0].Size += nodes[repr1].Size;
 		nodes[repr1].Size = 0;
-		NumberOfSets--;
+		NumSets--;
 		return true;
 	}
 	
@@ -148,7 +148,7 @@ public sealed class DisjointSet {
 			if (!ok)
 				throw new SystemException();
 		}
-		if (!(0 <= NumberOfSets && NumberOfSets == numRepr && NumberOfSets <= nodes.Length))
+		if (!(0 <= NumSets && NumSets == numRepr && NumSets <= nodes.Length))
 			throw new SystemException();
 	}
 	

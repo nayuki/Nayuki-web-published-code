@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (C)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -63,7 +63,7 @@ static struct NaiveDisjointSet *NaiveDisjointSet_destroy(struct NaiveDisjointSet
 }
 
 
-static size_t NaiveDisjointSet_getNumberOfSets(const struct NaiveDisjointSet this[static 1]) {
+static size_t NaiveDisjointSet_getNumSets(const struct NaiveDisjointSet this[static 1]) {
 	size_t result = 0;
 	for (size_t i = 0; i < this->numElements; i++) {
 		if (this->representatives[i] == i)
@@ -198,7 +198,7 @@ static void testAgainstNaiveRandomly(void) {
 			assert(DisjointSet_areInSameSet(ds, k, l) == NaiveDisjointSet_areInSameSet(nds, k, l));
 			if ((double)rand() / RAND_MAX < 0.1)
 				assert(DisjointSet_mergeSets(ds, k, l) == NaiveDisjointSet_mergeSets(nds, k, l));
-			assert(ds->numSets == NaiveDisjointSet_getNumberOfSets(nds));
+			assert(ds->numSets == NaiveDisjointSet_getNumSets(nds));
 			if ((double)rand() / RAND_MAX < 0.001)
 				DisjointSet_checkStructure(ds);
 		}

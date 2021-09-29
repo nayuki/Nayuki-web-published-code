@@ -32,7 +32,7 @@ use std;
 #[derive(Clone)]
 pub struct DisjointSet {
 	
-	numberofsets: usize,
+	num_sets: usize,
 	
 	nodes: Vec<DisjointSetNode>,
 	
@@ -58,7 +58,7 @@ impl DisjointSet {
 	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 	pub fn new(numelems: usize) -> Self {
 		let mut result = Self {
-			numberofsets: 0,
+			num_sets: 0,
 			nodes: Vec::new(),
 		};
 		for _ in 0 .. numelems {
@@ -69,15 +69,15 @@ impl DisjointSet {
 	
 	
 	// Returns the number of elements among the set of disjoint sets. All the other methods
-	// require the argument elemindex to satisfy 0 <= elemindex < number_of_elements().
-	pub fn number_of_elems(&self) -> usize {
+	// require the argument elemindex to satisfy 0 <= elemindex < get_num_elements().
+	pub fn get_num_elems(&self) -> usize {
 		self.nodes.len()
 	}
 	
 	
-	// The number of disjoint sets overall. 0 <= number_of_sets() <= number_of_elements().
-	pub fn number_of_sets(&self) -> usize {
-		self.numberofsets
+	// The number of disjoint sets overall. 0 <= get_num_sets() <= get_num_elements().
+	pub fn get_num_sets(&self) -> usize {
+		self.num_sets
 	}
 	
 	
@@ -99,7 +99,7 @@ impl DisjointSet {
 	}
 	
 	
-	// Returns the size of the set that the given element is a member of. 1 <= result <= number_of_elements().
+	// Returns the size of the set that the given element is a member of. 1 <= result <= get_num_elements().
 	pub fn get_size_of_set(&mut self, elemindex: usize) -> usize {
 		let repr = self.get_repr(elemindex);
 		self.nodes[repr].size
@@ -112,12 +112,12 @@ impl DisjointSet {
 	}
 	
 	
-	// Adds a new singleton set, incrementing number_of_elems() and number_of_sets().
-	// Returns the identity of the new element, which equals the old value of number_of_elements().
+	// Adds a new singleton set, incrementing get_num_elems() and get_num_sets().
+	// Returns the identity of the new element, which equals the old value of get_num_elements().
 	pub fn add_set(&mut self) -> usize {
-		let elemindex = self.number_of_elems();
+		let elemindex = self.get_num_elems();
 		self.nodes.push(DisjointSetNode{parent: elemindex, size: 1});
-		self.numberofsets += 1;
+		self.num_sets += 1;
 		elemindex
 	}
 	
@@ -143,7 +143,7 @@ impl DisjointSet {
 		self.nodes[repr1].parent = repr0;
 		self.nodes[repr0].size += self.nodes[repr1].size;
 		self.nodes[repr1].size = 0;
-		self.numberofsets -= 1;
+		self.num_sets -= 1;
 		true
 	}
 	
@@ -158,8 +158,8 @@ impl DisjointSet {
 			assert!(node.parent < self.nodes.len());
 			assert!(!isrepr && node.size == 0 || isrepr && (1 ..= self.nodes.len()).contains(&node.size));
 		}
-		assert_eq!(self.numberofsets, numrepr);
-		assert!(self.numberofsets <= self.nodes.len());
+		assert_eq!(self.num_sets, numrepr);
+		assert!(self.num_sets <= self.nodes.len());
 	}
 	
 }

@@ -41,12 +41,12 @@ var DisjointSet = /** @class */ (function () {
             this.addSet();
     }
     // Returns the number of elements among the set of disjoint sets. All the other methods
-    // require the argument elemIndex to satisfy 0 <= elemIndex < getNumberOfElements().
-    DisjointSet.prototype.getNumberOfElements = function () {
+    // require the argument elemIndex to satisfy 0 <= elemIndex < getNumElements().
+    DisjointSet.prototype.getNumElements = function () {
         return this.parents.length;
     };
-    // Returns the number of disjoint sets overall. 0 <= result <= getNumberOfElements().
-    DisjointSet.prototype.getNumberOfSets = function () {
+    // Returns the number of disjoint sets overall. 0 <= result <= getNumElements().
+    DisjointSet.prototype.getNumSets = function () {
         return this.numSets;
     };
     // Returns the representative element for the set containing the given element. This method is also
@@ -66,7 +66,7 @@ var DisjointSet = /** @class */ (function () {
             parent = grandparent;
         }
     };
-    // Returns the size of the set that the given element is a member of. 1 <= result <= getNumberOfElements().
+    // Returns the size of the set that the given element is a member of. 1 <= result <= getNumElements().
     DisjointSet.prototype.getSizeOfSet = function (elemIndex) {
         return this.sizes[this.getRepr(elemIndex)];
     };
@@ -74,10 +74,10 @@ var DisjointSet = /** @class */ (function () {
     DisjointSet.prototype.areInSameSet = function (elemIndex0, elemIndex1) {
         return this.getRepr(elemIndex0) == this.getRepr(elemIndex1);
     };
-    // Adds a new singleton set, incrementing getNumberOfElements() and getNumberOfSets().
-    // Returns the identity of the new element, which equals the old value of getNumberOfElements().
+    // Adds a new singleton set, incrementing getNumElements() and getNumSets().
+    // Returns the identity of the new element, which equals the old value of getNumElements().
     DisjointSet.prototype.addSet = function () {
-        var elemIndex = this.getNumberOfElements();
+        var elemIndex = this.getNumElements();
         this.parents.push(elemIndex);
         this.sizes.push(1);
         this.numSets++;

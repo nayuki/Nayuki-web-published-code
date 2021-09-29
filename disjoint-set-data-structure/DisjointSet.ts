@@ -48,14 +48,14 @@ class DisjointSet {
 	
 	
 	// Returns the number of elements among the set of disjoint sets. All the other methods
-	// require the argument elemIndex to satisfy 0 <= elemIndex < getNumberOfElements().
-	public getNumberOfElements(): number {
+	// require the argument elemIndex to satisfy 0 <= elemIndex < getNumElements().
+	public getNumElements(): number {
 		return this.parents.length;
 	}
 	
 	
-	// Returns the number of disjoint sets overall. 0 <= result <= getNumberOfElements().
-	public getNumberOfSets(): number {
+	// Returns the number of disjoint sets overall. 0 <= result <= getNumElements().
+	public getNumSets(): number {
 		return this.numSets;
 	}
 	
@@ -79,7 +79,7 @@ class DisjointSet {
 	}
 	
 	
-	// Returns the size of the set that the given element is a member of. 1 <= result <= getNumberOfElements().
+	// Returns the size of the set that the given element is a member of. 1 <= result <= getNumElements().
 	public getSizeOfSet(elemIndex: number): number {
 		return this.sizes[this.getRepr(elemIndex)];
 	}
@@ -91,10 +91,10 @@ class DisjointSet {
 	}
 	
 	
-	// Adds a new singleton set, incrementing getNumberOfElements() and getNumberOfSets().
-	// Returns the identity of the new element, which equals the old value of getNumberOfElements().
+	// Adds a new singleton set, incrementing getNumElements() and getNumSets().
+	// Returns the identity of the new element, which equals the old value of getNumElements().
 	public addSet(): number {
-		const elemIndex: number = this.getNumberOfElements();
+		const elemIndex: number = this.getNumElements();
 		this.parents.push(elemIndex);
 		this.sizes.push(1);
 		this.numSets++;

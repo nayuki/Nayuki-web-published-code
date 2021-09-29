@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,7 +44,7 @@ fn main() {
 
 fn test_new() {
 	let mut ds = DisjointSet::new(10);
-	assert_eq!(10, ds.number_of_sets());
+	assert_eq!(10, ds.get_num_sets());
 	assert_eq!(1, ds.get_size_of_set(0));
 	assert_eq!(1, ds.get_size_of_set(2));
 	assert_eq!(1, ds.get_size_of_set(9));
@@ -58,22 +58,22 @@ fn test_merge() {
 	let mut ds = DisjointSet::new(10);
 	assert_eq!(true, ds.merge_sets(0, 1));
 	ds.check_structure();
-	assert_eq!(9, ds.number_of_sets());
+	assert_eq!(9, ds.get_num_sets());
 	assert_eq!(true, ds.are_in_same_set(0, 1));
 	
 	assert_eq!(true, ds.merge_sets(2, 3));
 	ds.check_structure();
-	assert_eq!(8, ds.number_of_sets());
+	assert_eq!(8, ds.get_num_sets());
 	assert_eq!(true, ds.are_in_same_set(2, 3));
 	
 	assert_eq!(false, ds.merge_sets(2, 3));
 	ds.check_structure();
-	assert_eq!(8, ds.number_of_sets());
+	assert_eq!(8, ds.get_num_sets());
 	assert_eq!(false, ds.are_in_same_set(0, 2));
 	
 	assert_eq!(true, ds.merge_sets(0, 3));
 	ds.check_structure();
-	assert_eq!(7, ds.number_of_sets());
+	assert_eq!(7, ds.get_num_sets());
 	assert_eq!(true, ds.are_in_same_set(0, 2));
 	assert_eq!(true, ds.are_in_same_set(3, 0));
 	assert_eq!(true, ds.are_in_same_set(1, 3));
@@ -129,7 +129,7 @@ fn test_against_naive_randomly() {
 			if rng.next_f64() < 0.1 {
 				assert_eq!(nds.merge_sets(i, j), ds.merge_sets(i, j));
 			}
-			assert_eq!(nds.number_of_sets(), ds.number_of_sets());
+			assert_eq!(nds.get_num_sets(), ds.get_num_sets());
 			if rng.next_f64() < 0.001 {
 				ds.check_structure();
 			}
@@ -154,7 +154,7 @@ impl NaiveDisjointSet {
 	}
 	
 	
-	fn number_of_sets(&self) -> usize {
+	fn get_num_sets(&self) -> usize {
 		self.representatives.iter().enumerate()
 			.filter(|&(i, &repr)| repr == i).count()
 	}
