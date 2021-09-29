@@ -41,13 +41,11 @@ pub struct DisjointSet {
 
 // Private helper structure.
 #[derive(Clone, Copy)]
-struct DisjointSetNode {
+enum DisjointSetNode {
 	
-	// The index of the parent element. An element is a representative iff its parent is itself.
-	parent: usize,
+	Representative { size: usize },  // 'size' is a positive number
 	
-	// Positive number if the element is a representative, otherwise zero.
-	size: usize,
+	Child { parent: usize },  // 'parent' is the index of the parent element
 	
 }
 
@@ -84,31 +82,36 @@ impl DisjointSet {
 	// (Private) Returns the representative element for the set containing the given element. This method is also
 	// known as "find" in the literature. Also performs path compression, which alters the internal state to
 	// improve the speed of future queries, but has no externally visible effect on the values returned.
-	fn get_repr(&mut self, mut elemindex: usize) -> usize {
-		// Follow parent pointers until we reach a representative
-		let mut parent: usize = self.nodes[elemindex].parent;
-		loop {
-			let grandparent: usize = self.nodes[parent].parent;
-			if grandparent == parent {
-				return parent;
-			}
-			self.nodes[elemindex].parent = grandparent;  // Partial path compression
-			elemindex = parent;
-			parent = grandparent;
-		}
+	fn get_repr(&mut self, mut elemindex: usize) -> (usize,usize) {
+		use self::DisjointSetNode::*;
+		match self.nodes[elemindex] {
+			Representative{size} => return (elemindex, size),
+			
+			// Follow parent pointers until we reach a representative
+			Child{mut parent} => loop {
+				match self.nodes[parent] {
+					Representative{size} => return (parent, size),
+					
+					Child{parent: grandparent} => {
+						self.nodes[elemindex] = Child{parent: grandparent};  // Partial path compression
+						elemindex = parent;
+						parent = grandparent;
+					},
+				}
+			},
+		};
 	}
 	
 	
 	// Returns the size of the set that the given element is a member of. 1 <= result <= get_num_elements().
 	pub fn get_size_of_set(&mut self, elemindex: usize) -> usize {
-		let repr = self.get_repr(elemindex);
-		self.nodes[repr].size
+		self.get_repr(elemindex).1
 	}
 	
 	
 	// Tests whether the given two elements are members of the same set. Note that the arguments are orderless.
 	pub fn are_in_same_set(&mut self, elemindex0: usize, elemindex1: usize) -> bool {
-		self.get_repr(elemindex0) == self.get_repr(elemindex1)
+		self.get_repr(elemindex0).0 == self.get_repr(elemindex1).0
 	}
 	
 	
@@ -116,7 +119,7 @@ impl DisjointSet {
 	// Returns the identity of the new element, which equals the old value of get_num_elements().
 	pub fn add_set(&mut self) -> usize {
 		let elemindex = self.get_num_elems();
-		self.nodes.push(DisjointSetNode{parent: elemindex, size: 1});
+		self.nodes.push(DisjointSetNode::Representative{size: 1});
 		self.num_sets += 1;
 		elemindex
 	}
@@ -127,22 +130,26 @@ impl DisjointSet {
 	// Otherwise they belong in the same set, nothing is changed and the method returns false. Note that the arguments are orderless.
 	pub fn merge_sets(&mut self, elemindex0: usize, elemindex1: usize) -> bool {
 		// Get representatives
-		let mut repr0: usize = self.get_repr(elemindex0);
-		let mut repr1: usize = self.get_repr(elemindex1);
+		let (mut repr0, mut size0): (usize,usize) = self.get_repr(elemindex0);
+		let (mut repr1, mut size1): (usize,usize) = self.get_repr(elemindex1);
 		if repr0 == repr1 {
 			return false;
 		}
 		
 		// Compare sizes to choose parent node
-		if self.nodes[repr0].size < self.nodes[repr1].size {
+		if size0 < size1 {
 			std::mem::swap(&mut repr0, &mut repr1);
+			std::mem::swap(&mut size0, &mut size1);
 		}
 		// Now repr0's size >= repr1's size
 		
 		// Graft repr1's subtree onto node repr0
-		self.nodes[repr1].parent = repr0;
-		self.nodes[repr0].size += self.nodes[repr1].size;
-		self.nodes[repr1].size = 0;
+		if let DisjointSetNode::Representative{ref mut size} = self.nodes[repr0] {
+			*size += size1;
+		} else {
+			unreachable!();
+		}
+		self.nodes[repr1] = DisjointSetNode::Child{parent: repr0};
 		self.num_sets -= 1;
 		true
 	}
@@ -152,11 +159,16 @@ impl DisjointSet {
 	// structural invariant is known to be violated. This always returns silently on a valid object.
 	pub fn check_structure(&self) {
 		let mut numrepr: usize = 0;
-		for (i, node) in self.nodes.iter().enumerate() {
-			let isrepr: bool = node.parent == i;
-			numrepr = numrepr.checked_add(usize::from(isrepr)).unwrap();
-			assert!(node.parent < self.nodes.len());
-			assert!(!isrepr && node.size == 0 || isrepr && (1 ..= self.nodes.len()).contains(&node.size));
+		for &node in &self.nodes {
+			match node {
+				DisjointSetNode::Representative{size} => {
+					numrepr = numrepr.checked_add(1).unwrap();
+					assert!((1 ..= self.nodes.len()).contains(&size));
+				},
+				DisjointSetNode::Child{parent} => {
+					assert!(parent < self.nodes.len());
+				},
+			}
 		}
 		assert_eq!(self.num_sets, numrepr);
 		assert!(self.num_sets <= self.nodes.len());
