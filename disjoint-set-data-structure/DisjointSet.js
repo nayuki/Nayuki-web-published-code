@@ -30,25 +30,22 @@ var DisjointSet = /** @class */ (function () {
     // Constructs a new set containing the given number of singleton sets.
     // For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
     function DisjointSet(numElems) {
+        // Global properties
+        this.numSets = 0;
         // Per-node property arrays. This representation is more space-efficient than creating one node object per element.
         this.parents = []; // The index of the parent element. An element is a representative iff its parent is itself.
         this.sizes = []; // Positive number if the element is a representative, otherwise zero.
         if (numElems < 0)
             throw "Number of elements must be non-negative";
-        this.numSets = numElems;
-        for (var i = 0; i < numElems; i++) {
-            this.parents.push(i);
-            this.sizes.push(1);
-        }
+        for (var i = 0; i < numElems; i++)
+            this.addSet();
     }
-    // Returns the number of elements among the set of disjoint sets; this was the number passed
-    // into the constructor and is constant for the lifetime of the object. All the other methods
+    // Returns the number of elements among the set of disjoint sets. All the other methods
     // require the argument elemIndex to satisfy 0 <= elemIndex < getNumberOfElements().
     DisjointSet.prototype.getNumberOfElements = function () {
         return this.parents.length;
     };
-    // Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-    // each call to mergeSets() either decrements the number by one or leaves it unchanged. 0 <= result <= getNumberOfElements().
+    // Returns the number of disjoint sets overall. 0 <= result <= getNumberOfElements().
     DisjointSet.prototype.getNumberOfSets = function () {
         return this.numSets;
     };
@@ -59,6 +56,15 @@ var DisjointSet = /** @class */ (function () {
     // Tests whether the given two elements are members of the same set. Note that the arguments are orderless.
     DisjointSet.prototype.areInSameSet = function (elemIndex0, elemIndex1) {
         return this.getRepr(elemIndex0) == this.getRepr(elemIndex1);
+    };
+    // Adds a new singleton set, incrementing getNumberOfElements() and getNumberOfSets().
+    // Returns the identity of the new element, which equals the old value of getNumberOfElements().
+    DisjointSet.prototype.addSet = function () {
+        var elemIndex = this.getNumberOfElements();
+        this.parents.push(elemIndex);
+        this.sizes.push(1);
+        this.numSets++;
+        return elemIndex;
     };
     // Merges together the sets that the given two elements belong to. This method is also known as "union" in the literature.
     // If the two elements belong to different sets, then the two sets are merged and the method returns true.

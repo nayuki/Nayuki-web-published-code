@@ -25,6 +25,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -57,7 +58,7 @@ class DisjointSet final {
 	/*---- Fields ----*/
 	
 	private: std::vector<Node> nodes;
-	private: S numSets;
+	private: S numSets = 0;
 	
 	
 	
@@ -66,15 +67,14 @@ class DisjointSet final {
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, DisjointSet(3) --> {{0}, {1}, {2}}.
 	// Even if S has a wider range than size_t, it is required that 1 <= numElems <= SIZE_MAX.
-	public: explicit DisjointSet(S numElems) :
-			numSets(numElems) {
+	public: explicit DisjointSet(S numElems) {
 		if (numElems < 0)
 			throw std::domain_error("Number of elements must be non-negative");
 		if (!safeLessEquals(numElems, SIZE_MAX))
 			throw std::length_error("Number of elements too large");
 		nodes.reserve(static_cast<std::size_t>(numElems));
 		for (S i = 0; i < numElems; i++)
-			nodes.push_back(Node{i, 1});
+			addSet();
 	}
 	
 	
@@ -94,16 +94,14 @@ class DisjointSet final {
 	
 	/*---- Methods ----*/
 	
-	// Returns the number of elements among the set of disjoint sets; this was the number passed
-	// into the constructor and is constant for the lifetime of the object. All the other methods
+	// Returns the number of elements among the set of disjoint sets. All the other methods
 	// require the argument elemIndex to satisfy 0 <= elemIndex < getNumberOfElements().
 	public: S getNumberOfElements() const {
 		return static_cast<S>(nodes.size());
 	}
 	
 	
-	// Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to mergeSets() either decrements the number by one or leaves it unchanged. 0 <= result <= getNumberOfElements().
+	// Returns the number of disjoint sets overall. 0 <= result <= getNumberOfElements().
 	public: S getNumberOfSets() const {
 		return numSets;
 	}
@@ -118,6 +116,18 @@ class DisjointSet final {
 	// Tests whether the given two elements are members of the same set. Note that the arguments are orderless.
 	public: bool areInSameSet(S elemIndex0, S elemIndex1) const {
 		return getRepr(elemIndex0) == getRepr(elemIndex1);
+	}
+	
+	
+	// Adds a new singleton set, incrementing getNumberOfElements() and getNumberOfSets().
+	// Returns the identity of the new element, which equals the old value of getNumberOfElements().
+	public: S addSet() {
+		S elemIndex = getNumberOfElements();
+		if (elemIndex == std::numeric_limits<S>::max())
+			throw std::overflow_error("Maximum set size reached");
+		nodes.push_back(Node{elemIndex, 1});
+		numSets++;
+		return elemIndex;
 	}
 	
 	

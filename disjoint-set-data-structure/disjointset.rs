@@ -57,27 +57,25 @@ impl DisjointSet {
 	// Constructs a new set containing the given number of singleton sets.
 	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 	pub fn new(numelems: usize) -> Self {
-		Self {
-			numberofsets: numelems,
-			nodes: (0 .. numelems).map(|i|
-				DisjointSetNode{
-					parent: i,
-					size: 1,
-				}).collect(),
+		let mut result = Self {
+			numberofsets: 0,
+			nodes: Vec::new(),
+		};
+		for _ in 0 .. numelems {
+			result.add_set();
 		}
+		result
 	}
 	
 	
-	// Returns the number of elements among the set of disjoint sets; this was the number passed
-	// into the constructor and is constant for the lifetime of the object. All the other methods
+	// Returns the number of elements among the set of disjoint sets. All the other methods
 	// require the argument elemindex to satisfy 0 <= elemindex < number_of_elements().
 	pub fn number_of_elems(&self) -> usize {
 		self.nodes.len()
 	}
 	
 	
-	// The number of disjoint sets overall. This number decreases monotonically as time progresses;
-	// each call to merge_sets() either decrements the number by one or leaves it unchanged. 0 <= number_of_sets() <= number_of_elements().
+	// The number of disjoint sets overall. 0 <= number_of_sets() <= number_of_elements().
 	pub fn number_of_sets(&self) -> usize {
 		self.numberofsets
 	}
@@ -111,6 +109,16 @@ impl DisjointSet {
 	// Tests whether the given two elements are members of the same set. Note that the arguments are orderless.
 	pub fn are_in_same_set(&mut self, elemindex0: usize, elemindex1: usize) -> bool {
 		self.get_repr(elemindex0) == self.get_repr(elemindex1)
+	}
+	
+	
+	// Adds a new singleton set, incrementing number_of_elems() and number_of_sets().
+	// Returns the identity of the new element, which equals the old value of number_of_elements().
+	pub fn add_set(&mut self) -> usize {
+		let elemindex = self.number_of_elems();
+		self.nodes.push(DisjointSetNode{parent: elemindex, size: 1});
+		self.numberofsets += 1;
+		elemindex
 	}
 	
 	

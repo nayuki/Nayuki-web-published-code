@@ -42,24 +42,25 @@ class DisjointSet:
 			raise ValueError("Number of elements must be non-negative")
 		
 		# A global property
-		self.num_sets = numelems
+		self.num_sets = 0
 		
 		# Per-node properties (two):
 		# The index of the parent element. An element is a representative iff its parent is itself.
-		self.parents = list(range(numelems))
+		self.parents = []
 		# Positive number if the element is a representative, otherwise zero.
-		self.sizes = [1] * numelems
+		self.sizes = []
+		
+		for _ in range(numelems):
+			self.add_set()
 	
 	
-	# Returns the number of elements among the set of disjoint sets; this was the number passed
-	# into the constructor and is constant for the lifetime of the object. All the other methods
+	# Returns the number of elements among the set of disjoint sets. All the other methods
 	# require the argument elemindex to satisfy 0 <= elemindex < get_num_elements().
 	def get_num_elements(self) -> int:
 		return len(self.parents)
 	
 	
-	# Returns the number of disjoint sets overall. This number decreases monotonically as time progresses;
-	# each call to merge_sets() either decrements the number by one or leaves it unchanged. 0 <= result <= get_num_elements().
+	# Returns the number of disjoint sets overall. 0 <= result <= get_num_elements().
 	def get_num_sets(self) -> int:
 		return self.num_sets
 	
@@ -89,6 +90,16 @@ class DisjointSet:
 	# Tests whether the given two elements are members of the same set. Note that the arguments are orderless.
 	def are_in_same_set(self, elemindex0: int, elemindex1: int) -> bool:
 		return self._get_repr(elemindex0) == self._get_repr(elemindex1)
+	
+	
+	# Adds a new singleton set, incrementing get_num_elements() and get_num_sets().
+	# Returns the identity of the new element, which equals the old value of get_num_elements().
+	def add_set(self) -> int:
+		elemindex = self.get_num_elements()
+		self.parents.append(elemindex)
+		self.sizes.append(1)
+		self.num_sets += 1
+		return elemindex
 	
 	
 	# Merges together the sets that the given two elements belong to. This method is also known as "union" in the literature.
