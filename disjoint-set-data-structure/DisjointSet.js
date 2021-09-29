@@ -49,6 +49,23 @@ var DisjointSet = /** @class */ (function () {
     DisjointSet.prototype.getNumberOfSets = function () {
         return this.numSets;
     };
+    // Returns the representative element for the set containing the given element. This method is also
+    // known as "find" in the literature. Also performs path compression, which alters the internal state to
+    // improve the speed of future queries, but has no externally visible effect on the values returned.
+    DisjointSet.prototype.getRepr = function (elemIndex) {
+        if (elemIndex < 0 || elemIndex >= this.parents.length)
+            throw "Element index out of bounds";
+        // Follow parent pointers until we reach a representative
+        var parent = this.parents[elemIndex];
+        while (true) {
+            var grandparent = this.parents[parent];
+            if (grandparent == parent)
+                return parent;
+            this.parents[elemIndex] = grandparent; // Partial path compression
+            elemIndex = parent;
+            parent = grandparent;
+        }
+    };
     // Returns the size of the set that the given element is a member of. 1 <= result <= getNumberOfElements().
     DisjointSet.prototype.getSizeOfSet = function (elemIndex) {
         return this.sizes[this.getRepr(elemIndex)];
@@ -88,23 +105,6 @@ var DisjointSet = /** @class */ (function () {
         this.sizes[repr1] = 0;
         this.numSets--;
         return true;
-    };
-    // Returns the representative element for the set containing the given element. This method is also
-    // known as "find" in the literature. Also performs path compression, which alters the internal state to
-    // improve the speed of future queries, but has no externally visible effect on the values returned.
-    DisjointSet.prototype.getRepr = function (elemIndex) {
-        if (elemIndex < 0 || elemIndex >= this.parents.length)
-            throw "Element index out of bounds";
-        // Follow parent pointers until we reach a representative
-        var parent = this.parents[elemIndex];
-        while (true) {
-            var grandparent = this.parents[parent];
-            if (grandparent == parent)
-                return parent;
-            this.parents[elemIndex] = grandparent; // Partial path compression
-            elemIndex = parent;
-            parent = grandparent;
-        }
     };
     // For unit tests. This detects many but not all invalid data structures, throwing an exception
     // if a structural invariant is known to be violated. This always returns silently on a valid object.

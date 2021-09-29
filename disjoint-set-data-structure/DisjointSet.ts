@@ -60,6 +60,25 @@ class DisjointSet {
 	}
 	
 	
+	// Returns the representative element for the set containing the given element. This method is also
+	// known as "find" in the literature. Also performs path compression, which alters the internal state to
+	// improve the speed of future queries, but has no externally visible effect on the values returned.
+	private getRepr(elemIndex: number): number {
+		if (elemIndex < 0 || elemIndex >= this.parents.length)
+			throw "Element index out of bounds";
+		// Follow parent pointers until we reach a representative
+		let parent: number = this.parents[elemIndex];
+		while (true) {
+			const grandparent: number = this.parents[parent];
+			if (grandparent == parent)
+				return parent;
+			this.parents[elemIndex] = grandparent;  // Partial path compression
+			elemIndex = parent;
+			parent = grandparent;
+		}
+	}
+	
+	
 	// Returns the size of the set that the given element is a member of. 1 <= result <= getNumberOfElements().
 	public getSizeOfSet(elemIndex: number): number {
 		return this.sizes[this.getRepr(elemIndex)];
@@ -107,25 +126,6 @@ class DisjointSet {
 		this.sizes[repr1] = 0;
 		this.numSets--;
 		return true;
-	}
-	
-	
-	// Returns the representative element for the set containing the given element. This method is also
-	// known as "find" in the literature. Also performs path compression, which alters the internal state to
-	// improve the speed of future queries, but has no externally visible effect on the values returned.
-	private getRepr(elemIndex: number): number {
-		if (elemIndex < 0 || elemIndex >= this.parents.length)
-			throw "Element index out of bounds";
-		// Follow parent pointers until we reach a representative
-		let parent: number = this.parents[elemIndex];
-		while (true) {
-			const grandparent: number = this.parents[parent];
-			if (grandparent == parent)
-				return parent;
-			this.parents[elemIndex] = grandparent;  // Partial path compression
-			elemIndex = parent;
-			parent = grandparent;
-		}
 	}
 	
 	
