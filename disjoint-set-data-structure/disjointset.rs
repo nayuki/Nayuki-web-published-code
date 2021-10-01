@@ -159,11 +159,13 @@ impl DisjointSet {
 	// structural invariant is known to be violated. This always returns silently on a valid object.
 	pub fn check_structure(&self) {
 		let mut numrepr: usize = 0;
+		let mut sizesum: usize = 0;
 		for &node in &self.nodes {
 			match node {
 				DisjointSetNode::Representative{size} => {
 					numrepr = numrepr.checked_add(1).unwrap();
 					assert!((1 ..= self.nodes.len()).contains(&size));
+					sizesum = sizesum.checked_add(size).unwrap();
 				},
 				DisjointSetNode::Child{parent} => {
 					assert!(parent < self.nodes.len());
@@ -172,6 +174,7 @@ impl DisjointSet {
 		}
 		assert_eq!(self.num_sets, numrepr);
 		assert!(self.num_sets <= self.nodes.len());
+		assert_eq!(self.nodes.len(), sizesum);
 	}
 	
 }

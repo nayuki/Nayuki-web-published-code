@@ -110,6 +110,7 @@ bool DisjointSet_mergeSets(struct DisjointSet this[static 1], size_t elemIndex0,
 
 void DisjointSet_checkStructure(const struct DisjointSet this[static 1]) {
 	size_t numRepr = 0;
+	size_t sizeSum = 0;
 	for (size_t i = 0; i < this->numElements; i++) {
 		const struct DisjointSetNode *node = &this->nodes[i];
 		bool isRepr = node->parent == i;
@@ -117,7 +118,8 @@ void DisjointSet_checkStructure(const struct DisjointSet this[static 1]) {
 			numRepr++;
 		
 		assert(node->parent < this->numElements);
-		assert((!isRepr && node->size == 0) || (isRepr && 1 <= node-> size && node->size <= this->numElements));
+		assert((!isRepr && node->size == 0) || (isRepr && 1 <= node-> size && node->size <= this->numElements && node->size <= SIZE_MAX - sizeSum));
+		sizeSum += node->size;
 	}
-	assert(this->numSets == numRepr && this->numSets <= this->numElements);
+	assert(this->numSets == numRepr && this->numSets <= this->numElements && this->numElements == sizeSum);
 }

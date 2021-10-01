@@ -137,6 +137,7 @@ public final class DisjointSet {
 	// if a structural invariant is known to be violated. This always returns silently on a valid object.
 	void checkStructure() {
 		int numRepr = 0;
+		int sizeSum = 0;
 		for (int i = 0; i < parents.length; i++) {
 			int parent = parents[i];
 			int size = sizes[i];
@@ -146,11 +147,12 @@ public final class DisjointSet {
 			
 			boolean ok = true;
 			ok &= 0 <= parent && parent < parents.length;
-			ok &= !isRepr && size == 0 || isRepr && 1 <= size && size <= parents.length;
+			ok &= !isRepr && size == 0 || isRepr && 1 <= size && size <= parents.length && size <= Integer.MAX_VALUE - sizeSum;
 			if (!ok)
 				throw new AssertionError();
+			sizeSum += size;
 		}
-		if (!(0 <= numSets && numSets == numRepr && numSets <= parents.length))
+		if (!(0 <= numSets && numSets == numRepr && numSets <= parents.length && parents.length == sizeSum))
 			throw new AssertionError();
 	}
 	

@@ -135,6 +135,7 @@ public sealed class DisjointSet {
 	// if a structural invariant is known to be violated. This always returns silently on a valid object.
 	public void CheckStructure() {
 		int numRepr = 0;
+		int sizeSum = 0;
 		for (int i = 0; i < nodes.Length; i++) {
 			int parent = nodes[i].Parent;
 			int size = nodes[i].Size;
@@ -144,11 +145,12 @@ public sealed class DisjointSet {
 			
 			bool ok = true;
 			ok &= 0 <= parent && parent < nodes.Length;
-			ok &= !isRepr && size == 0 || isRepr && 1 <= size && size <= nodes.Length;
+			ok &= !isRepr && size == 0 || isRepr && 1 <= size && size <= nodes.Length && size <= int.MaxValue - sizeSum;
 			if (!ok)
 				throw new SystemException();
+			sizeSum += size;
 		}
-		if (!(0 <= NumSets && NumSets == numRepr && NumSets <= nodes.Length))
+		if (!(0 <= NumSets && NumSets == numRepr && NumSets <= nodes.Length && nodes.Length == sizeSum))
 			throw new SystemException();
 	}
 	

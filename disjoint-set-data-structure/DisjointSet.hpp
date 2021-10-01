@@ -176,6 +176,7 @@ class DisjointSet final {
 	// if a structural invariant is known to be violated. This always returns silently on a valid object.
 	public: void checkStructure() const {
 		S numRepr = 0;
+		S sizeSum = 0;
 		S i = 0;
 		for (const Node &node : nodes) {
 			bool isRepr = node.parent == i;
@@ -185,12 +186,13 @@ class DisjointSet final {
 			bool ok = true;
 			ok &= 0 <= node.parent && safeLessThan(node.parent, nodes.size());
 			ok &= 0 <= node.size && safeLessEquals(node.size, nodes.size());
-			ok &= (!isRepr && node.size == 0) || (isRepr && 1 <= node.size && safeLessEquals(node.size, nodes.size()));
+			ok &= (!isRepr && node.size == 0) || (isRepr && 1 <= node.size && safeLessEquals(node.size, nodes.size()) && node.size <= std::numeric_limits<S>::max() - sizeSum);
 			if (!ok)
 				throw std::logic_error("Assertion error");
+			sizeSum += node.size;
 			i++;
 		}
-		if (!(0 <= numSets && numSets == numRepr && safeLessEquals(numSets, nodes.size())))
+		if (!(0 <= numSets && numSets == numRepr && safeLessEquals(numSets, nodes.size()) && nodes.size() == static_cast<std::size_t>(sizeSum)))
 			throw std::logic_error("Assertion error");
 	}
 	

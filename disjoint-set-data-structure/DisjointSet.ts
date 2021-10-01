@@ -133,6 +133,7 @@ class DisjointSet {
 	// if a structural invariant is known to be violated. This always returns silently on a valid object.
 	public checkStructure(): void {
 		let numRepr: number = 0;
+		let sizeSum: number = 0;
 		for (let i = 0; i < this.parents.length; i++) {
 			const parent: number = this.parents[i];
 			const size  : number = this.sizes  [i];
@@ -145,8 +146,9 @@ class DisjointSet {
 			ok = ok && (!isRepr && size == 0 || isRepr && 1 <= size && size <= this.parents.length);
 			if (!ok)
 				throw "Assertion error";
+			sizeSum += size;
 		}
-		if (!(0 <= this.numSets && this.numSets == numRepr && this.numSets <= this.parents.length))
+		if (!(0 <= this.numSets && this.numSets == numRepr && this.numSets <= this.parents.length && this.parents.length == sizeSum))
 			throw "Assertion error";
 	}
 	

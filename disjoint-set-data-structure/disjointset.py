@@ -129,6 +129,7 @@ class DisjointSet:
 	# if a structural invariant is known to be violated. This always returns silently on a valid object.
 	def check_structure(self) -> None:
 		numrepr: int = 0
+		sizesum: int = 0
 		for (i, parent, size) in zip(
 				itertools.count(), self.parents, self.sizes):
 			
@@ -141,5 +142,6 @@ class DisjointSet:
 			ok &= ((not isrepr) and size == 0) or (isrepr and 1 <= size <= len(self.parents))
 			if not ok:
 				raise AssertionError()
-		if not (0 <= self.num_sets == numrepr <= len(self.parents)):
+			sizesum += size
+		if not (0 <= self.num_sets == numrepr <= len(self.parents) == sizesum):
 			raise AssertionError()
