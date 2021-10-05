@@ -144,8 +144,8 @@ impl DisjointSet {
 		// Now repr0's size >= repr1's size
 		
 		// Graft repr1's subtree onto node repr0
-		if let DisjointSetNode::Representative{ref mut size} = self.nodes[repr0] {
-			*size += size1;
+		if let DisjointSetNode::Representative{size: ref mut size0} = self.nodes[repr0] {
+			*size0 += size1;
 		} else {
 			unreachable!();
 		}
@@ -160,7 +160,7 @@ impl DisjointSet {
 	pub fn check_structure(&self) {
 		let mut numrepr: usize = 0;
 		let mut sizesum: usize = 0;
-		for &node in &self.nodes {
+		for (i, &node) in self.nodes.iter().enumerate() {
 			match node {
 				DisjointSetNode::Representative{size} => {
 					numrepr = numrepr.checked_add(1).unwrap();
@@ -168,7 +168,7 @@ impl DisjointSet {
 					sizesum = sizesum.checked_add(size).unwrap();
 				},
 				DisjointSetNode::Child{parent} => {
-					assert!(parent < self.nodes.len());
+					assert!(parent != i && parent < self.nodes.len());
 				},
 			}
 		}

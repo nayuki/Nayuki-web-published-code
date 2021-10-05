@@ -110,6 +110,7 @@ var DisjointSet = /** @class */ (function () {
     // if a structural invariant is known to be violated. This always returns silently on a valid object.
     DisjointSet.prototype.checkStructure = function () {
         var numRepr = 0;
+        var sizeSum = 0;
         for (var i = 0; i < this.parents.length; i++) {
             var parent_1 = this.parents[i];
             var size = this.sizes[i];
@@ -121,8 +122,9 @@ var DisjointSet = /** @class */ (function () {
             ok = ok && (!isRepr && size == 0 || isRepr && 1 <= size && size <= this.parents.length);
             if (!ok)
                 throw "Assertion error";
+            sizeSum += size;
         }
-        if (!(0 <= this.numSets && this.numSets == numRepr && this.numSets <= this.parents.length))
+        if (!(0 <= this.numSets && this.numSets == numRepr && this.numSets <= this.parents.length && this.parents.length == sizeSum))
             throw "Assertion error";
     };
     return DisjointSet;

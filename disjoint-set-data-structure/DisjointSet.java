@@ -48,10 +48,10 @@ public final class DisjointSet {
 		if (numElems < 0)
 			throw new IllegalArgumentException("Number of elements must be non-negative");
 		parents = new int[numElems];
-		sizes = new int[numElems];
+		sizes   = new int[numElems];
 		for (int i = 0; i < numElems; i++) {
 			parents[i] = i;
-			sizes[i] = 1;
+			sizes  [i] = 1;
 		}
 		numSets = numElems;
 	}

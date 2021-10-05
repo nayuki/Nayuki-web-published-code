@@ -118,7 +118,7 @@ void DisjointSet_checkStructure(const struct DisjointSet this[static 1]) {
 			numRepr++;
 		
 		assert(node->parent < this->numElements);
-		assert((!isRepr && node->size == 0) || (isRepr && 1 <= node-> size && node->size <= this->numElements && node->size <= SIZE_MAX - sizeSum));
+		assert((!isRepr && node->size == 0) || (isRepr && 1 <= node->size && node->size <= this->numElements && node->size <= SIZE_MAX - sizeSum));
 		sizeSum += node->size;
 	}
 	assert(this->numSets == numRepr && this->numSets <= this->numElements && this->numElements == sizeSum);
