@@ -16,7 +16,6 @@ from typing import List, Tuple
 # the given vector, and returns a tuple containing the output vector and NTT parameters.
 # Note that all input values must be integers in the range [0, minmod).
 def find_params_and_transform(invec: List[int], minmod: int) -> Tuple[List[int],int,int]:
-	check_int(minmod)
 	mod: int = find_modulus(len(invec), minmod)
 	root: int = find_primitive_root(len(invec), mod - 1, mod)
 	return (transform(invec, root, mod), root, mod)
@@ -25,8 +24,6 @@ def find_params_and_transform(invec: List[int], minmod: int) -> Tuple[List[int],
 # Returns the forward number-theoretic transform of the given vector with
 # respect to the given primitive nth root of unity under the given modulus.
 def transform(invec: List[int], root: int, mod: int) -> List[int]:
-	check_int(root)
-	check_int(mod)
 	if len(invec) >= mod:
 		raise ValueError()
 	if not all((0 <= val < mod) for val in invec):
@@ -118,8 +115,6 @@ def circular_convolve(vec0: List[int], vec1: List[int]) -> List[int]:
 # Although the loop might run for a long time and create arbitrarily large numbers,
 # Dirichlet's theorem guarantees that such a prime number must exist.
 def find_modulus(veclen: int, minimum: int) -> int:
-	check_int(veclen)
-	check_int(minimum)
 	if veclen < 1 or minimum < 1:
 		raise ValueError()
 	start: int = (minimum - 1 + veclen - 1) // veclen
@@ -133,8 +128,6 @@ def find_modulus(veclen: int, minimum: int) -> int:
 # Returns an arbitrary generator of the multiplicative group of integers modulo mod.
 # totient must equal the Euler phi function of mod. If mod is prime, an answer must exist.
 def find_generator(totient: int, mod: int) -> int:
-	check_int(totient)
-	check_int(mod)
 	if not (1 <= totient < mod):
 		raise ValueError()
 	for i in range(1, mod):
@@ -146,9 +139,6 @@ def find_generator(totient: int, mod: int) -> int:
 # Returns an arbitrary primitive degree-th root of unity modulo mod.
 # totient must be a multiple of degree. If mod is prime, an answer must exist.
 def find_primitive_root(degree: int, totient: int, mod: int) -> int:
-	check_int(degree)
-	check_int(totient)
-	check_int(mod)
 	if not (1 <= degree <= totient < mod):
 		raise ValueError()
 	if totient % degree != 0:
@@ -165,9 +155,6 @@ def find_primitive_root(degree: int, totient: int, mod: int) -> int:
 # numbers in the range [0, mod) that are coprime to mod. If mod is prime, then
 # totient = mod - 1, and powers of a generator produces all integers in the range [1, mod).
 def is_generator(val: int, totient: int, mod: int) -> bool:
-	check_int(val)
-	check_int(totient)
-	check_int(mod)
 	if not (0 <= val < mod):
 		raise ValueError()
 	if not (1 <= totient < mod):
@@ -179,9 +166,6 @@ def is_generator(val: int, totient: int, mod: int) -> bool:
 # Tests whether val is a primitive degree-th root of unity modulo mod.
 # In other words, val^degree % mod = 1, and for each 1 <= k < degree, val^k % mod != 1.
 def is_primitive_root(val: int, degree: int, mod: int) -> bool:
-	check_int(val)
-	check_int(degree)
-	check_int(mod)
 	if not (0 <= val < mod):
 		raise ValueError()
 	if not (1 <= degree < mod):
@@ -196,8 +180,6 @@ def is_primitive_root(val: int, degree: int, mod: int) -> bool:
 # Returns the multiplicative inverse of n modulo mod. The inverse x has the property that
 # 0 <= x < mod and (x * n) % mod = 1. The inverse exists if and only if gcd(n, mod) = 1.
 def reciprocal(n: int, mod: int) -> int:
-	check_int(n)
-	check_int(mod)
 	if not (0 <= n < mod):
 		raise ValueError()
 	x, y = mod, n
@@ -214,7 +196,6 @@ def reciprocal(n: int, mod: int) -> int:
 # Returns a list of unique prime factors of the given integer in
 # ascending order. For example, unique_prime_factors(60) = [2, 3, 5].
 def unique_prime_factors(n: int) -> List[int]:
-	check_int(n)
 	if n < 1:
 		raise ValueError()
 	result: List[int] = []
@@ -235,7 +216,6 @@ def unique_prime_factors(n: int) -> List[int]:
 
 # Tests whether the given integer n >= 2 is a prime number.
 def is_prime(n: int) -> bool:
-	check_int(n)
 	if n <= 1:
 		raise ValueError()
 	return all((n % i != 0) for i in range(2, sqrt(n) + 1))
@@ -243,7 +223,6 @@ def is_prime(n: int) -> bool:
 
 # Returns floor(sqrt(n)) for the given integer n >= 0.
 def sqrt(n: int) -> int:
-	check_int(n)
 	if n < 0:
 		raise ValueError()
 	i: int = 1
@@ -255,9 +234,3 @@ def sqrt(n: int) -> int:
 			result += i
 		i //= 2
 	return result
-
-
-# Returns silently if the given value is an integer, otherwise raises a TypeError.
-def check_int(n: int) -> None:
-	if not isinstance(n, int):
-		raise TypeError()
