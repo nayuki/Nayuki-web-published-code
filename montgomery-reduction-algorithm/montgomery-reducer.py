@@ -18,8 +18,8 @@ class MontgomeryReducerTest(unittest.TestCase):
 			mr = MontgomeryReducer(mod)
 			
 			for _ in range(100):
-				x: int = random.randrange(0, mod)
-				y: int = random.randrange(0, mod)
+				x: int = random.randrange(mod)
+				y: int = random.randrange(mod)
 				u: int = mr.convert_in(x)
 				v: int = mr.convert_in(y)
 				w: int = mr.multiply(u, v)
@@ -27,8 +27,8 @@ class MontgomeryReducerTest(unittest.TestCase):
 					raise AssertionError()
 			
 			for _ in range(10):
-				x = random.randrange(0, mod)
-				y = random.randrange(0, mod)
+				x = random.randrange(mod)
+				y = random.randrange(mod)
 				u = mr.convert_in(x)
 				v = mr.pow(u, y)
 				if mr.convert_out(v) != pow(x, y, mod):

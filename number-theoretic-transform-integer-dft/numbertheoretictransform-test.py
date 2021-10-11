@@ -47,8 +47,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	def test_transform_roundtrip_randomly(self) -> None:
 		TRIALS: int = 300
 		for _ in range(TRIALS):
-			veclen: int = random.randrange(100) + 1
-			maxval: int = random.randrange(100) + 1
+			veclen: int = random.randint(1, 100)
+			maxval: int = random.randint(1, 100)
 			vec: List[int] = [random.randrange(maxval + 1) for _ in range(veclen)]
 			temp, root, mod = ntt.find_params_and_transform(vec, maxval + 1)
 			inv: List[int] = ntt.inverse_transform(temp, root, mod)
@@ -58,8 +58,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	def test_transform_linearity_randomly(self) -> None:
 		TRIALS: int = 100
 		for _ in range(TRIALS):
-			veclen: int = random.randrange(100) + 1
-			maxval: int = random.randrange(100) + 1
+			veclen: int = random.randint(1, 100)
+			maxval: int = random.randint(1, 100)
 			vec0: List[int] = [random.randrange(maxval + 1) for _ in range(veclen)]
 			vec1: List[int] = [random.randrange(maxval + 1) for _ in range(veclen)]
 			out0, root, mod = ntt.find_params_and_transform(vec0, maxval + 1)
@@ -73,8 +73,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	def test_convolution_randomly(self) -> None:
 		TRIALS: int = 100
 		for _ in range(TRIALS):
-			veclen: int = random.randrange(100) + 1
-			maxval: int = random.randrange(100) + 1
+			veclen: int = random.randint(1, 100)
+			maxval: int = random.randint(1, 100)
 			vec0: List[int] = [random.randrange(maxval + 1) for _ in range(veclen)]
 			vec1: List[int] = [random.randrange(maxval + 1) for _ in range(veclen)]
 			actual: List[int] = ntt.circular_convolve(vec0, vec1)
@@ -96,7 +96,7 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 		TRIALS: int = 300
 		for _ in range(TRIALS):
 			veclen: int = 2**random.randrange(8)
-			maxval: int = random.randrange(100) + 1
+			maxval: int = random.randint(1, 100)
 			vec: List[int] = [random.randrange(maxval + 1) for _ in range(veclen)]
 			temp, root, mod = ntt.find_params_and_transform(vec, maxval + 1)
 			ntt.transform_radix_2(vec, root, mod)
