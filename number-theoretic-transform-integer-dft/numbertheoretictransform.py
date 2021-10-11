@@ -123,6 +123,7 @@ def find_modulus(veclen: int, minimum: int) -> int:
 		assert n >= minimum
 		if is_prime(n):
 			return n
+	raise AssertionError("Unreachable")
 
 
 # Returns an arbitrary generator of the multiplicative group of integers modulo mod.
@@ -160,7 +161,8 @@ def is_generator(val: int, totient: int, mod: int) -> bool:
 	if not (1 <= totient < mod):
 		raise ValueError()
 	pf: List[int] = unique_prime_factors(totient)
-	return pow(val, totient, mod) == 1 and all((pow(val, totient // p, mod) != 1) for p in pf)
+	return pow(val, totient, mod) == 1 and \
+		all((pow(val, totient // p, mod) != 1) for p in pf)
 
 
 # Tests whether val is a primitive degree-th root of unity modulo mod.
@@ -171,7 +173,8 @@ def is_primitive_root(val: int, degree: int, mod: int) -> bool:
 	if not (1 <= degree < mod):
 		raise ValueError()
 	pf: List[int] = unique_prime_factors(degree)
-	return pow(val, degree, mod) == 1 and all((pow(val, degree // p, mod) != 1) for p in pf)
+	return pow(val, degree, mod) == 1 and \
+		all((pow(val, degree // p, mod) != 1) for p in pf)
 
 
 

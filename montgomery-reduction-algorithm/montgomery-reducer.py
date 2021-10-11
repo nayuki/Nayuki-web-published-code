@@ -57,7 +57,7 @@ class MontgomeryReducer:
 		self.reducerbits = (mod.bit_length() // 8 + 1) * 8  # This is a multiple of 8
 		self.reducer = 1 << self.reducerbits  # This is a power of 256
 		self.mask = self.reducer - 1
-		assert self.reducer > mod and math.gcd(self.reducer, mod) == 1
+		assert (self.reducer > mod) and (math.gcd(self.reducer, mod) == 1)
 		
 		# Other computed numbers
 		self.reciprocal = MontgomeryReducer.reciprocal_mod(self.reducer % mod, mod)
@@ -78,7 +78,7 @@ class MontgomeryReducer:
 	# Inputs and output are in Montgomery form and in the range [0, modulus)
 	def multiply(self, x: int, y: int) -> int:
 		mod: int = self.modulus
-		assert 0 <= x < mod and 0 <= y < mod
+		assert (0 <= x < mod) and (0 <= y < mod)
 		product: int = x * y
 		temp: int = ((product & self.mask) * self.factor) & self.mask
 		reduced: int = (product + temp * mod) >> self.reducerbits
@@ -104,7 +104,7 @@ class MontgomeryReducer:
 	@staticmethod
 	def reciprocal_mod(x: int, mod: int) -> int:
 		# Based on a simplification of the extended Euclidean algorithm
-		assert mod > 0 and 0 <= x < mod
+		assert 0 <= x < mod
 		y: int = x
 		x = mod
 		a: int = 0
