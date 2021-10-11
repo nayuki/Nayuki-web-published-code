@@ -7,6 +7,7 @@
 # 
 
 import itertools
+from typing import List, Tuple
 
 
 # ---- High-level NTT functions ----
@@ -14,16 +15,16 @@ import itertools
 # Finds an appropriate set of parameters for the NTT, computes the forward transform on
 # the given vector, and returns a tuple containing the output vector and NTT parameters.
 # Note that all input values must be integers in the range [0, minmod).
-def find_params_and_transform(invec, minmod):
+def find_params_and_transform(invec: List[int], minmod: int) -> Tuple[List[int],int,int]:
 	check_int(minmod)
-	mod = find_modulus(len(invec), minmod)
-	root = find_primitive_root(len(invec), mod - 1, mod)
+	mod: int = find_modulus(len(invec), minmod)
+	root: int = find_primitive_root(len(invec), mod - 1, mod)
 	return (transform(invec, root, mod), root, mod)
 
 
 # Returns the forward number-theoretic transform of the given vector with
 # respect to the given primitive nth root of unity under the given modulus.
-def transform(invec, root, mod):
+def transform(invec: List[int], root: int, mod: int) -> List[int]:
 	check_int(root)
 	check_int(mod)
 	if len(invec) >= mod:
@@ -33,9 +34,9 @@ def transform(invec, root, mod):
 	if not (1 <= root < mod):
 		raise ValueError()
 	
-	outvec = []
+	outvec: List[int] = []
 	for i in range(len(invec)):
-		temp = 0
+		temp: int = 0
 		for (j, val) in enumerate(invec):
 			temp += val * pow(root, i * j, mod)
 			temp %= mod
@@ -45,48 +46,48 @@ def transform(invec, root, mod):
 
 # Returns the inverse number-theoretic transform of the given vector with
 # respect to the given primitive nth root of unity under the given modulus.
-def inverse_transform(invec, root, mod):
-	outvec = transform(invec, reciprocal(root, mod), mod)
-	scaler = reciprocal(len(invec), mod)
+def inverse_transform(invec: List[int], root: int, mod: int) -> List[int]:
+	outvec: List[int] = transform(invec, reciprocal(root, mod), mod)
+	scaler: int = reciprocal(len(invec), mod)
 	return [(val * scaler % mod) for val in outvec]
 
 
 # Computes the forward number-theoretic transform of the given vector in place,
 # with respect to the given primitive nth root of unity under the given modulus.
 # The length of the vector must be a power of 2.
-def transform_radix_2(vector, root, mod):
-	n = len(vector)
-	levels = n.bit_length() - 1
+def transform_radix_2(vector: List[int], root: int, mod: int) -> None:
+	n: int = len(vector)
+	levels: int = n.bit_length() - 1
 	if 1 << levels != n:
 		raise ValueError("Length is not a power of 2")
 	
-	def reverse(x, bits):
-		y = 0
+	def reverse(x: int, bits: int) -> int:
+		y: int = 0
 		for i in range(bits):
 			y = (y << 1) | (x & 1)
 			x >>= 1
 		return y
 	for i in range(n):
-		j = reverse(i, levels)
+		j: int = reverse(i, levels)
 		if j > i:
 			vector[i], vector[j] = vector[j], vector[i]
 	
-	powtable = []
-	temp = 1
+	powtable: List[int] = []
+	temp: int = 1
 	for i in range(n // 2):
 		powtable.append(temp)
 		temp = temp * root % mod
 	
-	size = 2
+	size: int = 2
 	while size <= n:
-		halfsize = size // 2
-		tablestep = n // size
+		halfsize: int = size // 2
+		tablestep: int = n // size
 		for i in range(0, n, size):
-			k = 0
+			k: int = 0
 			for j in range(i, i + halfsize):
-				l = j + halfsize
-				left = vector[j]
-				right = vector[l] * powtable[k]
+				l: int = j + halfsize
+				left: int = vector[j]
+				right: int = vector[l] * powtable[k]
 				vector[j] = (left + right) % mod
 				vector[l] = (left - right) % mod
 				k += tablestep
@@ -96,16 +97,16 @@ def transform_radix_2(vector, root, mod):
 # Returns the circular convolution of the given vectors of integers.
 # All values must be non-negative. Internally, a sufficiently large modulus
 # is chosen so that the convolved result can be represented without overflow.
-def circular_convolve(vec0, vec1):
+def circular_convolve(vec0: List[int], vec1: List[int]) -> List[int]:
 	if not (0 < len(vec0) == len(vec1)):
 		raise ValueError()
 	if any((val < 0) for val in itertools.chain(vec0, vec1)):
 		raise ValueError()
-	maxval = max(val for val in itertools.chain(vec0, vec1))
-	minmod = maxval**2 * len(vec0) + 1
+	maxval: int = max(val for val in itertools.chain(vec0, vec1))
+	minmod: int = maxval**2 * len(vec0) + 1
 	temp0, root, mod = find_params_and_transform(vec0, minmod)
-	temp1 = transform(vec1, root, mod)
-	temp2 = [(x * y % mod) for (x, y) in zip(temp0, temp1)]
+	temp1: List[int] = transform(vec1, root, mod)
+	temp2: List[int] = [(x * y % mod) for (x, y) in zip(temp0, temp1)]
 	return inverse_transform(temp2, root, mod)
 
 
@@ -116,14 +117,14 @@ def circular_convolve(vec0, vec1):
 # for some integer i >= 1, mod > veclen, and mod is prime.
 # Although the loop might run for a long time and create arbitrarily large numbers,
 # Dirichlet's theorem guarantees that such a prime number must exist.
-def find_modulus(veclen, minimum):
+def find_modulus(veclen: int, minimum: int) -> int:
 	check_int(veclen)
 	check_int(minimum)
 	if veclen < 1 or minimum < 1:
 		raise ValueError()
-	start = (minimum - 1 + veclen - 1) // veclen
+	start: int = (minimum - 1 + veclen - 1) // veclen
 	for i in itertools.count(max(start, 1)):
-		n = i * veclen + 1
+		n: int = i * veclen + 1
 		assert n >= minimum
 		if is_prime(n):
 			return n
@@ -131,7 +132,7 @@ def find_modulus(veclen, minimum):
 
 # Returns an arbitrary generator of the multiplicative group of integers modulo mod.
 # totient must equal the Euler phi function of mod. If mod is prime, an answer must exist.
-def find_generator(totient, mod):
+def find_generator(totient: int, mod: int) -> int:
 	check_int(totient)
 	check_int(mod)
 	if not (1 <= totient < mod):
@@ -144,7 +145,7 @@ def find_generator(totient, mod):
 
 # Returns an arbitrary primitive degree-th root of unity modulo mod.
 # totient must be a multiple of degree. If mod is prime, an answer must exist.
-def find_primitive_root(degree, totient, mod):
+def find_primitive_root(degree: int, totient: int, mod: int) -> int:
 	check_int(degree)
 	check_int(totient)
 	check_int(mod)
@@ -152,8 +153,8 @@ def find_primitive_root(degree, totient, mod):
 		raise ValueError()
 	if totient % degree != 0:
 		raise ValueError()
-	gen = find_generator(totient, mod)
-	root = pow(gen, totient // degree, mod)
+	gen: int = find_generator(totient, mod)
+	root: int = pow(gen, totient // degree, mod)
 	assert 0 <= root < mod
 	return root
 
@@ -163,7 +164,7 @@ def find_primitive_root(degree, totient, mod):
 # {val^0 % mod, val^1 % mod, ..., val^(totient-1) % mod} is equal to the set of all
 # numbers in the range [0, mod) that are coprime to mod. If mod is prime, then
 # totient = mod - 1, and powers of a generator produces all integers in the range [1, mod).
-def is_generator(val, totient, mod):
+def is_generator(val: int, totient: int, mod: int) -> bool:
 	check_int(val)
 	check_int(totient)
 	check_int(mod)
@@ -171,13 +172,13 @@ def is_generator(val, totient, mod):
 		raise ValueError()
 	if not (1 <= totient < mod):
 		raise ValueError()
-	pf = unique_prime_factors(totient)
+	pf: List[int] = unique_prime_factors(totient)
 	return pow(val, totient, mod) == 1 and all((pow(val, totient // p, mod) != 1) for p in pf)
 
 
 # Tests whether val is a primitive degree-th root of unity modulo mod.
 # In other words, val^degree % mod = 1, and for each 1 <= k < degree, val^k % mod != 1.
-def is_primitive_root(val, degree, mod):
+def is_primitive_root(val: int, degree: int, mod: int) -> bool:
 	check_int(val)
 	check_int(degree)
 	check_int(mod)
@@ -185,7 +186,7 @@ def is_primitive_root(val, degree, mod):
 		raise ValueError()
 	if not (1 <= degree < mod):
 		raise ValueError()
-	pf = unique_prime_factors(degree)
+	pf: List[int] = unique_prime_factors(degree)
 	return pow(val, degree, mod) == 1 and all((pow(val, degree // p, mod) != 1) for p in pf)
 
 
@@ -194,7 +195,7 @@ def is_primitive_root(val, degree, mod):
 
 # Returns the multiplicative inverse of n modulo mod. The inverse x has the property that
 # 0 <= x < mod and (x * n) % mod = 1. The inverse exists if and only if gcd(n, mod) = 1.
-def reciprocal(n, mod):
+def reciprocal(n: int, mod: int) -> int:
 	check_int(n)
 	check_int(mod)
 	if not (0 <= n < mod):
@@ -212,13 +213,13 @@ def reciprocal(n, mod):
 
 # Returns a list of unique prime factors of the given integer in
 # ascending order. For example, unique_prime_factors(60) = [2, 3, 5].
-def unique_prime_factors(n):
+def unique_prime_factors(n: int) -> List[int]:
 	check_int(n)
 	if n < 1:
 		raise ValueError()
-	result = []
-	i = 2
-	end = sqrt(n)
+	result: List[int] = []
+	i: int = 2
+	end: int = sqrt(n)
 	while i <= end:
 		if n % i == 0:
 			n //= i
@@ -233,7 +234,7 @@ def unique_prime_factors(n):
 
 
 # Tests whether the given integer n >= 2 is a prime number.
-def is_prime(n):
+def is_prime(n: int) -> bool:
 	check_int(n)
 	if n <= 1:
 		raise ValueError()
@@ -241,14 +242,14 @@ def is_prime(n):
 
 
 # Returns floor(sqrt(n)) for the given integer n >= 0.
-def sqrt(n):
+def sqrt(n: int) -> int:
 	check_int(n)
 	if n < 0:
 		raise ValueError()
-	i = 1
+	i: int = 1
 	while i * i <= n:
 		i *= 2
-	result = 0
+	result: int = 0
 	while i > 0:
 		if (result + i)**2 <= n:
 			result += i
@@ -257,6 +258,6 @@ def sqrt(n):
 
 
 # Returns silently if the given value is an integer, otherwise raises a TypeError.
-def check_int(n):
+def check_int(n: int) -> None:
 	if not isinstance(n, int):
 		raise TypeError()
