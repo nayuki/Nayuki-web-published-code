@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,7 +32,7 @@ class BinaryIndexedTree {
 	
 	/*---- Constructor ----*/
 	
-	public constructor(arg: number|Array<number>) {
+	public constructor(arg: number|Readonly<Array<number>>) {
 		if (typeof arg == "number") {
 			if (arg < 0 || Math.floor(arg) != arg)
 				throw "Illegal argument";

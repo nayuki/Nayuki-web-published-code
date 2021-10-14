@@ -67,7 +67,7 @@ namespace app {
 		private readonly digits: Array<number> = [];  // Little endian
 		
 		
-		public constructor(val: string|Array<number>) {
+		public constructor(val: string|Readonly<Array<number>>) {
 			if (typeof val == "string") {
 				if (!/^[0-9]+$/.test(val))
 					throw "Invalid number string";

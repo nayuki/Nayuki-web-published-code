@@ -1,7 +1,7 @@
 /* 
  * Propositional sequent calculus prover
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
@@ -88,7 +88,7 @@ class Sequent {
 	
 	// Returns a string representation of this sequent, e.g.: "¬(A ∧ B) ⊦ C, D ∨ E".
 	public toString(): string {
-		function formatTerms(terms: Array<Term>): string {
+		function formatTerms(terms: Readonly<Array<Term>>): string {
 			if (terms.length == 0)
 				return EMPTY;
 			else

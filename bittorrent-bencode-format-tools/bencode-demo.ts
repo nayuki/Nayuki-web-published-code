@@ -182,7 +182,7 @@ namespace app {
 		
 		// Parses the given byte array and returns the bencode value represented by the bytes.
 		// The input data must have exactly one root object and then the array must immediately end.
-		public static parse(array: Uint8Array): BencodeValue {
+		public static parse(array: Readonly<Uint8Array>): BencodeValue {
 			return new BencodeParser(array).parseRoot();
 		}
 		
@@ -190,7 +190,7 @@ namespace app {
 		private index: number = 0;
 		
 		private constructor(
-			private readonly array: Uint8Array) {}
+			private readonly array: Readonly<Uint8Array>) {}
 		
 		
 		private parseRoot(): BencodeValue {

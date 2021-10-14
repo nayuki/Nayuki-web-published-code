@@ -193,7 +193,7 @@ class QrCode {
 	// Reads the argument array but doesn't change it, changes
 	// the underlying codeword objects, and returns a new array.
 	// Reads this QR Code's version and ECL, but doesn't change its state.
-	public splitIntoBlocks(data: Array<DataCodeword>): Array<Array<DataCodeword>> {
+	public splitIntoBlocks(data: Readonly<Array<DataCodeword>>): Array<Array<DataCodeword>> {
 		const numBlocks: int = QrCode.NUM_ERROR_CORRECTION_BLOCKS[this.errorCorrectionLevel.ordinal][this.version];
 		const blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK  [this.errorCorrectionLevel.ordinal][this.version];
 		const rawCodewords: int = Math.floor(QrCode.getNumRawDataModules(this.version) / 8);
@@ -218,7 +218,7 @@ class QrCode {
 	// Reads the argument array but doesn't change it, changes
 	// the underlying codeword objects, and returns a new array.
 	// Reads this QR Code's version and ECL, but doesn't change its state.
-	public computeEccForBlocks(blocks: Array<Array<DataCodeword>>): Array<Array<EccCodeword>> {
+	public computeEccForBlocks(blocks: Readonly<Array<Array<DataCodeword>>>): Array<Array<EccCodeword>> {
 		const blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK[this.errorCorrectionLevel.ordinal][this.version];
 		const shortBlockDataLen: int = blocks[0].length;
 		const rs = new ReedSolomonGenerator(blockEccLen);
@@ -247,7 +247,7 @@ class QrCode {
 	// Reads the argument arrays but doesn't change them, changes
 	// the underlying codeword objects, and returns a new array.
 	// Doesn't read or change this QR Code's state.
-	public interleaveBlocks(data: Array<Array<DataCodeword>>, ecc: Array<Array<EccCodeword>>): Array<Codeword> {
+	public interleaveBlocks(data: Readonly<Array<Array<DataCodeword>>>, ecc: Readonly<Array<Array<EccCodeword>>>): Array<Codeword> {
 		const blockEccLen: int = ecc[0].length;
 		const maxBlockDataLen: int = data[data.length - 1].length;
 		let result: Array<Codeword> = [];
@@ -293,7 +293,7 @@ class QrCode {
 	
 	
 	// Modifies this QR Code's modules.
-	public drawCodewords(codewords: Array<Codeword>, zigZagScan: Array<[int,int]>): void {
+	public drawCodewords(codewords: Readonly<Array<Codeword>>, zigZagScan: Readonly<Array<[int,int]>>): void {
 		if (codewords.length != Math.floor(QrCode.getNumRawDataModules(this.version) / 8))
 			throw "Invalid argument";
 		zigZagScan.forEach(([x, y], i) => {
@@ -548,7 +548,7 @@ class ReedSolomonGenerator {
 	}
 	
 	
-	public getRemainder(data: Array<byte>): Array<byte> {
+	public getRemainder(data: Readonly<Array<byte>>): Array<byte> {
 		let result: Array<byte> = this.coefficients.map(_ => 0);
 		for (const b of data) {
 			const factor: byte = b ^ (result.shift() as byte);
@@ -733,7 +733,7 @@ class MaskModule extends FilledModule {
 
 class QrSegment {
 	
-	public static getTotalBits(segs: Array<QrSegment>, version: int): number {
+	public static getTotalBits(segs: Readonly<Array<QrSegment>>, version: int): number {
 		let result: int = 0;
 		for (const seg of segs) {
 			let ccbits: int = seg.mode.numCharCountBits(version);

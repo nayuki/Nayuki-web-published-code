@@ -471,7 +471,7 @@ namespace app {
 		}
 		
 		
-		public annotate(earlierChunks: Array<ChunkPart>): void {
+		public annotate(earlierChunks: Readonly<Array<ChunkPart>>): void {
 			if (this.innerNotes.length > 0)
 				throw "Already annotated";
 			if (!this.isDataComplete)
@@ -486,8 +486,8 @@ namespace app {
 		public static MAX_DATA_LENGTH: int = 0x7FFF_FFFF;
 		
 		
-		public getTypeInfo(): [string,boolean,((chunk:ChunkPart,earlier:Array<ChunkPart>)=>void)]|null {
-			let result: [string,boolean,((chunk:ChunkPart,earlier:Array<ChunkPart>)=>void)]|null = null;
+		public getTypeInfo(): [string,boolean,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]|null {
+			let result: [string,boolean,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]|null = null;
 			for (const [type, name, multiple, func] of ChunkPart.TYPE_HANDLERS) {
 				if (type == this.typeStr) {
 					if (result !== null)
@@ -502,7 +502,7 @@ namespace app {
 		
 		/*---- Handlers and metadata for all known PNG chunk types ----*/
 		
-		private static TYPE_HANDLERS: Array<[string,string,boolean,((chunk:ChunkPart,earlier:Array<ChunkPart>)=>void)]> = [
+		private static TYPE_HANDLERS: Array<[string,string,boolean,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]> = [
 			
 			["bKGD", "Background color", false, (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
@@ -1337,7 +1337,7 @@ namespace app {
 		
 		/*---- Helper functions ----*/
 		
-		public static getValidIhdrData(chunks: Array<ChunkPart>): Uint8Array|null {
+		public static getValidIhdrData(chunks: Readonly<Array<ChunkPart>>): Uint8Array|null {
 			let result: Uint8Array|null = null;
 			let count: int = 0;
 			for (const chunk of chunks) {
@@ -1353,7 +1353,7 @@ namespace app {
 		}
 		
 		
-		private static getValidPlteNumEntries(chunks: Array<ChunkPart>): int|null {
+		private static getValidPlteNumEntries(chunks: Readonly<Array<ChunkPart>>): int|null {
 			let result: int|null = null;
 			let count: int = 0;
 			for (const chunk of chunks) {
@@ -1372,7 +1372,7 @@ namespace app {
 		}
 		
 		
-		private static getSpltNames(chunks: Array<ChunkPart>): Set<string> {
+		private static getSpltNames(chunks: Readonly<Array<ChunkPart>>): Set<string> {
 			let result = new Set<string>();
 			for (const chunk of chunks) {
 				if (chunk.typeStr == "sPLT") {
@@ -1440,7 +1440,7 @@ namespace app {
 	}
 	
 	
-	function decodeIso8859_1(bytes: Array<byte>): string {
+	function decodeIso8859_1(bytes: Readonly<Array<byte>>): string {
 		let result: string = "";
 		for (const b of bytes) {
 			if (!(0x00 <= b && b <= 0xFF))
@@ -1454,7 +1454,7 @@ namespace app {
 	}
 	
 	
-	function decodeUtf8(bytes: Array<byte>): string {
+	function decodeUtf8(bytes: Readonly<Array<byte>>): string {
 		let temp: string = "";
 		for (const b of bytes) {
 			if (b == "%".charCodeAt(0) || b >= 128)
@@ -1476,7 +1476,7 @@ namespace app {
 	}
 	
 	
-	function addErrorIfHasType(earlier: Array<ChunkPart>, type: string, chunk: ChunkPart, message: string): void {
+	function addErrorIfHasType(earlier: Readonly<Array<ChunkPart>>, type: string, chunk: ChunkPart, message: string): void {
 		if (earlier.some(ch => ch.typeStr == type))
 			chunk.errorNotes.push(message);
 	}
@@ -1491,7 +1491,7 @@ namespace app {
 	}
 	
 	
-	function lookUpTable<V>(key: int, table: Array<[int,V]>): V|null {
+	function lookUpTable<V>(key: int, table: Readonly<Array<[int,V]>>): V|null {
 		let result: V|null = null;
 		for (const [k, v] of table) {
 			if (k == key) {
@@ -1556,7 +1556,7 @@ namespace app {
 // See https://www.nayuki.io/page/simple-deflate-decompressor
 namespace deflate {
 	
-	export function decompressZlib(bytes: Array<byte>): Array<byte> {
+	export function decompressZlib(bytes: Readonly<Array<byte>>): Array<byte> {
 		if (bytes.length < 2)
 			throw "Invalid zlib container";
 		const compMeth: int = bytes[0] & 0xF;
@@ -1597,7 +1597,7 @@ namespace deflate {
 	}
 	
 	
-	export function decompressDeflate(bytes: Array<byte>): [Array<byte>,BitInputStream] {
+	export function decompressDeflate(bytes: Readonly<Array<byte>>): [Array<byte>,BitInputStream] {
 		let input = new BitInputStream(bytes);
 		let output: Array<byte> = [];
 		let dictionary = new ByteHistory(32 * 1024);
@@ -1750,7 +1750,7 @@ namespace deflate {
 		
 		private codeBitsToSymbol = new Map<int,int>();
 		
-		public constructor(codeLengths: Array<int>) {
+		public constructor(codeLengths: Readonly<Array<int>>) {
 			let nextCode: int = 0;
 			for (let codeLength = 1; codeLength <= CanonicalCode.MAX_CODE_LENGTH; codeLength++) {
 				nextCode <<= 1;
@@ -1839,7 +1839,7 @@ namespace deflate {
 		private bitIndex: int = 0;
 		
 		public constructor(
-			private data: Array<byte>) {}
+			private data: Readonly<Array<byte>>) {}
 		
 		public getBitPosition(): int {
 			return this.bitIndex % 8;

@@ -71,12 +71,12 @@ if (selfCheck()) {
 
 // Time-based One-Time Password algorithm (RFC 6238)
 function calcTotp(
-		secretKey: Array<byte>,
+		secretKey: Readonly<Array<byte>>,
 		epoch: int = 0,
 		timeStep: int = 30,
 		timestamp: int|null = null,
 		codeLen: int = 6,
-		hashFunc: ((msg:Array<byte>)=>Array<byte>) = calcSha1Hash,
+		hashFunc: ((msg:Readonly<Array<byte>>)=>Array<byte>) = calcSha1Hash,
 		blockSize: int = 64,
 		): string {
 	
@@ -95,10 +95,10 @@ function calcTotp(
 
 // HMAC-based One-Time Password algorithm (RFC 4226)
 function calcHotp(
-		secretKey: Array<byte>,
-		counter: Array<byte>,
+		secretKey: Readonly<Array<byte>>,
+		counter: Readonly<Array<byte>>,
 		codeLen: int = 6,
-		hashFunc: ((msg:Array<byte>)=>Array<byte>) = calcSha1Hash,
+		hashFunc: ((msg:Readonly<Array<byte>>)=>Array<byte>) = calcSha1Hash,
 		blockSize: int = 64,
 		): string {
 	
@@ -129,9 +129,9 @@ function calcHotp(
 
 
 function calcHmac(
-		key: Array<byte>,
-		message: Array<byte>,
-		hashFunc: ((msg:Array<byte>)=>Array<byte>),
+		key: Readonly<Array<byte>>,
+		message: Readonly<Array<byte>>,
+		hashFunc: ((msg:Readonly<Array<byte>>)=>Array<byte>),
 		blockSize: int,
 		): Array<byte> {
 	
@@ -155,7 +155,7 @@ function calcHmac(
 }
 
 
-function calcSha1Hash(message: Array<byte>): Array<byte> {
+function calcSha1Hash(message: Readonly<Array<byte>>): Array<byte> {
 	let bitLenBytes: Array<byte> = [];
 	for (let i = 0, bitLen = message.length * 8; i < 8; i++, bitLen >>>= 8)
 		bitLenBytes.push(bitLen & 0xFF);

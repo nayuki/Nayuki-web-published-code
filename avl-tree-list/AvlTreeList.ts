@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@ class AvlTreeList<E> {
 	// For example:
 	//   let a = new AvlTreeList<boolean>();  // Blank, zero-length list
 	//   let b = new AvlTreeList<number>([2,7,1,8]);  // Has the four elements 2,7,1,8
-	public constructor(arr?: Array<E>) {
+	public constructor(arr?: Readonly<Array<E>>) {
 		if (arguments.length == 1 && arr !== undefined)
 			arr.forEach((val: E) => this.push(val));
 		else if (arguments.length != 0)
@@ -148,7 +148,7 @@ class AvlTreeList<E> {
 	
 	// Removes 'count' elements starting at index 'start', then inserts the rest of the arguments
 	// at index 'start', and finally returns an AvlTreeList of the removed elements.
-	public splice(start: number, count: number, ...vals: Array<E>): AvlTreeList<E> {
+	public splice(start: number, count: number, ...vals: Readonly<Array<E>>): AvlTreeList<E> {
 		// Clamp start index and count
 		if (start > this.length)
 			start = this.length;

@@ -1,6 +1,6 @@
 /* 
  * Test of variants of the sieve of Eratosthenes (TypeScript)
- * by Project Nayuki, 2020. Public domain.
+ * by Project Nayuki, 2021. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -50,7 +50,7 @@ function assertEquals<E>(expect: E, actual: E): void {
 }
 
 
-function assertArrayEquals<E>(expected: Array<E>, actual: Array<E>): void {
+function assertArrayEquals<E>(expected: Readonly<Array<E>>, actual: Readonly<Array<E>>): void {
 	if (!(expected instanceof Array) || !(actual instanceof Array))
 		throw "Illegal argument";
 	if (expected.length != actual.length)

@@ -1,7 +1,7 @@
 /* 
  * Optimal text segmentation for QR Codes
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/optimal-text-segmentation-for-qr-codes
  */
@@ -159,7 +159,7 @@ namespace app {
 	
 	/*---- High-level computation functions ----*/
 	
-	function makeSingleByteSegment(text: Array<CodePoint>, ecl: int,
+	function makeSingleByteSegment(text: Readonly<Array<CodePoint>>, ecl: int,
 			minVersion: int, maxVersion: int):
 			[int,Array<Segment>]|null {
 		
@@ -187,7 +187,7 @@ namespace app {
 	// The resulting array optimally minimizes the total encoded bit length, subjected to the
 	// constraints in the given {error correction level, minimum version number, maximum version number}.
 	// This function can utilize all four text encoding modes: numeric, alphanumeric, byte (UTF-8), and kanji.
-	function makeSegmentsOptimally(text: Array<CodePoint>, ecl: int,
+	function makeSegmentsOptimally(text: Readonly<Array<CodePoint>>, ecl: int,
 			minVersion: int, maxVersion: int):
 			[int,Array<Segment>]|null {
 		
@@ -215,7 +215,7 @@ namespace app {
 	
 	
 	// Returns a new array of segments that is optimal for the given text at the given version number.
-	function makeSegmentsOptimallyForVersion(text: Array<CodePoint>, version: int): Array<Segment> {
+	function makeSegmentsOptimallyForVersion(text: Readonly<Array<CodePoint>>, version: int): Array<Segment> {
 		if (text.length == 0)
 			return [];
 		const charModes = computeCharacterModes(text, version);
@@ -224,7 +224,7 @@ namespace app {
 	
 	
 	// Returns a new array representing the optimal mode per code point based on the given text and version.
-	function computeCharacterModes(text: Array<CodePoint>, version: int): Array<Mode> {
+	function computeCharacterModes(text: Readonly<Array<CodePoint>>, version: int): Array<Mode> {
 		if (text.length == 0)
 			throw "Empty string";
 		const modeTypes: Array<Mode> = ["BYTE", "ALPHANUMERIC", "NUMERIC", "KANJI"];
@@ -302,7 +302,7 @@ namespace app {
 	
 	// Returns a new array of segments based on the given text and modes, such that
 	// consecutive code points in the same mode are put into the same segment.
-	function splitIntoSegments(text: Array<CodePoint>, charModes: Array<Mode>): Array<Segment> {
+	function splitIntoSegments(text: Readonly<Array<CodePoint>>, charModes: Readonly<Array<Mode>>): Array<Segment> {
 		if (text.length == 0)
 			throw "Empty string";
 		if (text.length != charModes.length)
@@ -330,7 +330,7 @@ namespace app {
 		public readonly numDataBits: int;
 		
 		public constructor(
-				text: Array<CodePoint>,
+				text: Readonly<Array<CodePoint>>,
 				public readonly mode: Mode) {
 			
 			this.text = text.map(c => c.utf16).join("");
@@ -361,7 +361,7 @@ namespace app {
 	
 	// Calculates and returns the number of bits needed to encode the given segments at the given
 	// version. The result is infinity if a segment has too many characters to fit its length field.
-	function getTotalBits(segs: Array<Segment>, version: int): number {
+	function getTotalBits(segs: Readonly<Array<Segment>>, version: int): number {
 		let result: int = 0;
 		for (const seg of segs) {
 			const ccbits: int = getNumCharCountBits(seg.mode, version);

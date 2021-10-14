@@ -1,6 +1,6 @@
 /* 
  * Discrete Fourier transform (TypeScript)
- * by Project Nayuki, 2020. Public domain.
+ * by Project Nayuki, 2021. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
 
@@ -10,7 +10,7 @@
  * 'inreal' and 'inimag' are each an array of n floating-point numbers.
  * Returns an array of two arrays - outreal and outimag, each of length n.
  */
-function computeDft(inreal: Array<number>, inimag: Array<number>): [Array<number>,Array<number>] {
+function computeDft(inreal: Readonly<Array<number>>, inimag: Readonly<Array<number>>): [Array<number>,Array<number>] {
 	const n: number = inreal.length;
 	let outreal: Array<number> = new Array(n);
 	let outimag: Array<number> = new Array(n);

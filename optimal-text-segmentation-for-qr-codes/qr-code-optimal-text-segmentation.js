@@ -1,7 +1,7 @@
 /*
  * Optimal text segmentation for QR Codes (compiled from TypeScript)
  *
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/optimal-text-segmentation-for-qr-codes
  */

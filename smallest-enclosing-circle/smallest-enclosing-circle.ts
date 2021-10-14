@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@ class Circle {
  * Note: If 0 points are given, null is returned. If 1 point is given, a circle of radius 0 is returned.
  */
 // Initially: No boundary points known
-function makeCircle<P extends Point>(points: Array<P>): Circle|null {
+function makeCircle<P extends Point>(points: Readonly<Array<P>>): Circle|null {
 	// Clone list to preserve the caller's data, do Durstenfeld shuffle
 	let shuffled: Array<P> = points.slice();
 	for (let i = points.length - 1; i >= 0; i--) {
@@ -62,7 +62,7 @@ function makeCircle<P extends Point>(points: Array<P>): Circle|null {
 
 
 // One boundary point known
-function makeCircleOnePoint<P extends Point>(points: Array<P>, p: Point): Circle {
+function makeCircleOnePoint<P extends Point>(points: Readonly<Array<P>>, p: Point): Circle {
 	let c: Circle = new Circle(p.x, p.y, 0);
 	points.forEach((q: Point, i: number) => {
 		if (!isInCircle(c, q)) {
@@ -77,7 +77,7 @@ function makeCircleOnePoint<P extends Point>(points: Array<P>, p: Point): Circle
 
 
 // Two boundary points known
-function makeCircleTwoPoints<P extends Point>(points: Array<P>, p: Point, q: Point): Circle {
+function makeCircleTwoPoints<P extends Point>(points: Readonly<Array<P>>, p: Point, q: Point): Circle {
 	const circ: Circle = makeDiameter(p, q);
 	let left : Circle|null = null;
 	let right: Circle|null = null;

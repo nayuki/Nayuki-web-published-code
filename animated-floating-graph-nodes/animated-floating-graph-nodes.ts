@@ -1,7 +1,7 @@
 /* 
  * Animated floating graph nodes
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
@@ -225,7 +225,7 @@ namespace app {
 		
 		// Returns a new array of edge objects that is a minimal spanning tree on the given set
 		// of nodes, with edges in ascending order of weight. Pure function, no side effects.
-		private calcSpanningTree(allEdges: Array<[number,number,number]>): Array<GEdge> {
+		private calcSpanningTree(allEdges: Readonly<Array<[number,number,number]>>): Array<GEdge> {
 			// Kruskal's MST algorithm
 			let result: Array<GEdge> = [];
 			let ds = new DisjointSet(this.nodes.length);
@@ -242,7 +242,7 @@ namespace app {
 		
 		// Tests whether the given array of edge objects contains an edge with
 		// the given endpoints (undirected). Pure function, no side effects.
-		private static containsEdge(edges: Array<GEdge>, edge: GEdge): boolean {
+		private static containsEdge(edges: Readonly<Array<GEdge>>, edge: GEdge): boolean {
 			for (const e of edges) {
 				if (e.nodeA == edge.nodeA && e.nodeB == edge.nodeB ||
 				    e.nodeA == edge.nodeB && e.nodeB == edge.nodeA)

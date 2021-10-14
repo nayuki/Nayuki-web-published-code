@@ -196,7 +196,7 @@ namespace app {
 	}
 	
 	
-	function doStep0(text: Array<CodePoint>): SegmentMode {
+	function doStep0(text: Readonly<Array<CodePoint>>): SegmentMode {
 		getElem("num-code-points").textContent = text.length.toString();
 		let allNumeric  = true;
 		let allAlphanum = true;
@@ -255,7 +255,7 @@ namespace app {
 	}
 	
 	
-	function doStep1(text: Array<CodePoint>, mode: SegmentMode): QrSegment {
+	function doStep1(text: Readonly<Array<CodePoint>>, mode: SegmentMode): QrSegment {
 		getElem("data-segment-chars").className = mode.name.toLowerCase() + " possibly-long";
 		
 		let bitData: Array<bit> = [];
@@ -321,7 +321,7 @@ namespace app {
 	}
 	
 	
-	function doStep2(segs: Array<QrSegment>, ecl: ErrorCorrectionLevel, minVer: int): int {
+	function doStep2(segs: Readonly<Array<QrSegment>>, ecl: ErrorCorrectionLevel, minVer: int): int {
 		let trs = document.querySelectorAll("#segment-size tbody tr");
 		[1, 10, 27].forEach((ver, i) => {
 			const numBits = QrSegment.getTotalBits(segs, ver);
@@ -362,7 +362,7 @@ namespace app {
 	}
 	
 	
-	function doStep3(segs: Array<QrSegment>, ver: int, ecl: ErrorCorrectionLevel): Array<DataCodeword> {
+	function doStep3(segs: Readonly<Array<QrSegment>>, ver: int, ecl: ErrorCorrectionLevel): Array<DataCodeword> {
 		let allBits: Array<bit> = [];
 		let tbody = clearChildren("#segment-and-padding-bits tbody");
 		function addRow(name: string, bits: Array<bit>): void {
@@ -408,7 +408,7 @@ namespace app {
 	}
 	
 	
-	function doStep4(qr: QrCode, data: Array<DataCodeword>): Array<Codeword> {
+	function doStep4(qr: QrCode, data: Readonly<Array<DataCodeword>>): Array<Codeword> {
 		const numBlocks: int = QrCode.NUM_ERROR_CORRECTION_BLOCKS[qr.errorCorrectionLevel.ordinal][qr.version];
 		const blockEccLen: int = QrCode.ECC_CODEWORDS_PER_BLOCK  [qr.errorCorrectionLevel.ordinal][qr.version];
 		const rawCodewords: int = Math.floor(QrCode.getNumRawDataModules(qr.version) / 8);
@@ -507,7 +507,7 @@ namespace app {
 	}
 	
 	
-	function doStep6(qr: QrCode, allCodewords: Array<Codeword>): void {
+	function doStep6(qr: QrCode, allCodewords: Readonly<Array<Codeword>>): void {
 		const zigZagScan: Array<[int,int]> = qr.makeZigZagScan();
 		let zigZagSvg = getSvgAndDrawQrCode("zig-zag-scan", qr);
 		{
@@ -552,7 +552,7 @@ namespace app {
 	}
 	
 	
-	function doStep8(qr: QrCode, masks: Array<QrCode>): Array<PenaltyInfo> {
+	function doStep8(qr: QrCode, masks: Readonly<Array<QrCode>>): Array<PenaltyInfo> {
 		function drawSvgAndAddGroup(name: string, i: int, border: number = 0): Element {
 			let svg = getSvgAndDrawQrCode(`${name}-${i}`, qr, border);
 			let group = svgAppendNewElem(svg, "g");
@@ -612,7 +612,7 @@ namespace app {
 	}
 	
 	
-	function doStep9(penalties: Array<PenaltyInfo>): int {
+	function doStep9(penalties: Readonly<Array<PenaltyInfo>>): int {
 		let tbody = clearChildren("#select-best-mask");
 		let result = -1;
 		let minPenalty = Infinity;
