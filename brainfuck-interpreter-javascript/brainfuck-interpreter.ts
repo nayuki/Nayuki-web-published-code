@@ -409,7 +409,7 @@ namespace app {
 		return queryElem(query, HTMLElement);
 	}
 	
-	type Constructor<T> = { new(...args: any[]): T };
+	type Constructor<T> = { new(...args: Array<any>): T };
 	
 	function queryElem<T>(query: string, type: Constructor<T>): T {
 		let result: Element|null = document.querySelector(query);

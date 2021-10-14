@@ -139,16 +139,16 @@ function calcHmac(
 		throw "Invalid block size";
 	if (key.length > blockSize)
 		key = hashFunc(key);
-	key = key.slice();
-	while (key.length < blockSize)
-		key.push(0x00);
+	let newKey: Array<byte> = key.slice();
+	while (newKey.length < blockSize)
+		newKey.push(0x00);
 	
-	let innerMsg: Array<byte> = key.map(b => b ^ 0x36);
+	let innerMsg: Array<byte> = newKey.map(b => b ^ 0x36);
 	for (const b of message)
 		innerMsg.push(b);
 	const innerHash: Array<byte> = hashFunc(innerMsg);
 	
-	let outerMsg: Array<byte> = key.map(b => b ^ 0x5C);
+	let outerMsg: Array<byte> = newKey.map(b => b ^ 0x5C);
 	for (const b of innerHash)
 		outerMsg.push(b);
 	return hashFunc(outerMsg);
@@ -161,20 +161,20 @@ function calcSha1Hash(message: Array<byte>): Array<byte> {
 		bitLenBytes.push(bitLen & 0xFF);
 	bitLenBytes.reverse();
 	
-	message = message.slice();
-	message.push(0x80);
-	while ((message.length + 8) % 64 != 0)
-		message.push(0x00);
+	let msg: Array<byte> = message.slice();
+	msg.push(0x80);
+	while ((msg.length + 8) % 64 != 0)
+		msg.push(0x00);
 	for (const b of bitLenBytes)
-		message.push(b);
+		msg.push(b);
 	
 	let state: Array<int> = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
-	for (let i = 0; i < message.length; i += 64) {
+	for (let i = 0; i < msg.length; i += 64) {
 		let schedule: Array<int> = [];
 		for (let j = 0; j < 64; j++) {
 			if (j % 4 == 0)
 				schedule.push(0);
-			schedule[Math.floor(j / 4)] |= message[i + j] << ((3 - j % 4) * 8);
+			schedule[Math.floor(j / 4)] |= msg[i + j] << ((3 - j % 4) * 8);
 		}
 		for (let j = schedule.length; j < 80; j++) {
 			const temp: int = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];

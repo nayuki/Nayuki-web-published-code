@@ -1,7 +1,7 @@
 /*
  * BitTorrent bencode decoder demo (compiled from TypeScript)
  *
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@ var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
         return extendStatics(d, b);
     };
     return function (d, b) {
@@ -98,20 +98,20 @@ var app;
         else if (item instanceof BencodeList || item instanceof BencodeDict) {
             var table = document.createElement("table");
             var tbody_1 = appendElem(table, "tbody");
-            function addRow(a, b) {
+            var addRow_1 = function (a, b) {
                 var tr = appendElem(tbody_1, "tr");
                 var td = appendElem(tr, "td");
                 var div = appendElem(td, "div");
                 div.textContent = a;
                 td = appendElem(tr, "td");
                 td.appendChild(b);
-            }
+            };
             if (item instanceof BencodeList) {
                 appendText(result, "List:");
                 table.classList.add("list");
                 result.appendChild(table);
                 item.array.forEach(function (val, i) {
-                    return addRow(i.toString(), toHtml(val));
+                    return addRow_1(i.toString(), toHtml(val));
                 });
             }
             else if (item instanceof BencodeDict) {
@@ -123,7 +123,7 @@ var app;
                     var val = item.map.get(key);
                     if (val === undefined)
                         throw "Assertion error";
-                    addRow(key, toHtml(val));
+                    addRow_1(key, toHtml(val));
                 }
             }
             else

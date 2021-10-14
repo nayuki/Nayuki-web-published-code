@@ -1,7 +1,7 @@
 /*
  * Time-based One-Time Password tools (compiled from TypeScript)
  *
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -99,16 +99,16 @@ function calcHmac(key, message, hashFunc, blockSize) {
         throw "Invalid block size";
     if (key.length > blockSize)
         key = hashFunc(key);
-    key = key.slice();
-    while (key.length < blockSize)
-        key.push(0x00);
-    var innerMsg = key.map(function (b) { return b ^ 0x36; });
+    var newKey = key.slice();
+    while (newKey.length < blockSize)
+        newKey.push(0x00);
+    var innerMsg = newKey.map(function (b) { return b ^ 0x36; });
     for (var _i = 0, message_1 = message; _i < message_1.length; _i++) {
         var b = message_1[_i];
         innerMsg.push(b);
     }
     var innerHash = hashFunc(innerMsg);
-    var outerMsg = key.map(function (b) { return b ^ 0x5C; });
+    var outerMsg = newKey.map(function (b) { return b ^ 0x5C; });
     for (var _a = 0, innerHash_1 = innerHash; _a < innerHash_1.length; _a++) {
         var b = innerHash_1[_a];
         outerMsg.push(b);
@@ -120,13 +120,13 @@ function calcSha1Hash(message) {
     for (var i = 0, bitLen = message.length * 8; i < 8; i++, bitLen >>>= 8)
         bitLenBytes.push(bitLen & 0xFF);
     bitLenBytes.reverse();
-    message = message.slice();
-    message.push(0x80);
-    while ((message.length + 8) % 64 != 0)
-        message.push(0x00);
+    var msg = message.slice();
+    msg.push(0x80);
+    while ((msg.length + 8) % 64 != 0)
+        msg.push(0x00);
     for (var _i = 0, bitLenBytes_1 = bitLenBytes; _i < bitLenBytes_1.length; _i++) {
         var b = bitLenBytes_1[_i];
-        message.push(b);
+        msg.push(b);
     }
     var state = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
     var _loop_1 = function (i) {
@@ -134,7 +134,7 @@ function calcSha1Hash(message) {
         for (var j = 0; j < 64; j++) {
             if (j % 4 == 0)
                 schedule.push(0);
-            schedule[Math.floor(j / 4)] |= message[i + j] << ((3 - j % 4) * 8);
+            schedule[Math.floor(j / 4)] |= msg[i + j] << ((3 - j % 4) * 8);
         }
         for (var j = schedule.length; j < 80; j++) {
             var temp = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
@@ -175,7 +175,7 @@ function calcSha1Hash(message) {
         state[3] = (state[3] + d) >>> 0;
         state[4] = (state[4] + e) >>> 0;
     };
-    for (var i = 0; i < message.length; i += 64) {
+    for (var i = 0; i < msg.length; i += 64) {
         _loop_1(i);
     }
     var result = [];

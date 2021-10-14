@@ -1,7 +1,7 @@
 /* 
  * BitTorrent bencode decoder demo (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -93,14 +93,14 @@ namespace app {
 			let table = document.createElement("table");
 			let tbody = appendElem(table, "tbody");
 			
-			function addRow(a: string, b: Node): void {
+			const addRow = function(a: string, b: Node): void {
 				let tr = appendElem(tbody, "tr");
 				let td = appendElem(tr, "td");
 				let div = appendElem(td, "div");
 				div.textContent = a;
 				td = appendElem(tr, "td");
 				td.appendChild(b);
-			}
+			};
 			
 			if (item instanceof BencodeList) {
 				appendText(result, "List:");
