@@ -260,7 +260,7 @@ fn test_parse_dictionary_invalid() {
 
 // Asserts that parsing the given byte string equals the given bencode value.
 fn check_parse(expect: &Bencode, s: &str) {
-	let actual = try_parse(s).unwrap();
+	let actual: Bencode = try_parse(s).unwrap();
 	assert_eq!(*expect, actual);
 }
 
@@ -274,8 +274,8 @@ fn try_parse(s: &str) -> std::io::Result<Bencode> {
 // Asserts that parsing each given test case will return the given exception.
 fn parse_expecting_exception(testcases: &[&str], expect: ErrorKind) {
 	for cs in testcases {
-		let actual = try_parse(cs);
-		let err = actual.unwrap_err();
+		let actual: std::io::Result<Bencode> = try_parse(cs);
+		let err: std::io::Error = actual.unwrap_err();
 		assert_eq!(expect, err.kind());
 	}
 }

@@ -1,7 +1,7 @@
 /* 
  * BitTorrent bencode decoder demo (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,8 +39,8 @@ fn main() -> std::io::Result<()> {
 		std::process::exit(1);
 	}
 	
-	let mut inp = std::fs::OpenOptions::new().read(true).open(file)?;
-	let obj = Bencode::parse(&mut inp)?;
+	let mut inp: std::fs::File = std::fs::OpenOptions::new().read(true).open(file)?;
+	let obj: Bencode = Bencode::parse(&mut inp)?;
 	print_bencode_value(&obj, 0);
 	Ok(())
 }

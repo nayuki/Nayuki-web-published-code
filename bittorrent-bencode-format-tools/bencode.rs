@@ -95,8 +95,8 @@ struct Parser<'a> {
 impl<'a> Parser<'a> {
 	
 	pub fn parse(&mut self) -> io::Result<Bencode> {
-		let mut b = self.read_byte()?;
-		let result = self.parse_value(b)?;
+		let mut b: u8 = self.read_byte()?;
+		let result: Bencode = self.parse_value(b)?;
 		if self.input.read(std::slice::from_mut(&mut b))? > 0 {
 			return Self::err_invalid_data("Unexpected extra data");
 		}
@@ -118,7 +118,7 @@ impl<'a> Parser<'a> {
 	fn parse_integer(&mut self) -> io::Result<Bencode> {
 		let mut s = String::new();
 		loop {
-			let b = self.read_byte()?;
+			let b: u8 = self.read_byte()?;
 			if b == b'e' {
 				break;
 			}
@@ -147,7 +147,7 @@ impl<'a> Parser<'a> {
 	
 	
 	fn parse_byte_string(&mut self, head: u8) -> io::Result<Vec<u8>> {
-		let length = self.parse_natural_number(head)?;
+		let length: usize = self.parse_natural_number(head)?;
 		let mut result = vec![0u8; length];
 		self.input.read_exact(&mut result)?;
 		Ok(result)
@@ -156,7 +156,7 @@ impl<'a> Parser<'a> {
 	
 	fn parse_natural_number(&mut self, head: u8) -> io::Result<usize> {
 		let mut s = String::new();
-		let mut b = head;
+		let mut b: u8 = head;
 		loop {
 			if b < b'0' || b > b'9' || s == "0" {
 				return Self::err_invalid_data("Unexpected integer character");
@@ -191,12 +191,12 @@ impl<'a> Parser<'a> {
 				b'e' => break,
 				b => self.parse_byte_string(b)?,
 			};
-			let prevkey = result.keys().next_back();
+			let prevkey: Option<&Vec<u8>> = result.keys().next_back();
 			if prevkey.map_or(false, |k| key <= *k) {
 				return Self::err_invalid_data("Misordered dictionary key");
 			}
-			let b = self.read_byte()?;
-			let val = self.parse_value(b)?;
+			let b: u8 = self.read_byte()?;
+			let val: Bencode = self.parse_value(b)?;
 			result.insert(key, val);
 		}
 		Ok(Bencode::Dict(result))
