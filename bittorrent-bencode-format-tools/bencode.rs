@@ -1,7 +1,7 @@
 /* 
  * BitTorrent bencode encoder/decoder (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,10 +26,15 @@ use std::io;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub enum Bencode {
+	
 	Int(i64),
+	
 	Bytes(Vec<u8>),
+	
 	List(Vec<Self>),
+	
 	Dict(std::collections::BTreeMap<Vec<u8>,Self>),
+	
 }
 
 

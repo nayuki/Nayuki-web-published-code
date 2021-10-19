@@ -1,7 +1,7 @@
 /* 
  * BitTorrent bencode coder test suite (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,6 @@
  */
 
 use std::collections::BTreeMap;
-use std::io;
 use std::io::ErrorKind;
 mod bencode;
 use bencode::Bencode;
@@ -267,13 +266,13 @@ fn check_parse(expect: &Bencode, s: &str) {
 
 
 // Parses the given string into a bencode value.
-fn try_parse(s: &str) -> io::Result<Bencode> {
+fn try_parse(s: &str) -> std::io::Result<Bencode> {
 	Bencode::parse(Box::new(s.as_bytes()).as_mut())
 }
 
 
 // Asserts that parsing each given test case will return the given exception.
-fn parse_expecting_exception(testcases: &[&str], expect: io::ErrorKind) {
+fn parse_expecting_exception(testcases: &[&str], expect: ErrorKind) {
 	for cs in testcases {
 		let actual = try_parse(cs);
 		let err = actual.unwrap_err();
