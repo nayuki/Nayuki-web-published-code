@@ -1,7 +1,7 @@
 /* 
  * Primitive recursive functions (Java)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/primitive-recursive-functions
  */
@@ -55,7 +55,7 @@ public abstract class Prf {
 	// Projection function: I_{n,i}(x_0, ..., x_{n-1}) = x_i
 	// n is the arity of the function, with n > 0. i is the index to take.
 	public static Prf I(final int n, final int i) {
-		if (n <= 0 || i < 0 || i >= n)
+		if (!(0 <= i && i < n))
 			throw new IllegalArgumentException();
 		return new Prf() {
 			public long eval(long... xs) {

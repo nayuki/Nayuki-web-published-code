@@ -55,7 +55,7 @@ class I(PrimRecFunc):
 	
 	# Integer n is the arity of the function, with n > 0. Integer i is the index to take.
 	def __init__(self, n: int, i: int):
-		assert n > 0 and 0 <= i < n
+		assert 0 <= i < n
 		self.n = n
 		self.i = i
 	
