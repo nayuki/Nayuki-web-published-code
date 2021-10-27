@@ -1,7 +1,7 @@
 # 
 # sRGB transform test (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/srgb-transform-library
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,9 +28,9 @@ import srgbtransform
 class SrgbTransformTest(unittest.TestCase):
 	
 	def test_forward_inverse(self):
-		trials = 100000
-		for i in range(trials):
-			x = random.random()
+		TRIALS = 100000
+		for _ in range(TRIALS):
+			x = random.uniform(0.0, 1.0)
 			y = srgbtransform.srgb_to_linear(x)
 			z = srgbtransform.linear_to_srgb(x)
 			self.assertAlmostEqual(x, srgbtransform.linear_to_srgb(y), delta=SrgbTransformTest._DELTA)
@@ -38,10 +38,10 @@ class SrgbTransformTest(unittest.TestCase):
 	
 	
 	def test_monotonicity(self):
-		trials = 100000
-		for i in range(trials):
-			x = random.random() * 2 - 0.5
-			y = random.random() * 2 - 0.5
+		TRIALS = 100000
+		for _ in range(TRIALS):
+			x = random.uniform(-0.5, 1.5)
+			y = random.uniform(-0.5, 1.5)
 			if y < x:
 				x, y = y, x
 			if y - x > SrgbTransformTest._DELTA:
