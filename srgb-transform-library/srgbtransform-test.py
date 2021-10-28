@@ -27,21 +27,21 @@ import srgbtransform
 
 class SrgbTransformTest(unittest.TestCase):
 	
-	def test_forward_inverse(self):
-		TRIALS = 100000
+	def test_forward_inverse(self) -> None:
+		TRIALS: int = 100000
 		for _ in range(TRIALS):
-			x = random.uniform(0.0, 1.0)
-			y = srgbtransform.srgb_to_linear(x)
-			z = srgbtransform.linear_to_srgb(x)
+			x: float = random.uniform(0.0, 1.0)
+			y: float = srgbtransform.srgb_to_linear(x)
+			z: float = srgbtransform.linear_to_srgb(x)
 			self.assertAlmostEqual(x, srgbtransform.linear_to_srgb(y), delta=SrgbTransformTest._DELTA)
 			self.assertAlmostEqual(x, srgbtransform.srgb_to_linear(z), delta=SrgbTransformTest._DELTA)
 	
 	
-	def test_monotonicity(self):
-		TRIALS = 100000
+	def test_monotonicity(self) -> None:
+		TRIALS: int = 100000
 		for _ in range(TRIALS):
-			x = random.uniform(-0.5, 1.5)
-			y = random.uniform(-0.5, 1.5)
+			x: float = random.uniform(-0.5, 1.5)
+			y: float = random.uniform(-0.5, 1.5)
 			if y < x:
 				x, y = y, x
 			if y - x > SrgbTransformTest._DELTA:
@@ -50,13 +50,13 @@ class SrgbTransformTest(unittest.TestCase):
 				self.assertTrue(srgbtransform.linear_to_srgb_8bit(x) <= srgbtransform.linear_to_srgb_8bit(y))
 	
 	
-	def test_8bit(self):
+	def test_8bit(self) -> None:
 		for i in range(256):
 			self.assertTrue(srgbtransform.linear_to_srgb_8bit(srgbtransform.srgb_8bit_to_linear(i)) == i);
 			self.assertTrue(abs(srgbtransform.linear_to_srgb(srgbtransform.srgb_8bit_to_linear(i)) * 255 - i) < 1);
 	
 	
-	_DELTA = 1e-7
+	_DELTA: float = 1e-7
 
 
 if __name__ == "__main__":

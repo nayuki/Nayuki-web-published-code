@@ -1,7 +1,7 @@
 # 
 # Windows timestamp accessor demo (Python)
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2021 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/windows-timestamp-accessor-library
 # 
@@ -20,8 +20,11 @@ import wintimestamp
 #   - Creation time     = 2014-09-21 01:23:45 UTC
 #   - Modification time = 2014-09-21 12:34:56.789000 UTC
 # 
-def main():
+def main() -> None:
 	with wintimestamp.WindowsTimestampAccessor() as wt:
+		path: str
+		ticks: int
+		
 		# Action 0
 		path = "."
 		print(os.path.abspath(path))

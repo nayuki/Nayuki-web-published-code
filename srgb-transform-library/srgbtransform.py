@@ -1,7 +1,7 @@
 # 
 # sRGB transform (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/srgb-transform-library
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,8 +21,10 @@
 #   Software.
 # 
 
+from typing import List
 
-def srgb_to_linear(x):
+
+def srgb_to_linear(x: float) -> float:
 	if x <= 0.0:
 		return 0.0
 	elif x >= 1:
@@ -33,13 +35,13 @@ def srgb_to_linear(x):
 		return ((x + 0.055) / 1.055) ** 2.4
 
 
-def srgb_8bit_to_linear(x):
+def srgb_8bit_to_linear(x: int) -> float:
 	if (x >> 8) != 0:
 		raise ValueError("Value out of 8-bit range")
 	return _SRGB_8BIT_TO_LINEAR[x]
 
 
-def linear_to_srgb(x):
+def linear_to_srgb(x: float) -> float:
 	if x <= 0.0:
 		return 0.0
 	elif x >= 1:
@@ -50,7 +52,7 @@ def linear_to_srgb(x):
 		return x ** (1 / 2.4) * 1.055 - 0.055
 
 
-def linear_to_srgb_8bit(x):
+def linear_to_srgb_8bit(x: float) -> int:
 	if x <= 0.0:
 		return 0
 	table = _SRGB_8BIT_TO_LINEAR
@@ -65,4 +67,4 @@ def linear_to_srgb_8bit(x):
 	return y if (x - table[y] <= table[y + 1] - x) else (y + 1)
 
 
-_SRGB_8BIT_TO_LINEAR = [srgb_to_linear(i / 255) for i in range(256)]
+_SRGB_8BIT_TO_LINEAR: List[float] = [srgb_to_linear(i / 255) for i in range(256)]
