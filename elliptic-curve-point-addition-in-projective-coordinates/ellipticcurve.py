@@ -36,8 +36,6 @@ class AffineCurvePoint:
 	
 	
 	def __init__(self, xy: Optional[Tuple[FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
-		if not isinstance(a, FieldInt) or not isinstance(b, FieldInt):
-			raise TypeError("Expected FieldInt")
 		if (xy is not None) and not (xy[0].modulus == xy[1].modulus == mod):
 			raise ValueError("Moduli must match")
 		if a.modulus != mod or b.modulus != mod:
@@ -70,8 +68,6 @@ class AffineCurvePoint:
 	
 	
 	def __add__(self, other: AffineCurvePoint) -> AffineCurvePoint:
-		if not isinstance(other, AffineCurvePoint):
-			raise TypeError("Expected AffineCurvePoint")
 		if (self.a, self.b, self.modulus) != (other.a, other.b, other.modulus):
 			raise ValueError("Other point must have same parameters")
 		
@@ -117,8 +113,6 @@ class AffineCurvePoint:
 	
 	
 	def __mul__(self, n: int) -> AffineCurvePoint:
-		if not isinstance(n, int):
-			raise TypeError("Expected integer")
 		if n < 0:
 			return -self * -n
 		result: AffineCurvePoint = self._create(None)
@@ -173,8 +167,6 @@ class ProjectiveCurvePoint:
 	
 	
 	def __init__(self, xyz: Optional[Tuple[FieldInt,FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
-		if not isinstance(a, FieldInt) or not isinstance(b, FieldInt):
-			raise TypeError("Expected FieldInt")
 		if (xyz is not None) and not (xyz[0].modulus == xyz[1].modulus == xyz[2].modulus == mod):
 			raise ValueError("Moduli must match")
 		if a.modulus != mod or b.modulus != mod:
@@ -210,8 +202,6 @@ class ProjectiveCurvePoint:
 	
 	
 	def __add__(self, other: ProjectiveCurvePoint) -> ProjectiveCurvePoint:
-		if not isinstance(other, ProjectiveCurvePoint):
-			raise TypeError("Expected ProjectiveCurvePoint")
 		if (self.a, self.b, self.modulus) != (other.a, other.b, other.modulus):
 			raise ValueError("Other point must have same parameters")
 		
@@ -273,8 +263,6 @@ class ProjectiveCurvePoint:
 	
 	
 	def __mul__(self, n: int) -> ProjectiveCurvePoint:
-		if not isinstance(n, int):
-			raise TypeError("Expected integer")
 		if n < 0:
 			return -self * -n
 		result: ProjectiveCurvePoint = self._create(None)
@@ -331,8 +319,6 @@ class FieldInt:
 	
 	# The modulus must be prime, which is not checked!
 	def __init__(self, value: int, modulus: int) -> None:
-		if not isinstance(value, int) or not isinstance(modulus, int):
-			raise TypeError("Expected integers")
 		if modulus <= 0:
 			raise ValueError("Modulus must be positive")
 		if not (0 <= value < modulus):
@@ -344,8 +330,6 @@ class FieldInt:
 		return FieldInt(val % self.modulus, self.modulus)
 	
 	def _check(self, other: FieldInt) -> None:
-		if not isinstance(other, FieldInt):
-			raise TypeError("Expected FieldInt")
 		if self.modulus != other.modulus:
 			raise ValueError("Other number must have same modulus")
 	
