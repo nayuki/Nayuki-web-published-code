@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,11 +47,11 @@ fn kmp_search(pattern: &str, text: &str) -> Option<usize> {
 	
 	// Walk through text string
 	let mut j: usize = 0;  // The number of chars matched in pattern
-	for (i, b) in text.as_bytes().iter().enumerate() {
-		while j > 0 && *b != pattbytes[j] {
+	for (i, &b) in text.as_bytes().iter().enumerate() {
+		while j > 0 && b != pattbytes[j] {
 			j = lsp[j - 1];  // Fall back in the pattern
 		}
-		if *b == pattbytes[j] {
+		if b == pattbytes[j] {
 			j += 1;  // Next char matched, increment position
 			if j == pattbytes.len() {
 				return Some(i - (j - 1));

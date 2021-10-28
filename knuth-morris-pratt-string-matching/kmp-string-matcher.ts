@@ -1,7 +1,7 @@
 /* 
  * Knuth-Morris-Pratt string matcher (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2021 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/knuth-morris-pratt-string-matching
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,7 +40,7 @@ function kmpSearch(pattern: string, text: string): number {
 	}
 	
 	// Walk through text string
-	let j = 0;  // Number of chars matched in pattern
+	let j: number = 0;  // Number of chars matched in pattern
 	for (let i = 0; i < text.length; i++) {
 		while (j > 0 && text.charAt(i) != pattern.charAt(j))
 			j = lsp[j - 1];  // Fall back in the pattern
