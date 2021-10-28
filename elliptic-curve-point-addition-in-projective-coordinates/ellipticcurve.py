@@ -38,7 +38,7 @@ class AffineCurvePoint:
 	def __init__(self, xy: Optional[Tuple[FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
 		if (xy is not None) and not (xy[0].modulus == xy[1].modulus == mod):
 			raise ValueError("Moduli must match")
-		if a.modulus != mod or b.modulus != mod:
+		if not (a.modulus == b.modulus == mod):
 			raise ValueError("Moduli must match")
 		
 		self.xy = xy
@@ -169,7 +169,7 @@ class ProjectiveCurvePoint:
 	def __init__(self, xyz: Optional[Tuple[FieldInt,FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
 		if (xyz is not None) and not (xyz[0].modulus == xyz[1].modulus == xyz[2].modulus == mod):
 			raise ValueError("Moduli must match")
-		if a.modulus != mod or b.modulus != mod:
+		if not (a.modulus == b.modulus == mod):
 			raise ValueError("Moduli must match")
 		
 		self.xyz = xyz
