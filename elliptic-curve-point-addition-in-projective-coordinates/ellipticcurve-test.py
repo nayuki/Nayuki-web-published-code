@@ -1,7 +1,7 @@
 # 
 # Elliptic curve point addition in projective coordinates
 # 
-# Copyright (c) 2018 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/elliptic-curve-point-addition-in-projective-coordinates
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@ from ellipticcurve import AffineCurvePoint, ProjectiveCurvePoint, FieldInt
 class EllipticCurveTest(unittest.TestCase):
 	
 	def test_basic_affine(self):
-		Z = AffineCurvePoint(None, None, GA.a, GA.b, MOD)
+		Z = AffineCurvePoint(None, GA.a, GA.b, MOD)
 		self.assertTrue(Z.is_zero())
 		self.assertFalse(Z.is_on_curve())
 		self.assertEqual(Z.double(), Z)
@@ -54,7 +54,7 @@ class EllipticCurveTest(unittest.TestCase):
 	
 	
 	def test_basic_projective(self):
-		Z = ProjectiveCurvePoint(None, None, None, GP.a, GP.b, MOD)
+		Z = ProjectiveCurvePoint(None, GP.a, GP.b, MOD)
 		self.assertTrue(Z.is_zero())
 		self.assertFalse(Z.is_on_curve())
 		self.assertEqual(Z.double(), Z)
@@ -163,8 +163,8 @@ A = 0
 B = 7
 MOD = 2**256 - 2**32 - 977
 GA = AffineCurvePoint(
-	FieldInt(0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798, MOD),
-	FieldInt(0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8, MOD),
+	(FieldInt(0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798, MOD),
+	 FieldInt(0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8, MOD)),
 	FieldInt(A, MOD), FieldInt(B, MOD), MOD)
 GP = GA.to_projective_point()
 ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141

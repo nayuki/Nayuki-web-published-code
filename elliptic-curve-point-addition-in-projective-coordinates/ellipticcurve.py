@@ -26,41 +26,38 @@
 
 class AffineCurvePoint:
 	
-	def __init__(self, x, y, a, b, mod):
-		if (x is None) and (y is None):
-			pass
-		elif isinstance(x, FieldInt) and isinstance(y, FieldInt):
-			pass
-		else:
-			raise ValueError("Both coordinates must be FieldInt or None")
-		
+	def __init__(self, xy, a, b, mod):
 		if not isinstance(a, FieldInt) or not isinstance(b, FieldInt):
 			raise TypeError("Expected FieldInt")
-		if x is not None and (x.modulus != mod or y.modulus != mod) or a.modulus != mod or b.modulus != mod:
+		if (xy is not None) and not (xy[0].modulus == xy[1].modulus == mod):
+			raise ValueError("Moduli must match")
+		if a.modulus != mod or b.modulus != mod:
 			raise ValueError("Moduli must match")
 		
-		self.x = x
-		self.y = y
+		self.xy = xy
 		self.a = a
 		self.b = b
 		self.modulus = mod
 	
 	
-	def _create(self, x, y):
-		return AffineCurvePoint(x, y, self.a, self.b, self.modulus)
+	def _create(self, xy):
+		return AffineCurvePoint(xy, self.a, self.b, self.modulus)
 	
 	
 	def is_zero(self):
-		return self.x is None
+		return self.xy is None
 	
 	def is_on_curve(self):
-		return not self.is_zero() and self.y * self.y == (self.x * self.x + self.a) * self.x + self.b
+		if self.xy is None:
+			return False
+		x, y = self.xy
+		return y * y == (x * x + self.a) * x + self.b
 	
 	def to_projective_point(self):
-		if self.is_zero():
-			return ProjectiveCurvePoint(None, None, None, self.a, self.b, self.modulus)
+		if self.xy is None:
+			return ProjectiveCurvePoint(None, self.a, self.b, self.modulus)
 		else:
-			return ProjectiveCurvePoint(self.x, self.y, FieldInt(1, self.modulus), self.a, self.b, self.modulus)
+			return ProjectiveCurvePoint(self.xy + (FieldInt(1, self.modulus),), self.a, self.b, self.modulus)
 	
 	
 	def __add__(self, other):
@@ -69,37 +66,42 @@ class AffineCurvePoint:
 		if (self.a, self.b, self.modulus) != (other.a, other.b, other.modulus):
 			raise ValueError("Other point must have same parameters")
 		
-		if self.is_zero():
+		if self.xy is None:
 			return other
-		elif other.is_zero():
+		elif other.xy is None:
 			return self
-		elif self.x == other.x:
-			if self.y == other.y:
-				return self.double()
-			else:
-				return self._create(None, None)
 		else:
-			s = (self.y - other.y) / (self.x - other.x)
-			rx = s * s - self.x - other.x
-			ry = s * (self.x - rx) - self.y
-			return self._create(rx, ry)
+			selfx , selfy  = self .xy
+			otherx, othery = other.xy
+			if selfx == otherx:
+				if selfy == othery:
+					return self.double()
+				else:
+					return self._create(None)
+			else:
+				s = (selfy - othery) / (selfx - otherx)
+				rx = s * s - selfx - otherx
+				ry = s * (selfx - rx) - selfy
+				return self._create((rx, ry))
 	
 	
 	def double(self):
-		if self.is_zero() or self.y.value == 0:
-			return self._create(None, None)
+		if (self.xy is None) or (self.xy[1].value == 0):
+			return self._create(None)
 		else:
-			s = (self.x * self.x * FieldInt(3, self.modulus) + self.a) / (self.y * FieldInt(2, self.modulus))
-			rx = s * s - self.x * FieldInt(2, self.modulus)
-			ry = s * (self.x - rx) - self.y
-			return self._create(rx, ry)
+			x, y = self.xy
+			s = (x * x * FieldInt(3, self.modulus) + self.a) / (y * FieldInt(2, self.modulus))
+			rx = s * s - x * FieldInt(2, self.modulus)
+			ry = s * (x - rx) - y
+			return self._create((rx, ry))
 	
 	
 	def __neg__(self):
-		if self.is_zero():
+		if self.xy is None:
 			return self
 		else:
-			return self._create(self.x, -self.y)
+			x, y = self.xy
+			return self._create((x, -y))
 	
 	def __sub__(self, other):
 		return self + -other
@@ -110,7 +112,7 @@ class AffineCurvePoint:
 			raise TypeError("Expected integer")
 		if n < 0:
 			return -self * -n
-		result = self._create(None, None)
+		result = self._create(None)
 		temp = self
 		while n != 0:
 			if n & 1 != 0:
@@ -123,21 +125,31 @@ class AffineCurvePoint:
 	def __eq__(self, other):
 		if not isinstance(other, AffineCurvePoint):
 			return False
-		elif self.is_zero() or other.is_zero():
-			return self.is_zero() and other.is_zero()
+		elif (self.xy is None) or (other.xy is None):
+			return (self.xy is None) and (other.xy is None)
 		else:
-			return (self.x, self.y, self.a, self.b, self.modulus) \
-				== (other.x, other.y, other.a, other.b, other.modulus)
+			selfx , selfy  = self .xy
+			otherx, othery = other.xy
+			return (selfx, selfy, self.a, self.b, self.modulus) \
+				== (otherx, othery, other.a, other.b, other.modulus)
 	
 	
 	def __str__(self):
-		if self.is_zero():
+		if self.xy is None:
 			return "(Zero)"
 		else:
-			return f"({self.x}, {self.y})"
+			x, y = self.xy
+			return f"({x}, {y})"
 	
 	def __repr__(self):
-		return f"AffineCurvePoint(x={self.x}, y={self.y}, a={self.a}, b={self.b}, mod={self.modulus})"
+		result = "AffineCurvePoint("
+		if self.xy is None:
+			result += "x=None, y=None"
+		else:
+			x, y = self.xy
+			result += f"x={x}, y={y}"
+		result += f", a={self.a}, b={self.b}, mod={self.modulus})"
+		return result
 
 
 
@@ -145,44 +157,41 @@ class AffineCurvePoint:
 
 class ProjectiveCurvePoint:
 	
-	def __init__(self, x, y, z, a, b, mod):
-		if (x is None) and (y is None) and (z is None):
-			pass
-		elif isinstance(x, FieldInt) and isinstance(y, FieldInt) and isinstance(z, FieldInt):
-			pass
-		else:
-			raise ValueError("All three coordinates must be FieldInt or None")
-		
+	def __init__(self, xyz, a, b, mod):
 		if not isinstance(a, FieldInt) or not isinstance(b, FieldInt):
 			raise TypeError("Expected FieldInt")
-		if x is not None and (x.modulus != mod or y.modulus != mod or z.modulus != mod) or a.modulus != mod or b.modulus != mod:
+		if (xyz is not None) and not (xyz[0].modulus == xyz[1].modulus == xyz[2].modulus == mod):
+			raise ValueError("Moduli must match")
+		if a.modulus != mod or b.modulus != mod:
 			raise ValueError("Moduli must match")
 		
-		self.x = x
-		self.y = y
-		self.z = z
+		self.xyz = xyz
 		self.a = a
 		self.b = b
 		self.modulus = mod
 	
 	
-	def _create(self, x, y, z):
-		return ProjectiveCurvePoint(x, y, z, self.a, self.b, self.modulus)
+	def _create(self, xyz):
+		return ProjectiveCurvePoint(xyz, self.a, self.b, self.modulus)
 	
 	
 	def is_zero(self):
-		return self.x is None
+		return self.xyz is None
 	
 	def is_on_curve(self):
-		return not self.is_zero() and \
-			self.y * self.y * self.z == \
-			self.x * self.x * self.x + self.a * self.x * self.z * self.z + self.b * self.z * self.z * self.z
+		if self.xyz is None:
+			return False
+		else:
+			x, y, z = self.xyz
+			return y * y * z == \
+				x * x * x + self.a * x * z * z + self.b * z * z * z
 	
 	def to_affine_point(self):
-		if self.is_zero():
-			return AffineCurvePoint(None, None, self.a, self.b, self.modulus)
+		if self.xyz is None:
+			return AffineCurvePoint(None, self.a, self.b, self.modulus)
 		else:
-			return AffineCurvePoint(self.x / self.z, self.y / self.z, self.a, self.b, self.modulus)
+			x, y, z = self.xyz
+			return AffineCurvePoint((x / z, y / z), self.a, self.b, self.modulus)
 	
 	
 	def __add__(self, other):
@@ -191,53 +200,58 @@ class ProjectiveCurvePoint:
 		if (self.a, self.b, self.modulus) != (other.a, other.b, other.modulus):
 			raise ValueError("Other point must have same parameters")
 		
-		if self.is_zero():
+		if self.xyz is None:
 			return other
-		elif other.is_zero():
+		elif other.xyz is None:
 			return self
 		
-		t0 = self.y * other.z
-		t1 = other.y * self.z
-		u0 = self.x * other.z
-		u1 = other.x * self.z
+		selfx , selfy , selfz  = self .xyz
+		otherx, othery, otherz = other.xyz
+		
+		t0 = selfy * otherz
+		t1 = othery * selfz
+		u0 = selfx * otherz
+		u1 = otherx * selfz
 		if u0 == u1:
 			if t0 == t1:
 				return self.double()
 			else:
-				return self._create(None, None, None)
+				return self._create(None)
 		else:
 			t = t0 - t1
 			u = u0 - u1
 			u2 = u * u
-			v = self.z * other.z
+			v = selfz * otherz
 			w = t * t * v - u2 * (u0 + u1)
 			u3 = u * u2
 			rx = u * w
 			ry = t * (u0 * u2 - w) - t0 * u3
 			rz = u3 * v
-			return self._create(rx, ry, rz)
+			return self._create((rx, ry, rz))
 	
 	
 	def double(self):
-		if self.is_zero() or self.y.value == 0:
-			return self._create(None, None, None)
+		if (self.xyz is None) or (self.xyz[1].value == 0):
+			return self._create(None)
 		else:
+			x, y, z = self.xyz
 			two = FieldInt(2, self.modulus)
-			t = self.x * self.x * FieldInt(3, self.modulus) + self.a * self.z * self.z
-			u = self.y * self.z * two
-			v = u * self.x * self.y * two
+			t = x * x * FieldInt(3, self.modulus) + self.a * z * z
+			u = y * z * two
+			v = u * x * y * two
 			w = t * t - v * two
 			rx = u * w
-			ry = t * (v - w) - u * u * self.y * self.y * two
+			ry = t * (v - w) - u * u * y * y * two
 			rz = u * u * u
-			return self._create(rx, ry, rz)
+			return self._create((rx, ry, rz))
 	
 	
 	def __neg__(self):
-		if self.is_zero():
+		if self.xyz is None:
 			return self
 		else:
-			return self._create(self.x, -self.y, self.z)
+			x, y, z = self.xyz
+			return self._create((x, -y, z))
 	
 	def __sub__(self, other):
 		return self + -other
@@ -248,7 +262,7 @@ class ProjectiveCurvePoint:
 			raise TypeError("Expected integer")
 		if n < 0:
 			return -self * -n
-		result = self._create(None, None, None)
+		result = self._create(None)
 		temp = self
 		while n != 0:
 			if n & 1 != 0:
@@ -261,21 +275,31 @@ class ProjectiveCurvePoint:
 	def __eq__(self, other):
 		if not isinstance(other, ProjectiveCurvePoint):
 			return False
-		if self.is_zero() or other.is_zero():
-			return self.is_zero() and other.is_zero()
+		if (self.xyz is None) or (other.xyz is None):
+			return (self.xyz is None) and (other.xyz is None)
 		else:
-			return (self.x * other.z, self.y * other.z, self.a, self.b, self.modulus) \
-				== (other.x * self.z, other.y * self.z, other.a, other.b, other.modulus)
+			selfx , selfy , selfz  = self .xyz
+			otherx, othery, otherz = other.xyz
+			return (selfx * otherz, selfy * otherz, self.a, self.b, self.modulus) \
+				== (otherx * selfz, othery * selfz, other.a, other.b, other.modulus)
 	
 	
 	def __str__(self):
-		if self.is_zero():
+		if self.xyz is None:
 			return "(Zero)"
 		else:
-			return f"({self.x}, {self.y}, {self.z})"
+			x, y, z = self.xyz
+			return f"({x}, {y}, {z})"
 	
 	def __repr__(self):
-		return f"ProjectiveCurvePoint(x={self.x}, y={self.y}, z={self.z}, a={self.a}, b={self.b}, mod={self.modulus})"
+		result = "ProjectiveCurvePoint("
+		if self.xyz is None:
+			result += "x=None, y=None, z=None"
+		else:
+			x, y, z = self.xyz
+			result += f"x={x}, y={y}, z={z}"
+		result += f", a={self.a}, b={self.b}, mod={self.modulus})"
+		return result
 
 
 
