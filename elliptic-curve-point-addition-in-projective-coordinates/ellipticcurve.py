@@ -86,7 +86,7 @@ class AffineCurvePoint:
 	
 	
 	def double(self):
-		if self.is_zero() or self.y == 0:
+		if self.is_zero() or self.y.value == 0:
 			return self._create(None, None)
 		else:
 			s = (self.x * self.x * FieldInt(3, self.modulus) + self.a) / (self.y * FieldInt(2, self.modulus))
@@ -219,7 +219,7 @@ class ProjectiveCurvePoint:
 	
 	
 	def double(self):
-		if self.is_zero() or self.y == 0:
+		if self.is_zero() or self.y.value == 0:
 			return self._create(None, None, None)
 		else:
 			two = FieldInt(2, self.modulus)
