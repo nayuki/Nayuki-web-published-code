@@ -22,12 +22,13 @@
 # 
 
 import random, unittest
+from typing import List
 from ellipticcurve import AffineCurvePoint, ProjectiveCurvePoint, FieldInt
 
 
 class EllipticCurveTest(unittest.TestCase):
 	
-	def test_basic_affine(self):
+	def test_basic_affine(self) -> None:
 		Z = AffineCurvePoint(None, GA.a, GA.b, MOD)
 		self.assertTrue(Z.is_zero())
 		self.assertFalse(Z.is_on_curve())
@@ -38,7 +39,7 @@ class EllipticCurveTest(unittest.TestCase):
 		self.assertTrue((GA - GA).is_zero())
 		self.assertTrue((GA * ORDER).is_zero())
 		
-		p = GA
+		p: AffineCurvePoint = GA
 		for i in range(1, 100):
 			self.assertTrue(p.is_on_curve())
 			self.assertEqual(p, GA * i)
@@ -53,7 +54,7 @@ class EllipticCurveTest(unittest.TestCase):
 			p -= GA
 	
 	
-	def test_basic_projective(self):
+	def test_basic_projective(self) -> None:
 		Z = ProjectiveCurvePoint(None, GP.a, GP.b, MOD)
 		self.assertTrue(Z.is_zero())
 		self.assertFalse(Z.is_on_curve())
@@ -64,7 +65,7 @@ class EllipticCurveTest(unittest.TestCase):
 		self.assertTrue((GP - GP).is_zero())
 		self.assertTrue((GP * ORDER).is_zero())
 		
-		p = GP
+		p: ProjectiveCurvePoint = GP
 		for i in range(1, 100):
 			self.assertTrue(p.is_on_curve())
 			self.assertEqual(p, GP * i)
@@ -79,14 +80,14 @@ class EllipticCurveTest(unittest.TestCase):
 			p -= GP
 	
 	
-	def test_affine_vs_projective(self):
+	def test_affine_vs_projective(self) -> None:
 		for i in range(-100, 100):
 			self.assertEqual(GA * i, (GP * i).to_affine_point())
 		for _ in range(100):
-			bits = random.randrange(300)
-			n = random.randrange(2**bits)
-			p = GA * n
-			q = GP * n
+			bits: int = random.randrange(300)
+			n: int = random.randrange(2**bits)
+			p: AffineCurvePoint = GA * n
+			q: ProjectiveCurvePoint = GP * n
 			self.assertTrue(p.is_zero() or p.is_on_curve())
 			self.assertTrue(q.is_zero() or q.is_on_curve())
 			self.assertEqual(p, q.to_affine_point())
@@ -100,8 +101,8 @@ class EllipticCurveTest(unittest.TestCase):
 
 class FieldIntTest(unittest.TestCase):
 	
-	def test_reciprocal(self):
-		CASES = [
+	def test_reciprocal(self) -> None:
+		CASES: List[List[int]] = [
 			[0x0000000000000000000000000000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000000000000000000000000000001],
 			[0x0000000000000000000000000000000000000000000000000000000000000002, 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFE18],
 			[0x0000000000000000000000000000000000000000000000000000000000000003, 0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9FFFFFD75],
@@ -159,15 +160,15 @@ class FieldIntTest(unittest.TestCase):
 
 
 # Parameters for secp256k1 curve
-A = 0
-B = 7
-MOD = 2**256 - 2**32 - 977
+A: int = 0
+B: int = 7
+MOD: int = 2**256 - 2**32 - 977
 GA = AffineCurvePoint(
 	(FieldInt(0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798, MOD),
 	 FieldInt(0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8, MOD)),
 	FieldInt(A, MOD), FieldInt(B, MOD), MOD)
 GP = GA.to_projective_point()
-ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
+ORDER: int = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141
 
 
 if __name__ == "__main__":
