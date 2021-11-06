@@ -1,7 +1,7 @@
 # 
 # Reed-Solomon error-correcting code decoder (Python)
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2021 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
 # 
@@ -29,12 +29,12 @@ class Field:
 	
 	def zero(self):
 		"""Returns the additive identity constant of this field."""
-		raise AssertionError("Not implemented")
+		raise NotImplementedError()
 	
 	
 	def one(self):
 		"""Returns the multiplicative identity constant of this field."""
-		raise AssertionError("Not implemented")
+		raise NotImplementedError()
 	
 	
 	# -- Comparison --
@@ -43,19 +43,19 @@ class Field:
 		"""Tests whether the two given elements are equal.
 		Note that the elements are not required to implement their own __eq__() correctly.
 		This means x == y is allowed to mismatch f.equals(x, y)."""
-		raise AssertionError("Not implemented")
+		raise NotImplementedError()
 	
 	
 	# -- Addition/subtraction --
 	
 	def negate(self, x):
 		"""Returns the additive inverse of the given element."""
-		raise AssertionError("Not implemented")
+		raise NotImplementedError()
 	
 	
 	def add(self, x, y):
 		"""Returns the sum of the two given elements."""
-		raise AssertionError("Not implemented")
+		raise NotImplementedError()
 	
 	
 	def subtract(self, x, y):
@@ -68,12 +68,12 @@ class Field:
 	
 	def reciprocal(self, x):
 		"""Returns the multiplicative inverse of the given non-zero element."""
-		raise AssertionError("Not implemented")
+		raise NotImplementedError()
 	
 	
 	def multiply(self, x, y):
 		"""Returns the product of the two given elements."""
-		raise AssertionError("Not implemented")
+		raise NotImplementedError()
 	
 	
 	def divide(self, x, y):
