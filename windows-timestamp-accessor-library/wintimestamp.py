@@ -6,6 +6,7 @@
 # https://www.nayuki.io/page/windows-timestamp-accessor-library
 # 
 
+from __future__ import annotations
 import datetime, os, subprocess
 from types import TracebackType
 from typing import IO, List, Optional, Type
