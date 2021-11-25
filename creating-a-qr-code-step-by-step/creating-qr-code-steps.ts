@@ -509,7 +509,7 @@ namespace app {
 	
 	function doStep6(qr: QrCode, allCodewords: Readonly<Array<Codeword>>): void {
 		const zigZagScan: Array<[int,int]> = qr.makeZigZagScan();
-		let zigZagSvg = getSvgAndDrawQrCode("zig-zag-scan", qr);
+		let zigZagSvg = getSvgAndDrawQrCode("zigzag-scan", qr);
 		{
 			let s = "";
 			for (const [x, y] of zigZagScan)

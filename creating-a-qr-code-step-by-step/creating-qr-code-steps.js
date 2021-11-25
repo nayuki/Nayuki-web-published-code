@@ -1340,7 +1340,7 @@ var app;
     }
     function doStep6(qr, allCodewords) {
         var zigZagScan = qr.makeZigZagScan();
-        var zigZagSvg = getSvgAndDrawQrCode("zig-zag-scan", qr);
+        var zigZagSvg = getSvgAndDrawQrCode("zigzag-scan", qr);
         {
             var s = "";
             for (var _i = 0, zigZagScan_1 = zigZagScan; _i < zigZagScan_1.length; _i++) {
