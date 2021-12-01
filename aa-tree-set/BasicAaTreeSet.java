@@ -47,7 +47,7 @@ public final class BasicAaTreeSet<E extends Comparable<? super E>> {
 		root = root.remove(val);
 	}
 	
-
+	
 	private static final class Node<E extends Comparable<? super E>> {
 		
 		public E value       = null;

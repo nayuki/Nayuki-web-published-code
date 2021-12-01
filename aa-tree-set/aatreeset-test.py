@@ -1,7 +1,7 @@
 # 
 # AA tree set test (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/aa-tree-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-import random, unittest
+import itertools, random, unittest
 import aatreeset
 
 
@@ -166,14 +166,10 @@ class AaTreeSetTest(unittest.TestCase):
 		LIMIT = 8
 		for size in range(1, LIMIT + 1):
 			sortedvalues = list(range(size))
-			values = list(sortedvalues)
-			
-			while True:  # This runs factorial(size) iterations
+			for values in itertools.permutations(sortedvalues):  # This runs factorial(size) iterations
 				set = aatreeset.AaTreeSet(values)
 				set.check_structure()
 				self.assertEqual(sortedvalues, list(set))
-				if not _next_permutation(values):
-					break
 	
 	
 	def test_remove_all_randomly(self):
@@ -205,21 +201,6 @@ class AaTreeSetTest(unittest.TestCase):
 					val = random.randrange(-50, RANGE + 50)
 					self.assertEqual(val in set0, val in set1)
 			self.assertTrue(len(set0) == len(set1) == 0)
-
-
-# Algorithm from https://www.nayuki.io/res/next-lexicographical-permutation-algorithm
-def _next_permutation(arr):
-	i = len(arr) - 1
-	while i > 0 and arr[i - 1] >= arr[i]:
-		i -= 1
-	if i <= 0:
-		return False
-	j = len(arr) - 1
-	while arr[j] <= arr[i - 1]:
-		j -= 1
-	arr[i - 1], arr[j] = arr[j], arr[i - 1]
-	arr[i : ] = arr[len(arr) - 1 : i - 1 : -1]
-	return True
 
 
 
