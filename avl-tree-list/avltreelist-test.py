@@ -1,7 +1,7 @@
 # 
 # AVL tree list test (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/avl-tree-list
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,13 +22,14 @@
 # 
 
 import random, unittest
+from typing import Iterator, List, Optional
 from avltreelist import AvlTreeList
 
 
 class AvlTreeListTest(unittest.TestCase):
 	
-	def test_add(self):
-		lst = AvlTreeList()
+	def test_add(self) -> None:
+		lst: AvlTreeList[str] = AvlTreeList()
 		lst.append("January")
 		lst.append("February")
 		lst.append("March")
@@ -45,10 +46,10 @@ class AvlTreeListTest(unittest.TestCase):
 		self.assertEqual("June"    , lst[5])
 	
 	
-	def test_add_list(self):
-		lst = AvlTreeList()
+	def test_add_list(self) -> None:
+		lst: AvlTreeList[str] = AvlTreeList()
 		
-		small = AvlTreeList()
+		small: AvlTreeList[str] = AvlTreeList()
 		small.append("January")
 		lst.extend(small)
 		
@@ -84,8 +85,8 @@ class AvlTreeListTest(unittest.TestCase):
 		self.assertEqual("December" , lst[11])
 	
 	
-	def test_set(self):
-		lst = AvlTreeList()
+	def test_set(self) -> None:
+		lst: AvlTreeList[Optional[str]] = AvlTreeList()
 		for _ in range(10):
 			lst.append(None)
 		lst[0] = "zero"
@@ -111,8 +112,8 @@ class AvlTreeListTest(unittest.TestCase):
 		self.assertEqual("ninety" , lst[9])
 	
 	
-	def test_insert_at_beginning(self):
-		lst = AvlTreeList()
+	def test_insert_at_beginning(self) -> None:
+		lst: AvlTreeList[str] = AvlTreeList()
 		lst.insert(0, "Sunday")
 		lst.insert(0, "Monday")
 		lst.insert(0, "Tuesday")
@@ -122,8 +123,8 @@ class AvlTreeListTest(unittest.TestCase):
 		self.assertEqual("Sunday" , lst[2])
 	
 	
-	def test_insert_at_end(self):
-		lst = AvlTreeList()
+	def test_insert_at_end(self) -> None:
+		lst: AvlTreeList[str] = AvlTreeList()
 		lst.insert(0, "Saturday")
 		lst.insert(1, "Friday")
 		lst.insert(2, "Thursday")
@@ -135,8 +136,8 @@ class AvlTreeListTest(unittest.TestCase):
 		self.assertEqual("Wednesday", lst[3])
 	
 	
-	def test_insert_at_middle(self):
-		lst = AvlTreeList()
+	def test_insert_at_middle(self) -> None:
+		lst: AvlTreeList[str] = AvlTreeList()
 		lst.insert(0, "Up")
 		lst.insert(1, "Down")
 		lst.insert(1, "Left")
@@ -152,13 +153,13 @@ class AvlTreeListTest(unittest.TestCase):
 		self.assertEqual("Down" , lst[5])
 	
 	
-	def test_insert_list(self):
-		lst = AvlTreeList()
-		def extend(dest, i, src):
+	def test_insert_list(self) -> None:
+		lst: AvlTreeList[str] = AvlTreeList()
+		def extend(dest: AvlTreeList[str], i: int, src: AvlTreeList[str]) -> None:
 			for (j, val) in enumerate(src):
 				dest.insert(i + j, val)
 		
-		small = AvlTreeList()
+		small: AvlTreeList[str] = AvlTreeList()
 		small.append("1")
 		small.append("2")
 		small.append("3")
@@ -204,8 +205,8 @@ class AvlTreeListTest(unittest.TestCase):
 	
 	
 	# Stresses the self-balancing mechanism
-	def test_insert_many_beginning(self):
-		lst = AvlTreeList()
+	def test_insert_many_beginning(self) -> None:
+		lst: AvlTreeList[int] = AvlTreeList()
 		for i in range(30000):
 			lst.append(i)
 		for (i, x) in enumerate(lst):
@@ -213,8 +214,8 @@ class AvlTreeListTest(unittest.TestCase):
 	
 	
 	# Stresses the self-balancing mechanism
-	def test_insert_many_end(self):
-		lst = AvlTreeList()
+	def test_insert_many_end(self) -> None:
+		lst: AvlTreeList[int] = AvlTreeList()
 		for i in reversed(range(30000)):
 			lst.insert(0, i)
 		for (i, x) in enumerate(lst):
@@ -222,12 +223,12 @@ class AvlTreeListTest(unittest.TestCase):
 	
 	
 	# Adds in a weird binary pattern to stress arrays and linked lists
-	def test_insert_many_everywhere(self):
-		N = 15
-		lst = AvlTreeList()
+	def test_insert_many_everywhere(self) -> None:
+		N: int = 15
+		lst: AvlTreeList[int] = AvlTreeList()
 		lst.append(0)
 		for i in reversed(range(N)):
-			k = 1
+			k: int = 1
 			for j in range(1 << i, 1 << N, 2 << i):
 				lst.insert(k, j)
 				k += 2
@@ -235,9 +236,9 @@ class AvlTreeListTest(unittest.TestCase):
 			self.assertEqual(i, x)
 	
 	
-	def test_remove(self):
-		lst = AvlTreeList()
-		s = "the quick brown fox jumped over the lazy dog"
+	def test_remove(self) -> None:
+		lst: AvlTreeList[str] = AvlTreeList()
+		s: str = "the quick brown fox jumped over the lazy dog"
 		for c in s:
 			lst.append(c)
 		self.assertEqual(len(s), len(lst))
@@ -292,8 +293,8 @@ class AvlTreeListTest(unittest.TestCase):
 			self.assertEqual(s[i], lst[i])
 	
 	
-	def test_clear(self):
-		lst = AvlTreeList()
+	def test_clear(self) -> None:
+		lst: AvlTreeList[int] = AvlTreeList()
 		for i in range(20):
 			lst.append(i * i)
 		
@@ -309,12 +310,12 @@ class AvlTreeListTest(unittest.TestCase):
 		self.assertEqual(-27, lst[2])
 	
 	
-	def test_iterator(self):
-		lst = AvlTreeList()
+	def test_iterator(self) -> None:
+		lst: AvlTreeList[int] = AvlTreeList()
 		for i in range(50):
 			lst.append(i * i)
 		
-		itr = iter(lst)
+		itr: Iterator[int] = iter(lst)
 		for i in range(50):
 			self.assertEqual(i * i, next(itr))
 		try:
@@ -325,13 +326,13 @@ class AvlTreeListTest(unittest.TestCase):
 	
 	
 	# Comprehensively tests all the defined methods.
-	def test_against_python_list_randomly(self):
-		ITERATIONS = 3000
-		list0 = []
-		list1 = AvlTreeList()
+	def test_against_python_list_randomly(self) -> None:
+		ITERATIONS: int = 3000
+		list0: List[int] = []
+		list1: AvlTreeList[int] = AvlTreeList()
 		length = 0
 		for i in range(ITERATIONS):
-			op = random.randrange(100)
+			op: int = random.randrange(100)
 			
 			if op < 1:  # Clear
 				list1.check_structure()
@@ -341,13 +342,13 @@ class AvlTreeListTest(unittest.TestCase):
 				
 			elif op < 2:  # Set
 				if length > 0:
-					index = random.randint(0, length - 1)
-					val = random.randrange(100000)
+					index: int = random.randint(0, length - 1)
+					val: int = random.randrange(100000)
 					list0[index] = val
 					list1[index] = val
 				
 			elif op < 30:  # Random insertion
-				n = random.randint(1, 100)
+				n: int = random.randint(1, 100)
 				for j in range(n):
 					index = random.randint(0, length)
 					val = random.randrange(100000)
@@ -357,7 +358,7 @@ class AvlTreeListTest(unittest.TestCase):
 				
 			elif op < 50:  # Ascending insertion
 				n = random.randint(1, 100)
-				offset = random.randint(0, length)
+				offset: int = random.randint(0, length)
 				for j in range(n):
 					val = random.randrange(100000)
 					list0.insert(offset + j, val)

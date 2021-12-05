@@ -22,20 +22,21 @@
 # 
 
 import itertools, random, unittest
+from typing import List, Set
 from binaryarrayset import BinaryArraySet
 
 
 class BinaryArraySetTest(unittest.TestCase):
 	
-	def test_blank(self):
-		s = BinaryArraySet()
+	def test_blank(self) -> None:
+		s: BinaryArraySet[int] = BinaryArraySet()
 		self.assertFalse(0 in s)
 		self.assertFalse(-5 in s)
 		self.assertFalse(2 in s)
 	
 	
-	def test_construct_from_existing(self):
-		s = BinaryArraySet([1, 5, 5, 8])
+	def test_construct_from_existing(self) -> None:
+		s: BinaryArraySet[int] = BinaryArraySet([1, 5, 5, 8])
 		self.assertEqual(3, len(s))
 		self.assertTrue(1 in s)
 		self.assertTrue(5 in s)
@@ -46,8 +47,8 @@ class BinaryArraySetTest(unittest.TestCase):
 		self.assertFalse(9 in s)
 	
 	
-	def test_add_0(self):
-		s = BinaryArraySet()
+	def test_add_0(self) -> None:
+		s: BinaryArraySet[int] = BinaryArraySet()
 		for i in range(1, 101):
 			s.add(i - 1)
 			self.assertEqual(i, len(s))
@@ -59,28 +60,29 @@ class BinaryArraySetTest(unittest.TestCase):
 				self.assertFalse(j in s)
 	
 	
-	def test_add_1(self):
-		def is_perfect_square(n):
+	def test_add_1(self) -> None:
+		def is_perfect_square(n: int) -> bool:
 			for i in itertools.count():
-				ii = i * i
+				ii: int = i * i
 				if ii == n:
 					return True
 				elif ii > n:
 					return False
+			raise AssertionError()
 		
-		s = BinaryArraySet()
+		s: BinaryArraySet[int] = BinaryArraySet()
 		for i in range(1, 31):
 			s.add((i - 1)**2)
 			for j in range(-3, i**2 + 5):
 				self.assertEqual(j in s, j <= (i - 1)**2 and is_perfect_square(j))
 	
 	
-	def test_iterator(self):
-		s = BinaryArraySet()
+	def test_iterator(self) -> None:
+		s: BinaryArraySet[int] = BinaryArraySet()
 		for i in range(1, 101):
 			s.add((i - 1)**2)
 			
-			lst = sorted(list(s))
+			lst: List[int] = sorted(list(s))
 			self.assertEqual(i, len(lst))
 			
 			for j in range(i):
@@ -88,15 +90,15 @@ class BinaryArraySetTest(unittest.TestCase):
 	
 	
 	# Comprehensively tests all the defined methods
-	def test_against_python_set_randomly(self):
-		ITERATIONS = 10000
-		set0 = set()
-		set1 = BinaryArraySet()
-		length = 0
+	def test_against_python_set_randomly(self) -> None:
+		ITERATIONS: int = 10000
+		set0: Set[int] = set()
+		set1: BinaryArraySet[int] = BinaryArraySet()
+		length: int = 0
 		for i in range(ITERATIONS):
 			if i % 300 == 0:
 				print(f"Progress: {i / ITERATIONS:.0%}")
-			op = random.randrange(100)
+			op: int = random.randrange(100)
 			
 			if op < 1:  # Fast clear
 				set1.check_structure()
@@ -115,7 +117,7 @@ class BinaryArraySetTest(unittest.TestCase):
 				self.assertEqual(sorted(set0), sorted(set1))
 				
 			elif op < 70:  # Add
-				n = random.randint(1, 100)
+				n: int = random.randint(1, 100)
 				for j in range(n):
 					val = random.randrange(10000)
 					if val not in set0:

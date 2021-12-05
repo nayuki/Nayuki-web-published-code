@@ -1,7 +1,7 @@
 # 
 # Convex hull algorithm - Library (Python)
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2021 Project Nayuki
 # https://www.nayuki.io/page/convex-hull-algorithm
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -19,16 +19,18 @@
 # If not, see <http://www.gnu.org/licenses/>.
 # 
 
+from typing import List, Sequence, Tuple
+
 
 # Returns a new list of points representing the convex hull of
 # the given set of points. The convex hull excludes collinear points.
 # This algorithm runs in O(n log n) time.
-def make_hull(points):
+def make_hull(points: Sequence[Tuple[float,float]]) -> List[Tuple[float,float]]:
 	return make_hull_presorted(sorted(points))
 
 
 # Returns the convex hull, assuming that each points[i] <= points[i + 1]. Runs in O(n) time.
-def make_hull_presorted(points):
+def make_hull_presorted(points: Sequence[Tuple[float,float]]) -> List[Tuple[float,float]]:
 	if len(points) <= 1:
 		return list(points)
 	
@@ -36,8 +38,8 @@ def make_hull_presorted(points):
 	# as per the mathematical convention, instead of "down" as per the computer
 	# graphics convention. This doesn't affect the correctness of the result.
 	
-	upperhull = []
-	lowerhull = []
+	upperhull: List[Tuple[float,float]] = []
+	lowerhull: List[Tuple[float,float]] = []
 	for hull in (upperhull, lowerhull):
 		for p in (points if (hull is upperhull) else reversed(points)):
 			while len(hull) >= 2:

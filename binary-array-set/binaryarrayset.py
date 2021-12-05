@@ -1,7 +1,7 @@
 # 
 # Binary array set (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-array-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,11 +21,27 @@
 #   Software.
 # 
 
+import abc
+from typing import Generator, Generic, Iterable, List, Optional, Protocol, TypeVar
 
-class BinaryArraySet:
+
+E = TypeVar("E", bound="_Comparable")
+
+class _Comparable(Protocol):
+	def __lt__(self: E, other: E) -> bool: ...
+	def __le__(self: E, other: E) -> bool: ...
+	def __gt__(self: E, other: E) -> bool: ...
+	def __ge__(self: E, other: E) -> bool: ...
+
+
+class BinaryArraySet(Generic[E]):
+	
+	values: List[Optional[List[E]]]
+	length: int
+	
 	
 	# Runs in O(n * (log n)^2) time
-	def __init__(self, coll=None):
+	def __init__(self, coll: Optional[Iterable[E]] = None):
 		self.clear()
 		if coll is not None:
 			for val in coll:
@@ -33,34 +49,34 @@ class BinaryArraySet:
 	
 	
 	# Runs in O(1) time
-	def __len__(self):
+	def __len__(self) -> int:
 		return self.length
 	
 	
 	# Runs in O(1) time
-	def clear(self):
+	def clear(self) -> None:
 		# For each i, self.values[i] is either None or an ascending list of length 2^i
 		self.values = []
 		self.length = 0
 	
 	
 	# Note: Not fail-fast on concurrent modification
-	def __iter__(self):
+	def __iter__(self) -> Generator[E,None,None]:
 		for vals in self.values:
 			if vals is not None:
 				yield from vals
 	
 	
 	# Runs in O((log n)^2) time
-	def __contains__(self, val):
+	def __contains__(self, val: E) -> bool:
 		for vals in self.values:
 			if vals is not None:
 				# Binary search
-				start = 0
-				end = len(vals)
+				start: int = 0
+				end: int = len(vals)
 				while start < end:
-					mid = (start + end) // 2
-					midval = vals[mid]
+					mid: int = (start + end) // 2
+					midval: E = vals[mid]
 					if val < midval:
 						end = mid
 					elif val > midval:
@@ -73,17 +89,17 @@ class BinaryArraySet:
 	
 	
 	# Runs in average-case O((log n)^2) time, worst-case O(n) time
-	def add(self, val):
+	def add(self, val: E) -> None:
 		# Checking for duplicates is expensive
 		if val not in self:
 			self.add_unique(val)
 	
 	
 	# Runs in amortized O(1) time, worst-case O(n) time
-	def add_unique(self, val):
-		toput = [val]
+	def add_unique(self, val: E) -> None:
+		toput: Optional[List[E]] = [val]
 		for (i, vals) in enumerate(self.values):
-			assert len(toput) == 1 << i
+			assert (toput is not None) and (len(toput) == 1 << i)
 			if vals is None:
 				self.values[i] = toput
 				toput = None
@@ -91,9 +107,9 @@ class BinaryArraySet:
 			else:
 				# Merge two sorted arrays
 				assert len(vals) == 1 << i
-				next = []
-				j = 0
-				k = 0
+				next: List[E] = []
+				j: int = 0
+				k: int = 0
 				while j < len(vals) and k < len(toput):
 					if vals[j] < toput[k]:
 						next.append(vals[j])
@@ -112,11 +128,11 @@ class BinaryArraySet:
 	
 	
 	# For unit tests
-	def check_structure(self):
+	def check_structure(self) -> None:
 		if self.length < 0:
 			raise AssertionError()
 		
-		sum = 0
+		sum: int = 0
 		for (i, vals) in enumerate(self.values):
 			if vals is not None:
 				if len(vals) != 1 << i:

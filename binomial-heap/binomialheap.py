@@ -1,7 +1,7 @@
 # 
 # Binomial heap (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binomial-heap
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,63 +21,82 @@
 #   Software.
 # 
 
+from __future__ import annotations
+from typing import Generic, Optional, Protocol, TypeVar
 
-class BinomialHeap:
+
+E = TypeVar("E", bound="_Comparable")
+T = TypeVar("T", bound="_Comparable")
+
+class _Comparable(Protocol):
+	def __lt__(self: E, other: E) -> bool: ...
+	def __le__(self: E, other: E) -> bool: ...
+	def __gt__(self: E, other: E) -> bool: ...
+	def __ge__(self: E, other: E) -> bool: ...
+
+
+class BinomialHeap(Generic[E]):
 	
-	def __init__(self):
+	head: BinomialHeap.Node[E]
+	
+	
+	def __init__(self) -> None:
 		self.head = BinomialHeap.Node()  # Dummy node
 	
 	
-	def empty(self):
+	def empty(self) -> bool:
 		return self.head.next is None
 	
 	
-	def __len__(self):
-		result = 0
-		node = self.head.next
+	def __len__(self) -> int:
+		result: int = 0
+		node: Optional[BinomialHeap.Node[E]] = self.head.next
 		while node is not None:
 			result |= 1 << node.rank
 			node = node.next
 		return result
 	
 	
-	def clear(self):
+	def clear(self) -> None:
 		self.head.next = None
 	
 	
-	def enqueue(self, val):
+	def enqueue(self, val: E) -> None:
 		self._merge(BinomialHeap.Node(val))
 	
 	
-	def peek(self):
+	def peek(self) -> E:
 		if self.head.next is None:
 			raise Exception("Empty heap")
-		result = None
-		node = self.head.next
+		result: Optional[E] = None
+		node: Optional[BinomialHeap.Node[E]] = self.head.next
 		while node is not None:
-			if result is None or node.value < result:
+			if result is None or _non_none(node.value) < result:
 				result = node.value
 			node = node.next
+		if result is None:
+			raise AssertionError()
 		return result
 	
 	
-	def dequeue(self):
+	def dequeue(self) -> E:
 		if self.head.next is None:
 			raise Exception("Empty heap")
-		min = None
-		nodebeforemin = None
-		prevnode = self.head
+		min: Optional[E] = None
+		nodebeforemin: Optional[BinomialHeap.Node[E]] = None
+		prevnode: BinomialHeap.Node[E] = self.head
 		while True:
-			node = prevnode.next
+			node: Optional[BinomialHeap.Node[E]] = prevnode.next
 			if node is None:
 				break
-			if min is None or node.value < min:
+			if min is None or _non_none(node.value) < min:
 				min = node.value
 				nodebeforemin = prevnode
 			prevnode = node
-		assert min is not None and nodebeforemin is not None
+		if (min is None) or (nodebeforemin is None):
+			raise AssertionError()
 		
-		minnode = nodebeforemin.next
+		minnode: BinomialHeap.Node[E] = _non_none(nodebeforemin.next)
 		nodebeforemin.next = minnode.next
 		minnode.next = None
 		self._merge(minnode.remove_root())
@@ -85,25 +104,26 @@ class BinomialHeap:
 	
 	
 	# Moves all the values in the given heap into this heap
-	def merge(self, other):
+	def merge(self, other: BinomialHeap[E]) -> None:
 		if other is self:
 			raise ValueError()
 		self._merge(other.head.next)
 		other.head.next = None
 	
 	
-	def _merge(self, other):
+	def _merge(self, other: Optional[BinomialHeap.Node[E]]) -> None:
 		assert self.head.rank == -1
 		assert other is None or other.rank >= 0
-		this = self.head.next
+		this: Optional[BinomialHeap.Node[E]] = self.head.next
 		self.head.next = None
-		prevtail = None
-		tail = self.head
+		prevtail: Optional[BinomialHeap.Node[E]] = None
+		tail: BinomialHeap.Node[E] = self.head
 		
 		while this is not None or other is not None:
+			node: BinomialHeap.Node[E]
 			if other is None or (this is not None and this.rank <= other.rank):
-				node = this
-				this = this.next
+				node = _non_none(this)
+				this = node.next
 			else:
 				node = other
 				other = other.next
@@ -121,7 +141,7 @@ class BinomialHeap:
 				prevtail = node
 			elif tail.rank == node.rank:
 				# Merge nodes
-				if tail.value <= node.value:
+				if _non_none(tail.value) <= _non_none(node.value):
 					node.next = tail.down
 					tail.down = node
 					tail.rank += 1
@@ -137,8 +157,8 @@ class BinomialHeap:
 	
 	
 	# For unit tests
-	def check_structure(self):
-		head = self.head
+	def check_structure(self) -> None:
+		head: BinomialHeap.Node[E] = self.head
 		if head.value is not None or head.rank != -1:
 			raise AssertionError("Head must be dummy node")
 		# Check chain of nodes and their children
@@ -148,9 +168,15 @@ class BinomialHeap:
 	
 	# ---- Helper class: Binomial heap node ----
 	
-	class Node:
+	class Node(Generic[T]):
 		
-		def __init__(self, val=None):
+		value: Optional[T]
+		rank: int
+		down: Optional[BinomialHeap.Node[T]]
+		next: Optional[BinomialHeap.Node[T]]
+		
+		
+		def __init__(self, val: Optional[T] = None):
 			self.value = val
 			if val is None:  # Dummy sentinel node at head of list
 				self.rank = -1
@@ -160,12 +186,12 @@ class BinomialHeap:
 			self.next = None
 		
 		
-		def remove_root(self):
+		def remove_root(self) -> Optional[BinomialHeap.Node[T]]:
 			assert self.next is None
-			result = None
-			node = self.down
+			result: Optional[BinomialHeap.Node[T]] = None
+			node: Optional[BinomialHeap.Node[T]] = self.down
 			while node is not None:  # Reverse the order of nodes from descending rank to ascending rank
-				next = node.next
+				next: Optional[BinomialHeap.Node[T]] = node.next
 				node.next = result
 				result = node
 				node = next
@@ -173,14 +199,18 @@ class BinomialHeap:
 		
 		
 		# For unit tests
-		def check_structure(self, ismain, lowerbound):
+		def check_structure(self, ismain: bool, lowerbound: Optional[T]) -> None:
 			# Basic checks
 			if (self.rank < 0) != (self.value is None):
 				raise AssertionError("Invalid node rank or value")
-			if ismain != (lowerbound is None):
-				raise AssertionError("Invalid arguments")
-			if not ismain and self.value < lowerbound:
-				raise AssertionError("Min-heap property violated")
+			if ismain:
+				if lowerbound is not None:
+					raise AssertionError("Invalid arguments")
+			else:
+				if lowerbound is None:
+					raise AssertionError("Invalid arguments")
+				if _non_none(self.value) < lowerbound:
+					raise AssertionError("Min-heap property violated")
 			
 			# Check children and non-main chains
 			if self.rank > 0:
@@ -199,3 +229,11 @@ class BinomialHeap:
 				if self.next.rank <= self.rank:
 					raise AssertionError("Next node has invalid rank")
 				self.next.check_structure(True, None)
+
+
+U = TypeVar("U")
+
+def _non_none(val: Optional[U]) -> U:
+	if val is None:
+		raise ValueError()
+	return val

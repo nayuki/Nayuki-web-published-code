@@ -1,7 +1,7 @@
 # 
 # Binary indexed tree (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-indexed-tree
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,46 +21,51 @@
 #   Software.
 # 
 
+from typing import Iterable, List, Union
+
 
 class BinaryIndexedTree:
 	
-	def __init__(self, arg):
+	sumtree: List[int]
+	
+	
+	def __init__(self, arg: Union[int,Iterable[int]]):
 		if isinstance(arg, int):
 			self.sumtree = [0] * arg
 		else:
 			self.sumtree = list(arg)
 			for (i, val) in enumerate(self.sumtree):
 				# For each consecutive 1 in the lowest order bits of i
-				j = 1
+				j: int = 1
 				while i & j != 0:
 					val += self.sumtree[i ^ j]
 					j <<= 1
 				self.sumtree[i] = val
 	
 	
-	def __len__(self):
+	def __len__(self) -> int:
 		return len(self.sumtree)
 	
 	
-	def __getitem__(self, index):
+	def __getitem__(self, index: int) -> int:
 		if not (0 <= index < len(self)):
 			raise IndexError()
-		result = self.sumtree[index]
+		result: int = self.sumtree[index]
 		# For each consecutive 1 in the lowest order bits of index
-		i = 1
+		i: int = 1
 		while index & i != 0:
 			result -= self.sumtree[index ^ i]
 			i <<= 1
 		return result
 	
 	
-	def __setitem__(self, index, val):
+	def __setitem__(self, index: int, val: int) -> None:
 		if not (0 <= index < len(self)):
 			raise IndexError()
 		self.add(index, val - self[index])
 	
 	
-	def add(self, index, delta):
+	def add(self, index: int, delta: int) -> None:
 		if not (0 <= index < len(self)):
 			raise IndexError()
 		while index < len(self):
@@ -68,21 +73,21 @@ class BinaryIndexedTree:
 			index |= index + 1  # Set lowest 0 bit; strictly increasing
 	
 	
-	def get_total(self):
+	def get_total(self) -> int:
 		return self.get_prefix_sum(len(self))
 	
 	
-	def get_prefix_sum(self, end):
+	def get_prefix_sum(self, end: int) -> int:
 		if not (0 <= end <= len(self)):
 			raise IndexError()
-		result = 0
+		result: int = 0
 		while end > 0:
 			result += self.sumtree[end - 1]
 			end &= end - 1  # Clear lowest 1 bit; strictly decreasing
 		return result
 	
 	
-	def get_range_sum(self, start, end):
+	def get_range_sum(self, start: int, end: int) -> int:
 		if not (0 <= start <= end <= len(self)):
 			raise IndexError()
 		return self.get_prefix_sum(end) - self.get_prefix_sum(start)
