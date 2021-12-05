@@ -1,7 +1,7 @@
 # 
 # Binomial heap test (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binomial-heap
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,13 +22,13 @@
 # 
 
 import queue, random, unittest
-import binomialheap
+from binomialheap import BinomialHeap
 
 
 class BinomialHeapTest(unittest.TestCase):
 	
 	def test_size_1(self):
-		h = binomialheap.BinomialHeap()
+		h = BinomialHeap()
 		h.enqueue(3)
 		h.check_structure()
 		self.assertEqual(1, len(h))
@@ -39,7 +39,7 @@ class BinomialHeapTest(unittest.TestCase):
 	
 	
 	def test_size_2(self):
-		h = binomialheap.BinomialHeap()
+		h = BinomialHeap()
 		h.enqueue(4)
 		h.enqueue(2)
 		h.check_structure()
@@ -55,7 +55,7 @@ class BinomialHeapTest(unittest.TestCase):
 	
 	
 	def test_size_7(self):
-		h = binomialheap.BinomialHeap()
+		h = BinomialHeap()
 		h.enqueue(2)
 		h.enqueue(7)
 		h.enqueue(1)
@@ -82,7 +82,7 @@ class BinomialHeapTest(unittest.TestCase):
 		MAX_SIZE = 300
 		RANGE = 1000
 		
-		heap = binomialheap.BinomialHeap()
+		heap = BinomialHeap()
 		for _ in range(TRIALS):
 			size = random.randrange(MAX_SIZE)
 			values = [random.randrange(RANGE) for _ in range(size)]
@@ -103,7 +103,7 @@ class BinomialHeapTest(unittest.TestCase):
 		RANGE = 10000
 		
 		que = queue.PriorityQueue()
-		heap = binomialheap.BinomialHeap()
+		heap = BinomialHeap()
 		size = 0
 		for i in range(TRIALS):
 			if i % 300 == 0:
@@ -125,7 +125,7 @@ class BinomialHeapTest(unittest.TestCase):
 				
 			elif op < 70:  # Enqueue/merge
 				merge = not (op < 60)
-				sink = binomialheap.BinomialHeap() if merge else heap
+				sink = BinomialHeap() if merge else heap
 				n = random.randint(1, ITER_OPS)
 				for _ in range(n):
 					val = random.randrange(RANGE)

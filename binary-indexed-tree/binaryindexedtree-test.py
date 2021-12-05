@@ -1,7 +1,7 @@
 # 
 # Binary indexed tree test (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-indexed-tree
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 import random, unittest
-import binaryindexedtree
+from binaryindexedtree import BinaryIndexedTree
 
 
 class BinaryIndexedTreeTest(unittest.TestCase):
@@ -32,7 +32,7 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 		CHECKS = 10
 		for length in range(SIZELIMIT):
 			
-			bt = binaryindexedtree.BinaryIndexedTree(length)
+			bt = BinaryIndexedTree(length)
 			self.assertEqual(length, len(bt))
 			self.assertEqual(0, bt.get_total())
 			
@@ -51,9 +51,9 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 			
 			mode = random.randrange(4)
 			if mode == 0:
-				bt = binaryindexedtree.BinaryIndexedTree([1] * length)
+				bt = BinaryIndexedTree([1] * length)
 			else:
-				bt = binaryindexedtree.BinaryIndexedTree(length)
+				bt = BinaryIndexedTree(length)
 				if   mode == 1:  p = 0
 				elif mode == 2:  p = 1
 				elif mode == 3:  p = random.random()
@@ -86,7 +86,7 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 			for x in vals:
 				cums.append(cums[-1] + x)
 			
-			bt = binaryindexedtree.BinaryIndexedTree(vals)
+			bt = BinaryIndexedTree(vals)
 			self.assertEqual(length, len(bt))
 			self.assertEqual(cums[length], bt.get_total())
 			
@@ -110,10 +110,10 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 			length = random.randrange(1, SIZELIMIT)
 			if random.randrange(2) == 0:
 				vals = [0] * length
-				bt = binaryindexedtree.BinaryIndexedTree(length)
+				bt = BinaryIndexedTree(length)
 			else:
 				vals = [random.randrange(-1000, 1000) for _ in range(length)]
-				bt = binaryindexedtree.BinaryIndexedTree(vals)
+				bt = BinaryIndexedTree(vals)
 			
 			for _ in range(OPERATIONS):
 				k = random.randrange(length)

@@ -1,7 +1,7 @@
 # 
 # Binary array set test (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-array-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,20 +22,20 @@
 # 
 
 import itertools, random, unittest
-import binaryarrayset
+from binaryarrayset import BinaryArraySet
 
 
 class BinaryArraySetTest(unittest.TestCase):
 	
 	def test_blank(self):
-		s = binaryarrayset.BinaryArraySet()
+		s = BinaryArraySet()
 		self.assertFalse(0 in s)
 		self.assertFalse(-5 in s)
 		self.assertFalse(2 in s)
 	
 	
 	def test_construct_from_existing(self):
-		s = binaryarrayset.BinaryArraySet([1, 5, 5, 8])
+		s = BinaryArraySet([1, 5, 5, 8])
 		self.assertEqual(3, len(s))
 		self.assertTrue(1 in s)
 		self.assertTrue(5 in s)
@@ -47,7 +47,7 @@ class BinaryArraySetTest(unittest.TestCase):
 	
 	
 	def test_add_0(self):
-		s = binaryarrayset.BinaryArraySet()
+		s = BinaryArraySet()
 		for i in range(1, 101):
 			s.add(i - 1)
 			self.assertEqual(i, len(s))
@@ -68,7 +68,7 @@ class BinaryArraySetTest(unittest.TestCase):
 				elif ii > n:
 					return False
 		
-		s = binaryarrayset.BinaryArraySet()
+		s = BinaryArraySet()
 		for i in range(1, 31):
 			s.add((i - 1)**2)
 			for j in range(-3, i**2 + 5):
@@ -76,7 +76,7 @@ class BinaryArraySetTest(unittest.TestCase):
 	
 	
 	def test_iterator(self):
-		s = binaryarrayset.BinaryArraySet()
+		s = BinaryArraySet()
 		for i in range(1, 101):
 			s.add((i - 1)**2)
 			
@@ -91,7 +91,7 @@ class BinaryArraySetTest(unittest.TestCase):
 	def test_against_python_set_randomly(self):
 		ITERATIONS = 10000
 		set0 = set()
-		set1 = binaryarrayset.BinaryArraySet()
+		set1 = BinaryArraySet()
 		length = 0
 		for i in range(ITERATIONS):
 			if i % 300 == 0:

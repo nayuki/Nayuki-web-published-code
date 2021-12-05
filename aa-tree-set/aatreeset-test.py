@@ -22,7 +22,7 @@
 # 
 
 import itertools, random, unittest
-import aatreeset
+from aatreeset import AaTreeSet
 
 
 class AaTreeSetTest(unittest.TestCase):
@@ -34,7 +34,7 @@ class AaTreeSetTest(unittest.TestCase):
 		
 		for _ in range(TRIALS):
 			set0 = set()
-			set1 = aatreeset.AaTreeSet()
+			set1 = AaTreeSet()
 			for _ in range(OPERATIONS):
 				
 				# Add/remove a random value
@@ -64,7 +64,7 @@ class AaTreeSetTest(unittest.TestCase):
 		
 		for _ in range(TRIALS):
 			set0 = set()
-			set1 = aatreeset.AaTreeSet()
+			set1 = AaTreeSet()
 			for _ in range(OPERATIONS):
 				
 				# Add/remove a random value
@@ -96,7 +96,7 @@ class AaTreeSetTest(unittest.TestCase):
 		
 		for _ in range(TRIALS):
 			set0 = set()
-			set1 = aatreeset.AaTreeSet()
+			set1 = AaTreeSet()
 			for _ in range(OPERATIONS):
 				
 				# Add a random value
@@ -115,7 +115,7 @@ class AaTreeSetTest(unittest.TestCase):
 	
 	def test_iterator(self):
 		SIZE = 1000
-		set = aatreeset.AaTreeSet()
+		set = AaTreeSet()
 		for i in range(SIZE):
 			set.add(i**2)
 			lst = list(set)
@@ -127,7 +127,7 @@ class AaTreeSetTest(unittest.TestCase):
 	def test_ascending_operations(self):
 		SIZE = 30000
 		CHECKS = 10
-		set = aatreeset.AaTreeSet()
+		set = AaTreeSet()
 		for i in range(SIZE):
 			self.assertEqual(i, len(set))
 			set.add(i)
@@ -146,7 +146,7 @@ class AaTreeSetTest(unittest.TestCase):
 	def test_descending_operations(self):
 		SIZE = 30000
 		CHECKS = 10
-		set = aatreeset.AaTreeSet()
+		set = AaTreeSet()
 		for i in range(SIZE):
 			self.assertEqual(i, len(set))
 			set.add(-i)
@@ -167,7 +167,7 @@ class AaTreeSetTest(unittest.TestCase):
 		for size in range(1, LIMIT + 1):
 			sortedvalues = list(range(size))
 			for values in itertools.permutations(sortedvalues):  # This runs factorial(size) iterations
-				set = aatreeset.AaTreeSet(values)
+				set = AaTreeSet(values)
 				set.check_structure()
 				self.assertEqual(sortedvalues, list(set))
 	
@@ -181,7 +181,7 @@ class AaTreeSetTest(unittest.TestCase):
 		for _ in range(TRIALS):
 			# Create sets and add all values
 			set0 = set()
-			set1 = aatreeset.AaTreeSet()
+			set1 = AaTreeSet()
 			for _ in range(LIMIT):
 				val = random.randrange(RANGE)
 				set0.add(val)

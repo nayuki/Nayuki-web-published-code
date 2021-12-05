@@ -1,7 +1,7 @@
 # 
 # Disjoint-set data structure - Test suite (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2021 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/disjoint-set-data-structure
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 import random, unittest
-import disjointset
+from disjointset import DisjointSet
 
 
 # ---- Test suite ----
@@ -30,7 +30,7 @@ import disjointset
 class DisjointSetTest(unittest.TestCase):
 	
 	def test_new(self):
-		ds = disjointset.DisjointSet(10)
+		ds = DisjointSet(10)
 		self.assertEqual(ds.get_num_sets(), 10)
 		self.assertEqual(ds.get_size_of_set(0), 1)
 		self.assertEqual(ds.get_size_of_set(2), 1)
@@ -41,7 +41,7 @@ class DisjointSetTest(unittest.TestCase):
 	
 	
 	def test_merge(self):
-		ds = disjointset.DisjointSet(10)
+		ds = DisjointSet(10)
 		self.assertTrue(ds.merge_sets(0, 1))
 		ds.check_structure()
 		self.assertEqual(ds.get_num_sets(), 9)
@@ -70,7 +70,7 @@ class DisjointSetTest(unittest.TestCase):
 		trials = 10000
 		
 		numElems = 1 << maxRank  # Grows exponentially
-		ds = disjointset.DisjointSet(numElems)
+		ds = DisjointSet(numElems)
 		for level in range(maxRank):
 			mergeStep = 1 << level
 			incrStep = mergeStep * 2
@@ -95,7 +95,7 @@ class DisjointSetTest(unittest.TestCase):
 		
 		for _ in range(trials):
 			nds = NaiveDisjointSet(numElems)
-			ds = disjointset.DisjointSet(numElems)
+			ds = DisjointSet(numElems)
 			for _ in range(iterations):
 				i = random.randrange(numElems)
 				j = random.randrange(numElems)
