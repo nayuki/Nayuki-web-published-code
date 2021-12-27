@@ -39,7 +39,7 @@ def main() -> None:
 	print()
 	
 	message_ascii: str = "the quick brown fox"
-	message_bin = cryptocommon.asciistr_to_bytes(message_ascii)
+	message_bin: bytes = message_ascii.encode("UTF-8")
 	hash_bin = sha256hash.hash(message_bin, printdebug=True)
 	hash_hex = hash_bin.hex().upper()
 	print(f'Message (ASCII): "{message_ascii}"')

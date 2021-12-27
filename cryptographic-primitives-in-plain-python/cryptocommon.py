@@ -95,11 +95,6 @@ def iter_blocks(seq: T, blocksize: int) -> Iterator[T]:
 
 # ---- Data conversion functions ----
 
-# For example: asciistr_to_bytes("0Az") -> [48, 65, 122].
-def asciistr_to_bytes(asciistr: str) -> bytes:
-	return bytes(map(ord, asciistr))
-
-
 # For example: bytes_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
 def bytes_to_debugstr(bytelist: Union[bytes,Sequence[int]]) -> str:
 	return "[" + " ".join(f"{b:02X}" for b in bytelist) + "]"
