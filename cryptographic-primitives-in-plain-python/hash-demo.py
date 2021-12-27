@@ -27,7 +27,7 @@ import cryptocommon, md5hash, sha256hash
 
 def main() -> None:
 	message_hex: str = "FF00CA9634"
-	message_bin: bytes = cryptocommon.hexstr_to_bytes(message_hex)
+	message_bin: bytes = bytes.fromhex(message_hex)
 	hash_bin: bytes = md5hash.hash(message_bin, printdebug=True)
 	hash_hex: str = hash_bin.hex().upper()
 	print(f"Message (hex): {message_hex}")

@@ -755,9 +755,9 @@ class CipherTest(unittest.TestCase):
 				ciphertext: bytes = twofishcipher.encrypt(plaintexts[-1], key)
 				plaintexts.append(ciphertext)
 			return plaintexts[-1]
-		self.assertEqual(do_iterated(16), cryptocommon.hexstr_to_bytes("5D9D4EEFFA9151575524F115815A12E0"))
-		self.assertEqual(do_iterated(24), cryptocommon.hexstr_to_bytes("E75449212BEEF9F4A390BD860A640941"))
-		self.assertEqual(do_iterated(32), cryptocommon.hexstr_to_bytes("37FE26FF1CF66175F5DDF4C33B97A205"))
+		self.assertEqual(do_iterated(16), bytes.fromhex("5D9D4EEFFA9151575524F115815A12E0"))
+		self.assertEqual(do_iterated(24), bytes.fromhex("E75449212BEEF9F4A390BD860A640941"))
+		self.assertEqual(do_iterated(32), bytes.fromhex("37FE26FF1CF66175F5DDF4C33B97A205"))
 	
 	
 	# Private utilities
@@ -770,10 +770,10 @@ class CipherTest(unittest.TestCase):
 		global num_test_cases
 		
 		for (plaintext_hex, key_hex, expectciphertext_hex) in cases:
-			key_bin: bytes = cryptocommon.hexstr_to_bytes(key_hex)
-			plaintext_bin: bytes = cryptocommon.hexstr_to_bytes(plaintext_hex)
+			key_bin: bytes = bytes.fromhex(key_hex)
+			plaintext_bin: bytes = bytes.fromhex(plaintext_hex)
 			actualciphertext_bin: bytes = encfunc(plaintext_bin, key_bin)
-			expectciphertext_bin: bytes = cryptocommon.hexstr_to_bytes(expectciphertext_hex)
+			expectciphertext_bin: bytes = bytes.fromhex(expectciphertext_hex)
 			decrypted_bin: bytes = decfunc(actualciphertext_bin, key_bin)
 			
 			self.assertEqual(actualciphertext_bin, expectciphertext_bin)

@@ -29,8 +29,8 @@ def main() -> None:
 	message_hex: str = "3243F6A8885A308D313198A2E0370734"
 	key_hex: str = "2B7E151628AED2A6ABF7158809CF4F3C"
 	
-	plaintext_bin: bytes = cryptocommon.hexstr_to_bytes(message_hex)
-	key_bin: bytes = cryptocommon.hexstr_to_bytes(key_hex)
+	plaintext_bin: bytes = bytes.fromhex(message_hex)
+	key_bin: bytes = bytes.fromhex(key_hex)
 	ciphertext_bin: bytes = aescipher.encrypt(plaintext_bin, key_bin, printdebug=True)
 	ciphertext_hex: str = ciphertext_bin.hex().upper()
 	assert aescipher.decrypt(ciphertext_bin, key_bin) == plaintext_bin

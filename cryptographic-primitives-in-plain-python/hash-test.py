@@ -436,7 +436,7 @@ class HashTest(unittest.TestCase):
 		
 		for (expecthash_hex, message_bin) in cases:
 			actualhash_bin: bytes = func(message_bin)
-			expecthash_bin: bytes = cryptocommon.hexstr_to_bytes(expecthash_hex)
+			expecthash_bin: bytes = bytes.fromhex(expecthash_hex)
 			
 			self.assertEqual(actualhash_bin, expecthash_bin)
 			num_test_cases += 1

@@ -100,11 +100,6 @@ def asciistr_to_bytes(asciistr: str) -> bytes:
 	return bytes(map(ord, asciistr))
 
 
-# For example: hexstr_to_bytes("FF00C0") -> [255, 0, 192].
-def hexstr_to_bytes(hexstr: str) -> bytes:
-	return bytes(int(s, 16) for s in iter_blocks(hexstr, 2))
-
-
 # For example: bytes_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
 def bytes_to_debugstr(bytelist: Union[bytes,Sequence[int]]) -> str:
 	return "[" + " ".join(f"{b:02X}" for b in bytelist) + "]"
