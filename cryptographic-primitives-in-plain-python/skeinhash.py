@@ -144,7 +144,7 @@ def _hash(message: Union[bytes,Sequence[int]], statebits: int, outbits: int, pri
 
 
 def _unique_block_iteration(state: bytes, message: bytes, type: int, printdebug: bool) -> bytes:
-	if printdebug:  print(f"    UBI: type={type}, state={cryptocommon.bytes_to_hexstr(state)}, message={cryptocommon.bytes_to_hexstr(message)}")
+	if printdebug:  print(f"    UBI: type={type}, state={state.hex().upper()}, message={message.hex().upper()}")
 	
 	# Pad message up to nearest full block, including at least one
 	msg = bytearray(message)
@@ -167,7 +167,7 @@ def _threefish_encrypt(plaintext: bytes, key: bytes, tweak: bytes, printdebug: b
 	assert len(plaintext) == len(key)
 	assert len(key) in (32, 64, 128)
 	assert len(tweak) == 16
-	if printdebug:  print(f"        Threefish: plaintext={cryptocommon.bytes_to_hexstr(plaintext)}, key={cryptocommon.bytes_to_hexstr(key)}, tweak={cryptocommon.bytes_to_hexstr(tweak)}")
+	if printdebug:  print(f"        Threefish: plaintext={plaintext.hex().upper()}, key={key.hex().upper()}, tweak={tweak.hex().upper()}")
 	numwords: int = len(key) // 8
 	
 	keywords: List[uint64] = _bytes_to_words(key)

@@ -32,7 +32,7 @@ def main() -> None:
 	plaintext_bin: bytes = cryptocommon.hexstr_to_bytes(message_hex)
 	key_bin: bytes = cryptocommon.hexstr_to_bytes(key_hex)
 	ciphertext_bin: bytes = aescipher.encrypt(plaintext_bin, key_bin, printdebug=True)
-	ciphertext_hex: str = cryptocommon.bytes_to_hexstr(ciphertext_bin)
+	ciphertext_hex: str = ciphertext_bin.hex().upper()
 	assert aescipher.decrypt(ciphertext_bin, key_bin) == plaintext_bin
 	
 	print(f"Plaintext  (hex): {message_hex}")

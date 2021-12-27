@@ -29,7 +29,7 @@ def main() -> None:
 	message_hex: str = "FF00CA9634"
 	message_bin: bytes = cryptocommon.hexstr_to_bytes(message_hex)
 	hash_bin: bytes = md5hash.hash(message_bin, printdebug=True)
-	hash_hex: str = cryptocommon.bytes_to_hexstr(hash_bin)
+	hash_hex: str = hash_bin.hex().upper()
 	print(f"Message (hex): {message_hex}")
 	print(f"Message (bytes): {list(message_bin)}")
 	print(f"MD5 hash (bytes): {list(hash_bin)}")
@@ -41,7 +41,7 @@ def main() -> None:
 	message_ascii: str = "the quick brown fox"
 	message_bin = cryptocommon.asciistr_to_bytes(message_ascii)
 	hash_bin = sha256hash.hash(message_bin, printdebug=True)
-	hash_hex = cryptocommon.bytes_to_hexstr(hash_bin)
+	hash_hex = hash_bin.hex().upper()
 	print(f'Message (ASCII): "{message_ascii}"')
 	print(f"Message (bytes): {list(message_bin)}")
 	print(f"SHA-256 hash (bytes): {list(hash_bin)}")
