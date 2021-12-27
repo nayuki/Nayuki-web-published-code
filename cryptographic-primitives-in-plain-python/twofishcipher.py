@@ -58,9 +58,10 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	# Compute the key schedule and S-box tweaker
 	keyschedule, s = _expand_key_schedule(key)
 	
+	i: int
 	if direction == "encrypt":
 		# Whitening
-		i: int = 0
+		i = 0
 		if printdebug:  print(f"    Round {i:2d}: block = {' '.join(f'{x:08X}' for x in bws)}")
 		bws[0] ^= keyschedule[0]
 		bws[1] ^= keyschedule[1]
@@ -87,7 +88,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	
 	elif direction == "decrypt":
 		# Whitening
-		i: int = 0
+		i = 0
 		if printdebug:  print(f"    Round {i:2d}: block = {' '.join(f'{x:08X}' for x in bws)}")
 		bws[0] ^= keyschedule[4]
 		bws[1] ^= keyschedule[5]
