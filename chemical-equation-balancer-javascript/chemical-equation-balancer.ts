@@ -1,7 +1,7 @@
 /* 
  * Chemical equation balancer
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
@@ -39,12 +39,12 @@ function doBalance(): void {
 			
 			const start: number = e.start;
 			let end: number = "end" in e ? e.end : e.start;
-			while (end > start && [" ", "\t"].indexOf(formulaStr.charAt(end - 1)) != -1)
+			while (end > start && [" ", "\t"].includes(formulaStr.charAt(end - 1)))
 				end--;  // Adjust position to eliminate whitespace
 			if (start == end)
 				end++;
 			
-			codeOutElem.textContent += formulaStr.substring(0, start);
+			codeOutElem.textContent = formulaStr.substring(0, start);
 			if (end <= formulaStr.length) {
 				codeOutElem.appendChild(createElem("u", formulaStr.substring(start, end)));
 				codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
@@ -693,13 +693,9 @@ function extractCoefficients(matrix: Matrix): Array<number> {
 		lcm = checkedMultiply(lcm / gcd(lcm, matrix.get(i, i)), matrix.get(i, i));
 	
 	let coefs: Array<number> = [];
-	let allzero = true;
-	for (let i = 0; i < cols - 1; i++) {
-		const coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
-		coefs.push(coef);
-		allzero = allzero && coef == 0;
-	}
-	if (allzero)
+	for (let i = 0; i < cols - 1; i++)
+		coefs.push(checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1)));
+	if (coefs.every(x => x == 0))
 		throw "Assertion error: All-zero solution";
 	return coefs;
 }
@@ -710,13 +706,12 @@ function checkAnswer(eqn: Equation, coefs: Array<number>): void {
 	if (coefs.length != eqn.leftSide.length + eqn.rightSide.length)
 		throw "Assertion error: Mismatched length";
 	
-	let allzero = true;
-	for (const coef of coefs) {
-		if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
+	function isZero(x: number): boolean {
+		if (typeof x != "number" || isNaN(x) || Math.floor(x) != x)
 			throw "Assertion error: Not an integer";
-		allzero = allzero && coef == 0;
+		return x == 0;
 	}
-	if (allzero)
+	if (coefs.every(isZero))
 		throw "Assertion error: All-zero solution";
 	
 	for (const elem of eqn.getElements()) {
@@ -814,5 +809,10 @@ if (!("from" in Array)) {
 		let result: Array<E> = [];
 		set.forEach(obj => result.push(obj));
 		return result;
+	};
+}
+if (!("includes" in Array.prototype)) {
+	(Array.prototype as any).includes = function(val: object): boolean {
+		return this.indexOf(val) != -1;
 	};
 }

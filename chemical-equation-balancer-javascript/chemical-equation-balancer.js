@@ -1,7 +1,7 @@
 /*
  * Chemical equation balancer (compiled from TypeScript)
  *
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
@@ -34,11 +34,11 @@ function doBalance() {
             msgElem.textContent = "Syntax error: " + e.message;
             var start = e.start;
             var end = "end" in e ? e.end : e.start;
-            while (end > start && [" ", "\t"].indexOf(formulaStr.charAt(end - 1)) != -1)
+            while (end > start && [" ", "\t"].includes(formulaStr.charAt(end - 1)))
                 end--; // Adjust position to eliminate whitespace
             if (start == end)
                 end++;
-            codeOutElem.textContent += formulaStr.substring(0, start);
+            codeOutElem.textContent = formulaStr.substring(0, start);
             if (end <= formulaStr.length) {
                 codeOutElem.appendChild(createElem("u", formulaStr.substring(start, end)));
                 codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
@@ -624,13 +624,9 @@ function extractCoefficients(matrix) {
     for (var i = 0; i < cols - 1; i++)
         lcm = checkedMultiply(lcm / gcd(lcm, matrix.get(i, i)), matrix.get(i, i));
     var coefs = [];
-    var allzero = true;
-    for (var i = 0; i < cols - 1; i++) {
-        var coef = checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1));
-        coefs.push(coef);
-        allzero = allzero && coef == 0;
-    }
-    if (allzero)
+    for (var i = 0; i < cols - 1; i++)
+        coefs.push(checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1)));
+    if (coefs.every(function (x) { return x == 0; }))
         throw "Assertion error: All-zero solution";
     return coefs;
 }
@@ -638,26 +634,24 @@ function extractCoefficients(matrix) {
 function checkAnswer(eqn, coefs) {
     if (coefs.length != eqn.leftSide.length + eqn.rightSide.length)
         throw "Assertion error: Mismatched length";
-    var allzero = true;
-    for (var _i = 0, coefs_1 = coefs; _i < coefs_1.length; _i++) {
-        var coef = coefs_1[_i];
-        if (typeof coef != "number" || isNaN(coef) || Math.floor(coef) != coef)
+    function isZero(x) {
+        if (typeof x != "number" || isNaN(x) || Math.floor(x) != x)
             throw "Assertion error: Not an integer";
-        allzero = allzero && coef == 0;
+        return x == 0;
     }
-    if (allzero)
+    if (coefs.every(isZero))
         throw "Assertion error: All-zero solution";
-    for (var _a = 0, _b = eqn.getElements(); _a < _b.length; _a++) {
-        var elem = _b[_a];
+    for (var _i = 0, _a = eqn.getElements(); _i < _a.length; _i++) {
+        var elem = _a[_i];
         var sum = 0;
         var j = 0;
-        for (var _c = 0, _d = eqn.leftSide; _c < _d.length; _c++) {
-            var term = _d[_c];
+        for (var _b = 0, _c = eqn.leftSide; _b < _c.length; _b++) {
+            var term = _c[_b];
             sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), coefs[j]));
             j++;
         }
-        for (var _e = 0, _f = eqn.rightSide; _e < _f.length; _e++) {
-            var term = _f[_e];
+        for (var _d = 0, _e = eqn.rightSide; _d < _e.length; _d++) {
+            var term = _e[_d];
             sum = checkedAdd(sum, checkedMultiply(term.countElement(elem), -coefs[j]));
             j++;
         }
@@ -725,5 +719,10 @@ if (!("from" in Array)) {
         var result = [];
         set.forEach(function (obj) { return result.push(obj); });
         return result;
+    };
+}
+if (!("includes" in Array.prototype)) {
+    Array.prototype.includes = function (val) {
+        return this.indexOf(val) != -1;
     };
 }
