@@ -30,9 +30,9 @@
  * Takes image pixel data in raw RGB8.8.8 format and writes a PNG file to a byte output stream.
  */
 class TinyPngOut final {
-    
-    /*---- Fields ----*/
-    
+	
+	/*---- Fields ----*/
+	
 	// Immutable configuration
 	private: std::uint32_t width;   // Measured in pixels
 	private: std::uint32_t height;  // Measured in pixels

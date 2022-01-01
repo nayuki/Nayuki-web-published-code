@@ -1,7 +1,7 @@
 /*
  * Panel de Pon puzzle solver (compiled from TypeScript)
  *
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */

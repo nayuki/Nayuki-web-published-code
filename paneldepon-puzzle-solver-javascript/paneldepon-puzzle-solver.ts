@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -365,7 +365,7 @@ namespace app {
 		}
 		
 		
-		public solve(numMoves: number): [Array<Move>|null, number] {
+		public solve(numMoves: number): [Array<Move>|null,number] {
 			interface Info {
 				depth: number;
 				prevBoard: Board|null;
