@@ -1,7 +1,7 @@
 /* 
  * Convex hull algorithm - Library (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -31,7 +31,7 @@ namespace convexhull {
 	// Returns a new array of points representing the convex hull of
 	// the given set of points. The convex hull excludes collinear points.
 	// This algorithm runs in O(n log n) time.
-	export function makeHull<P extends Point>(points: Array<P>): Array<P> {
+	export function makeHull<P extends Point>(points: Readonly<Array<P>>): Array<P> {
 		let newPoints: Array<P> = points.slice();
 		newPoints.sort(convexhull.POINT_COMPARATOR);
 		return convexhull.makeHullPresorted(newPoints);
@@ -39,7 +39,7 @@ namespace convexhull {
 	
 	
 	// Returns the convex hull, assuming that each points[i] <= points[i + 1]. Runs in O(n) time.
-	export function makeHullPresorted<P extends Point>(points: Array<P>): Array<P> {
+	export function makeHullPresorted<P extends Point>(points: Readonly<Array<P>>): Array<P> {
 		if (points.length <= 1)
 			return points.slice();
 		

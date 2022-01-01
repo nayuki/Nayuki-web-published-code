@@ -1,7 +1,7 @@
 /*
  * Convex hull algorithm - Library (compiled from TypeScript)
  *
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2021 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  *
  * This program is free software: you can redistribute it and/or modify

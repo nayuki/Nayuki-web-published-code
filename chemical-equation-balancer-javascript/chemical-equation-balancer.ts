@@ -322,7 +322,7 @@ class Equation {
 	public leftSide : Array<Term>;
 	public rightSide: Array<Term>;
 	
-	public constructor(lhs: Array<Term>, rhs: Array<Term>) {
+	public constructor(lhs: Readonly<Array<Term>>, rhs: Readonly<Array<Term>>) {
 		// Make defensive copies
 		this.leftSide  = lhs.slice();
 		this.rightSide = rhs.slice();
@@ -339,14 +339,14 @@ class Equation {
 	
 	// Returns an HTML element representing this equation.
 	// 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
-	public toHtml(coefs?: Array<number>): DocumentFragment {
+	public toHtml(coefs?: Readonly<Array<number>>): DocumentFragment {
 		if (coefs !== undefined && coefs.length != this.leftSide.length + this.rightSide.length)
 			throw "Mismatched number of coefficients";
 		
 		let node = document.createDocumentFragment();
 		
 		let j = 0;
-		function termsToHtml(terms: Array<Term>): void {
+		function termsToHtml(terms: Readonly<Array<Term>>): void {
 			let head = true;
 			for (const term of terms) {
 				const coef = coefs !== undefined ? coefs[j] : 1;
@@ -382,7 +382,7 @@ class Term {
 	private items: Array<ChemElem|Group>;
 	private charge: number;
 	
-	public constructor(items: Array<ChemElem|Group>, charge: number) {
+	public constructor(items: Readonly<Array<ChemElem|Group>>, charge: number) {
 		if (items.length == 0 && charge != -1)
 			throw "Invalid term";  // Electron case
 		this.items = items.slice();
@@ -436,7 +436,7 @@ class Group {
 	private items: Array<ChemElem|Group>;
 	private count: number;
 	
-	public constructor(items: Array<ChemElem|Group>, count: number) {
+	public constructor(items: Readonly<Array<ChemElem|Group>>, count: number) {
 		if (count < 1)
 			throw "Assertion error: Count must be a positive integer";
 		this.items = items.slice();
@@ -547,7 +547,7 @@ class Matrix {
 	
 	// Returns a new row that is the sum of the two given rows. The rows are not indices.
 	// For example, addRow([3, 1, 4], [1, 5, 6]) = [4, 6, 10].
-	private static addRows(x: Array<number>, y: Array<number>): Array<number> {
+	private static addRows(x: Readonly<Array<number>>, y: Readonly<Array<number>>): Array<number> {
 		let z: Array<number> = [];
 		for (let i = 0; i < x.length; i++)
 			z.push(checkedAdd(x[i], y[i]));
@@ -556,14 +556,14 @@ class Matrix {
 	
 	// Returns a new row that is the product of the given row with the given scalar. The row is is not an index.
 	// For example, multiplyRow([0, 1, 3], 4) = [0, 4, 12].
-	private static multiplyRow(x: Array<number>, c: number): Array<number> {
+	private static multiplyRow(x: Readonly<Array<number>>, c: number): Array<number> {
 		return x.map(val =>
 			checkedMultiply(val, c));
 	}
 	
 	// Returns the GCD of all the numbers in the given row. The row is is not an index.
 	// For example, gcdRow([3, 6, 9, 12]) = 3.
-	private static gcdRow(x: Array<number>): number {
+	private static gcdRow(x: Readonly<Array<number>>): number {
 		let result = 0;
 		for (const val of x)
 			result = gcd(val, result);
@@ -572,7 +572,7 @@ class Matrix {
 	
 	// Returns a new row where the leading non-zero number (if any) is positive, and the GCD of the row is 0 or 1.
 	// For example, simplifyRow([0, -2, 2, 4]) = [0, 1, -1, -2].
-	private static simplifyRow(x: Array<number>): Array<number> {
+	private static simplifyRow(x: Readonly<Array<number>>): Array<number> {
 		let sign = 0;
 		for (const val of x) {
 			if (val != 0) {
@@ -702,7 +702,7 @@ function extractCoefficients(matrix: Matrix): Array<number> {
 
 
 // Throws an exception if there's a problem, otherwise returns silently.
-function checkAnswer(eqn: Equation, coefs: Array<number>): void {
+function checkAnswer(eqn: Equation, coefs: Readonly<Array<number>>): void {
 	if (coefs.length != eqn.leftSide.length + eqn.rightSide.length)
 		throw "Assertion error: Mismatched length";
 	
