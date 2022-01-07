@@ -1,7 +1,7 @@
 /* 
  * 1D barcode generator
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/1d-barcode-generator-javascript
  */
@@ -39,17 +39,17 @@ namespace app {
 			// Get canvas and graphics
 			const canvas = document.querySelector("article form canvas");
 			if (!(canvas instanceof HTMLCanvasElement))
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			const graphics = canvas.getContext("2d");
 			if (!(graphics instanceof CanvasRenderingContext2D))
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			graphics.clearRect(0, 0, canvas.width, canvas.height);
 			
 			// Select barcode generator function based on radio buttons
 			let radioElem = document.querySelector("#barcode-type-container input:checked") as HTMLInputElement;
 			const func = (barcodegen as any)[radioElem.id] as (((s: string) => barcodegen.Barcode) | undefined);
 			if (func === undefined)
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			
 			// Try to generate barcode
 			let barcode: Array<number> = func(getInput("text").value).bars;  // 0s and 1s
@@ -79,7 +79,7 @@ namespace app {
 			getElem("feedback").textContent = "OK";
 			
 		} catch (e) {
-			getElem("feedback").textContent = "Error: " + e;
+			getElem("feedback").textContent = "Error: " + e.message;
 		}
 	}
 	
@@ -90,7 +90,7 @@ namespace app {
 		const result: HTMLElement|null = document.getElementById(id);
 		if (result instanceof HTMLElement)
 			return result;
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	}
 	
 	
@@ -98,7 +98,7 @@ namespace app {
 		const result: HTMLElement = getElem(id);
 		if (result instanceof HTMLInputElement)
 			return result;
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	}
 	
 }
@@ -121,7 +121,7 @@ namespace barcodegen {
 			else if (c < 128)
 				encoded.push(c - 32);
 			else
-				throw "Text must only contain ASCII characters";
+				throw new RangeError("Text must only contain ASCII characters");
 		}
 		
 		// Append checksum number
@@ -158,7 +158,7 @@ namespace barcodegen {
 		for (let i = 0; i < s.length; i++) {
 			const c: number = s.charCodeAt(i);
 			if (c >= 128)
-				throw "Text must only contain ASCII characters";
+				throw new RangeError("Text must only contain ASCII characters");
 			else if (c == 32 || c == 45 || c == 46 || 48 <= c && c <= 57 || 65 <= c && c <= 90)
 				t += String.fromCharCode(c);
 			else if (c ==   0) t += "bU";
@@ -172,7 +172,7 @@ namespace barcodegen {
 			else if (c <=  95) t += "b" + String.fromCharCode(c -  81 + 65);
 			else if (c <= 122) t += "d" + String.fromCharCode(c -  97 + 65);
 			else if (c <= 126) t += "b" + String.fromCharCode(c - 108 + 65);
-			else throw "Assertion error";
+			else throw new Error("Assertion error");
 		}
 		s = t;  // s is reduced into the 47-symbol 'alphabet' defined below
 		
@@ -207,7 +207,7 @@ namespace barcodegen {
 	
 	export function code39(s: string): Barcode {  // Code 39
 		if (!/^[0-9A-Z. +\/$%-]*$/.test(s))
-			throw "Text must only contain allowed characters";
+			throw new RangeError("Text must only contain allowed characters");
 		
 		// Parameters. The spec recommends that 2.0 <= WIDE/NARROW <= 3.0
 		const NARROW = 2, WIDE = 5;
@@ -232,7 +232,7 @@ namespace barcodegen {
 	
 	export function interleaved2Of5(s: string): Barcode {  // Interleaved 2 of 5
 		if (!/^(\d\d)*$/.test(s))
-			throw "Text must be all digits and even length";
+			throw new RangeError("Text must be all digits and even length");
 		
 		// Parameters. The spec recommends that 2.0 <= WIDE/NARROW <= 3.0
 		const NARROW = 2, WIDE = 5;
@@ -260,7 +260,7 @@ namespace barcodegen {
 	
 	export function codabar(s: string): Barcode {  // Codabar
 		if (!/^[0-9$$\/:.+-]*$/.test(s))
-			throw "Text must only contain allowed characters";
+			throw new RangeError("Text must only contain allowed characters");
 		
 		// Parameters. The spec recommends that 2.25 <= WIDE/NARROW <= 3.0
 		const NARROW = 2, WIDE = 5;
@@ -283,7 +283,7 @@ namespace barcodegen {
 	
 	export function upcARaw(s: string): Barcode {  // UPC-A, raw
 		if (!/^\d{12}$/.test(s))
-			throw "Text must be 12 digits long";
+			throw new RangeError("Text must be 12 digits long");
 		
 		const TABLE: Array<string> = [
 			"1110010", "1100110", "1101100", "1000010", "1011100",
@@ -308,7 +308,7 @@ namespace barcodegen {
 	
 	export function ean13Raw(s: string): Barcode {  // EAN-13, raw
 		if (!/^\d{13}$/.test(s))
-			throw "Text must be 13 digits long";
+			throw new RangeError("Text must be 13 digits long");
 		
 		const TABLE0: Array<string> = [  // How to encode leading digit into next 6 digits
 			"LLLLLL", "LLGLGG", "LLGGLG", "LLGGGL", "LGLLGG",
@@ -347,7 +347,7 @@ namespace barcodegen {
 	
 	export function ean8Raw(s: string): Barcode {  // EAN-8, raw
 		if (!/^\d{8}$/.test(s))
-			throw "Text must be 8 digits long";
+			throw new RangeError("Text must be 8 digits long");
 		
 		const TABLE: Array<string> = [
 			"11001", "10011", "10110", "00001", "01110",
@@ -376,7 +376,7 @@ namespace barcodegen {
 	// e.g. addCheckDigit(7, "3216548") -> "32165487".
 	function addCheckDigit(len: number, s: string): string {
 		if (!/^\d*$/.test(s) || s.length != len)
-			throw "Text must be " + len + " digits long";
+			throw new RangeError("Text must be " + len + " digits long");
 		let sum: number = 0;
 		let weight = len % 2 == 0 ? 1 : 3;  // Ensure last digit has weight 3
 		for (const c of s) {

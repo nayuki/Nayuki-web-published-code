@@ -1,7 +1,7 @@
 /* 
  * Creating a QR Code step by step
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
@@ -52,7 +52,7 @@ namespace app {
 			else if (ecl == ErrorCorrectionLevel.MEDIUM  )  getInput("errcorlvl-medium"  ).checked = true;
 			else if (ecl == ErrorCorrectionLevel.QUARTILE)  getInput("errcorlvl-quartile").checked = true;
 			else if (ecl == ErrorCorrectionLevel.HIGH    )  getInput("errcorlvl-high"    ).checked = true;
-			else  throw "Assertion error";
+			else  throw new Error("Assertion error");
 			doGenerate();
 		}
 		selectElem.onchange = selectChanged;
@@ -126,10 +126,10 @@ namespace app {
 		for (const id of MASK_DEPENDENT_ELEMS) {
 			let elem = document.getElementById(id);
 			if (!(elem instanceof Element))
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			let parent = elem.parentNode;
 			if (!(parent instanceof HTMLElement))
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			for (let i = 0; i < 8; i++) {
 				let node = elem.cloneNode(true) as Element;
 				node.setAttribute("id", `${id}-${i}`);
@@ -167,7 +167,7 @@ namespace app {
 		else if (getInput("errcorlvl-medium"  ).checked)  errCorrLvl = ErrorCorrectionLevel.MEDIUM  ;
 		else if (getInput("errcorlvl-quartile").checked)  errCorrLvl = ErrorCorrectionLevel.QUARTILE;
 		else if (getInput("errcorlvl-high"    ).checked)  errCorrLvl = ErrorCorrectionLevel.HIGH    ;
-		else  throw "Assertion error";
+		else  throw new Error("Assertion error");
 		
 		const text: Array<CodePoint> = CodePoint.toArray(textStr);
 		const mode: SegmentMode = doStep0(text);
@@ -294,7 +294,7 @@ namespace app {
 				bits      = temp.map(c => c.toString( 2).toUpperCase().padStart(8, "0")).join("" );
 				numChars += temp.length - 1;
 			} else
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			for (const c of bits)
 				bitData.push(parseInt(c, 2));
 			
@@ -699,7 +699,7 @@ namespace app {
 		const result = document.getElementById(id);
 		if (result instanceof HTMLElement)
 			return result;
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	}
 	
 	
@@ -707,7 +707,7 @@ namespace app {
 		const result = getElem(id);
 		if (result instanceof HTMLInputElement)
 			return result;
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	}
 	
 	
@@ -715,7 +715,7 @@ namespace app {
 		const result = document.querySelector(q);
 		if (result instanceof HTMLElement)
 			return result;
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	}
 	
 	
@@ -750,7 +750,7 @@ namespace app {
 	
 	function intToBits(val: int, len: int): Array<bit> {
 		if (len < 0 || len > 31 || val >>> len != 0)
-			throw "Value out of range";
+			throw new RangeError("Value out of range");
 		let result: Array<bit> = [];
 		for (let i = len - 1; i >= 0; i--)
 			result.push((val >>> i) & 1);
@@ -774,12 +774,12 @@ namespace app {
 				const c: int = s.charCodeAt(i);
 				if (0xD800 <= c && c < 0xDC00) {
 					if (i + 1 >= s.length)
-						throw "Invalid UTF-16 string";
+						throw new RangeError("Invalid UTF-16 string");
 					i++;
 					const d: int = s.charCodeAt(i);
 					result.push(new CodePoint(((c & 0x3FF) << 10 | (d & 0x3FF)) + 0x10000));
 				} else if (0xDC00 <= c && c < 0xE000)
-					throw "Invalid UTF-16 string";
+					throw new RangeError("Invalid UTF-16 string");
 				else
 					result.push(new CodePoint(c));
 			}
@@ -802,7 +802,7 @@ namespace app {
 			}
 			
 			if (utf32 < 0)
-				throw "Invalid code point";
+				throw new RangeError("Invalid code point");
 			else if (utf32 < 0x80)
 				this.utf8 = [utf32];
 			else {
@@ -810,7 +810,7 @@ namespace app {
 				if      (utf32 <    0x800)  n = 2;
 				else if (utf32 <  0x10000)  n = 3;
 				else if (utf32 < 0x110000)  n = 4;
-				else  throw "Invalid code point";
+				else  throw new RangeError("Invalid code point");
 				this.utf8 = [];
 				for (let i = 0; i < n; i++, utf32 >>>= 6)
 					this.utf8.push(0x80 | (utf32 & 0x3F));

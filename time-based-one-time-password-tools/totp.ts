@@ -1,7 +1,7 @@
 /* 
  * Time-based One-Time Password tools (TypeScript)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,14 +34,14 @@ function main(): void {
 		const result = document.getElementById(id);
 		if (result instanceof HTMLElement)
 			return result;
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	}
 	
 	function getInput(id: string): HTMLInputElement {
 		const result = getElement(id);
 		if (result instanceof HTMLInputElement)
 			return result;
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	}
 	
 	if (getInput("current-time").checked)
@@ -56,7 +56,7 @@ function main(): void {
 			parseInt(getInput("timestamp"  ).value, 10),
 			parseInt(getInput("code-length").value, 10));
 	} catch (e) {
-		outputElem.textContent = e.toString();
+		outputElem.textContent = e.message;
 	}
 }
 
@@ -104,7 +104,7 @@ function calcHotp(
 	
 	// Check argument, calculate HMAC
 	if (!(1 <= codeLen && codeLen <= 9))
-		throw "Invalid number of digits";
+		throw new RangeError("Invalid number of digits");
 	const hash: Array<byte> = calcHmac(secretKey, counter, hashFunc, blockSize);
 	
 	// Dynamically truncate the hash value
@@ -136,7 +136,7 @@ function calcHmac(
 		): Array<byte> {
 	
 	if (blockSize < 1)
-		throw "Invalid block size";
+		throw new RangeError("Invalid block size");
 	if (key.length > blockSize)
 		key = hashFunc(key);
 	let newKey: Array<byte> = key.slice();
@@ -188,7 +188,7 @@ function calcSha1Hash(message: Readonly<Array<byte>>): Array<byte> {
 				case 1:  f = b ^ c ^ d;                    rc = 0x6ED9EBA1;  break;
 				case 2:  f = (b & c) ^ (b & d) ^ (c & d);  rc = 0x8F1BBCDC;  break;
 				case 3:  f = b ^ c ^ d;                    rc = 0xCA62C1D6;  break;
-				default:  throw "Assertion error";
+				default:  throw new Error("Assertion error");
 			}
 			const temp = (((a << 5) | (a >>> 27)) + f + e + sch + rc) >>> 0;
 			e = d;
@@ -223,7 +223,7 @@ function decodeBase32(str: string): Array<byte> {
 			continue;
 		const i: int = ALPHABET.indexOf(c.toUpperCase());
 		if (i == -1)
-			throw "Invalid Base32 string";
+			throw new RangeError("Invalid Base32 string");
 		bits = (bits << 5) | i;
 		bitsLen += 5;
 		if (bitsLen >= 8) {
@@ -245,7 +245,7 @@ function selfCheck(): boolean {
 		testTotp();
 		return true;
 	} catch (e) {
-		alert("Self-check failed: " + e);
+		alert("Self-check failed: " + e.message);
 		return false;
 	}
 }
@@ -273,7 +273,7 @@ function testHotp(): void {
 		counterBytes.reverse();
 		const actual: string = calcHotp(SECRET_KEY, counterBytes, 9);
 		if (actual != expect)
-			throw "Value mismatch";
+			throw new Error("Value mismatch");
 	}
 }
 
@@ -292,6 +292,6 @@ function testTotp(): void {
 	for (const [timestamp, expect] of CASES) {
 		const actual: string = calcTotp(SECRET_KEY, 0, 30, timestamp, 8);
 		if (actual != expect)
-			throw "Value mismatch";
+			throw new Error("Value mismatch");
 	}
 }

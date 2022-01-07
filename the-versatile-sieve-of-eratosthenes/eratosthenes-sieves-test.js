@@ -1,6 +1,6 @@
 /*
  * Test of variants of the sieve of Eratosthenes (compiled from TypeScript)
- * by Project Nayuki, 2021. Public domain.
+ * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 "use strict";
@@ -37,13 +37,13 @@ var TEST_SUITE_FUNCS = [
 /*---- Helper definitions ----*/
 function assertEquals(expect, actual) {
     if (actual !== expect)
-        throw "Assertion error";
+        throw new Error("Assertion error");
 }
 function assertArrayEquals(expected, actual) {
     if (!(expected instanceof Array) || !(actual instanceof Array))
-        throw "Illegal argument";
+        throw new TypeError("Illegal argument");
     if (expected.length != actual.length)
-        throw "Array length mismatch";
+        throw new Error("Array length mismatch");
     for (var i = 0; i < expected.length; i++)
         assertEquals(expected[i], actual[i]);
 }
@@ -61,7 +61,7 @@ function assertArrayEquals(expected, actual) {
                 msg += "Pass";
             }
             catch (e) {
-                msg += "Fail - " + e;
+                msg += "Fail - " + e.message;
             }
             i++;
             setTimeout(iterate);

@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (TypeScript)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,7 +38,7 @@ class AvlTreeList<E> {
 		if (arguments.length == 1 && arr !== undefined)
 			arr.forEach((val: E) => this.push(val));
 		else if (arguments.length != 0)
-			throw "Illegal argument";
+			throw new RangeError("Illegal argument");
 	}
 	
 	
@@ -55,7 +55,7 @@ class AvlTreeList<E> {
 	// For example: [a,b,c] -> get(2) returns c.
 	public get(index: number): E {
 		if (index < 0 || index >= this.length)
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		return (this.root as AvlTreeListInternalNode<E>).getNodeAt(index).value;
 	}
 	
@@ -64,7 +64,7 @@ class AvlTreeList<E> {
 	// For example: [a,b,c] -> set(1, f) -> [a,f,c].
 	public set(index: number, val: E): void {
 		if (index < 0 || index >= this.length)
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		(this.root as AvlTreeListInternalNode<E>).getNodeAt(index).value = val;
 	}
 	
@@ -80,7 +80,7 @@ class AvlTreeList<E> {
 	// For example: [a,b,c] -> insert(0, e) -> [e,a,b,c] -> insert(4, d) -> [e,a,b,c,d].
 	public insert(index: number, val: E): void {
 		if (index < 0 || index > this.length)  // Different constraint than the other methods
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		this.root = this.root.insertAt(index, val);
 	}
 	
@@ -89,7 +89,7 @@ class AvlTreeList<E> {
 	// For example: [a,b,c,d] -> remove(1) -> [a,c,d].
 	public remove(index: number): void {
 		if (index < 0 || index >= this.length)
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		this.root = (this.root as AvlTreeListInternalNode<E>).removeAt(index);
 	}
 	
@@ -98,7 +98,7 @@ class AvlTreeList<E> {
 	// For example: [a,b,c] -> shift() returns a -> [b,c].
 	public shift(): E {
 		if (this.length == 0)
-			throw "List is empty";
+			throw new Error("List is empty");
 		const result: E = this.get(0);
 		this.remove(0);
 		return result;
@@ -110,7 +110,7 @@ class AvlTreeList<E> {
 	public pop(): E {
 		const len: number = this.length;
 		if (len == 0)
-			throw "List is empty";
+			throw new Error("List is empty");
 		const result = this.get(len - 1);
 		this.remove(len - 1);
 		return result;
@@ -248,7 +248,7 @@ class AvlTreeListEmptyNode<E> implements AvlTreeListNode<E> {
 		if (index == 0)
 			return new AvlTreeListInternalNode<E>(obj, this);
 		else
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 	}
 	
 	
@@ -285,21 +285,21 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	
 	private get leftNode(): AvlTreeListInternalNode<E> {
 		if (this.left.size == 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		return this.left as AvlTreeListInternalNode<E>;
 	}
 	
 	
 	private get rightNode(): AvlTreeListInternalNode<E> {
 		if (this.right.size == 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		return this.right as AvlTreeListInternalNode<E>;
 	}
 	
 	
 	public getNodeAt(index: number): AvlTreeListInternalNode<E> {
 		if (index < 0 || index >= this.size)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		const leftSize: number = this.left.size;
 		if (index < leftSize)
 			return this.leftNode.getNodeAt(index);
@@ -312,7 +312,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	
 	public insertAt(index: number, obj: E): AvlTreeListInternalNode<E> {
 		if (index < 0 || index > this.size)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		const leftSize: number = this.left.size;
 		if (index <= leftSize)
 			this.left = this.left.insertAt(index, obj);
@@ -325,7 +325,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	
 	public removeAt(index: number): AvlTreeListNode<E> {
 		if (index < 0 || index >= this.size)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		const leftSize: number = this.left.size;
 		if (index < leftSize)
 			this.left = this.leftNode.removeAt(index);
@@ -354,25 +354,25 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	private balance(): AvlTreeListInternalNode<E> {
 		const bal: number = this.getBalance();
 		if (Math.abs(bal) > 2)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		let result: AvlTreeListInternalNode<E> = this;
 		if (bal == -2) {
 			let left = this.leftNode;
 			if (Math.abs(left.getBalance()) > 1)
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			if (left.getBalance() == +1)
 				this.left = left.rotateLeft();
 			result = this.rotateRight();
 		} else if (bal == +2) {
 			let right = this.rightNode;
 			if (Math.abs(right.getBalance()) > 1)
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			if (right.getBalance() == -1)
 				this.right = right.rotateRight();
 			result = this.rotateLeft();
 		}
 		if (Math.abs(result.getBalance()) > 1)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		return result;
 	}
 	
@@ -386,7 +386,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	 */
 	private rotateLeft(): AvlTreeListInternalNode<E> {
 		if (this.right.size == 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		let root = this.rightNode;
 		this.right = root.left;
 		root.left = this;
@@ -405,7 +405,7 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	 */
 	private rotateRight(): AvlTreeListInternalNode<E> {
 		if (this.left.size == 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		let root = this.leftNode;
 		this.left = root.right;
 		root.right = this;
@@ -419,15 +419,15 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 	// Assumes the left and right subtrees have the correct values computed already.
 	private recalculate(): void {
 		if (this.size == 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		if (this.left.height < 0 || this.right.height < 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		if (this.left.size < 0 || this.right.size < 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		this.height = Math.max(this.left.height, this.right.height) + 1;
 		this.size = this.left.size + this.right.size + 1;
 		if (this.height < 0 || this.size < 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 	}
 	
 	
@@ -441,11 +441,11 @@ class AvlTreeListInternalNode<E> implements AvlTreeListNode<E> {
 		this.left .checkStructure();
 		this.right.checkStructure();
 		if (this.height != Math.max(this.left.height, this.right.height) + 1)
-			throw "AVL tree structure violated: Incorrect cached height";
+			throw new Error("AVL tree structure violated: Incorrect cached height");
 		if (this.size != this.left.size + this.right.size + 1)
-			throw "AVL tree structure violated: Incorrect cached size";
+			throw new Error("AVL tree structure violated: Incorrect cached size");
 		if (Math.abs(this.getBalance()) > 1)
-			throw "AVL tree structure violated: Height imbalance";
+			throw new Error("AVL tree structure violated: Height imbalance");
 	}
 	
 }
@@ -478,7 +478,7 @@ class AvlTreeListIterator<E> {
 	
 	public next(): E {
 		if (!this.hasNext())
-			throw "No next element";
+			throw new Error("No next element");
 		
 		let node = this.stack.pop() as AvlTreeListInternalNode<E>;  // Never undefined
 		const result: E = node.value;

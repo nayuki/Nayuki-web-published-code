@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (TypeScript)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -168,7 +168,7 @@ class NaiveDisjointSet {
 
 function assertTrue(cond: boolean): void {
 	if (cond !== true)
-		throw "Assertion error";
+		throw new Error("Assertion error");
 }
 
 
@@ -197,7 +197,7 @@ function assertEquals(expect: number, actual: number): void {
 				TEST_SUITE_FUNCS[i]();
 				msg += "Pass";
 			} catch (e) {
-				msg += "Fail - " + e;
+				msg += "Fail - " + e.message;
 			}
 			i++;
 			setTimeout(iterate);

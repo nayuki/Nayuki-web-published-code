@@ -1,7 +1,7 @@
 /*
  * Binary indexed tree (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,7 +27,7 @@ var BinaryIndexedTree = /** @class */ (function () {
         var _this = this;
         if (typeof arg == "number") {
             if (arg < 0 || Math.floor(arg) != arg)
-                throw "Illegal argument";
+                throw new RangeError("Illegal argument");
             this.sumTree = [];
             for (var i = 0; i < arg; i++)
                 this.sumTree.push(0);
@@ -42,7 +42,7 @@ var BinaryIndexedTree = /** @class */ (function () {
             });
         }
         else
-            throw "Illegal argument";
+            throw new RangeError("Illegal argument");
     }
     Object.defineProperty(BinaryIndexedTree.prototype, "length", {
         /*---- Methods ----*/
@@ -54,7 +54,7 @@ var BinaryIndexedTree = /** @class */ (function () {
     });
     BinaryIndexedTree.prototype.get = function (index) {
         if (!(0 <= index && index < this.length))
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         var result = this.sumTree[index];
         // For each consecutive 1 in the lowest order bits of index
         for (var i = 1; (index & i) != 0; i <<= 1)
@@ -63,12 +63,12 @@ var BinaryIndexedTree = /** @class */ (function () {
     };
     BinaryIndexedTree.prototype.set = function (index, val) {
         if (!(0 <= index && index < this.length))
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         this.add(index, val - this.get(index));
     };
     BinaryIndexedTree.prototype.add = function (index, delta) {
         if (!(0 <= index && index < this.length))
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         do {
             this.sumTree[index] += delta;
             index |= index + 1; // Set lowest 0 bit; strictly increasing
@@ -79,7 +79,7 @@ var BinaryIndexedTree = /** @class */ (function () {
     };
     BinaryIndexedTree.prototype.getPrefixSum = function (end) {
         if (!(0 <= end && end <= this.length))
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         var result = 0;
         while (end > 0) {
             result += this.sumTree[end - 1];
@@ -89,7 +89,7 @@ var BinaryIndexedTree = /** @class */ (function () {
     };
     BinaryIndexedTree.prototype.getRangeSum = function (start, end) {
         if (!(0 <= start && start <= end && end <= this.length))
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         return this.getPrefixSum(end) - this.getPrefixSum(start);
     };
     return BinaryIndexedTree;

@@ -1,7 +1,7 @@
 /* 
  * Factorize Gaussian integer
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
@@ -54,7 +54,7 @@ namespace app {
 				appendTextNode(outElem, ")");
 			});
 		} catch (e) {
-			outElem.appendChild(document.createTextNode(e.toString()));
+			outElem.appendChild(document.createTextNode(e.message));
 		}
 	}
 	
@@ -109,7 +109,7 @@ namespace app {
 		
 		private divide(other: GaussianInteger): GaussianInteger {
 			if (!this.isDivisibleBy(other.real, other.imag))
-				throw "Cannot divide";
+				throw new RangeError("Cannot divide");
 			return new GaussianInteger(
 				( this.real * other.real + this.imag * other.imag) / other.norm(),
 				(-this.real * other.imag + this.imag * other.real) / other.norm());
@@ -131,7 +131,7 @@ namespace app {
 			}
 			check = check.multiply(temp);
 			if (temp.norm() != 1 || check.real != this.real || check.imag != this.imag)
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			if (temp.real != 1)  // -1, i, -i
 				result.push(temp);
 			
@@ -194,7 +194,7 @@ namespace app {
 		
 		public static parseString(str: string): GaussianInteger {
 			if (/\d\s+\d/.test(str))  // Spaces are not allowed between digits
-				throw "Invalid number";
+				throw new RangeError("Invalid number");
 			str = str.replace(/\s+/g, "");  // Remove all whitespace
 			str = str.replace(/\u2212/g, "-");
 			str = str.replace(/j/g, "i");
@@ -202,7 +202,7 @@ namespace app {
 			function checkedParseInt(s: string): number {
 				const n = parseInt(s, 10);
 				if (Math.abs(n) >= 67108864)
-					throw "Number is too large";
+					throw new RangeError("Number is too large");
 				return n;
 			}
 			
@@ -222,7 +222,7 @@ namespace app {
 				real = checkedParseInt(mat[3]);
 				imag = checkedParseInt(mat[1] + (mat[2] != "" ? mat[2] : "1"));
 			} else
-				throw "Invalid number";
+				throw new RangeError("Invalid number");
 			return new GaussianInteger(real, imag);
 		}
 		

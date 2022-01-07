@@ -1,7 +1,7 @@
 /*
  * Brainfuck interpreter (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/brainfuck-interpreter-javascript
  */
@@ -44,7 +44,7 @@ var app;
             instance = new Brainfuck(inputCodeElem.value, inputTextElem.value);
         }
         catch (e) {
-            alert("Error: " + e);
+            alert("Error: " + e.message);
             return;
         }
         inputsElem.style.display = "none";
@@ -105,7 +105,7 @@ var app;
                     case "]":
                         var j = openBracketIndexes.pop();
                         if (j === undefined)
-                            throw "Mismatched brackets (extra right bracket)";
+                            throw new RangeError("Mismatched brackets (extra right bracket)");
                         inst = new EndLoop(j + 1);
                         this.instructions[j] = new BeginLoop(this.instructions.length + 1);
                         break;
@@ -116,7 +116,7 @@ var app;
                 this.instructionsText += code.charAt(i);
             }
             if (openBracketIndexes.length > 0)
-                throw "Mismatched brackets (extra left bracket)";
+                throw new RangeError("Mismatched brackets (extra left bracket)");
             // Set buttons
             stepButton.disabled = false;
             runButton.disabled = false;
@@ -169,14 +169,14 @@ var app;
                 this.numExecuted++;
             }
             catch (e) {
-                alert("Error: " + e);
+                alert("Error: " + e.message);
                 this.instructionIndex = this.instructions.length;
             }
         };
         Brainfuck.prototype.run = function () {
             var _this = this;
             if (this.runTimeout != -1)
-                throw "Assertion error";
+                throw new Error("Assertion error");
             var startTime = Date.now();
             for (var i = 0; i < this.runIterations; i++)
                 this.step();
@@ -195,13 +195,13 @@ var app;
         };
         Brainfuck.prototype.setInstructionIndex = function (newIndex) {
             if (!(0 <= newIndex && newIndex <= this.instructions.length))
-                throw "Invalid instruction index";
+                throw new RangeError("Invalid instruction index");
             this.instructionIndex = newIndex;
         };
         Brainfuck.prototype.addMemoryIndex = function (delta) {
             var newIndex = this.memoryIndex + delta;
             if (newIndex < 0)
-                throw "Negative memory index";
+                throw new RangeError("Negative memory index");
             this.memoryIndex = newIndex;
         };
         Brainfuck.prototype.addMemoryValue = function (delta) {
@@ -219,7 +219,7 @@ var app;
             if (this.inputIndex < this.inputText.length) {
                 val = this.inputText.charCodeAt(this.inputIndex);
                 if (val > 0xFF)
-                    throw "Input has character code greater than 255";
+                    throw new Error("Input has character code greater than 255");
                 this.inputIndex++;
             }
             this.memory[this.memoryIndex] = val;
@@ -274,7 +274,7 @@ var app;
             {
                 var outputText = outputTextPre.textContent;
                 if (outputText === null)
-                    throw "Assertion error";
+                    throw new Error("Assertion error");
                 queryHtml("#output-text p").textContent = "Length = " + addSeparators(outputText.length);
             }
             if (this.isHalted()) {
@@ -407,9 +407,9 @@ var app;
         if (result instanceof type)
             return result;
         else if (result === null)
-            throw "Element not found";
+            throw new Error("Element not found");
         else
-            throw "Invalid element type";
+            throw new TypeError("Invalid element type");
     }
     function clearChildren(elem) {
         while (elem.firstChild !== null)

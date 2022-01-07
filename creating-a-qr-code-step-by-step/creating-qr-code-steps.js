@@ -1,7 +1,7 @@
 /*
  * Creating a QR Code step by step (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
@@ -27,7 +27,7 @@ var QrCode = /** @class */ (function () {
         this.errorCorrectionLevel = errorCorrectionLevel;
         this.modules = []; // Has dimensions of size * size.
         if (version < QrCode.MIN_VERSION || version > QrCode.MAX_VERSION)
-            throw "Version number out of range";
+            throw new RangeError("Version number out of range");
         this.size = version * 4 + 17;
         for (var x = 0; x < this.size; x++) {
             var column = [];
@@ -39,7 +39,7 @@ var QrCode = /** @class */ (function () {
     /*-- Static functions --*/
     QrCode.getNumRawDataModules = function (ver) {
         if (ver < QrCode.MIN_VERSION || ver > QrCode.MAX_VERSION)
-            throw "Version number out of range";
+            throw new RangeError("Version number out of range");
         var result = (16 * ver + 128) * ver + 64;
         if (ver >= 2) {
             var numAlign = Math.floor(ver / 7) + 2;
@@ -129,7 +129,7 @@ var QrCode = /** @class */ (function () {
             bits = (data << 10 | rem) ^ 0x5412;
         }
         if (bits >>> 15 != 0)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         var setFormatInfoModule = function (x, y, bitIndex) {
             _this.modules[x][y] = new FunctionModule(FunctionModuleType.FORMAT_INFO, QrCode.getBit(bits, bitIndex));
         };
@@ -155,7 +155,7 @@ var QrCode = /** @class */ (function () {
             rem = (rem << 1) ^ ((rem >>> 11) * 0x1F25);
         var bits = this.version << 12 | rem;
         if (bits >>> 18 != 0)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         for (var i = 0; i < 18; i++) {
             var color = QrCode.getBit(bits, i);
             var a = this.size - 11 + i % 3;
@@ -268,7 +268,7 @@ var QrCode = /** @class */ (function () {
     QrCode.prototype.drawCodewords = function (codewords, zigZagScan) {
         var _this = this;
         if (codewords.length != Math.floor(QrCode.getNumRawDataModules(this.version) / 8))
-            throw "Invalid argument";
+            throw new RangeError("Invalid argument");
         zigZagScan.forEach(function (_a, i) {
             var x = _a[0], y = _a[1];
             if (i < codewords.length * 8) {
@@ -312,7 +312,7 @@ var QrCode = /** @class */ (function () {
                     case 7:
                         invert = ((x + y) % 2 + x * y % 3) % 2 == 0;
                         break;
-                    default: throw "Assertion error";
+                    default: throw new Error("Assertion error");
                 }
                 if (!(this.modules[x][y] instanceof FunctionModule))
                     result.modules[x][y] = new MaskModule(invert);
@@ -461,7 +461,7 @@ var Codeword = /** @class */ (function () {
         this.indexInBlock = -1;
         this.postInterleaveIndex = -1;
         if (value < 0 || value > 255)
-            throw "Invalid value";
+            throw new RangeError("Invalid value");
     }
     return Codeword;
 }());
@@ -486,7 +486,7 @@ var ReedSolomonGenerator = /** @class */ (function () {
     function ReedSolomonGenerator(degree) {
         this.coefficients = [];
         if (degree < 1 || degree > 255)
-            throw "Degree out of range";
+            throw new RangeError("Degree out of range");
         var coefs = this.coefficients;
         for (var i = 0; i < degree - 1; i++)
             coefs.push(0);
@@ -519,14 +519,14 @@ var ReedSolomonGenerator = /** @class */ (function () {
     };
     ReedSolomonGenerator.multiply = function (x, y) {
         if (x >>> 8 != 0 || y >>> 8 != 0)
-            throw "Byte out of range";
+            throw new RangeError("Byte out of range");
         var z = 0;
         for (var i = 7; i >= 0; i--) {
             z = (z << 1) ^ ((z >>> 7) * 0x11D);
             z ^= ((y >>> i) & 1) * x;
         }
         if (z >>> 8 != 0)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         return z;
     };
     return ReedSolomonGenerator;
@@ -575,7 +575,7 @@ var FinderPenalty = /** @class */ (function () {
         var hist = this.runHistory;
         var n = hist[1];
         if (n > this.qrSize * 3)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         var core = n > 0 && hist[2] == n && hist[3] == n * 3 && hist[4] == n && hist[5] == n;
         var coreStart = this.runEndPositions[6];
         var coreEnd = this.runEndPositions[1];
@@ -606,7 +606,7 @@ var FinderPenalty = /** @class */ (function () {
         this.padding = this.qrSize;
         this.addHistory(currentRunLength);
         if (this.position != this.qrSize)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         return this.countAndAddPatterns();
     };
     return FinderPenalty;
@@ -681,7 +681,7 @@ var QrSegment = /** @class */ (function () {
         this.numChars = numChars;
         this.bitData = bitData;
         if (numChars < 0)
-            throw "Invalid argument";
+            throw new RangeError("Invalid argument");
     }
     QrSegment.getTotalBits = function (segs, version) {
         var result = 0;
@@ -894,7 +894,7 @@ var app;
             else if (ecl == ErrorCorrectionLevel.HIGH)
                 getInput("errcorlvl-high").checked = true;
             else
-                throw "Assertion error";
+                throw new Error("Assertion error");
             doGenerate();
         }
         selectElem.onchange = selectChanged;
@@ -969,10 +969,10 @@ var app;
             var id = MASK_DEPENDENT_ELEMS_1[_i];
             var elem = document.getElementById(id);
             if (!(elem instanceof Element))
-                throw "Assertion error";
+                throw new Error("Assertion error");
             var parent_2 = elem.parentNode;
             if (!(parent_2 instanceof HTMLElement))
-                throw "Assertion error";
+                throw new Error("Assertion error");
             for (var i = 0; i < 8; i++) {
                 var node = elem.cloneNode(true);
                 node.setAttribute("id", id + "-" + i);
@@ -1010,7 +1010,7 @@ var app;
         else if (getInput("errcorlvl-high").checked)
             errCorrLvl = ErrorCorrectionLevel.HIGH;
         else
-            throw "Assertion error";
+            throw new Error("Assertion error");
         var text = CodePoint.toArray(textStr);
         var mode = doStep0(text);
         var segs = [doStep1(text, mode)];
@@ -1133,7 +1133,7 @@ var app;
                 numChars += temp.length - 1;
             }
             else
-                throw "Assertion error";
+                throw new Error("Assertion error");
             for (var _i = 0, bits_1 = bits; _i < bits_1.length; _i++) {
                 var c = bits_1[_i];
                 bitData.push(parseInt(c, 2));
@@ -1510,19 +1510,19 @@ var app;
         var result = document.getElementById(id);
         if (result instanceof HTMLElement)
             return result;
-        throw "Assertion error";
+        throw new Error("Assertion error");
     }
     function getInput(id) {
         var result = getElem(id);
         if (result instanceof HTMLInputElement)
             return result;
-        throw "Assertion error";
+        throw new Error("Assertion error");
     }
     function queryElem(q) {
         var result = document.querySelector(q);
         if (result instanceof HTMLElement)
             return result;
-        throw "Assertion error";
+        throw new Error("Assertion error");
     }
     function clearChildren(elemOrQuery) {
         var elem;
@@ -1548,7 +1548,7 @@ var app;
     }
     function intToBits(val, len) {
         if (len < 0 || len > 31 || val >>> len != 0)
-            throw "Value out of range";
+            throw new RangeError("Value out of range");
         var result = [];
         for (var i = len - 1; i >= 0; i--)
             result.push((val >>> i) & 1);
@@ -1567,7 +1567,7 @@ var app;
                 this.utf16 = String.fromCharCode(0xD800 | ((utf32 - 0x10000) >>> 10), 0xDC00 | ((utf32 - 0x10000) & 0x3FF));
             }
             if (utf32 < 0)
-                throw "Invalid code point";
+                throw new RangeError("Invalid code point");
             else if (utf32 < 0x80)
                 this.utf8 = [utf32];
             else {
@@ -1579,7 +1579,7 @@ var app;
                 else if (utf32 < 0x110000)
                     n = 4;
                 else
-                    throw "Invalid code point";
+                    throw new RangeError("Invalid code point");
                 this.utf8 = [];
                 for (var i = 0; i < n; i++, utf32 >>>= 6)
                     this.utf8.push(0x80 | (utf32 & 0x3F));
@@ -1593,13 +1593,13 @@ var app;
                 var c = s.charCodeAt(i);
                 if (0xD800 <= c && c < 0xDC00) {
                     if (i + 1 >= s.length)
-                        throw "Invalid UTF-16 string";
+                        throw new RangeError("Invalid UTF-16 string");
                     i++;
                     var d = s.charCodeAt(i);
                     result.push(new CodePoint(((c & 0x3FF) << 10 | (d & 0x3FF)) + 0x10000));
                 }
                 else if (0xDC00 <= c && c < 0xE000)
-                    throw "Invalid UTF-16 string";
+                    throw new RangeError("Invalid UTF-16 string");
                 else
                     result.push(new CodePoint(c));
             }

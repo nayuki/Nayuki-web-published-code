@@ -1,7 +1,7 @@
 /*
  * Smallest enclosing circle - Library (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  *
  * This program is free software: you can redistribute it and/or modify
@@ -100,7 +100,7 @@ function makeCircleTwoPoints(points, p, q) {
     else if (left !== null && right !== null)
         return left.r <= right.r ? left : right;
     else
-        throw "Assertion error";
+        throw new Error("Assertion error");
 }
 function makeDiameter(a, b) {
     var cx = (a.x + b.x) / 2;

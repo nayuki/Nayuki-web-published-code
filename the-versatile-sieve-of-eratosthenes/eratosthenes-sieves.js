@@ -1,6 +1,6 @@
 /*
  * Variants of the sieve of Eratosthenes (compiled from TypeScript)
- * by Project Nayuki, 2020. Public domain.
+ * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 "use strict";
@@ -8,7 +8,7 @@
 // where result[k] indicates whether k is a prime number.
 function sievePrimeness(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-        throw "Limit out of range";
+        throw new RangeError("Limit out of range");
     var result = [false];
     for (var i = 0; i < limit; i++)
         result.push(true);
@@ -26,7 +26,7 @@ function sievePrimeness(limit) {
 // where result[k] is the smallest prime factor of k.
 function sieveSmallestPrimeFactor(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-        throw "Limit out of range";
+        throw new RangeError("Limit out of range");
     var result = [];
     for (var i = 0; i <= limit; i++)
         result.push(0);
@@ -47,7 +47,7 @@ function sieveSmallestPrimeFactor(limit) {
 // where result[k] is the totient (Euler phi function) of k.
 function sieveTotient(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-        throw "Limit out of range";
+        throw new RangeError("Limit out of range");
     var result = [];
     for (var i = 0; i <= limit; i++)
         result.push(i);
@@ -63,7 +63,7 @@ function sieveTotient(limit) {
 // is the number of unique prime factors (omega function) of k.
 function sieveOmega(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-        throw "Limit out of range";
+        throw new RangeError("Limit out of range");
     var result = [];
     for (var i = 0; i <= limit; i++)
         result.push(0);
@@ -79,7 +79,7 @@ function sieveOmega(limit) {
 // is the product of the unique prime factors (radical function) of k.
 function sieveRadical(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-        throw "Limit out of range";
+        throw new RangeError("Limit out of range");
     var result = [0];
     for (var i = 0; i < limit; i++)
         result.push(1);

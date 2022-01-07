@@ -1,7 +1,7 @@
 /* 
  * Creating a QR Code step by step
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
@@ -21,7 +21,7 @@ class QrCode {
 	
 	public static getNumRawDataModules(ver: int): int {
 		if (ver < QrCode.MIN_VERSION || ver > QrCode.MAX_VERSION)
-			throw "Version number out of range";
+			throw new RangeError("Version number out of range");
 		let result: int = (16 * ver + 128) * ver + 64;
 		if (ver >= 2) {
 			const numAlign: int = Math.floor(ver / 7) + 2;
@@ -51,7 +51,7 @@ class QrCode {
 			public readonly version: int,
 			public readonly errorCorrectionLevel: ErrorCorrectionLevel) {
 		if (version < QrCode.MIN_VERSION || version > QrCode.MAX_VERSION)
-			throw "Version number out of range";
+			throw new RangeError("Version number out of range");
 		this.size = version * 4 + 17;
 		
 		for (let x = 0; x < this.size; x++) {
@@ -146,7 +146,7 @@ class QrCode {
 			bits = (data << 10 | rem) ^ 0x5412;
 		}
 		if (bits >>> 15 != 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		
 		let setFormatInfoModule = (x: int, y: int, bitIndex: int) => {
 			this.modules[x][y] = new FunctionModule(FunctionModuleType.FORMAT_INFO, QrCode.getBit(bits, bitIndex));
@@ -178,7 +178,7 @@ class QrCode {
 			rem = (rem << 1) ^ ((rem >>> 11) * 0x1F25);
 		const bits: int = this.version << 12 | rem;
 		if (bits >>> 18 != 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		
 		for (let i = 0; i < 18; i++) {
 			const color: boolean = QrCode.getBit(bits, i);
@@ -295,7 +295,7 @@ class QrCode {
 	// Modifies this QR Code's modules.
 	public drawCodewords(codewords: Readonly<Array<Codeword>>, zigZagScan: Readonly<Array<[int,int]>>): void {
 		if (codewords.length != Math.floor(QrCode.getNumRawDataModules(this.version) / 8))
-			throw "Invalid argument";
+			throw new RangeError("Invalid argument");
 		zigZagScan.forEach(([x, y], i) => {
 			if (i < codewords.length * 8) {
 				let cw: Codeword = codewords[i >>> 3];
@@ -323,7 +323,7 @@ class QrCode {
 					case 5:  invert = x * y % 2 + x * y % 3 == 0;                        break;
 					case 6:  invert = (x * y % 2 + x * y % 3) % 2 == 0;                  break;
 					case 7:  invert = ((x + y) % 2 + x * y % 3) % 2 == 0;                break;
-					default:  throw "Assertion error";
+					default:  throw new Error("Assertion error");
 				}
 				if (!(this.modules[x][y] instanceof FunctionModule))
 					result.modules[x][y] = new MaskModule(invert);
@@ -498,7 +498,7 @@ abstract class Codeword {
 	public constructor(
 			public readonly value: byte) {
 		if (value < 0 || value > 255)
-			throw "Invalid value";
+			throw new RangeError("Invalid value");
 	}
 	
 }
@@ -529,7 +529,7 @@ class ReedSolomonGenerator {
 	
 	public constructor(degree: int) {
 		if (degree < 1 || degree > 255)
-			throw "Degree out of range";
+			throw new RangeError("Degree out of range");
 		let coefs = this.coefficients;
 		
 		for (let i = 0; i < degree - 1; i++)
@@ -562,14 +562,14 @@ class ReedSolomonGenerator {
 	
 	private static multiply(x: byte, y: byte): byte {
 		if (x >>> 8 != 0 || y >>> 8 != 0)
-			throw "Byte out of range";
+			throw new RangeError("Byte out of range");
 		let z: int = 0;
 		for (let i = 7; i >= 0; i--) {
 			z = (z << 1) ^ ((z >>> 7) * 0x11D);
 			z ^= ((y >>> i) & 1) * x;
 		}
 		if (z >>> 8 != 0)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		return z as byte;
 	}
 	
@@ -631,7 +631,7 @@ class FinderPenalty {
 		const hist = this.runHistory;
 		const n: int = hist[1];
 		if (n > this.qrSize * 3)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		const core = n > 0 && hist[2] == n && hist[3] == n * 3 && hist[4] == n && hist[5] == n;
 		const coreStart = this.runEndPositions[6];
 		const coreEnd = this.runEndPositions[1];
@@ -665,7 +665,7 @@ class FinderPenalty {
 		this.padding = this.qrSize;
 		this.addHistory(currentRunLength);
 		if (this.position != this.qrSize)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		return this.countAndAddPatterns();
 	}
 	
@@ -750,7 +750,7 @@ class QrSegment {
 			public readonly numChars: int,
 			public readonly bitData: Array<bit>) {
 		if (numChars < 0)
-			throw "Invalid argument";
+			throw new RangeError("Invalid argument");
 	}
 	
 }

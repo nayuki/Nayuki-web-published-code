@@ -1,7 +1,7 @@
 /*
  * Time-based One-Time Password tools (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,13 +27,13 @@ function main() {
         var result = document.getElementById(id);
         if (result instanceof HTMLElement)
             return result;
-        throw "Assertion error";
+        throw new Error("Assertion error");
     }
     function getInput(id) {
         var result = getElement(id);
         if (result instanceof HTMLInputElement)
             return result;
-        throw "Assertion error";
+        throw new Error("Assertion error");
     }
     if (getInput("current-time").checked)
         getInput("timestamp").value = Math.floor(Date.now() / 1000).toString();
@@ -42,7 +42,7 @@ function main() {
         outputElem.textContent = calcTotp(decodeBase32(getInput("secret-key").value), parseInt(getInput("epoch").value, 10), parseInt(getInput("time-step").value, 10), parseInt(getInput("timestamp").value, 10), parseInt(getInput("code-length").value, 10));
     }
     catch (e) {
-        outputElem.textContent = e.toString();
+        outputElem.textContent = e.message;
     }
 }
 if (selfCheck()) {
@@ -75,7 +75,7 @@ function calcHotp(secretKey, counter, codeLen, hashFunc, blockSize) {
     if (blockSize === void 0) { blockSize = 64; }
     // Check argument, calculate HMAC
     if (!(1 <= codeLen && codeLen <= 9))
-        throw "Invalid number of digits";
+        throw new RangeError("Invalid number of digits");
     var hash = calcHmac(secretKey, counter, hashFunc, blockSize);
     // Dynamically truncate the hash value
     var offset = hash[hash.length - 1] % 16;
@@ -96,7 +96,7 @@ function calcHotp(secretKey, counter, codeLen, hashFunc, blockSize) {
 }
 function calcHmac(key, message, hashFunc, blockSize) {
     if (blockSize < 1)
-        throw "Invalid block size";
+        throw new RangeError("Invalid block size");
     if (key.length > blockSize)
         key = hashFunc(key);
     var newKey = key.slice();
@@ -160,7 +160,7 @@ function calcSha1Hash(message) {
                     f = b ^ c ^ d;
                     rc = 0xCA62C1D6;
                     break;
-                default: throw "Assertion error";
+                default: throw new Error("Assertion error");
             }
             var temp = (((a << 5) | (a >>> 27)) + f + e + sch + rc) >>> 0;
             e = d;
@@ -197,7 +197,7 @@ function decodeBase32(str) {
             continue;
         var i = ALPHABET.indexOf(c.toUpperCase());
         if (i == -1)
-            throw "Invalid Base32 string";
+            throw new RangeError("Invalid Base32 string");
         bits = (bits << 5) | i;
         bitsLen += 5;
         if (bitsLen >= 8) {
@@ -216,7 +216,7 @@ function selfCheck() {
         return true;
     }
     catch (e) {
-        alert("Self-check failed: " + e);
+        alert("Self-check failed: " + e.message);
         return false;
     }
 }
@@ -242,7 +242,7 @@ function testHotp() {
         counterBytes.reverse();
         var actual = calcHotp(SECRET_KEY, counterBytes, 9);
         if (actual != expect)
-            throw "Value mismatch";
+            throw new Error("Value mismatch");
     }
 }
 function testTotp() {
@@ -259,6 +259,6 @@ function testTotp() {
         var _a = CASES_2[_i], timestamp = _a[0], expect = _a[1];
         var actual = calcTotp(SECRET_KEY, 0, 30, timestamp, 8);
         if (actual != expect)
-            throw "Value mismatch";
+            throw new Error("Value mismatch");
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Panel de Pon puzzle solver (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -190,7 +190,7 @@ var app;
         else if (26 <= x && x < 702)
             return String.fromCharCode(START + Math.floor((x - 26) / 26)) + String.fromCharCode(START + (x - 26) % 26);
         else
-            throw "Invalid value";
+            throw new RangeError("Invalid value");
     }
     function clearSolution() {
         elemId("solution-text").textContent = "";
@@ -284,7 +284,7 @@ var app;
         // Used by constructor.
         Board.prototype.getRunLength = function (x, y, dx, dy) {
             if (dx < 0 || dy < 0 || dx == 0 && dy == 0)
-                throw "Invalid value";
+                throw new RangeError("Invalid value");
             var val = this.grid.get(x, y);
             if (val == Grid.EMPTY_TILE)
                 return 1;
@@ -331,7 +331,7 @@ var app;
                 // Dequeue next state
                 var state = queue.shift();
                 if (state === undefined)
-                    throw "Assertion error";
+                    throw new Error("Assertion error");
                 if (state.isClear()) {
                     endState = state;
                     break;
@@ -339,7 +339,7 @@ var app;
                 // Get info about state
                 var info = visited.get(state.toString());
                 if (info === undefined)
-                    throw "Assertion error";
+                    throw new Error("Assertion error");
                 if (info.depth >= numMoves)
                     continue;
                 for (var _i = 0, _a = state.getMoves(); _i < _a.length; _i++) {
@@ -358,12 +358,12 @@ var app;
             for (var state = endState;;) {
                 var info = visited.get(state.toString());
                 if (info === undefined)
-                    throw "Assertion error";
+                    throw new Error("Assertion error");
                 if (info.prevBoard === null)
                     break;
                 var prevMove = info.prevMove;
                 if (prevMove === null)
-                    throw "Assertion error";
+                    throw new Error("Assertion error");
                 result.push(prevMove);
                 state = info.prevBoard;
             }
@@ -385,17 +385,17 @@ var app;
                     data.push(0);
             }
             else if (data.length != len)
-                throw "Invalid array";
+                throw new RangeError("Invalid array");
             this.data = data;
         }
         Grid.prototype.get = function (x, y) {
             if (x < 0 || x >= Grid.WIDTH || y < 0 || y >= Grid.HEIGHT)
-                throw "Index out of bounds";
+                throw new RangeError("Index out of bounds");
             return this.data[y * Grid.WIDTH + x];
         };
         Grid.prototype.set = function (x, y, val) {
             if (x < 0 || x >= Grid.WIDTH || y < 0 || y >= Grid.HEIGHT)
-                throw "Index out of bounds";
+                throw new RangeError("Index out of bounds");
             this.data[y * Grid.WIDTH + x] = val;
         };
         Grid.prototype.clone = function () {

@@ -1,7 +1,7 @@
 /*
  * Disjoint-set data structure - Library (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,7 @@ var DisjointSet = /** @class */ (function () {
         this.parents = []; // The index of the parent element. An element is a representative iff its parent is itself.
         this.sizes = []; // Positive number if the element is a representative, otherwise zero.
         if (numElems < 0)
-            throw "Number of elements must be non-negative";
+            throw new RangeError("Number of elements must be non-negative");
         for (var i = 0; i < numElems; i++)
             this.addSet();
     }
@@ -54,7 +54,7 @@ var DisjointSet = /** @class */ (function () {
     // improve the speed of future queries, but has no externally visible effect on the values returned.
     DisjointSet.prototype.getRepr = function (elemIndex) {
         if (elemIndex < 0 || elemIndex >= this.parents.length)
-            throw "Element index out of bounds";
+            throw new RangeError("Element index out of bounds");
         // Follow parent pointers until we reach a representative
         var parent = this.parents[elemIndex];
         while (true) {
@@ -121,11 +121,11 @@ var DisjointSet = /** @class */ (function () {
             ok = ok && 0 <= parent_1 && parent_1 < this.parents.length;
             ok = ok && (!isRepr && size == 0 || isRepr && 1 <= size && size <= this.parents.length);
             if (!ok)
-                throw "Assertion error";
+                throw new Error("Assertion error");
             sizeSum += size;
         }
         if (!(0 <= this.numSets && this.numSets == numRepr && this.numSets <= this.parents.length && this.parents.length == sizeSum))
-            throw "Assertion error";
+            throw new Error("Assertion error");
     };
     return DisjointSet;
 }());

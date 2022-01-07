@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -204,7 +204,7 @@ namespace app {
 		else if (26 <= x && x < 702)
 			return String.fromCharCode(START + Math.floor((x - 26) / 26)) + String.fromCharCode(START + (x - 26) % 26);
 		else
-			throw "Invalid value";
+			throw new RangeError("Invalid value");
 	}
 	
 	
@@ -320,7 +320,7 @@ namespace app {
 		// Used by constructor.
 		private getRunLength(x: number, y: number, dx: number, dy: number): number {
 			if (dx < 0 || dy < 0 || dx == 0 && dy == 0)
-				throw "Invalid value";
+				throw new RangeError("Invalid value");
 			const val: number = this.grid.get(x, y);
 			if (val == Grid.EMPTY_TILE)
 				return 1;
@@ -381,7 +381,7 @@ namespace app {
 				// Dequeue next state
 				const state = queue.shift();
 				if (state === undefined)
-					throw "Assertion error";
+					throw new Error("Assertion error");
 				if (state.isClear()) {
 					endState = state;
 					break;
@@ -390,7 +390,7 @@ namespace app {
 				// Get info about state
 				const info = visited.get(state.toString());
 				if (info === undefined)
-					throw "Assertion error";
+					throw new Error("Assertion error");
 				if (info.depth >= numMoves)
 					continue;
 				for (const move of state.getMoves()) {
@@ -409,12 +409,12 @@ namespace app {
 			for (let state = endState; ; ) {
 				const info = visited.get(state.toString());
 				if (info === undefined)
-					throw "Assertion error";
+					throw new Error("Assertion error");
 				if (info.prevBoard === null)
 					break;
 				const prevMove = info.prevMove;
 				if (prevMove === null)
-					throw "Assertion error";
+					throw new Error("Assertion error");
 				result.push(prevMove);
 				state = info.prevBoard;
 			}
@@ -446,21 +446,21 @@ namespace app {
 				for (let i = 0; i < len; i++)
 					data.push(0);
 			} else if (data.length != len)
-				throw "Invalid array";
+				throw new RangeError("Invalid array");
 			this.data = data;
 		}
 		
 		
 		public get(x: number, y: number): number {
 			if (x < 0 || x >= Grid.WIDTH || y < 0 || y >= Grid.HEIGHT)
-				throw "Index out of bounds";
+				throw new RangeError("Index out of bounds");
 			return this.data[y * Grid.WIDTH + x];
 		}
 		
 		
 		public set(x: number, y: number, val: number): void {
 			if (x < 0 || x >= Grid.WIDTH || y < 0 || y >= Grid.HEIGHT)
-				throw "Index out of bounds";
+				throw new RangeError("Index out of bounds");
 			this.data[y * Grid.WIDTH + x] = val;
 		}
 		

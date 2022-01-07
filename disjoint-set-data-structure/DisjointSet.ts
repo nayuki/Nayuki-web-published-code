@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (TypeScript)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,7 +41,7 @@ class DisjointSet {
 	// For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
 	public constructor(numElems: number) {
 		if (numElems < 0)
-			throw "Number of elements must be non-negative";
+			throw new RangeError("Number of elements must be non-negative");
 		for (let i = 0; i < numElems; i++)
 			this.addSet();
 	}
@@ -65,7 +65,7 @@ class DisjointSet {
 	// improve the speed of future queries, but has no externally visible effect on the values returned.
 	private getRepr(elemIndex: number): number {
 		if (elemIndex < 0 || elemIndex >= this.parents.length)
-			throw "Element index out of bounds";
+			throw new RangeError("Element index out of bounds");
 		// Follow parent pointers until we reach a representative
 		let parent: number = this.parents[elemIndex];
 		while (true) {
@@ -145,11 +145,11 @@ class DisjointSet {
 			ok = ok && 0 <= parent && parent < this.parents.length;
 			ok = ok && (!isRepr && size == 0 || isRepr && 1 <= size && size <= this.parents.length);
 			if (!ok)
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			sizeSum += size;
 		}
 		if (!(0 <= this.numSets && this.numSets == numRepr && this.numSets <= this.parents.length && this.parents.length == sizeSum))
-			throw "Assertion error";
+			throw new Error("Assertion error");
 	}
 	
 }

@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,7 +29,7 @@
 function transform(real: Array<number>|Float64Array, imag: Array<number>|Float64Array): void {
 	const n: number = real.length;
 	if (n != imag.length)
-		throw "Mismatched lengths";
+		throw new RangeError("Mismatched lengths");
 	if (n == 0)
 		return;
 	else if ((n & (n - 1)) == 0)  // Is power of 2
@@ -56,7 +56,7 @@ function transformRadix2(real: Array<number>|Float64Array, imag: Array<number>|F
 	// Length variables
 	const n: number = real.length;
 	if (n != imag.length)
-		throw "Mismatched lengths";
+		throw new RangeError("Mismatched lengths");
 	if (n == 1)  // Trivial transform
 		return;
 	let levels: number = -1;
@@ -65,7 +65,7 @@ function transformRadix2(real: Array<number>|Float64Array, imag: Array<number>|F
 			levels = i;  // Equal to log2(n)
 	}
 	if (levels == -1)
-		throw "Length is not a power of 2";
+		throw new RangeError("Length is not a power of 2");
 	
 	// Trigonometric tables
 	let cosTable = new Array<number>(n / 2);
@@ -126,7 +126,7 @@ function transformBluestein(real: Array<number>|Float64Array, imag: Array<number
 	// Find a power-of-2 convolution length m such that m >= n * 2 + 1
 	const n: number = real.length;
 	if (n != imag.length)
-		throw "Mismatched lengths";
+		throw new RangeError("Mismatched lengths");
 	let m: number = 1;
 	while (m < n * 2 + 1)
 		m *= 2;
@@ -175,7 +175,7 @@ function transformBluestein(real: Array<number>|Float64Array, imag: Array<number
 function convolveReal(xvec: Array<number>|Float64Array, yvec: Array<number>|Float64Array, outvec: Array<number>|Float64Array): void {
 	const n: number = xvec.length;
 	if (n != yvec.length || n != outvec.length)
-		throw "Mismatched lengths";
+		throw new RangeError("Mismatched lengths");
 	convolveComplex(xvec, newArrayOfZeros(n), yvec, newArrayOfZeros(n), outvec, newArrayOfZeros(n));
 }
 
@@ -191,7 +191,7 @@ function convolveComplex(
 	const n: number = xreal.length;
 	if (n != ximag.length || n != yreal.length || n != yimag.length
 			|| n != outreal.length || n != outimag.length)
-		throw "Mismatched lengths";
+		throw new RangeError("Mismatched lengths");
 	
 	xreal = xreal.slice();
 	ximag = ximag.slice();

@@ -1,7 +1,7 @@
 /*
  * Convex hull algorithm - Demo (compiled from TypeScript)
  *
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  *
  * This program is free software: you can redistribute it and/or modify
@@ -84,7 +84,7 @@ function initialize() {
                 draggingPointIndex = -1;
         }
         else
-            throw "Assertion error";
+            throw new Error("Assertion error");
         showPointsAndHull();
     }
 }

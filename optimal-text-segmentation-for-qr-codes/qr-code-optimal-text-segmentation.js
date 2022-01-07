@@ -1,7 +1,7 @@
 /*
  * Optimal text segmentation for QR Codes (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/optimal-text-segmentation-for-qr-codes
  */
@@ -13,13 +13,13 @@ var app;
         var result = document.getElementById(id);
         if (result instanceof HTMLElement)
             return result;
-        throw "Assertion error";
+        throw new Error("Assertion error");
     }
     function getInput(id) {
         var result = getElem(id);
         if (result instanceof HTMLInputElement)
             return result;
-        throw "Assertion error";
+        throw new Error("Assertion error");
     }
     var userTextInputElem = getElem("user-text-input");
     var demoTextElem = getElem("demo-text");
@@ -44,7 +44,7 @@ var app;
         else if (getInput("errcorlvl-high").checked)
             errCorrLvl = 3;
         else
-            throw "Assertion error";
+            throw new Error("Assertion error");
         // Handle code points
         var codePoints = CodePoint.toArray(textStr);
         setText("num-code-points", codePoints.length);
@@ -143,9 +143,9 @@ var app;
     /*---- High-level computation functions ----*/
     function makeSingleByteSegment(text, ecl, minVersion, maxVersion) {
         if (!(0 <= ecl && ecl <= 3))
-            throw "Invalid error correction level";
+            throw new RangeError("Invalid error correction level");
         if (!(1 <= minVersion && minVersion <= maxVersion && maxVersion <= 40))
-            throw "Invalid version range";
+            throw new RangeError("Invalid version range");
         // Iterate through version numbers, and make tentative segments
         var segs = [new Segment(text, "BYTE")];
         for (var version = minVersion; version <= maxVersion; version++) {
@@ -165,9 +165,9 @@ var app;
     // This function can utilize all four text encoding modes: numeric, alphanumeric, byte (UTF-8), and kanji.
     function makeSegmentsOptimally(text, ecl, minVersion, maxVersion) {
         if (!(0 <= ecl && ecl <= 3))
-            throw "Invalid error correction level";
+            throw new RangeError("Invalid error correction level");
         if (!(1 <= minVersion && minVersion <= maxVersion && maxVersion <= 40))
-            throw "Invalid version range";
+            throw new RangeError("Invalid version range");
         // Iterate through version numbers, and make tentative segments
         var segs = []; // Dummy initial value
         for (var version = minVersion; version <= maxVersion; version++) {
@@ -193,7 +193,7 @@ var app;
     // Returns a new array representing the optimal mode per code point based on the given text and version.
     function computeCharacterModes(text, version) {
         if (text.length == 0)
-            throw "Empty string";
+            throw new RangeError("Empty string");
         var modeTypes = ["BYTE", "ALPHANUMERIC", "NUMERIC", "KANJI"];
         // Segment header sizes, measured in 1/6 bits
         var headCosts = modeTypes.map(function (mode) {
@@ -261,9 +261,9 @@ var app;
     // consecutive code points in the same mode are put into the same segment.
     function splitIntoSegments(text, charModes) {
         if (text.length == 0)
-            throw "Empty string";
+            throw new RangeError("Empty string");
         if (text.length != charModes.length)
-            throw "Mismatched lengths";
+            throw new RangeError("Mismatched lengths");
         var result = [];
         // Accumulate run of modes
         var curMode = charModes[0];
@@ -303,7 +303,7 @@ var app;
                         this.numDataBits = this.numChars * 13;
                         break;
                     default:
-                        throw "Invalid mode";
+                        throw new RangeError("Invalid mode");
                 }
             }
         }
@@ -327,7 +327,7 @@ var app;
     // in the given mode in a QR Code at the given version number.
     function getNumCharCountBits(mode, version) {
         if (version < 1 || version > 40)
-            throw "Invalid version";
+            throw new RangeError("Invalid version");
         return {
             NUMERIC: [10, 12, 14],
             ALPHANUMERIC: [9, 11, 13],
@@ -531,7 +531,7 @@ var app;
                 this.utf16 = String.fromCharCode(0xD800 | ((utf32 - 0x10000) >>> 10), 0xDC00 | ((utf32 - 0x10000) & 0x3FF));
             }
             if (utf32 < 0)
-                throw "Invalid code point";
+                throw new RangeError("Invalid code point");
             else if (utf32 < 0x80)
                 this.utf8 = [utf32];
             else {
@@ -543,7 +543,7 @@ var app;
                 else if (utf32 < 0x110000)
                     n = 4;
                 else
-                    throw "Invalid code point";
+                    throw new RangeError("Invalid code point");
                 this.utf8 = [];
                 for (var i = 0; i < n; i++, utf32 >>>= 6)
                     this.utf8.push(0x80 | (utf32 & 0x3F));
@@ -557,13 +557,13 @@ var app;
                 var c = s.charCodeAt(i);
                 if (0xD800 <= c && c < 0xDC00) {
                     if (i + 1 >= s.length)
-                        throw "Invalid UTF-16 string";
+                        throw new RangeError("Invalid UTF-16 string");
                     i++;
                     var d = s.charCodeAt(i);
                     result.push(new CodePoint(((c & 0x3FF) << 10 | (d & 0x3FF)) + 0x10000));
                 }
                 else if (0xDC00 <= c && c < 0xE000)
-                    throw "Invalid UTF-16 string";
+                    throw new RangeError("Invalid UTF-16 string");
                 else
                     result.push(new CodePoint(c));
             }

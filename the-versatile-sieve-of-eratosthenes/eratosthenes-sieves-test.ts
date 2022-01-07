@@ -1,6 +1,6 @@
 /* 
  * Test of variants of the sieve of Eratosthenes (TypeScript)
- * by Project Nayuki, 2021. Public domain.
+ * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -46,15 +46,15 @@ const TEST_SUITE_FUNCS: Array<()=>void> = [
 
 function assertEquals<E>(expect: E, actual: E): void {
 	if (actual !== expect)
-		throw "Assertion error";
+		throw new Error("Assertion error");
 }
 
 
 function assertArrayEquals<E>(expected: Readonly<Array<E>>, actual: Readonly<Array<E>>): void {
 	if (!(expected instanceof Array) || !(actual instanceof Array))
-		throw "Illegal argument";
+		throw new TypeError("Illegal argument");
 	if (expected.length != actual.length)
-		throw "Array length mismatch";
+		throw new Error("Array length mismatch");
 	for (let i = 0; i < expected.length; i++)
 		assertEquals(expected[i], actual[i]);
 }
@@ -75,7 +75,7 @@ function assertArrayEquals<E>(expected: Readonly<Array<E>>, actual: Readonly<Arr
 				TEST_SUITE_FUNCS[i]();
 				msg += "Pass";
 			} catch (e) {
-				msg += "Fail - " + e;
+				msg += "Fail - " + e.message;
 			}
 			i++;
 			setTimeout(iterate);

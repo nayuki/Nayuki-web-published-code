@@ -1,7 +1,7 @@
 /* 
  * Optimal text segmentation for QR Codes
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/optimal-text-segmentation-for-qr-codes
  */
@@ -19,7 +19,7 @@ namespace app {
 		const result: HTMLElement|null = document.getElementById(id);
 		if (result instanceof HTMLElement)
 			return result;
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	}
 	
 	
@@ -27,7 +27,7 @@ namespace app {
 		const result: HTMLElement = getElem(id);
 		if (result instanceof HTMLInputElement)
 			return result;
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	}
 	
 	
@@ -54,7 +54,7 @@ namespace app {
 		else if (getInput("errcorlvl-medium"  ).checked)  errCorrLvl = 1;
 		else if (getInput("errcorlvl-quartile").checked)  errCorrLvl = 2;
 		else if (getInput("errcorlvl-high"    ).checked)  errCorrLvl = 3;
-		else  throw "Assertion error";
+		else  throw new Error("Assertion error");
 		
 		// Handle code points
 		const codePoints: Array<CodePoint> = CodePoint.toArray(textStr);
@@ -164,9 +164,9 @@ namespace app {
 			[int,Array<Segment>]|null {
 		
 		if (!(0 <= ecl && ecl <= 3))
-			throw "Invalid error correction level";
+			throw new RangeError("Invalid error correction level");
 		if (!(1 <= minVersion && minVersion <= maxVersion && maxVersion <= 40))
-			throw "Invalid version range";
+			throw new RangeError("Invalid version range");
 		
 		// Iterate through version numbers, and make tentative segments
 		const segs: Array<Segment> = [new Segment(text, "BYTE")];
@@ -192,9 +192,9 @@ namespace app {
 			[int,Array<Segment>]|null {
 		
 		if (!(0 <= ecl && ecl <= 3))
-			throw "Invalid error correction level";
+			throw new RangeError("Invalid error correction level");
 		if (!(1 <= minVersion && minVersion <= maxVersion && maxVersion <= 40))
-			throw "Invalid version range";
+			throw new RangeError("Invalid version range");
 		
 		// Iterate through version numbers, and make tentative segments
 		let segs: Array<Segment> = [];  // Dummy initial value
@@ -226,7 +226,7 @@ namespace app {
 	// Returns a new array representing the optimal mode per code point based on the given text and version.
 	function computeCharacterModes(text: Readonly<Array<CodePoint>>, version: int): Array<Mode> {
 		if (text.length == 0)
-			throw "Empty string";
+			throw new RangeError("Empty string");
 		const modeTypes: Array<Mode> = ["BYTE", "ALPHANUMERIC", "NUMERIC", "KANJI"];
 		
 		// Segment header sizes, measured in 1/6 bits
@@ -304,9 +304,9 @@ namespace app {
 	// consecutive code points in the same mode are put into the same segment.
 	function splitIntoSegments(text: Readonly<Array<CodePoint>>, charModes: Readonly<Array<Mode>>): Array<Segment> {
 		if (text.length == 0)
-			throw "Empty string";
+			throw new RangeError("Empty string");
 		if (text.length != charModes.length)
-			throw "Mismatched lengths";
+			throw new RangeError("Mismatched lengths");
 		let result: Array<Segment> = [];
 		
 		// Accumulate run of modes
@@ -352,7 +352,7 @@ namespace app {
 						this.numDataBits = this.numChars * 13;
 						break;
 					default:
-						throw "Invalid mode";
+						throw new RangeError("Invalid mode");
 				}
 			}
 		}
@@ -380,7 +380,7 @@ namespace app {
 	// in the given mode in a QR Code at the given version number.
 	function getNumCharCountBits(mode: Mode, version: int): int {
 		if (version < 1 || version > 40)
-			throw "Invalid version";
+			throw new RangeError("Invalid version");
 		return {
 			NUMERIC     : [10, 12, 14],
 			ALPHANUMERIC: [ 9, 11, 13],
@@ -598,12 +598,12 @@ namespace app {
 				const c: int = s.charCodeAt(i);
 				if (0xD800 <= c && c < 0xDC00) {
 					if (i + 1 >= s.length)
-						throw "Invalid UTF-16 string";
+						throw new RangeError("Invalid UTF-16 string");
 					i++;
 					const d: int = s.charCodeAt(i);
 					result.push(new CodePoint(((c & 0x3FF) << 10 | (d & 0x3FF)) + 0x10000));
 				} else if (0xDC00 <= c && c < 0xE000)
-					throw "Invalid UTF-16 string";
+					throw new RangeError("Invalid UTF-16 string");
 				else
 					result.push(new CodePoint(c));
 			}
@@ -626,7 +626,7 @@ namespace app {
 			}
 			
 			if (utf32 < 0)
-				throw "Invalid code point";
+				throw new RangeError("Invalid code point");
 			else if (utf32 < 0x80)
 				this.utf8 = [utf32];
 			else {
@@ -634,7 +634,7 @@ namespace app {
 				if      (utf32 <    0x800)  n = 2;
 				else if (utf32 <  0x10000)  n = 3;
 				else if (utf32 < 0x110000)  n = 4;
-				else  throw "Invalid code point";
+				else  throw new RangeError("Invalid code point");
 				this.utf8 = [];
 				for (let i = 0; i < n; i++, utf32 >>>= 6)
 					this.utf8.push(0x80 | (utf32 & 0x3F));

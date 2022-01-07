@@ -1,7 +1,7 @@
 /*
  * Animated floating graph nodes (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
@@ -48,7 +48,7 @@ var app;
                 elem.onchange = handler;
             }
             else
-                throw "Assertion error";
+                throw new Error("Assertion error");
             handler();
         }
         setAndCall("number-nodes", function (val) {
@@ -90,7 +90,7 @@ var app;
         }
         Graph.prototype.setDimensions = function (rw, rh) {
             if (rw < 0 || rw > 1 || rh < 0 || rh > 1 || rw != 1 && rh != 1)
-                throw "Assertion error";
+                throw new Error("Assertion error");
             this.relWidth = rw;
             this.relHeight = rh;
             return this;
@@ -268,7 +268,7 @@ var app;
         };
         SvgGraph.prototype.redrawOutput = function () {
             if (this.svgElem === null)
-                throw "Invalid state";
+                throw new Error("Invalid state");
             var svg = this.svgElem;
             // Clear movable objects
             var gElem = svg.querySelector("g");

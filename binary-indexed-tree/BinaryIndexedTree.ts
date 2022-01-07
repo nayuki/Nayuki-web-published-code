@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree (TypeScript)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,7 +35,7 @@ class BinaryIndexedTree {
 	public constructor(arg: number|Readonly<Array<number>>) {
 		if (typeof arg == "number") {
 			if (arg < 0 || Math.floor(arg) != arg)
-				throw "Illegal argument";
+				throw new RangeError("Illegal argument");
 			this.sumTree = [];
 			for (let i = 0; i < arg; i++)
 				this.sumTree.push(0);
@@ -50,7 +50,7 @@ class BinaryIndexedTree {
 			});
 			
 		} else
-			throw "Illegal argument";
+			throw new RangeError("Illegal argument");
 	}
 	
 	
@@ -64,7 +64,7 @@ class BinaryIndexedTree {
 	
 	public get(index: number): number {
 		if (!(0 <= index && index < this.length))
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		let result: number = this.sumTree[index];
 		// For each consecutive 1 in the lowest order bits of index
 		for (let i = 1; (index & i) != 0; i <<= 1)
@@ -75,14 +75,14 @@ class BinaryIndexedTree {
 	
 	public set(index: number, val: number): void {
 		if (!(0 <= index && index < this.length))
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		this.add(index, val - this.get(index));
 	}
 	
 	
 	public add(index: number, delta: number): void {
 		if (!(0 <= index && index < this.length))
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		do {
 			this.sumTree[index] += delta;
 			index |= index + 1;  // Set lowest 0 bit; strictly increasing
@@ -97,7 +97,7 @@ class BinaryIndexedTree {
 	
 	public getPrefixSum(end: number): number {
 		if (!(0 <= end && end <= this.length))
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		let result: number = 0;
 		while (end > 0) {
 			result += this.sumTree[end - 1];
@@ -109,7 +109,7 @@ class BinaryIndexedTree {
 	
 	public getRangeSum(start: number, end: number): number {
 		if (!(0 <= start && start <= end && end <= this.length))
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		return this.getPrefixSum(end) - this.getPrefixSum(start);
 	}
 	

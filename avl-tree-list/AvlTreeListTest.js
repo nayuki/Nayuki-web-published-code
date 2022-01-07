@@ -1,7 +1,7 @@
 /*
  * AVL tree list test (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -411,7 +411,7 @@ var TEST_SUITE_FUNCS = [
                 }
             }
             else
-                throw "Assertion error";
+                throw new Error("Assertion error");
             assertEquals(size, list0.length);
             assertEquals(size, list1.length);
             if (size > 0) {
@@ -426,13 +426,13 @@ var TEST_SUITE_FUNCS = [
 /*---- Helper definitions ----*/
 function assertEquals(expected, actual) {
     if (expected !== actual)
-        throw "Values are unequal";
+        throw new Error("Values are unequal");
 }
 function assertArrayEquals(expected, actual) {
     if (!(expected instanceof Array) || !(actual instanceof Array))
-        throw "Illegal argument";
+        throw new TypeError("Illegal argument");
     if (expected.length != actual.length)
-        throw "Array length mismatch";
+        throw new Error("Array length mismatch");
     for (var i = 0; i < expected.length; i++)
         assertEquals(expected[i], actual[i]);
 }
@@ -450,7 +450,7 @@ function assertArrayEquals(expected, actual) {
                 msg += "Pass";
             }
             catch (e) {
-                msg += "Fail - " + e;
+                msg += "Fail - " + e.message;
             }
             i++;
             setTimeout(iterate);

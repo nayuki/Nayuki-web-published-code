@@ -1,7 +1,7 @@
 /*
  * PNG file chunk inspector (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/png-file-chunk-inspector
  */
@@ -136,7 +136,7 @@ var app;
                     else if (item instanceof Node)
                         li.appendChild(item);
                     else
-                        throw "Assertion error";
+                        throw new Error("Assertion error");
                 }
             }
         };
@@ -335,7 +335,7 @@ var app;
                 result.push(part);
         }
         if (offset != fileBytes.length)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         return result;
     }
     /*---- Classes representing different file parts ----*/
@@ -430,7 +430,7 @@ var app;
         }
         ChunkPart.prototype.annotate = function (earlierChunks) {
             if (this.innerNotes.length > 0)
-                throw "Already annotated";
+                throw new Error("Already annotated");
             if (!this.isDataComplete)
                 return;
             var temp = this.getTypeInfo();
@@ -443,7 +443,7 @@ var app;
                 var _b = _a[_i], type = _b[0], name_1 = _b[1], multiple = _b[2], func = _b[3];
                 if (type == this.typeStr) {
                     if (result !== null)
-                        throw "Table has duplicate keys";
+                        throw new Error("Table has duplicate keys");
                     result = [name_1, multiple, func];
                 }
             }
@@ -854,7 +854,7 @@ var app;
                                                 textBytes = deflate.decompressZlib(textBytes);
                                             }
                                             catch (e) {
-                                                chunk.errorNotes.push("Text decompression error: " + e);
+                                                chunk.errorNotes.push("Text decompression error: " + e.message);
                                                 break loop;
                                             }
                                         }
@@ -880,7 +880,7 @@ var app;
                                 break;
                             }
                             default:
-                                throw "Assertion error";
+                                throw new Error("Assertion error");
                         }
                     }
                 }],
@@ -1257,7 +1257,7 @@ var app;
                                         chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
                                 }
                                 catch (e) {
-                                    chunk.errorNotes.push("Text decompression error: " + e);
+                                    chunk.errorNotes.push("Text decompression error: " + e.message);
                                 }
                             }
                         }
@@ -1314,7 +1314,7 @@ var app;
         for (var _i = 0, bytes_4 = bytes; _i < bytes_4.length; _i++) {
             var b = bytes_4[_i];
             if (!(0x00 <= b && b <= 0xFF))
-                throw "Invalid byte";
+                throw new RangeError("Invalid byte");
             else if (0x80 <= b && b < 0xA0)
                 result += "\uFFFD";
             else
@@ -1335,7 +1335,7 @@ var app;
     }
     function uintToStrWithThousandsSeparators(val) {
         if (val < 0 || Math.floor(val) != val)
-            throw "Invalid unsigned integer";
+            throw new RangeError("Invalid unsigned integer");
         var result = val.toString();
         for (var i = result.length - 3; i > 0; i -= 3)
             result = result.substring(0, i) + "\u00A0" + result.substring(i);
@@ -1358,7 +1358,7 @@ var app;
             var _a = table_1[_i], k = _a[0], v = _a[1];
             if (k == key) {
                 if (result !== null)
-                    throw "Table has duplicate keys";
+                    throw new RangeError("Table has duplicate keys");
                 result = v;
             }
         }
@@ -1366,13 +1366,13 @@ var app;
     }
     function readUint16(bytes, offset) {
         if (bytes.length - offset < 2)
-            throw "Index out of range";
+            throw new RangeError("Index out of range");
         return bytes[offset + 0] << 8
             | bytes[offset + 1] << 0;
     }
     function readUint32(bytes, offset) {
         if (offset < 0 || bytes.length - offset < 4)
-            throw "Index out of range";
+            throw new RangeError("Index out of range");
         return (bytes[offset + 0] << 24
             | bytes[offset + 1] << 16
             | bytes[offset + 2] << 8
@@ -1385,7 +1385,7 @@ var app;
         if (val instanceof type)
             return val;
         else
-            throw "Invalid value type";
+            throw new TypeError("Invalid value type");
     }
     /*---- Polyfills ----*/
     if (!("padStart" in String.prototype)) {
@@ -1402,19 +1402,19 @@ var deflate;
 (function (deflate) {
     function decompressZlib(bytes) {
         if (bytes.length < 2)
-            throw "Invalid zlib container";
+            throw new RangeError("Invalid zlib container");
         var compMeth = bytes[0] & 0xF;
         var compInfo = bytes[0] >>> 4;
         var presetDict = (bytes[1] & 0x20) != 0;
         var compLevel = bytes[1] >>> 6;
         if ((bytes[0] << 8 | bytes[1]) % 31 != 0)
-            throw "zlib header checksum mismatch";
+            throw new RangeError("zlib header checksum mismatch");
         if (compMeth != 8)
-            throw "Unsupported compression method (" + compMeth + ")";
+            throw new RangeError("Unsupported compression method (" + compMeth + ")");
         if (compInfo > 7)
-            throw "Unsupported compression info (" + compInfo + ")";
+            throw new RangeError("Unsupported compression info (" + compInfo + ")");
         if (presetDict)
-            throw "Unsupported preset dictionary";
+            throw new RangeError("Unsupported preset dictionary");
         var _a = decompressDeflate(bytes.slice(2)), result = _a[0], input = _a[1];
         var dataAdler;
         {
@@ -1432,9 +1432,9 @@ var deflate;
         for (var i = 0; i < 4; i++)
             storedAdler = storedAdler << 8 | input.readUint(8);
         if (storedAdler != dataAdler)
-            throw "Adler-32 mismatch";
+            throw new RangeError("Adler-32 mismatch");
         if (input.readBitMaybe() != -1)
-            throw "Unexpected data after zlib container";
+            throw new RangeError("Unexpected data after zlib container");
         return result;
     }
     deflate.decompressZlib = decompressZlib;
@@ -1457,9 +1457,9 @@ var deflate;
                     decompressHuffmanBlock(litLenCode, distCode);
                     break;
                 case 3:
-                    throw "Reserved block type";
+                    throw new Error("Reserved block type");
                 default:
-                    throw "Assertion error";
+                    throw new Error("Assertion error");
             }
             if (isFinal)
                 return [output, input];
@@ -1487,7 +1487,7 @@ var deflate;
                     codeLens.push(sym);
                 else if (sym == 16) {
                     if (codeLens.length == 0)
-                        throw "No code length value to copy";
+                        throw new Error("No code length value to copy");
                     var runLen = input.readUint(2) + 3;
                     for (var i = 0; i < runLen; i++)
                         codeLens.push(codeLens[codeLens.length - 1]);
@@ -1503,10 +1503,10 @@ var deflate;
                         codeLens.push(0);
                 }
                 else
-                    throw "Symbol out of range";
+                    throw new Error("Symbol out of range");
             }
             if (codeLens.length > numLitLenCodes + numDistCodes)
-                throw "Run exceeds number of codes";
+                throw new Error("Run exceeds number of codes");
             var litLenCode = new CanonicalCode(codeLens.slice(0, numLitLenCodes));
             var distCodeLen = codeLens.slice(numLitLenCodes);
             var distCode;
@@ -1529,7 +1529,7 @@ var deflate;
             var len = input.readUint(16);
             var nlen = input.readUint(16);
             if ((len ^ 0xFFFF) != nlen)
-                throw "Invalid length in uncompressed block";
+                throw new Error("Invalid length in uncompressed block");
             for (var i = 0; i < len; i++) {
                 var b = input.readUint(8);
                 output.push(b);
@@ -1548,20 +1548,20 @@ var deflate;
                 else {
                     var run = decodeRunLength(sym);
                     if (!(3 <= run && run <= 258))
-                        throw "Invalid run length";
+                        throw new Error("Invalid run length");
                     if (distCode === null)
-                        throw "Length symbol encountered with empty distance code";
+                        throw new Error("Length symbol encountered with empty distance code");
                     var distSym = distCode.decodeNextSymbol(input);
                     var dist = decodeDistance(distSym);
                     if (!(1 <= dist && dist <= 32768))
-                        throw "Invalid distance";
+                        throw new Error("Invalid distance");
                     dictionary.copy(dist, run, output);
                 }
             }
         }
         function decodeRunLength(sym) {
             if (!(257 <= sym && sym <= 287))
-                throw "Invalid run length symbol";
+                throw new RangeError("Invalid run length symbol");
             if (sym <= 264)
                 return sym - 254;
             else if (sym <= 284) {
@@ -1571,11 +1571,11 @@ var deflate;
             else if (sym == 285)
                 return 258;
             else
-                throw "Reserved length symbol";
+                throw new RangeError("Reserved length symbol");
         }
         function decodeDistance(sym) {
             if (!(0 <= sym && sym <= 31))
-                throw "Invalid distance symbol";
+                throw new RangeError("Invalid distance symbol");
             if (sym <= 3)
                 return sym + 1;
             else if (sym <= 29) {
@@ -1583,7 +1583,7 @@ var deflate;
                 return ((sym % 2 + 2) << numExtraBits) + 1 + input.readUint(numExtraBits);
             }
             else
-                throw "Reserved distance symbol";
+                throw new RangeError("Reserved distance symbol");
         }
     }
     deflate.decompressDeflate = decompressDeflate;
@@ -1599,7 +1599,7 @@ var deflate;
                     if (cl != codeLength)
                         return;
                     if (nextCode >= startBit)
-                        throw "This canonical code produces an over-full Huffman code tree";
+                        throw new RangeError("This canonical code produces an over-full Huffman code tree");
                     _this.codeBitsToSymbol.set(startBit | nextCode, symbol);
                     nextCode++;
                 });
@@ -1608,7 +1608,7 @@ var deflate;
                 _loop_2(codeLength);
             }
             if (nextCode != 1 << CanonicalCode.MAX_CODE_LENGTH)
-                throw "This canonical code produces an under-full Huffman code tree";
+                throw new RangeError("This canonical code produces an under-full Huffman code tree");
         }
         CanonicalCode.prototype.decodeNextSymbol = function (inp) {
             var codeBits = 1;
@@ -1646,18 +1646,18 @@ var deflate;
         function ByteHistory(size) {
             this.index = 0;
             if (size < 1)
-                throw "Size must be positive";
+                throw new RangeError("Size must be positive");
             this.data = new Uint8Array(size);
         }
         ByteHistory.prototype.append = function (b) {
             if (!(0 <= this.index && this.index < this.data.length))
-                throw "Assertion error";
+                throw new Error("Assertion error");
             this.data[this.index] = b;
             this.index = (this.index + 1) % this.data.length;
         };
         ByteHistory.prototype.copy = function (dist, count, out) {
             if (count < 0 || !(1 <= dist && dist <= this.data.length))
-                throw "Invalid argument";
+                throw new RangeError("Invalid argument");
             var readIndex = (this.index + this.data.length - dist) % this.data.length;
             for (var i = 0; i < count; i++) {
                 var b = this.data[readIndex];
@@ -1686,12 +1686,12 @@ var deflate;
         };
         BitInputStream.prototype.readUint = function (numBits) {
             if (numBits < 0)
-                throw "Invalid argument";
+                throw new RangeError("Invalid argument");
             var result = 0;
             for (var i = 0; i < numBits; i++) {
                 var bit = this.readBitMaybe();
                 if (bit == -1)
-                    throw "Unexpected end of data";
+                    throw new Error("Unexpected end of data");
                 result |= bit << i;
             }
             return result;

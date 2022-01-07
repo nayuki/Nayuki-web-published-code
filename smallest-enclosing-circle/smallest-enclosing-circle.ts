@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Library (TypeScript)
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -108,7 +108,7 @@ function makeCircleTwoPoints<P extends Point>(points: Readonly<Array<P>>, p: Poi
 	else if (left !== null && right !== null)
 		return left.r <= right.r ? left : right;
 	else
-		throw "Assertion error";
+		throw new Error("Assertion error");
 }
 
 

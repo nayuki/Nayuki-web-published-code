@@ -1,7 +1,7 @@
 /* 
  * Animated floating graph nodes
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
@@ -37,7 +37,7 @@ namespace app {
 				handler = () => func(parseFloat((elem as HTMLSelectElement).value));
 				elem.onchange = handler;
 			} else
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			handler();
 		}
 		
@@ -83,7 +83,7 @@ namespace app {
 		
 		public setDimensions(rw: number, rh: number): Graph {
 			if (rw < 0 || rw > 1 || rh < 0 || rh > 1 || rw != 1 && rh != 1)
-				throw "Assertion error";
+				throw new Error("Assertion error");
 			this.relWidth  = rw;
 			this.relHeight = rh;
 			return this;
@@ -285,7 +285,7 @@ namespace app {
 		
 		public redrawOutput(): void {
 			if (this.svgElem === null)
-				throw "Invalid state";
+				throw new Error("Invalid state");
 			let svg = this.svgElem as Element;
 			
 			// Clear movable objects

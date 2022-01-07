@@ -1,7 +1,7 @@
 /* 
  * sRGB transform (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/srgb-transform-library
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,7 +38,7 @@ namespace srgbtransform {
 	
 	export function srgb8BitToLinear(x: number): number {
 		if ((x | 0) != x || (x >>> 8) != 0)
-			throw "Value out of 8-bit range";
+			throw new RangeError("Value out of 8-bit range");
 		return SRGB_8BIT_TO_LINEAR[x];
 	}
 	

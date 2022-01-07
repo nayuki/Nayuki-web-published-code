@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree test (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -71,7 +71,7 @@ const TEST_SUITE_FUNCS: Array<()=>void> = [
 				if      (mode == 1) p = 0;
 				else if (mode == 2) p = 1;
 				else if (mode == 3) p = Math.random();
-				else throw "Assertion error";
+				else throw new Error("Assertion error");
 				for (let i = 0; i < len; i++) {
 					if (Math.random() < p)
 						bt.add(i, 1);
@@ -206,7 +206,7 @@ function randInt(n: number): number {
 
 function assertEquals(expect: number, actual: number): void {
 	if (actual !== expect)
-		throw "Value mismatch";
+		throw new Error("Value mismatch");
 }
 
 
@@ -225,7 +225,7 @@ function assertEquals(expect: number, actual: number): void {
 				TEST_SUITE_FUNCS[i]();
 				msg += "Pass";
 			} catch (e) {
-				msg += "Fail - " + e;
+				msg += "Fail - " + e.message;
 			}
 			i++;
 			setTimeout(iterate);

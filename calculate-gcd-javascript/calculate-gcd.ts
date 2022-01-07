@@ -1,7 +1,7 @@
 /* 
  * GCD calculator
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-gcd-javascript
  */
@@ -70,7 +70,7 @@ namespace app {
 		public constructor(val: string|Readonly<Array<number>>) {
 			if (typeof val == "string") {
 				if (!/^[0-9]+$/.test(val))
-					throw "Invalid number string";
+					throw new RangeError("Invalid number string");
 				for (const c of val)
 					this.digits.push(parseInt(c, 10));
 				this.digits.reverse();
@@ -80,13 +80,13 @@ namespace app {
 				else
 					this.digits = val.slice();
 			} else
-				throw "Invalid argument type";
+				throw new TypeError("Invalid argument type");
 			
 			// Remove trailing zeros
 			while (this.digits.length > 1 && this.digits[this.digits.length - 1] == 0)
 				this.digits.pop();
 			if (this.digits.length == 0)
-				throw "Assertion error";
+				throw new Error("Assertion error");
 		}
 		
 		
@@ -129,7 +129,7 @@ namespace app {
 				newDigits.push(diff + borrow * 10);
 			}
 			if (borrow > 0)
-				throw "Negative result";
+				throw new RangeError("Negative result");
 			return new Uint(newDigits);
 		}
 		
@@ -151,7 +151,7 @@ namespace app {
 		
 		public divide2Exact(): Uint {
 			if (!this.isEven())
-				throw "Number is odd";
+				throw new Error("Number is odd");
 			const temp: Uint = this.multiply(5);
 			let newDigits: Array<number> = temp.digits.slice();
 			newDigits.shift();

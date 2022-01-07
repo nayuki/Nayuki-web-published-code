@@ -1,6 +1,6 @@
 /* 
  * Variants of the sieve of Eratosthenes (TypeScript)
- * by Project Nayuki, 2020. Public domain.
+ * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -9,7 +9,7 @@
 // where result[k] indicates whether k is a prime number.
 function sievePrimeness(limit: number): Array<boolean> {
 	if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-		throw "Limit out of range";
+		throw new RangeError("Limit out of range");
 	let result: Array<boolean> = [false];
 	for (let i = 0; i < limit; i++)
 		result.push(true);
@@ -29,7 +29,7 @@ function sievePrimeness(limit: number): Array<boolean> {
 // where result[k] is the smallest prime factor of k.
 function sieveSmallestPrimeFactor(limit: number): Array<number> {
 	if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-		throw "Limit out of range";
+		throw new RangeError("Limit out of range");
 	let result: Array<number> = [];
 	for (let i = 0; i <= limit; i++)
 		result.push(0);
@@ -52,7 +52,7 @@ function sieveSmallestPrimeFactor(limit: number): Array<number> {
 // where result[k] is the totient (Euler phi function) of k.
 function sieveTotient(limit: number): Array<number> {
 	if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-		throw "Limit out of range";
+		throw new RangeError("Limit out of range");
 	let result: Array<number> = [];
 	for (let i = 0; i <= limit; i++)
 		result.push(i);
@@ -70,7 +70,7 @@ function sieveTotient(limit: number): Array<number> {
 // is the number of unique prime factors (omega function) of k.
 function sieveOmega(limit: number): Array<number> {
 	if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-		throw "Limit out of range";
+		throw new RangeError("Limit out of range");
 	let result: Array<number> = [];
 	for (let i = 0; i <= limit; i++)
 		result.push(0);
@@ -88,7 +88,7 @@ function sieveOmega(limit: number): Array<number> {
 // is the product of the unique prime factors (radical function) of k.
 function sieveRadical(limit: number): Array<number> {
 	if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
-		throw "Limit out of range";
+		throw new RangeError("Limit out of range");
 	let result: Array<number> = [0];
 	for (let i = 0; i < limit; i++)
 		result.push(1);

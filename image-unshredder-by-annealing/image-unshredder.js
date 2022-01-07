@@ -1,7 +1,7 @@
 /*
  * Image unshredder demo (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -29,7 +29,7 @@ var app;
     {
         var temp = canvas.getContext("2d");
         if (!(temp instanceof CanvasRenderingContext2D))
-            throw "Assertion error";
+            throw new Error("Assertion error");
         graphics = temp;
     }
     var imageSelect = queryElem("select#image-select", HTMLSelectElement);
@@ -47,9 +47,9 @@ var app;
         if (result instanceof type)
             return result;
         else if (result === null)
-            throw "Element not found";
+            throw new Error("Element not found");
         else
-            throw "Invalid element type";
+            throw new TypeError("Invalid element type");
     }
     function setButtonsBusy(busy) {
         if (busy) {

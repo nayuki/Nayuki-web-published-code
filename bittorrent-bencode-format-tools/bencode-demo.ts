@@ -1,7 +1,7 @@
 /* 
  * BitTorrent bencode decoder demo (TypeScript)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,7 +50,7 @@ namespace app {
 				const rootVal = BencodeParser.parse(bytes);
 				rootElem.appendChild(toHtml(rootVal));
 			} catch (e) {
-				rootElem.textContent = "Error: " + e.toString();
+				rootElem.textContent = "Error: " + e.message;
 			}
 		}
 	}
@@ -115,14 +115,14 @@ namespace app {
 				for (const key of item.keys) {
 					const val = item.map.get(key);
 					if (val === undefined)
-						throw "Assertion error";
+						throw new Error("Assertion error");
 					addRow(key, toHtml(val));
 				}
 			} else
-				throw "Assertion error";
+				throw new Error("Assertion error");
 		}
 		else
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		return result;
 	}
 	
@@ -131,10 +131,10 @@ namespace app {
 	function decodeUtf8(bytes: string): string {
 		function cb(i: number): number {
 			if (i < 0 || i >= bytes.length)
-				throw "Missing continuation bytes";
+				throw new RangeError("Missing continuation bytes");
 			const result: number = bytes.charCodeAt(i);
 			if ((result & 0b11000000) != 0b10000000)
-				throw "Invalid continuation byte value";
+				throw new RangeError("Invalid continuation byte value");
 			return result & 0b00111111;
 		}
 		
@@ -144,32 +144,32 @@ namespace app {
 			if (lead < 0b10000000)  // Single byte ASCII (0xxxxxxx)
 				result += bytes.charAt(i);
 			else if (lead < 0b11000000)  // Continuation byte (10xxxxxx)
-				throw "Invalid leading byte";
+				throw new RangeError("Invalid leading byte");
 			else if (lead < 0b11100000) {  // Two bytes (110xxxxx 10xxxxxx)
 				const c: number = (lead & 0b00011111) << 6 | cb(i + 1) << 0;
 				if (c < (1 << 7))
-					throw "Over-long UTF-8 sequence";
+					throw new RangeError("Over-long UTF-8 sequence");
 				result += String.fromCharCode(c);
 				i += 1;
 			} else if (lead < 0b11110000) {  // Three bytes (1110xxxx 10xxxxxx 10xxxxxx)
 				const c: number = (lead & 0b00001111) << 12 | cb(i + 1) << 6 | cb(i + 2) << 0;
 				if (c < (1 << 11))
-					throw "Over-long UTF-8 sequence";
+					throw new RangeError("Over-long UTF-8 sequence");
 				if (0xD800 <= c && c < 0xE000)
-					throw "Invalid UTF-8 containing UTF-16 surrogate";
+					throw new RangeError("Invalid UTF-8 containing UTF-16 surrogate");
 				result += String.fromCharCode(c);
 				i += 2;
 			} else if (lead < 0b11111000) {  // Four bytes (11110xxx 10xxxxxx 10xxxxxx 10xxxxxx)
 				let c: number = (lead & 0b00000111) << 18 | cb(i + 1) << 12 | cb(i + 2) << 6 | cb(i + 3);
 				if (c < (1 << 16))
-					throw "Over-long UTF-8 sequence";
+					throw new RangeError("Over-long UTF-8 sequence");
 				if (c >= 0x110000)
-					throw "UTF-8 code point out of range";
+					throw new RangeError("UTF-8 code point out of range");
 				c -= 0x10000;
 				result += String.fromCharCode(0xD800 | (c >>> 10), 0xDC00 | (c & 0b1111111111));
 				i += 3;
 			} else
-				throw "Invalid leading byte";
+				throw new RangeError("Invalid leading byte");
 		}
 		return result;
 	}
@@ -196,7 +196,7 @@ namespace app {
 		private parseRoot(): BencodeValue {
 			const result: BencodeValue = this.parseValue(this.readByte());
 			if (this.index < this.array.length)
-				throw "Unexpected extra data at byte offset " + this.index;
+				throw new Error("Unexpected extra data at byte offset " + this.index);
 			return result;
 		}
 		
@@ -211,7 +211,7 @@ namespace app {
 			else if (head == cc("d"))
 				return this.parseDictionary();
 			else
-				throw "Unexpected item type at byte offset " + (this.index - 1);
+				throw new Error("Unexpected item type at byte offset " + (this.index - 1));
 		}
 		
 		
@@ -234,11 +234,11 @@ namespace app {
 					ok = "0" <= c && c <= "9";
 				
 				if (!ok)
-					throw "Unexpected integer character at byte offset " + (this.index - 1);
+					throw new Error("Unexpected integer character at byte offset " + (this.index - 1));
 				str += c;
 			}
 			if (str == "" || str == "-")
-				throw "Invalid integer syntax at byte offset " + (this.index - 1);
+				throw new Error("Invalid integer syntax at byte offset " + (this.index - 1));
 			return new BencodeInt(str);
 		}
 		
@@ -257,7 +257,7 @@ namespace app {
 			let b: number = head;
 			do {
 				if (b < cc("0") || b > cc("9") || str == "0")
-					throw "Unexpected integer character at byte offset " + (this.index - 1);
+					throw new Error("Unexpected integer character at byte offset " + (this.index - 1));
 				str += String.fromCharCode(b);
 				b = this.readByte();
 			} while (b != cc(":"));
@@ -286,7 +286,7 @@ namespace app {
 					break;
 				const key: string = this.parseByteString(b).value;
 				if (keys.length > 0 && key <= keys[keys.length - 1])
-					throw "Misordered dictionary key at byte offset " + (this.index - key.length);
+					throw new Error("Misordered dictionary key at byte offset " + (this.index - key.length));
 				keys.push(key);
 				map.set(key, this.parseValue(this.readByte()));
 			}
@@ -296,7 +296,7 @@ namespace app {
 		
 		private readByte(): number {
 			if (this.index >= this.array.length)
-				throw "Unexpected end of data at byte offset " + this.index;
+				throw new Error("Unexpected end of data at byte offset " + this.index);
 			const result: number = this.array[this.index];
 			this.index++;
 			return result;
@@ -308,7 +308,7 @@ namespace app {
 	// Returns the numeric code point of the given one-character ASCII string.
 	function cc(s: string): number {
 		if (s.length != 1)
-			throw "Invalid string length";
+			throw new RangeError("Invalid string length");
 		return s.charCodeAt(0);
 	}
 	

@@ -1,7 +1,7 @@
 /*
  * AVL tree list (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@ var AvlTreeList = /** @class */ (function () {
         if (arguments.length == 1 && arr !== undefined)
             arr.forEach(function (val) { return _this.push(val); });
         else if (arguments.length != 0)
-            throw "Illegal argument";
+            throw new RangeError("Illegal argument");
     }
     Object.defineProperty(AvlTreeList.prototype, "length", {
         // The property 'length' returns the length of this list. It is a property with a
@@ -51,14 +51,14 @@ var AvlTreeList = /** @class */ (function () {
     // For example: [a,b,c] -> get(2) returns c.
     AvlTreeList.prototype.get = function (index) {
         if (index < 0 || index >= this.length)
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         return this.root.getNodeAt(index).value;
     };
     // Sets the element at the given index in this list to the given value, where 0 <= index < length.
     // For example: [a,b,c] -> set(1, f) -> [a,f,c].
     AvlTreeList.prototype.set = function (index, val) {
         if (index < 0 || index >= this.length)
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         this.root.getNodeAt(index).value = val;
     };
     // Appends the given element to the end of this list.
@@ -70,21 +70,21 @@ var AvlTreeList = /** @class */ (function () {
     // For example: [a,b,c] -> insert(0, e) -> [e,a,b,c] -> insert(4, d) -> [e,a,b,c,d].
     AvlTreeList.prototype.insert = function (index, val) {
         if (index < 0 || index > this.length) // Different constraint than the other methods
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         this.root = this.root.insertAt(index, val);
     };
     // Removes the element at the given index in this list, shifting all later elements forward by one index.
     // For example: [a,b,c,d] -> remove(1) -> [a,c,d].
     AvlTreeList.prototype.remove = function (index) {
         if (index < 0 || index >= this.length)
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         this.root = this.root.removeAt(index);
     };
     // Removes and returns the first element of this list.
     // For example: [a,b,c] -> shift() returns a -> [b,c].
     AvlTreeList.prototype.shift = function () {
         if (this.length == 0)
-            throw "List is empty";
+            throw new Error("List is empty");
         var result = this.get(0);
         this.remove(0);
         return result;
@@ -94,7 +94,7 @@ var AvlTreeList = /** @class */ (function () {
     AvlTreeList.prototype.pop = function () {
         var len = this.length;
         if (len == 0)
-            throw "List is empty";
+            throw new Error("List is empty");
         var result = this.get(len - 1);
         this.remove(len - 1);
         return result;
@@ -199,7 +199,7 @@ var AvlTreeListEmptyNode = /** @class */ (function () {
         if (index == 0)
             return new AvlTreeListInternalNode(obj, this);
         else
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
     };
     AvlTreeListEmptyNode.prototype.checkStructure = function () { };
     return AvlTreeListEmptyNode;
@@ -221,7 +221,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
     Object.defineProperty(AvlTreeListInternalNode.prototype, "leftNode", {
         get: function () {
             if (this.left.size == 0)
-                throw "Assertion error";
+                throw new Error("Assertion error");
             return this.left;
         },
         enumerable: false,
@@ -230,7 +230,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
     Object.defineProperty(AvlTreeListInternalNode.prototype, "rightNode", {
         get: function () {
             if (this.right.size == 0)
-                throw "Assertion error";
+                throw new Error("Assertion error");
             return this.right;
         },
         enumerable: false,
@@ -238,7 +238,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
     });
     AvlTreeListInternalNode.prototype.getNodeAt = function (index) {
         if (index < 0 || index >= this.size)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         var leftSize = this.left.size;
         if (index < leftSize)
             return this.leftNode.getNodeAt(index);
@@ -249,7 +249,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
     };
     AvlTreeListInternalNode.prototype.insertAt = function (index, obj) {
         if (index < 0 || index > this.size)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         var leftSize = this.left.size;
         if (index <= leftSize)
             this.left = this.left.insertAt(index, obj);
@@ -260,7 +260,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
     };
     AvlTreeListInternalNode.prototype.removeAt = function (index) {
         if (index < 0 || index >= this.size)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         var leftSize = this.left.size;
         if (index < leftSize)
             this.left = this.leftNode.removeAt(index);
@@ -287,12 +287,12 @@ var AvlTreeListInternalNode = /** @class */ (function () {
     AvlTreeListInternalNode.prototype.balance = function () {
         var bal = this.getBalance();
         if (Math.abs(bal) > 2)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         var result = this;
         if (bal == -2) {
             var left = this.leftNode;
             if (Math.abs(left.getBalance()) > 1)
-                throw "Assertion error";
+                throw new Error("Assertion error");
             if (left.getBalance() == +1)
                 this.left = left.rotateLeft();
             result = this.rotateRight();
@@ -300,13 +300,13 @@ var AvlTreeListInternalNode = /** @class */ (function () {
         else if (bal == +2) {
             var right = this.rightNode;
             if (Math.abs(right.getBalance()) > 1)
-                throw "Assertion error";
+                throw new Error("Assertion error");
             if (right.getBalance() == -1)
                 this.right = right.rotateRight();
             result = this.rotateLeft();
         }
         if (Math.abs(result.getBalance()) > 1)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         return result;
     };
     /*
@@ -318,7 +318,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
      */
     AvlTreeListInternalNode.prototype.rotateLeft = function () {
         if (this.right.size == 0)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         var root = this.rightNode;
         this.right = root.left;
         root.left = this;
@@ -335,7 +335,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
      */
     AvlTreeListInternalNode.prototype.rotateRight = function () {
         if (this.left.size == 0)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         var root = this.leftNode;
         this.left = root.right;
         root.right = this;
@@ -347,15 +347,15 @@ var AvlTreeListInternalNode = /** @class */ (function () {
     // Assumes the left and right subtrees have the correct values computed already.
     AvlTreeListInternalNode.prototype.recalculate = function () {
         if (this.size == 0)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         if (this.left.height < 0 || this.right.height < 0)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         if (this.left.size < 0 || this.right.size < 0)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         this.height = Math.max(this.left.height, this.right.height) + 1;
         this.size = this.left.size + this.right.size + 1;
         if (this.height < 0 || this.size < 0)
-            throw "Assertion error";
+            throw new Error("Assertion error");
     };
     AvlTreeListInternalNode.prototype.getBalance = function () {
         return this.right.height - this.left.height;
@@ -365,11 +365,11 @@ var AvlTreeListInternalNode = /** @class */ (function () {
         this.left.checkStructure();
         this.right.checkStructure();
         if (this.height != Math.max(this.left.height, this.right.height) + 1)
-            throw "AVL tree structure violated: Incorrect cached height";
+            throw new Error("AVL tree structure violated: Incorrect cached height");
         if (this.size != this.left.size + this.right.size + 1)
-            throw "AVL tree structure violated: Incorrect cached size";
+            throw new Error("AVL tree structure violated: Incorrect cached size");
         if (Math.abs(this.getBalance()) > 1)
-            throw "AVL tree structure violated: Height imbalance";
+            throw new Error("AVL tree structure violated: Height imbalance");
     };
     return AvlTreeListInternalNode;
 }());
@@ -390,7 +390,7 @@ var AvlTreeListIterator = /** @class */ (function () {
     };
     AvlTreeListIterator.prototype.next = function () {
         if (!this.hasNext())
-            throw "No next element";
+            throw new Error("No next element");
         var node = this.stack.pop(); // Never undefined
         var result = node.value;
         var maybeNode = node.right;

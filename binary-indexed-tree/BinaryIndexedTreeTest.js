@@ -1,7 +1,7 @@
 /*
  * Binary indexed tree test (compiled from TypeScript)
  *
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -67,7 +67,7 @@ var TEST_SUITE_FUNCS = [
                 else if (mode == 3)
                     p = Math.random();
                 else
-                    throw "Assertion error";
+                    throw new Error("Assertion error");
                 for (var i = 0; i < len; i++) {
                     if (Math.random() < p)
                         bt.add(i, 1);
@@ -186,7 +186,7 @@ function randInt(n) {
 }
 function assertEquals(expect, actual) {
     if (actual !== expect)
-        throw "Value mismatch";
+        throw new Error("Value mismatch");
 }
 /*---- Main runner ----*/
 (function () {
@@ -202,7 +202,7 @@ function assertEquals(expect, actual) {
                 msg += "Pass";
             }
             catch (e) {
-                msg += "Fail - " + e;
+                msg += "Fail - " + e.message;
             }
             i++;
             setTimeout(iterate);

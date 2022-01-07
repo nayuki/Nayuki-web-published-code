@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (TypeScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -143,7 +143,7 @@ namespace fastDctLee {
 	export function transform(vector: Array<number>): void {
 		const n: number = vector.length;
 		if (n <= 0 || (n & (n - 1)) != 0)
-			throw "Length must be power of 2";
+			throw new RangeError("Length must be power of 2");
 		transformInternal(vector, 0, n, new Float64Array(n));
 	}
 	
@@ -174,7 +174,7 @@ namespace fastDctLee {
 	export function inverseTransform(vector: Array<number>): void {
 		const n: number = vector.length;
 		if (n <= 0 || (n & (n - 1)) != 0)
-			throw "Length must be power of 2";
+			throw new RangeError("Length must be power of 2");
 		vector[0] /= 2;
 		inverseTransformInternal(vector, 0, n, new Float64Array(n));
 	}

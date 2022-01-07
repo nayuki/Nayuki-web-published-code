@@ -1,7 +1,7 @@
 /*
  * GCD calculator (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-gcd-javascript
  */
@@ -60,7 +60,7 @@ var app;
             this.digits = []; // Little endian
             if (typeof val == "string") {
                 if (!/^[0-9]+$/.test(val))
-                    throw "Invalid number string";
+                    throw new RangeError("Invalid number string");
                 for (var _i = 0, val_1 = val; _i < val_1.length; _i++) {
                     var c = val_1[_i];
                     this.digits.push(parseInt(c, 10));
@@ -74,12 +74,12 @@ var app;
                     this.digits = val.slice();
             }
             else
-                throw "Invalid argument type";
+                throw new TypeError("Invalid argument type");
             // Remove trailing zeros
             while (this.digits.length > 1 && this.digits[this.digits.length - 1] == 0)
                 this.digits.pop();
             if (this.digits.length == 0)
-                throw "Assertion error";
+                throw new Error("Assertion error");
         }
         Uint.prototype.isZero = function () {
             return this.digits.every(function (d) { return d == 0; });
@@ -114,7 +114,7 @@ var app;
                 newDigits.push(diff + borrow * 10);
             }
             if (borrow > 0)
-                throw "Negative result";
+                throw new RangeError("Negative result");
             return new Uint(newDigits);
         };
         // n must be in the range [0, 9].
@@ -132,7 +132,7 @@ var app;
         };
         Uint.prototype.divide2Exact = function () {
             if (!this.isEven())
-                throw "Number is odd";
+                throw new Error("Number is odd");
             var temp = this.multiply(5);
             var newDigits = temp.digits.slice();
             newDigits.shift();
