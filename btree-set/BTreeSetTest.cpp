@@ -1,7 +1,7 @@
 /* 
  * B-tree set test (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <random>
 #include <set>
@@ -54,8 +55,8 @@ int main() {
 		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -88,19 +89,19 @@ static void testSmallRandomly() {
 				set1.insert(val);
 			} else {
 				if (set0.erase(val) != set1.erase(val))
-					throw "Erase mismatch";
+					throw std::runtime_error("Erase mismatch");
 			}
 			set1.checkStructure();
 			
 			// Check size and check element membership over entire range
 			if (set0.empty() != set1.empty())
-				throw "Empty mismatch";
+				throw std::runtime_error("Empty mismatch");
 			if (set0.size() != set1.size())
-				throw "Size mismatch";
+				throw std::runtime_error("Size mismatch");
 			for (int k = -4; k < RANGE + 4; k++) {
 				int val = k;
 				if (contains(set0, val) != set1.contains(val))
-					throw "Contain test mismatch";
+					throw std::runtime_error("Contain test mismatch");
 			}
 		}
 	}
@@ -127,11 +128,11 @@ static void testInsertRandomly() {
 			
 			// Check size and random element membership
 			if (set0.size() != set1.size())
-				throw "Size mismatch";
+				throw std::runtime_error("Size mismatch");
 			for (long k = 0; k < CHECKS; k++) {
 				long val = valueDist(randGen);
 				if (contains(set0, val) != set1.contains(val))
-					throw "Contain test mismatch";
+					throw std::runtime_error("Contain test mismatch");
 			}
 		}
 	}
@@ -157,18 +158,18 @@ static void testLargeRandomly() {
 				set1.insert(val);
 			} else {
 				if (set0.erase(val) != set1.erase(val))
-					throw "Erase mismatch";
+					throw std::runtime_error("Erase mismatch");
 			}
 			if (realDist(randGen) < 0.001)
 				set1.checkStructure();
 			
 			// Check size and random element membership
 			if (set0.size() != set1.size())
-				throw "Size mismatch";
+				throw std::runtime_error("Size mismatch");
 			for (long k = 0; k < CHECKS; k++) {
 				long val = valueDist(randGen);
 				if (contains(set0, val) != set1.contains(val))
-					throw "Contain test mismatch";
+					throw std::runtime_error("Contain test mismatch");
 			}
 		}
 	}
@@ -198,15 +199,15 @@ static void testRemoveAllRandomly() {
 		std::shuffle(temp.begin(), temp.end(), randGen);
 		for (long val : temp) {
 			if (set0.erase(val) != set1.erase(val))
-				throw "Erase mismatch";
+				throw std::runtime_error("Erase mismatch");
 			if (realDist(randGen) < 1.0 / std::min(std::max(set1.size(), static_cast<size_t>(1)), static_cast<size_t>(1000)))
 				set1.checkStructure();
 			if (set0.size() != set1.size())
-				throw "Size mismatch";
+				throw std::runtime_error("Size mismatch");
 			for (long k = 0; k < CHECKS; k++) {
 				long val = valueDist(randGen);
 				if (contains(set0, val) != set1.contains(val))
-					throw "Contain test mismatch";
+					throw std::runtime_error("Contain test mismatch");
 			}
 		}
 	}

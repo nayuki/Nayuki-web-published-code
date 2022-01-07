@@ -1,7 +1,7 @@
 /* 
  * Convex hull algorithm - Test suite (C++)
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <random>
 #include <utility>
@@ -78,8 +79,8 @@ int main() {
 		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -93,7 +94,7 @@ static void testEmpty() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect = points;
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -102,7 +103,7 @@ static void testOne() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect = points;
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -111,7 +112,7 @@ static void testTwoDuplicate() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect{Point{0, 0}};
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -120,7 +121,7 @@ static void testTwoHorizontal0() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect = points;
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -129,7 +130,7 @@ static void testTwoHorizontal1() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect{Point{-8, -3}, Point{-6, -3}};
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -138,7 +139,7 @@ static void testTwoVertical0() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect = points;
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -147,7 +148,7 @@ static void testTwoVertical1() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect{Point{-1, -3}, Point{-1, 2}};
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -156,7 +157,7 @@ static void testTwoDiagonal0() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect = points;
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -165,7 +166,7 @@ static void testTwoDiagonal1() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect = points;
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -174,7 +175,7 @@ static void testRectangle() {
 	const vector<Point> actual = makeConvexHull(points);
 	const vector<Point> expect{Point{-3, -4}, Point{-3, 2}, Point{1, 2}, Point{1, -4}};
 	if (actual != expect)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -204,7 +205,7 @@ static void testHorizontalRandomly() {
 		if (temp != expected.front())
 			expected.push_back(temp);
 		if (actual != expected)
-			throw "Value mismatch";
+			throw std::runtime_error("Value mismatch");
 	}
 }
 
@@ -232,7 +233,7 @@ static void testVerticalRandomly() {
 		if (temp != expected.front())
 			expected.push_back(temp);
 		if (actual != expected)
-			throw "Value mismatch";
+			throw std::runtime_error("Value mismatch");
 	}
 }
 
@@ -255,7 +256,7 @@ static void testVsNaiveRandomly() {
 		const vector<Point> expected = makeHullNaive(points);
 		const vector<Point> actual = makeConvexHull(std::move(points));
 		if (actual != expected)
-			throw "Value mismatch";
+			throw std::runtime_error("Value mismatch");
 	}
 }
 
@@ -281,10 +282,10 @@ static void testHullPropertiesRandomly() {
 		// Compute hull and check properties
 		const vector<Point> hull = makeConvexHull(points);
 		if (!isPolygonConvex(hull))
-			throw "Polygon not convex";
+			throw std::runtime_error("Polygon not convex");
 		for (const Point &p : points) {
 			if (!isPointInConvexPolygon(hull, p))
-				throw "Point not in polygon";
+				throw std::runtime_error("Point not in polygon");
 		}
 		
 		// Add duplicate points and check new hull
@@ -296,7 +297,7 @@ static void testHullPropertiesRandomly() {
 			}
 			const vector<Point> nextHull = makeConvexHull(std::move(points));
 			if (nextHull != hull)
-				throw "Value mismatch";
+				throw std::runtime_error("Value mismatch");
 		}
 	}
 }

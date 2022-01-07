@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree test (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,6 +25,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <limits>
 #include <random>
@@ -56,8 +57,8 @@ int main() {
 		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -66,7 +67,7 @@ int main() {
 template <typename T>
 static void assertEquals(T x, T y) {
 	if (x != y)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -116,7 +117,7 @@ static void testAllOnes() {
 			if      (mode == 1) p = 0;
 			else if (mode == 2) p = 1;
 			else if (mode == 3) p = realDist(randGen);
-			else throw "Assertion error";
+			else throw std::domain_error("Assertion error");
 			for (size_t i = 0; i < len; i++) {
 				if (realDist(randGen) < p)
 					bt.add(i, 1);

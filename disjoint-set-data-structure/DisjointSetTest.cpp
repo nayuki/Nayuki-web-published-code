@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Test suite (C++)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,6 +24,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -84,7 +85,7 @@ std::uniform_real_distribution<double> realDist;
 
 static void assertTrue(bool cond) {
 	if (!cond)
-		throw "Assertion error";
+		throw std::runtime_error("Assertion error");
 }
 
 
@@ -201,8 +202,8 @@ int main() {
 		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }

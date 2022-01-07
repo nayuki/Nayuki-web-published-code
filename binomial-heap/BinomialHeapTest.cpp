@@ -1,7 +1,7 @@
 /* 
  * Binomial heap test (C++)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <random>
@@ -38,7 +39,7 @@ using std::size_t;
 template <typename T>
 static void assertEquals(T x, T y) {
 	if (x != y)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -178,7 +179,7 @@ static void testAgainstCppPriorityQueueRandomly() {
 			size -= n;
 			
 		} else
-			throw "Invalid random operation";
+			throw std::domain_error("Invalid random operation");
 		
 		assertEquals(queue.size(), size);
 		assertEquals(heap.size(), size);
@@ -198,8 +199,8 @@ int main() {
 		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }

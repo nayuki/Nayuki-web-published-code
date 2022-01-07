@@ -1,7 +1,7 @@
 /* 
  * Smallest enclosing circle - Test suite (C++)
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <random>
 #include <utility>
@@ -55,8 +56,8 @@ int main() {
 		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -168,12 +169,12 @@ static Circle smallestEnclosingCircleNaive(const vector<Point> &points) {
 		}
 	}
 	if (result.r < 0)
-		throw "Assertion error";
+		throw std::runtime_error("Assertion error");
 	return result;
 }
 
 
 static void assertApproxEqual(double expect, double actual, double epsilon) {
 	if (std::fabs(expect - actual) > epsilon)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }

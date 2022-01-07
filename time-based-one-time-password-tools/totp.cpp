@@ -1,7 +1,7 @@
 /* 
  * Time-based One-Time Password tools (C++)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,6 +27,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -83,10 +84,10 @@ int main(int argc, char **argv) {
 			string code = calcTotp(std::move(secretKey), 0, 30, timestamp, 6, calcSha1Hash, 64);
 			std::cout << code << std::endl;
 		} else
-			throw "Usage: totp [SecretKey]";
+			throw std::invalid_argument("Usage: totp [SecretKey]");
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -101,7 +102,7 @@ static vector<uint8_t> decodeBase32(const char *str) {
 			continue;
 		const char *p = std::strchr(ALPHABET, std::toupper(c));
 		if (p == nullptr)
-			throw "Invalid Base32 string";
+			throw std::domain_error("Invalid Base32 string");
 		bits = (bits << 5) | (p - ALPHABET);
 		bitsLen += 5;
 		if (bitsLen >= 8) {
@@ -147,7 +148,7 @@ string calcHotp(
 	
 	// Check argument, calculate HMAC
 	if (!(1 <= codeLen && codeLen <= 9))
-		throw "Invalid number of digits";
+		throw std::domain_error("Invalid number of digits");
 	vector<uint8_t> hash = calcHmac(std::move(secretKey), counter, hashFunc, blockSize);
 	
 	// Dynamically truncate the hash value
@@ -174,7 +175,7 @@ static vector<uint8_t> calcHmac(
 		int blockSize) {
 	
 	if (blockSize < 1)
-		throw "Invalid block size";
+		throw std::domain_error("Invalid block size");
 	
 	if (key.size() > static_cast<unsigned int>(blockSize))
 		key = hashFunc(key);
@@ -229,7 +230,7 @@ vector<uint8_t> calcSha1Hash(vector<uint8_t> message) {
 				case 1:  f = b ^ c ^ d;                    rc = UINT32_C(0x6ED9EBA1);  break;
 				case 2:  f = (b & c) ^ (b & d) ^ (c & d);  rc = UINT32_C(0x8F1BBCDC);  break;
 				case 3:  f = b ^ c ^ d;                    rc = UINT32_C(0xCA62C1D6);  break;
-				default:  throw "Assertion error";
+				default:  throw std::domain_error("Assertion error");
 			}
 			uint32_t temp = 0U + rotateLeft(a, 5) + f + e + schedule.at(j) + rc;
 			e = d;
@@ -296,7 +297,7 @@ static void testHotp() {
 		vector<uint8_t> counterBytes = toBytesBigEndian(tc.counter);
 		string actual = calcHotp(SECRET_KEY, counterBytes, 9, calcSha1Hash, 64);
 		if (actual != string(tc.expected))
-			throw "Value mismatch";
+			throw std::runtime_error("Value mismatch");
 	}
 }
 
@@ -322,6 +323,6 @@ static void testTotp() {
 	for (const TestCase &tc : CASES) {
 		string actual = calcTotp(SECRET_KEY, 0, 30, tc.timestamp, 8, calcSha1Hash, 64);
 		if (actual != string(tc.expected))
-			throw "Value mismatch";
+			throw std::runtime_error("Value mismatch");
 	}
 }

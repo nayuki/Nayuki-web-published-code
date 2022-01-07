@@ -1,12 +1,13 @@
 /* 
  * Test of variants of the sieve of Eratosthenes (C++)
- * by Project Nayuki, 2017. Public domain.
+ * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <vector>
 #include "EratosthenesSieves.hpp"
@@ -28,8 +29,8 @@ int main() {
 		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -40,31 +41,31 @@ static void testValues() {
 		vector<bool> expect{false, false, true, true, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, false};
 		vector<bool> actual = sievePrimeness(expect.size() - 1);
 		if (actual != expect)
-			throw "Mismatch";
+			throw std::runtime_error("Mismatch");
 	}
 	{
 		vector<uint32_t> expect{0, 1, 2, 3, 2, 5, 2, 7, 2, 3, 2, 11, 2, 13, 2, 3, 2, 17, 2, 19, 2, 3, 2, 23, 2, 5, 2, 3, 2, 29, 2};
 		vector<uint32_t> actual = sieveSmallestPrimeFactor(expect.size() - 1);
 		if (actual != expect)
-			throw "Mismatch";
+			throw std::runtime_error("Mismatch");
 	}
 	{
 		vector<uint32_t> expect{0, 1, 1, 2, 2, 4, 2, 6, 4, 6, 4, 10, 4, 12, 6, 8, 8, 16, 6, 18, 8, 12, 10, 22, 8, 20, 12, 18, 12, 28, 8};
 		vector<uint32_t> actual = sieveTotient(expect.size() - 1);
 		if (actual != expect)
-			throw "Mismatch";
+			throw std::runtime_error("Mismatch");
 	}
 	{
 		vector<uint32_t> expect{0, 0, 1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 1, 2, 2, 1, 1, 2, 1, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 3};
 		vector<uint32_t> actual = sieveOmega(expect.size() - 1);
 		if (actual != expect)
-			throw "Mismatch";
+			throw std::runtime_error("Mismatch");
 	}
 	{
 		vector<uint32_t> expect{0, 1, 2, 3, 2, 5, 6, 7, 2, 3, 10, 11, 6, 13, 14, 15, 2, 17, 6, 19, 10, 21, 22, 23, 6, 5, 26, 3, 14, 29, 30};
 		vector<uint32_t> actual = sieveRadical(expect.size() - 1);
 		if (actual != expect)
-			throw "Mismatch";
+			throw std::runtime_error("Mismatch");
 	}
 }
 
@@ -77,7 +78,7 @@ static void testPrefixConsistency() {
 			vector<bool> cur = sievePrimeness(i);
 			for (uint32_t j = 0; j < i; j++) {
 				if (cur.at(j) != prev.at(j))
-					throw "Mismatch";
+					throw std::runtime_error("Mismatch");
 			}
 			prev = cur;
 		}
@@ -95,7 +96,7 @@ static void testPrefixConsistency() {
 				vector<uint32_t> cur = func(i);
 				for (uint32_t j = 0; j < i; j++) {
 					if (cur.at(j) != prev.at(j))
-						throw "Mismatch";
+						throw std::runtime_error("Mismatch");
 				}
 				prev = cur;
 			}

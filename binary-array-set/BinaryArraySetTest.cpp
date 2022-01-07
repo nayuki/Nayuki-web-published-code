@@ -1,7 +1,7 @@
 /* 
  * Binary array set test (C++)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,6 +23,7 @@
 
 #include <cstddef>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <random>
 #include <set>
@@ -34,7 +35,7 @@ using std::size_t;
 template <typename T>
 static void assertEquals(T x, T y) {
 	if (x != y)
-		throw "Value mismatch";
+		throw std::runtime_error("Value mismatch");
 }
 
 
@@ -120,7 +121,7 @@ static void testAgainstCppSetRandomly() {
 			}
 			
 		} else
-			throw "Assertion error";
+			throw std::domain_error("Assertion error");
 		
 		assertEquals(set0.empty(), set1.empty());
 		assertEquals(set0.size(), size);
@@ -138,8 +139,8 @@ int main() {
 		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }

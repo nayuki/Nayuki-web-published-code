@@ -1,7 +1,7 @@
 /* 
  * Split testing for Tiny PNG Output (C++)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * https://www.nayuki.io/page/tiny-png-output
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -22,6 +22,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <limits>
 #include <sstream>
@@ -63,8 +64,8 @@ int main() {
 		}
 		return EXIT_SUCCESS;
 		
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -104,6 +105,6 @@ static void test(uint32_t width, uint32_t height, long trials) {
 		std::string actual = out.str();
 		std::cerr << (actual == reference ? "Same" : "Different") << std::endl;
 		if (actual != reference)
-			throw "Data mismatch";
+			throw std::runtime_error("Data mismatch");
 	}
 }

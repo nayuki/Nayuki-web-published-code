@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max test (C++)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -51,8 +52,8 @@ int main() {
 		
 		std::cerr << "Test passed" << std::endl;
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -61,7 +62,7 @@ int main() {
 template <typename E>
 vector<E> computeSlidingWindowMinOrMaxNaive(const vector<E> &array, size_t window, bool maximize) {
 	if (window == 0)
-		throw "Window size must be positive";
+		throw std::domain_error("Window size must be positive");
 	vector<E> result;
 	if (array.size() < window)
 		return result;
@@ -94,10 +95,10 @@ static void testRandomly() {
 		vector<int> expect = computeSlidingWindowMinOrMaxNaive(array, window, maximize);
 		vector<int> actual = computeSlidingWindowMinOrMax     (array, window, maximize);
 		if (expect.size() != actual.size())
-			throw "Size mismatch";
+			throw std::runtime_error("Size mismatch");
 		for (size_t j = 0; j < expect.size(); j++) {
 			if (expect.at(j) != actual.at(j))
-				throw "Value mismatch";
+				throw std::runtime_error("Value mismatch");
 		}
 	}
 }
@@ -124,12 +125,12 @@ static void testIncremental() {
 				++start;
 			}
 			if (start > end)
-				throw "Assertion error";
+				throw std::logic_error("Assertion error");
 			if (start < end) {
 				int min = *std::min_element(start, end);
 				int max = *std::max_element(start, end);
 				if (swm.getMinimum() != min || swm.getMaximum() != max)
-					throw "Value mismatch";
+					throw std::runtime_error("Value mismatch");
 			}
 		}
 	}

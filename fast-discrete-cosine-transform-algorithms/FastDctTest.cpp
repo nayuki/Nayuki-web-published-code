@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (C++)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,6 +23,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -58,8 +59,8 @@ int main() {
 		testFastDctFftInvertibility();
 		
 		return EXIT_SUCCESS;
-	} catch (const char *msg) {
-		std::cerr << msg << std::endl;
+	} catch (std::exception &e) {
+		std::cerr << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 }
@@ -160,10 +161,10 @@ static void testFastDctFftInvertibility() {
 
 static void assertArrayEquals(const vector<double> &expect, const vector<double> &actual, double epsilon) {
 	if (expect.size() != actual.size())
-		throw "Length mismatch";
+		throw std::runtime_error("Length mismatch");
 	for (size_t i = 0; i < expect.size(); i++) {
 		if (fabs(expect.at(i) - actual.at(i)) > epsilon)
-			throw "Value mismatch";
+			throw std::runtime_error("Value mismatch");
 	}
 }
 
