@@ -282,7 +282,7 @@
 					area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
 					
 				} else if (angles == 2) {
-					if (A === null && a !== null || B === null && b !== null || C === null && c !== null)
+					if (and(A === null, a !== null) || and(B === null, b !== null) || and(C === null,  c !== null))
 						status = "Angle side angle (ASA) case";
 					else
 						status = "Angle angle side (AAS) case";

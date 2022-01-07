@@ -136,7 +136,7 @@ var app;
                     if (0xDC00 <= d && d < 0xE000) // Low surrogate
                         continue;
                 }
-                throw "Invalid UTF-16 string";
+                throw new RangeError("Invalid UTF-16 string");
             }
             return result;
         }
@@ -154,7 +154,7 @@ var app;
     // The scale must be a positive integer and the border must be a non-negative integer.
     function drawCanvas(qr, scale, border, lightColor, darkColor, canvas) {
         if (scale <= 0 || border < 0)
-            throw "Value out of range";
+            throw new RangeError("Value out of range");
         var width = (qr.size + border * 2) * scale;
         canvas.width = width;
         canvas.height = width;
@@ -170,7 +170,7 @@ var app;
     // of border modules. The string always uses Unix newlines (\n), regardless of the platform.
     function toSvgString(qr, border, lightColor, darkColor) {
         if (border < 0)
-            throw "Border must be non-negative";
+            throw new RangeError("Border must be non-negative");
         var parts = [];
         for (var y = 0; y < qr.size; y++) {
             for (var x = 0; x < qr.size; x++) {
@@ -200,13 +200,13 @@ var app;
         var result = document.getElementById(id);
         if (result instanceof HTMLElement)
             return result;
-        throw "Assertion error";
+        throw new Error("Assertion error");
     }
     function getInput(id) {
         var result = getElem(id);
         if (result instanceof HTMLInputElement)
             return result;
-        throw "Assertion error";
+        throw new Error("Assertion error");
     }
     initialize();
 })(app || (app = {}));

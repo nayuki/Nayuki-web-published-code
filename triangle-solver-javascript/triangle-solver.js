@@ -165,7 +165,7 @@ function solveTriangle(a, b, c, A, B, C) {
 }
 
 
-// Returns side c using law of cosines
+// Returns side c using law of cosines.
 function solveSide(a, b, C) {
 	C = degToRad(C);
 	if (C > 0.001)
@@ -175,7 +175,7 @@ function solveSide(a, b, C) {
 }
 
 
-// Returns angle C using law of cosines
+// Returns angle C using law of cosines.
 function solveAngle(a, b, c) {
 	var temp = (a * a + b * b - c * c) / (2 * a * b);
 	if (-1 <= temp && temp <= 0.9999999)
