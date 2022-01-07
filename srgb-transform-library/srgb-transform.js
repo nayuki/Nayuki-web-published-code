@@ -1,9 +1,9 @@
-/* 
- * sRGB transform (JavaScript)
- * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+/*
+ * sRGB transform (compiled from TypeScript)
+ *
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/srgb-transform-library
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
@@ -20,63 +20,55 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
-
 "use strict";
-
-
-var srgbtransform = new function() {
-	
-	this.srgbToLinear = function(x) {
-		if (x <= 0)
-			return 0;
-		else if (x >= 1)
-			return 1;
-		else if (x < 0.04045)
-			return x / 12.92;
-		else
-			return Math.pow((x + 0.055) / 1.055, 2.4);
-	};
-	
-	
-	this.srgb8BitToLinear = function(x) {
-		if ((x | 0) != x || (x >>> 8) != 0)
-			throw "Value out of 8-bit range";
-		return SRGB_8BIT_TO_LINEAR[x];
-	};
-	
-	
-	this.linearToSrgb = function(x) {
-		if (x <= 0)
-			return 0;
-		else if (x >= 1)
-			return 1;
-		else if (x < 0.0031308)
-			return x * 12.92;
-		else
-			return Math.pow(x, 1 / 2.4) * 1.055 - 0.055;
-	};
-	
-	
-	this.linearToSrgb8Bit = function(x) {
-		if (x <= 0)
-			return 0;
-		var TABLE = SRGB_8BIT_TO_LINEAR;
-		if (x >= 1)
-			return TABLE.length - 1;
-		var y = 0;
-		for (var i = TABLE.length >>> 1; i != 0; i >>>= 1) {
-			if (TABLE[y | i] <= x)
-				y |= i;
-		}
-		if (x - TABLE[y] <= TABLE[y + 1] - x)
-			return y;
-		else
-			return y + 1;
-	};
-	
-	
-	var SRGB_8BIT_TO_LINEAR = [];
-	for (var i = 0; i < 256; i++)
-		SRGB_8BIT_TO_LINEAR.push(this.srgbToLinear(i / 255.0));
-	
-};
+var srgbtransform;
+(function (srgbtransform) {
+    function srgbToLinear(x) {
+        if (x <= 0)
+            return 0;
+        else if (x >= 1)
+            return 1;
+        else if (x < 0.04045)
+            return x / 12.92;
+        else
+            return Math.pow((x + 0.055) / 1.055, 2.4);
+    }
+    srgbtransform.srgbToLinear = srgbToLinear;
+    function srgb8BitToLinear(x) {
+        if ((x | 0) != x || (x >>> 8) != 0)
+            throw new RangeError("Value out of 8-bit range");
+        return SRGB_8BIT_TO_LINEAR[x];
+    }
+    srgbtransform.srgb8BitToLinear = srgb8BitToLinear;
+    function linearToSrgb(x) {
+        if (x <= 0)
+            return 0;
+        else if (x >= 1)
+            return 1;
+        else if (x < 0.0031308)
+            return x * 12.92;
+        else
+            return Math.pow(x, 1 / 2.4) * 1.055 - 0.055;
+    }
+    srgbtransform.linearToSrgb = linearToSrgb;
+    function linearToSrgb8Bit(x) {
+        if (x <= 0)
+            return 0;
+        var TABLE = SRGB_8BIT_TO_LINEAR;
+        if (x >= 1)
+            return TABLE.length - 1;
+        var y = 0;
+        for (var i = TABLE.length >>> 1; i != 0; i >>>= 1) {
+            if (TABLE[y | i] <= x)
+                y |= i;
+        }
+        if (x - TABLE[y] <= TABLE[y + 1] - x)
+            return y;
+        else
+            return y + 1;
+    }
+    srgbtransform.linearToSrgb8Bit = linearToSrgb8Bit;
+    var SRGB_8BIT_TO_LINEAR = [];
+    for (var i = 0; i < 256; i++)
+        SRGB_8BIT_TO_LINEAR.push(srgbToLinear(i / 255.0));
+})(srgbtransform || (srgbtransform = {}));
