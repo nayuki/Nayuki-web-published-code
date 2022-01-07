@@ -1,7 +1,7 @@
 /* 
  * Calculate divisors
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-divisors-javascript
  */
@@ -56,7 +56,7 @@ var app = new function() {
 	 */
 	function listDivisors(n) {
 		if (n < 1)
-			throw "Argument error";
+			throw new RangeError("Argument error");
 		var small = [];
 		var large = [];
 		var end = Math.floor(Math.sqrt(n));

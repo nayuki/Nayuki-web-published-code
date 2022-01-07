@@ -1,7 +1,7 @@
 /* 
  * Resizing images by area
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/resizing-images-by-area
  */
@@ -17,9 +17,9 @@ var app = new function() {
 			text = text.replace(/^\s+|\s+$/g, "");  // Trim whitespace
 			var result = parseFloat(text);
 			if (result <= 0)
-				throw "Positive number expected";
+				throw new Error("Positive number expected");
 			else if (result == Infinity || isNaN(result))
-				throw "Finite number expected";
+				throw new Error("Finite number expected");
 			else
 				return result;
 		}

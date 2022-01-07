@@ -1,7 +1,7 @@
 /* 
  * Band-limited square waves (JavaScript)
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/band-limited-square-waves
  */
@@ -74,7 +74,7 @@ function toggleWave() {
 // Note: This updates the state variables phase, src0, src1.
 function renderNext() {
 	if (state === null)
-		throw "Illegal state";
+		throw new Error("Illegal state");
 	var buf = audioContext.createBuffer(1, Math.floor(SAMPLE_RATE / 4), SAMPLE_RATE);
 	var data = buf.getChannelData(0);
 	var phase = state.phase;
@@ -115,7 +115,7 @@ function renderNext() {
 		}
 		
 	} else
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	state.phase = phase;
 	
 	state.src0 = state.src1;

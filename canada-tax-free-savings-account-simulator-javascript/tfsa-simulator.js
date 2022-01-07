@@ -29,14 +29,14 @@ function transaction(func) {
 		var amountElem = document.getElementById("amount");
 		var s = amountElem.value.trim();
 		if (!/^(\d{1,13}(\.\d{0,2})?|\.\d{1,2})$/.test(s))
-			throw "Invalid amount number";
+			throw new RangeError("Invalid amount number");
 		
 		func(Math.round(parseFloat(s) * 100));
 		
 		display();
 		setText("amount-error", "");
 	} catch (e) {
-		setText("amount-error", "Error: " + e);
+		setText("amount-error", "Error: " + e.message);
 	}
 }
 
@@ -50,7 +50,7 @@ function deposit(amount) {
 function withdraw(amount) {
 	var balance = getChequingBalance();
 	if (balance < amount)
-		throw "Not enough money in chequing account";
+		throw new RangeError("Not enough money in chequing account");
 	chequingTransactions.push(
 		[date, "Withdraw", amount, balance - amount]);
 }
@@ -59,7 +59,7 @@ function withdraw(amount) {
 function transferIn(amount) {
 	var balance = getChequingBalance();
 	if (balance < amount)
-		throw "Not enough money in chequing account";
+		throw new RangeError("Not enough money in chequing account");
 	chequingTransactions.push(
 		[date, "Transfer out", amount, balance - amount]);
 	
@@ -73,7 +73,7 @@ function transferIn(amount) {
 function transferOut(amount) {
 	var balance = getTfsaBalance();
 	if (balance < amount)
-		throw "Not enough money in TFSA";
+		throw new RangeError("Not enough money in TFSA");
 	
 	var qualifying = Math.min(Math.max(-contributionRoom, 0), amount);
 	contributionRoom += qualifying;

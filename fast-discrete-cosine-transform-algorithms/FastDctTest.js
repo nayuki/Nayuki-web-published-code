@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (JavaScript)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -126,10 +126,10 @@ var EPSILON = 1e-9;
 
 function assertArrayEquals(expect, actual, epsilon) {
 	if (expect.length != actual.length)
-		throw "Length mismatch";
+		throw new Error("Length mismatch");
 	for (var i = 0; i < expect.length; i++) {
 		if (Math.abs(expect[i] - actual[i]) > epsilon)
-			throw "Value mismatch";
+			throw new Error("Value mismatch");
 	}
 }
 
@@ -188,7 +188,7 @@ var naiveDct = new function() {
 				TEST_SUITE_FUNCS[i]();
 				msg += "Pass";
 			} catch (e) {
-				msg += "Fail - " + e;
+				msg += "Fail - " + e.message;
 			}
 			i++;
 			setTimeout(iterate);

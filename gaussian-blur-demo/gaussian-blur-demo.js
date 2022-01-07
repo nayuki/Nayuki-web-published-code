@@ -1,7 +1,7 @@
 /* 
  * Gaussian blur demo (JavaScript)
  * 
- * Copyright (c) 2018 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/gaussian-blur-demo
  */
@@ -168,14 +168,14 @@ function FftConvolver(kernelReal, kernelImag) {
 	// Compute number of levels
 	var length = kernelReal.length;
 	if (length == 1)
-		throw "Trivial transform";
+		throw new RangeError("Trivial transform");
 	var levels = -1;
 	for (var i = 0; i < 32; i++) {
 		if (1 << i == length)
 			levels = i;
 	}
 	if (levels == -1)
-		throw "Length is not a power of 2";
+		throw new RangeError("Length is not a power of 2");
 	
 	// Pre-compute tables
 	var cosTable = new Float32Array(length / 2);
@@ -207,7 +207,7 @@ function FftConvolver(kernelReal, kernelImag) {
 	// Radix 2 fast Fourier transform
 	function transform(real, imag) {
 		if (real.length != length || imag.length != length)
-			throw "Mismatched lengths";
+			throw new RangeError("Mismatched lengths");
 		
 		for (var i = 0; i < length; i++) {
 			var j = bitRevTable[i];

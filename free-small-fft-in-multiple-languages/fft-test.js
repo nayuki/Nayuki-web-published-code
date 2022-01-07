@@ -1,7 +1,7 @@
 /* 
  * FFT and convolution test (JavaScript)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -110,7 +110,7 @@ function testConvolution(size) {
 function naiveDft(inreal, inimag, outreal, outimag, inverse) {
 	var n = inreal.length;
 	if (n != inimag.length || n != outreal.length || n != outimag.length)
-		throw "Mismatched lengths";
+		throw new RangeError("Mismatched lengths");
 	
 	var coef = (inverse ? 2 : -2) * Math.PI;
 	for (var k = 0; k < n; k++) {  // For each output element
@@ -131,7 +131,7 @@ function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
 	var n = xreal.length;
 	if (n != ximag.length || n != yreal.length || n != yimag.length
 			|| n != outreal.length || n != outimag.length)
-		throw "Mismatched lengths";
+		throw new RangeError("Mismatched lengths");
 	
 	for (var i = 0; i < n; i++) {
 		outreal[i] = 0;
@@ -154,7 +154,7 @@ var maxLogError = Number.NEGATIVE_INFINITY;
 function log10RmsErr(xreal, ximag, yreal, yimag) {
 	var n = xreal.length;
 	if (n != ximag.length || n != yreal.length || n != yimag.length)
-		throw "Mismatched lengths";
+		throw new RangeError("Mismatched lengths");
 	
 	var err = Math.pow(10, -99 * 2);
 	for (var i = 0; i < n; i++)

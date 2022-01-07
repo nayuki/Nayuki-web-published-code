@@ -1,7 +1,7 @@
 /* 
  * Random password generator (JavaScript)
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/random-password-generator-javascript
  */
@@ -102,7 +102,7 @@ function doGenerate() {
 	else if (document.getElementById("by-entropy").checked)
 		length = Math.ceil(parseFloat(document.getElementById("entropy").value) * Math.log(2) / Math.log(charset.length));
 	else
-		throw "Assertion error";
+		throw new Error("Assertion error");
 	
 	// Check length
 	if (length < 0) {
@@ -186,7 +186,7 @@ function getPasswordCharacterSet() {
 				continue;
 			}
 		}
-		throw "Invalid UTF-16";
+		throw new RangeError("Invalid UTF-16");
 	}
 	return charset;
 }
@@ -212,7 +212,7 @@ function randomInt(n) {
 function randomIntMathRandom(n) {
 	var x = Math.floor(Math.random() * n);
 	if (x < 0 || x >= n)
-		throw "Arithmetic exception";
+		throw new Error("Arithmetic exception");
 	return x;
 }
 

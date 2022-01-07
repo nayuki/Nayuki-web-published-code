@@ -1,7 +1,7 @@
 /* 
  * Master theorem solver
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/master-theorem-solver
  */
@@ -152,7 +152,7 @@ var app = new function() {
 		else if (typeof k == "string")
 			result = "n^{" + k + "}";
 		else
-			throw "Invalid argument";
+			throw new RangeError("Invalid argument");
 		
 		// Process log^i n
 		if (i != 0) {

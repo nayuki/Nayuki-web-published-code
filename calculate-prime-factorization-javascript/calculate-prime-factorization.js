@@ -1,7 +1,7 @@
 /* 
  * Calculate prime factorization
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-prime-factorization-javascript
  */
@@ -93,7 +93,7 @@ var app = new function() {
 	 */
 	function primeFactorList(n) {
 		if (n < 1)
-			throw "Argument error";
+			throw new RangeError("Argument error");
 		var result = [];
 		while (n != 1) {
 			var factor = smallestFactor(n);
@@ -112,7 +112,7 @@ var app = new function() {
 	 */
 	function smallestFactor(n) {
 		if (n < 2)
-			throw "Argument error";
+			throw new RangeError("Argument error");
 		if (n % 2 == 0)
 			return 2;
 		var end = Math.floor(Math.sqrt(n));

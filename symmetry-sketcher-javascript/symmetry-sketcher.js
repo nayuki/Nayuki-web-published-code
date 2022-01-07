@@ -1,7 +1,7 @@
 /* 
  * Symmetry sketcher
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/symmetry-sketcher-javascript
  */
@@ -356,7 +356,7 @@ function setAndCallHandler(elemName, eventName, func) {
 function element(name) {
 	var result = document.getElementById(name);
 	if (result === null)
-		throw "Element ID not found: " + name;
+		throw new RangeError("Element ID not found: " + name);
 	return result;
 }
 

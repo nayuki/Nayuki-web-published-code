@@ -1,7 +1,7 @@
 /* 
  * Triangle solver
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/triangle-solver-javascript
  */
@@ -20,7 +20,7 @@ function doSolve() {
 			setElementText(nodeId, formatNumber(val) + suffix);
 			setElementText(nodeId + "2", formatNumber(val) + suffix);
 		} else
-			throw "Assertion error";
+			throw new Error("Assertion error");
 	}
 	
 	try {
@@ -51,7 +51,7 @@ function doSolve() {
 		
 	} catch (e) {
 		doClearOutputs();
-		setElementText("status", e);
+		setElementText("status", e.message);
 	}
 }
 
@@ -65,14 +65,14 @@ function solveTriangle(a, b, c, A, B, C) {
 	var area, status;
 	
 	if (sides + angles != 3)
-		throw "Give exactly 3 pieces of information";
+		throw new RangeError("Give exactly 3 pieces of information");
 	else if (sides == 0)
-		throw "Give at least one side length";
+		throw new RangeError("Give at least one side length");
 	
 	else if (sides == 3) {
 		status = "Side side side (SSS) case";
 		if (a + b <= c || b + c <= a || c + a <= b)
-			throw status + " - No solution";
+			throw new RangeError(status + " - No solution");
 		A = solveAngle(b, c, a);
 		B = solveAngle(c, a, b);
 		C = solveAngle(a, b, c);
@@ -90,7 +90,7 @@ function solveTriangle(a, b, c, A, B, C) {
 		if (B === null) B = 180 - C - A;
 		if (C === null) C = 180 - A - B;
 		if (A <= 0 || B <= 0 || C <= 0)
-			throw status + " - No solution";
+			throw new RangeError(status + " - No solution");
 		var sinA = Math.sin(degToRad(A));
 		var sinB = Math.sin(degToRad(B));
 		var sinC = Math.sin(degToRad(C));
@@ -106,7 +106,7 @@ function solveTriangle(a, b, c, A, B, C) {
 	} else if (A !== null && a === null || B !== null && b === null || C !== null && c === null) {
 		status = "Side angle side (SAS) case";
 		if (A !== null && A >= 180 || B !== null && B >= 180 || C !== null && C >= 180)
-			throw status + " - No solution";
+			throw new RangeError(status + " - No solution");
 		if (a === null) a = solveSide(b, c, A);
 		if (b === null) b = solveSide(c, a, B);
 		if (c === null) c = solveSide(a, b, C);
@@ -127,12 +127,12 @@ function solveTriangle(a, b, c, A, B, C) {
 		if (b !== null && B === null) partialSide = b;
 		if (c !== null && C === null) partialSide = c;
 		if (knownAngle >= 180)
-			throw status + "No solution";
+			throw new RangeError(status + "No solution");
 		var ratio = knownSide / Math.sin(degToRad(knownAngle));
 		var temp = partialSide / ratio;  // sin(partialAngle)
 		var partialAngle, unknownSide, unknownAngle;
 		if (temp > 1 || knownAngle >= 90 && knownSide <= partialSide)
-			throw status + "No solution";
+			throw new RangeError(status + "No solution");
 		else if (temp == 1 || knownSide >= partialSide) {
 			status += "Unique solution";
 			partialAngle = radToDeg(Math.asin(temp));
@@ -183,7 +183,7 @@ function solveAngle(a, b, c) {
 	else if (temp <= 1)  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
 		return radToDeg(Math.sqrt((c * c - (a - b) * (a - b)) / (a * b)));
 	else
-		throw "No solution";
+		throw new RangeError("No solution");
 }
 
 
@@ -206,9 +206,9 @@ function getInputNumber(elemId) {
 		return null;
 	var result = parseFloat(str);
 	if (!isFinite(result))
-		throw "Invalid number";
+		throw new Error("Invalid number");
 	if (result <= 0)
-		throw "All inputs must be positive";
+		throw new Error("All inputs must be positive");
 	return result;
 }
 
@@ -294,7 +294,7 @@ function parseEm(str) {
 	if (match !== null)
 		return parseFloat(match[1]);
 	else
-		throw "Invalid unit";
+		throw new RangeError("Invalid unit");
 }
 
 function formatNumber(x) {
