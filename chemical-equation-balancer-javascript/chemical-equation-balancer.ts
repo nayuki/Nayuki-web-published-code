@@ -1,7 +1,7 @@
 /* 
  * Chemical equation balancer
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
@@ -31,8 +31,8 @@ function doBalance(): void {
 	try {
 		eqn = new Parser(formulaStr).parseEquation();
 	} catch (e) {
-		if (typeof e == "string") {  // Simple error message string
-			msgElem.textContent = "Syntax error: " + e;
+		if (e instanceof Error) {  // Simple error message string
+			msgElem.textContent = "Syntax error: " + e.message;
 			
 		} else if ("start" in e) {  // Error message object with start and possibly end character indices
 			msgElem.textContent = "Syntax error: " + e.message;
@@ -64,7 +64,7 @@ function doBalance(): void {
 		checkAnswer(eqn, coefs);                                 // Self-test, should not fail
 		balancedElem.appendChild(eqn.toHtml(coefs));             // Display balanced equation
 	} catch (e) {
-		msgElem.textContent = e.toString();
+		msgElem.textContent = e.message;
 	}
 }
 
@@ -250,7 +250,7 @@ class Parser {
 	private parseElement(): ChemElem {
 		const name: string = this.tok.take();
 		if (!/^[A-Z][a-z]*$/.test(name))
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		return new ChemElem(name, this.parseOptionalNumber());
 	}
 	
@@ -292,7 +292,7 @@ class Tokenizer {
 	public take(): string {
 		const result = this.peek();
 		if (result === null)
-			throw "Advancing beyond last token";
+			throw new Error("Advancing beyond last token");
 		this.pos += result.length;
 		this.skipSpaces();
 		return result;
@@ -301,13 +301,13 @@ class Tokenizer {
 	// Takes the next token and checks that it matches the given string, or throws an exception.
 	public consume(s: string): void {
 		if (this.take() != s)
-			throw "Token mismatch";
+			throw new Error("Token mismatch");
 	}
 	
 	private skipSpaces(): void {
 		const match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.pos));
 		if (match === null)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		this.pos += match[0].length;
 	}
 }
@@ -341,7 +341,7 @@ class Equation {
 	// 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
 	public toHtml(coefs?: Readonly<Array<number>>): DocumentFragment {
 		if (coefs !== undefined && coefs.length != this.leftSide.length + this.rightSide.length)
-			throw "Mismatched number of coefficients";
+			throw new RangeError("Mismatched number of coefficients");
 		
 		let node = document.createDocumentFragment();
 		
@@ -384,7 +384,7 @@ class Term {
 	
 	public constructor(items: Readonly<Array<ChemElem|Group>>, charge: number) {
 		if (items.length == 0 && charge != -1)
-			throw "Invalid term";  // Electron case
+			throw new RangeError("Invalid term");  // Electron case
 		this.items = items.slice();
 		this.charge = charge;
 	}
@@ -438,7 +438,7 @@ class Group {
 	
 	public constructor(items: Readonly<Array<ChemElem|Group>>, count: number) {
 		if (count < 1)
-			throw "Assertion error: Count must be a positive integer";
+			throw new RangeError("Assertion error: Count must be a positive integer");
 		this.items = items.slice();
 		this.count = count;
 	}
@@ -475,7 +475,7 @@ class ChemElem {
 			private name: string,
 			private count: number) {
 		if (count < 1)
-			throw "Assertion error: Count must be a positive integer";
+			throw new RangeError("Assertion error: Count must be a positive integer");
 	}
 	
 	public getElements(resultSet: Set<string>): void {
@@ -507,7 +507,7 @@ class Matrix {
 			public numRows: number,
 			public numCols: number) {
 		if (numRows < 0 || numCols < 0)
-			throw "Illegal argument";
+			throw new RangeError("Illegal argument");
 		
 		// Initialize with zeros
 		let row: Array<number> = [];
@@ -523,14 +523,14 @@ class Matrix {
 	// Returns the value of the given cell in the matrix, where r is the row and c is the column.
 	public get(r: number, c: number): number {
 		if (r < 0 || r >= this.numRows || c < 0 || c >= this.numCols)
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		return this.cells[r][c];
 	}
 	
 	// Sets the given cell in the matrix to the given value, where r is the row and c is the column.
 	public set(r: number, c: number, val: number): void {
 		if (r < 0 || r >= this.numRows || c < 0 || c >= this.numCols)
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		this.cells[r][c] = val;
 	}
 	
@@ -539,7 +539,7 @@ class Matrix {
 	// Swaps the two rows of the given indices in this matrix. The degenerate case of i == j is allowed.
 	private swapRows(i: number, j: number): void {
 		if (i < 0 || i >= this.numRows || j < 0 || j >= this.numRows)
-			throw "Index out of bounds";
+			throw new RangeError("Index out of bounds");
 		const temp: Array<number> = this.cells[i];
 		this.cells[i] = this.cells[j];
 		this.cells[j] = temp;
@@ -671,7 +671,7 @@ function solve(matrix: Matrix): void {
 			break;
 	}
 	if (i == matrix.numRows - 1)
-		throw "All-zero solution";  // Unique solution with all coefficients zero
+		throw new RangeError("All-zero solution");  // Unique solution with all coefficients zero
 	
 	// Add an inhomogeneous equation
 	matrix.set(matrix.numRows - 1, i, 1);
@@ -686,7 +686,7 @@ function extractCoefficients(matrix: Matrix): Array<number> {
 	const cols: number = matrix.numCols;
 	
 	if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
-		throw "Multiple independent solutions";
+		throw new RangeError("Multiple independent solutions");
 	
 	let lcm = 1;
 	for (let i = 0; i < cols - 1; i++)
@@ -696,7 +696,7 @@ function extractCoefficients(matrix: Matrix): Array<number> {
 	for (let i = 0; i < cols - 1; i++)
 		coefs.push(checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1)));
 	if (coefs.every(x => x == 0))
-		throw "Assertion error: All-zero solution";
+		throw new RangeError("Assertion error: All-zero solution");
 	return coefs;
 }
 
@@ -704,15 +704,15 @@ function extractCoefficients(matrix: Matrix): Array<number> {
 // Throws an exception if there's a problem, otherwise returns silently.
 function checkAnswer(eqn: Equation, coefs: Readonly<Array<number>>): void {
 	if (coefs.length != eqn.leftSide.length + eqn.rightSide.length)
-		throw "Assertion error: Mismatched length";
+		throw new Error("Assertion error: Mismatched length");
 	
 	function isZero(x: number): boolean {
 		if (typeof x != "number" || isNaN(x) || Math.floor(x) != x)
-			throw "Assertion error: Not an integer";
+			throw new Error("Assertion error: Not an integer");
 		return x == 0;
 	}
 	if (coefs.every(isZero))
-		throw "Assertion error: All-zero solution";
+		throw new Error("Assertion error: All-zero solution");
 	
 	for (const elem of eqn.getElements()) {
 		let sum = 0;
@@ -726,7 +726,7 @@ function checkAnswer(eqn: Equation, coefs: Readonly<Array<number>>): void {
 			j++;
 		}
 		if (sum != 0)
-			throw "Assertion error: Incorrect balance";
+			throw new Error("Assertion error: Incorrect balance");
 	}
 }
 
@@ -740,7 +740,7 @@ const INT_MAX: number = 9007199254740992;  // 2^53
 function checkedParseInt(str: string): number {
 	const result = parseInt(str, 10);
 	if (isNaN(result))
-		throw "Not a number";
+		throw new RangeError("Not a number");
 	return checkOverflow(result);
 }
 
@@ -757,7 +757,7 @@ function checkedMultiply(x: number, y: number): number {
 // Throws an exception if the given integer is too large, otherwise returns it.
 function checkOverflow(x: number): number {
 	if (Math.abs(x) >= INT_MAX)
-		throw "Arithmetic overflow";
+		throw new RangeError("Arithmetic overflow");
 	return x;
 }
 
@@ -765,7 +765,7 @@ function checkOverflow(x: number): number {
 // Returns the greatest common divisor of the given integers.
 function gcd(x: number, y: number): number {
 	if (typeof x != "number" || typeof y != "number" || isNaN(x) || isNaN(y))
-		throw "Invalid argument";
+		throw new Error("Invalid argument");
 	x = Math.abs(x);
 	y = Math.abs(y);
 	while (y != 0) {

@@ -1,7 +1,7 @@
 /* 
  * Propositional sequent calculus prover
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
@@ -28,8 +28,8 @@ function doProve(inputSequent: string): void {
 		proofElem.appendChild(proof.toHtml());
 		
 	} catch (e) {
-		if (typeof e == "string")
-			msgElem.textContent = "Error: " + e;
+		if (e instanceof Error)
+			msgElem.textContent = "Error: " + e.message;
 		else if ("position" in e) {
 			msgElem.textContent = "Syntax error: " + e.message;
 			codeOutElem.textContent = inputSequent.substring(0, e.position);
@@ -57,7 +57,7 @@ class Tree {
 			...children: Array<Tree>) {
 		
 		if (typeof sequent == "string" && sequent != "Fail" || children.length > 2)
-			throw "Invalid value";
+			throw new RangeError("Invalid value");
 		this.children = children;
 	}
 	
@@ -424,7 +424,7 @@ function parseTerm(tok: Tokenizer): Term|null {
 		} else if (next == EMPTY)
 			throw {message: "Empty not expected", position: tok.pos};
 		else
-			throw "Assertion error";
+			throw new Error("Assertion error");
 	}
 	finalReduce();
 	
@@ -470,7 +470,7 @@ class Tokenizer {
 	public take(): string {
 		const result: string|null = this.peek();
 		if (result === null)
-			throw "Advancing beyond last token";
+			throw new Error("Advancing beyond last token");
 		this.pos += result.length;
 		this.skipSpaces();
 		return result;
@@ -479,13 +479,13 @@ class Tokenizer {
 	// Takes the next token and checks that it matches the given string, or throws an exception.
 	public consume(s: string): void {
 		if (this.take() != s)
-			throw "Token mismatch";
+			throw new Error("Token mismatch");
 	}
 	
 	private skipSpaces(): void {
 		const match: RegExpExecArray|null = /^[ \t]*/.exec(this.str.substring(this.pos));
 		if (match === null)
-			throw "Assertion error";
+			throw new Error("Assertion error");
 		this.pos += match[0].length;
 	}
 }

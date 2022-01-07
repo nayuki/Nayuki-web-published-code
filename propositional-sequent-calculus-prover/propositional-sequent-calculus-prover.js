@@ -1,7 +1,7 @@
 /*
  * Propositional sequent calculus prover (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
@@ -25,8 +25,8 @@ function doProve(inputSequent) {
         proofElem.appendChild(proof.toHtml());
     }
     catch (e) {
-        if (typeof e == "string")
-            msgElem.textContent = "Error: " + e;
+        if (e instanceof Error)
+            msgElem.textContent = "Error: " + e.message;
         else if ("position" in e) {
             msgElem.textContent = "Syntax error: " + e.message;
             codeOutElem.textContent = inputSequent.substring(0, e.position);
@@ -54,7 +54,7 @@ var Tree = /** @class */ (function () {
         }
         this.sequent = sequent;
         if (typeof sequent == "string" && sequent != "Fail" || children.length > 2)
-            throw "Invalid value";
+            throw new RangeError("Invalid value");
         this.children = children;
     }
     Tree.prototype.toHtml = function () {
@@ -398,7 +398,7 @@ function parseTerm(tok) {
         else if (next == EMPTY)
             throw { message: "Empty not expected", position: tok.pos };
         else
-            throw "Assertion error";
+            throw new Error("Assertion error");
     }
     finalReduce();
     if (stack.length == 1 && isTerm(stack[0]))
@@ -439,7 +439,7 @@ var Tokenizer = /** @class */ (function () {
     Tokenizer.prototype.take = function () {
         var result = this.peek();
         if (result === null)
-            throw "Advancing beyond last token";
+            throw new Error("Advancing beyond last token");
         this.pos += result.length;
         this.skipSpaces();
         return result;
@@ -447,12 +447,12 @@ var Tokenizer = /** @class */ (function () {
     // Takes the next token and checks that it matches the given string, or throws an exception.
     Tokenizer.prototype.consume = function (s) {
         if (this.take() != s)
-            throw "Token mismatch";
+            throw new Error("Token mismatch");
     };
     Tokenizer.prototype.skipSpaces = function () {
         var match = /^[ \t]*/.exec(this.str.substring(this.pos));
         if (match === null)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         this.pos += match[0].length;
     };
     return Tokenizer;

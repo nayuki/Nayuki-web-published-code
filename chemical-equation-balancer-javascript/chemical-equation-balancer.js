@@ -1,7 +1,7 @@
 /*
  * Chemical equation balancer (compiled from TypeScript)
  *
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
@@ -27,8 +27,8 @@ function doBalance() {
         eqn = new Parser(formulaStr).parseEquation();
     }
     catch (e) {
-        if (typeof e == "string") { // Simple error message string
-            msgElem.textContent = "Syntax error: " + e;
+        if (e instanceof Error) { // Simple error message string
+            msgElem.textContent = "Syntax error: " + e.message;
         }
         else if ("start" in e) { // Error message object with start and possibly end character indices
             msgElem.textContent = "Syntax error: " + e.message;
@@ -59,7 +59,7 @@ function doBalance() {
         balancedElem.appendChild(eqn.toHtml(coefs)); // Display balanced equation
     }
     catch (e) {
-        msgElem.textContent = e.toString();
+        msgElem.textContent = e.message;
     }
 }
 // Sets the input box to the given formula string and balances it. Returns nothing.
@@ -227,7 +227,7 @@ var Parser = /** @class */ (function () {
     Parser.prototype.parseElement = function () {
         var name = this.tok.take();
         if (!/^[A-Z][a-z]*$/.test(name))
-            throw "Assertion error";
+            throw new Error("Assertion error");
         return new ChemElem(name, this.parseOptionalNumber());
     };
     // Parses a number if it's the next token, returning a non-negative integer, with a default of 1.
@@ -260,7 +260,7 @@ var Tokenizer = /** @class */ (function () {
     Tokenizer.prototype.take = function () {
         var result = this.peek();
         if (result === null)
-            throw "Advancing beyond last token";
+            throw new Error("Advancing beyond last token");
         this.pos += result.length;
         this.skipSpaces();
         return result;
@@ -268,12 +268,12 @@ var Tokenizer = /** @class */ (function () {
     // Takes the next token and checks that it matches the given string, or throws an exception.
     Tokenizer.prototype.consume = function (s) {
         if (this.take() != s)
-            throw "Token mismatch";
+            throw new Error("Token mismatch");
     };
     Tokenizer.prototype.skipSpaces = function () {
         var match = /^[ \t]*/.exec(this.str.substring(this.pos));
         if (match === null)
-            throw "Assertion error";
+            throw new Error("Assertion error");
         this.pos += match[0].length;
     };
     return Tokenizer;
@@ -301,7 +301,7 @@ var Equation = /** @class */ (function () {
     // 'coefs' is an optional argument, which is an array of coefficients to match with the terms.
     Equation.prototype.toHtml = function (coefs) {
         if (coefs !== undefined && coefs.length != this.leftSide.length + this.rightSide.length)
-            throw "Mismatched number of coefficients";
+            throw new RangeError("Mismatched number of coefficients");
         var node = document.createDocumentFragment();
         var j = 0;
         function termsToHtml(terms) {
@@ -337,7 +337,7 @@ var Equation = /** @class */ (function () {
 var Term = /** @class */ (function () {
     function Term(items, charge) {
         if (items.length == 0 && charge != -1)
-            throw "Invalid term"; // Electron case
+            throw new RangeError("Invalid term"); // Electron case
         this.items = items.slice();
         this.charge = charge;
     }
@@ -396,7 +396,7 @@ var Term = /** @class */ (function () {
 var Group = /** @class */ (function () {
     function Group(items, count) {
         if (count < 1)
-            throw "Assertion error: Count must be a positive integer";
+            throw new RangeError("Assertion error: Count must be a positive integer");
         this.items = items.slice();
         this.count = count;
     }
@@ -435,7 +435,7 @@ var ChemElem = /** @class */ (function () {
         this.name = name;
         this.count = count;
         if (count < 1)
-            throw "Assertion error: Count must be a positive integer";
+            throw new RangeError("Assertion error: Count must be a positive integer");
     }
     ChemElem.prototype.getElements = function (resultSet) {
         resultSet.add(this.name);
@@ -459,7 +459,7 @@ var Matrix = /** @class */ (function () {
         this.numRows = numRows;
         this.numCols = numCols;
         if (numRows < 0 || numCols < 0)
-            throw "Illegal argument";
+            throw new RangeError("Illegal argument");
         // Initialize with zeros
         var row = [];
         for (var j = 0; j < numCols; j++)
@@ -472,20 +472,20 @@ var Matrix = /** @class */ (function () {
     // Returns the value of the given cell in the matrix, where r is the row and c is the column.
     Matrix.prototype.get = function (r, c) {
         if (r < 0 || r >= this.numRows || c < 0 || c >= this.numCols)
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         return this.cells[r][c];
     };
     // Sets the given cell in the matrix to the given value, where r is the row and c is the column.
     Matrix.prototype.set = function (r, c, val) {
         if (r < 0 || r >= this.numRows || c < 0 || c >= this.numCols)
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         this.cells[r][c] = val;
     };
     /* Private helper functions for gaussJordanEliminate() */
     // Swaps the two rows of the given indices in this matrix. The degenerate case of i == j is allowed.
     Matrix.prototype.swapRows = function (i, j) {
         if (i < 0 || i >= this.numRows || j < 0 || j >= this.numRows)
-            throw "Index out of bounds";
+            throw new RangeError("Index out of bounds");
         var temp = this.cells[i];
         this.cells[i] = this.cells[j];
         this.cells[j] = temp;
@@ -609,7 +609,7 @@ function solve(matrix) {
             break;
     }
     if (i == matrix.numRows - 1)
-        throw "All-zero solution"; // Unique solution with all coefficients zero
+        throw new RangeError("All-zero solution"); // Unique solution with all coefficients zero
     // Add an inhomogeneous equation
     matrix.set(matrix.numRows - 1, i, 1);
     matrix.set(matrix.numRows - 1, matrix.numCols - 1, 1);
@@ -619,7 +619,7 @@ function extractCoefficients(matrix) {
     var rows = matrix.numRows;
     var cols = matrix.numCols;
     if (cols - 1 > rows || matrix.get(cols - 2, cols - 2) == 0)
-        throw "Multiple independent solutions";
+        throw new RangeError("Multiple independent solutions");
     var lcm = 1;
     for (var i = 0; i < cols - 1; i++)
         lcm = checkedMultiply(lcm / gcd(lcm, matrix.get(i, i)), matrix.get(i, i));
@@ -627,20 +627,20 @@ function extractCoefficients(matrix) {
     for (var i = 0; i < cols - 1; i++)
         coefs.push(checkedMultiply(lcm / matrix.get(i, i), matrix.get(i, cols - 1)));
     if (coefs.every(function (x) { return x == 0; }))
-        throw "Assertion error: All-zero solution";
+        throw new RangeError("Assertion error: All-zero solution");
     return coefs;
 }
 // Throws an exception if there's a problem, otherwise returns silently.
 function checkAnswer(eqn, coefs) {
     if (coefs.length != eqn.leftSide.length + eqn.rightSide.length)
-        throw "Assertion error: Mismatched length";
+        throw new Error("Assertion error: Mismatched length");
     function isZero(x) {
         if (typeof x != "number" || isNaN(x) || Math.floor(x) != x)
-            throw "Assertion error: Not an integer";
+            throw new Error("Assertion error: Not an integer");
         return x == 0;
     }
     if (coefs.every(isZero))
-        throw "Assertion error: All-zero solution";
+        throw new Error("Assertion error: All-zero solution");
     for (var _i = 0, _a = eqn.getElements(); _i < _a.length; _i++) {
         var elem = _a[_i];
         var sum = 0;
@@ -656,7 +656,7 @@ function checkAnswer(eqn, coefs) {
             j++;
         }
         if (sum != 0)
-            throw "Assertion error: Incorrect balance";
+            throw new Error("Assertion error: Incorrect balance");
     }
 }
 /*---- Simple math functions ----*/
@@ -665,7 +665,7 @@ var INT_MAX = 9007199254740992; // 2^53
 function checkedParseInt(str) {
     var result = parseInt(str, 10);
     if (isNaN(result))
-        throw "Not a number";
+        throw new RangeError("Not a number");
     return checkOverflow(result);
 }
 // Returns the sum of the given integers, or throws an exception if the result is too large.
@@ -679,13 +679,13 @@ function checkedMultiply(x, y) {
 // Throws an exception if the given integer is too large, otherwise returns it.
 function checkOverflow(x) {
     if (Math.abs(x) >= INT_MAX)
-        throw "Arithmetic overflow";
+        throw new RangeError("Arithmetic overflow");
     return x;
 }
 // Returns the greatest common divisor of the given integers.
 function gcd(x, y) {
     if (typeof x != "number" || typeof y != "number" || isNaN(x) || isNaN(y))
-        throw "Invalid argument";
+        throw new Error("Invalid argument");
     x = Math.abs(x);
     y = Math.abs(y);
     while (y != 0) {
