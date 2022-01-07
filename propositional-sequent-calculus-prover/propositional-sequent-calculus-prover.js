@@ -6,6 +6,19 @@
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 function doProve(inputSequent) {
     document.getElementById("inputSequent").value = inputSequent;
     function clearChildren(node) {
@@ -25,9 +38,7 @@ function doProve(inputSequent) {
         proofElem.appendChild(proof.toHtml());
     }
     catch (e) {
-        if (e instanceof Error)
-            msgElem.textContent = "Error: " + e.message;
-        else if ("position" in e) {
+        if (e instanceof ParseError) {
             msgElem.textContent = "Syntax error: " + e.message;
             codeOutElem.textContent = inputSequent.substring(0, e.position);
             var highlight = codeOutElem.appendChild(document.createElement("u"));
@@ -38,6 +49,8 @@ function doProve(inputSequent) {
             else
                 highlight.textContent = " ";
         }
+        else if (e instanceof Error)
+            msgElem.textContent = "Error: " + e.message;
         else
             msgElem.textContent = "Error: " + e;
     }
@@ -266,21 +279,21 @@ function parseSequent(tok) {
             break;
         }
         else if (next === null)
-            throw { message: "Comma or turnstile expected", position: tok.pos };
+            throw new ParseError("Comma or turnstile expected", tok.pos);
         else {
             if (expectComma) {
                 if (next == ",")
                     tok.consume(next);
                 else
-                    throw { message: "Comma expected", position: tok.pos };
+                    throw new ParseError("Comma expected", tok.pos);
                 if (tok.peek() === null)
-                    throw { message: "Term expected", position: tok.pos };
+                    throw new ParseError("Term expected", tok.pos);
             }
             else {
                 if (tok.peek() != ",")
                     expectComma = true;
                 else
-                    throw { message: "Term or turnstile expected", position: tok.pos };
+                    throw new ParseError("Term or turnstile expected", tok.pos);
             }
             var term = parseTerm(tok);
             if (term !== null)
@@ -294,21 +307,21 @@ function parseSequent(tok) {
         if (next === null)
             break;
         else if (next == TURNSTILE)
-            throw { message: "Turnstile not expected", position: tok.pos };
+            throw new ParseError("Turnstile not expected", tok.pos);
         else {
             if (expectComma) {
                 if (next == ",")
                     tok.consume(next);
                 else
-                    throw { message: "Comma expected", position: tok.pos };
+                    throw new ParseError("Comma expected", tok.pos);
                 if (tok.peek() === null)
-                    throw { message: "Term expected", position: tok.pos };
+                    throw new ParseError("Term expected", tok.pos);
             }
             else {
                 if (tok.peek() != ",")
                     expectComma = true;
                 else
-                    throw { message: "Term or end expected", position: tok.pos };
+                    throw new ParseError("Term or end expected", tok.pos);
             }
             var term = parseTerm(tok);
             if (term !== null)
@@ -355,11 +368,11 @@ function parseTerm(tok) {
     }
     function checkBeforePushingUnary() {
         if (stack.length > 0 && isTerm(stack[stack.length - 1]))
-            throw { message: "Unexpected item", position: tok.pos };
+            throw new ParseError("Unexpected item", tok.pos);
     }
     function checkBeforePushingBinary() {
         if (stack.length == 0 || !isTerm(stack[stack.length - 1]))
-            throw { message: "Unexpected item", position: tok.pos };
+            throw new ParseError("Unexpected item", tok.pos);
     }
     while (true) {
         var next = tok.peek();
@@ -390,13 +403,13 @@ function parseTerm(tok) {
         else if (next == ")") {
             finalReduce();
             if (stack.length < 2 || stack[stack.length - 2] != "(")
-                throw { message: "Binary operator without second operand", position: tok.pos };
+                throw new ParseError("Binary operator without second operand", tok.pos);
             tok.consume(next);
             stack.splice(stack.length - 2, 1);
             reduce();
         }
         else if (next == EMPTY)
-            throw { message: "Empty not expected", position: tok.pos };
+            throw new ParseError("Empty not expected", tok.pos);
         else
             throw new Error("Assertion error");
     }
@@ -404,9 +417,9 @@ function parseTerm(tok) {
     if (stack.length == 1 && isTerm(stack[0]))
         return stack[0];
     else if (stack.length == 0)
-        throw { message: "Blank term", position: tok.pos };
+        throw new ParseError("Blank term", tok.pos);
     else
-        throw { message: "Expected more", position: tok.pos };
+        throw new ParseError("Expected more", tok.pos);
 }
 /* Tokenizer object */
 // Tokenizes a formula into a stream of token strings.
@@ -422,7 +435,7 @@ var Tokenizer = /** @class */ (function () {
             return null;
         var match = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.pos));
         if (match === null)
-            throw { message: "Invalid symbol", position: this.pos };
+            throw new ParseError("Invalid symbol", this.pos);
         // Normalize notation
         var token = match[0];
         if (token == "!")
@@ -457,6 +470,16 @@ var Tokenizer = /** @class */ (function () {
     };
     return Tokenizer;
 }());
+var ParseError = /** @class */ (function (_super) {
+    __extends(ParseError, _super);
+    function ParseError(message, position) {
+        var _this = _super.call(this, message) || this;
+        _this.position = position;
+        Object.setPrototypeOf(_this, ParseError.prototype); // ECMAScript 5 compatibility
+        return _this;
+    }
+    return ParseError;
+}(Error));
 /* Miscellaneous */
 // Unicode character constants (because this script file's character encoding is unspecified)
 var TURNSTILE = "\u22A6";

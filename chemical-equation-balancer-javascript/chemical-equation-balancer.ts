@@ -31,14 +31,11 @@ function doBalance(): void {
 	try {
 		eqn = new Parser(formulaStr).parseEquation();
 	} catch (e) {
-		if (e instanceof Error) {  // Simple error message string
-			msgElem.textContent = "Syntax error: " + e.message;
-			
-		} else if ("start" in e) {  // Error message object with start and possibly end character indices
+		if (e instanceof ParseError) {  // Error message object with start and possibly end character indices
 			msgElem.textContent = "Syntax error: " + e.message;
 			
 			const start: number = e.start;
-			let end: number = "end" in e ? e.end : e.start;
+			let end: number = e.end !== undefined ? e.end : e.start;
 			while (end > start && [" ", "\t"].includes(formulaStr.charAt(end - 1)))
 				end--;  // Adjust position to eliminate whitespace
 			if (start == end)
@@ -51,6 +48,8 @@ function doBalance(): void {
 			} else
 				codeOutElem.appendChild(createElem("u", " "));
 			
+		} else if (e instanceof Error) {  // Simple error message string
+			msgElem.textContent = "Syntax error: " + e.message;
 		} else {
 			msgElem.textContent = "Assertion error";
 		}
@@ -143,7 +142,7 @@ class Parser {
 				this.tok.consume(next);
 				break;
 			} else
-				throw {message: "Plus or equal sign expected", start: this.tok.pos};
+				throw new ParseError("Plus or equal sign expected", this.tok.pos);
 		}
 		
 		let rhs: Array<Term> = [this.parseTerm()];
@@ -155,7 +154,7 @@ class Parser {
 				this.tok.consume(next);
 				rhs.push(this.parseTerm());
 			} else
-				throw {message: "Plus or end expected", start: this.tok.pos};
+				throw new ParseError("Plus or end expected", this.tok.pos);
 		}
 		return new Equation(lhs, rhs);
 	}
@@ -179,7 +178,7 @@ class Parser {
 			} else if (next !== null && /^[A-Z][a-z]*$/.test(next))
 				items.push(this.parseElement());
 			else if (next !== null && /^[0-9]+$/.test(next))
-				throw {message: "Invalid term - number not expected", start: this.tok.pos};
+				throw new ParseError("Invalid term - number not expected", this.tok.pos);
 			else
 				break;
 		}
@@ -190,7 +189,7 @@ class Parser {
 			this.tok.consume(next);
 			next = this.tok.peek();
 			if (next === null)
-				throw {message: "Number or sign expected", start: this.tok.pos};
+				throw new ParseError("Number or sign expected", this.tok.pos);
 			else {
 				charge = this.parseOptionalNumber();
 				next = this.tok.peek();
@@ -201,21 +200,21 @@ class Parser {
 			else if (next == "-")
 				charge = -charge;
 			else
-				throw {message: "Sign expected", start: this.tok.pos};
+				throw new ParseError("Sign expected", this.tok.pos);
 			this.tok.take();  // Consume the sign
 		}
 		
 		// Check and postprocess term
 		if (electron) {
 			if (items.length > 0)
-				throw {message: "Invalid term - electron needs to stand alone", start: startPos, end: this.tok.pos};
+				throw new ParseError("Invalid term - electron needs to stand alone", startPos, this.tok.pos);
 			if (charge === null)  // Allow omitting the charge
 				charge = -1;
 			if (charge != -1)
-				throw {message: "Invalid term - invalid charge for electron", start: startPos, end: this.tok.pos};
+				throw new ParseError("Invalid term - invalid charge for electron", startPos, this.tok.pos);
 		} else {
 			if (items.length == 0)
-				throw {message: "Invalid term - empty", start: startPos, end: this.tok.pos};
+				throw new ParseError("Invalid term - empty", startPos, this.tok.pos);
 			if (charge === null)
 				charge = 0;
 		}
@@ -237,10 +236,10 @@ class Parser {
 			else if (next == ")") {
 				this.tok.consume(next);
 				if (items.length == 0)
-					throw {message: "Empty group", start: startPos, end: this.tok.pos};
+					throw new ParseError("Empty group", startPos, this.tok.pos);
 				break;
 			} else
-				throw {message: "Element, group, or closing parenthesis expected", start: this.tok.pos};
+				throw new ParseError("Element, group, or closing parenthesis expected", this.tok.pos);
 		}
 		return new Group(items, this.parseOptionalNumber());
 	}
@@ -284,7 +283,7 @@ class Tokenizer {
 			return null;
 		const match: RegExpExecArray|null = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.pos));
 		if (match === null)
-			throw {message: "Invalid symbol", start: this.pos};
+			throw new ParseError("Invalid symbol", this.pos);
 		return match[0];
 	}
 	
@@ -309,6 +308,18 @@ class Tokenizer {
 		if (match === null)
 			throw new Error("Assertion error");
 		this.pos += match[0].length;
+	}
+}
+
+
+
+class ParseError extends Error {
+	public constructor(
+			message: string,
+			public readonly start: number,
+			public readonly end?: number) {
+		super(message);
+		Object.setPrototypeOf(this, ParseError.prototype);  // ECMAScript 5 compatibility
 	}
 }
 

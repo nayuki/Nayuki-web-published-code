@@ -6,6 +6,19 @@
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 /*---- Entry point functions from HTML GUI ----*/
 var formulaElem = document.getElementById("inputFormula");
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
@@ -27,13 +40,10 @@ function doBalance() {
         eqn = new Parser(formulaStr).parseEquation();
     }
     catch (e) {
-        if (e instanceof Error) { // Simple error message string
-            msgElem.textContent = "Syntax error: " + e.message;
-        }
-        else if ("start" in e) { // Error message object with start and possibly end character indices
+        if (e instanceof ParseError) { // Error message object with start and possibly end character indices
             msgElem.textContent = "Syntax error: " + e.message;
             var start = e.start;
-            var end = "end" in e ? e.end : e.start;
+            var end = e.end !== undefined ? e.end : e.start;
             while (end > start && [" ", "\t"].includes(formulaStr.charAt(end - 1)))
                 end--; // Adjust position to eliminate whitespace
             if (start == end)
@@ -45,6 +55,9 @@ function doBalance() {
             }
             else
                 codeOutElem.appendChild(createElem("u", " "));
+        }
+        else if (e instanceof Error) { // Simple error message string
+            msgElem.textContent = "Syntax error: " + e.message;
         }
         else {
             msgElem.textContent = "Assertion error";
@@ -127,7 +140,7 @@ var Parser = /** @class */ (function () {
                 break;
             }
             else
-                throw { message: "Plus or equal sign expected", start: this.tok.pos };
+                throw new ParseError("Plus or equal sign expected", this.tok.pos);
         }
         var rhs = [this.parseTerm()];
         while (true) {
@@ -139,7 +152,7 @@ var Parser = /** @class */ (function () {
                 rhs.push(this.parseTerm());
             }
             else
-                throw { message: "Plus or end expected", start: this.tok.pos };
+                throw new ParseError("Plus or end expected", this.tok.pos);
         }
         return new Equation(lhs, rhs);
     };
@@ -161,7 +174,7 @@ var Parser = /** @class */ (function () {
             else if (next !== null && /^[A-Z][a-z]*$/.test(next))
                 items.push(this.parseElement());
             else if (next !== null && /^[0-9]+$/.test(next))
-                throw { message: "Invalid term - number not expected", start: this.tok.pos };
+                throw new ParseError("Invalid term - number not expected", this.tok.pos);
             else
                 break;
         }
@@ -171,7 +184,7 @@ var Parser = /** @class */ (function () {
             this.tok.consume(next);
             next = this.tok.peek();
             if (next === null)
-                throw { message: "Number or sign expected", start: this.tok.pos };
+                throw new ParseError("Number or sign expected", this.tok.pos);
             else {
                 charge = this.parseOptionalNumber();
                 next = this.tok.peek();
@@ -181,21 +194,21 @@ var Parser = /** @class */ (function () {
             else if (next == "-")
                 charge = -charge;
             else
-                throw { message: "Sign expected", start: this.tok.pos };
+                throw new ParseError("Sign expected", this.tok.pos);
             this.tok.take(); // Consume the sign
         }
         // Check and postprocess term
         if (electron) {
             if (items.length > 0)
-                throw { message: "Invalid term - electron needs to stand alone", start: startPos, end: this.tok.pos };
+                throw new ParseError("Invalid term - electron needs to stand alone", startPos, this.tok.pos);
             if (charge === null) // Allow omitting the charge
                 charge = -1;
             if (charge != -1)
-                throw { message: "Invalid term - invalid charge for electron", start: startPos, end: this.tok.pos };
+                throw new ParseError("Invalid term - invalid charge for electron", startPos, this.tok.pos);
         }
         else {
             if (items.length == 0)
-                throw { message: "Invalid term - empty", start: startPos, end: this.tok.pos };
+                throw new ParseError("Invalid term - empty", startPos, this.tok.pos);
             if (charge === null)
                 charge = 0;
         }
@@ -215,11 +228,11 @@ var Parser = /** @class */ (function () {
             else if (next == ")") {
                 this.tok.consume(next);
                 if (items.length == 0)
-                    throw { message: "Empty group", start: startPos, end: this.tok.pos };
+                    throw new ParseError("Empty group", startPos, this.tok.pos);
                 break;
             }
             else
-                throw { message: "Element, group, or closing parenthesis expected", start: this.tok.pos };
+                throw new ParseError("Element, group, or closing parenthesis expected", this.tok.pos);
         }
         return new Group(items, this.parseOptionalNumber());
     };
@@ -253,7 +266,7 @@ var Tokenizer = /** @class */ (function () {
             return null;
         var match = /^([A-Za-z][a-z]*|[0-9]+|[+\-^=()])/.exec(this.str.substring(this.pos));
         if (match === null)
-            throw { message: "Invalid symbol", start: this.pos };
+            throw new ParseError("Invalid symbol", this.pos);
         return match[0];
     };
     // Returns the next token as a string and advances this tokenizer past the token.
@@ -278,6 +291,17 @@ var Tokenizer = /** @class */ (function () {
     };
     return Tokenizer;
 }());
+var ParseError = /** @class */ (function (_super) {
+    __extends(ParseError, _super);
+    function ParseError(message, start, end) {
+        var _this = _super.call(this, message) || this;
+        _this.start = start;
+        _this.end = end;
+        Object.setPrototypeOf(_this, ParseError.prototype); // ECMAScript 5 compatibility
+        return _this;
+    }
+    return ParseError;
+}(Error));
 /*---- Chemical equation data types ----*/
 // A complete chemical equation. It has a left-hand side list of terms and a right-hand side list of terms.
 // For example: H2 + O2 -> H2O.

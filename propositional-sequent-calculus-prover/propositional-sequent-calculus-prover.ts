@@ -28,9 +28,7 @@ function doProve(inputSequent: string): void {
 		proofElem.appendChild(proof.toHtml());
 		
 	} catch (e) {
-		if (e instanceof Error)
-			msgElem.textContent = "Error: " + e.message;
-		else if ("position" in e) {
+		if (e instanceof ParseError) {
 			msgElem.textContent = "Syntax error: " + e.message;
 			codeOutElem.textContent = inputSequent.substring(0, e.position);
 			let highlight = codeOutElem.appendChild(document.createElement("u"));
@@ -39,7 +37,9 @@ function doProve(inputSequent: string): void {
 				codeOutElem.appendChild(document.createTextNode(inputSequent.substring(e.position + 1)));
 			} else
 				highlight.textContent = " ";
-		} else
+		} else if (e instanceof Error)
+			msgElem.textContent = "Error: " + e.message;
+		else
 			msgElem.textContent = "Error: " + e;
 	}
 }
@@ -284,20 +284,20 @@ function parseSequent(tok: Tokenizer): Sequent {
 			tok.consume(next);
 			break;
 		} else if (next === null)
-			throw {message: "Comma or turnstile expected", position: tok.pos};
+			throw new ParseError("Comma or turnstile expected", tok.pos);
 		else {
 			if (expectComma) {
 				if (next == ",")
 					tok.consume(next);
 				else
-					throw {message: "Comma expected", position: tok.pos};
+					throw new ParseError("Comma expected", tok.pos);
 				if (tok.peek() === null)
-					throw {message: "Term expected", position: tok.pos};
+					throw new ParseError("Term expected", tok.pos);
 			} else {
 				if (tok.peek() != ",")
 					expectComma = true;
 				else
-					throw {message: "Term or turnstile expected", position: tok.pos};
+					throw new ParseError("Term or turnstile expected", tok.pos);
 			}
 			const term: Term|null = parseTerm(tok);
 			if (term !== null)
@@ -312,20 +312,20 @@ function parseSequent(tok: Tokenizer): Sequent {
 		if (next === null)
 			break;
 		else if (next == TURNSTILE)
-			throw {message: "Turnstile not expected", position: tok.pos};
+			throw new ParseError("Turnstile not expected", tok.pos);
 		else {
 			if (expectComma) {
 				if (next == ",")
 					tok.consume(next);
 				else
-					throw {message: "Comma expected", position: tok.pos};
+					throw new ParseError("Comma expected", tok.pos);
 				if (tok.peek() === null)
-					throw {message: "Term expected", position: tok.pos};
+					throw new ParseError("Term expected", tok.pos);
 			} else {
 				if (tok.peek() != ",")
 					expectComma = true;
 				else
-					throw {message: "Term or end expected", position: tok.pos};
+					throw new ParseError("Term or end expected", tok.pos);
 			}
 			const term: Term|null = parseTerm(tok);
 			if (term !== null)
@@ -378,12 +378,12 @@ function parseTerm(tok: Tokenizer): Term|null {
 	
 	function checkBeforePushingUnary(): void {
 		if (stack.length > 0 && isTerm(stack[stack.length - 1]))
-			throw {message: "Unexpected item", position: tok.pos};
+			throw new ParseError("Unexpected item", tok.pos);
 	}
 	
 	function checkBeforePushingBinary(): void {
 		if (stack.length == 0 || !isTerm(stack[stack.length - 1]))
-			throw {message: "Unexpected item", position: tok.pos};
+			throw new ParseError("Unexpected item", tok.pos);
 	}
 	
 	while (true) {
@@ -416,13 +416,13 @@ function parseTerm(tok: Tokenizer): Term|null {
 		} else if (next == ")") {
 			finalReduce();
 			if (stack.length < 2 || stack[stack.length - 2] != "(")
-				throw {message: "Binary operator without second operand", position: tok.pos};
+				throw new ParseError("Binary operator without second operand", tok.pos);
 			tok.consume(next);
 			stack.splice(stack.length - 2, 1);
 			reduce();
 		
 		} else if (next == EMPTY)
-			throw {message: "Empty not expected", position: tok.pos};
+			throw new ParseError("Empty not expected", tok.pos);
 		else
 			throw new Error("Assertion error");
 	}
@@ -431,9 +431,9 @@ function parseTerm(tok: Tokenizer): Term|null {
 	if (stack.length == 1 && isTerm(stack[0]))
 		return stack[0] as Term;
 	else if (stack.length == 0)
-		throw {message: "Blank term", position: tok.pos};
+		throw new ParseError("Blank term", tok.pos);
 	else
-		throw {message: "Expected more", position: tok.pos};
+		throw new ParseError("Expected more", tok.pos);
 }
 
 
@@ -455,7 +455,7 @@ class Tokenizer {
 		
 		const match: RegExpExecArray|null = /^([A-Za-z][A-Za-z0-9]*|[,()!&|>\u2205\u00AC\u2227\u2228\u22A6]| +)/.exec(this.str.substring(this.pos));
 		if (match === null)
-			throw {message: "Invalid symbol", position: this.pos};
+			throw new ParseError("Invalid symbol", this.pos);
 		
 		// Normalize notation
 		let token: string = match[0];
@@ -487,6 +487,16 @@ class Tokenizer {
 		if (match === null)
 			throw new Error("Assertion error");
 		this.pos += match[0].length;
+	}
+}
+
+
+class ParseError extends Error {
+	public constructor(
+			message: string,
+			public readonly position: number) {
+		super(message);
+		Object.setPrototypeOf(this, ParseError.prototype);  // ECMAScript 5 compatibility
 	}
 }
 
