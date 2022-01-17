@@ -1,5 +1,5 @@
 /*
- * Creating a QR Code step by step (compiled from TypeScript)
+ * Creating a QR Code step by step
  *
  * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
@@ -144,7 +144,7 @@ var QrCode = /** @class */ (function () {
             setFormatInfoModule(this.size - 1 - i, 8, i);
         for (var i = 8; i < 15; i++)
             setFormatInfoModule(8, this.size - 15 + i, i);
-        this.modules[8][this.size - 8] = new FunctionModule(FunctionModuleType.BLACK, true);
+        this.modules[8][this.size - 8] = new FunctionModule(FunctionModuleType.DARK, true);
     };
     // Modifies modules in this QR Code.
     QrCode.prototype.drawVersionInformation = function () {
@@ -404,17 +404,17 @@ var QrCode = /** @class */ (function () {
                 }
             }
         }
-        var black = 0;
+        var dark = 0;
         for (var _i = 0, colors_1 = colors; _i < colors_1.length; _i++) {
             var column = colors_1[_i];
-            black = column.reduce(function (a, b) { return a + (b ? 1 : 0); }, black);
+            dark = column.reduce(function (a, b) { return a + (b ? 1 : 0); }, dark);
         }
         var total = this.size * this.size;
         var k = 0;
-        while (Math.abs(black * 20 - total * 10) > (k + 1) * total)
+        while (Math.abs(dark * 20 - total * 10) > (k + 1) * total)
             k++;
         penalties[3] += k * QrCode.PENALTY_N4;
-        return new PenaltyInfo(horzRuns, vertRuns, twoByTwos, horzFinders, vertFinders, black, penalties);
+        return new PenaltyInfo(horzRuns, vertRuns, twoByTwos, horzFinders, vertFinders, dark, penalties);
     };
     QrCode.getBit = function (x, i) {
         return ((x >>> i) & 1) != 0;
@@ -533,13 +533,13 @@ var ReedSolomonGenerator = /** @class */ (function () {
 }());
 // A struct for QrCode.computePenalties().
 var PenaltyInfo = /** @class */ (function () {
-    function PenaltyInfo(horizontalRuns, verticalRuns, twoByTwoBoxes, horizontalFalseFinders, verticalFalseFinders, numBlackModules, penaltyPoints) {
+    function PenaltyInfo(horizontalRuns, verticalRuns, twoByTwoBoxes, horizontalFalseFinders, verticalFalseFinders, numDarkModules, penaltyPoints) {
         this.horizontalRuns = horizontalRuns;
         this.verticalRuns = verticalRuns;
         this.twoByTwoBoxes = twoByTwoBoxes;
         this.horizontalFalseFinders = horizontalFalseFinders;
         this.verticalFalseFinders = verticalFalseFinders;
-        this.numBlackModules = numBlackModules;
+        this.numDarkModules = numDarkModules;
         this.penaltyPoints = penaltyPoints;
     }
     return PenaltyInfo;
@@ -651,7 +651,7 @@ var FunctionModuleType;
     FunctionModuleType[FunctionModuleType["ALIGNMENT"] = 3] = "ALIGNMENT";
     FunctionModuleType[FunctionModuleType["FORMAT_INFO"] = 4] = "FORMAT_INFO";
     FunctionModuleType[FunctionModuleType["VERSION_INFO"] = 5] = "VERSION_INFO";
-    FunctionModuleType[FunctionModuleType["BLACK"] = 6] = "BLACK";
+    FunctionModuleType[FunctionModuleType["DARK"] = 6] = "DARK";
 })(FunctionModuleType || (FunctionModuleType = {}));
 var CodewordModule = /** @class */ (function (_super) {
     __extends(CodewordModule, _super);
@@ -868,9 +868,9 @@ var app;
             ["Variable-length UTF-8", "a\u0409\uC707\uD83D\uDE31", ErrorCorrectionLevel.MEDIUM, 1, 1],
             ["Kanji mode charset", "\u300C\u9B54\u6CD5\u5C11\u5973\u307E\u3069\u304B\u2606\u30DE\u30AE\u30AB\u300D\u3063\u3066\u3001\u3000" +
                     "\u0418\u0410\u0418\u3000\uFF44\uFF45\uFF53\uFF55\u3000\u03BA\u03B1\uFF1F", ErrorCorrectionLevel.HIGH, 1, 6],
-            ["Force white area", "00000.UFF7THUFF7000001F8F7THUFF7UF00000000UFF7UFF7F7UFF7UF00000000UFF7UEUFF7T*000005F7UFF7UEUFF7UFF500000001F7T*00000.UFF7UF7QF7" +
+            ["Force light area", "00000.UFF7THUFF7000001F8F7THUFF7UF00000000UFF7UFF7F7UFF7UF00000000UFF7UEUFF7T*000005F7UFF7UEUFF7UFF500000001F7T*00000.UFF7UF7QF7" +
                     "SK000.QOM:UPUFF7UFEA0000001+F7UFF7THUFF7UFEA0000001+F7UEUFF7UE0000003ZUFF7UF7QF7UFF7SK000000F7UF", ErrorCorrectionLevel.LOW, 1, 2],
-            ["Force black area", "963780963783060422602361783060204414120483523180722843312481903540481542120481909180722841190481903542103542120483523" +
+            ["Force dark area", "963780963783060422602361783060204414120483523180722843312481903540481542120481909180722841190481903542103542120483523" +
                     "180722843312481903540481542120481909180722783060240828240963809421660240963819481903536436843301180647542120487542481" +
                     "903542210843301178993542120481888481903536436843301180647542120487542481903542210843301", ErrorCorrectionLevel.LOW, 1, 4],
         ];
@@ -962,7 +962,7 @@ var app;
             "two-by-two-boxes",
             "horizontal-false-finders",
             "vertical-false-finders",
-            "black-white-balance",
+            "dark-light-balance",
         ];
         maskShower.selectElem = getElem("show-mask");
         for (var _i = 0, MASK_DEPENDENT_ELEMS_1 = MASK_DEPENDENT_ELEMS; _i < MASK_DEPENDENT_ELEMS_1.length; _i++) {
@@ -1415,16 +1415,16 @@ var app;
             penaltyInfo.horizontalFalseFinders.forEach(function (run) { return appendRect(group, run.startX, run.startY, run.runLength, 1); });
             group = drawSvgAndAddGroup("vertical-false-finders", maskIndex, 4);
             penaltyInfo.verticalFalseFinders.forEach(function (run) { return appendRect(group, run.startX, run.startY, 1, run.runLength); });
-            var tds = document.querySelectorAll("#black-white-balance-" + maskIndex + " td:nth-child(2)");
+            var tds = document.querySelectorAll("#dark-light-balance-" + maskIndex + " td:nth-child(2)");
             var total = qr.size * qr.size;
-            var black = penaltyInfo.numBlackModules;
-            var percentBlack = black * 100 / total;
+            var dark = penaltyInfo.numDarkModules;
+            var percentDark = dark * 100 / total;
             tds[0].textContent = qr.size.toString();
             tds[1].textContent = total.toString();
-            tds[2].textContent = (total - black).toString();
-            tds[3].textContent = black.toString();
-            tds[4].textContent = percentBlack.toFixed(3) + "%";
-            tds[5].textContent = (percentBlack - 50).toFixed(3).replace(/-/, "\u2212") + "%";
+            tds[2].textContent = (total - dark).toString();
+            tds[3].textContent = dark.toString();
+            tds[4].textContent = percentDark.toFixed(3) + "%";
+            tds[5].textContent = (percentDark - 50).toFixed(3).replace(/-/, "\u2212") + "%";
             qr.applyMask(mask);
             return penaltyInfo;
         });
@@ -1469,23 +1469,23 @@ var app;
             rect.setAttribute("width", qr.size.toString());
             rect.setAttribute("height", qr.size.toString());
         }
-        var whites = "";
-        var blacks = "";
+        var lights = "";
+        var darks = "";
         qr.modules.forEach(function (column, x) {
             column.forEach(function (cell, y) {
                 if (cell instanceof FilledModule) {
                     var s = "M" + x + "," + y + "h1v1h-1z";
                     if (cell.color)
-                        blacks += s;
+                        darks += s;
                     else
-                        whites += s;
+                        lights += s;
                 }
             });
         });
-        var whitePath = svgAppendNewElem(svg, "path", "white");
-        var blackPath = svgAppendNewElem(svg, "path", "black");
-        whitePath.setAttribute("d", whites);
-        blackPath.setAttribute("d", blacks);
+        var lightPath = svgAppendNewElem(svg, "path", "light");
+        var darkPath = svgAppendNewElem(svg, "path", "dark");
+        lightPath.setAttribute("d", lights);
+        darkPath.setAttribute("d", darks);
         function isModuleNew(x, y) {
             if (!(0 <= x && x < qr.size && 0 <= y && y < qr.size))
                 return false;

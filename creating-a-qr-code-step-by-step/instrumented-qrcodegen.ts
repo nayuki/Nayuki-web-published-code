@@ -164,7 +164,7 @@ class QrCode {
 			setFormatInfoModule(this.size - 1 - i, 8, i);
 		for (let i = 8; i < 15; i++)
 			setFormatInfoModule(8, this.size - 15 + i, i);
-		this.modules[8][this.size - 8] = new FunctionModule(FunctionModuleType.BLACK, true);
+		this.modules[8][this.size - 8] = new FunctionModule(FunctionModuleType.DARK, true);
 	}
 	
 	
@@ -421,17 +421,17 @@ class QrCode {
 			}
 		}
 		
-		let black: int = 0;
+		let dark: int = 0;
 		for (const column of colors)
-			black = column.reduce((a, b) => a + (b ? 1 : 0), black);
+			dark = column.reduce((a, b) => a + (b ? 1 : 0), dark);
 		const total: int = this.size * this.size;
 		let k = 0;
-		while (Math.abs(black * 20 - total * 10) > (k + 1) * total)
+		while (Math.abs(dark * 20 - total * 10) > (k + 1) * total)
 			k++;
 		penalties[3] += k * QrCode.PENALTY_N4;
 		
 		return new PenaltyInfo(horzRuns, vertRuns, twoByTwos,
-			horzFinders, vertFinders, black, penalties);
+			horzFinders, vertFinders, dark, penalties);
 	}
 	
 	
@@ -585,7 +585,7 @@ class PenaltyInfo {
 		public readonly twoByTwoBoxes: Array<[int,int]>,
 		public readonly horizontalFalseFinders: Array<LinearRun>,
 		public readonly verticalFalseFinders: Array<LinearRun>,
-		public readonly numBlackModules: int,
+		public readonly numDarkModules: int,
 		public readonly penaltyPoints: [int,int,int,int]) {}
 }
 
@@ -702,7 +702,7 @@ class FunctionModule extends FilledModule {
 
 enum FunctionModuleType {
 	
-	FINDER, SEPARATOR, TIMING, ALIGNMENT, FORMAT_INFO, VERSION_INFO, BLACK
+	FINDER, SEPARATOR, TIMING, ALIGNMENT, FORMAT_INFO, VERSION_INFO, DARK
 	
 }
 

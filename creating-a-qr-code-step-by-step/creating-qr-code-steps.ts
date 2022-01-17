@@ -32,9 +32,9 @@ namespace app {
 			["Variable-length UTF-8"    , "a\u0409\uC707\uD83D\uDE31"                      , ErrorCorrectionLevel.MEDIUM  ,  1,  1],
 			["Kanji mode charset"       , "\u300C\u9B54\u6CD5\u5C11\u5973\u307E\u3069\u304B\u2606\u30DE\u30AE\u30AB\u300D\u3063\u3066\u3001\u3000" +
 			                              "\u0418\u0410\u0418\u3000\uFF44\uFF45\uFF53\uFF55\u3000\u03BA\u03B1\uFF1F", ErrorCorrectionLevel.HIGH, 1, 6],
-			["Force white area"         , "00000.UFF7THUFF7000001F8F7THUFF7UF00000000UFF7UFF7F7UFF7UF00000000UFF7UEUFF7T*000005F7UFF7UEUFF7UFF500000001F7T*00000.UFF7UF7QF7" +
+			["Force light area"         , "00000.UFF7THUFF7000001F8F7THUFF7UF00000000UFF7UFF7F7UFF7UF00000000UFF7UEUFF7T*000005F7UFF7UEUFF7UFF500000001F7T*00000.UFF7UF7QF7" +
 			                              "SK000.QOM:UPUFF7UFEA0000001+F7UFF7THUFF7UFEA0000001+F7UEUFF7UE0000003ZUFF7UF7QF7UFF7SK000000F7UF", ErrorCorrectionLevel.LOW, 1, 2],
-			["Force black area"         , "963780963783060422602361783060204414120483523180722843312481903540481542120481909180722841190481903542103542120483523" +
+			["Force dark area"          , "963780963783060422602361783060204414120483523180722843312481903540481542120481909180722841190481903542103542120483523" +
 			                              "180722843312481903540481542120481909180722783060240828240963809421660240963819481903536436843301180647542120487542481" +
 			                              "903542210843301178993542120481888481903536436843301180647542120487542481903542210843301", ErrorCorrectionLevel.LOW, 1, 4],
 		];
@@ -118,7 +118,7 @@ namespace app {
 			"two-by-two-boxes",
 			"horizontal-false-finders",
 			"vertical-false-finders",
-			"black-white-balance",
+			"dark-light-balance",
 		];
 		
 		export let selectElem = getElem("show-mask") as HTMLSelectElement;
@@ -595,16 +595,16 @@ namespace app {
 			penaltyInfo.verticalFalseFinders.forEach(
 				run => appendRect(group, run.startX, run.startY, 1, run.runLength));
 			
-			let tds = document.querySelectorAll(`#black-white-balance-${maskIndex} td:nth-child(2)`);
+			let tds = document.querySelectorAll(`#dark-light-balance-${maskIndex} td:nth-child(2)`);
 			const total = qr.size * qr.size;
-			const black = penaltyInfo.numBlackModules;
-			const percentBlack = black * 100 / total;
+			const dark = penaltyInfo.numDarkModules;
+			const percentDark = dark * 100 / total;
 			tds[0].textContent = qr.size.toString();
 			tds[1].textContent = total.toString();
-			tds[2].textContent = (total - black).toString();
-			tds[3].textContent = black.toString();
-			tds[4].textContent = percentBlack.toFixed(3) + "%";
-			tds[5].textContent = (percentBlack - 50).toFixed(3).replace(/-/, "\u2212") + "%";
+			tds[2].textContent = (total - dark).toString();
+			tds[3].textContent = dark.toString();
+			tds[4].textContent = percentDark.toFixed(3) + "%";
+			tds[5].textContent = (percentDark - 50).toFixed(3).replace(/-/, "\u2212") + "%";
 			
 			qr.applyMask(mask);
 			return penaltyInfo;
@@ -655,21 +655,21 @@ namespace app {
 			rect.setAttribute("width", qr.size.toString());
 			rect.setAttribute("height", qr.size.toString());
 		}
-		let whites = "";
-		let blacks = "";
+		let lights = "";
+		let darks  = "";
 		qr.modules.forEach((column, x) => {
 			column.forEach((cell, y) => {
 				if (cell instanceof FilledModule) {
 					const s = `M${x},${y}h1v1h-1z`;
-					if (cell.color) blacks += s;
-					else            whites += s;
+					if (cell.color) darks  += s;
+					else            lights += s;
 				}
 			});
 		});
-		let whitePath = svgAppendNewElem(svg, "path", "white");
-		let blackPath = svgAppendNewElem(svg, "path", "black");
-		whitePath.setAttribute("d", whites);
-		blackPath.setAttribute("d", blacks);
+		let lightPath = svgAppendNewElem(svg, "path", "light");
+		let darkPath  = svgAppendNewElem(svg, "path", "dark" );
+		lightPath.setAttribute("d", lights);
+		darkPath .setAttribute("d", darks );
 		
 		function isModuleNew(x: int, y: int) {
 			if (!(0 <= x && x < qr.size && 0 <= y && y < qr.size))
