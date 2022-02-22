@@ -3,11 +3,15 @@
  * 
  * Run main program with no arguments. Prints stuff to standard output. For Java 8+.
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/knuths-yllion-number-notation
  */
 
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +21,8 @@ import java.util.Random;
 
 public final class IntegerToWordsDemo {
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws UnsupportedEncodingException {
+		System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out), true, "UTF-8"));
 		Random rand = new Random();
 		for (int i = 4; ; i++) {
 			// Choose a random positive number that is exactly 'bits' bits long
@@ -85,7 +90,7 @@ final class ConventionalEnglishNotation {
 					break;
 				BigInteger[] quotrem = n.divideAndRemainder(BI_THOUSAND);
 				if (quotrem[1].signum() == 1)
-					parts.add(numberToWords(quotrem[1]) + (illion != null ? " " + illion : ""));
+					parts.add(numberToWords(quotrem[1]) + (!illion.equals("") ? " " + illion : ""));
 				n = quotrem[0];
 			}
 			if (n.signum() != 0)
@@ -117,7 +122,7 @@ final class ConventionalEnglishNotation {
 		"", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"};
 	
 	private static final String[] ILLIONS = {
-		null, "thousand", "million", "billion", "trillion", "quadrillion",
+		"", "thousand", "million", "billion", "trillion", "quadrillion",
 		"quintillion", "sextillion", "septillion", "octillion", "nonillion",
 		"decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion",
 		"quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion",
@@ -176,7 +181,7 @@ final class YllionEnglishNotation {
 	
 	
 	private static final String[] YLLIONS = {
-		null, "hundred", "myriad", "myllion", "byllion", "tryllion", "quadryllion",
+		"", "hundred", "myriad", "myllion", "byllion", "tryllion", "quadryllion",
 		"quintyllion", "sextyllion", "septyllion", "octyllion", "nonyllion", "decyllion"};
 	
 	private static final String[] SEPARATORS = {",", ";", ":", "'"};
@@ -190,12 +195,12 @@ final class YllionChineseNotation {
 	
 	public static String numberToWords(BigInteger n) {
 		if (n.signum() == -1)
-			return "負" + numberToWords(n.negate());
+			return "\u8CA0" + numberToWords(n.negate());
 		else if (n.signum() == 0)
-			return "零";
+			return "\u96F6";
 		else if (n.compareTo(BigInteger.valueOf(100)) < 0) {
 			int m = n.intValue();
-			return (m >= 10 ? (m >= 20 ? ONES[m / 10] : "") + "十" : "") + ONES[m % 10];
+			return (m >= 10 ? (m >= 20 ? ONES[m / 10] : "") + "\u5341" : "") + ONES[m % 10];
 		} else {
 			String temp = n.toString();
 			int yllionsLen = YLLIONS.length;
@@ -215,8 +220,8 @@ final class YllionChineseNotation {
 	}
 	
 	
-	private static final String[] ONES = {"", "一", "二", "三", "四", "五", "六", "七", "八", "九"};
+	private static final String[] ONES = {"", "\u4E00", "\u4E8C", "\u4E09", "\u56DB", "\u4E94", "\u516D", "\u4E03", "\u516B", "\u4E5D"};
 	
-	private static final String[] YLLIONS = {null, "百", "萬", "億", "兆", "京", "垓", "秭", "穰", "溝", "澗", "正", "載"};
+	private static final String[] YLLIONS = {"", "\u767E", "\u842C", "\u5104", "\u5146", "\u4EAC", "\u5793", "\u79ED", "\u7A70", "\u6E9D", "\u6F97", "\u6B63", "\u8F09"};
 	
 }

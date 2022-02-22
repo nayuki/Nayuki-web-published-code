@@ -9,7 +9,7 @@
 # 
 
 import codecs, itertools, random, sys
-from typing import List, Optional
+from typing import List
 
 
 # ---- Main runnable demo ----
@@ -77,7 +77,7 @@ class ConventionalEnglishNotation:
 				rem: int = n % 1000
 				if rem > 0:
 					s0: str = ConventionalEnglishNotation.number_to_words(rem)
-					s1: str = (" " + illion) if (illion is not None) else ""
+					s1: str = (" " + illion) if (illion != "") else ""
 					parts.append(s0 + s1)
 				n //= 1000
 			if n != 0:
@@ -104,8 +104,8 @@ class ConventionalEnglishNotation:
 	_TENS: List[str] = [
 		"", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
 	
-	_ILLIONS: List[Optional[str]] = [
-		None, "thousand", "million", "billion", "trillion", "quadrillion",
+	_ILLIONS: List[str] = [
+		"", "thousand", "million", "billion", "trillion", "quadrillion",
 		"quintillion", "sextillion", "septillion", "octillion", "nonillion",
 		"decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion",
 		"quindecillion", "sexdecillion", "septendecillion", "octodecillion", "novemdecillion",
@@ -154,8 +154,8 @@ class YllionEnglishNotation:
 			return s
 	
 	
-	_YLLIONS: List[Optional[str]] = [
-		None, "hundred", "myriad", "myllion", "byllion", "tryllion", "quadryllion",
+	_YLLIONS: List[str] = [
+		"", "hundred", "myriad", "myllion", "byllion", "tryllion", "quadryllion",
 		"quintyllion", "sextyllion", "septyllion", "octyllion", "nonyllion", "decyllion"]
 	
 	_SEPARATORS: List[str] = [",", ";", ":", "'"]
@@ -168,11 +168,11 @@ class YllionChineseNotation:
 	@staticmethod
 	def number_to_words(n: int) -> str:
 		if n < 0:
-			return "\u8CA0" + YllionChineseNotation.number_to_words(-n)
+			return "負" + YllionChineseNotation.number_to_words(-n)
 		elif n == 0:
-			return "\u96F6"
+			return "零"
 		elif n < 100:
-			return (((YllionChineseNotation._ONES[n // 10] if (n >= 20) else "") + "\u5341") if (n >= 10) else "") \
+			return (((YllionChineseNotation._ONES[n // 10] if (n >= 20) else "") + "十") if (n >= 10) else "") \
 				+ YllionChineseNotation._ONES[n % 10]
 		else:
 			temp: str = str(n)
@@ -189,9 +189,9 @@ class YllionChineseNotation:
 			raise AssertionError()
 	
 	
-	_ONES: List[str] = ["", "\u4E00", "\u4E8C", "\u4E09", "\u56DB", "\u4E94", "\u516D", "\u4E03", "\u516B", "\u4E5D"]
+	_ONES: List[str] = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"]
 	
-	_YLLIONS: List[Optional[str]] = [None, "\u767E", "\u842C", "\u5104", "\u5146", "\u4EAC", "\u5793", "\u79ED", "\u7A70", "\u6E9D", "\u6F97", "\u6B63", "\u8F09"]
+	_YLLIONS: List[str] = ["", "百", "萬", "億", "兆", "京", "垓", "秭", "穰", "溝", "澗", "正", "載"]
 
 
 
