@@ -1,7 +1,7 @@
 /* 
  * Time-based One-Time Password tools (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,8 +49,7 @@ fn main() {
 
 
 fn decode_base32(s: &str) -> Vec<u8> {
-	#[allow(non_snake_case)]
-	let ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+	const ALPHABET: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 	let mut result = Vec::<u8>::new();
 	let mut bits = 0u16;
 	let mut bitslen = 0u8;
@@ -198,9 +197,8 @@ fn calc_sha1_hash(mut message: Vec<u8>) -> Vec<u8> {
 
 /*---- Test suite ----*/
 
-#[allow(non_snake_case)]
 fn test_hotp() {
-	let CASES: Vec<(u64,&str)> = vec![
+	const CASES: &[(u64,&str)] = &[
 		(0, "284755224"),
 		(1, "094287082"),
 		(2, "137359152"),
@@ -212,9 +210,9 @@ fn test_hotp() {
 		(8, "673399871"),
 		(9, "645520489"),
 	];
-	let SECRET_KEY: &[u8] = b"12345678901234567890";
+	const SECRET_KEY: &[u8] = b"12345678901234567890";
 	
-	for &(counter, expect) in &CASES {
+	for &(counter, expect) in CASES {
 		let actual: String = calc_hotp(
 			SECRET_KEY.to_vec(), &counter.to_be_bytes(), 9, calc_sha1_hash, 64);
 		assert_eq!(expect, actual);
@@ -222,9 +220,8 @@ fn test_hotp() {
 }
 
 
-#[allow(non_snake_case)]
 fn test_totp() {
-	let CASES: Vec<(i64,&str)> = vec![
+	const CASES: &[(i64,&str)] = &[
 		(         59, "94287082"),
 		( 1111111109, "07081804"),
 		( 1111111111, "14050471"),
@@ -232,9 +229,9 @@ fn test_totp() {
 		( 2000000000, "69279037"),
 		(20000000000, "65353130"),
 	];
-	let SECRET_KEY: &[u8] = b"12345678901234567890";
+	const SECRET_KEY: &[u8] = b"12345678901234567890";
 	
-	for &(timestamp, expect) in &CASES {
+	for &(timestamp, expect) in CASES {
 		let actual: String = calc_totp(
 			SECRET_KEY.to_vec(), 0, 30, timestamp, 8, calc_sha1_hash, 64);
 		assert_eq!(expect, actual);
