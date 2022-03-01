@@ -120,8 +120,8 @@ const TEST_SUITE_FUNCS: Array<()=>void> = [
 	// Stresses the self-balancing mechanism
 	function testInsertManyBeginning(): void {
 		let list = new AvlTreeList<number>();
-		for (let i = 0; i < 100000; i++)
-			list.push(i);
+		for (let i = 99999; i >= 0; i--)
+			list.insert(0, i);
 		
 		let i: number = 0;
 		for (let iter = list.iterator(); iter.hasNext(); ) {
@@ -135,8 +135,8 @@ const TEST_SUITE_FUNCS: Array<()=>void> = [
 	// Stresses the self-balancing mechanism
 	function testInsertManyEnd(): void {
 		let list = new AvlTreeList<number>();
-		for (let i = 99999; i >= 0; i--)
-			list.insert(0, i);
+		for (let i = 0; i < 100000; i++)
+			list.push(i);
 		
 		let i: number = 0;
 		for (let iter = list.iterator(); iter.hasNext(); ) {

@@ -107,8 +107,8 @@ var TEST_SUITE_FUNCS = [
     // Stresses the self-balancing mechanism
     function testInsertManyBeginning() {
         var list = new AvlTreeList();
-        for (var i_1 = 0; i_1 < 100000; i_1++)
-            list.push(i_1);
+        for (var i_1 = 99999; i_1 >= 0; i_1--)
+            list.insert(0, i_1);
         var i = 0;
         for (var iter = list.iterator(); iter.hasNext();) {
             assertEquals(i, iter.next());
@@ -119,8 +119,8 @@ var TEST_SUITE_FUNCS = [
     // Stresses the self-balancing mechanism
     function testInsertManyEnd() {
         var list = new AvlTreeList();
-        for (var i_2 = 99999; i_2 >= 0; i_2--)
-            list.insert(0, i_2);
+        for (var i_2 = 0; i_2 < 100000; i_2++)
+            list.push(i_2);
         var i = 0;
         for (var iter = list.iterator(); iter.hasNext();) {
             assertEquals(i, iter.next());

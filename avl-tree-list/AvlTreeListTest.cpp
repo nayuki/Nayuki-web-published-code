@@ -136,8 +136,8 @@ static void testInsertAtMiddle() {
 static void testInsertManyBeginning() {
 	const long N = 300000;
 	AvlTreeList<long> list;
-	for (long i = 0; i < N; i++)
-		list.push_back(i);
+	for (long i = N - 1; i >= 0; i--)
+		list.insert(0, i);
 	for (long i = 0; i < N; i++)
 		assertEquals(list[i], i);
 }
@@ -147,8 +147,8 @@ static void testInsertManyBeginning() {
 static void testInsertManyEnd() {
 	const long N = 300000;
 	AvlTreeList<long> list;
-	for (long i = N - 1; i >= 0; i--)
-		list.insert(0, i);
+	for (long i = 0; i < N; i++)
+		list.push_back(i);
 	for (long i = 0; i < N; i++)
 		assertEquals(list[i], i);
 }

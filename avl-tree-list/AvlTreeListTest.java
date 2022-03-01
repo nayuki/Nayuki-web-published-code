@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (Java)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -216,8 +216,8 @@ public final class AvlTreeListTest {
 	// Stresses the self-balancing mechanism
 	@Test public void testInsertManyBeginning() {
 		List<Integer> list = newList();
-		for (int i = 0; i < 300000; i++)
-			list.add(i);
+		for (int i = 299999; i >= 0; i--)
+			list.add(0, i);
 		
 		int i = 0;
 		for (Integer x : list) {
@@ -230,8 +230,8 @@ public final class AvlTreeListTest {
 	// Stresses the self-balancing mechanism
 	@Test public void testInsertManyEnd() {
 		List<Integer> list = newList();
-		for (int i = 299999; i >= 0; i--)
-			list.add(0, i);
+		for (int i = 0; i < 300000; i++)
+			list.add(i);
 		
 		int i = 0;
 		for (Integer x : list) {

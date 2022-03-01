@@ -1,7 +1,7 @@
 # 
 # AVL tree list test (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2022 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/avl-tree-list
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -207,8 +207,8 @@ class AvlTreeListTest(unittest.TestCase):
 	# Stresses the self-balancing mechanism
 	def test_insert_many_beginning(self) -> None:
 		lst: AvlTreeList[int] = AvlTreeList()
-		for i in range(30000):
-			lst.append(i)
+		for i in reversed(range(30000)):
+			lst.insert(0, i)
 		for (i, x) in enumerate(lst):
 			self.assertEqual(i, x)
 	
@@ -216,8 +216,8 @@ class AvlTreeListTest(unittest.TestCase):
 	# Stresses the self-balancing mechanism
 	def test_insert_many_end(self) -> None:
 		lst: AvlTreeList[int] = AvlTreeList()
-		for i in reversed(range(30000)):
-			lst.insert(0, i)
+		for i in range(30000):
+			lst.append(i)
 		for (i, x) in enumerate(lst):
 			self.assertEqual(i, x)
 	

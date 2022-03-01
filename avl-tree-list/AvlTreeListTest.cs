@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (C#)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -137,8 +137,8 @@ public sealed class AvlTreeListTest {
 	// Stresses the self-balancing mechanism
 	private static void TestInsertManyBeginning() {
 		AvlTreeList<int> list = new AvlTreeList<int>();
-		for (int i = 0; i < 300000; i++)
-			list.Add(i);
+		for (int i = 299999; i >= 0; i--)
+			list.Insert(0, i);
 		
 		for (int i = 0; i < list.Count; i++)
 			AssertEquals(list[i], i);
@@ -148,8 +148,8 @@ public sealed class AvlTreeListTest {
 	// Stresses the self-balancing mechanism
 	private static void TestInsertManyEnd() {
 		AvlTreeList<int> list = new AvlTreeList<int>();
-		for (int i = 299999; i >= 0; i--)
-			list.Insert(0, i);
+		for (int i = 0; i < 300000; i++)
+			list.Add(i);
 		
 		for (int i = 0; i < list.Count; i++)
 			AssertEquals(list[i], i);

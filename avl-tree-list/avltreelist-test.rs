@@ -1,7 +1,7 @@
 /* 
  * AVL tree list test (Rust)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -189,12 +189,12 @@ fn test_insert_list() {
 fn test_insert_many_beginning() {
 	let n: i32 = 300_000;
 	let mut list = AvlTreeList::<i32>::new();
-	for i in 0 .. n {
-		list.push(i);
+	for i in (0 .. n).rev() {
+		list.insert(0, i);
 	}
 	
-	for (i, &x) in (0i32 .. ).zip(list.into_iter()) {
-		assert_eq!(x, i);
+	for (i, x) in (0i32 .. ).zip(list.into_iter()) {
+		assert_eq!(*x, i);
 	}
 }
 
@@ -203,12 +203,12 @@ fn test_insert_many_beginning() {
 fn test_insert_many_end() {
 	let n: i32 = 300_000;
 	let mut list = AvlTreeList::<i32>::new();
-	for i in (0 .. n).rev() {
-		list.insert(0, i);
+	for i in 0 .. n {
+		list.push(i);
 	}
 	
-	for (i, x) in (0i32 .. ).zip(list.into_iter()) {
-		assert_eq!(*x, i);
+	for (i, &x) in (0i32 .. ).zip(list.into_iter()) {
+		assert_eq!(x, i);
 	}
 }
 
