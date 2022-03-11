@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (C)
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@
 const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc, bool printstatus);
 
 static uint32_t get_crc32_and_length(FILE f[static 1], uint64_t length[static 1]);
-static void fseek64(FILE f[static 1], uint64_t offset);
+static const char *fseek64(FILE f[static 1], uint64_t offset);
 static uint32_t reverse_bits(uint32_t x);
 
 static uint64_t multiply_mod(uint64_t x, uint64_t y);
@@ -112,7 +112,9 @@ const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc
 	delta = (uint32_t)multiply_mod(reciprocal_mod(pow_mod(2, (length - offset) * 8)), delta);
 	
 	// Patch 4 bytes in the file
-	fseek64(f, offset);
+	const char *errmsg = fseek64(f, offset);
+	if (errmsg != NULL)
+		return errmsg;
 	for (int i = 0; i < 4; i++) {
 		int b = fgetc(f);
 		if (b == EOF) {
@@ -182,15 +184,17 @@ static uint32_t get_crc32_and_length(FILE f[static 1], uint64_t length[static 1]
 }
 
 
-static void fseek64(FILE f[static 1], uint64_t offset) {
+static const char *fseek64(FILE f[static 1], uint64_t offset) {
 	rewind(f);
 	while (offset > 0) {
 		unsigned long n = LONG_MAX;
 		if (offset < n)
 			n = (unsigned long)offset;
-		fseek(f, (long)n, SEEK_CUR);
+		if (fseek(f, (long)n, SEEK_CUR) != 0)
+			return "I/O error: fseek";
 		offset -= n;
 	}
+	return NULL;
 }
 
 
