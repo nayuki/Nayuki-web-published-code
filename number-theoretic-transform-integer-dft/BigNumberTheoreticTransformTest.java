@@ -8,9 +8,15 @@
 
 import static java.math.BigInteger.ONE;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.junit.Assert;
 import org.junit.Test;
 
 
@@ -159,6 +165,216 @@ public class BigNumberTheoreticTransformTest {
 			for (int j = 0; j < vec.length; j++)
 				vec[j] = vec[j].multiply(scaler).mod(mod);
 			assertArrayEquals(invec, vec);
+		}
+	}
+	
+	
+	@Test public void testFindGenerator() {
+		final Object[][] CASES = {
+			{ 2,  1, Arrays.asList(1)},
+			{ 3,  2, Arrays.asList(2)},
+			{ 4,  2, Arrays.asList(3)},
+			{ 5,  4, Arrays.asList(2, 3)},
+			{ 6,  2, Arrays.asList(5)},
+			{ 7,  6, Arrays.asList(3, 5)},
+			{ 8,  4, Arrays.asList()},
+			{ 9,  6, Arrays.asList(2, 5)},
+			{10,  4, Arrays.asList(3, 7)},
+			{11, 10, Arrays.asList(2, 6, 7, 8)},
+			{12,  4, Arrays.asList()},
+			{13, 12, Arrays.asList(2, 6, 7, 11)},
+			{14,  6, Arrays.asList(3, 5)},
+			{15,  8, Arrays.asList()},
+			{16,  8, Arrays.asList()},
+			{17, 16, Arrays.asList(3, 5, 6, 7, 10, 11, 12, 14)},
+			{18,  6, Arrays.asList(5, 11)},
+			{19, 18, Arrays.asList(2, 3, 10, 13, 14, 15)},
+			{20,  8, Arrays.asList()},
+			{21, 12, Arrays.asList()},
+			{22, 10, Arrays.asList(7, 13, 17, 19)},
+			{23, 22, Arrays.asList(5, 7, 10, 11, 14, 15, 17, 19, 20, 21)},
+		};
+		for (Object[] cs : CASES) {
+			BigInteger mod = bi((int)cs[0]);
+			BigInteger totient = bi((int)cs[1]);
+			@SuppressWarnings("unchecked")
+			Set<BigInteger> gens = ((List<Integer>)cs[2]).stream().map(x -> bi(x)).collect(Collectors.toSet());
+			if (!gens.isEmpty()) {
+				BigInteger gen = BigNumberTheoreticTransform.findGenerator(totient, mod);
+				assertTrue(gens.contains(gen));
+			} else {
+				try {
+					BigNumberTheoreticTransform.findGenerator(totient, mod);
+					Assert.fail();
+				} catch (ArithmeticException e) {}  // Pass
+			}
+		}
+	}
+	
+	
+	@Test public void testIsPrimitiveRoot() {
+		final Object[][] CASES = {
+			{ 2,  1, Arrays.asList(1)},
+			{ 3,  2, Arrays.asList(2)},
+			{ 4,  2, Arrays.asList(3)},
+			{ 5,  2, Arrays.asList(4)},
+			{ 5,  4, Arrays.asList(2, 3)},
+			{ 6,  2, Arrays.asList(5)},
+			{ 7,  2, Arrays.asList(6)},
+			{ 7,  3, Arrays.asList(2, 4)},
+			{ 7,  6, Arrays.asList(3, 5)},
+			{ 8,  2, Arrays.asList(3, 5, 7)},
+			{ 8,  4, Arrays.asList()},
+			{ 9,  2, Arrays.asList(8)},
+			{ 9,  3, Arrays.asList(4, 7)},
+			{ 9,  6, Arrays.asList(2, 5)},
+			{10,  2, Arrays.asList(9)},
+			{10,  4, Arrays.asList(3, 7)},
+			{11,  2, Arrays.asList(10)},
+			{11,  5, Arrays.asList(3, 4, 5, 9)},
+			{11, 10, Arrays.asList(2, 6, 7, 8)},
+			{12,  2, Arrays.asList(5, 7, 11)},
+			{12,  4, Arrays.asList()},
+			{13,  2, Arrays.asList(12)},
+			{13,  3, Arrays.asList(3, 9)},
+			{13,  4, Arrays.asList(5, 8)},
+			{13,  6, Arrays.asList(4, 10)},
+			{13, 12, Arrays.asList(2, 6, 7, 11)},
+			{14,  2, Arrays.asList(13)},
+			{14,  3, Arrays.asList(9, 11)},
+			{14,  6, Arrays.asList(3, 5)},
+			{15,  2, Arrays.asList(4, 11, 14)},
+			{15,  4, Arrays.asList(2, 7, 8, 13)},
+			{15,  8, Arrays.asList()},
+			
+			{16,  8, Arrays.asList()},
+			{17, 16, Arrays.asList(3, 5, 6, 7, 10, 11, 12, 14)},
+			{18,  6, Arrays.asList(5, 11)},
+			{19, 18, Arrays.asList(2, 3, 10, 13, 14, 15)},
+			{20,  8, Arrays.asList()},
+			{21, 12, Arrays.asList()},
+			{22, 10, Arrays.asList(7, 13, 17, 19)},
+			{23, 22, Arrays.asList(5, 7, 10, 11, 14, 15, 17, 19, 20, 21)},
+		};
+		for (Object[] cs : CASES) {
+			BigInteger mod = bi((int)cs[0]);
+			@SuppressWarnings("unchecked")
+			Set<BigInteger> primRoots = ((List<Integer>)cs[2]).stream().map(x -> bi(x)).collect(Collectors.toSet());
+			for (BigInteger i = BigInteger.ZERO; i.compareTo(mod) < 0; i = i.add(ONE)) {
+				boolean expect = primRoots.contains(i);
+				boolean actual = BigNumberTheoreticTransform.isPrimitiveRoot(i, bi((int)cs[1]), mod);
+				assertEquals(expect, actual);
+			}
+		}
+	}
+	
+	
+	@Test public void testIsPrimitiveRootPrimeGenerator() {
+		final int TRIALS = 1_000;
+		for (int i = 0; i < TRIALS; i++) {
+			BigInteger p = new BigInteger(16, rand).add(bi(2));
+			if (!BigNumberTheoreticTransform.isPrime(p))
+				continue;
+			BigInteger totient = p.subtract(ONE);
+			
+			BigInteger val;
+			do val = new BigInteger(p.subtract(ONE).bitLength(), rand);
+			while (val.compareTo(p) >= 0);
+			boolean expect = true;
+			BigInteger temp = ONE;
+			for (BigInteger j = BigInteger.ZERO, end = totient.subtract(ONE); j.compareTo(end) < 0; j = j.add(ONE)) {
+				temp = temp.multiply(val).mod(p);
+				expect = expect && !temp.equals(ONE);
+			}
+			temp = temp.multiply(val).mod(p);
+			expect = expect && temp.equals(ONE);
+			boolean actual = BigNumberTheoreticTransform.isPrimitiveRoot(val, totient, p);
+			assertEquals(expect, actual);
+		}
+	}
+	
+	
+	@Test public void testUniquePrimeFactors() {
+		Object[][] CASES = {
+			{ 1, Arrays.asList()},
+			{ 2, Arrays.asList(2)},
+			{ 3, Arrays.asList(3)},
+			{ 4, Arrays.asList(2)},
+			{ 5, Arrays.asList(5)},
+			{ 6, Arrays.asList(2, 3)},
+			{ 7, Arrays.asList(7)},
+			{ 8, Arrays.asList(2)},
+			{ 9, Arrays.asList(3)},
+			{10, Arrays.asList(2, 5)},
+			{11, Arrays.asList(11)},
+			{12, Arrays.asList(2, 3)},
+			{13, Arrays.asList(13)},
+			{14, Arrays.asList(2, 7)},
+			{15, Arrays.asList(3, 5)},
+			{16, Arrays.asList(2)},
+		};
+		for (Object[] cs : CASES) {
+			@SuppressWarnings("unchecked")
+			List<BigInteger> expect = ((List<Integer>)cs[1]).stream().map(x -> bi(x)).collect(Collectors.toList());
+			List<BigInteger> actual = BigNumberTheoreticTransform.uniquePrimeFactors(bi((int)cs[0]));
+			assertEquals(expect, actual);
+		}
+		
+		final int TRIALS = 1_000;
+		for (int i = 0; i < TRIALS; i++) {
+			BigInteger n = new BigInteger(16, rand).add(bi(2));
+			List<BigInteger> facts = BigNumberTheoreticTransform.uniquePrimeFactors(n);
+			assertEquals(BigNumberTheoreticTransform.isPrime(n), facts.size() == 1 && facts.get(0).equals(n));
+		}
+	}
+	
+	
+	@Test public void testIsPrime() {
+		Object[][] CASES = {
+			{ 2, true },
+			{ 3, true },
+			{ 4, false},
+			{ 5, true },
+			{ 6, false},
+			{ 7, true },
+			{ 8, false},
+			{ 9, false},
+			{10, false},
+			{11, true },
+			{12, false},
+			{13, true },
+			{14, false},
+			{15, false},
+			{16, false},
+		};
+		for (Object[] cs : CASES) {
+			boolean actual = BigNumberTheoreticTransform.isPrime(bi((int)cs[0]));
+			assertEquals((boolean)cs[1], actual);
+		}
+	}
+	
+	
+	@Test public void testSqrt() {
+		int[][] CASES = {
+			{0, 0},
+			{1, 1},
+			{2, 1},
+			{3, 1},
+			{4, 2},
+			{5, 2},
+			{6, 2},
+			{7, 2},
+			{8, 2},
+			{9, 3},
+		};
+		for (int[] cs : CASES)
+			assertEquals(bi(cs[1]), BigNumberTheoreticTransform.sqrt(bi(cs[0])));
+		
+		final int TRIALS = 1_000;
+		for (int i = 0; i < TRIALS; i++) {
+			BigInteger x = new BigInteger(16, rand);
+			BigInteger y = BigNumberTheoreticTransform.sqrt(x);
+			assertTrue(y.pow(2).compareTo(x) <= 0 && x.compareTo(y.add(ONE).pow(2)) < 0);
 		}
 	}
 	

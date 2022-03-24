@@ -1,7 +1,7 @@
 /* 
  * Number-theoretic transform library (Java)
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/number-theoretic-transform-integer-dft
  */
@@ -142,19 +142,6 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
-	// Returns an arbitrary generator of the multiplicative group of integers modulo mod.
-	// totient must equal the Euler phi function of mod. If mod is prime, an answer must exist.
-	public static int findGenerator(int totient, int mod) {
-		if (totient < 1 || totient >= mod)
-			throw new IllegalArgumentException();
-		for (int i = 1; i < mod; i++) {
-			if (isGenerator(i, totient, mod))
-				return i;
-		}
-		throw new ArithmeticException("No generator exists");
-	}
-	
-	
 	// Returns an arbitrary primitive degree-th root of unity modulo mod.
 	// totient must be a multiple of degree. If mod is prime, an answer must exist.
 	public static int findPrimitiveRoot(int degree, int totient, int mod) {
@@ -165,29 +152,28 @@ public final class SmallNumberTheoreticTransform {
 	}
 	
 	
-	// Tests whether val generates the multiplicative group of integers modulo mod. totient
-	// must equal the Euler phi function of mod. In other words, the set of numbers
-	// {val^0 % mod, val^1 % mod, ..., val^(totient-1) % mod} is equal to the set of all
-	// numbers in the range [0, mod) that are coprime to mod. If mod is prime, then
-	// totient = mod - 1, and powers of a generator produces all integers in the range [1, mod).
-	public static boolean isGenerator(int val, int totient, int mod) {
-		if (val < 0 || val >= mod)
-			throw new IllegalArgumentException();
+	// Returns an arbitrary generator of the multiplicative group of integers modulo mod.
+	// totient must equal the Euler phi function of mod. If mod is prime, an answer must exist.
+	public static int findGenerator(int totient, int mod) {
 		if (totient < 1 || totient >= mod)
 			throw new IllegalArgumentException();
-		
-		if (pow(val, totient, mod) != 1)
-			return false;
-		for (int p : uniquePrimeFactors(totient)) {
-			if (pow(val, totient / p, mod) == 1)
-				return false;
+		for (int i = 1; i < mod; i++) {
+			if (isPrimitiveRoot(i, totient, mod))
+				return i;
 		}
-		return true;
+		throw new ArithmeticException("No generator exists");
 	}
 	
 	
 	// Tests whether val is a primitive degree-th root of unity modulo mod.
 	// In other words, val^degree % mod = 1, and for each 1 <= k < degree, val^k % mod != 1.
+	// 
+	// To test whether val generates the multiplicative group of integers modulo mod,
+	// set degree = totient(mod), where totient is the Euler phi function.
+	// We say that val is a generator modulo mod if and only if the set of numbers
+	// {val^0 % mod, val^1 % mod, ..., val^(totient-1) % mod} is equal to the set of all
+	// numbers in the range [0, mod) that are coprime to mod. If mod is prime, then
+	// totient = mod - 1, and powers of a generator produces all integers in the range [1, mod).
 	public static boolean isPrimitiveRoot(int val, int degree, int mod) {
 		if (val < 0 || val >= mod)
 			throw new IllegalArgumentException();

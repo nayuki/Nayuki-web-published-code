@@ -1,7 +1,7 @@
 # 
 # Number-theoretic transform library (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2022 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 # 
@@ -126,17 +126,6 @@ def find_modulus(veclen: int, minimum: int) -> int:
 	raise AssertionError("Unreachable")
 
 
-# Returns an arbitrary generator of the multiplicative group of integers modulo mod.
-# totient must equal the Euler phi function of mod. If mod is prime, an answer must exist.
-def find_generator(totient: int, mod: int) -> int:
-	if not (1 <= totient < mod):
-		raise ValueError()
-	for i in range(1, mod):
-		if is_generator(i, totient, mod):
-			return i
-	raise ValueError("No generator exists")
-
-
 # Returns an arbitrary primitive degree-th root of unity modulo mod.
 # totient must be a multiple of degree. If mod is prime, an answer must exist.
 def find_primitive_root(degree: int, totient: int, mod: int) -> int:
@@ -150,23 +139,26 @@ def find_primitive_root(degree: int, totient: int, mod: int) -> int:
 	return root
 
 
-# Tests whether val generates the multiplicative group of integers modulo mod. totient
-# must equal the Euler phi function of mod. In other words, the set of numbers
-# {val^0 % mod, val^1 % mod, ..., val^(totient-1) % mod} is equal to the set of all
-# numbers in the range [0, mod) that are coprime to mod. If mod is prime, then
-# totient = mod - 1, and powers of a generator produces all integers in the range [1, mod).
-def is_generator(val: int, totient: int, mod: int) -> bool:
-	if not (0 <= val < mod):
-		raise ValueError()
+# Returns an arbitrary generator of the multiplicative group of integers modulo mod.
+# totient must equal the Euler phi function of mod. If mod is prime, an answer must exist.
+def find_generator(totient: int, mod: int) -> int:
 	if not (1 <= totient < mod):
 		raise ValueError()
-	pf: List[int] = unique_prime_factors(totient)
-	return pow(val, totient, mod) == 1 and \
-		all((pow(val, totient // p, mod) != 1) for p in pf)
+	for i in range(1, mod):
+		if is_primitive_root(i, totient, mod):
+			return i
+	raise ValueError("No generator exists")
 
 
 # Tests whether val is a primitive degree-th root of unity modulo mod.
 # In other words, val^degree % mod = 1, and for each 1 <= k < degree, val^k % mod != 1.
+# 
+# To test whether val generates the multiplicative group of integers modulo mod,
+# set degree = totient(mod), where totient is the Euler phi function.
+# We say that val is a generator modulo mod if and only if the set of numbers
+# {val^0 % mod, val^1 % mod, ..., val^(totient-1) % mod} is equal to the set of all
+# numbers in the range [0, mod) that are coprime to mod. If mod is prime, then
+# totient = mod - 1, and powers of a generator produces all integers in the range [1, mod).
 def is_primitive_root(val: int, degree: int, mod: int) -> bool:
 	if not (0 <= val < mod):
 		raise ValueError()

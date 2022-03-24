@@ -1,13 +1,13 @@
 # 
 # Number-theoretic transform test (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2022 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 # 
 
 import random, unittest
-from typing import List
+from typing import List, Set, Tuple
 import numbertheoretictransform as ntt
 
 
@@ -119,6 +119,243 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 			scaler: int = ntt.reciprocal(veclen, mod)
 			vec = [(x * scaler % mod) for x in vec]
 			self.assertEqual(invec, vec)
+	
+	
+	def test_find_generator(self) -> None:
+		CASES: List[Tuple[int,int,Set[int]]] = [
+			( 2,  1, {1}),
+			( 3,  2, {2}),
+			( 4,  2, {3}),
+			( 5,  4, {2, 3}),
+			( 6,  2, {5}),
+			( 7,  6, {3, 5}),
+			( 8,  4, set()),
+			( 9,  6, {2, 5}),
+			(10,  4, {3, 7}),
+			(11, 10, {2, 6, 7, 8}),
+			(12,  4, set()),
+			(13, 12, {2, 6, 7, 11}),
+			(14,  6, {3, 5}),
+			(15,  8, set()),
+			(16,  8, set()),
+			(17, 16, {3, 5, 6, 7, 10, 11, 12, 14}),
+			(18,  6, {5, 11}),
+			(19, 18, {2, 3, 10, 13, 14, 15}),
+			(20,  8, set()),
+			(21, 12, set()),
+			(22, 10, {7, 13, 17, 19}),
+			(23, 22, {5, 7, 10, 11, 14, 15, 17, 19, 20, 21}),
+		]
+		for (mod, totient, gens) in CASES:
+			if len(gens) > 0:
+				gen: int = ntt.find_generator(totient, mod)
+				self.assertTrue(gen in gens)
+			else:
+				self.assertRaises(ValueError, ntt.find_generator, totient, mod)
+	
+	
+	def test_is_primitive_root(self) -> None:
+		CASES: List[Tuple[int,int,Set[int]]] = [
+			( 2,  1, {1}),
+			( 3,  2, {2}),
+			( 4,  2, {3}),
+			( 5,  2, {4}),
+			( 5,  4, {2, 3}),
+			( 6,  2, {5}),
+			( 7,  2, {6}),
+			( 7,  3, {2, 4}),
+			( 7,  6, {3, 5}),
+			( 8,  2, {3, 5, 7}),
+			( 8,  4, set()),
+			( 9,  2, {8}),
+			( 9,  3, {4, 7}),
+			( 9,  6, {2, 5}),
+			(10,  2, {9}),
+			(10,  4, {3, 7}),
+			(11,  2, {10}),
+			(11,  5, {3, 4, 5, 9}),
+			(11, 10, {2, 6, 7, 8}),
+			(12,  2, {5, 7, 11}),
+			(12,  4, set()),
+			(13,  2, {12}),
+			(13,  3, {3, 9}),
+			(13,  4, {5, 8}),
+			(13,  6, {4, 10}),
+			(13, 12, {2, 6, 7, 11}),
+			(14,  2, {13}),
+			(14,  3, {9, 11}),
+			(14,  6, {3, 5}),
+			(15,  2, {4, 11, 14}),
+			(15,  4, {2, 7, 8, 13}),
+			(15,  8, set()),
+			
+			(16,  8, set()),
+			(17, 16, {3, 5, 6, 7, 10, 11, 12, 14}),
+			(18,  6, {5, 11}),
+			(19, 18, {2, 3, 10, 13, 14, 15}),
+			(20,  8, set()),
+			(21, 12, set()),
+			(22, 10, {7, 13, 17, 19}),
+			(23, 22, {5, 7, 10, 11, 14, 15, 17, 19, 20, 21}),
+		]
+		for (mod, degree, primroots) in CASES:
+			for i in range(mod):
+				self.assertEqual(i in primroots, ntt.is_primitive_root(i, degree, mod))
+	
+	
+	def test_is_primitive_root_prime_generator(self) -> None:
+		TRIALS: int = 1_000
+		for _ in range(TRIALS):
+			p: int = random.randrange(2, 10_000)
+			if not ntt.is_prime(p):
+				continue
+			totient: int = p - 1
+			
+			val: int = random.randrange(p)
+			expect: bool = True
+			temp: int = 1
+			for _ in range(totient - 1):
+				temp = temp * val % p
+				expect = expect and (temp != 1)
+			temp = temp * val % p
+			expect = expect and (temp == 1)
+			actual: bool = ntt.is_primitive_root(val, totient, p)
+			self.assertEqual(expect, actual)
+	
+	
+	def test_reciprocal(self) -> None:
+		CASES: List[Tuple[int,int,int]] = [
+			( 2,  1,  1),
+			( 3,  1,  1),
+			( 3,  2,  2),
+			( 4,  1,  1),
+			( 4,  3,  3),
+			( 5,  1,  1),
+			( 5,  2,  3),
+			( 5,  3,  2),
+			( 5,  4,  4),
+			( 6,  1,  1),
+			( 6,  5,  5),
+			( 7,  1,  1),
+			( 7,  2,  4),
+			( 7,  3,  5),
+			( 7,  4,  2),
+			( 7,  5,  3),
+			( 7,  6,  6),
+			( 8,  1,  1),
+			( 8,  3,  3),
+			( 8,  5,  5),
+			( 8,  7,  7),
+			( 9,  1,  1),
+			( 9,  2,  5),
+			( 9,  4,  7),
+			( 9,  5,  2),
+			( 9,  7,  4),
+			( 9,  8,  8),
+			(10,  1,  1),
+			(10,  3,  7),
+			(10,  7,  3),
+			(10,  9,  9),
+			(11,  1,  1),
+			(11,  2,  6),
+			(11,  3,  4),
+			(11,  4,  3),
+			(11,  5,  9),
+			(11,  6,  2),
+			(11,  7,  8),
+			(11,  8,  7),
+			(11,  9,  5),
+			(11, 10, 10),
+		]
+		for (mod, x, y) in CASES:
+			self.assertEqual(y, ntt.reciprocal(x, mod))
+		
+		TRIALS: int = 1_000
+		for _ in range(TRIALS):
+			p: int = random.randrange(2, 10_000)
+			if not ntt.is_prime(p):
+				continue
+			for _ in range(10):
+				x = random.randrange(1, p)
+				y = ntt.reciprocal(x, p)
+				self.assertTrue(0 <= y < p)
+				self.assertEqual(1, x * y % p)
+	
+	
+	def test_unique_prime_factors(self) -> None:
+		CASES: List[Tuple[int,List[int]]] = [
+			( 1, []),
+			( 2, [2]),
+			( 3, [3]),
+			( 4, [2]),
+			( 5, [5]),
+			( 6, [2, 3]),
+			( 7, [7]),
+			( 8, [2]),
+			( 9, [3]),
+			(10, [2, 5]),
+			(11, [11]),
+			(12, [2, 3]),
+			(13, [13]),
+			(14, [2, 7]),
+			(15, [3, 5]),
+			(16, [2]),
+		]
+		for (n, expect) in CASES:
+			actual: List[int] = ntt.unique_prime_factors(n)
+			self.assertEqual(expect, actual)
+		
+		TRIALS: int = 1_000
+		for _ in range(TRIALS):
+			n = random.randrange(2, 10_000)
+			facts: List[int] = ntt.unique_prime_factors(n)
+			self.assertEqual(ntt.is_prime(n), (len(facts) == 1) and (facts[0] == n))
+	
+	
+	def test_is_prime(self) -> None:
+		CASES: List[Tuple[int,bool]] = [
+			( 2, True ),
+			( 3, True ),
+			( 4, False),
+			( 5, True ),
+			( 6, False),
+			( 7, True ),
+			( 8, False),
+			( 9, False),
+			(10, False),
+			(11, True ),
+			(12, False),
+			(13, True ),
+			(14, False),
+			(15, False),
+			(16, False),
+		]
+		for (n, expect) in CASES:
+			actual: bool = ntt.is_prime(n)
+			self.assertEqual(expect, actual)
+	
+	
+	def test_sqrt(self) -> None:
+		CASES: List[Tuple[int,int]] = [
+			(0, 0),
+			(1, 1),
+			(2, 1),
+			(3, 1),
+			(4, 2),
+			(5, 2),
+			(6, 2),
+			(7, 2),
+			(8, 2),
+			(9, 3),
+		]
+		for (x, y) in CASES:
+			self.assertEqual(y, ntt.sqrt(x))
+		
+		TRIALS: int = 1_000
+		for _ in range(TRIALS):
+			x = random.randrange(10_000)
+			y = ntt.sqrt(x)
+			self.assertTrue(y**2 <= x < (y+1)**2)
 
 
 
