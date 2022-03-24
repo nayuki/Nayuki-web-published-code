@@ -1,7 +1,7 @@
 /* 
  * Number-theoretic transform library (Java)
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/number-theoretic-transform-integer-dft
  */
@@ -66,7 +66,7 @@ public final class BigNumberTheoreticTransform {
 		
 		BigInteger[] powTable = new BigInteger[n / 2];
 		{
-			BigInteger temp = BigInteger.ONE;
+			BigInteger temp = ONE;
 			for (int i = 0; i < powTable.length; i++) {
 				powTable[i] = temp;
 				temp = temp.multiply(root).mod(mod);

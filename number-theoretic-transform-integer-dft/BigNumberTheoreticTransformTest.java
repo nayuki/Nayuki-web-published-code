@@ -1,11 +1,12 @@
 /* 
  * Number-theoretic transform test (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/number-theoretic-transform-integer-dft
  */
 
+import static java.math.BigInteger.ONE;
 import static org.junit.Assert.assertArrayEquals;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -61,9 +62,9 @@ public class BigNumberTheoreticTransformTest {
 		for (int i = 0; i < trials; i++) {
 			int vecLen = rand.nextInt(100) + 1;
 			BigInteger maxVal = bi(rand.nextInt(100) + 1);
-			BigInteger[] vec = randomVector(vecLen, maxVal.add(BigInteger.ONE));
-			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, maxVal.add(BigInteger.ONE));
-			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(BigInteger.ONE), mod);
+			BigInteger[] vec = randomVector(vecLen, maxVal.add(ONE));
+			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, maxVal.add(ONE));
+			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(ONE), mod);
 			BigInteger[] temp = BigNumberTheoreticTransform.transform(vec, root, mod);
 			BigInteger[] inv = BigNumberTheoreticTransform.inverseTransform(temp, root, mod);
 			assertArrayEquals(vec, inv);
@@ -76,10 +77,10 @@ public class BigNumberTheoreticTransformTest {
 		for (int i = 0; i < trials; i++) {
 			int vecLen = rand.nextInt(100) + 1;
 			BigInteger maxVal = bi(rand.nextInt(100) + 1);
-			BigInteger[] vec0 = randomVector(vecLen, maxVal.add(BigInteger.ONE));
-			BigInteger[] vec1 = randomVector(vecLen, maxVal.add(BigInteger.ONE));
-			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, maxVal.add(BigInteger.ONE));
-			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(BigInteger.ONE), mod);
+			BigInteger[] vec0 = randomVector(vecLen, maxVal.add(ONE));
+			BigInteger[] vec1 = randomVector(vecLen, maxVal.add(ONE));
+			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, maxVal.add(ONE));
+			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(ONE), mod);
 			
 			BigInteger[] out0 = BigNumberTheoreticTransform.transform(vec0, root, mod);
 			BigInteger[] out1 = BigNumberTheoreticTransform.transform(vec1, root, mod);
@@ -101,8 +102,8 @@ public class BigNumberTheoreticTransformTest {
 		for (int i = 0; i < trials; i++) {
 			int vecLen = rand.nextInt(100) + 1;
 			BigInteger maxVal = bi(rand.nextInt(100) + 1);
-			BigInteger[] vec0 = randomVector(vecLen, maxVal.add(BigInteger.ONE));
-			BigInteger[] vec1 = randomVector(vecLen, maxVal.add(BigInteger.ONE));
+			BigInteger[] vec0 = randomVector(vecLen, maxVal.add(ONE));
+			BigInteger[] vec1 = randomVector(vecLen, maxVal.add(ONE));
 			BigInteger[] actual = BigNumberTheoreticTransform.circularConvolve(vec0, vec1);
 			BigInteger[] expect = circularConvolve(vec0, vec1);
 			assertArrayEquals(expect, actual);
@@ -131,9 +132,9 @@ public class BigNumberTheoreticTransformTest {
 		for (int i = 0; i < trials; i++) {
 			int vecLen = 1 << rand.nextInt(8);
 			BigInteger maxVal = bi(rand.nextInt(100) + 1);
-			BigInteger[] vec = randomVector(vecLen, maxVal.add(BigInteger.ONE));
-			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, maxVal.add(BigInteger.ONE));
-			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(BigInteger.ONE), mod);
+			BigInteger[] vec = randomVector(vecLen, maxVal.add(ONE));
+			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, maxVal.add(ONE));
+			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(ONE), mod);
 			BigInteger[] temp = BigNumberTheoreticTransform.transform(vec, root, mod);
 			BigNumberTheoreticTransform.transformRadix2(vec, root, mod);
 			assertArrayEquals(temp, vec);
@@ -146,10 +147,10 @@ public class BigNumberTheoreticTransformTest {
 		for (int i = 0; i < trials; i++) {
 			int vecLen = 1 << rand.nextInt(17);
 			BigInteger valLimit = bi(1 << (rand.nextInt(16) + 1));
-			BigInteger[] invec = randomVector(vecLen, valLimit.add(BigInteger.ONE));
+			BigInteger[] invec = randomVector(vecLen, valLimit.add(ONE));
 			
-			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, valLimit.add(BigInteger.ONE));
-			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(BigInteger.ONE), mod);
+			BigInteger mod = BigNumberTheoreticTransform.findModulus(vecLen, valLimit.add(ONE));
+			BigInteger root = BigNumberTheoreticTransform.findPrimitiveRoot(bi(vecLen), mod.subtract(ONE), mod);
 			BigInteger[] vec = invec.clone();
 			BigNumberTheoreticTransform.transformRadix2(vec, root, mod);
 			
@@ -167,7 +168,7 @@ public class BigNumberTheoreticTransformTest {
 	
 	private static BigInteger[] randomVector(int len, BigInteger bound) {
 		BigInteger[] result = new BigInteger[len];
-		int numBits = bound.subtract(BigInteger.ONE).bitLength();
+		int numBits = bound.subtract(ONE).bitLength();
 		for (int i = 0; i < result.length; i++) {
 			BigInteger val;
 			do val = new BigInteger(numBits, rand);
