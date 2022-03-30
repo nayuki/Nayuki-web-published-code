@@ -17,7 +17,7 @@ var app = new function() {
 	
 	this.doRandom = function() {
 		numberElem.value = Math.floor(Math.pow(1000, Math.random()) * 10).toString();
-		this.doFactor();
+		this.doDivisors();
 	};
 	
 	
