@@ -1,7 +1,6 @@
 /* 
  * Demonstration of fast Fibonacci algorithms (Java)
- * 
- * Copyright (c) 2017 Project Nayuki. Public domain.
+ * by Project Nayuki, 2017. Public domain.
  * https://www.nayuki.io/page/fast-fibonacci-algorithms
  */
 

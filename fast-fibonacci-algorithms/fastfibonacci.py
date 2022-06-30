@@ -1,7 +1,6 @@
 # 
 # Fast doubling Fibonacci algorithm (Python)
-# 
-# Copyright (c) 2015 Project Nayuki. Public domain.
+# by Project Nayuki, 2015. Public domain.
 # https://www.nayuki.io/page/fast-fibonacci-algorithms
 # 
 
