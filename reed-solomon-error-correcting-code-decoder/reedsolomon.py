@@ -1,7 +1,7 @@
 # 
 # Reed-Solomon error-correcting code decoder (Python)
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2022 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/reed-solomon-error-correcting-code-decoder
 # 
@@ -57,11 +57,11 @@ class ReedSolomon:
 		
 		# Compute the remainder ((message(x) * x^ecclen) mod genpoly(x)) by performing polynomial division.
 		# Process message bytes (polynomial coefficients) from the highest monomial power to the lowest power
-		eccpoly = [0] * self.ecc_len
+		eccpoly = [self.f.zero()] * self.ecc_len
 		for msgval in reversed(message):
 			factor = self.f.add(msgval, eccpoly[-1])
 			del eccpoly[-1]
-			eccpoly.insert(0, 0)
+			eccpoly.insert(0, self.f.zero())
 			for j in range(self.ecc_len):
 				eccpoly[j] = self.f.subtract(eccpoly[j], self.f.multiply(genpoly[j], factor))
 		
@@ -76,7 +76,7 @@ class ReedSolomon:
 	# The result of this method can be pre-computed because it doesn't depend on the message to be encoded.
 	def _make_generator_polynomial(self):
 		# Start with the polynomial of 1*x^0, which is the multiplicative identity
-		result = [1] + [0] * (self.ecc_len - 1)
+		result = [self.f.one()] + [self.f.zero()] * (self.ecc_len - 1)
 		
 		genpow = self.f.one()
 		for i in range(self.ecc_len):
@@ -110,7 +110,7 @@ class ReedSolomon:
 		
 		# Calculate and check syndromes
 		syndromes = self._calculate_syndromes(codeword)
-		if any(val != 0 for val in syndromes):
+		if any(not self.f.equals(val, self.f.zero()) for val in syndromes):
 			# At this point, we know the codeword must have some errors
 			if numerrorstocorrect == 0:
 				return None  # Only detect but not fix errors
@@ -135,7 +135,7 @@ class ReedSolomon:
 			
 			# Final sanity check by recomputing syndromes
 			newsyndromes = self._calculate_syndromes(newcodeword)
-			if any(val != 0 for val in newsyndromes):
+			if any(not self.f.equals(val, self.f.zero()) for val in newsyndromes):
 				raise AssertionError()
 			codeword = newcodeword
 		
@@ -182,7 +182,7 @@ class ReedSolomon:
 		# Create result vector filled with zeros. Note that columns without a pivot
 		# will yield variables that stay at the default value of zero.
 		# Constant term is always 1, regardless of the matrix
-		result = [1] + [0] * numerrorstocorrect
+		result = [self.f.one()] + [self.f.zero()] * numerrorstocorrect
 		
 		# Find the column of the pivot in each row, and set the
 		# appropriate output variable's value based on the column index
