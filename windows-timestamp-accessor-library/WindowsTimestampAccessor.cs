@@ -1,7 +1,7 @@
 /* 
  * Windows timestamp accessor (C#)
  * 
- * Copyright (c) 2020 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/windows-timestamp-accessor-library
  */
@@ -47,43 +47,36 @@ public sealed class WindowsTimestampAccessor {
 		
 		// Get a timestamp
 		if (action.StartsWith("Get") && tokens.Length == 2) {
-			GetSomeTimeUtc filefunc;
-			GetSomeTimeUtc dirfunc;
+			GetSomeTime func;
 			switch (action) {
-				case "GetCreationTime"    :  filefunc = File.GetCreationTimeUtc  ;  dirfunc = Directory.GetCreationTimeUtc  ;  break;
-				case "GetModificationTime":  filefunc = File.GetLastWriteTimeUtc ;  dirfunc = Directory.GetLastWriteTimeUtc ;  break;
-				case "GetAccessTime"      :  filefunc = File.GetLastAccessTimeUtc;  dirfunc = Directory.GetLastAccessTimeUtc;  break;
+				case "GetCreationTime"    :  func = Directory.GetCreationTimeUtc  ;  break;
+				case "GetModificationTime":  func = Directory.GetLastWriteTimeUtc ;  break;
+				case "GetAccessTime"      :  func = Directory.GetLastAccessTimeUtc;  break;
 				default:  throw new ArgumentException();
 			}
-			if (File.Exists(path))
-				Console.WriteLine("ok\t{0}", filefunc(path).Ticks);
-			else if (Directory.Exists(path))
-				Console.WriteLine("ok\t{0}", dirfunc(path).Ticks);
+			if (File.Exists(path) || Directory.Exists(path))
+				Console.WriteLine("ok\t{0}", func(path).Ticks);
 			else
 				throw new ArgumentException();
 		}
 		// Set a timestamp
 		else if (action.StartsWith("Set") && tokens.Length == 3) {
-			SetSomeTimeUtc filefunc;
-			SetSomeTimeUtc dirfunc;
+			SetSomeTime func;
 			switch (action) {
-				case "SetCreationTime"    :  filefunc = File.SetCreationTimeUtc  ;  dirfunc = Directory.SetCreationTimeUtc  ;  break;
-				case "SetModificationTime":  filefunc = File.SetLastWriteTimeUtc ;  dirfunc = Directory.SetLastWriteTimeUtc ;  break;
-				case "SetAccessTime"      :  filefunc = File.SetLastAccessTimeUtc;  dirfunc = Directory.SetLastAccessTimeUtc;  break;
+				case "SetCreationTime"    :  func = Directory.SetCreationTimeUtc  ;  break;
+				case "SetModificationTime":  func = Directory.SetLastWriteTimeUtc ;  break;
+				case "SetAccessTime"      :  func = Directory.SetLastAccessTimeUtc;  break;
 				default:  throw new ArgumentException();
 			}
-			var time = new DateTime(Int64.Parse(tokens[2]));
-			if (File.Exists(path)) {
+			var time = new DateTime(long.Parse(tokens[2]), DateTimeKind.Utc);
+			if (File.Exists(path) || Directory.Exists(path)) {
 				var fi = new FileInfo(path);
 				bool readOnly = fi.IsReadOnly;
 				if (readOnly)
 					fi.IsReadOnly = false;
-				filefunc(path, time);
+				func(path, time);
 				if (readOnly)
 					fi.IsReadOnly = true;
-				Console.WriteLine("ok");
-			} else if (Directory.Exists(path)) {
-				dirfunc(path, time);
 				Console.WriteLine("ok");
 			} else
 				throw new ArgumentException();
@@ -93,8 +86,8 @@ public sealed class WindowsTimestampAccessor {
 			throw new ArgumentException();
 	}
 	
-	private delegate DateTime GetSomeTimeUtc(string path);
-	private delegate void SetSomeTimeUtc(string path, DateTime time);
+	private delegate DateTime GetSomeTime(string path);
+	private delegate void SetSomeTime(string path, DateTime time);
 	
 	
 	private static bool IsKnownException(Exception e) {
