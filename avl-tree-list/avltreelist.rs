@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Rust)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -84,7 +84,7 @@ impl<E> AvlTreeList<E> {
 	
 	
 	pub fn clear(&mut self) {
-		self.root.0.take();
+		self.root.pop();
 	}
 	
 	
