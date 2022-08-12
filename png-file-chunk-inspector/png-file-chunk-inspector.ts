@@ -446,11 +446,13 @@ namespace app {
 					this.errorNotes.push("Type contains non-alphabetic characters");
 				const typeInfo = this.getTypeInfo();
 				const typeName: string = typeInfo !== null ? typeInfo[0] : "Unknown";
-				this.outerNotes.push("Name: " + typeName);
-				this.outerNotes.push((typeBytes[0] & 0x20) == 0 ? "Critical (0)"       : "Ancillary (1)"   );
-				this.outerNotes.push((typeBytes[1] & 0x20) == 0 ? "Public (0)"         : "Private (1)"     );
-				this.outerNotes.push((typeBytes[2] & 0x20) == 0 ? "Reserved (0)"       : "Unknown (1)"     );
-				this.outerNotes.push((typeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
+				this.outerNotes.push(
+					"Name: " + typeName,
+					(typeBytes[0] & 0x20) == 0 ? "Critical (0)"       : "Ancillary (1)"   ,
+					(typeBytes[1] & 0x20) == 0 ? "Public (0)"         : "Private (1)"     ,
+					(typeBytes[2] & 0x20) == 0 ? "Reserved (0)"       : "Unknown (1)"     ,
+					(typeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)",
+				);
 			}
 			
 			if (dataLen > ChunkPart.MAX_DATA_LENGTH)
@@ -535,9 +537,11 @@ namespace app {
 						if (colorType == 0 || colorType == 4)
 							chunk.innerNotes.push(`White: ${readUint16(chunk.data,0)}`);
 						else if (colorType == 2 || colorType == 6) {
-							chunk.innerNotes.push(  `Red: ${readUint16(chunk.data,0)}`);
-							chunk.innerNotes.push(`Green: ${readUint16(chunk.data,2)}`);
-							chunk.innerNotes.push( `Blue: ${readUint16(chunk.data,4)}`);
+							chunk.innerNotes.push(
+								  `Red: ${readUint16(chunk.data,0)}`,
+								`Green: ${readUint16(chunk.data,2)}`,
+								 `Blue: ${readUint16(chunk.data,4)}`,
+							);
 						}
 						for (let i = 0; i < chunk.data.length; i += 2) {
 							if (readUint16(chunk.data, i) >= (1 << bitDepth))
@@ -626,16 +630,18 @@ namespace app {
 				const foregroundColor: int = chunk.data[18] << 16 | chunk.data[19] << 8 | chunk.data[20] << 0;
 				const backgroundColor: int = chunk.data[21] << 16 | chunk.data[22] << 8 | chunk.data[23] << 0;
 				const text: string = bytesToReadableString(chunk.data.subarray(24));
-				chunk.innerNotes.push(`Deprecated`);
-				chunk.innerNotes.push(`Text grid left position: ${gridLeft}`);
-				chunk.innerNotes.push(`Text grid top position: ${gridTop}`);
-				chunk.innerNotes.push(`Text grid width: ${gridWidth}`);
-				chunk.innerNotes.push(`Text grid height: ${gridHeight}`);
-				chunk.innerNotes.push(`Character cell width: ${cellWidth}`);
-				chunk.innerNotes.push(`Character cell height: ${cellHeight}`);
-				chunk.innerNotes.push(`Text foreground color: #${foregroundColor.toString(16).padStart(2,"0")}`);
-				chunk.innerNotes.push(`Text background color: #${backgroundColor.toString(16).padStart(2,"0")}`);
-				chunk.innerNotes.push(`Plain text data: ${text}`);
+				chunk.innerNotes.push(
+					`Deprecated`,
+					`Text grid left position: ${gridLeft}`,
+					`Text grid top position: ${gridTop}`,
+					`Text grid width: ${gridWidth}`,
+					`Text grid height: ${gridHeight}`,
+					`Character cell width: ${cellWidth}`,
+					`Character cell height: ${cellHeight}`,
+					`Text foreground color: #${foregroundColor.toString(16).padStart(2,"0")}`,
+					`Text background color: #${backgroundColor.toString(16).padStart(2,"0")}`,
+					`Plain text data: ${text}`,
+				);
 			}],
 			
 			
@@ -1225,12 +1231,14 @@ namespace app {
 				const hour  : byte = chunk.data[4];
 				const minute: byte = chunk.data[5];
 				const second: byte = chunk.data[6];
-				chunk.innerNotes.push(`Year: ${year}`);
-				chunk.innerNotes.push(`Month: ${month}`);
-				chunk.innerNotes.push(`Day: ${day}`);
-				chunk.innerNotes.push(`Hour: ${hour}`);
-				chunk.innerNotes.push(`Minute: ${minute}`);
-				chunk.innerNotes.push(`Second: ${second}`);
+				chunk.innerNotes.push(
+					`Year: ${year}`,
+					`Month: ${month}`,
+					`Day: ${day}`,
+					`Hour: ${hour}`,
+					`Minute: ${minute}`,
+					`Second: ${second}`,
+				);
 				if (!(1 <= month && month <= 12))
 					chunk.errorNotes.push("Invalid month");
 				if (!(1 <= day && day <= 31) || 1 <= month && month <= 12 && day > new Date(year, month, 0).getDate())
@@ -1275,9 +1283,11 @@ namespace app {
 						if (colorType == 0)
 							chunk.innerNotes.push(`White: ${readUint16(chunk.data,0)}`);
 						else if (colorType == 2) {
-							chunk.innerNotes.push(  `Red: ${readUint16(chunk.data,0)}`);
-							chunk.innerNotes.push(`Green: ${readUint16(chunk.data,2)}`);
-							chunk.innerNotes.push( `Blue: ${readUint16(chunk.data,4)}`);
+							chunk.innerNotes.push(
+								  `Red: ${readUint16(chunk.data,0)}`,
+								`Green: ${readUint16(chunk.data,2)}`,
+								 `Blue: ${readUint16(chunk.data,4)}`,
+							);
 						}
 						for (let i = 0; i < chunk.data.length; i += 2) {
 							if (readUint16(chunk.data, i) >= (1 << bitDepth))

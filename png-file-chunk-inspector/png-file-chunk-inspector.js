@@ -14,6 +14,8 @@ var __extends = (this && this.__extends) || (function () {
         return extendStatics(d, b);
     };
     return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -122,12 +124,12 @@ var app;
                 }
                 appendElem(td, "code", hex_1.join(" "));
             }
-            for (var _i = 0, _a = [part.outerNotes, part.innerNotes, part.errorNotes]; _i < _a.length; _i++) {
-                var list = _a[_i];
+            for (var _a = 0, _b = [part.outerNotes, part.innerNotes, part.errorNotes]; _a < _b.length; _a++) {
+                var list = _b[_a];
                 var td = appendElem(tr, "td");
                 var ul = appendElem(td, "ul");
-                for (var _b = 0, list_1 = list; _b < list_1.length; _b++) {
-                    var item = list_1[_b];
+                for (var _c = 0, list_1 = list; _c < list_1.length; _c++) {
+                    var item = list_1[_c];
                     if (list == part.errorNotes)
                         table.classList.add("errors");
                     var li = appendElem(ul, "li");
@@ -354,8 +356,8 @@ var app;
         function SignaturePart(offset, bytes) {
             var _this = _super.call(this, offset, bytes) || this;
             _this.outerNotes.push("Special: File signature");
-            _this.outerNotes.push("Length: " + uintToStrWithThousandsSeparators(bytes.length) + " bytes");
-            _this.innerNotes.push("\u201C" + bytesToReadableString(bytes) + "\u201D");
+            _this.outerNotes.push("Length: ".concat(uintToStrWithThousandsSeparators(bytes.length), " bytes"));
+            _this.innerNotes.push("\u201C".concat(bytesToReadableString(bytes), "\u201D"));
             for (var i = 0; i < SignaturePart.FILE_SIGNATURE.length && _this.errorNotes.length == 0; i++) {
                 if (i >= bytes.length)
                     _this.errorNotes.push("Premature EOF");
@@ -372,7 +374,7 @@ var app;
         function UnknownPart(offset, bytes) {
             var _this = _super.call(this, offset, bytes) || this;
             _this.outerNotes.push("Special: Unknown");
-            _this.outerNotes.push("Length: " + uintToStrWithThousandsSeparators(bytes.length) + " bytes");
+            _this.outerNotes.push("Length: ".concat(uintToStrWithThousandsSeparators(bytes.length), " bytes"));
             return _this;
         }
         return UnknownPart;
@@ -390,7 +392,7 @@ var app;
                 return _this;
             }
             var dataLen = readUint32(bytes, 0);
-            _this.outerNotes.push("Data length: " + uintToStrWithThousandsSeparators(dataLen) + " bytes");
+            _this.outerNotes.push("Data length: ".concat(uintToStrWithThousandsSeparators(dataLen), " bytes"));
             if (dataLen > ChunkPart.MAX_DATA_LENGTH)
                 _this.errorNotes.push("Length out of range");
             else if (bytes.length < dataLen + 12)
@@ -407,11 +409,7 @@ var app;
                     _this.errorNotes.push("Type contains non-alphabetic characters");
                 var typeInfo = _this.getTypeInfo();
                 var typeName = typeInfo !== null ? typeInfo[0] : "Unknown";
-                _this.outerNotes.push("Name: " + typeName);
-                _this.outerNotes.push((typeBytes[0] & 0x20) == 0 ? "Critical (0)" : "Ancillary (1)");
-                _this.outerNotes.push((typeBytes[1] & 0x20) == 0 ? "Public (0)" : "Private (1)");
-                _this.outerNotes.push((typeBytes[2] & 0x20) == 0 ? "Reserved (0)" : "Unknown (1)");
-                _this.outerNotes.push((typeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
+                _this.outerNotes.push("Name: " + typeName, (typeBytes[0] & 0x20) == 0 ? "Critical (0)" : "Ancillary (1)", (typeBytes[1] & 0x20) == 0 ? "Public (0)" : "Private (1)", (typeBytes[2] & 0x20) == 0 ? "Reserved (0)" : "Unknown (1)", (typeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
             }
             if (dataLen > ChunkPart.MAX_DATA_LENGTH)
                 return _this;
@@ -419,10 +417,10 @@ var app;
                 _this.outerNotes.push("CRC-32: Unfinished");
             else {
                 var storedCrc = readUint32(bytes, bytes.length - 4);
-                _this.outerNotes.push("CRC-32: " + storedCrc.toString(16).padStart(8, "0").toUpperCase());
+                _this.outerNotes.push("CRC-32: ".concat(storedCrc.toString(16).padStart(8, "0").toUpperCase()));
                 var dataCrc = calcCrc32(bytes.subarray(4, bytes.length - 4));
                 if (dataCrc != storedCrc)
-                    _this.errorNotes.push("CRC-32 mismatch (calculated from data: " + dataCrc.toString(16).padStart(8, "0").toUpperCase() + ")");
+                    _this.errorNotes.push("CRC-32 mismatch (calculated from data: ".concat(dataCrc.toString(16).padStart(8, "0").toUpperCase(), ")"));
             }
             _this.isDataComplete = 8 + dataLen <= bytes.length;
             _this.data = bytes.subarray(8, Math.min(8 + dataLen, bytes.length));
@@ -518,7 +516,7 @@ var app;
                             return;
                         }
                         var paletteIndex = chunk.data[0];
-                        chunk.innerNotes.push("Palette index: " + paletteIndex);
+                        chunk.innerNotes.push("Palette index: ".concat(paletteIndex));
                         var plteNumEntries = ChunkPart.getValidPlteNumEntries(earlier);
                         if (plteNumEntries === null)
                             return;
@@ -532,11 +530,9 @@ var app;
                             chunk.errorNotes.push("Invalid data length");
                         else {
                             if (colorType == 0 || colorType == 4)
-                                chunk.innerNotes.push("White: " + readUint16(chunk.data, 0));
+                                chunk.innerNotes.push("White: ".concat(readUint16(chunk.data, 0)));
                             else if (colorType == 2 || colorType == 6) {
-                                chunk.innerNotes.push("Red: " + readUint16(chunk.data, 0));
-                                chunk.innerNotes.push("Green: " + readUint16(chunk.data, 2));
-                                chunk.innerNotes.push("Blue: " + readUint16(chunk.data, 4));
+                                chunk.innerNotes.push("Red: ".concat(readUint16(chunk.data, 0)), "Green: ".concat(readUint16(chunk.data, 2)), "Blue: ".concat(readUint16(chunk.data, 4)));
                             }
                             for (var i = 0; i < chunk.data.length; i += 2) {
                                 if (readUint16(chunk.data, i) >= (1 << bitDepth))
@@ -561,7 +557,7 @@ var app;
                             var s = val.toString().padStart(6, "0");
                             s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
                             // s basically equals (val/100000).toFixed(5)
-                            chunk.innerNotes.push(item + " " + axis + ": " + s);
+                            chunk.innerNotes.push("".concat(item, " ").concat(axis, ": ").concat(s));
                             offset += 4;
                         }
                     }
@@ -580,7 +576,7 @@ var app;
                     var s = gamma.toString().padStart(6, "0");
                     s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
                     // s basically equals (gamma/100000).toFixed(5)
-                    chunk.innerNotes.push("Gamma: " + s);
+                    chunk.innerNotes.push("Gamma: ".concat(s));
                 }],
             ["gIFg", "GIF Graphic Control Extension", true, function (chunk, earlier) {
                     if (chunk.data.length != 4) {
@@ -590,12 +586,12 @@ var app;
                     var disposalMethod = chunk.data[0];
                     var userInputFlag = chunk.data[1];
                     var delayTime = readUint16(chunk.data, 2);
-                    chunk.innerNotes.push("Disposal method: " + disposalMethod);
-                    chunk.innerNotes.push("User input flag: " + userInputFlag);
+                    chunk.innerNotes.push("Disposal method: ".concat(disposalMethod));
+                    chunk.innerNotes.push("User input flag: ".concat(userInputFlag));
                     var s = delayTime.toString().padStart(3, "0");
                     s = s.substring(0, s.length - 2) + "." + s.substring(s.length - 2);
                     // s basically equals (delayTime/100).toFixed(2)
-                    chunk.innerNotes.push("Delay time: " + s + " s");
+                    chunk.innerNotes.push("Delay time: ".concat(s, " s"));
                 }],
             ["gIFt", "GIF Plain Text Extension", true, function (chunk, earlier) {
                     if (chunk.data.length < 24) {
@@ -611,28 +607,19 @@ var app;
                     var foregroundColor = chunk.data[18] << 16 | chunk.data[19] << 8 | chunk.data[20] << 0;
                     var backgroundColor = chunk.data[21] << 16 | chunk.data[22] << 8 | chunk.data[23] << 0;
                     var text = bytesToReadableString(chunk.data.subarray(24));
-                    chunk.innerNotes.push("Deprecated");
-                    chunk.innerNotes.push("Text grid left position: " + gridLeft);
-                    chunk.innerNotes.push("Text grid top position: " + gridTop);
-                    chunk.innerNotes.push("Text grid width: " + gridWidth);
-                    chunk.innerNotes.push("Text grid height: " + gridHeight);
-                    chunk.innerNotes.push("Character cell width: " + cellWidth);
-                    chunk.innerNotes.push("Character cell height: " + cellHeight);
-                    chunk.innerNotes.push("Text foreground color: #" + foregroundColor.toString(16).padStart(2, "0"));
-                    chunk.innerNotes.push("Text background color: #" + backgroundColor.toString(16).padStart(2, "0"));
-                    chunk.innerNotes.push("Plain text data: " + text);
+                    chunk.innerNotes.push("Deprecated", "Text grid left position: ".concat(gridLeft), "Text grid top position: ".concat(gridTop), "Text grid width: ".concat(gridWidth), "Text grid height: ".concat(gridHeight), "Character cell width: ".concat(cellWidth), "Character cell height: ".concat(cellHeight), "Text foreground color: #".concat(foregroundColor.toString(16).padStart(2, "0")), "Text background color: #".concat(backgroundColor.toString(16).padStart(2, "0")), "Plain text data: ".concat(text));
                 }],
             ["gIFx", "GIF Application Extension", true, function (chunk, earlier) {
                     if (chunk.data.length < 11) {
                         chunk.errorNotes.push("Invalid data length");
                         return;
                     }
-                    chunk.innerNotes.push("Application identifier: " + bytesToReadableString(chunk.data.subarray(0, 8)));
+                    chunk.innerNotes.push("Application identifier: ".concat(bytesToReadableString(chunk.data.subarray(0, 8))));
                     {
                         var hex = [];
                         for (var i = 0; i < 3; i++)
                             hex.push(chunk.data[8 + i].toString(16).padStart(2, "0"));
-                        chunk.innerNotes.push("Authentication code: " + hex.join(" "));
+                        chunk.innerNotes.push("Authentication code: ".concat(hex.join(" ")));
                     }
                     {
                         var hex = [];
@@ -640,7 +627,7 @@ var app;
                             var b = _a[_i];
                             hex.push(b.toString(16).padStart(2, "0"));
                         }
-                        chunk.innerNotes.push("Application data: " + hex.join(" "));
+                        chunk.innerNotes.push("Application data: ".concat(hex.join(" ")));
                     }
                 }],
             ["hIST", "Palette histogram", false, function (chunk, earlier) {
@@ -652,7 +639,7 @@ var app;
                         return;
                     }
                     var numEntries = chunk.data.length / 2;
-                    chunk.innerNotes.push("Number of entries: " + numEntries);
+                    chunk.innerNotes.push("Number of entries: ".concat(numEntries));
                     var plteNumEntries = ChunkPart.getValidPlteNumEntries(earlier);
                     if (plteNumEntries === null)
                         return;
@@ -686,10 +673,10 @@ var app;
                     var compMeth = chunk.data[10];
                     var filtMeth = chunk.data[11];
                     var laceMeth = chunk.data[12];
-                    chunk.innerNotes.push("Width: " + width + " pixels");
+                    chunk.innerNotes.push("Width: ".concat(width, " pixels"));
                     if (width == 0 || width > 2147483647)
                         chunk.errorNotes.push("Width out of range");
-                    chunk.innerNotes.push("Height: " + height + " pixels");
+                    chunk.innerNotes.push("Height: ".concat(height, " pixels"));
                     if (height == 0 || height > 2147483647)
                         chunk.errorNotes.push("Height out of range");
                     {
@@ -704,8 +691,8 @@ var app;
                         ]);
                         colorTypeStr = temp !== null ? temp[0] : "Unknown";
                         validBitDepths = temp !== null ? temp[1] : [];
-                        chunk.innerNotes.push("Bit depth: " + bitDepth + " bits per " + (colorType != 3 ? "channel" : "pixel"));
-                        chunk.innerNotes.push("Color type: " + colorTypeStr + " (" + colorType + ")");
+                        chunk.innerNotes.push("Bit depth: ".concat(bitDepth, " bits per ").concat(colorType != 3 ? "channel" : "pixel"));
+                        chunk.innerNotes.push("Color type: ".concat(colorTypeStr, " (").concat(colorType, ")"));
                         if (temp === null)
                             chunk.errorNotes.push("Unknown color type");
                         else if (validBitDepths.indexOf(bitDepth) == -1)
@@ -719,7 +706,7 @@ var app;
                             s = "Unknown";
                             chunk.errorNotes.push("Unknown compression method");
                         }
-                        chunk.innerNotes.push("Compression method: " + s + " (" + compMeth + ")");
+                        chunk.innerNotes.push("Compression method: ".concat(s, " (").concat(compMeth, ")"));
                     }
                     {
                         var s = lookUpTable(filtMeth, [
@@ -729,7 +716,7 @@ var app;
                             s = "Unknown";
                             chunk.errorNotes.push("Unknown filter method");
                         }
-                        chunk.innerNotes.push("Filter method: " + s + " (" + filtMeth + ")");
+                        chunk.innerNotes.push("Filter method: ".concat(s, " (").concat(filtMeth, ")"));
                     }
                     {
                         var s = lookUpTable(laceMeth, [
@@ -740,7 +727,7 @@ var app;
                             s = "Unknown";
                             chunk.errorNotes.push("Unknown interlace method");
                         }
-                        chunk.innerNotes.push("Interlace method: " + s + " (" + laceMeth + ")");
+                        chunk.innerNotes.push("Interlace method: ".concat(s, " (").concat(laceMeth, ")"));
                     }
                 }],
             ["iTXt", "International textual data", true, function (chunk, earlier) {
@@ -789,7 +776,7 @@ var app;
                                     s = "Unknown";
                                     chunk.errorNotes.push("Unknown compression flag");
                                 }
-                                chunk.innerNotes.push("Compression flag: " + s + " (" + compFlag + ")");
+                                chunk.innerNotes.push("Compression flag: ".concat(s, " (").concat(compFlag, ")"));
                                 break;
                             }
                             case 2: {
@@ -806,7 +793,7 @@ var app;
                                     s = "Unknown";
                                     chunk.errorNotes.push("Unknown compression method");
                                 }
-                                chunk.innerNotes.push("Compression method: " + s + " (" + compMeth + ")");
+                                chunk.innerNotes.push("Compression method: ".concat(s, " (").concat(compMeth, ")"));
                                 break;
                             }
                             case 3: {
@@ -819,7 +806,7 @@ var app;
                                     chunk.errorNotes.push("Invalid UTF-8 in language tag");
                                 }
                                 if (langTag !== null)
-                                    chunk.innerNotes.push("Language tag: " + langTag);
+                                    chunk.innerNotes.push("Language tag: ".concat(langTag));
                                 if (!found) {
                                     chunk.errorNotes.push("Missing null separator");
                                     break loop;
@@ -836,7 +823,7 @@ var app;
                                     chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
                                 }
                                 if (transKey !== null)
-                                    chunk.innerNotes.push("Translated keyword: " + transKey);
+                                    chunk.innerNotes.push("Translated keyword: ".concat(transKey));
                                 if (!found) {
                                     chunk.errorNotes.push("Missing null separator");
                                     break loop;
@@ -893,8 +880,8 @@ var app;
                     var xPos = readInt32(chunk.data, 0);
                     var yPos = readInt32(chunk.data, 4);
                     var unit = chunk.data[8];
-                    chunk.innerNotes.push("X position: " + xPos.toString().replace(/-/, "\u2212") + " units");
-                    chunk.innerNotes.push("Y position: " + yPos.toString().replace(/-/, "\u2212") + " units");
+                    chunk.innerNotes.push("X position: ".concat(xPos.toString().replace(/-/, "\u2212"), " units"));
+                    chunk.innerNotes.push("Y position: ".concat(yPos.toString().replace(/-/, "\u2212"), " units"));
                     {
                         var s = lookUpTable(unit, [
                             [0, "Pixel"],
@@ -904,7 +891,7 @@ var app;
                             s = "Unknown";
                             chunk.errorNotes.push("Unknown unit specifier");
                         }
-                        chunk.innerNotes.push("Unit specifier: " + s + " (" + unit + ")");
+                        chunk.innerNotes.push("Unit specifier: ".concat(s, " (").concat(unit, ")"));
                     }
                 }],
             ["pCAL", "Calibration of pixel values", false, function (chunk, earlier) {
@@ -922,9 +909,9 @@ var app;
                     for (var _i = 0, _a = [["Horizontal", horzRes], ["Vertical", vertRes]]; _i < _a.length; _i++) {
                         var _b = _a[_i], dir = _b[0], val = _b[1];
                         var frag = document.createDocumentFragment();
-                        frag.appendChild(document.createTextNode(dir + " resolution: " + val + " pixels per unit"));
+                        frag.appendChild(document.createTextNode("".concat(dir, " resolution: ").concat(val, " pixels per unit")));
                         if (unit == 1) {
-                            frag.appendChild(document.createTextNode(" (\u2248 " + (val * 0.0254).toFixed(0) + " "));
+                            frag.appendChild(document.createTextNode(" (\u2248 ".concat((val * 0.0254).toFixed(0), " ")));
                             var abbr = appendElem(frag, "abbr", "DPI");
                             abbr.title = "dots per inch";
                             frag.appendChild(document.createTextNode(")"));
@@ -940,7 +927,7 @@ var app;
                             s = "Unknown";
                             chunk.errorNotes.push("Unknown unit specifier");
                         }
-                        chunk.innerNotes.push("Unit specifier: " + s + " (" + unit + ")");
+                        chunk.innerNotes.push("Unit specifier: ".concat(s, " (").concat(unit, ")"));
                     }
                 }],
             ["PLTE", "Palette", false, function (chunk, earlier) {
@@ -953,7 +940,7 @@ var app;
                         return;
                     }
                     var numEntries = Math.ceil(chunk.data.length / 3);
-                    chunk.innerNotes.push("Number of entries: " + numEntries);
+                    chunk.innerNotes.push("Number of entries: ".concat(numEntries));
                     if (numEntries == 0)
                         chunk.errorNotes.push("Empty palette");
                     var ihdr = ChunkPart.getValidIhdrData(earlier);
@@ -982,7 +969,7 @@ var app;
                             s = "Unknown";
                             chunk.errorNotes.push("Unknown unit specifier");
                         }
-                        chunk.innerNotes.push("Unit specifier: " + s + " (" + unit + ")");
+                        chunk.innerNotes.push("Unit specifier: ".concat(s, " (").concat(unit, ")"));
                     }
                     var index = 1;
                     var ASCII_FLOAT = /^([+-]?)(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
@@ -991,7 +978,7 @@ var app;
                         for (; index < chunk.data.length && chunk.data[index] != 0; index++)
                             strBytes.push(chunk.data[index]);
                         var width = decodeIso8859_1(strBytes);
-                        chunk.innerNotes.push("Pixel width: " + width + " units");
+                        chunk.innerNotes.push("Pixel width: ".concat(width, " units"));
                         var match = ASCII_FLOAT.exec(width);
                         if (match === null)
                             chunk.errorNotes.push("Invalid width floating-point string");
@@ -1008,7 +995,7 @@ var app;
                         for (; index < chunk.data.length; index++)
                             strBytes.push(chunk.data[index]);
                         var height = decodeIso8859_1(strBytes);
-                        chunk.innerNotes.push("Pixel height: " + height + " units");
+                        chunk.innerNotes.push("Pixel height: ".concat(height, " units"));
                         var match = ASCII_FLOAT.exec(height);
                         if (match === null)
                             chunk.errorNotes.push("Invalid height floating-point string");
@@ -1040,7 +1027,7 @@ var app;
                     var hasChanErr = false;
                     channels.forEach(function (chan, i) {
                         var bits = chunk.data[i];
-                        chunk.innerNotes.push(chan + " bits: " + bits);
+                        chunk.innerNotes.push("".concat(chan, " bits: ").concat(bits));
                         if (!hasChanErr && !(1 <= bits && bits <= bitDepth)) {
                             chunk.errorNotes.push("Bit depth out of range");
                             hasChanErr = true;
@@ -1076,7 +1063,7 @@ var app;
                     }
                     var sampDepth = chunk.data[index];
                     index++;
-                    chunk.innerNotes.push("Sample depth: " + sampDepth);
+                    chunk.innerNotes.push("Sample depth: ".concat(sampDepth));
                     var bytesPerEntry = lookUpTable(sampDepth, [
                         [8, 6],
                         [16, 10],
@@ -1084,7 +1071,7 @@ var app;
                     if (bytesPerEntry === null)
                         return;
                     else if ((chunk.data.length - index) % bytesPerEntry == 0)
-                        chunk.innerNotes.push("Number of entries: " + (chunk.data.length - index) / bytesPerEntry);
+                        chunk.innerNotes.push("Number of entries: ".concat((chunk.data.length - index) / bytesPerEntry));
                     else
                         chunk.errorNotes.push("Invalid data length");
                 }],
@@ -1107,7 +1094,7 @@ var app;
                         s = "Unknown";
                         chunk.errorNotes.push("Unknown rendering intent");
                     }
-                    chunk.innerNotes.push("Rendering intent: " + s + " (" + renderIntent + ")");
+                    chunk.innerNotes.push("Rendering intent: ".concat(s, " (").concat(renderIntent, ")"));
                 }],
             ["sTER", "Indicator of Stereo Image", false, function (chunk, earlier) {
                     addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
@@ -1124,7 +1111,7 @@ var app;
                         s = "Unknown";
                         chunk.errorNotes.push("Unknown mode");
                     }
-                    chunk.innerNotes.push("Mode: " + s + " (" + mode + ")");
+                    chunk.innerNotes.push("Mode: ".concat(s, " (").concat(mode, ")"));
                 }],
             ["tEXt", "Textual data", true, function (chunk, earlier) {
                     var data = [];
@@ -1142,7 +1129,7 @@ var app;
                         var keyword = decodeIso8859_1(data.slice(0, separatorIndex));
                         annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
                         var text = decodeIso8859_1(data.slice(separatorIndex + 1));
-                        chunk.innerNotes.push("Text string: " + text);
+                        chunk.innerNotes.push("Text string: ".concat(text));
                         if (text.indexOf("\u0000") != -1)
                             chunk.errorNotes.push("Null character in text string");
                         if (text.indexOf("\uFFFD") != -1)
@@ -1160,12 +1147,7 @@ var app;
                     var hour = chunk.data[4];
                     var minute = chunk.data[5];
                     var second = chunk.data[6];
-                    chunk.innerNotes.push("Year: " + year);
-                    chunk.innerNotes.push("Month: " + month);
-                    chunk.innerNotes.push("Day: " + day);
-                    chunk.innerNotes.push("Hour: " + hour);
-                    chunk.innerNotes.push("Minute: " + minute);
-                    chunk.innerNotes.push("Second: " + second);
+                    chunk.innerNotes.push("Year: ".concat(year), "Month: ".concat(month), "Day: ".concat(day), "Hour: ".concat(hour), "Minute: ".concat(minute), "Second: ".concat(second));
                     if (!(1 <= month && month <= 12))
                         chunk.errorNotes.push("Invalid month");
                     if (!(1 <= day && day <= 31) || 1 <= month && month <= 12 && day > new Date(year, month, 0).getDate())
@@ -1190,7 +1172,7 @@ var app;
                         chunk.errorNotes.push("Transparency chunk disallowed for RGBA color type");
                     else if (colorType == 3) {
                         var numEntries = chunk.data.length;
-                        chunk.innerNotes.push("Number of entries: " + numEntries);
+                        chunk.innerNotes.push("Number of entries: ".concat(numEntries));
                         var plteNumEntries = ChunkPart.getValidPlteNumEntries(earlier);
                         if (plteNumEntries === null)
                             return;
@@ -1204,11 +1186,9 @@ var app;
                             chunk.errorNotes.push("Invalid data length");
                         else {
                             if (colorType == 0)
-                                chunk.innerNotes.push("White: " + readUint16(chunk.data, 0));
+                                chunk.innerNotes.push("White: ".concat(readUint16(chunk.data, 0)));
                             else if (colorType == 2) {
-                                chunk.innerNotes.push("Red: " + readUint16(chunk.data, 0));
-                                chunk.innerNotes.push("Green: " + readUint16(chunk.data, 2));
-                                chunk.innerNotes.push("Blue: " + readUint16(chunk.data, 4));
+                                chunk.innerNotes.push("Red: ".concat(readUint16(chunk.data, 0)), "Green: ".concat(readUint16(chunk.data, 2)), "Blue: ".concat(readUint16(chunk.data, 4)));
                             }
                             for (var i = 0; i < chunk.data.length; i += 2) {
                                 if (readUint16(chunk.data, i) >= (1 << bitDepth))
@@ -1243,7 +1223,7 @@ var app;
                                 s = "Unknown";
                                 chunk.errorNotes.push("Unknown compression method");
                             }
-                            chunk.innerNotes.push("Compression method: " + s + " (" + compMeth + ")");
+                            chunk.innerNotes.push("Compression method: ".concat(s, " (").concat(compMeth, ")"));
                             if (compMeth == 0) {
                                 try {
                                     var textBytes = deflate.decompressZlib(data.slice(separatorIndex + 2));
@@ -1268,20 +1248,20 @@ var app;
     }(FilePart));
     /*---- Utility functions ----*/
     function annotateTextKeyword(keyword, noteName, errorName, chunk) {
-        chunk.innerNotes.push(noteName + ": " + keyword);
+        chunk.innerNotes.push("".concat(noteName, ": ").concat(keyword));
         if (!(1 <= keyword.length && keyword.length <= 79))
-            chunk.errorNotes.push("Invalid " + errorName + " length");
+            chunk.errorNotes.push("Invalid ".concat(errorName, " length"));
         for (var i = 0; i < keyword.length; i++) {
             var c = keyword.charCodeAt(i);
             if (0x20 <= c && c <= 0x7E || 0xA1 <= c && c <= 0xFF)
                 continue;
             else {
-                chunk.errorNotes.push("Invalid character in " + errorName);
+                chunk.errorNotes.push("Invalid character in ".concat(errorName));
                 break;
             }
         }
         if (/^ |  | $/.test(keyword))
-            chunk.errorNotes.push("Invalid space in " + errorName);
+            chunk.errorNotes.push("Invalid space in ".concat(errorName));
     }
     function calcCrc32(bytes) {
         var crc = ~0;
@@ -1410,9 +1390,9 @@ var deflate;
         if ((bytes[0] << 8 | bytes[1]) % 31 != 0)
             throw new RangeError("zlib header checksum mismatch");
         if (compMeth != 8)
-            throw new RangeError("Unsupported compression method (" + compMeth + ")");
+            throw new RangeError("Unsupported compression method (".concat(compMeth, ")"));
         if (compInfo > 7)
-            throw new RangeError("Unsupported compression info (" + compInfo + ")");
+            throw new RangeError("Unsupported compression info (".concat(compInfo, ")"));
         if (presetDict)
             throw new RangeError("Unsupported preset dictionary");
         var _a = decompressDeflate(bytes.slice(2)), result = _a[0], input = _a[1];
