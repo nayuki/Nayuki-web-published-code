@@ -77,9 +77,9 @@ impl<E> AvlTreeList<E> {
 	
 	pub fn remove(&mut self, index: usize) -> E {
 		assert!(index < self.len(), "Index out of bounds");
-		let mut result: Option<E> = None;
-		self.root = self.root.pop().remove_at(index, &mut result);
-		result.unwrap()
+		let (root, result) = self.root.pop().remove_at(index);
+		self.root = root;
+		result
 	}
 	
 	
@@ -177,38 +177,45 @@ impl<E> MaybeNode<E> {
 	}
 	
 	
-	fn remove_at(mut self, index: usize, outval: &mut Option<E>) -> Self {
-		let mut done = true;
+	fn remove_at(mut self, index: usize) -> (Self,E) {
+		let value: Option<E>;
 		{  // Modify the current object
 			let node = self.node_mut();
 			let leftsize = node.left.size();
 			// Recursively find and remove a node
 			if index < leftsize {
-				node.left = node.left.pop().remove_at(index, outval);
+				let (left, val) = node.left.pop().remove_at(index);
+				node.left = left;
+				value = Some(val);
 			} else if index > leftsize {
-				node.right = node.right.pop().remove_at(index - leftsize - 1, outval);
+				let (right, val) = node.right.pop().remove_at(index - leftsize - 1);
+				node.right = right;
+				value = Some(val);
 			} else if node.left.exists() && node.right.exists() {
-				node.right = node.right.pop().remove_at(0, outval);  // Remove successor node
-				std::mem::swap(outval.as_mut().unwrap(), &mut node.value);  // Replace value by successor
+				let (right, mut val) = node.right.pop().remove_at(0);  // Remove successor node
+				node.right = right;
+				std::mem::swap(&mut val, &mut node.value);  // Replace value by successor
+				value = Some(val);
 			} else {
-				done = false;
+				value = None;
 			}
 		}
-		if done {
+		if let Some(val) = value {
 			self.node_mut().recalculate();
-			return self.balance();
+			return (self.balance(), val);
 		}
 		
 		// Remove current node and return a child or nothing
 		let node = *self.0.unwrap();
-		*outval = Some(node.value);
-		if node.left.exists() {
+		let value = node.value;
+		let node = if node.left.exists() {
 			node.left
 		} else if node.right.exists() {
 			node.right
 		} else {
 			MaybeNode(None)
-		}
+		};
+		(node, value)
 	}
 	
 	
