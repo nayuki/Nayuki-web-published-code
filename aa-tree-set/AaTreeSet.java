@@ -1,7 +1,7 @@
 /* 
  * AA tree set (Java)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/aa-tree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -217,7 +217,7 @@ public final class AaTreeSet<E extends Comparable<? super E>> extends AbstractSe
 		/* 
 		 *       |          |
 		 *   A - B    ->    A - B
-		 *  /   / \        /   / \
+		 *  / \   \        /   / \
 		 * 0   1   2      0   1   2
 		 */
 		private Node<E> skew() {

@@ -193,8 +193,8 @@ fn test_insert_many_beginning() {
 		list.insert(0, i);
 	}
 	
-	for (i, x) in (0i32 .. ).zip(list.into_iter()) {
-		assert_eq!(*x, i);
+	for (i, &x) in (0i32 .. ).zip(list.into_iter()) {
+		assert_eq!(x, i);
 	}
 }
 
@@ -228,8 +228,8 @@ fn test_insert_many_everywhere() {
 		}
 	}
 	
-	for (i, x) in (0i32 .. ).zip(list.into_iter()) {
-		assert_eq!(*x, i);
+	for (i, &x) in (0i32 .. ).zip(list.into_iter()) {
+		assert_eq!(x, i);
 	}
 }
 
@@ -319,9 +319,9 @@ fn test_iterator() {
 		list.push(i * i);
 	}
 	
-	let mut iter = list.into_iter();
+	let mut iter = list.into_iter().copied();
 	for i in 0 .. 50 {
-		assert_eq!(iter.next().cloned(), Some(i * i));
+		assert_eq!(iter.next(), Some(i * i));
 	}
 	assert_eq!(iter.next(), None);
 }

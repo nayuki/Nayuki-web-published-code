@@ -1,7 +1,7 @@
 # 
 # AA tree set (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2022 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/aa-tree-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -165,6 +165,10 @@ class AaTreeSet:
 			return (result, True)
 		
 		
+		#       |          |
+		#   A - B    ->    A - B
+		#  / \   \        /   / \
+		# 0   1   2      0   1   2
 		def _skew(self):
 			assert self is not AaTreeSet.Node.EMPTY_LEAF
 			if self.left.level < self.level:
@@ -175,6 +179,12 @@ class AaTreeSet:
 			return result
 		
 		
+		#   |                      |
+		#   |                    - B -
+		#   |                   /     \
+		#   A - B - C    ->    A       C
+		#  /   /   / \        / \     / \
+		# 0   1   2   3      0   1   2   3
 		def _split(self):
 			assert self is not AaTreeSet.Node.EMPTY_LEAF
 			# Must short-circuit because if right.level < self.level, then right.right might not exist
