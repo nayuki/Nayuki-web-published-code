@@ -125,75 +125,77 @@ impl<E: Ord> MaybeNode<E> {
 	
 	
 	fn insert(mut self, val: E) -> (Self,bool) {
-		if !self.exists() {
-			(MaybeNode(Some(Box::new(Node::new(val)))), true)
-		} else {
-			let node = self.node_mut();
-			let changed;
-			use std::cmp::Ordering::*;
-			match val.cmp(&node.value) {
-				Less => (node.left, changed) = node.left.pop().insert(val),
-				Greater => (node.right, changed) = node.right.pop().insert(val),
-				Equal => return (self, false),
-			}
-			(self.skew().split(), changed)  // Rebalance this node
+		match self.0 {
+			None => (MaybeNode(Some(Box::new(Node::new(val)))), true),
+			
+			Some(ref mut node) => {
+				let changed;
+				use std::cmp::Ordering::*;
+				match val.cmp(&node.value) {
+					Less => (node.left, changed) = node.left.pop().insert(val),
+					Greater => (node.right, changed) = node.right.pop().insert(val),
+					Equal => return (self, false),
+				}
+				(self.skew().split(), changed)  // Rebalance this node
+			},
 		}
 	}
 	
 	
 	fn remove(mut self, val: &E) -> (Self,bool) {
-		if !self.exists() {
-			return (self, false);
-		}
-		
-		let node = self.node_mut();
-		let changed;
-		use std::cmp::Ordering::*;
-		match val.cmp(&node.value) {
-			Less => (node.left, changed) = node.left.pop().remove(val),
-			Greater => (node.right, changed) = node.right.pop().remove(val),
-			Equal => {  // Remove value at this node
-				if let Some(ref mut temp) = node.left.0 {
-					let mut temp = temp;
-					// Find predecessor node
-					while let Some(ref mut nd) = temp.right.0 {
-						temp = nd;
-					}
-					std::mem::swap(&mut temp.value, &mut node.value);  // Replace value by predecessor
-					(node.left, changed) = node.left.pop().remove(val);  // Remove predecessor node
-				} else if let Some(ref mut temp) = node.right.0 {
-					let mut temp = temp;
-					// Find successor node
-					while let Some(ref mut nd) = temp.left.0 {
-						temp = nd;
-					}
-					std::mem::swap(&mut temp.value, &mut node.value);  // Replace value with successor
-					(node.right, changed) = node.right.pop().remove(val);  // Remove successor node
-				} else {
-					assert_eq!(node.level, 1);
-					return (MaybeNode(None), true);
+		match self.0 {
+			None => (self, false),
+			
+			Some(ref mut node) => {
+				let changed;
+				use std::cmp::Ordering::*;
+				match val.cmp(&node.value) {
+					Less => (node.left, changed) = node.left.pop().remove(val),
+					Greater => (node.right, changed) = node.right.pop().remove(val),
+					Equal => {  // Remove value at this node
+						if let Some(ref mut temp) = node.left.0 {
+							let mut temp = temp;
+							// Find predecessor node
+							while let Some(ref mut nd) = temp.right.0 {
+								temp = nd;
+							}
+							std::mem::swap(&mut temp.value, &mut node.value);  // Replace value by predecessor
+							(node.left, changed) = node.left.pop().remove(val);  // Remove predecessor node
+						} else if let Some(ref mut temp) = node.right.0 {
+							let mut temp = temp;
+							// Find successor node
+							while let Some(ref mut nd) = temp.left.0 {
+								temp = nd;
+							}
+							std::mem::swap(&mut temp.value, &mut node.value);  // Replace value with successor
+							(node.right, changed) = node.right.pop().remove(val);  // Remove successor node
+						} else {
+							assert_eq!(node.level, 1);
+							return (MaybeNode(None), true);
+						}
+					},
 				}
+				
+				// Rebalance this node if a child was lowered
+				let selfnode = self.node_mut();
+				if selfnode.level == selfnode.left.level().min(selfnode.right.level()) + 1 {
+					return (self, changed);
+				}
+				if selfnode.right.level() == selfnode.level {
+					selfnode.right.node_mut().level -= 1;
+				}
+				selfnode.level -= 1;
+				self = self.skew();
+				let selfnode = self.node_mut();
+				selfnode.right = selfnode.right.pop().skew();
+				if selfnode.right.node_ref().right.exists() {
+					selfnode.right.node_mut().right = selfnode.right.node_mut().right.pop().skew();
+				}
+				self = self.split();
+				self.node_mut().right = self.node_mut().right.pop().split();
+				(self, changed)
 			},
 		}
-		
-		// Rebalance this node if a child was lowered
-		let selfnode = self.node_mut();
-		if selfnode.level == selfnode.left.level().min(selfnode.right.level()) + 1 {
-			return (self, changed);
-		}
-		if selfnode.right.level() == selfnode.level {
-			selfnode.right.node_mut().level -= 1;
-		}
-		selfnode.level -= 1;
-		self = self.skew();
-		let selfnode = self.node_mut();
-		selfnode.right = selfnode.right.pop().skew();
-		if selfnode.right.node_ref().right.exists() {
-			selfnode.right.node_mut().right = selfnode.right.node_mut().right.pop().skew();
-		}
-		self = self.split();
-		self.node_mut().right = self.node_mut().right.pop().split();
-		(self, changed)
 	}
 	
 	
@@ -242,22 +244,23 @@ impl<E: Ord> MaybeNode<E> {
 	
 	
 	fn check_structure(&self) -> usize {
-		if !self.exists() {
-			return 0;
+		match self.0 {
+			None => 0,
+			
+			Some(ref selfnode) => {
+				assert!(self.level() > 0 && self.level() == selfnode.left.level() + 1 && (self.level() == selfnode.right.level() + 1 || self.level() == selfnode.right.level()));
+				assert!(self.level() != selfnode.right.level() || self.level() != selfnode.right.node_ref().right.level());  // Must short-circuit evaluate
+				assert!(selfnode.left.0.as_ref().map_or(true, |node| node.value < selfnode.value));
+				assert!(selfnode.right.0.as_ref().map_or(true, |node| node.value > selfnode.value));
+				
+				let size = 1usize
+					.checked_add(selfnode.left.check_structure()).unwrap()
+					.checked_add(selfnode.right.check_structure()).unwrap();
+				assert!(size >= (1 << self.level()) - 1);
+				// Not checked, but (size <= 3^level - 1) is also true
+				size
+			}
 		}
-		
-		let selfnode = self.node_ref();
-		assert!(self.level() > 0 && self.level() == selfnode.left.level() + 1 && (self.level() == selfnode.right.level() + 1 || self.level() == selfnode.right.level()));
-		assert!(self.level() != selfnode.right.level() || self.level() != selfnode.right.node_ref().right.level());  // Must short-circuit evaluate
-		assert!(selfnode.left.0.as_ref().map_or(true, |node| node.value < selfnode.value));
-		assert!(selfnode.right.0.as_ref().map_or(true, |node| node.value > selfnode.value));
-		
-		let size = 1usize
-			.checked_add(selfnode.left.check_structure()).unwrap()
-			.checked_add(selfnode.right.check_structure()).unwrap();
-		assert!(size >= (1 << self.level()) - 1);
-		// Not checked, but (size <= 3^level - 1) is also true
-		size
 	}
 	
 }
