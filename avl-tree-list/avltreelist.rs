@@ -107,7 +107,7 @@ impl<E> std::ops::Index<usize> for AvlTreeList<E> {
 	
 	fn index(&self, index: usize) -> &E {
 		assert!(index < self.len(), "Index out of bounds");
-		&self.root.node_ref().get_at(index)
+		&self.root.get_at(index)
 	}
 }
 
@@ -115,7 +115,7 @@ impl<E> std::ops::Index<usize> for AvlTreeList<E> {
 impl<E> std::ops::IndexMut<usize> for AvlTreeList<E> {
 	fn index_mut(&mut self, index: usize) -> &mut E {
 		assert!(index < self.len(), "Index out of bounds");
-		self.root.node_mut().get_at_mut(index)
+		self.root.get_at_mut(index)
 	}
 }
 
@@ -162,6 +162,34 @@ impl<E> MaybeNode<E> {
 	
 	fn pop(&mut self) -> Self {
 		MaybeNode(self.0.take())
+	}
+	
+	
+	fn get_at(&self, index: usize) -> &E {
+		let node = self.node_ref();
+		assert!(index < node.size);
+		let leftsize = node.left.size();
+		if index < leftsize {
+			node.left.get_at(index)
+		} else if index > leftsize {
+			node.right.get_at(index - leftsize - 1)
+		} else {
+			&node.value
+		}
+	}
+	
+	
+	fn get_at_mut(&mut self, index: usize) -> &mut E {
+		let node = self.node_mut();
+		assert!(index < node.size);
+		let leftsize = node.left.size();
+		if index < leftsize {
+			node.left.get_at_mut(index)
+		} else if index > leftsize {
+			node.right.get_at_mut(index - leftsize - 1)
+		} else {
+			&mut node.value
+		}
 	}
 	
 	
@@ -287,7 +315,10 @@ impl<E> MaybeNode<E> {
 	
 	fn check_structure(&self) {
 		if let Some(ref node) = self.0 {
-			node.check_structure();
+			node.left .check_structure();
+			node.right.check_structure();
+			assert_eq!(node.height, std::cmp::max(node.left.height(), node.right.height()).checked_add(1).unwrap());
+			assert_eq!(node.size, node.left.size().checked_add(node.right.size()).unwrap().checked_add(1).unwrap());
 			assert!(self.get_balance().abs() <= 1);
 		}
 	}
@@ -329,46 +360,12 @@ impl<E> Node<E> {
 	}
 	
 	
-	fn get_at(&self, index: usize) -> &E {
-		assert!(index < self.size);
-		let leftsize = self.left.size();
-		if index < leftsize {
-			self.left.node_ref().get_at(index)
-		} else if index > leftsize {
-			self.right.node_ref().get_at(index - leftsize - 1)
-		} else {
-			&self.value
-		}
-	}
-	
-	
-	fn get_at_mut(&mut self, index: usize) -> &mut E {
-		assert!(index < self.size);
-		let leftsize = self.left.size();
-		if index < leftsize {
-			self.left.node_mut().get_at_mut(index)
-		} else if index > leftsize {
-			self.right.node_mut().get_at_mut(index - leftsize - 1)
-		} else {
-			&mut self.value
-		}
-	}
-	
-	
 	fn recalculate(&mut self) {
 		assert!(self.left .height() >= 0);
 		assert!(self.right.height() >= 0);
 		self.height = std::cmp::max(self.left.height(), self.right.height()).checked_add(1).unwrap();
 		self.size = self.left.size().checked_add(self.right.size()).unwrap().checked_add(1).unwrap();
 		assert!(self.height >= 0);
-	}
-	
-	
-	fn check_structure(&self) {
-		self.left .check_structure();
-		self.right.check_structure();
-		assert_eq!(self.height, std::cmp::max(self.left.height(), self.right.height()).checked_add(1).unwrap());
-		assert_eq!(self.size, self.left.size().checked_add(self.right.size()).unwrap().checked_add(1).unwrap());
 	}
 	
 }
