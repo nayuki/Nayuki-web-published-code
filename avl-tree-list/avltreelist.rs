@@ -161,61 +161,54 @@ impl<E> MaybeNode<E> {
 	
 	fn insert_at(mut self, index: usize, val: E) -> Self {
 		assert!(index <= self.size());
-		if !self.exists() {  // Automatically implies index == 0, because MaybeNode(None).size() == 0
-			return MaybeNode(Some(Box::new(Node::new(val))));
-		} else {
-			let node = self.node_mut();
-			let leftsize = node.left.size();
-			if index <= leftsize {
-				node.left = node.left.pop().insert_at(index, val);
-			} else {
-				node.right = node.right.pop().insert_at(index - leftsize - 1, val);
-			}
-			node.recalculate();
+		match self.0 {
+			
+			// Automatically implies index == 0, because MaybeNode(None).size() == 0
+			None => MaybeNode(Some(Box::new(Node::new(val)))),
+			
+			Some(ref mut node) => {
+				let leftsize = node.left.size();
+				if index <= leftsize {
+					node.left = node.left.pop().insert_at(index, val);
+				} else {
+					node.right = node.right.pop().insert_at(index - leftsize - 1, val);
+				}
+				node.recalculate();
+				self.balance()
+			},
 		}
-		self.balance()
 	}
 	
 	
 	fn remove_at(mut self, index: usize) -> (Self,E) {
-		let value: Option<E>;
-		{  // Modify the current object
-			let node = self.node_mut();
-			let leftsize = node.left.size();
-			// Recursively find and remove a node
-			if index < leftsize {
-				let (left, val) = node.left.pop().remove_at(index);
-				node.left = left;
-				value = Some(val);
-			} else if index > leftsize {
-				let (right, val) = node.right.pop().remove_at(index - leftsize - 1);
-				node.right = right;
-				value = Some(val);
-			} else if node.left.exists() && node.right.exists() {
-				let (right, mut val) = node.right.pop().remove_at(0);  // Remove successor node
-				node.right = right;
-				std::mem::swap(&mut val, &mut node.value);  // Replace value by successor
-				value = Some(val);
-			} else {
-				value = None;
+		assert!(index < self.size());  // Automatically implies self.exists(), because MaybeNode(None).size() == 0
+		let node = self.node_mut();
+		let leftsize = node.left.size();
+		if index < leftsize {
+			let val;
+			(node.left, val) = node.left.pop().remove_at(index);
+			node.recalculate();
+			(self.balance(), val)
+		} else if index > leftsize {
+			let val;
+			(node.right, val) = node.right.pop().remove_at(index - leftsize - 1);
+			node.recalculate();
+			(self.balance(), val)
+		} else if node.left.exists() && node.right.exists() {
+			// Find successor node. (Using the predecessor is valid too.)
+			let mut temp = node.right.node_mut();
+			while let Some(ref mut nd) = temp.left.0 {
+				temp = nd;
 			}
-		}
-		if let Some(val) = value {
-			self.node_mut().recalculate();
-			return (self.balance(), val);
-		}
-		
-		// Remove current node and return a child or nothing
-		let node = *self.0.unwrap();
-		let value = node.value;
-		let node = if node.left.exists() {
-			node.left
-		} else if node.right.exists() {
-			node.right
+			std::mem::swap(&mut node.value, &mut temp.value);  // Swap values with successor
+			let val;
+			(node.right, val) = node.right.pop().remove_at(0);  // Remove successor node
+			node.recalculate();
+			(self.balance(), val)
 		} else {
-			MaybeNode(None)
-		};
-		(node, value)
+			let node = *self.0.unwrap();
+			(if node.left.exists() {node.left} else {node.right}, node.value)
+		}
 	}
 	
 	
