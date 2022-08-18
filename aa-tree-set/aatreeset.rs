@@ -50,7 +50,7 @@ impl<E: Ord> AaTreeSet<E> {
 	
 	
 	pub fn clear(&mut self) {
-		self.root = MaybeNode(None);
+		self.root.pop();
 		self.size = 0;
 	}
 	
@@ -173,6 +173,7 @@ impl<E: Ord> MaybeNode<E> {
 							assert_eq!(node.level, 1);
 							return (MaybeNode(None), true);
 						}
+						assert!(changed);
 					},
 				}
 				
