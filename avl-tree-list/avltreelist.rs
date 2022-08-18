@@ -256,17 +256,13 @@ impl<E> MaybeNode<E> {
 	 *   1   2    0   1
 	 */
 	fn rotate_left(mut self) -> Self {
-		let mut root;
-		{
-			let selfnode = self.node_mut();
-			root = selfnode.right.pop();
-			std::mem::swap(&mut selfnode.right, &mut root.node_mut().left);
-			selfnode.recalculate();
-		} {
-			let rootnode = root.node_mut();
-			rootnode.left = self;
-			rootnode.recalculate();
-		}
+		let selfnode = self.node_mut();
+		let mut root = selfnode.right.pop();
+		let rootnode = root.node_mut();
+		selfnode.right = rootnode.left.pop();
+		selfnode.recalculate();
+		rootnode.left = self;
+		rootnode.recalculate();
 		root
 	}
 	
@@ -279,17 +275,13 @@ impl<E> MaybeNode<E> {
 	 * 0   1          1   2
 	 */
 	fn rotate_right(mut self) -> Self {
-		let mut root;
-		{
-			let selfnode = self.node_mut();
-			root = selfnode.left.pop();
-			std::mem::swap(&mut selfnode.left, &mut root.node_mut().right);
-			selfnode.recalculate();
-		} {
-			let rootnode = root.node_mut();
-			rootnode.right = self;
-			rootnode.recalculate();
-		}
+		let selfnode = self.node_mut();
+		let mut root = selfnode.left.pop();
+		let rootnode = root.node_mut();
+		selfnode.left = rootnode.right.pop();
+		selfnode.recalculate();
+		rootnode.right = self;
+		rootnode.recalculate();
 		root
 	}
 	
