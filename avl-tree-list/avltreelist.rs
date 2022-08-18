@@ -144,6 +144,12 @@ impl<E> MaybeNode<E> {
 	}
 	
 	
+	fn get_balance(&self) -> i16 {
+		let node = self.node_ref();
+		node.right.height() - node.left.height()
+	}
+	
+	
 	fn node_ref(&self) -> &Node<E> {
 		self.0.as_ref().unwrap().as_ref()
 	}
@@ -213,12 +219,12 @@ impl<E> MaybeNode<E> {
 	
 	
 	fn balance(mut self) -> Self {
-		let bal = self.node_ref().get_balance();
+		let bal = self.get_balance();
 		assert!(bal.abs() <= 2);
 		if bal == -2 {
 			{
 				let node = self.node_mut();
-				let childbal = node.left.node_ref().get_balance();
+				let childbal = node.left.get_balance();
 				assert!(childbal.abs() <= 1);
 				if childbal == 1 {
 					node.left = node.left.pop().rotate_left();
@@ -228,7 +234,7 @@ impl<E> MaybeNode<E> {
 		} else if bal == 2 {
 			{
 				let node = self.node_mut();
-				let childbal = node.right.node_ref().get_balance();
+				let childbal = node.right.get_balance();
 				assert!(childbal.abs() <= 1);
 				if childbal == -1 {
 					node.right = node.right.pop().rotate_right();
@@ -236,7 +242,7 @@ impl<E> MaybeNode<E> {
 			}
 			self = self.rotate_left();
 		}
-		assert!(self.node_ref().get_balance().abs() <= 1);
+		assert!(self.get_balance().abs() <= 1);
 		self
 	}
 	
@@ -282,6 +288,7 @@ impl<E> MaybeNode<E> {
 	fn check_structure(&self) {
 		if let Some(ref node) = self.0 {
 			node.check_structure();
+			assert!(self.get_balance().abs() <= 1);
 		}
 	}
 	
@@ -357,17 +364,11 @@ impl<E> Node<E> {
 	}
 	
 	
-	fn get_balance(&self) -> i16 {
-		self.right.height() - self.left.height()
-	}
-	
-	
 	fn check_structure(&self) {
 		self.left .check_structure();
 		self.right.check_structure();
 		assert_eq!(self.height, std::cmp::max(self.left.height(), self.right.height()).checked_add(1).unwrap());
 		assert_eq!(self.size, self.left.size().checked_add(self.right.size()).unwrap().checked_add(1).unwrap());
-		assert!(self.get_balance().abs() <= 1);
 	}
 	
 }
