@@ -82,8 +82,8 @@ fn calc_totp(
 		timestamp: i64,
 		codelen: usize,
 		hashfunc: fn(Vec<u8>)->Vec<u8>,
-		blocksize: usize,
-		) -> String {
+		blocksize: usize)
+		-> String {
 	
 	// Calculate counter and HOTP
 	let mut temp: i64 = timestamp - epoch;
@@ -102,8 +102,8 @@ fn calc_hotp(
 		counter: &[u8],
 		codelen: usize,
 		hashfunc: fn(Vec<u8>)->Vec<u8>,
-		blocksize: usize,
-		) -> String {
+		blocksize: usize)
+		-> String {
 	
 	// Check argument, calculate HMAC
 	assert!(1 <= codelen && codelen <= 9, "Invalid number of digits");
@@ -127,8 +127,8 @@ fn calc_hmac(
 		mut key: Vec<u8>,
 		message: &[u8],
 		hashfunc: fn(Vec<u8>)->Vec<u8>,
-		blocksize: usize,
-		) -> Vec<u8> {
+		blocksize: usize)
+		-> Vec<u8> {
 	
 	assert!(blocksize >= 1, "Invalid block size");
 	if key.len() > blocksize {
@@ -190,7 +190,7 @@ fn calc_sha1_hash(mut message: Vec<u8>) -> Vec<u8> {
 		state[4] = state[4].wrapping_add(e);
 	}
 	
-	state.iter().flat_map(|val| val.to_be_bytes().to_vec()).collect()
+	state.iter().flat_map(|val| val.to_be_bytes()).collect()
 }
 
 
