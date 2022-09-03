@@ -1,7 +1,7 @@
 /* 
  * Binary array set (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -183,10 +183,8 @@ impl<'a, E> Iterator for Iter<'a, E> {
 	
 	// Runs in amortized O(1) time, worst-case O(log n) time
 	fn next(&mut self) -> Option<Self::Item> {
-		if self.index >= self.values.len() {
-			return None;
-		}
-		let result: &E = &self.values[self.index][self.subindex];
+		let vals: &[E] = self.values.get(self.index)?;
+		let result: &E = &vals[self.subindex];
 		self.subindex += 1;
 		while self.index < self.values.len() && self.subindex >= self.values[self.index].len() {
 			self.subindex = 0;
