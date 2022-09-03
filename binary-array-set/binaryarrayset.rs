@@ -143,7 +143,63 @@ impl<E: Ord> BinaryArraySet<E> {
 
 
 
-/*---- Helper struct ----*/
+/*---- Helper structs ----*/
+
+impl<E> IntoIterator for BinaryArraySet<E> {
+	type Item = E;
+	type IntoIter = MoveIter<E>;
+	
+	fn into_iter(self) -> Self::IntoIter {
+		MoveIter::<E>::new(self)
+	}
+}
+
+
+pub struct MoveIter<E> {
+	values: std::vec::IntoIter<Vec<E>>,
+	vals: std::vec::IntoIter<E>,
+	count: usize,
+}
+
+
+impl<E> MoveIter<E> {
+	// Runs in O(1) time
+	fn new(set: BinaryArraySet<E>) -> Self {
+		Self {
+			values: set.values.into_iter(),
+			vals: Vec::<E>::new().into_iter(),
+			count: set.size,
+		}
+	}
+}
+
+
+impl<E> Iterator for MoveIter<E> {
+	type Item = E;
+	
+	// Runs in amortized O(1) time, worst-case O(log n) time
+	fn next(&mut self) -> Option<Self::Item> {
+		loop {
+			let result = self.vals.next();
+			if result.is_some() {
+				self.count -= 1;
+				return result;
+			}
+			self.vals = self.values.next()?.into_iter();
+		}
+	}
+	
+	
+	fn size_hint(&self) -> (usize,Option<usize>) {
+		(self.count, Some(self.count))
+	}
+	
+	fn count(self) -> usize {
+		self.count
+	}
+	
+}
+
 
 impl<'a, E> IntoIterator for &'a BinaryArraySet<E> {
 	type Item = &'a E;

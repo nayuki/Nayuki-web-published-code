@@ -292,6 +292,67 @@ impl<E> Node<E> {
 
 
 
+impl<E: Ord> IntoIterator for AaTreeSet<E> {
+	type Item = E;
+	type IntoIter = MoveIter<E>;
+	
+	fn into_iter(self) -> Self::IntoIter {
+		MoveIter::<E>::new(self.root, self.size)
+	}
+}
+
+
+pub struct MoveIter<E> {
+	count: usize,
+	stack: Vec<Node<E>>,
+}
+
+
+impl<E: Ord> MoveIter<E> {
+	
+	fn new(root: MaybeNode<E>, size: usize) -> Self {
+		let mut result = Self {
+			count: size,
+			stack: Vec::new(),
+		};
+		result.push_left_path(root);
+		result
+	}
+	
+	
+	fn push_left_path(&mut self, mut maybenode: MaybeNode<E>) {
+		while let Some(node) = maybenode.0 {
+			let mut node: Node<E> = *node;
+			maybenode = node.left.pop();
+			self.stack.push(node);
+		}
+	}
+	
+}
+
+
+impl<E: Ord> Iterator for MoveIter<E> {
+	type Item = E;
+	
+	fn next(&mut self) -> Option<Self::Item> {
+		let mut node: Node<E> = self.stack.pop()?;
+		self.push_left_path(node.right.pop());
+		self.count -= 1;
+		Some(node.value)
+	}
+	
+	
+	fn size_hint(&self) -> (usize,Option<usize>) {
+		(self.count, Some(self.count))
+	}
+	
+	fn count(self) -> usize {
+		self.count
+	}
+	
+}
+
+
 impl<'a, E> IntoIterator for &'a AaTreeSet<E> {
 	type Item = &'a E;
 	type IntoIter = RefIter<'a, E>;

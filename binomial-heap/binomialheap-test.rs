@@ -1,7 +1,7 @@
 /* 
  * Binomial heap test (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,6 +32,7 @@ fn main() {
 	test_size_1();
 	test_size_2();
 	test_size_7();
+	test_iterator();
 	test_against_vec_randomly();
 	test_against_rust_binary_heap_randomly();
 	println!("Test passed");
@@ -88,6 +89,40 @@ fn test_size_7() {
 	assert_eq!(h.pop(), Some(7));  assert_eq!(h.len(), 1);
 	assert_eq!(h.pop(), Some(8));  assert_eq!(h.len(), 0);
 	h.check_structure();
+}
+
+
+fn test_iterator() {
+	const SEQUENCE: &[i32] = &[
+		21, 62, 99, 22, 26, 48, 25, 33, 85, 58,
+		57, 31, 47, 32, 59, 41, 27, 42, 95, 94,
+		67, 90, 80, 52, 50, 13, 17, 19, 66, 11,
+		44, 51, 68, 89, 64, 53, 65, 49, 34, 39,
+		16, 37, 71, 96, 74, 46, 18, 36, 30, 38,
+		75, 61, 29, 84, 87, 73, 15, 40, 82, 83,
+		63, 86, 54, 77, 55, 14, 70, 45, 92, 93,
+		43, 12, 24, 35, 23, 91, 10, 76, 98, 69,
+		28, 88, 81, 79, 72, 97, 78, 56, 60, 20,
+	];
+	
+	for i in 0 .. SEQUENCE.len() {
+		let mut vec: Vec<i32> = SEQUENCE[ .. i].to_vec();
+		let mut heap = BinomialHeap::<i32>::new();
+		for &val in &vec {
+			heap.push(val);
+		}
+		vec.sort();
+		
+		let mut iter0 = vec.into_iter();
+		let mut iter1 = heap.into_iter();
+		loop {
+			match (iter0.next(), iter1.next()) {
+				(None, None) => break,
+				(Some(x), Some(y)) => assert_eq!(x, y),
+				_ => panic!(),
+			}
+		}
+	}
 }
 
 

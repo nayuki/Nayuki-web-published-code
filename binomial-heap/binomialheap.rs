@@ -245,3 +245,54 @@ fn reverse_nodes<E>(mut nodes: MaybeNode<E>) -> MaybeNode<E> {
 	}
 	result
 }
+
+
+
+/*---- Helper struct: Binomial heap iterator ----*/
+
+impl<E: Ord> IntoIterator for BinomialHeap<E> {
+	type Item = E;
+	type IntoIter = MoveIter<E>;
+	
+	fn into_iter(self) -> Self::IntoIter {
+		MoveIter::<E>::new(self)
+	}
+}
+
+
+pub struct MoveIter<E> {
+	heap: BinomialHeap<E>,
+	count: usize,
+}
+
+
+impl<E: Ord> MoveIter<E> {
+	fn new(heap: BinomialHeap<E>) -> Self {
+		Self {
+			count: heap.len(),
+			heap: heap,
+		}
+	}
+}
+
+
+impl<E: Ord> Iterator for MoveIter<E> {
+	type Item = E;
+	
+	fn next(&mut self) -> Option<Self::Item> {
+		let result = self.heap.pop();
+		if result.is_some() {
+			self.count -= 1;
+		}
+		result
+	}
+	
+	
+	fn size_hint(&self) -> (usize,Option<usize>) {
+		(self.count, Some(self.count))
+	}
+	
+	fn count(self) -> usize {
+		self.count
+	}
+}

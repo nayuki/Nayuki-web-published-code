@@ -35,7 +35,8 @@ fn main() {
 	test_small_randomly();
 	test_large_randomly();
 	test_insert_randomly();
-	test_iterator();
+	test_move_iterator();
+	test_ref_iterator();
 	test_ascending_operations();
 	test_descending_operations();
 	test_all_insertion_orders();
@@ -112,7 +113,7 @@ fn test_large_randomly() {
 			if rng.next_f64() < 0.001 {
 				set1.check_structure();
 				let mut iter0 = set0.iter().copied();
-				let mut iter1 = set1.into_iter().copied();
+				let mut iter1 = (&set1).into_iter().copied();
 				loop {
 					let val = iter0.next();
 					assert_eq!(val, iter1.next());
@@ -158,12 +159,28 @@ fn test_insert_randomly() {
 }
 
 
-fn test_iterator() {
+fn test_move_iterator() {
+	let size = 1000;
+	for i in 0 .. size {
+		let mut set = AaTreeSet::<i32>::new();
+		for j in 0 ..= i {
+			set.insert(j * j);
+		}
+		let list: Vec<i32> = set.into_iter().collect();
+		assert_eq!(usize::try_from(i + 1).unwrap(), list.len());
+		for (j, &val) in (0i32 .. ).zip(list.iter()) {
+			assert_eq!(j * j, val);
+		}
+	}
+}
+
+
+fn test_ref_iterator() {
 	let size = 1000;
 	let mut set = AaTreeSet::<i32>::new();
 	for i in 0 .. size {
 		set.insert(i * i);
-		let list: Vec<i32> = set.into_iter().copied().collect();
+		let list: Vec<i32> = (&set).into_iter().copied().collect();
 		assert_eq!(usize::try_from(i + 1).unwrap(), list.len());
 		for (j, &val) in (0i32 .. ).zip(list.iter()) {
 			assert_eq!(j * j, val);
@@ -235,7 +252,7 @@ fn test_all_insertion_orders() {
 			}
 			set.check_structure();
 			
-			let mut iter = set.into_iter().copied();
+			let mut iter = (&set).into_iter().copied();
 			for i in 0 .. size {
 				assert_eq!(Some(i), iter.next());
 			}

@@ -372,7 +372,68 @@ impl<E> Node<E> {
 
 
 
-/*---- Helper struct: AVL tree iterator ----*/
+/*---- Helper structs: AVL tree iterators ----*/
+
+impl<E> IntoIterator for AvlTreeList<E> {
+	type Item = E;
+	type IntoIter = MoveIter<E>;
+	
+	fn into_iter(self) -> Self::IntoIter {
+		MoveIter::<E>::new(self.root)
+	}
+}
+
+
+pub struct MoveIter<E> {
+	count: usize,
+	stack: Vec<Node<E>>,
+}
+
+
+impl<E> MoveIter<E> {
+	
+	fn new(root: MaybeNode<E>) -> Self {
+		let mut result = Self {
+			count: root.size(),
+			stack: Vec::new(),
+		};
+		result.push_left_path(root);
+		result
+	}
+	
+	
+	fn push_left_path(&mut self, mut maybenode: MaybeNode<E>) {
+		while let Some(node) = maybenode.0 {
+			let mut node: Node<E> = *node;
+			maybenode = node.left.pop();
+			self.stack.push(node);
+		}
+	}
+	
+}
+
+
+impl<E> Iterator for MoveIter<E> {
+	type Item = E;
+	
+	fn next(&mut self) -> Option<Self::Item> {
+		let mut node: Node<E> = self.stack.pop()?;
+		self.push_left_path(node.right.pop());
+		self.count -= 1;
+		Some(node.value)
+	}
+	
+	
+	fn size_hint(&self) -> (usize,Option<usize>) {
+		(self.count, Some(self.count))
+	}
+	
+	fn count(self) -> usize {
+		self.count
+	}
+	
+}
+
 
 impl<'a, E> IntoIterator for &'a AvlTreeList<E> {
 	type Item = &'a E;

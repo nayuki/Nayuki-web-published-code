@@ -1,7 +1,7 @@
 /* 
  * Binary array set test (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,8 @@ fn main() {
 	test_blank();
 	test_add_0();
 	test_add_1();
-	test_iterator();
+	test_move_iterator();
+	test_ref_iterator();
 	test_against_rust_set_randomly();
 	println!("Test passed");
 }
@@ -73,12 +74,30 @@ fn test_add_1() {
 }
 
 
-fn test_iterator() {
+fn test_move_iterator() {
+	for i in 1i32 .. 101 {
+		let mut set = binaryarrayset::BinaryArraySet::<i32>::new();
+		for j in 0 .. i {
+			set.insert(j * j);
+		}
+		
+		let mut list: Vec<i32> = set.into_iter().collect();
+		list.sort();
+		assert_eq!(list.len(), i as usize);
+		
+		for j in 0 .. i {
+			assert_eq!(j * j, list[j as usize]);
+		}
+	}
+}
+
+
+fn test_ref_iterator() {
 	let mut set = binaryarrayset::BinaryArraySet::<i32>::new();
 	for i in 1i32 .. 101 {
 		set.insert((i - 1) * (i - 1));
 		
-		let mut list: Vec<i32> = set.into_iter().cloned().collect();
+		let mut list: Vec<i32> = (&set).into_iter().cloned().collect();
 		list.sort();
 		assert_eq!(list.len(), i as usize);
 		
@@ -110,8 +129,8 @@ fn test_against_rust_set_randomly() {
 			size = 0;
 			
 		} else if op < 3 {  // Check iterator fully
-			let mut list0: Vec<i32> = set0.     iter().cloned().collect();
-			let mut list1: Vec<i32> = set1.into_iter().cloned().collect();
+			let mut list0: Vec<i32> =  set0  .     iter().cloned().collect();
+			let mut list1: Vec<i32> = (&set1).into_iter().cloned().collect();
 			list0.sort();
 			list1.sort();
 			assert_eq!(list0, list1);
