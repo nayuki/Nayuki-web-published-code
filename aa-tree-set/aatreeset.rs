@@ -294,22 +294,22 @@ impl<E> Node<E> {
 
 impl<'a, E> IntoIterator for &'a AaTreeSet<E> {
 	type Item = &'a E;
-	type IntoIter = Iter<'a, E>;
+	type IntoIter = RefIter<'a, E>;
 	
 	fn into_iter(self) -> Self::IntoIter {
-		Iter::<E>::new(&self.root, self.size)
+		RefIter::<E>::new(&self.root, self.size)
 	}
 }
 
 
 #[derive(Clone)]
-pub struct Iter<'a, E:'a> {
+pub struct RefIter<'a, E:'a> {
 	count: usize,
 	stack: Vec<&'a Node<E>>,
 }
 
 
-impl<'a, E> Iter<'a, E> {
+impl<'a, E> RefIter<'a, E> {
 	
 	fn new(root: &'a MaybeNode<E>, size: usize) -> Self {
 		let mut result = Self {
@@ -331,7 +331,7 @@ impl<'a, E> Iter<'a, E> {
 }
 
 
-impl<'a, E> Iterator for Iter<'a, E> {
+impl<'a, E> Iterator for RefIter<'a, E> {
 	type Item = &'a E;
 	
 	fn next(&mut self) -> Option<Self::Item> {

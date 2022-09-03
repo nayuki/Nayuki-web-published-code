@@ -1,7 +1,7 @@
 /* 
  * B-tree set (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -432,22 +432,22 @@ impl<E: std::cmp::Ord> Node<E> {
 
 impl<'a, E: std::cmp::Ord> IntoIterator for &'a BTreeSet<E> {
 	type Item = &'a E;
-	type IntoIter = Iter<'a, E>;
+	type IntoIter = RefIter<'a, E>;
 	
 	fn into_iter(self) -> Self::IntoIter {
-		Iter::<E>::new(&self)
+		RefIter::<E>::new(&self)
 	}
 }
 
 
 #[derive(Clone)]
-pub struct Iter<'a, E:'a> {
+pub struct RefIter<'a, E:'a> {
 	count: usize,
 	stack: Vec<(&'a Node<E>,usize)>,
 }
 
 
-impl<'a, E: std::cmp::Ord> Iter<'a, E> {
+impl<'a, E: std::cmp::Ord> RefIter<'a, E> {
 	
 	fn new(set: &'a BTreeSet<E>) -> Self {
 		let mut result = Self {
@@ -474,7 +474,7 @@ impl<'a, E: std::cmp::Ord> Iter<'a, E> {
 }
 
 
-impl<'a, E: std::cmp::Ord> Iterator for Iter<'a, E> {
+impl<'a, E: std::cmp::Ord> Iterator for RefIter<'a, E> {
 	type Item = &'a E;
 	
 	fn next(&mut self) -> Option<Self::Item> {

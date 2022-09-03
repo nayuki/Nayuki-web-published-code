@@ -147,16 +147,16 @@ impl<E: std::cmp::Ord> BinaryArraySet<E> {
 
 impl<'a, E> IntoIterator for &'a BinaryArraySet<E> {
 	type Item = &'a E;
-	type IntoIter = Iter<'a, E>;
+	type IntoIter = RefIter<'a, E>;
 	
 	fn into_iter(self) -> Self::IntoIter {
-		Iter::<E>::new(&self)
+		RefIter::<E>::new(&self)
 	}
 }
 
 
 #[derive(Clone)]
-pub struct Iter<'a, E:'a> {
+pub struct RefIter<'a, E:'a> {
 	values: &'a Vec<Vec<E>>,
 	index: usize,
 	subindex: usize,
@@ -164,7 +164,7 @@ pub struct Iter<'a, E:'a> {
 }
 
 
-impl<'a, E> Iter<'a, E> {
+impl<'a, E> RefIter<'a, E> {
 	// Runs in O(log n) time
 	fn new(set: &'a BinaryArraySet<E>) -> Self {
 		Self {
@@ -178,7 +178,7 @@ impl<'a, E> Iter<'a, E> {
 }
 
 
-impl<'a, E> Iterator for Iter<'a, E> {
+impl<'a, E> Iterator for RefIter<'a, E> {
 	type Item = &'a E;
 	
 	// Runs in amortized O(1) time, worst-case O(log n) time
