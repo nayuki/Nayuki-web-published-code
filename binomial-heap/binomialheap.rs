@@ -1,7 +1,7 @@
 /* 
  * Binomial heap (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,7 +32,7 @@ pub struct BinomialHeap<E> {
 }
 
 
-impl<E: std::cmp::Ord> BinomialHeap<E> {
+impl<E: Ord> BinomialHeap<E> {
 	
 	/*-- Constructors --*/
 	
@@ -183,7 +183,7 @@ struct Node<E> {
 }
 
 
-impl<E: std::cmp::Ord> Node<E> {
+impl<E: Ord> Node<E> {
 	
 	/*-- Constructor --*/
 	

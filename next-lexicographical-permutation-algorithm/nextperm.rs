@@ -1,11 +1,11 @@
 /* 
  * Next lexicographical permutation algorithm (Rust)
- * by Project Nayuki, 2017. Public domain.
+ * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
 
 
-fn next_permutation<T: std::cmp::Ord>(array: &mut [T]) -> bool {
+fn next_permutation<T: Ord>(array: &mut [T]) -> bool {
 	// Find non-increasing suffix
 	if array.is_empty() {
 		return false;

@@ -37,7 +37,7 @@ pub struct BTreeSet<E> {
 }
 
 
-impl<E: std::cmp::Ord> BTreeSet<E> {
+impl<E: Ord> BTreeSet<E> {
 	
 	// The degree is the minimum number of children each non-root internal node must have.
 	pub fn new(degree: usize) -> Self {
@@ -217,7 +217,7 @@ struct Node<E> {
 }
 
 
-impl<E: std::cmp::Ord> Node<E> {
+impl<E: Ord> Node<E> {
 	
 	/*-- Constructor --*/
 	
@@ -430,7 +430,7 @@ impl<E: std::cmp::Ord> Node<E> {
 
 /*---- Helper struct: B-tree iterator ----*/
 
-impl<'a, E: std::cmp::Ord> IntoIterator for &'a BTreeSet<E> {
+impl<'a, E: Ord> IntoIterator for &'a BTreeSet<E> {
 	type Item = &'a E;
 	type IntoIter = RefIter<'a, E>;
 	
@@ -447,7 +447,7 @@ pub struct RefIter<'a, E:'a> {
 }
 
 
-impl<'a, E: std::cmp::Ord> RefIter<'a, E> {
+impl<'a, E: Ord> RefIter<'a, E> {
 	
 	fn new(set: &'a BTreeSet<E>) -> Self {
 		let mut result = Self {
@@ -474,7 +474,7 @@ impl<'a, E: std::cmp::Ord> RefIter<'a, E> {
 }
 
 
-impl<'a, E: std::cmp::Ord> Iterator for RefIter<'a, E> {
+impl<'a, E: Ord> Iterator for RefIter<'a, E> {
 	type Item = &'a E;
 	
 	fn next(&mut self) -> Option<Self::Item> {

@@ -36,7 +36,7 @@ pub struct BinaryArraySet<E> {
 }
 
 
-impl<E: std::cmp::Ord> BinaryArraySet<E> {
+impl<E: Ord> BinaryArraySet<E> {
 	
 	pub fn new() -> Self {
 		Self {

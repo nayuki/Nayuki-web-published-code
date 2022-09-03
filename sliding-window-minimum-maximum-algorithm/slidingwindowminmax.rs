@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2022 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -29,7 +29,7 @@ use std::collections::VecDeque;
 /*---- Function for one-shot computation ----*/
 
 pub fn compute_sliding_window_min_or_max
-		<E: std::cmp::Ord + Clone>
+		<E: Ord + Clone>
 		(array: &[E], window: usize, maximize: bool) -> Vec<E> {
 	
 	assert!(window > 0, "Window size must be positive");
@@ -71,7 +71,7 @@ pub struct SlidingWindowMinMax<E> {
 }
 
 
-impl<E: std::cmp::Ord + Clone> SlidingWindowMinMax<E> {
+impl<E: Ord + Clone> SlidingWindowMinMax<E> {
 	
 	pub fn new() -> Self {
 		Self {

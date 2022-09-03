@@ -288,7 +288,7 @@ fn test_remove_all_randomly() {
 
 
 // Algorithm from https://www.nayuki.io/res/next-lexicographical-permutation-algorithm
-fn next_permutation<T: std::cmp::Ord>(array: &mut [T]) -> bool {
+fn next_permutation<T: Ord>(array: &mut [T]) -> bool {
 	// Find non-increasing suffix
 	if array.is_empty() {
 		return false;
