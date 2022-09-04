@@ -88,6 +88,23 @@ impl<E> AvlTreeList<E> {
 	}
 	
 	
+	pub fn drain<R: std::ops::RangeBounds<usize>>(&mut self, range: R) -> DrainIter<E> {
+		use std::ops::Bound::*;
+		let start: usize = match range.start_bound() {
+			Unbounded => 0,
+			Included(&s) => { assert!(s <= self.len()); s },
+			Excluded(&s) => { assert!(s < self.len()); s + 1},
+		};
+		let end: usize = match range.end_bound() {
+			Unbounded => self.len(),
+			Included(&e) => { assert!(e < self.len()); e + 1 },
+			Excluded(&e) => { assert!(e <= self.len()); e },
+		};
+		assert!(start <= end);
+		DrainIter::new(self, start, end - start)
+	}
+	
+	
 	// For unit tests.
 	pub fn check_structure(&self) {
 		self.root.check_structure();
@@ -482,6 +499,44 @@ impl<'a, E> Iterator for RefIter<'a, E> {
 		self.push_left_path(&node.right);
 		self.count -= 1;
 		Some(&node.value)
+	}
+	
+	
+	fn size_hint(&self) -> (usize,Option<usize>) {
+		(self.count, Some(self.count))
+	}
+	
+	fn count(self) -> usize {
+		self.count
+	}
+	
+}
+
+
+pub struct DrainIter<'a, E> {
+	tree: &'a mut AvlTreeList<E>,
+	index: usize,
+	count: usize,
+}
+
+
+impl<'a, E> DrainIter<'a, E> {
+	fn new(tree: &'a mut AvlTreeList<E>, index: usize, count: usize) -> Self {
+		Self { tree, index, count }
+	}
+}
+
+
+impl<'a, E> Iterator for DrainIter<'a, E> {
+	type Item = E;
+	
+	fn next(&mut self) -> Option<Self::Item> {
+		if self.count == 0 {
+			None
+		} else {
+			self.count -= 1;
+			Some(self.tree.remove(self.index))
+		}
 	}
 	
 	
