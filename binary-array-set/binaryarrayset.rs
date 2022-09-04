@@ -213,9 +213,8 @@ impl<'a, E> IntoIterator for &'a BinaryArraySet<E> {
 
 #[derive(Clone)]
 pub struct RefIter<'a, E:'a> {
-	values: &'a Vec<Vec<E>>,
-	index: usize,
-	subindex: usize,
+	values: std::slice::Iter<'a, Vec<E>>,
+	vals: Option<std::slice::Iter<'a, E>>,
 	count: usize,
 }
 
@@ -223,11 +222,10 @@ pub struct RefIter<'a, E:'a> {
 impl<'a, E> RefIter<'a, E> {
 	// Runs in O(log n) time
 	fn new(set: &'a BinaryArraySet<E>) -> Self {
+		let mut temp = set.values.iter();
 		Self {
-			values: &set.values,
-			index: set.values.iter().position(|x| !x.is_empty())
-				.unwrap_or(set.values.len()),
-			subindex: 0,
+			vals: temp.next().map(|v| v.iter()),
+			values: temp,
 			count: set.size,
 		}
 	}
@@ -239,15 +237,14 @@ impl<'a, E> Iterator for RefIter<'a, E> {
 	
 	// Runs in amortized O(1) time, worst-case O(log n) time
 	fn next(&mut self) -> Option<Self::Item> {
-		let vals: &[E] = self.values.get(self.index)?;
-		let result: &E = &vals[self.subindex];
-		self.subindex += 1;
-		while self.index < self.values.len() && self.subindex >= self.values[self.index].len() {
-			self.subindex = 0;
-			self.index += 1;
+		loop {
+			let vals = self.vals.as_mut()?;
+			if let result@Some(_) = vals.next() {
+				self.count -= 1;
+				return result;
+			}
+			self.vals = self.values.next().map(|v| v.iter());
 		}
-		self.count -= 1;
-		Some(result)
 	}
 	
 	
