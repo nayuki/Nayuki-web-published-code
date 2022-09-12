@@ -185,7 +185,7 @@ public final class BigNumberTheoreticTransform {
 	/*---- Low-level common number theory functions ----*/
 	
 	// Returns a list of unique prime factors of the given integer in
-	// ascending order. For example, unique_prime_factors(60) = [2, 3, 5].
+	// ascending order. For example, uniquePrimeFactors(60) = [2, 3, 5].
 	public static List<BigInteger> uniquePrimeFactors(BigInteger n) {
 		if (n.compareTo(ONE) < 0)
 			throw new IllegalArgumentException();

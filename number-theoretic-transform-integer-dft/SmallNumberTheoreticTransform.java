@@ -218,7 +218,7 @@ public final class SmallNumberTheoreticTransform {
 	
 	
 	// Returns a list of unique prime factors of the given integer in
-	// ascending order. For example, unique_prime_factors(60) = [2, 3, 5].
+	// ascending order. For example, uniquePrimeFactors(60) = [2, 3, 5].
 	public static List<Integer> uniquePrimeFactors(int n) {
 		if (n < 1)
 			throw new IllegalArgumentException();
