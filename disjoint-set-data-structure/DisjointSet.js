@@ -26,10 +26,10 @@
  * Main operations are querying if two elements are in the same set, and merging two sets together.
  * Useful for testing graph connectivity, and is used in Kruskal's algorithm.
  */
-var DisjointSet = /** @class */ (function () {
+class DisjointSet {
     // Constructs a new set containing the given number of singleton sets.
     // For example, new DisjointSet(3) --> {{0}, {1}, {2}}.
-    function DisjointSet(numElems) {
+    constructor(numElems) {
         // Global properties
         this.numSets = 0;
         // Per-node property arrays. This representation is more space-efficient than creating one node object per element.
@@ -37,64 +37,64 @@ var DisjointSet = /** @class */ (function () {
         this.sizes = []; // Positive number if the element is a representative, otherwise zero.
         if (numElems < 0)
             throw new RangeError("Number of elements must be non-negative");
-        for (var i = 0; i < numElems; i++)
+        for (let i = 0; i < numElems; i++)
             this.addSet();
     }
     // Returns the number of elements among the set of disjoint sets. All the other methods
     // require the argument elemIndex to satisfy 0 <= elemIndex < getNumElements().
-    DisjointSet.prototype.getNumElements = function () {
+    getNumElements() {
         return this.parents.length;
-    };
+    }
     // Returns the number of disjoint sets overall. 0 <= result <= getNumElements().
-    DisjointSet.prototype.getNumSets = function () {
+    getNumSets() {
         return this.numSets;
-    };
+    }
     // Returns the representative element for the set containing the given element. This method is also
     // known as "find" in the literature. Also performs path compression, which alters the internal state to
     // improve the speed of future queries, but has no externally visible effect on the values returned.
-    DisjointSet.prototype.getRepr = function (elemIndex) {
+    getRepr(elemIndex) {
         if (elemIndex < 0 || elemIndex >= this.parents.length)
             throw new RangeError("Element index out of bounds");
         // Follow parent pointers until we reach a representative
-        var parent = this.parents[elemIndex];
+        let parent = this.parents[elemIndex];
         while (true) {
-            var grandparent = this.parents[parent];
+            const grandparent = this.parents[parent];
             if (grandparent == parent)
                 return parent;
             this.parents[elemIndex] = grandparent; // Partial path compression
             elemIndex = parent;
             parent = grandparent;
         }
-    };
+    }
     // Returns the size of the set that the given element is a member of. 1 <= result <= getNumElements().
-    DisjointSet.prototype.getSizeOfSet = function (elemIndex) {
+    getSizeOfSet(elemIndex) {
         return this.sizes[this.getRepr(elemIndex)];
-    };
+    }
     // Tests whether the given two elements are members of the same set. Note that the arguments are orderless.
-    DisjointSet.prototype.areInSameSet = function (elemIndex0, elemIndex1) {
+    areInSameSet(elemIndex0, elemIndex1) {
         return this.getRepr(elemIndex0) == this.getRepr(elemIndex1);
-    };
+    }
     // Adds a new singleton set, incrementing getNumElements() and getNumSets().
     // Returns the identity of the new element, which equals the old value of getNumElements().
-    DisjointSet.prototype.addSet = function () {
-        var elemIndex = this.getNumElements();
+    addSet() {
+        const elemIndex = this.getNumElements();
         this.parents.push(elemIndex);
         this.sizes.push(1);
         this.numSets++;
         return elemIndex;
-    };
+    }
     // Merges together the sets that the given two elements belong to. This method is also known as "union" in the literature.
     // If the two elements belong to different sets, then the two sets are merged and the method returns true.
     // Otherwise they belong in the same set, nothing is changed and the method returns false. Note that the arguments are orderless.
-    DisjointSet.prototype.mergeSets = function (elemIndex0, elemIndex1) {
+    mergeSets(elemIndex0, elemIndex1) {
         // Get representatives
-        var repr0 = this.getRepr(elemIndex0);
-        var repr1 = this.getRepr(elemIndex1);
+        let repr0 = this.getRepr(elemIndex0);
+        let repr1 = this.getRepr(elemIndex1);
         if (repr0 == repr1)
             return false;
         // Compare sizes to choose parent node
         if (this.sizes[repr0] < this.sizes[repr1]) {
-            var temp = repr0;
+            let temp = repr0;
             repr0 = repr1;
             repr1 = temp;
         }
@@ -105,20 +105,20 @@ var DisjointSet = /** @class */ (function () {
         this.sizes[repr1] = 0;
         this.numSets--;
         return true;
-    };
+    }
     // For unit tests. This detects many but not all invalid data structures, throwing an exception
     // if a structural invariant is known to be violated. This always returns silently on a valid object.
-    DisjointSet.prototype.checkStructure = function () {
-        var numRepr = 0;
-        var sizeSum = 0;
-        for (var i = 0; i < this.parents.length; i++) {
-            var parent_1 = this.parents[i];
-            var size = this.sizes[i];
-            var isRepr = parent_1 == i;
+    checkStructure() {
+        let numRepr = 0;
+        let sizeSum = 0;
+        for (let i = 0; i < this.parents.length; i++) {
+            const parent = this.parents[i];
+            const size = this.sizes[i];
+            const isRepr = parent == i;
             if (isRepr)
                 numRepr++;
-            var ok = true;
-            ok = ok && 0 <= parent_1 && parent_1 < this.parents.length;
+            let ok = true;
+            ok = ok && 0 <= parent && parent < this.parents.length;
             ok = ok && (!isRepr && size == 0 || isRepr && 1 <= size && size <= this.parents.length);
             if (!ok)
                 throw new Error("Assertion error");
@@ -126,6 +126,5 @@ var DisjointSet = /** @class */ (function () {
         }
         if (!(0 <= this.numSets && this.numSets == numRepr && this.numSets <= this.parents.length && this.parents.length == sizeSum))
             throw new Error("Assertion error");
-    };
-    return DisjointSet;
-}());
+    }
+}

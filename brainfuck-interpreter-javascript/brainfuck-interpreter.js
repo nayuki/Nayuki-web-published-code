@@ -6,31 +6,18 @@
  * https://www.nayuki.io/page/brainfuck-interpreter-javascript
  */
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var app;
 (function (app) {
     /*---- Mostly HTML input/output elements ----*/
-    var inputsElem = queryHtml("#inputs");
-    var inputCodeElem = queryElem("#input-code", HTMLTextAreaElement);
-    var inputTextElem = queryElem("#input-text", HTMLTextAreaElement);
-    var outputsElem = queryHtml("#outputs");
-    var outputTextPre = queryHtml("#output-text pre");
-    var stepButton = queryElem("#execute-step", HTMLButtonElement);
-    var runButton = queryElem("#execute-run", HTMLButtonElement);
-    var pauseButton = queryElem("#execute-pause", HTMLButtonElement);
-    var instance = null;
+    let inputsElem = queryHtml("#inputs");
+    let inputCodeElem = queryElem("#input-code", HTMLTextAreaElement);
+    let inputTextElem = queryElem("#input-text", HTMLTextAreaElement);
+    let outputsElem = queryHtml("#outputs");
+    let outputTextPre = queryHtml("#output-text pre");
+    let stepButton = queryElem("#execute-step", HTMLButtonElement);
+    let runButton = queryElem("#execute-run", HTMLButtonElement);
+    let pauseButton = queryElem("#execute-pause", HTMLButtonElement);
+    let instance = null;
     /*---- Entry points ----*/
     function doDemo(code) {
         doEditCodeInput();
@@ -62,9 +49,8 @@ var app;
     }
     app.doEditCodeInput = doEditCodeInput;
     /*---- Visual brainfuck machine ----*/
-    var Brainfuck = /** @class */ (function () {
-        function Brainfuck(code, text) {
-            var _this = this;
+    class Brainfuck {
+        constructor(code, text) {
             this.instructions = [];
             this.instructionsText = "";
             this.instructionIndex = 0;
@@ -76,9 +62,9 @@ var app;
             this.runTimeout = -1;
             this.runIterations = 1;
             // Parse/compile the code
-            var openBracketIndexes = [];
-            for (var i = 0; i < code.length; i++) {
-                var inst = void 0;
+            let openBracketIndexes = [];
+            for (let i = 0; i < code.length; i++) {
+                let inst;
                 switch (code.charAt(i)) {
                     case "<":
                         inst = LEFT;
@@ -103,7 +89,7 @@ var app;
                         openBracketIndexes.push(this.instructions.length);
                         break;
                     case "]":
-                        var j = openBracketIndexes.pop();
+                        const j = openBracketIndexes.pop();
                         if (j === undefined)
                             throw new RangeError("Mismatched brackets (extra right bracket)");
                         inst = new EndLoop(j + 1);
@@ -121,33 +107,33 @@ var app;
             stepButton.disabled = false;
             runButton.disabled = false;
             pauseButton.disabled = true;
-            stepButton.onclick = function () {
-                _this.step();
-                _this.showState();
+            stepButton.onclick = () => {
+                this.step();
+                this.showState();
             };
-            runButton.onclick = function () {
+            runButton.onclick = () => {
                 stepButton.disabled = true;
                 runButton.disabled = true;
                 pauseButton.disabled = false;
-                _this.run();
+                this.run();
             };
-            pauseButton.onclick = function () {
-                _this.pause();
+            pauseButton.onclick = () => {
+                this.pause();
             };
-            queryHtml("#output-memory p button:nth-child(1)").onclick = function () {
-                _this.memoryViewIndex = Math.max(_this.memoryViewIndex - Brainfuck.MEMORY_VIEW_WINDOW, 0);
-                _this.showMemoryView();
+            queryHtml("#output-memory p button:nth-child(1)").onclick = () => {
+                this.memoryViewIndex = Math.max(this.memoryViewIndex - Brainfuck.MEMORY_VIEW_WINDOW, 0);
+                this.showMemoryView();
             };
-            queryHtml("#output-memory p button:nth-child(2)").onclick = function () {
-                _this.memoryViewIndex += Brainfuck.MEMORY_VIEW_WINDOW;
-                _this.showMemoryView();
+            queryHtml("#output-memory p button:nth-child(2)").onclick = () => {
+                this.memoryViewIndex += Brainfuck.MEMORY_VIEW_WINDOW;
+                this.showMemoryView();
             };
             // Set UI elements
             this.inputText = text;
             outputTextPre.textContent = "";
             this.showState();
         }
-        Brainfuck.prototype.pause = function () {
+        pause() {
             pauseButton.disabled = true;
             if (this.runTimeout != -1) {
                 window.clearTimeout(this.runTimeout);
@@ -155,14 +141,14 @@ var app;
                 stepButton.disabled = false;
                 runButton.disabled = false;
             }
-        };
-        Brainfuck.prototype.isHalted = function () {
+        }
+        isHalted() {
             return this.instructionIndex >= this.instructions.length;
-        };
-        Brainfuck.prototype.step = function () {
+        }
+        step() {
             if (this.isHalted())
                 return;
-            var inst = this.instructions[this.instructionIndex];
+            const inst = this.instructions[this.instructionIndex];
             this.instructionIndex++;
             try {
                 inst.execute(this);
@@ -172,50 +158,49 @@ var app;
                 alert("Error: " + e.message);
                 this.instructionIndex = this.instructions.length;
             }
-        };
-        Brainfuck.prototype.run = function () {
-            var _this = this;
+        }
+        run() {
             if (this.runTimeout != -1)
                 throw new Error("Assertion error");
-            var startTime = Date.now();
-            for (var i = 0; i < this.runIterations; i++)
+            const startTime = Date.now();
+            for (let i = 0; i < this.runIterations; i++)
                 this.step();
-            var elapsedTime = Date.now() - startTime;
+            const elapsedTime = Date.now() - startTime;
             if (elapsedTime <= 0)
                 this.runIterations *= 2;
             else
                 this.runIterations *= Brainfuck.TARGET_RUN_TIME / elapsedTime;
             this.showState();
             if (!this.isHalted()) {
-                this.runTimeout = window.setTimeout(function () {
-                    _this.runTimeout = -1;
-                    _this.run();
+                this.runTimeout = window.setTimeout(() => {
+                    this.runTimeout = -1;
+                    this.run();
                 });
             }
-        };
-        Brainfuck.prototype.setInstructionIndex = function (newIndex) {
+        }
+        setInstructionIndex(newIndex) {
             if (!(0 <= newIndex && newIndex <= this.instructions.length))
                 throw new RangeError("Invalid instruction index");
             this.instructionIndex = newIndex;
-        };
-        Brainfuck.prototype.addMemoryIndex = function (delta) {
-            var newIndex = this.memoryIndex + delta;
+        }
+        addMemoryIndex(delta) {
+            const newIndex = this.memoryIndex + delta;
             if (newIndex < 0)
                 throw new RangeError("Negative memory index");
             this.memoryIndex = newIndex;
-        };
-        Brainfuck.prototype.addMemoryValue = function (delta) {
+        }
+        addMemoryValue(delta) {
             while (this.memoryIndex >= this.memory.length)
                 this.memory.push(0);
             this.memory[this.memoryIndex] = (this.memory[this.memoryIndex] + delta) & 0xFF;
-        };
-        Brainfuck.prototype.isMemoryZero = function () {
+        }
+        isMemoryZero() {
             return this.memoryIndex >= this.memory.length || this.memory[this.memoryIndex] == 0;
-        };
-        Brainfuck.prototype.readInput = function () {
+        }
+        readInput() {
             while (this.memoryIndex >= this.memory.length)
                 this.memory.push(0);
-            var val = 0;
+            let val = 0;
             if (this.inputIndex < this.inputText.length) {
                 val = this.inputText.charCodeAt(this.inputIndex);
                 if (val > 0xFF)
@@ -223,33 +208,33 @@ var app;
                 this.inputIndex++;
             }
             this.memory[this.memoryIndex] = val;
-        };
-        Brainfuck.prototype.writeOutput = function () {
-            var val = this.memoryIndex < this.memory.length ? this.memory[this.memoryIndex] : 0;
+        }
+        writeOutput() {
+            const val = this.memoryIndex < this.memory.length ? this.memory[this.memoryIndex] : 0;
             outputTextPre.textContent += String.fromCharCode(val);
-        };
-        Brainfuck.prototype.showState = function () {
+        }
+        showState() {
             queryHtml("#output-instructions p").textContent =
-                "Length = " + addSeparators(this.instructions.length) + "; " +
-                    ("Index = " + addSeparators(this.instructionIndex) + "; ") +
-                    ("Executed = " + addSeparators(this.numExecuted)) +
+                `Length = ${addSeparators(this.instructions.length)}; ` +
+                    `Index = ${addSeparators(this.instructionIndex)}; ` +
+                    `Executed = ${addSeparators(this.numExecuted)}` +
                     (this.isHalted() ? "; Finished" : "");
             {
-                var left = this.instructionsText.substring(0, this.instructionIndex);
-                var outputInstructionsPre = queryHtml("#output-instructions pre");
+                const left = this.instructionsText.substring(0, this.instructionIndex);
+                let outputInstructionsPre = queryHtml("#output-instructions pre");
                 clearChildren(outputInstructionsPre);
                 outputInstructionsPre.textContent = left;
                 if (this.instructionIndex < this.instructions.length) {
-                    var mid = this.instructionsText.charAt(this.instructionIndex);
-                    var right = this.instructionsText.substring(this.instructionIndex + 1);
+                    const mid = this.instructionsText.charAt(this.instructionIndex);
+                    const right = this.instructionsText.substring(this.instructionIndex + 1);
                     appendElem(outputInstructionsPre, "strong", mid);
                     outputInstructionsPre.appendChild(document.createTextNode(right));
                 }
             }
             queryHtml("#output-memory p span").textContent =
-                "Index = " + addSeparators(this.memoryIndex);
+                `Index = ${addSeparators(this.memoryIndex)}`;
             {
-                var MEMORY_VIEW_STEP = Math.floor(Brainfuck.MEMORY_VIEW_WINDOW / 2);
+                const MEMORY_VIEW_STEP = Math.floor(Brainfuck.MEMORY_VIEW_WINDOW / 2);
                 while (this.memoryIndex < this.memoryViewIndex && this.memoryViewIndex >= MEMORY_VIEW_STEP)
                     this.memoryViewIndex -= MEMORY_VIEW_STEP;
                 while (this.memoryIndex >= this.memoryViewIndex + Brainfuck.MEMORY_VIEW_WINDOW)
@@ -257,145 +242,105 @@ var app;
                 this.showMemoryView();
             }
             queryHtml("#output-input p").textContent =
-                "Length = " + addSeparators(this.inputText.length) + "; " +
-                    ("Index = " + addSeparators(this.inputIndex));
+                `Length = ${addSeparators(this.inputText.length)}; ` +
+                    `Index = ${addSeparators(this.inputIndex)}`;
             {
-                var left = this.inputText.substring(0, this.inputIndex);
-                var outputInputPre = queryHtml("#output-input pre");
+                const left = this.inputText.substring(0, this.inputIndex);
+                let outputInputPre = queryHtml("#output-input pre");
                 clearChildren(outputInputPre);
                 outputInputPre.textContent = left;
                 if (this.inputIndex < this.inputText.length) {
-                    var mid = this.inputText.charAt(this.inputIndex);
-                    var right = this.inputText.substring(this.inputIndex + 1);
+                    const mid = this.inputText.charAt(this.inputIndex);
+                    const right = this.inputText.substring(this.inputIndex + 1);
                     appendElem(outputInputPre, "strong", mid);
                     outputInputPre.appendChild(document.createTextNode(right));
                 }
             }
             {
-                var outputText = outputTextPre.textContent;
+                const outputText = outputTextPre.textContent;
                 if (outputText === null)
                     throw new Error("Assertion error");
-                queryHtml("#output-text p").textContent = "Length = " + addSeparators(outputText.length);
+                queryHtml("#output-text p").textContent = `Length = ${addSeparators(outputText.length)}`;
             }
             if (this.isHalted()) {
                 stepButton.disabled = true;
                 runButton.disabled = true;
                 pauseButton.disabled = true;
             }
-        };
-        Brainfuck.prototype.showMemoryView = function () {
-            var outputMemoryTbody = queryHtml("#output-memory tbody");
+        }
+        showMemoryView() {
+            let outputMemoryTbody = queryHtml("#output-memory tbody");
             clearChildren(outputMemoryTbody);
-            for (var i = 0; i < Brainfuck.MEMORY_VIEW_WINDOW; i++) {
-                var index = this.memoryViewIndex + i;
-                var tr = appendElem(outputMemoryTbody, "tr");
+            for (let i = 0; i < Brainfuck.MEMORY_VIEW_WINDOW; i++) {
+                const index = this.memoryViewIndex + i;
+                let tr = appendElem(outputMemoryTbody, "tr");
                 if (index == this.memoryIndex)
                     tr.classList.add("active");
                 appendElem(tr, "td", index.toString());
-                var val = index < this.memory.length ? this.memory[index] : 0;
+                const val = index < this.memory.length ? this.memory[index] : 0;
                 appendElem(tr, "td", val.toString());
             }
-        };
-        Brainfuck.MEMORY_VIEW_WINDOW = 30;
-        Brainfuck.TARGET_RUN_TIME = 50; // Milliseconds
-        return Brainfuck;
-    }());
+        }
+    }
+    Brainfuck.MEMORY_VIEW_WINDOW = 30;
+    Brainfuck.TARGET_RUN_TIME = 50; // Milliseconds
     /*---- Brainfuck instruction/operation types ----*/
-    var Instruction = /** @class */ (function () {
-        function Instruction() {
-        }
-        return Instruction;
-    }());
-    var LEFT = new /** @class */ (function (_super) {
-        __extends(class_1, _super);
-        function class_1() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        class_1.prototype.execute = function (bf) {
+    class Instruction {
+    }
+    const LEFT = new class extends Instruction {
+        execute(bf) {
             bf.addMemoryIndex(-1);
-        };
-        return class_1;
-    }(Instruction));
-    var RIGHT = new /** @class */ (function (_super) {
-        __extends(class_2, _super);
-        function class_2() {
-            return _super !== null && _super.apply(this, arguments) || this;
         }
-        class_2.prototype.execute = function (bf) {
+    };
+    const RIGHT = new class extends Instruction {
+        execute(bf) {
             bf.addMemoryIndex(+1);
-        };
-        return class_2;
-    }(Instruction));
-    var MINUS = new /** @class */ (function (_super) {
-        __extends(class_3, _super);
-        function class_3() {
-            return _super !== null && _super.apply(this, arguments) || this;
         }
-        class_3.prototype.execute = function (bf) {
+    };
+    const MINUS = new class extends Instruction {
+        execute(bf) {
             bf.addMemoryValue(-1);
-        };
-        return class_3;
-    }(Instruction));
-    var PLUS = new /** @class */ (function (_super) {
-        __extends(class_4, _super);
-        function class_4() {
-            return _super !== null && _super.apply(this, arguments) || this;
         }
-        class_4.prototype.execute = function (bf) {
+    };
+    const PLUS = new class extends Instruction {
+        execute(bf) {
             bf.addMemoryValue(+1);
-        };
-        return class_4;
-    }(Instruction));
-    var INPUT = new /** @class */ (function (_super) {
-        __extends(class_5, _super);
-        function class_5() {
-            return _super !== null && _super.apply(this, arguments) || this;
         }
-        class_5.prototype.execute = function (bf) {
+    };
+    const INPUT = new class extends Instruction {
+        execute(bf) {
             bf.readInput();
-        };
-        return class_5;
-    }(Instruction));
-    var OUTPUT = new /** @class */ (function (_super) {
-        __extends(class_6, _super);
-        function class_6() {
-            return _super !== null && _super.apply(this, arguments) || this;
         }
-        class_6.prototype.execute = function (bf) {
+    };
+    const OUTPUT = new class extends Instruction {
+        execute(bf) {
             bf.writeOutput();
-        };
-        return class_6;
-    }(Instruction));
-    var BeginLoop = /** @class */ (function (_super) {
-        __extends(BeginLoop, _super);
-        function BeginLoop(exitIndex) {
-            var _this = _super.call(this) || this;
-            _this.exitIndex = exitIndex;
-            return _this;
         }
-        BeginLoop.prototype.execute = function (bf) {
+    };
+    class BeginLoop extends Instruction {
+        constructor(exitIndex) {
+            super();
+            this.exitIndex = exitIndex;
+        }
+        execute(bf) {
             if (bf.isMemoryZero())
                 bf.setInstructionIndex(this.exitIndex);
-        };
-        return BeginLoop;
-    }(Instruction));
-    var EndLoop = /** @class */ (function (_super) {
-        __extends(EndLoop, _super);
-        function EndLoop(enterIndex) {
-            var _this = _super.call(this) || this;
-            _this.enterIndex = enterIndex;
-            return _this;
         }
-        EndLoop.prototype.execute = function (bf) {
+    }
+    class EndLoop extends Instruction {
+        constructor(enterIndex) {
+            super();
+            this.enterIndex = enterIndex;
+        }
+        execute(bf) {
             if (!bf.isMemoryZero())
                 bf.setInstructionIndex(this.enterIndex);
-        };
-        return EndLoop;
-    }(Instruction));
+        }
+    }
     /*---- Utility functions ----*/
     function addSeparators(val) {
-        var result = val.toString();
-        for (var i = result.length - 3; i > 0; i -= 3)
+        let result = val.toString();
+        for (let i = result.length - 3; i > 0; i -= 3)
             result = result.substring(0, i) + "\u00A0" + result.substring(i); // Non-breaking space
         return result;
     }
@@ -403,7 +348,7 @@ var app;
         return queryElem(query, HTMLElement);
     }
     function queryElem(query, type) {
-        var result = document.querySelector(query);
+        let result = document.querySelector(query);
         if (result instanceof type)
             return result;
         else if (result === null)
@@ -416,7 +361,7 @@ var app;
             elem.removeChild(elem.firstChild);
     }
     function appendElem(container, tagName, text) {
-        var result = document.createElement(tagName);
+        let result = document.createElement(tagName);
         if (text !== undefined)
             result.textContent = text;
         return container.appendChild(result);

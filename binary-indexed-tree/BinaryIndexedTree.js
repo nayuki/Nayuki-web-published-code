@@ -21,76 +21,70 @@
  *   Software.
  */
 "use strict";
-var BinaryIndexedTree = /** @class */ (function () {
+class BinaryIndexedTree {
     /*---- Constructor ----*/
-    function BinaryIndexedTree(arg) {
-        var _this = this;
+    constructor(arg) {
         if (typeof arg == "number") {
             if (arg < 0 || Math.floor(arg) != arg)
                 throw new RangeError("Illegal argument");
             this.sumTree = [];
-            for (var i = 0; i < arg; i++)
+            for (let i = 0; i < arg; i++)
                 this.sumTree.push(0);
         }
         else if (arg instanceof Array) {
             this.sumTree = arg.slice();
-            this.sumTree.forEach(function (val, i) {
+            this.sumTree.forEach((val, i) => {
                 // For each consecutive 1 in the lowest order bits of i
-                for (var j = 1; (i & j) != 0; j <<= 1)
-                    val += _this.sumTree[i ^ j];
-                _this.sumTree[i] = val;
+                for (let j = 1; (i & j) != 0; j <<= 1)
+                    val += this.sumTree[i ^ j];
+                this.sumTree[i] = val;
             });
         }
         else
             throw new RangeError("Illegal argument");
     }
-    Object.defineProperty(BinaryIndexedTree.prototype, "length", {
-        /*---- Methods ----*/
-        get: function () {
-            return this.sumTree.length;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    BinaryIndexedTree.prototype.get = function (index) {
+    /*---- Methods ----*/
+    get length() {
+        return this.sumTree.length;
+    }
+    get(index) {
         if (!(0 <= index && index < this.length))
             throw new RangeError("Index out of bounds");
-        var result = this.sumTree[index];
+        let result = this.sumTree[index];
         // For each consecutive 1 in the lowest order bits of index
-        for (var i = 1; (index & i) != 0; i <<= 1)
+        for (let i = 1; (index & i) != 0; i <<= 1)
             result -= this.sumTree[index ^ i];
         return result;
-    };
-    BinaryIndexedTree.prototype.set = function (index, val) {
+    }
+    set(index, val) {
         if (!(0 <= index && index < this.length))
             throw new RangeError("Index out of bounds");
         this.add(index, val - this.get(index));
-    };
-    BinaryIndexedTree.prototype.add = function (index, delta) {
+    }
+    add(index, delta) {
         if (!(0 <= index && index < this.length))
             throw new RangeError("Index out of bounds");
         do {
             this.sumTree[index] += delta;
             index |= index + 1; // Set lowest 0 bit; strictly increasing
         } while (index < this.length);
-    };
-    BinaryIndexedTree.prototype.getTotal = function () {
+    }
+    getTotal() {
         return this.getPrefixSum(this.length);
-    };
-    BinaryIndexedTree.prototype.getPrefixSum = function (end) {
+    }
+    getPrefixSum(end) {
         if (!(0 <= end && end <= this.length))
             throw new RangeError("Index out of bounds");
-        var result = 0;
+        let result = 0;
         while (end > 0) {
             result += this.sumTree[end - 1];
             end &= end - 1; // Clear lowest 1 bit; strictly decreasing
         }
         return result;
-    };
-    BinaryIndexedTree.prototype.getRangeSum = function (start, end) {
+    }
+    getRangeSum(start, end) {
         if (!(0 <= start && start <= end && end <= this.length))
             throw new RangeError("Index out of bounds");
         return this.getPrefixSum(end) - this.getPrefixSum(start);
-    };
-    return BinaryIndexedTree;
-}());
+    }
+}

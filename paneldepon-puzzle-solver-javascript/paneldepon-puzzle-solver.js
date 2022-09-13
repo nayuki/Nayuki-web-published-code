@@ -9,27 +9,27 @@
 var app;
 (function (app) {
     /*---- User interface ----*/
-    var pageGrid;
+    let pageGrid;
     // Either -1 if not showing a known example,
     // or an integer in the range [0, EXAMPLE_PUZZLES.length).
-    var currentExampleIndex = -1;
+    let currentExampleIndex = -1;
     function initialize() {
         pageGrid = new Grid();
-        var tbodyElem = document.querySelector("#game-board tbody");
+        const tbodyElem = document.querySelector("#game-board tbody");
         clearChildren(tbodyElem);
         // Create header row's cells
-        var tr = tbodyElem.appendChild(createElement("tr", createElement("td")));
-        for (var x = 0; x < Grid.WIDTH; x++)
+        let tr = tbodyElem.appendChild(createElement("tr", createElement("td")));
+        for (let x = 0; x < Grid.WIDTH; x++)
             tr.appendChild(createElement("td", formatXCoordinate(x)));
         // Create remaining rows' cells
-        var numColors = Grid.TILE_COLORS.length;
-        var _loop_1 = function (y) {
-            var tr_1 = tbodyElem.appendChild(createElement("tr", createElement("td", y.toString())));
-            var _loop_2 = function (x) {
-                var td = tr_1.appendChild(createElement("td"));
+        const numColors = Grid.TILE_COLORS.length;
+        for (let y = Grid.HEIGHT - 1; y >= 0; y--) {
+            let tr = tbodyElem.appendChild(createElement("tr", createElement("td", y.toString())));
+            for (let x = 0; x < Grid.WIDTH; x++) {
+                let td = tr.appendChild(createElement("td"));
                 // Set event handlers
-                td.onmousedown = function (ev) {
-                    var inc = 0;
+                td.onmousedown = (ev) => {
+                    let inc = 0;
                     if (ev.button == 0)
                         inc = 1;
                     else if (ev.button == 2)
@@ -37,31 +37,24 @@ var app;
                     pageGrid.set(x, y, (pageGrid.get(x, y) + inc + numColors) % numColors);
                     handleBoardChanged();
                 };
-                td.oncontextmenu = td.onselectstart = (function () { return false; });
-            };
-            for (var x = 0; x < Grid.WIDTH; x++) {
-                _loop_2(x);
+                td.oncontextmenu = td.onselectstart = (() => false);
             }
-        };
-        for (var y = Grid.HEIGHT - 1; y >= 0; y--) {
-            _loop_1(y);
         }
         handleBoardChanged();
     }
     function doSolve() {
         clearSolution();
-        var numMoves = parseInt(inputElemId("num-moves").value, 10);
-        var _a = new Board(pageGrid.clone()).solve(numMoves), moves = _a[0], numVisited = _a[1];
-        var solnHeadText;
+        const numMoves = parseInt(inputElemId("num-moves").value, 10);
+        const [moves, numVisited] = new Board(pageGrid.clone()).solve(numMoves);
+        let solnHeadText;
         if (moves === null)
             solnHeadText = "No solution";
         else if (moves.length == 0)
             solnHeadText = "Solution: Self-clearing";
         else {
             solnHeadText = "Solution:";
-            var solnStepsElem = elemId("solution-steps");
-            for (var _i = 0, moves_1 = moves; _i < moves_1.length; _i++) {
-                var _b = moves_1[_i], x = _b[0], y = _b[1];
+            let solnStepsElem = elemId("solution-steps");
+            for (const [x, y] of moves) {
                 solnStepsElem.appendChild(createElement("li", formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
             }
         }
@@ -70,31 +63,31 @@ var app;
     }
     app.doSolve = doSolve;
     function doImport() {
-        var lines = inputElemId("import-export").value.replace(/^\s+|\s+$/, "").split("\n");
+        const lines = inputElemId("import-export").value.replace(/^\s+|\s+$/, "").split("\n");
         if (lines.length != Grid.HEIGHT + 1) {
-            alert("Invalid number of lines (should be " + (Grid.HEIGHT + 1) + ")");
+            alert(`Invalid number of lines (should be ${Grid.HEIGHT + 1})`);
             return;
         }
-        var moves = parseInt(lines[0], 10);
+        const moves = parseInt(lines[0], 10);
         if (!/^\d+$/.test(lines[0]) || moves < 0 || moves > 100) {
             alert("Invalid number of moves");
             return;
         }
-        for (var y = 0; y < Grid.HEIGHT; y++) {
-            var line = lines[Grid.HEIGHT - y];
+        for (let y = 0; y < Grid.HEIGHT; y++) {
+            const line = lines[Grid.HEIGHT - y];
             if (line.length != Grid.WIDTH) {
-                alert("Invalid line length (should be " + Grid.WIDTH + ")");
+                alert(`Invalid line length (should be ${Grid.WIDTH})`);
                 return;
             }
-            for (var x = 0; x < Grid.WIDTH; x++) {
-                var c = line.charAt(x);
-                var d = line.charCodeAt(x) - "a".charCodeAt(0) + 1;
+            for (let x = 0; x < Grid.WIDTH; x++) {
+                const c = line.charAt(x);
+                const d = line.charCodeAt(x) - "a".charCodeAt(0) + 1;
                 if (c == ".")
                     pageGrid.set(x, y, 0);
                 else if (1 <= d && d < Grid.TILE_COLORS.length)
                     pageGrid.set(x, y, d);
                 else {
-                    alert("Invalid tile character: '" + c + "'");
+                    alert(`Invalid tile character: '${c}'`);
                     return;
                 }
             }
@@ -104,7 +97,7 @@ var app;
     }
     app.doImport = doImport;
     function doExample() {
-        var index;
+        let index;
         do
             index = Math.floor(Math.random() * EXAMPLE_PUZZLES.length);
         while (index == currentExampleIndex);
@@ -113,7 +106,7 @@ var app;
         currentExampleIndex = index;
     }
     app.doExample = doExample;
-    var EXAMPLE_PUZZLES = [
+    const EXAMPLE_PUZZLES = [
         // All examples are from Pokémon Puzzle League (Nintendo 64) - Puzzle University - Class 2
         "3\n......\n......\n......\n......\n......\n...c..\n.c.c..\n.c.b..\n.b.b..\n.b.c..\n.c.b..\n.c.c..",
         "3\n......\n......\n......\n......\n......\n......\n......\n......\n......\n..cf..\n..fcc.\n..cfc.",
@@ -144,11 +137,11 @@ var app;
         "4\n......\n......\n......\n......\n......\n......\n......\n..ad..\n..bb..\n..ad..\n..bd..\n.ada..",
         "3\n......\n......\n......\n......\n......\n......\n......\n..d...\n..be..\n..bbc.\n..edd.\n..ecc.",
         "3\n......\n......\n......\n......\n......\n......\n......\n.cee..\n.bff..\n.fbf..\n.ccb..\n.eff..",
-        "2\n......\n......\n......\n......\n......\n......\n...c..\n..cb..\n..ba..\n..bbc.\n..abb.\n..bab.",
+        "2\n......\n......\n......\n......\n......\n......\n...c..\n..cb..\n..ba..\n..bbc.\n..abb.\n..bab.", // Stage 30
     ];
     function doClear() {
-        for (var y = 0; y < Grid.HEIGHT; y++) {
-            for (var x = 0; x < Grid.WIDTH; x++)
+        for (let y = 0; y < Grid.HEIGHT; y++) {
+            for (let x = 0; x < Grid.WIDTH; x++)
                 pageGrid.set(x, y, 0);
         }
         handleBoardChanged();
@@ -156,19 +149,19 @@ var app;
     app.doClear = doClear;
     function handleBoardChanged() {
         // Update colors on all cells
-        var tbodyElem = document.querySelector("#game-board tbody");
-        var trs = tbodyElem.querySelectorAll("tr");
-        for (var y = 0; y < Grid.HEIGHT; y++) {
-            var tds = trs[trs.length - 1 - y].querySelectorAll("td");
-            for (var x = 0; x < Grid.WIDTH; x++)
+        const tbodyElem = document.querySelector("#game-board tbody");
+        let trs = tbodyElem.querySelectorAll("tr");
+        for (let y = 0; y < Grid.HEIGHT; y++) {
+            let tds = trs[trs.length - 1 - y].querySelectorAll("td");
+            for (let x = 0; x < Grid.WIDTH; x++)
                 tds[x + 1].style.backgroundColor = Grid.TILE_COLORS[pageGrid.get(x, y)];
         }
         // Update export text
-        var exportStr = inputElemId("num-moves").value;
-        for (var y = 0; y < Grid.HEIGHT; y++) {
+        let exportStr = inputElemId("num-moves").value;
+        for (let y = 0; y < Grid.HEIGHT; y++) {
             exportStr += "\n";
-            for (var x = 0; x < Grid.WIDTH; x++) {
-                var val = pageGrid.get(x, Grid.HEIGHT - 1 - y);
+            for (let x = 0; x < Grid.WIDTH; x++) {
+                const val = pageGrid.get(x, Grid.HEIGHT - 1 - y);
                 if (val == 0)
                     exportStr += ".";
                 else
@@ -184,7 +177,7 @@ var app;
     // 26 -> AA, 27 -> AB, ..., 51 -> AZ,
     // 52 -> BA, ..., 701 -> ZZ.
     function formatXCoordinate(x) {
-        var START = "A".charCodeAt(0);
+        const START = "A".charCodeAt(0);
         if (0 <= x && x < 26)
             return String.fromCharCode(START + x);
         else if (26 <= x && x < 702)
@@ -198,7 +191,7 @@ var app;
         elemId("boards-visited").textContent = "";
     }
     function createElement(tagName, content) {
-        var result = document.createElement(tagName);
+        let result = document.createElement(tagName);
         if (content !== undefined) {
             if (typeof content == "string")
                 result.textContent = content;
@@ -219,8 +212,8 @@ var app;
     }
     /*---- Puzzle solver, board, grid ----*/
     // An immutable puzzle board, with high-level methods to generate/apply/solve game moves.
-    var Board = /** @class */ (function () {
-        function Board(grid) {
+    class Board {
+        constructor(grid) {
             this.grid = grid;
             // Apply game rules to the grid
             do
@@ -228,10 +221,10 @@ var app;
             while (this.matchAndClear());
         }
         // Used by constructor.
-        Board.prototype.dropTiles = function () {
-            var changed = false;
-            for (var x = 0; x < Grid.WIDTH; x++) {
-                for (var yRead = 0, yWrite = 0; yRead < Grid.HEIGHT; yRead++) {
+        dropTiles() {
+            let changed = false;
+            for (let x = 0; x < Grid.WIDTH; x++) {
+                for (let yRead = 0, yWrite = 0; yRead < Grid.HEIGHT; yRead++) {
                     if (this.grid.get(x, yRead) != Grid.EMPTY_TILE) {
                         if (yRead > yWrite) {
                             this.grid.set(x, yWrite, this.grid.get(x, yRead));
@@ -243,36 +236,36 @@ var app;
                 }
             }
             return changed;
-        };
+        }
         // Used by constructor.
-        Board.prototype.matchAndClear = function () {
-            var toClear = new Grid(); // Conceptually Boolean
+        matchAndClear() {
+            let toClear = new Grid(); // Conceptually Boolean
             // Find horizontal matches
-            for (var y = 0; y < Grid.HEIGHT; y++) {
-                for (var x = 0; x < Grid.WIDTH;) {
-                    var run = this.getRunLength(x, y, 1, 0);
+            for (let y = 0; y < Grid.HEIGHT; y++) {
+                for (let x = 0; x < Grid.WIDTH;) {
+                    const run = this.getRunLength(x, y, 1, 0);
                     if (run >= Board.MINIMUM_RUN) {
-                        for (var i = 0; i < run; i++)
+                        for (let i = 0; i < run; i++)
                             toClear.set(x + i, y, 1);
                     }
                     x += run;
                 }
             }
             // Find vertical matches
-            for (var x = 0; x < Grid.WIDTH; x++) {
-                for (var y = 0; y < Grid.HEIGHT;) {
-                    var run = this.getRunLength(x, y, 0, 1);
+            for (let x = 0; x < Grid.WIDTH; x++) {
+                for (let y = 0; y < Grid.HEIGHT;) {
+                    const run = this.getRunLength(x, y, 0, 1);
                     if (run >= Board.MINIMUM_RUN) {
-                        for (var i = 0; i < run; i++)
+                        for (let i = 0; i < run; i++)
                             toClear.set(x, y + i, 1);
                     }
                     y += run;
                 }
             }
             // Clear tiles
-            var cleared = false;
-            for (var y = 0; y < Grid.HEIGHT; y++) {
-                for (var x = 0; x < Grid.WIDTH; x++) {
+            let cleared = false;
+            for (let y = 0; y < Grid.HEIGHT; y++) {
+                for (let x = 0; x < Grid.WIDTH; x++) {
                     if (toClear.get(x, y) == 1) {
                         this.grid.set(x, y, Grid.EMPTY_TILE);
                         cleared = true;
@@ -280,56 +273,56 @@ var app;
                 }
             }
             return cleared;
-        };
+        }
         // Used by constructor.
-        Board.prototype.getRunLength = function (x, y, dx, dy) {
+        getRunLength(x, y, dx, dy) {
             if (dx < 0 || dy < 0 || dx == 0 && dy == 0)
                 throw new RangeError("Invalid value");
-            var val = this.grid.get(x, y);
+            const val = this.grid.get(x, y);
             if (val == Grid.EMPTY_TILE)
                 return 1;
-            var count = 0;
+            let count = 0;
             while (x < Grid.WIDTH && y < Grid.HEIGHT && this.grid.get(x, y) == val) {
                 count++;
                 x += dx;
                 y += dy;
             }
             return count;
-        };
-        Board.prototype.isClear = function () {
-            for (var y = 0; y < Grid.HEIGHT; y++) {
-                for (var x = 0; x < Grid.WIDTH; x++) {
+        }
+        isClear() {
+            for (let y = 0; y < Grid.HEIGHT; y++) {
+                for (let x = 0; x < Grid.WIDTH; x++) {
                     if (this.grid.get(x, y) != Grid.EMPTY_TILE)
                         return false;
                 }
             }
             return true;
-        };
-        Board.prototype.getMoves = function () {
-            var result = [];
-            for (var y = 0; y < Grid.HEIGHT; y++) {
-                for (var x = 0; x < Grid.WIDTH - 1; x++) {
+        }
+        getMoves() {
+            let result = [];
+            for (let y = 0; y < Grid.HEIGHT; y++) {
+                for (let x = 0; x < Grid.WIDTH - 1; x++) {
                     if (this.grid.get(x, y) != this.grid.get(x + 1, y))
                         result.push([x, y]);
                 }
             }
             return result;
-        };
-        Board.prototype.applyMove = function (x, y) {
-            var newGrid = this.grid.clone();
+        }
+        applyMove(x, y) {
+            let newGrid = this.grid.clone();
             newGrid.set(x + 0, y, this.grid.get(x + 1, y));
             newGrid.set(x + 1, y, this.grid.get(x + 0, y));
             return new Board(newGrid);
-        };
-        Board.prototype.solve = function (numMoves) {
+        }
+        solve(numMoves) {
             // Do breadth-first search until solution found or tree exhausted
-            var queue = [this];
-            var visited = new Map();
+            let queue = [this];
+            let visited = new Map();
             visited.set(this.toString(), { depth: 0, prevBoard: null, prevMove: [-1, -1] });
-            var endState = null;
+            let endState = null;
             while (queue.length > 0) {
                 // Dequeue next state
-                var state = queue.shift();
+                const state = queue.shift();
                 if (state === undefined)
                     throw new Error("Assertion error");
                 if (state.isClear()) {
@@ -337,14 +330,13 @@ var app;
                     break;
                 }
                 // Get info about state
-                var info = visited.get(state.toString());
+                const info = visited.get(state.toString());
                 if (info === undefined)
                     throw new Error("Assertion error");
                 if (info.depth >= numMoves)
                     continue;
-                for (var _i = 0, _a = state.getMoves(); _i < _a.length; _i++) {
-                    var move = _a[_i];
-                    var newState = state.applyMove(move[0], move[1]);
+                for (const move of state.getMoves()) {
+                    const newState = state.applyMove(move[0], move[1]);
                     if (!visited.has(newState.toString())) {
                         queue.push(newState);
                         visited.set(newState.toString(), { depth: info.depth + 1, prevBoard: state, prevMove: move });
@@ -354,64 +346,62 @@ var app;
             if (endState === null) // No solution
                 return [null, visited.size];
             // Retrieve previous board states
-            var result = [];
-            for (var state = endState;;) {
-                var info = visited.get(state.toString());
+            let result = [];
+            for (let state = endState;;) {
+                const info = visited.get(state.toString());
                 if (info === undefined)
                     throw new Error("Assertion error");
                 if (info.prevBoard === null)
                     break;
-                var prevMove = info.prevMove;
+                const prevMove = info.prevMove;
                 if (prevMove === null)
                     throw new Error("Assertion error");
                 result.push(prevMove);
                 state = info.prevBoard;
             }
             return [result.reverse(), visited.size];
-        };
-        Board.prototype.toString = function () {
+        }
+        toString() {
             return this.grid.toString();
-        };
-        Board.MINIMUM_RUN = 3;
-        return Board;
-    }());
+        }
+    }
+    Board.MINIMUM_RUN = 3;
     // A mutable 2D grid of numbers. This low-level data structure has no game rules.
-    var Grid = /** @class */ (function () {
-        function Grid(data) {
-            var len = Grid.WIDTH * Grid.HEIGHT;
+    class Grid {
+        constructor(data) {
+            const len = Grid.WIDTH * Grid.HEIGHT;
             if (data === undefined) {
                 data = [];
-                for (var i = 0; i < len; i++)
+                for (let i = 0; i < len; i++)
                     data.push(0);
             }
             else if (data.length != len)
                 throw new RangeError("Invalid array");
             this.data = data;
         }
-        Grid.prototype.get = function (x, y) {
+        get(x, y) {
             if (x < 0 || x >= Grid.WIDTH || y < 0 || y >= Grid.HEIGHT)
                 throw new RangeError("Index out of bounds");
             return this.data[y * Grid.WIDTH + x];
-        };
-        Grid.prototype.set = function (x, y, val) {
+        }
+        set(x, y, val) {
             if (x < 0 || x >= Grid.WIDTH || y < 0 || y >= Grid.HEIGHT)
                 throw new RangeError("Index out of bounds");
             this.data[y * Grid.WIDTH + x] = val;
-        };
-        Grid.prototype.clone = function () {
+        }
+        clone() {
             return new Grid(this.data.slice());
-        };
-        Grid.prototype.toString = function () {
+        }
+        toString() {
             return this.data.toString();
-        };
-        Grid.WIDTH = 6;
-        Grid.HEIGHT = 12;
-        Grid.TILE_COLORS = [
-            "#000000", "#F01000", "#FFE000", "#00C000", "#40FFFF", "#0020F0", "#C000FF"
-        ];
-        Grid.EMPTY_TILE = 0;
-        return Grid;
-    }());
+        }
+    }
+    Grid.WIDTH = 6;
+    Grid.HEIGHT = 12;
+    Grid.TILE_COLORS = [
+        "#000000", "#F01000", "#FFE000", "#00C000", "#40FFFF", "#0020F0", "#C000FF"
+    ];
+    Grid.EMPTY_TILE = 0;
     // Global initialization
     initialize();
 })(app || (app = {}));

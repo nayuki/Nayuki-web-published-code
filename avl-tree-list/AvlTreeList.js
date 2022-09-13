@@ -22,93 +22,88 @@
  */
 "use strict";
 /*---- Data structure main class (public) ----*/
-var AvlTreeList = /** @class */ (function () {
+class AvlTreeList {
     // Constructs a new AVL tree list. If called with no arguments, this creates a blank list.
     // Otherwise with one argument, this creates a list representing the same elements as the given array.
     // For example:
     //   let a = new AvlTreeList<boolean>();  // Blank, zero-length list
     //   let b = new AvlTreeList<number>([2,7,1,8]);  // Has the four elements 2,7,1,8
-    function AvlTreeList(arr) {
-        var _this = this;
+    constructor(arr) {
         this.root = new AvlTreeListEmptyNode();
         if (arguments.length == 1 && arr !== undefined)
-            arr.forEach(function (val) { return _this.push(val); });
+            arr.forEach((val) => this.push(val));
         else if (arguments.length != 0)
             throw new RangeError("Illegal argument");
     }
-    Object.defineProperty(AvlTreeList.prototype, "length", {
-        // The property 'length' returns the length of this list. It is a property with a
-        // getter function, so that parentheses are not used to get the value. For example:
-        //   let list = new AvlTreeList<number>([3,1,4]);
-        //   let n = list.length;  // 3
-        get: function () {
-            return this.root.size;
-        },
-        enumerable: false,
-        configurable: true
-    });
+    // The property 'length' returns the length of this list. It is a property with a
+    // getter function, so that parentheses are not used to get the value. For example:
+    //   let list = new AvlTreeList<number>([3,1,4]);
+    //   let n = list.length;  // 3
+    get length() {
+        return this.root.size;
+    }
     // Returns the element at the given index in this list, where 0 <= index < length.
     // For example: [a,b,c] -> get(2) returns c.
-    AvlTreeList.prototype.get = function (index) {
+    get(index) {
         if (index < 0 || index >= this.length)
             throw new RangeError("Index out of bounds");
         return this.root.getNodeAt(index).value;
-    };
+    }
     // Sets the element at the given index in this list to the given value, where 0 <= index < length.
     // For example: [a,b,c] -> set(1, f) -> [a,f,c].
-    AvlTreeList.prototype.set = function (index, val) {
+    set(index, val) {
         if (index < 0 || index >= this.length)
             throw new RangeError("Index out of bounds");
         this.root.getNodeAt(index).value = val;
-    };
+    }
     // Appends the given element to the end of this list.
     // For example: [a,b] -> push(c) -> [a,b,c].
-    AvlTreeList.prototype.push = function (val) {
+    push(val) {
         this.root = this.root.insertAt(this.length, val);
-    };
+    }
     // Inserts the given element to the given index in this list, where 0 <= index <= length.
     // For example: [a,b,c] -> insert(0, e) -> [e,a,b,c] -> insert(4, d) -> [e,a,b,c,d].
-    AvlTreeList.prototype.insert = function (index, val) {
+    insert(index, val) {
         if (index < 0 || index > this.length) // Different constraint than the other methods
             throw new RangeError("Index out of bounds");
         this.root = this.root.insertAt(index, val);
-    };
+    }
     // Removes the element at the given index in this list, shifting all later elements forward by one index.
     // For example: [a,b,c,d] -> remove(1) -> [a,c,d].
-    AvlTreeList.prototype.remove = function (index) {
+    remove(index) {
         if (index < 0 || index >= this.length)
             throw new RangeError("Index out of bounds");
         this.root = this.root.removeAt(index);
-    };
+    }
     // Removes and returns the first element of this list.
     // For example: [a,b,c] -> shift() returns a -> [b,c].
-    AvlTreeList.prototype.shift = function () {
+    shift() {
         if (this.length == 0)
             throw new Error("List is empty");
-        var result = this.get(0);
+        const result = this.get(0);
         this.remove(0);
         return result;
-    };
+    }
     // Removes and returns the last element of this list.
     // For example: [a,b,c] -> pop() returns c -> [a,b].
-    AvlTreeList.prototype.pop = function () {
-        var len = this.length;
+    pop() {
+        const len = this.length;
         if (len == 0)
             throw new Error("List is empty");
-        var result = this.get(len - 1);
+        const result = this.get(len - 1);
         this.remove(len - 1);
         return result;
-    };
+    }
     // Removes all elements from this list, resetting the length to zero.
     // For example: [a,b,c] -> clear() -> [].
-    AvlTreeList.prototype.clear = function () {
+    clear() {
         this.root = new AvlTreeListEmptyNode();
-    };
+    }
     // Returns a shallow copy of the given subrange of this list. Both arguments are optional - a missing end
     // means the end of the list, and a missing start means the beginning of the list. The returned list has its
     // own unique data structure and node objects, but the underlying values being stored are still the same objects.
     // Note for convenience that lst.slice() returns a clone of the entire list.
-    AvlTreeList.prototype.slice = function (start, end) {
+    slice(start, end) {
         if (arguments.length < 2)
             end = this.length;
         end = end;
@@ -119,19 +114,14 @@ var AvlTreeList = /** @class */ (function () {
             start += this.length;
         if (end < 0)
             end += this.length;
-        var result = new AvlTreeList();
-        for (var i = start; i < end; i++)
+        let result = new AvlTreeList();
+        for (let i = start; i < end; i++)
             result.push(this.get(i));
         return result;
-    };
+    }
     // Removes 'count' elements starting at index 'start', then inserts the rest of the arguments
     // at index 'start', and finally returns an AvlTreeList of the removed elements.
-    AvlTreeList.prototype.splice = function (start, count) {
-        var _this = this;
-        var vals = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            vals[_i - 2] = arguments[_i];
-        }
+    splice(start, count, ...vals) {
         // Clamp start index and count
         if (start > this.length)
             start = this.length;
@@ -141,21 +131,21 @@ var AvlTreeList = /** @class */ (function () {
                 start = 0;
         }
         count = Math.min(this.length - start, count);
-        var result = new AvlTreeList();
-        for (var i = 0; i < count; i++) {
-            var val = this.get(start);
+        let result = new AvlTreeList();
+        for (let i = 0; i < count; i++) {
+            const val = this.get(start);
             result.push(val);
             this.remove(start);
         }
-        vals.forEach(function (val, i) { return _this.insert(start + i, val); });
+        vals.forEach((val, i) => this.insert(start + i, val));
         return result;
-    };
+    }
     // Calls func(val, index) on each element of this list in sequential order.
     // The optional 'thisArg' sets the value of 'this' when calling the given function.
-    AvlTreeList.prototype.forEach = function (func, thisArg) {
-        for (var iter = this.iterator(), i = 0; iter.hasNext(); i++)
+    forEach(func, thisArg) {
+        for (let iter = this.iterator(), i = 0; iter.hasNext(); i++)
             func.call(thisArg, iter.next(), i);
-    };
+    }
     // Returns an iterator object to traverse the entire list from beginning to end. The iterator has two methods
     // (modelled after java.util.Iterator): hasNext() returning a boolean, and next() returning an element value.
     // When processing the whole list, using an iterator is more efficient since it uses O(n) total time
@@ -167,9 +157,9 @@ var AvlTreeList = /** @class */ (function () {
     //     let val = iter.next();
     //     (... do something with val ...)
     //   }
-    AvlTreeList.prototype.iterator = function () {
+    iterator() {
         return new AvlTreeListIterator(this.root);
-    };
+    }
     // Returns the contents of this list as a JavaScript array.
     // For example:
     //   let list = new AvlTreeList<string>();
@@ -178,34 +168,32 @@ var AvlTreeList = /** @class */ (function () {
     //   list.push("c");
     //   list.set(1, "b");
     //   let a = list.toArray();  // ["a","b","c"]
-    AvlTreeList.prototype.toArray = function () {
-        var result = [];
-        for (var iter = this.iterator(); iter.hasNext();)
+    toArray() {
+        let result = [];
+        for (let iter = this.iterator(); iter.hasNext();)
             result.push(iter.next());
         return result;
-    };
+    }
     // For unit tests. Returns nothing or throws an exception.
-    AvlTreeList.prototype.checkStructure = function () {
+    checkStructure() {
         this.root.checkStructure();
-    };
-    return AvlTreeList;
-}());
-var AvlTreeListEmptyNode = /** @class */ (function () {
-    function AvlTreeListEmptyNode() {
+    }
+}
+class AvlTreeListEmptyNode {
+    constructor() {
         this.height = 0;
         this.size = 0;
     }
-    AvlTreeListEmptyNode.prototype.insertAt = function (index, obj) {
+    insertAt(index, obj) {
         if (index == 0)
             return new AvlTreeListInternalNode(obj, this);
         else
             throw new RangeError("Index out of bounds");
-    };
-    AvlTreeListEmptyNode.prototype.checkStructure = function () { };
-    return AvlTreeListEmptyNode;
-}());
-var AvlTreeListInternalNode = /** @class */ (function () {
-    function AvlTreeListInternalNode(
+    }
+    checkStructure() { }
+}
+class AvlTreeListInternalNode {
+    constructor(
     // The object stored at this node. Can be any JavaScript type.
     // Public for the sake of AvlTreeList.
     value, empty) {
@@ -218,50 +206,42 @@ var AvlTreeListInternalNode = /** @class */ (function () {
         this.left = empty;
         this.right = empty;
     }
-    Object.defineProperty(AvlTreeListInternalNode.prototype, "leftNode", {
-        get: function () {
-            if (this.left.size == 0)
-                throw new Error("Assertion error");
-            return this.left;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(AvlTreeListInternalNode.prototype, "rightNode", {
-        get: function () {
-            if (this.right.size == 0)
-                throw new Error("Assertion error");
-            return this.right;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    AvlTreeListInternalNode.prototype.getNodeAt = function (index) {
+    get leftNode() {
+        if (this.left.size == 0)
+            throw new Error("Assertion error");
+        return this.left;
+    }
+    get rightNode() {
+        if (this.right.size == 0)
+            throw new Error("Assertion error");
+        return this.right;
+    }
+    getNodeAt(index) {
         if (index < 0 || index >= this.size)
             throw new Error("Assertion error");
-        var leftSize = this.left.size;
+        const leftSize = this.left.size;
         if (index < leftSize)
             return this.leftNode.getNodeAt(index);
         else if (index > leftSize)
             return this.rightNode.getNodeAt(index - leftSize - 1);
         else
             return this;
-    };
-    AvlTreeListInternalNode.prototype.insertAt = function (index, obj) {
+    }
+    insertAt(index, obj) {
         if (index < 0 || index > this.size)
             throw new Error("Assertion error");
-        var leftSize = this.left.size;
+        const leftSize = this.left.size;
         if (index <= leftSize)
             this.left = this.left.insertAt(index, obj);
         else
             this.right = this.right.insertAt(index - leftSize - 1, obj);
         this.recalculate();
         return this.balance();
-    };
-    AvlTreeListInternalNode.prototype.removeAt = function (index) {
+    }
+    removeAt(index) {
         if (index < 0 || index >= this.size)
             throw new Error("Assertion error");
-        var leftSize = this.left.size;
+        const leftSize = this.left.size;
         if (index < leftSize)
             this.left = this.leftNode.removeAt(index);
         else if (index > leftSize)
@@ -274,7 +254,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
             return this.right;
         else {
             // Find successor node. (Using the predecessor is valid too.)
-            var temp = this.rightNode;
+            let temp = this.rightNode;
             while (temp.left.size != 0)
                 temp = temp.leftNode;
             this.value = temp.value; // Replace value by successor
@@ -282,15 +262,15 @@ var AvlTreeListInternalNode = /** @class */ (function () {
         }
         this.recalculate();
         return this.balance();
-    };
+    }
     // Balances the subtree rooted at this node and returns the new root.
-    AvlTreeListInternalNode.prototype.balance = function () {
-        var bal = this.getBalance();
+    balance() {
+        const bal = this.getBalance();
         if (Math.abs(bal) > 2)
             throw new Error("Assertion error");
-        var result = this;
+        let result = this;
         if (bal == -2) {
-            var left = this.leftNode;
+            let left = this.leftNode;
             if (Math.abs(left.getBalance()) > 1)
                 throw new Error("Assertion error");
             if (left.getBalance() == +1)
@@ -298,7 +278,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
             result = this.rotateRight();
         }
         else if (bal == +2) {
-            var right = this.rightNode;
+            let right = this.rightNode;
             if (Math.abs(right.getBalance()) > 1)
                 throw new Error("Assertion error");
             if (right.getBalance() == -1)
@@ -308,7 +288,7 @@ var AvlTreeListInternalNode = /** @class */ (function () {
         if (Math.abs(result.getBalance()) > 1)
             throw new Error("Assertion error");
         return result;
-    };
+    }
     /*
      *   A            B
      *  / \          / \
@@ -316,16 +296,16 @@ var AvlTreeListInternalNode = /** @class */ (function () {
      *    / \      / \
      *   1   2    0   1
      */
-    AvlTreeListInternalNode.prototype.rotateLeft = function () {
+    rotateLeft() {
         if (this.right.size == 0)
             throw new Error("Assertion error");
-        var root = this.rightNode;
+        let root = this.rightNode;
         this.right = root.left;
         root.left = this;
         this.recalculate();
         root.recalculate();
         return root;
-    };
+    }
     /*
      *     B          A
      *    / \        / \
@@ -333,19 +313,19 @@ var AvlTreeListInternalNode = /** @class */ (function () {
      *  / \            / \
      * 0   1          1   2
      */
-    AvlTreeListInternalNode.prototype.rotateRight = function () {
+    rotateRight() {
         if (this.left.size == 0)
             throw new Error("Assertion error");
-        var root = this.leftNode;
+        let root = this.leftNode;
         this.left = root.right;
         root.right = this;
         this.recalculate();
         root.recalculate();
         return root;
-    };
+    }
     // Needs to be called every time the left or right subtree is changed.
     // Assumes the left and right subtrees have the correct values computed already.
-    AvlTreeListInternalNode.prototype.recalculate = function () {
+    recalculate() {
         if (this.size == 0)
             throw new Error("Assertion error");
         if (this.left.height < 0 || this.right.height < 0)
@@ -356,12 +336,12 @@ var AvlTreeListInternalNode = /** @class */ (function () {
         this.size = this.left.size + this.right.size + 1;
         if (this.height < 0 || this.size < 0)
             throw new Error("Assertion error");
-    };
-    AvlTreeListInternalNode.prototype.getBalance = function () {
+    }
+    getBalance() {
         return this.right.height - this.left.height;
-    };
+    }
     // For unit tests, invokable by the main class.
-    AvlTreeListInternalNode.prototype.checkStructure = function () {
+    checkStructure() {
         this.left.checkStructure();
         this.right.checkStructure();
         if (this.height != Math.max(this.left.height, this.right.height) + 1)
@@ -370,36 +350,34 @@ var AvlTreeListInternalNode = /** @class */ (function () {
             throw new Error("AVL tree structure violated: Incorrect cached size");
         if (Math.abs(this.getBalance()) > 1)
             throw new Error("AVL tree structure violated: Height imbalance");
-    };
-    return AvlTreeListInternalNode;
-}());
+    }
+}
 /*---- Iterator helper class (private) ----*/
 // Note: An iterator is not fail-fast on concurrent modification.
-var AvlTreeListIterator = /** @class */ (function () {
-    function AvlTreeListIterator(root) {
+class AvlTreeListIterator {
+    constructor(root) {
         this.stack = [];
-        var maybeNode = root;
+        let maybeNode = root;
         while (maybeNode.size != 0) {
-            var node = maybeNode;
+            const node = maybeNode;
             this.stack.push(node);
             maybeNode = node.left;
         }
     }
-    AvlTreeListIterator.prototype.hasNext = function () {
+    hasNext() {
         return this.stack.length > 0;
-    };
-    AvlTreeListIterator.prototype.next = function () {
+    }
+    next() {
         if (!this.hasNext())
             throw new Error("No next element");
-        var node = this.stack.pop(); // Never undefined
-        var result = node.value;
-        var maybeNode = node.right;
+        let node = this.stack.pop(); // Never undefined
+        const result = node.value;
+        let maybeNode = node.right;
         while (maybeNode.size != 0) {
-            var node_1 = maybeNode;
-            this.stack.push(node_1);
-            maybeNode = node_1.left;
+            const node = maybeNode;
+            this.stack.push(node);
+            maybeNode = node.left;
         }
         return result;
-    };
-    return AvlTreeListIterator;
-}());
+    }
+}

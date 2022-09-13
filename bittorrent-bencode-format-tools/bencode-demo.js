@@ -21,40 +21,27 @@
  *   Software.
  */
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var app;
 (function (app) {
     /*---- User interface ----*/
-    var fileElem = document.querySelector("article input[type='file']");
+    let fileElem = document.querySelector("article input[type='file']");
     fileElem.addEventListener("change", render);
     // Reads the input file, parses its data as bencode, then renders
     // HTML elements to this page in order to represent the data structure.
     function render() {
-        var rootElem = document.querySelector("article #file-dissection");
+        let rootElem = document.querySelector("article #file-dissection");
         while (rootElem.firstChild !== null)
             rootElem.removeChild(rootElem.firstChild);
-        var files = fileElem.files;
+        const files = fileElem.files;
         if (files === null)
             return;
-        var reader = new FileReader();
+        let reader = new FileReader();
         reader.onload = func;
         reader.readAsArrayBuffer(files[0]);
         function func() {
             try {
-                var bytes = new Uint8Array(reader.result);
-                var rootVal = BencodeParser.parse(bytes);
+                const bytes = new Uint8Array(reader.result);
+                const rootVal = BencodeParser.parse(bytes);
                 rootElem.appendChild(toHtml(rootVal));
             }
             catch (e) {
@@ -68,26 +55,25 @@ var app;
             container.appendChild(document.createTextNode(text));
         }
         function appendElem(container, tagName) {
-            var result = document.createElement(tagName);
+            let result = document.createElement(tagName);
             return container.appendChild(result);
         }
-        var result = document.createElement("div");
+        let result = document.createElement("div");
         result.classList.add("item");
         if (item instanceof BencodeInt) {
-            var s = "Integer: " + item.value.replace(/-/, "\u2212");
+            const s = "Integer: " + item.value.replace(/-/, "\u2212");
             appendText(result, s);
         }
         else if (item instanceof BencodeBytes) {
-            appendText(result, "Byte string (" + item.value.length + ") ");
+            appendText(result, `Byte string (${item.value.length}) `);
             try {
-                var s = decodeUtf8(item.value);
+                const s = decodeUtf8(item.value);
                 appendText(result, "(text): " + s);
             }
             catch (e) {
-                var hex = [];
-                for (var _i = 0, _a = item.value; _i < _a.length; _i++) {
-                    var c = _a[_i];
-                    var s = c.charCodeAt(0).toString(16).toUpperCase();
+                let hex = [];
+                for (let c of item.value) {
+                    let s = c.charCodeAt(0).toString(16).toUpperCase();
                     while (s.length < 2)
                         s = "0" + s;
                     hex.push(s);
@@ -96,12 +82,12 @@ var app;
             }
         }
         else if (item instanceof BencodeList || item instanceof BencodeDict) {
-            var table = document.createElement("table");
-            var tbody_1 = appendElem(table, "tbody");
-            var addRow_1 = function (a, b) {
-                var tr = appendElem(tbody_1, "tr");
-                var td = appendElem(tr, "td");
-                var div = appendElem(td, "div");
+            let table = document.createElement("table");
+            let tbody = appendElem(table, "tbody");
+            const addRow = function (a, b) {
+                let tr = appendElem(tbody, "tr");
+                let td = appendElem(tr, "td");
+                let div = appendElem(td, "div");
                 div.textContent = a;
                 td = appendElem(tr, "td");
                 td.appendChild(b);
@@ -110,20 +96,17 @@ var app;
                 appendText(result, "List:");
                 table.classList.add("list");
                 result.appendChild(table);
-                item.array.forEach(function (val, i) {
-                    return addRow_1(i.toString(), toHtml(val));
-                });
+                item.array.forEach((val, i) => addRow(i.toString(), toHtml(val)));
             }
             else if (item instanceof BencodeDict) {
                 appendText(result, "Dictionary:");
                 table.classList.add("dict");
                 result.appendChild(table);
-                for (var _b = 0, _c = item.keys; _b < _c.length; _b++) {
-                    var key = _c[_b];
-                    var val = item.map.get(key);
+                for (const key of item.keys) {
+                    const val = item.map.get(key);
                     if (val === undefined)
                         throw new Error("Assertion error");
-                    addRow_1(key, toHtml(val));
+                    addRow(key, toHtml(val));
                 }
             }
             else
@@ -138,27 +121,27 @@ var app;
         function cb(i) {
             if (i < 0 || i >= bytes.length)
                 throw new RangeError("Missing continuation bytes");
-            var result = bytes.charCodeAt(i);
-            if ((result & 192) != 128)
+            const result = bytes.charCodeAt(i);
+            if ((result & 0b11000000) != 0b10000000)
                 throw new RangeError("Invalid continuation byte value");
-            return result & 63;
+            return result & 0b00111111;
         }
-        var result = "";
-        for (var i = 0; i < bytes.length; i++) {
-            var lead = bytes.charCodeAt(i);
-            if (lead < 128) // Single byte ASCII (0xxxxxxx)
+        let result = "";
+        for (let i = 0; i < bytes.length; i++) {
+            const lead = bytes.charCodeAt(i);
+            if (lead < 0b10000000) // Single byte ASCII (0xxxxxxx)
                 result += bytes.charAt(i);
-            else if (lead < 192) // Continuation byte (10xxxxxx)
+            else if (lead < 0b11000000) // Continuation byte (10xxxxxx)
                 throw new RangeError("Invalid leading byte");
-            else if (lead < 224) { // Two bytes (110xxxxx 10xxxxxx)
-                var c = (lead & 31) << 6 | cb(i + 1) << 0;
+            else if (lead < 0b11100000) { // Two bytes (110xxxxx 10xxxxxx)
+                const c = (lead & 0b00011111) << 6 | cb(i + 1) << 0;
                 if (c < (1 << 7))
                     throw new RangeError("Over-long UTF-8 sequence");
                 result += String.fromCharCode(c);
                 i += 1;
             }
-            else if (lead < 240) { // Three bytes (1110xxxx 10xxxxxx 10xxxxxx)
-                var c = (lead & 15) << 12 | cb(i + 1) << 6 | cb(i + 2) << 0;
+            else if (lead < 0b11110000) { // Three bytes (1110xxxx 10xxxxxx 10xxxxxx)
+                const c = (lead & 0b00001111) << 12 | cb(i + 1) << 6 | cb(i + 2) << 0;
                 if (c < (1 << 11))
                     throw new RangeError("Over-long UTF-8 sequence");
                 if (0xD800 <= c && c < 0xE000)
@@ -166,14 +149,14 @@ var app;
                 result += String.fromCharCode(c);
                 i += 2;
             }
-            else if (lead < 248) { // Four bytes (11110xxx 10xxxxxx 10xxxxxx 10xxxxxx)
-                var c = (lead & 7) << 18 | cb(i + 1) << 12 | cb(i + 2) << 6 | cb(i + 3);
+            else if (lead < 0b11111000) { // Four bytes (11110xxx 10xxxxxx 10xxxxxx 10xxxxxx)
+                let c = (lead & 0b00000111) << 18 | cb(i + 1) << 12 | cb(i + 2) << 6 | cb(i + 3);
                 if (c < (1 << 16))
                     throw new RangeError("Over-long UTF-8 sequence");
                 if (c >= 0x110000)
                     throw new RangeError("UTF-8 code point out of range");
                 c -= 0x10000;
-                result += String.fromCharCode(0xD800 | (c >>> 10), 0xDC00 | (c & 1023));
+                result += String.fromCharCode(0xD800 | (c >>> 10), 0xDC00 | (c & 0b1111111111));
                 i += 3;
             }
             else
@@ -182,23 +165,23 @@ var app;
         return result;
     }
     /*---- Bencode parser ----*/
-    var BencodeParser = /** @class */ (function () {
-        function BencodeParser(array) {
+    class BencodeParser {
+        constructor(array) {
             this.array = array;
             this.index = 0;
         }
         // Parses the given byte array and returns the bencode value represented by the bytes.
         // The input data must have exactly one root object and then the array must immediately end.
-        BencodeParser.parse = function (array) {
+        static parse(array) {
             return new BencodeParser(array).parseRoot();
-        };
-        BencodeParser.prototype.parseRoot = function () {
-            var result = this.parseValue(this.readByte());
+        }
+        parseRoot() {
+            const result = this.parseValue(this.readByte());
             if (this.index < this.array.length)
                 throw new Error("Unexpected extra data at byte offset " + this.index);
             return result;
-        };
-        BencodeParser.prototype.parseValue = function (head) {
+        }
+        parseValue(head) {
             if (head == cc("i"))
                 return this.parseInteger();
             else if (cc("0") <= head && head <= cc("9"))
@@ -209,15 +192,15 @@ var app;
                 return this.parseDictionary();
             else
                 throw new Error("Unexpected item type at byte offset " + (this.index - 1));
-        };
-        BencodeParser.prototype.parseInteger = function () {
-            var str = "";
+        }
+        parseInteger() {
+            let str = "";
             while (true) {
-                var b = this.readByte();
-                var c = String.fromCharCode(b);
+                const b = this.readByte();
+                const c = String.fromCharCode(b);
                 if (c == "e")
                     break;
-                var ok = void 0;
+                let ok;
                 if (str == "")
                     ok = c == "-" || "0" <= c && c <= "9";
                 else if (str == "-")
@@ -233,17 +216,17 @@ var app;
             if (str == "" || str == "-")
                 throw new Error("Invalid integer syntax at byte offset " + (this.index - 1));
             return new BencodeInt(str);
-        };
-        BencodeParser.prototype.parseByteString = function (head) {
-            var length = this.parseNaturalNumber(head);
-            var result = "";
-            for (var i = 0; i < length; i++)
+        }
+        parseByteString(head) {
+            const length = this.parseNaturalNumber(head);
+            let result = "";
+            for (let i = 0; i < length; i++)
                 result += String.fromCharCode(this.readByte());
             return new BencodeBytes(result);
-        };
-        BencodeParser.prototype.parseNaturalNumber = function (head) {
-            var str = "";
-            var b = head;
+        }
+        parseNaturalNumber(head) {
+            let str = "";
+            let b = head;
             do {
                 if (b < cc("0") || b > cc("9") || str == "0")
                     throw new Error("Unexpected integer character at byte offset " + (this.index - 1));
@@ -251,41 +234,40 @@ var app;
                 b = this.readByte();
             } while (b != cc(":"));
             return parseInt(str, 10);
-        };
-        BencodeParser.prototype.parseList = function () {
-            var result = [];
+        }
+        parseList() {
+            let result = [];
             while (true) {
-                var b = this.readByte();
+                const b = this.readByte();
                 if (b == cc("e"))
                     break;
                 result.push(this.parseValue(b));
             }
             return new BencodeList(result);
-        };
-        BencodeParser.prototype.parseDictionary = function () {
-            var map = new Map();
-            var keys = [];
+        }
+        parseDictionary() {
+            let map = new Map();
+            let keys = [];
             while (true) {
-                var b = this.readByte();
+                const b = this.readByte();
                 if (b == cc("e"))
                     break;
-                var key = this.parseByteString(b).value;
+                const key = this.parseByteString(b).value;
                 if (keys.length > 0 && key <= keys[keys.length - 1])
                     throw new Error("Misordered dictionary key at byte offset " + (this.index - key.length));
                 keys.push(key);
                 map.set(key, this.parseValue(this.readByte()));
             }
             return new BencodeDict(map, keys);
-        };
-        BencodeParser.prototype.readByte = function () {
+        }
+        readByte() {
             if (this.index >= this.array.length)
                 throw new Error("Unexpected end of data at byte offset " + this.index);
-            var result = this.array[this.index];
+            const result = this.array[this.index];
             this.index++;
             return result;
-        };
-        return BencodeParser;
-    }());
+        }
+    }
     // Returns the numeric code point of the given one-character ASCII string.
     function cc(s) {
         if (s.length != 1)
@@ -293,46 +275,31 @@ var app;
         return s.charCodeAt(0);
     }
     /*-- Bencode value types --*/
-    var BencodeValue = /** @class */ (function () {
-        function BencodeValue() {
+    class BencodeValue {
+    }
+    class BencodeInt extends BencodeValue {
+        constructor(value) {
+            super();
+            this.value = value;
         }
-        return BencodeValue;
-    }());
-    var BencodeInt = /** @class */ (function (_super) {
-        __extends(BencodeInt, _super);
-        function BencodeInt(value) {
-            var _this = _super.call(this) || this;
-            _this.value = value;
-            return _this;
+    }
+    class BencodeBytes extends BencodeValue {
+        constructor(value) {
+            super();
+            this.value = value;
         }
-        return BencodeInt;
-    }(BencodeValue));
-    var BencodeBytes = /** @class */ (function (_super) {
-        __extends(BencodeBytes, _super);
-        function BencodeBytes(value) {
-            var _this = _super.call(this) || this;
-            _this.value = value;
-            return _this;
+    }
+    class BencodeList extends BencodeValue {
+        constructor(array) {
+            super();
+            this.array = array;
         }
-        return BencodeBytes;
-    }(BencodeValue));
-    var BencodeList = /** @class */ (function (_super) {
-        __extends(BencodeList, _super);
-        function BencodeList(array) {
-            var _this = _super.call(this) || this;
-            _this.array = array;
-            return _this;
+    }
+    class BencodeDict extends BencodeValue {
+        constructor(map, keys) {
+            super();
+            this.map = map;
+            this.keys = keys;
         }
-        return BencodeList;
-    }(BencodeValue));
-    var BencodeDict = /** @class */ (function (_super) {
-        __extends(BencodeDict, _super);
-        function BencodeDict(map, keys) {
-            var _this = _super.call(this) || this;
-            _this.map = map;
-            _this.keys = keys;
-            return _this;
-        }
-        return BencodeDict;
-    }(BencodeValue));
+    }
 })(app || (app = {}));

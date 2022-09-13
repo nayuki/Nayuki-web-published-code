@@ -9,14 +9,14 @@
 function sievePrimeness(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
         throw new RangeError("Limit out of range");
-    var result = [false];
-    for (var i = 0; i < limit; i++)
+    let result = [false];
+    for (let i = 0; i < limit; i++)
         result.push(true);
     if (limit > 0)
         result[1] = false;
-    for (var i = 2; i < result.length; i++) {
+    for (let i = 2; i < result.length; i++) {
         if (result[i]) {
-            for (var j = i * i; j < result.length; j += i)
+            for (let j = i * i; j < result.length; j += i)
                 result[j] = false;
         }
     }
@@ -27,15 +27,15 @@ function sievePrimeness(limit) {
 function sieveSmallestPrimeFactor(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
         throw new RangeError("Limit out of range");
-    var result = [];
-    for (var i = 0; i <= limit; i++)
+    let result = [];
+    for (let i = 0; i <= limit; i++)
         result.push(0);
     if (limit > 0)
         result[1] = 1;
-    for (var i = 2; i < result.length; i++) {
+    for (let i = 2; i < result.length; i++) {
         if (result[i] == 0) {
             result[i] = i;
-            for (var j = i * i; j < result.length; j += i) {
+            for (let j = i * i; j < result.length; j += i) {
                 if (result[j] == 0)
                     result[j] = i;
             }
@@ -48,12 +48,12 @@ function sieveSmallestPrimeFactor(limit) {
 function sieveTotient(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
         throw new RangeError("Limit out of range");
-    var result = [];
-    for (var i = 0; i <= limit; i++)
+    let result = [];
+    for (let i = 0; i <= limit; i++)
         result.push(i);
-    for (var i = 2; i < result.length; i++) {
+    for (let i = 2; i < result.length; i++) {
         if (result[i] == i) {
-            for (var j = i; j < result.length; j += i)
+            for (let j = i; j < result.length; j += i)
                 result[j] -= result[j] / i;
         }
     }
@@ -64,12 +64,12 @@ function sieveTotient(limit) {
 function sieveOmega(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
         throw new RangeError("Limit out of range");
-    var result = [];
-    for (var i = 0; i <= limit; i++)
+    let result = [];
+    for (let i = 0; i <= limit; i++)
         result.push(0);
-    for (var i = 2; i < result.length; i++) {
+    for (let i = 2; i < result.length; i++) {
         if (result[i] == 0) {
-            for (var j = i; j < result.length; j += i)
+            for (let j = i; j < result.length; j += i)
                 result[j] += 1;
         }
     }
@@ -80,12 +80,12 @@ function sieveOmega(limit) {
 function sieveRadical(limit) {
     if (limit < 0 || limit >= 9007199254740992 || Math.round(limit) != limit)
         throw new RangeError("Limit out of range");
-    var result = [0];
-    for (var i = 0; i < limit; i++)
+    let result = [0];
+    for (let i = 0; i < limit; i++)
         result.push(1);
-    for (var i = 2; i < result.length; i++) {
+    for (let i = 2; i < result.length; i++) {
         if (result[i] == 1) {
-            for (var j = i; j < result.length; j += i)
+            for (let j = i; j < result.length; j += i)
                 result[j] *= i;
         }
     }

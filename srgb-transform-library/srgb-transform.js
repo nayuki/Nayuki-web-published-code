@@ -54,11 +54,11 @@ var srgbtransform;
     function linearToSrgb8Bit(x) {
         if (x <= 0)
             return 0;
-        var TABLE = SRGB_8BIT_TO_LINEAR;
+        const TABLE = SRGB_8BIT_TO_LINEAR;
         if (x >= 1)
             return TABLE.length - 1;
-        var y = 0;
-        for (var i = TABLE.length >>> 1; i != 0; i >>>= 1) {
+        let y = 0;
+        for (let i = TABLE.length >>> 1; i != 0; i >>>= 1) {
             if (TABLE[y | i] <= x)
                 y |= i;
         }
@@ -68,7 +68,7 @@ var srgbtransform;
             return y + 1;
     }
     srgbtransform.linearToSrgb8Bit = linearToSrgb8Bit;
-    var SRGB_8BIT_TO_LINEAR = [];
-    for (var i = 0; i < 256; i++)
+    let SRGB_8BIT_TO_LINEAR = [];
+    for (let i = 0; i < 256; i++)
         SRGB_8BIT_TO_LINEAR.push(srgbToLinear(i / 255.0));
 })(srgbtransform || (srgbtransform = {}));

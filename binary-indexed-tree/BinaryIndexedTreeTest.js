@@ -22,22 +22,22 @@
  */
 "use strict";
 /*---- Test suite ----*/
-var TEST_SUITE_FUNCS = [
+const TEST_SUITE_FUNCS = [
     function testSizeConstructor() {
-        var SIZELIMIT = 3000;
-        var CHECKS = 10;
-        for (var len = 0; len < SIZELIMIT; len++) {
-            var bt = new BinaryIndexedTree(len);
+        const SIZELIMIT = 3000;
+        const CHECKS = 10;
+        for (let len = 0; len < SIZELIMIT; len++) {
+            let bt = new BinaryIndexedTree(len);
             assertEquals(len, bt.length);
             assertEquals(0, bt.getTotal());
-            for (var i = 0; i < CHECKS; i++) {
+            for (let i = 0; i < CHECKS; i++) {
                 if (len > 0)
                     assertEquals(0, bt.get(randInt(len)));
                 assertEquals(0, bt.getPrefixSum(randInt(len + 1)));
-                var start = randInt(len + 1);
-                var end = randInt(len + 1);
+                let start = randInt(len + 1);
+                let end = randInt(len + 1);
                 if (start > end) {
-                    var temp = start;
+                    const temp = start;
                     start = end;
                     end = temp;
                 }
@@ -46,20 +46,20 @@ var TEST_SUITE_FUNCS = [
         }
     },
     function testAllOnes() {
-        var SIZELIMIT = 3000;
-        var CHECKS = 10;
-        for (var len = 1; len < SIZELIMIT; len++) {
-            var bt = void 0;
-            var mode = randInt(4);
+        const SIZELIMIT = 3000;
+        const CHECKS = 10;
+        for (let len = 1; len < SIZELIMIT; len++) {
+            let bt;
+            const mode = randInt(4);
             if (mode == 0) {
-                var vals = [];
-                for (var i = 0; i < len; i++)
+                let vals = [];
+                for (let i = 0; i < len; i++)
                     vals.push(1);
                 bt = new BinaryIndexedTree(vals);
             }
             else {
                 bt = new BinaryIndexedTree(len);
-                var p = void 0;
+                let p;
                 if (mode == 1)
                     p = 0;
                 else if (mode == 2)
@@ -68,7 +68,7 @@ var TEST_SUITE_FUNCS = [
                     p = Math.random();
                 else
                     throw new Error("Assertion error");
-                for (var i = 0; i < len; i++) {
+                for (let i = 0; i < len; i++) {
                     if (Math.random() < p)
                         bt.add(i, 1);
                     else
@@ -77,14 +77,14 @@ var TEST_SUITE_FUNCS = [
             }
             assertEquals(len, bt.length);
             assertEquals(len, bt.getTotal());
-            for (var i = 0; i < CHECKS; i++) {
+            for (let i = 0; i < CHECKS; i++) {
                 assertEquals(1, bt.get(randInt(len)));
-                var k = randInt(len + 1);
+                const k = randInt(len + 1);
                 assertEquals(k, bt.getPrefixSum(k));
-                var start = randInt(len + 1);
-                var end = randInt(len + 1);
+                let start = randInt(len + 1);
+                let end = randInt(len + 1);
                 if (start > end) {
-                    var temp = start;
+                    const temp = start;
                     start = end;
                     end = temp;
                 }
@@ -93,31 +93,31 @@ var TEST_SUITE_FUNCS = [
         }
     },
     function testArrayConstructorRandomly() {
-        var TRIALS = 3000;
-        var SIZELIMIT = 10000;
-        var CHECKS = 100;
-        for (var i = 0; i < TRIALS; i++) {
-            var len = randInt(SIZELIMIT);
-            var vals = [];
-            var cums = [0];
-            for (var j = 0; j < len; j++) {
+        const TRIALS = 3000;
+        const SIZELIMIT = 10000;
+        const CHECKS = 100;
+        for (let i = 0; i < TRIALS; i++) {
+            const len = randInt(SIZELIMIT);
+            let vals = [];
+            let cums = [0];
+            for (let j = 0; j < len; j++) {
                 vals.push(randInt(2001) - 1000);
                 cums.push(cums[j] + vals[j]);
             }
-            var bt = new BinaryIndexedTree(vals);
+            let bt = new BinaryIndexedTree(vals);
             assertEquals(len, bt.length);
             assertEquals(cums[len], bt.getTotal());
-            for (var j = 0; j < CHECKS; j++) {
+            for (let j = 0; j < CHECKS; j++) {
                 if (len > 0) {
-                    var k_1 = randInt(len);
-                    assertEquals(vals[k_1], bt.get(k_1));
+                    const k = randInt(len);
+                    assertEquals(vals[k], bt.get(k));
                 }
-                var k = randInt(len + 1);
+                const k = randInt(len + 1);
                 assertEquals(cums[k], bt.getPrefixSum(k));
-                var start = randInt(len + 1);
-                var end = randInt(len + 1);
+                let start = randInt(len + 1);
+                let end = randInt(len + 1);
                 if (start > end) {
-                    var temp = start;
+                    const temp = start;
                     start = end;
                     end = temp;
                 }
@@ -126,27 +126,27 @@ var TEST_SUITE_FUNCS = [
         }
     },
     function testAddAndSetRandomly() {
-        var TRIALS = 3000;
-        var SIZELIMIT = 3000;
-        var OPERATIONS = 3000;
-        var CHECKS = 100;
-        var _loop_1 = function (i) {
-            var len = randInt(SIZELIMIT) + 1;
-            var vals = [];
-            var bt = void 0;
+        const TRIALS = 3000;
+        const SIZELIMIT = 3000;
+        const OPERATIONS = 3000;
+        const CHECKS = 100;
+        for (let i = 0; i < TRIALS; i++) {
+            const len = randInt(SIZELIMIT) + 1;
+            let vals = [];
+            let bt;
             if (Math.random() < 0.5) {
-                for (var j = 0; j < len; j++)
+                for (let j = 0; j < len; j++)
                     vals.push(0);
                 bt = new BinaryIndexedTree(len);
             }
             else {
-                for (var j = 0; j < len; j++)
+                for (let j = 0; j < len; j++)
                     vals[j] = randInt(2001) - 1000;
                 bt = new BinaryIndexedTree(vals);
             }
-            for (var j = 0; j < OPERATIONS; j++) {
-                var k = randInt(len);
-                var x = randInt(2001) - 1000;
+            for (let j = 0; j < OPERATIONS; j++) {
+                const k = randInt(len);
+                const x = randInt(2001) - 1000;
                 if (Math.random() < 0.5) {
                     vals[k] += x;
                     bt.add(k, x);
@@ -156,27 +156,22 @@ var TEST_SUITE_FUNCS = [
                     bt.set(k, x);
                 }
             }
-            var cums = [0];
-            vals.forEach(function (x, j) {
-                return cums.push(cums[j] + x);
-            });
-            for (var j = 0; j < CHECKS; j++) {
-                var k = randInt(len);
+            let cums = [0];
+            vals.forEach((x, j) => cums.push(cums[j] + x));
+            for (let j = 0; j < CHECKS; j++) {
+                let k = randInt(len);
                 assertEquals(vals[k], bt.get(k));
                 k = randInt(len + 1);
                 assertEquals(cums[k], bt.getPrefixSum(k));
-                var start = randInt(len + 1);
-                var end = randInt(len + 1);
+                let start = randInt(len + 1);
+                let end = randInt(len + 1);
                 if (start > end) {
-                    var temp = start;
+                    const temp = start;
                     start = end;
                     end = temp;
                 }
                 assertEquals(cums[end] - cums[start], bt.getRangeSum(start, end));
             }
-        };
-        for (var i = 0; i < TRIALS; i++) {
-            _loop_1(i);
         }
     },
 ];
@@ -190,9 +185,9 @@ function assertEquals(expect, actual) {
 }
 /*---- Main runner ----*/
 (function () {
-    var i = 0;
+    let i = 0;
     function iterate() {
-        var msg;
+        let msg;
         if (i >= TEST_SUITE_FUNCS.length)
             msg = "Finished";
         else {
@@ -207,7 +202,7 @@ function assertEquals(expect, actual) {
             i++;
             setTimeout(iterate);
         }
-        var li = document.createElement("li");
+        let li = document.createElement("li");
         li.textContent = msg;
         document.getElementById("results").appendChild(li);
     }

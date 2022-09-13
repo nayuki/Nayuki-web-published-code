@@ -5,7 +5,7 @@
  */
 "use strict";
 /*---- Test suite ----*/
-var TEST_SUITE_FUNCS = [
+const TEST_SUITE_FUNCS = [
     function testValues() {
         assertArrayEquals(sievePrimeness(30), [false, false, true, true, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, false]);
         assertArrayEquals(sieveSmallestPrimeFactor(30), [0, 1, 2, 3, 2, 5, 2, 7, 2, 3, 2, 11, 2, 13, 2, 3, 2, 17, 2, 19, 2, 3, 2, 23, 2, 5, 2, 3, 2, 29, 2]);
@@ -14,19 +14,18 @@ var TEST_SUITE_FUNCS = [
         assertArrayEquals(sieveRadical(30), [0, 1, 2, 3, 2, 5, 6, 7, 2, 3, 10, 11, 6, 13, 14, 15, 2, 17, 6, 19, 10, 21, 22, 23, 6, 5, 26, 3, 14, 29, 30]);
     },
     function testPrefixConsistency() {
-        var N = 3000;
-        var FUNCS = [
+        const N = 3000;
+        const FUNCS = [
             sievePrimeness,
             sieveSmallestPrimeFactor,
             sieveTotient,
             sieveOmega,
             sieveRadical,
         ];
-        for (var _i = 0, FUNCS_1 = FUNCS; _i < FUNCS_1.length; _i++) {
-            var func = FUNCS_1[_i];
-            var prev = [];
-            for (var i = 0; i < N; i++) {
-                var cur = func(i);
+        for (const func of FUNCS) {
+            let prev = [];
+            for (let i = 0; i < N; i++) {
+                let cur = func(i);
                 assertEquals(cur.length, prev.length + 1);
                 assertArrayEquals(cur.slice(0, -1), prev);
                 prev = cur;
@@ -44,14 +43,14 @@ function assertArrayEquals(expected, actual) {
         throw new TypeError("Illegal argument");
     if (expected.length != actual.length)
         throw new Error("Array length mismatch");
-    for (var i = 0; i < expected.length; i++)
+    for (let i = 0; i < expected.length; i++)
         assertEquals(expected[i], actual[i]);
 }
 /*---- Main runner ----*/
 (function () {
-    var i = 0;
+    let i = 0;
     function iterate() {
-        var msg;
+        let msg;
         if (i >= TEST_SUITE_FUNCS.length)
             msg = "Finished";
         else {
@@ -66,7 +65,7 @@ function assertArrayEquals(expected, actual) {
             i++;
             setTimeout(iterate);
         }
-        var li = document.createElement("li");
+        let li = document.createElement("li");
         li.textContent = msg;
         document.getElementById("results").appendChild(li);
     }

@@ -26,7 +26,7 @@
  * The vector can have any length. This is a wrapper function.
  */
 function transform(real, imag) {
-    var n = real.length;
+    const n = real.length;
     if (n != imag.length)
         throw new RangeError("Mismatched lengths");
     if (n == 0)
@@ -49,30 +49,30 @@ function inverseTransform(real, imag) {
  */
 function transformRadix2(real, imag) {
     // Length variables
-    var n = real.length;
+    const n = real.length;
     if (n != imag.length)
         throw new RangeError("Mismatched lengths");
     if (n == 1) // Trivial transform
         return;
-    var levels = -1;
-    for (var i = 0; i < 32; i++) {
+    let levels = -1;
+    for (let i = 0; i < 32; i++) {
         if (1 << i == n)
             levels = i; // Equal to log2(n)
     }
     if (levels == -1)
         throw new RangeError("Length is not a power of 2");
     // Trigonometric tables
-    var cosTable = new Array(n / 2);
-    var sinTable = new Array(n / 2);
-    for (var i = 0; i < n / 2; i++) {
+    let cosTable = new Array(n / 2);
+    let sinTable = new Array(n / 2);
+    for (let i = 0; i < n / 2; i++) {
         cosTable[i] = Math.cos(2 * Math.PI * i / n);
         sinTable[i] = Math.sin(2 * Math.PI * i / n);
     }
     // Bit-reversed addressing permutation
-    for (var i = 0; i < n; i++) {
-        var j = reverseBits(i, levels);
+    for (let i = 0; i < n; i++) {
+        const j = reverseBits(i, levels);
         if (j > i) {
-            var temp = real[i];
+            let temp = real[i];
             real[i] = real[j];
             real[j] = temp;
             temp = imag[i];
@@ -81,14 +81,14 @@ function transformRadix2(real, imag) {
         }
     }
     // Cooley-Tukey decimation-in-time radix-2 FFT
-    for (var size = 2; size <= n; size *= 2) {
-        var halfsize = size / 2;
-        var tablestep = n / size;
-        for (var i = 0; i < n; i += size) {
-            for (var j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
-                var l = j + halfsize;
-                var tpre = real[l] * cosTable[k] + imag[l] * sinTable[k];
-                var tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
+    for (let size = 2; size <= n; size *= 2) {
+        const halfsize = size / 2;
+        const tablestep = n / size;
+        for (let i = 0; i < n; i += size) {
+            for (let j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
+                const l = j + halfsize;
+                const tpre = real[l] * cosTable[k] + imag[l] * sinTable[k];
+                const tpim = -real[l] * sinTable[k] + imag[l] * cosTable[k];
                 real[l] = real[j] - tpre;
                 imag[l] = imag[j] - tpim;
                 real[j] += tpre;
@@ -98,8 +98,8 @@ function transformRadix2(real, imag) {
     }
     // Returns the integer whose value is the reverse of the lowest 'width' bits of the integer 'val'.
     function reverseBits(val, width) {
-        var result = 0;
-        for (var i = 0; i < width; i++) {
+        let result = 0;
+        for (let i = 0; i < width; i++) {
             result = (result << 1) | (val & 1);
             val >>>= 1;
         }
@@ -113,41 +113,41 @@ function transformRadix2(real, imag) {
  */
 function transformBluestein(real, imag) {
     // Find a power-of-2 convolution length m such that m >= n * 2 + 1
-    var n = real.length;
+    const n = real.length;
     if (n != imag.length)
         throw new RangeError("Mismatched lengths");
-    var m = 1;
+    let m = 1;
     while (m < n * 2 + 1)
         m *= 2;
     // Trigonometric tables
-    var cosTable = new Array(n);
-    var sinTable = new Array(n);
-    for (var i = 0; i < n; i++) {
-        var j = i * i % (n * 2); // This is more accurate than j = i * i
+    let cosTable = new Array(n);
+    let sinTable = new Array(n);
+    for (let i = 0; i < n; i++) {
+        const j = i * i % (n * 2); // This is more accurate than j = i * i
         cosTable[i] = Math.cos(Math.PI * j / n);
         sinTable[i] = Math.sin(Math.PI * j / n);
     }
     // Temporary vectors and preprocessing
-    var areal = newArrayOfZeros(m);
-    var aimag = newArrayOfZeros(m);
-    for (var i = 0; i < n; i++) {
+    let areal = newArrayOfZeros(m);
+    let aimag = newArrayOfZeros(m);
+    for (let i = 0; i < n; i++) {
         areal[i] = real[i] * cosTable[i] + imag[i] * sinTable[i];
         aimag[i] = -real[i] * sinTable[i] + imag[i] * cosTable[i];
     }
-    var breal = newArrayOfZeros(m);
-    var bimag = newArrayOfZeros(m);
+    let breal = newArrayOfZeros(m);
+    let bimag = newArrayOfZeros(m);
     breal[0] = cosTable[0];
     bimag[0] = sinTable[0];
-    for (var i = 1; i < n; i++) {
+    for (let i = 1; i < n; i++) {
         breal[i] = breal[m - i] = cosTable[i];
         bimag[i] = bimag[m - i] = sinTable[i];
     }
     // Convolution
-    var creal = new Array(m);
-    var cimag = new Array(m);
+    let creal = new Array(m);
+    let cimag = new Array(m);
     convolveComplex(areal, aimag, breal, bimag, creal, cimag);
     // Postprocessing
-    for (var i = 0; i < n; i++) {
+    for (let i = 0; i < n; i++) {
         real[i] = creal[i] * cosTable[i] + cimag[i] * sinTable[i];
         imag[i] = -creal[i] * sinTable[i] + cimag[i] * cosTable[i];
     }
@@ -156,7 +156,7 @@ function transformBluestein(real, imag) {
  * Computes the circular convolution of the given real vectors. Each vector's length must be the same.
  */
 function convolveReal(xvec, yvec, outvec) {
-    var n = xvec.length;
+    const n = xvec.length;
     if (n != yvec.length || n != outvec.length)
         throw new RangeError("Mismatched lengths");
     convolveComplex(xvec, newArrayOfZeros(n), yvec, newArrayOfZeros(n), outvec, newArrayOfZeros(n));
@@ -165,7 +165,7 @@ function convolveReal(xvec, yvec, outvec) {
  * Computes the circular convolution of the given complex vectors. Each vector's length must be the same.
  */
 function convolveComplex(xreal, ximag, yreal, yimag, outreal, outimag) {
-    var n = xreal.length;
+    const n = xreal.length;
     if (n != ximag.length || n != yreal.length || n != yimag.length
         || n != outreal.length || n != outimag.length)
         throw new RangeError("Mismatched lengths");
@@ -175,20 +175,20 @@ function convolveComplex(xreal, ximag, yreal, yimag, outreal, outimag) {
     yimag = yimag.slice();
     transform(xreal, ximag);
     transform(yreal, yimag);
-    for (var i = 0; i < n; i++) {
-        var temp = xreal[i] * yreal[i] - ximag[i] * yimag[i];
+    for (let i = 0; i < n; i++) {
+        const temp = xreal[i] * yreal[i] - ximag[i] * yimag[i];
         ximag[i] = ximag[i] * yreal[i] + xreal[i] * yimag[i];
         xreal[i] = temp;
     }
     inverseTransform(xreal, ximag);
-    for (var i = 0; i < n; i++) { // Scaling (because this FFT implementation omits it)
+    for (let i = 0; i < n; i++) { // Scaling (because this FFT implementation omits it)
         outreal[i] = xreal[i] / n;
         outimag[i] = ximag[i] / n;
     }
 }
 function newArrayOfZeros(n) {
-    var result = [];
-    for (var i = 0; i < n; i++)
+    let result = [];
+    for (let i = 0; i < n; i++)
         result.push(0);
     return result;
 }

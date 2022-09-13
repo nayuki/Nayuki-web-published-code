@@ -10,19 +10,19 @@ var app;
 (function (app) {
     /*---- Preamble definitions ----*/
     function getElem(id) {
-        var result = document.getElementById(id);
+        const result = document.getElementById(id);
         if (result instanceof HTMLElement)
             return result;
         throw new Error("Assertion error");
     }
     function getInput(id) {
-        var result = getElem(id);
+        const result = getElem(id);
         if (result instanceof HTMLInputElement)
             return result;
         throw new Error("Assertion error");
     }
-    var userTextInputElem = getElem("user-text-input");
-    var demoTextElem = getElem("demo-text");
+    const userTextInputElem = getElem("user-text-input");
+    const demoTextElem = getElem("demo-text");
     /*---- Entry points from HTML page ----*/
     function demoChanged() {
         userTextInputElem.value = demoTextElem.value;
@@ -30,11 +30,11 @@ var app;
     }
     app.demoChanged = demoChanged;
     function textChanged() {
-        var textStr = userTextInputElem.value;
+        const textStr = userTextInputElem.value;
         if (textStr != demoTextElem.value)
             demoTextElem.selectedIndex = 0; // Indicates custom input
-        var minVersion = parseInt(getInput("minimum-version").value, 10);
-        var errCorrLvl;
+        const minVersion = parseInt(getInput("minimum-version").value, 10);
+        let errCorrLvl;
         if (getInput("errcorlvl-low").checked)
             errCorrLvl = 0;
         else if (getInput("errcorlvl-medium").checked)
@@ -46,89 +46,88 @@ var app;
         else
             throw new Error("Assertion error");
         // Handle code points
-        var codePoints = CodePoint.toArray(textStr);
+        const codePoints = CodePoint.toArray(textStr);
         setText("num-code-points", codePoints.length);
         // Process the byte-only segmentation algorithm
-        var byteOnlyInfo = makeSingleByteSegment(codePoints, errCorrLvl, minVersion, 40);
+        const byteOnlyInfo = makeSingleByteSegment(codePoints, errCorrLvl, minVersion, 40);
         if (byteOnlyInfo === null) {
             setText("qr-code-version-byte-only", "Too long");
             setText("num-segments-byte-only", "N/A");
             setText("total-segment-bits-byte-only", "N/A");
         }
         else {
-            var version = byteOnlyInfo[0], segs = byteOnlyInfo[1];
+            const [version, segs] = byteOnlyInfo;
             setText("qr-code-version-byte-only", version);
             setText("num-segments-byte-only", segs.length);
             setText("total-segment-bits-byte-only", getTotalBits(segs, version));
         }
         // Clear container elements
-        var textOut = getElem("text-split");
-        var tableOut = document.querySelector("#segment-details tbody");
+        const textOut = getElem("text-split");
+        const tableOut = document.querySelector("#segment-details tbody");
         while (textOut.firstChild !== null)
             textOut.removeChild(textOut.firstChild);
         while (tableOut.firstChild !== null)
             tableOut.removeChild(tableOut.firstChild);
         // Process the optimal segmentation algorithm
-        var optimalInfo = makeSegmentsOptimally(codePoints, errCorrLvl, minVersion, 40);
+        const optimalInfo = makeSegmentsOptimally(codePoints, errCorrLvl, minVersion, 40);
         if (optimalInfo === null) {
             setText("qr-code-version-optimal", "Too long");
             setText("num-segments-optimal", "N/A");
             setText("total-segment-bits-optimal", "N/A");
         }
         else {
-            var version_1 = optimalInfo[0], segs = optimalInfo[1];
-            setText("qr-code-version-optimal", version_1);
+            const [version, segs] = optimalInfo;
+            setText("qr-code-version-optimal", version);
             setText("num-segments-optimal", segs.length);
-            setText("total-segment-bits-optimal", getTotalBits(segs, version_1));
-            segs.forEach(function (seg, i) {
-                var span = textOut.appendChild(document.createElement("span"));
+            setText("total-segment-bits-optimal", getTotalBits(segs, version));
+            segs.forEach((seg, i) => {
+                let span = textOut.appendChild(document.createElement("span"));
                 span.textContent = seg.text;
                 span.classList.add(seg.mode.toLowerCase());
                 span.title = "Segment index: " + i;
-                var tr = tableOut.appendChild(document.createElement("tr"));
+                let tr = tableOut.appendChild(document.createElement("tr"));
                 tr.classList.add(seg.mode.toLowerCase());
-                var cells = [
+                const cells = [
                     i,
                     seg.mode.charAt(0) + seg.mode.substring(1).toLowerCase(),
-                    getTotalBits([seg], version_1) - seg.numDataBits,
+                    getTotalBits([seg], version) - seg.numDataBits,
                     seg.numDataBits,
-                    getTotalBits([seg], version_1),
+                    getTotalBits([seg], version),
                     seg.numChars,
                     seg.text,
                 ];
-                for (var _i = 0, cells_1 = cells; _i < cells_1.length; _i++) {
-                    var s = cells_1[_i];
-                    var td = tr.appendChild(document.createElement("td"));
+                for (const s of cells) {
+                    const td = tr.appendChild(document.createElement("td"));
                     td.textContent = s.toString();
                 }
             });
         }
         // Process the comparison between segmentation algorithms
         if (byteOnlyInfo === null || optimalInfo === null) {
-            var INFINITY = "\u221E";
+            const INFINITY = "\u221E";
             setText("qr-code-version-savings", INFINITY);
             setText("total-segment-bits-savings", INFINITY);
         }
         else {
             setText("qr-code-version-savings", byteOnlyInfo[0] - optimalInfo[0]);
-            var byteOnlyBits = getTotalBits(byteOnlyInfo[1], byteOnlyInfo[0]);
-            var optimalBits = getTotalBits(optimalInfo[1], optimalInfo[0]);
-            setText("total-segment-bits-savings", byteOnlyBits - optimalBits + " (" + (optimalBits / byteOnlyBits).toFixed(2) + "\u00D7)");
+            const byteOnlyBits = getTotalBits(byteOnlyInfo[1], byteOnlyInfo[0]);
+            const optimalBits = getTotalBits(optimalInfo[1], optimalInfo[0]);
+            setText("total-segment-bits-savings", `${byteOnlyBits - optimalBits} (${(optimalBits / byteOnlyBits).toFixed(2)}\u00D7)`);
         }
     }
     app.textChanged = textChanged;
     function revealElement(link, targetId) {
-        var linkParent = link.parentNode;
+        let linkParent = link.parentNode;
         while (link.firstChild !== null)
             linkParent.appendChild(link.firstChild);
         linkParent.removeChild(link);
-        var target = getElem(targetId);
+        let target = getElem(targetId);
         target.style.removeProperty("display");
-        var newHeight = target.clientHeight;
+        const newHeight = target.clientHeight;
         target.style.height = "0px";
         target.style.overflow = "hidden";
         target.style.transition = "height 0.5s ease-in-out";
-        target.addEventListener("transitionend", function (ev) {
+        target.addEventListener("transitionend", ev => {
             if (ev.propertyName == "height") {
                 target.style.removeProperty("height");
                 target.style.removeProperty("overflow");
@@ -147,11 +146,11 @@ var app;
         if (!(1 <= minVersion && minVersion <= maxVersion && maxVersion <= 40))
             throw new RangeError("Invalid version range");
         // Iterate through version numbers, and make tentative segments
-        var segs = [new Segment(text, "BYTE")];
-        for (var version = minVersion; version <= maxVersion; version++) {
+        const segs = [new Segment(text, "BYTE")];
+        for (let version = minVersion; version <= maxVersion; version++) {
             // Check if the segments fit
-            var dataCapacityBits = NUM_DATA_CODEWORDS[version][ecl] * 8;
-            var dataUsedBits = getTotalBits(segs, version);
+            const dataCapacityBits = NUM_DATA_CODEWORDS[version][ecl] * 8;
+            const dataUsedBits = getTotalBits(segs, version);
             if (dataUsedBits <= dataCapacityBits)
                 return [version, segs];
         }
@@ -169,13 +168,13 @@ var app;
         if (!(1 <= minVersion && minVersion <= maxVersion && maxVersion <= 40))
             throw new RangeError("Invalid version range");
         // Iterate through version numbers, and make tentative segments
-        var segs = []; // Dummy initial value
-        for (var version = minVersion; version <= maxVersion; version++) {
+        let segs = []; // Dummy initial value
+        for (let version = minVersion; version <= maxVersion; version++) {
             if (version == minVersion || version == 10 || version == 27)
                 segs = makeSegmentsOptimallyForVersion(text, version);
             // Check if the segments fit
-            var dataCapacityBits = NUM_DATA_CODEWORDS[version][ecl] * 8;
-            var dataUsedBits = getTotalBits(segs, version);
+            const dataCapacityBits = NUM_DATA_CODEWORDS[version][ecl] * 8;
+            const dataUsedBits = getTotalBits(segs, version);
             if (dataUsedBits <= dataCapacityBits)
                 return [version, segs];
         }
@@ -187,30 +186,28 @@ var app;
     function makeSegmentsOptimallyForVersion(text, version) {
         if (text.length == 0)
             return [];
-        var charModes = computeCharacterModes(text, version);
+        const charModes = computeCharacterModes(text, version);
         return splitIntoSegments(text, charModes);
     }
     // Returns a new array representing the optimal mode per code point based on the given text and version.
     function computeCharacterModes(text, version) {
         if (text.length == 0)
             throw new RangeError("Empty string");
-        var modeTypes = ["BYTE", "ALPHANUMERIC", "NUMERIC", "KANJI"];
+        const modeTypes = ["BYTE", "ALPHANUMERIC", "NUMERIC", "KANJI"];
         // Segment header sizes, measured in 1/6 bits
-        var headCosts = modeTypes.map(function (mode) {
-            return (4 + getNumCharCountBits(mode, version)) * 6;
-        });
+        const headCosts = modeTypes.map(mode => (4 + getNumCharCountBits(mode, version)) * 6);
         // charModes[i][j] represents the mode to encode the code point at
         // index i such that the final segment ends in modeTypes[j] and the
         // total number of bits is minimized over all possible choices
-        var charModes = [];
+        let charModes = [];
         // At the beginning of each iteration of the loop below,
         // prevCosts[j] is the exact minimum number of 1/6 bits needed to
         // encode the entire string prefix of length i, and end in modeTypes[j]
-        var prevCosts = headCosts.slice();
+        let prevCosts = headCosts.slice();
         // Calculate costs using dynamic programming
-        text.forEach(function (c, i) {
-            var cModes = modeTypes.map(function (_) { return null; });
-            var curCosts = modeTypes.map(function (_) { return Infinity; });
+        text.forEach((c, i) => {
+            let cModes = modeTypes.map(_ => null);
+            let curCosts = modeTypes.map(_ => Infinity);
             { // Always extend a byte mode segment
                 curCosts[0] = prevCosts[0] + c.utf8.length * 8 * 6;
                 cModes[0] = modeTypes[0];
@@ -229,9 +226,9 @@ var app;
                 cModes[3] = modeTypes[3];
             }
             // Start new segment at the end to switch modes
-            modeTypes.forEach(function (_, j) {
-                modeTypes.forEach(function (fromMode, k) {
-                    var newCost = Math.ceil(curCosts[k] / 6) * 6 + headCosts[j];
+            modeTypes.forEach((_, j) => {
+                modeTypes.forEach((fromMode, k) => {
+                    const newCost = Math.ceil(curCosts[k] / 6) * 6 + headCosts[j];
                     if (cModes[k] !== null && newCost < curCosts[j]) {
                         curCosts[j] = newCost;
                         cModes[j] = fromMode;
@@ -242,15 +239,15 @@ var app;
             prevCosts = curCosts;
         });
         // Find optimal ending mode
-        var curModeIndex = 0;
-        modeTypes.forEach(function (mode, i) {
+        let curModeIndex = 0;
+        modeTypes.forEach((mode, i) => {
             if (prevCosts[i] < prevCosts[curModeIndex])
                 curModeIndex = i;
         });
         // Get optimal mode for each code point by tracing backwards
-        var result = [];
-        for (var i = text.length - 1; i >= 0; i--) {
-            var curMode = charModes[i][curModeIndex];
+        let result = [];
+        for (let i = text.length - 1; i >= 0; i--) {
+            const curMode = charModes[i][curModeIndex];
             curModeIndex = modeTypes.indexOf(curMode);
             result.push(curMode);
         }
@@ -264,11 +261,11 @@ var app;
             throw new RangeError("Empty string");
         if (text.length != charModes.length)
             throw new RangeError("Mismatched lengths");
-        var result = [];
+        let result = [];
         // Accumulate run of modes
-        var curMode = charModes[0];
-        var start = 0;
-        for (var i = 1;; i++) {
+        let curMode = charModes[0];
+        let start = 0;
+        for (let i = 1;; i++) {
             if (i < text.length && charModes[i] == curMode)
                 continue;
             result.push(new Segment(text.slice(start, i), curMode));
@@ -278,16 +275,14 @@ var app;
             start = i;
         }
     }
-    var Segment = /** @class */ (function () {
-        function Segment(text, mode) {
+    class Segment {
+        constructor(text, mode) {
             this.mode = mode;
-            this.text = text.map(function (c) { return c.utf16; }).join("");
+            this.text = text.map(c => c.utf16).join("");
             if (mode == "BYTE") {
                 this.numChars = 0;
-                for (var _i = 0, text_1 = text; _i < text_1.length; _i++) {
-                    var c = text_1[_i];
+                for (const c of text)
                     this.numChars += c.utf8.length;
-                }
                 this.numDataBits = this.numChars * 8;
             }
             else {
@@ -307,15 +302,13 @@ var app;
                 }
             }
         }
-        return Segment;
-    }());
+    }
     // Calculates and returns the number of bits needed to encode the given segments at the given
     // version. The result is infinity if a segment has too many characters to fit its length field.
     function getTotalBits(segs, version) {
-        var result = 0;
-        for (var _i = 0, segs_1 = segs; _i < segs_1.length; _i++) {
-            var seg = segs_1[_i];
-            var ccbits = getNumCharCountBits(seg.mode, version);
+        let result = 0;
+        for (const seg of segs) {
+            const ccbits = getNumCharCountBits(seg.mode, version);
             if (seg.numChars >= (1 << ccbits))
                 return Infinity; // The segment's length doesn't fit the field's bit width
             result += 4 + ccbits + seg.numDataBits;
@@ -337,7 +330,7 @@ var app;
     }
     // NUM_DATA_CODEWORDS[v][e] is the number of 8-bit data codewords (excluding error correction codewords)
     // in a QR Code symbol at version v (from 1 to 40 inclusive) and error correction e (0=L, 1=M, 2=Q, 3=H).
-    var NUM_DATA_CODEWORDS = [
+    const NUM_DATA_CODEWORDS = [
         //  L,    M,    Q,    H    // Error correction level
         [-1, -1, -1, -1],
         [19, 16, 13, 9],
@@ -379,7 +372,7 @@ var app;
         [2566, 1992, 1426, 1096],
         [2702, 2102, 1502, 1142],
         [2812, 2216, 1582, 1222],
-        [2956, 2334, 1666, 1276],
+        [2956, 2334, 1666, 1276], // Version 40
     ];
     // Tests whether the given code point can be encoded in numeric mode.
     function isNumeric(cp) {
@@ -393,7 +386,7 @@ var app;
     function isKanji(cp) {
         return cp < 0x10000 && ((parseInt(KANJI_BIT_SET.charAt(cp >>> 2), 16) >>> (cp & 3)) & 1) != 0;
     }
-    var KANJI_BIT_SET = "0000000000000000000000010000000000000000C811350000000800000008000000000000000000000000000000000000000000000000000000000000000000" +
+    const KANJI_BIT_SET = "0000000000000000000000010000000000000000C811350000000800000008000000000000000000000000000000000000000000000000000000000000000000" +
         "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000EFFFBF30EFFFBF30000000000000" +
         "2000FFFFFFFFFFFFFFFF200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
         "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
@@ -522,8 +515,8 @@ var app;
         "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000" +
         "0000000000000000000000000000000000000000000000000000000000000000A7FDFFFFFFFFFFFEFFFFFFF30000000000000000000000000000000082000000";
     /*---- Helper class ----*/
-    var CodePoint = /** @class */ (function () {
-        function CodePoint(utf32) {
+    class CodePoint {
+        constructor(utf32) {
             this.utf32 = utf32;
             if (utf32 < 0x10000)
                 this.utf16 = String.fromCharCode(utf32);
@@ -535,7 +528,7 @@ var app;
             else if (utf32 < 0x80)
                 this.utf8 = [utf32];
             else {
-                var n = void 0;
+                let n;
                 if (utf32 < 0x800)
                     n = 2;
                 else if (utf32 < 0x10000)
@@ -545,21 +538,21 @@ var app;
                 else
                     throw new RangeError("Invalid code point");
                 this.utf8 = [];
-                for (var i = 0; i < n; i++, utf32 >>>= 6)
+                for (let i = 0; i < n; i++, utf32 >>>= 6)
                     this.utf8.push(0x80 | (utf32 & 0x3F));
                 this.utf8.reverse();
                 this.utf8[0] |= (0xF00 >>> n) & 0xFF;
             }
         }
-        CodePoint.toArray = function (s) {
-            var result = [];
-            for (var i = 0; i < s.length; i++) {
-                var c = s.charCodeAt(i);
+        static toArray(s) {
+            let result = [];
+            for (let i = 0; i < s.length; i++) {
+                const c = s.charCodeAt(i);
                 if (0xD800 <= c && c < 0xDC00) {
                     if (i + 1 >= s.length)
                         throw new RangeError("Invalid UTF-16 string");
                     i++;
-                    var d = s.charCodeAt(i);
+                    const d = s.charCodeAt(i);
                     result.push(new CodePoint(((c & 0x3FF) << 10 | (d & 0x3FF)) + 0x10000));
                 }
                 else if (0xDC00 <= c && c < 0xE000)
@@ -568,9 +561,8 @@ var app;
                     result.push(new CodePoint(c));
             }
             return result;
-        };
-        return CodePoint;
-    }());
+        }
+    }
     /*---- Miscellaneous ----*/
     function setText(id, text) {
         getElem(id).textContent = text.toString();

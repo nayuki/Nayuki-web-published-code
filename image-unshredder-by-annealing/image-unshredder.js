@@ -9,7 +9,7 @@
 var app;
 (function (app) {
     /*---- Configuration constants ----*/
-    var DEMO_IMAGES = [
+    const DEMO_IMAGES = [
         ["Abstract Light Painting", "abstract-light-painting.png", "Alexander Nie", "https://www.flickr.com/photos/niephotography/15821646318/"],
         ["Alaska Railroad", "alaska-railroad.png", "Luke Jones", "https://www.flickr.com/photos/befuddledsenses/7392384974/"],
         ["Blue Hour in Paris", "blue-hour-paris.png", "Falcon\u00AE Photography", "https://www.flickr.com/photos/falcon_33/15178077733/"],
@@ -21,29 +21,29 @@ var app;
         ["Tokyo Skytree Aerial", "tokyo-skytree-aerial.png", "IQRemix", "https://www.flickr.com/photos/iqremix/18088821468/"],
     ];
     // Performance tuning
-    var YIELD_AFTER_TIME = 20; // In milliseconds; a long computation relinquishes/yields after this amount of time; short will mean high execution overhead; long will mean the GUI hangs
-    var ANNEAL_REDRAW_TIME = 300; // In milliseconds; the minimum amount of time between image and text updates when performing annealing
+    const YIELD_AFTER_TIME = 20; // In milliseconds; a long computation relinquishes/yields after this amount of time; short will mean high execution overhead; long will mean the GUI hangs
+    const ANNEAL_REDRAW_TIME = 300; // In milliseconds; the minimum amount of time between image and text updates when performing annealing
     /*---- HTML input/output elements ----*/
-    var canvas = queryElem("canvas", HTMLCanvasElement);
-    var graphics;
+    let canvas = queryElem("canvas", HTMLCanvasElement);
+    let graphics;
     {
-        var temp = canvas.getContext("2d");
+        const temp = canvas.getContext("2d");
         if (!(temp instanceof CanvasRenderingContext2D))
             throw new Error("Assertion error");
         graphics = temp;
     }
-    var imageSelect = queryElem("select#image-select", HTMLSelectElement);
-    var numberIterationsInput = queryElem("input#number-iterations", HTMLInputElement);
-    var startTemperatureInput = queryElem("input#start-temperature", HTMLInputElement);
-    var shuffleButton = queryElem("button.shuffle", HTMLButtonElement);
-    var annealButton = queryElem("button.anneal", HTMLButtonElement);
-    var stopButton = queryElem("button.stop", HTMLButtonElement);
-    var imageAttribution = queryElem("a.image-attribution", HTMLAnchorElement);
-    var curIterationsElem = queryElem("td.current-iterations", HTMLElement);
-    var curTemperatureElem = queryElem("td.current-temperature", HTMLElement);
-    var curEnergyElem = queryElem("td.current-energy", HTMLElement);
+    let imageSelect = queryElem("select#image-select", HTMLSelectElement);
+    let numberIterationsInput = queryElem("input#number-iterations", HTMLInputElement);
+    let startTemperatureInput = queryElem("input#start-temperature", HTMLInputElement);
+    let shuffleButton = queryElem("button.shuffle", HTMLButtonElement);
+    let annealButton = queryElem("button.anneal", HTMLButtonElement);
+    let stopButton = queryElem("button.stop", HTMLButtonElement);
+    let imageAttribution = queryElem("a.image-attribution", HTMLAnchorElement);
+    let curIterationsElem = queryElem("td.current-iterations", HTMLElement);
+    let curTemperatureElem = queryElem("td.current-temperature", HTMLElement);
+    let curEnergyElem = queryElem("td.current-energy", HTMLElement);
     function queryElem(query, type) {
-        var result = document.querySelector("article " + query);
+        const result = document.querySelector("article " + query);
         if (result instanceof type)
             return result;
         else if (result === null)
@@ -67,9 +67,8 @@ var app;
         }
     }
     /*---- Main program ----*/
-    for (var _i = 0, DEMO_IMAGES_1 = DEMO_IMAGES; _i < DEMO_IMAGES_1.length; _i++) {
-        var _a = DEMO_IMAGES_1[_i], title = _a[0];
-        var option = document.createElement("option");
+    for (const [title, , ,] of DEMO_IMAGES) {
+        let option = document.createElement("option");
         option.textContent = title;
         imageSelect.appendChild(option);
     }
@@ -80,8 +79,8 @@ var app;
         annealButton.onclick = null;
         stopButton.onclick = null;
         setButtonsBusy(true);
-        var _a = DEMO_IMAGES[imageSelect.selectedIndex], title = _a[0], fileName = _a[1], author = _a[2], attributionUrl = _a[3];
-        var baseImage = new Image();
+        const [title, fileName, author, attributionUrl] = DEMO_IMAGES[imageSelect.selectedIndex];
+        let baseImage = new Image();
         baseImage.onload = imageLoaded;
         baseImage.src = "/res/image-unshredder-by-annealing/" + fileName;
         imageAttribution.textContent = "by " + author;
@@ -90,22 +89,22 @@ var app;
         curTemperatureElem.textContent = "\u2012";
         curEnergyElem.textContent = "\u2012";
         function imageLoaded() {
-            var width = canvas.width = baseImage.width;
-            var height = canvas.height = baseImage.height;
+            const width = canvas.width = baseImage.width;
+            const height = canvas.height = baseImage.height;
             graphics.drawImage(baseImage, 0, 0, width, height);
             shuffleButton.onclick = startShuffle;
             setButtonsBusy(false);
             function startShuffle() {
                 graphics.drawImage(baseImage, 0, 0, width, height);
-                var shuffledImage = graphics.getImageData(0, 0, width, height);
-                var columnDiffs = [];
+                let shuffledImage = graphics.getImageData(0, 0, width, height);
+                let columnDiffs = [];
                 {
-                    var timeout_1 = null;
+                    let timeout = null;
                     annealButton.onclick = null;
-                    stopButton.onclick = function () {
-                        if (timeout_1 !== null) {
-                            clearTimeout(timeout_1);
-                            timeout_1 = null;
+                    stopButton.onclick = () => {
+                        if (timeout !== null) {
+                            clearTimeout(timeout);
+                            timeout = null;
                         }
                         setButtonsBusy(false);
                     };
@@ -113,19 +112,19 @@ var app;
                     curIterationsElem.textContent = "\u2012";
                     curTemperatureElem.textContent = "\u2012";
                     curEnergyElem.textContent = "\u2012";
-                    var doShuffle_1 = function (i) {
-                        var startTime = Date.now();
-                        timeout_1 = null;
-                        var pixels = shuffledImage.data;
+                    const doShuffle = function (i) {
+                        const startTime = Date.now();
+                        timeout = null;
+                        let pixels = shuffledImage.data;
                         while (i < width) {
                             // Pick a random column j in the range [i, width) and move it to position i.
                             // This Fisher-Yates shuffle is the less efficient than the Durstenfeld shuffle but more animatedly appealing.
-                            var j = i + Math.floor(Math.random() * (width - i));
-                            for (var y = 0; y < height; y++) {
-                                for (var x = j - 1; x >= i; x--) {
-                                    var off = (y * width + x) * 4;
-                                    for (var k = 0; k < 4; k++) {
-                                        var temp = pixels[off + k];
+                            const j = i + Math.floor(Math.random() * (width - i));
+                            for (let y = 0; y < height; y++) {
+                                for (let x = j - 1; x >= i; x--) {
+                                    const off = (y * width + x) * 4;
+                                    for (let k = 0; k < 4; k++) {
+                                        const temp = pixels[off + k];
                                         pixels[off + k] = pixels[off + 4 + k];
                                         pixels[off + 4 + k] = temp;
                                     }
@@ -138,23 +137,23 @@ var app;
                         graphics.putImageData(shuffledImage, 0, 0);
                         // Continue shuffling or finish
                         if (i < width)
-                            timeout_1 = setTimeout(doShuffle_1, 0, i);
+                            timeout = setTimeout(doShuffle, 0, i);
                         else {
                             annealButton.onclick = startAnneal;
                             setButtonsBusy(false);
                         }
                     };
-                    doShuffle_1(0);
+                    doShuffle(0);
                 }
                 function startAnneal() {
-                    var numIterations = Math.round(parseFloat(numberIterationsInput.value) * 1e6);
+                    const numIterations = Math.round(parseFloat(numberIterationsInput.value) * 1e6);
                     if (numIterations <= 0) {
                         alert("Number of iterations must be positive");
                         return;
                     }
-                    var startTemperature = Math.round(parseFloat(startTemperatureInput.value));
-                    var timeout = null;
-                    stopButton.onclick = function () {
+                    const startTemperature = Math.round(parseFloat(startTemperatureInput.value));
+                    let timeout = null;
+                    stopButton.onclick = () => {
                         if (timeout !== null) {
                             clearTimeout(timeout);
                             timeout = null;
@@ -162,19 +161,19 @@ var app;
                         setButtonsBusy(false);
                     };
                     setButtonsBusy(true);
-                    var curIteration = 0;
-                    var curEnergy = 0;
-                    var colPermutation = [];
-                    var annealingLastDrawTime = null;
+                    let curIteration = 0;
+                    let curEnergy = 0;
+                    let colPermutation = [];
+                    let annealingLastDrawTime = null;
                     doAnnealPrecompute();
                     function doAnnealPrecompute() {
-                        var startTime = Date.now();
+                        const startTime = Date.now();
                         timeout = null;
-                        var pixels = shuffledImage.data;
+                        const pixels = shuffledImage.data;
                         while (columnDiffs.length < width) {
-                            var i = columnDiffs.length;
-                            var entry = new Uint32Array(width);
-                            for (var j = 0; j < width; j++) {
+                            const i = columnDiffs.length;
+                            let entry = new Uint32Array(width);
+                            for (let j = 0; j < width; j++) {
                                 if (i <= j)
                                     entry[j] = lineDiff(pixels, width, height, i, j);
                                 else
@@ -190,39 +189,39 @@ var app;
                             timeout = setTimeout(doAnnealPrecompute);
                         }
                         else {
-                            for (var i = 0; i < width - 1; i++)
+                            for (let i = 0; i < width - 1; i++)
                                 curEnergy += columnDiffs[i][i + 1];
-                            for (var i = 0; i < width; i++)
+                            for (let i = 0; i < width; i++)
                                 colPermutation.push(i);
                             annealingLastDrawTime = Date.now();
                             doAnneal();
                         }
                     }
                     function lineDiff(pixels, width, height, x0, x1) {
-                        var sum = 0;
-                        for (var y = 0; y < height; y++) {
-                            var off0 = (y * width + x0) * 4;
-                            var off1 = (y * width + x1) * 4;
-                            for (var i = 0; i < 3; i++)
+                        let sum = 0;
+                        for (let y = 0; y < height; y++) {
+                            const off0 = (y * width + x0) * 4;
+                            const off1 = (y * width + x1) * 4;
+                            for (let i = 0; i < 3; i++)
                                 sum += Math.abs(pixels[off0 + i] - pixels[off1 + i]);
                         }
                         return sum;
                     }
                     function doAnneal() {
-                        var startTime = Date.now();
+                        const startTime = Date.now();
                         timeout = null;
-                        var t = -1;
-                        var temperature = -1;
-                        var perm = colPermutation;
+                        let t = -1;
+                        let temperature = -1;
+                        let perm = colPermutation;
                         while (curIteration < numIterations) {
                             t = curIteration / numIterations;
                             temperature = (1 - t) * startTemperature;
                             // Randomly choose two distinct columns
-                            var col0 = Math.floor(Math.random() * width);
-                            var col1 = Math.floor(Math.random() * width);
+                            const col0 = Math.floor(Math.random() * width);
+                            const col1 = Math.floor(Math.random() * width);
                             if (col0 != col1) {
                                 // Calculate the change in energy if the col0 were removed and inserted at col1
-                                var energyDiff = 0;
+                                let energyDiff = 0;
                                 if (col0 >= 1)
                                     energyDiff -= columnDiffs[perm[col0 - 1]][perm[col0]];
                                 if (col0 + 1 < width)
@@ -245,7 +244,7 @@ var app;
                                 }
                                 // Accept the proposed change if energy improves or is within the simulated annealing probability
                                 if (energyDiff < 0 || Math.random() < Math.pow(2, -energyDiff / temperature)) {
-                                    var temp = perm[col0];
+                                    const temp = perm[col0];
                                     perm.splice(col0, 1);
                                     perm.splice(col1, 0, temp);
                                     curEnergy += energyDiff;
@@ -257,17 +256,17 @@ var app;
                         }
                         // Show image and statistics on screen periodically
                         if (curIteration == numIterations || annealingLastDrawTime === null || Date.now() - annealingLastDrawTime > ANNEAL_REDRAW_TIME) {
-                            curIterationsElem.textContent = formatWithThousandsSeparators(curIteration) + " (" + (t * 100).toFixed(2) + "%)";
+                            curIterationsElem.textContent = `${formatWithThousandsSeparators(curIteration)} (${(t * 100).toFixed(2)}%)`;
                             curTemperatureElem.textContent = temperature.toFixed(2);
                             curEnergyElem.textContent = formatWithThousandsSeparators(curEnergy);
-                            var annealedImage = graphics.createImageData(width, height);
-                            var shuffledPixels = shuffledImage.data;
-                            var annealedPixels = annealedImage.data;
-                            for (var y = 0; y < height; y++) {
-                                for (var x = 0; x < width; x++) {
-                                    var off0 = (y * width + perm[x]) * 4;
-                                    var off1 = (y * width + x) * 4;
-                                    for (var i = 0; i < 4; i++)
+                            let annealedImage = graphics.createImageData(width, height);
+                            const shuffledPixels = shuffledImage.data;
+                            let annealedPixels = annealedImage.data;
+                            for (let y = 0; y < height; y++) {
+                                for (let x = 0; x < width; x++) {
+                                    const off0 = (y * width + perm[x]) * 4;
+                                    const off1 = (y * width + x) * 4;
+                                    for (let i = 0; i < 4; i++)
                                         annealedPixels[off1 + i] = shuffledPixels[off0 + i];
                                 }
                             }
@@ -281,8 +280,8 @@ var app;
                             setButtonsBusy(false);
                     }
                     function formatWithThousandsSeparators(n) {
-                        var s = n.toString();
-                        for (var i = s.length - 3; i > 0; i -= 3)
+                        let s = n.toString();
+                        for (let i = s.length - 3; i > 0; i -= 3)
                             s = s.substring(0, i) + " " + s.substring(i);
                         return s;
                     }

@@ -24,20 +24,20 @@
 /*---- Main program ----*/
 function main() {
     function getElement(id) {
-        var result = document.getElementById(id);
+        const result = document.getElementById(id);
         if (result instanceof HTMLElement)
             return result;
         throw new Error("Assertion error");
     }
     function getInput(id) {
-        var result = getElement(id);
+        const result = getElement(id);
         if (result instanceof HTMLInputElement)
             return result;
         throw new Error("Assertion error");
     }
     if (getInput("current-time").checked)
         getInput("timestamp").value = Math.floor(Date.now() / 1000).toString();
-    var outputElem = getElement("totp-code");
+    let outputElem = getElement("totp-code");
     try {
         outputElem.textContent = calcTotp(decodeBase32(getInput("secret-key").value), parseInt(getInput("epoch").value, 10), parseInt(getInput("time-step").value, 10), parseInt(getInput("timestamp").value, 10), parseInt(getInput("code-length").value, 10));
     }
@@ -51,45 +51,36 @@ if (selfCheck()) {
 }
 /*---- Library functions ----*/
 // Time-based One-Time Password algorithm (RFC 6238)
-function calcTotp(secretKey, epoch, timeStep, timestamp, codeLen, hashFunc, blockSize) {
-    if (epoch === void 0) { epoch = 0; }
-    if (timeStep === void 0) { timeStep = 30; }
-    if (timestamp === void 0) { timestamp = null; }
-    if (codeLen === void 0) { codeLen = 6; }
-    if (hashFunc === void 0) { hashFunc = calcSha1Hash; }
-    if (blockSize === void 0) { blockSize = 64; }
+function calcTotp(secretKey, epoch = 0, timeStep = 30, timestamp = null, codeLen = 6, hashFunc = calcSha1Hash, blockSize = 64) {
     if (timestamp === null)
         timestamp = Date.now();
     // Calculate counter and HOTP
-    var timeCounter = Math.floor((timestamp - epoch) / timeStep);
-    var counter = [];
-    for (var i = 0; i < 8; i++, timeCounter = Math.floor(timeCounter / 256))
+    let timeCounter = Math.floor((timestamp - epoch) / timeStep);
+    let counter = [];
+    for (let i = 0; i < 8; i++, timeCounter = Math.floor(timeCounter / 256))
         counter.push(timeCounter & 0xFF);
     counter.reverse();
     return calcHotp(secretKey, counter, codeLen, hashFunc, blockSize);
 }
 // HMAC-based One-Time Password algorithm (RFC 4226)
-function calcHotp(secretKey, counter, codeLen, hashFunc, blockSize) {
-    if (codeLen === void 0) { codeLen = 6; }
-    if (hashFunc === void 0) { hashFunc = calcSha1Hash; }
-    if (blockSize === void 0) { blockSize = 64; }
+function calcHotp(secretKey, counter, codeLen = 6, hashFunc = calcSha1Hash, blockSize = 64) {
     // Check argument, calculate HMAC
     if (!(1 <= codeLen && codeLen <= 9))
         throw new RangeError("Invalid number of digits");
-    var hash = calcHmac(secretKey, counter, hashFunc, blockSize);
+    const hash = calcHmac(secretKey, counter, hashFunc, blockSize);
     // Dynamically truncate the hash value
-    var offset = hash[hash.length - 1] % 16;
-    var val = 0;
-    for (var i = 0; i < 4; i++)
+    const offset = hash[hash.length - 1] % 16;
+    let val = 0;
+    for (let i = 0; i < 4; i++)
         val |= hash[offset + i] << ((3 - i) * 8);
     val &= 0x7FFFFFFF;
     // Extract base-10 digits
-    var tenPow = 1;
-    for (var i = 0; i < codeLen; i++)
+    let tenPow = 1;
+    for (let i = 0; i < codeLen; i++)
         tenPow *= 10;
     val %= tenPow;
     // Format base-10 digits
-    var s = val.toString();
+    let s = val.toString();
     while (s.length < codeLen)
         s = "0" + s;
     return s;
@@ -99,50 +90,44 @@ function calcHmac(key, message, hashFunc, blockSize) {
         throw new RangeError("Invalid block size");
     if (key.length > blockSize)
         key = hashFunc(key);
-    var newKey = key.slice();
+    let newKey = key.slice();
     while (newKey.length < blockSize)
         newKey.push(0x00);
-    var innerMsg = newKey.map(function (b) { return b ^ 0x36; });
-    for (var _i = 0, message_1 = message; _i < message_1.length; _i++) {
-        var b = message_1[_i];
+    let innerMsg = newKey.map(b => b ^ 0x36);
+    for (const b of message)
         innerMsg.push(b);
-    }
-    var innerHash = hashFunc(innerMsg);
-    var outerMsg = newKey.map(function (b) { return b ^ 0x5C; });
-    for (var _a = 0, innerHash_1 = innerHash; _a < innerHash_1.length; _a++) {
-        var b = innerHash_1[_a];
+    const innerHash = hashFunc(innerMsg);
+    let outerMsg = newKey.map(b => b ^ 0x5C);
+    for (const b of innerHash)
         outerMsg.push(b);
-    }
     return hashFunc(outerMsg);
 }
 function calcSha1Hash(message) {
-    var bitLenBytes = [];
-    for (var i = 0, bitLen = message.length * 8; i < 8; i++, bitLen >>>= 8)
+    let bitLenBytes = [];
+    for (let i = 0, bitLen = message.length * 8; i < 8; i++, bitLen >>>= 8)
         bitLenBytes.push(bitLen & 0xFF);
     bitLenBytes.reverse();
-    var msg = message.slice();
+    let msg = message.slice();
     msg.push(0x80);
     while ((msg.length + 8) % 64 != 0)
         msg.push(0x00);
-    for (var _i = 0, bitLenBytes_1 = bitLenBytes; _i < bitLenBytes_1.length; _i++) {
-        var b = bitLenBytes_1[_i];
+    for (const b of bitLenBytes)
         msg.push(b);
-    }
-    var state = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
-    var _loop_1 = function (i) {
-        var schedule = [];
-        for (var j = 0; j < 64; j++) {
+    let state = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
+    for (let i = 0; i < msg.length; i += 64) {
+        let schedule = [];
+        for (let j = 0; j < 64; j++) {
             if (j % 4 == 0)
                 schedule.push(0);
             schedule[Math.floor(j / 4)] |= msg[i + j] << ((3 - j % 4) * 8);
         }
-        for (var j = schedule.length; j < 80; j++) {
-            var temp = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
+        for (let j = schedule.length; j < 80; j++) {
+            const temp = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
             schedule.push((temp << 1) | (temp >>> 31));
         }
-        var a = state[0], b = state[1], c = state[2], d = state[3], e = state[4];
-        schedule.forEach(function (sch, j) {
-            var f, rc;
+        let [a, b, c, d, e] = state;
+        schedule.forEach((sch, j) => {
+            let f, rc;
             switch (Math.floor(j / 20)) {
                 case 0:
                     f = (b & c) | (~b & d);
@@ -162,7 +147,7 @@ function calcSha1Hash(message) {
                     break;
                 default: throw new Error("Assertion error");
             }
-            var temp = (((a << 5) | (a >>> 27)) + f + e + sch + rc) >>> 0;
+            const temp = (((a << 5) | (a >>> 27)) + f + e + sch + rc) >>> 0;
             e = d;
             d = c;
             c = (b << 30) | (b >>> 2);
@@ -174,28 +159,23 @@ function calcSha1Hash(message) {
         state[2] = (state[2] + c) >>> 0;
         state[3] = (state[3] + d) >>> 0;
         state[4] = (state[4] + e) >>> 0;
-    };
-    for (var i = 0; i < msg.length; i += 64) {
-        _loop_1(i);
     }
-    var result = [];
-    for (var _a = 0, state_1 = state; _a < state_1.length; _a++) {
-        var val = state_1[_a];
-        for (var i = 3; i >= 0; i--)
+    let result = [];
+    for (const val of state) {
+        for (let i = 3; i >= 0; i--)
             result.push((val >>> (i * 8)) & 0xFF);
     }
     return result;
 }
 function decodeBase32(str) {
-    var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-    var result = [];
-    var bits = 0;
-    var bitsLen = 0;
-    for (var _i = 0, str_1 = str; _i < str_1.length; _i++) {
-        var c = str_1[_i];
+    const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+    let result = [];
+    let bits = 0;
+    let bitsLen = 0;
+    for (const c of str) {
         if (c == " ")
             continue;
-        var i = ALPHABET.indexOf(c.toUpperCase());
+        const i = ALPHABET.indexOf(c.toUpperCase());
         if (i == -1)
             throw new RangeError("Invalid Base32 string");
         bits = (bits << 5) | i;
@@ -221,7 +201,7 @@ function selfCheck() {
     }
 }
 function testHotp() {
-    var CASES = [
+    const CASES = [
         [0, "284755224"],
         [1, "094287082"],
         [2, "137359152"],
@@ -233,20 +213,19 @@ function testHotp() {
         [8, "673399871"],
         [9, "645520489"],
     ];
-    var SECRET_KEY = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30];
-    for (var _i = 0, CASES_1 = CASES; _i < CASES_1.length; _i++) {
-        var _a = CASES_1[_i], counter = _a[0], expect = _a[1];
-        var counterBytes = [];
-        for (var i = 0; i < 8; i++, counter = Math.floor(counter / 256))
+    const SECRET_KEY = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30];
+    for (let [counter, expect] of CASES) {
+        let counterBytes = [];
+        for (let i = 0; i < 8; i++, counter = Math.floor(counter / 256))
             counterBytes.push(counter & 0xFF);
         counterBytes.reverse();
-        var actual = calcHotp(SECRET_KEY, counterBytes, 9);
+        const actual = calcHotp(SECRET_KEY, counterBytes, 9);
         if (actual != expect)
             throw new Error("Value mismatch");
     }
 }
 function testTotp() {
-    var CASES = [
+    const CASES = [
         [59, "94287082"],
         [1111111109, "07081804"],
         [1111111111, "14050471"],
@@ -254,10 +233,9 @@ function testTotp() {
         [2000000000, "69279037"],
         [20000000000, "65353130"],
     ];
-    var SECRET_KEY = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30];
-    for (var _i = 0, CASES_2 = CASES; _i < CASES_2.length; _i++) {
-        var _a = CASES_2[_i], timestamp = _a[0], expect = _a[1];
-        var actual = calcTotp(SECRET_KEY, 0, 30, timestamp, 8);
+    const SECRET_KEY = [0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x30];
+    for (const [timestamp, expect] of CASES) {
+        const actual = calcTotp(SECRET_KEY, 0, 30, timestamp, 8);
         if (actual != expect)
             throw new Error("Value mismatch");
     }

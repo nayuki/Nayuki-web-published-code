@@ -22,9 +22,9 @@
  */
 "use strict";
 /*---- Test suite ----*/
-var TEST_SUITE_FUNCS = [
+const TEST_SUITE_FUNCS = [
     function testPush() {
-        var list = new AvlTreeList();
+        let list = new AvlTreeList();
         list.push("January");
         list.push("February");
         list.push("March");
@@ -41,8 +41,8 @@ var TEST_SUITE_FUNCS = [
         assertEquals("June", list.get(5));
     },
     function testSet() {
-        var list = new AvlTreeList();
-        for (var i = 0; i < 10; i++)
+        let list = new AvlTreeList();
+        for (let i = 0; i < 10; i++)
             list.push(null);
         list.set(0, "zero");
         list.set(1, "ten");
@@ -67,7 +67,7 @@ var TEST_SUITE_FUNCS = [
         assertEquals("ninety", list.get(9));
     },
     function testInsertAtBeginning() {
-        var list = new AvlTreeList();
+        let list = new AvlTreeList();
         list.insert(0, "Sunday");
         list.insert(0, "Monday");
         list.insert(0, "Tuesday");
@@ -77,7 +77,7 @@ var TEST_SUITE_FUNCS = [
         assertEquals("Sunday", list.get(2));
     },
     function testInsertAtEnd() {
-        var list = new AvlTreeList();
+        let list = new AvlTreeList();
         list.insert(0, "Saturday");
         list.insert(1, "Friday");
         list.insert(2, "Thursday");
@@ -89,7 +89,7 @@ var TEST_SUITE_FUNCS = [
         assertEquals("Wednesday", list.get(3));
     },
     function testInsertAtMiddle() {
-        var list = new AvlTreeList();
+        let list = new AvlTreeList();
         list.insert(0, "Up");
         list.insert(1, "Down");
         list.insert(1, "Left");
@@ -106,11 +106,11 @@ var TEST_SUITE_FUNCS = [
     },
     // Stresses the self-balancing mechanism
     function testInsertManyBeginning() {
-        var list = new AvlTreeList();
-        for (var i_1 = 99999; i_1 >= 0; i_1--)
-            list.insert(0, i_1);
-        var i = 0;
-        for (var iter = list.iterator(); iter.hasNext();) {
+        let list = new AvlTreeList();
+        for (let i = 99999; i >= 0; i--)
+            list.insert(0, i);
+        let i = 0;
+        for (let iter = list.iterator(); iter.hasNext();) {
             assertEquals(i, iter.next());
             assertEquals(i, list.get(i));
             i++;
@@ -118,11 +118,11 @@ var TEST_SUITE_FUNCS = [
     },
     // Stresses the self-balancing mechanism
     function testInsertManyEnd() {
-        var list = new AvlTreeList();
-        for (var i_2 = 0; i_2 < 100000; i_2++)
-            list.push(i_2);
-        var i = 0;
-        for (var iter = list.iterator(); iter.hasNext();) {
+        let list = new AvlTreeList();
+        for (let i = 0; i < 100000; i++)
+            list.push(i);
+        let i = 0;
+        for (let iter = list.iterator(); iter.hasNext();) {
             assertEquals(i, iter.next());
             assertEquals(i, list.get(i));
             i++;
@@ -130,22 +130,22 @@ var TEST_SUITE_FUNCS = [
     },
     // Adds in a weird binary pattern to stress arrays and linked lists
     function testInsertManyEverywhere() {
-        var N = 17;
-        var list = new AvlTreeList();
+        const N = 17;
+        let list = new AvlTreeList();
         list.push(0);
-        for (var i_3 = N - 1; i_3 >= 0; i_3--) {
-            for (var j = 1 << i_3, k = 1; j < (1 << N); j += 2 << i_3, k += 2)
+        for (let i = N - 1; i >= 0; i--) {
+            for (let j = 1 << i, k = 1; j < (1 << N); j += 2 << i, k += 2)
                 list.insert(k, j);
         }
-        var i = 0;
-        for (var iter = list.iterator(); iter.hasNext();) {
+        let i = 0;
+        for (let iter = list.iterator(); iter.hasNext();) {
             assertEquals(i, iter.next());
             assertEquals(i, list.get(i));
             i++;
         }
     },
     function testNewFromArrayShiftPop() {
-        var list = new AvlTreeList([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4, 6, 2, 6, 4, 3, 3, 8, 3]);
+        let list = new AvlTreeList([3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 8, 9, 7, 9, 3, 2, 3, 8, 4, 6, 2, 6, 4, 3, 3, 8, 3]);
         assertEquals(28, list.length);
         assertEquals(3, list.shift());
         assertEquals(3, list.pop());
@@ -162,9 +162,9 @@ var TEST_SUITE_FUNCS = [
         assertEquals(2, list.shift());
     },
     function testRemove() {
-        var list = new AvlTreeList();
-        var str = "the quick brown fox jumped over the lazy dog";
-        for (var i = 0; i < str.length; i++)
+        let list = new AvlTreeList();
+        let str = "the quick brown fox jumped over the lazy dog";
+        for (let i = 0; i < str.length; i++)
             list.push(str.charAt(i));
         assertEquals(str.length, list.length);
         assertEquals("e", list.get(2));
@@ -213,7 +213,7 @@ var TEST_SUITE_FUNCS = [
         list.remove(22);
         str = "thick broom or they do";
         assertEquals(str.length, list.length);
-        for (var i = 0; i < str.length; i++)
+        for (let i = 0; i < str.length; i++)
             assertEquals(str.charAt(i), list.get(i));
         assertEquals("t", list.get(0));
         list.remove(0);
@@ -247,12 +247,12 @@ var TEST_SUITE_FUNCS = [
         list.remove(6);
         str = "him red";
         assertEquals(str.length, list.length);
-        for (var i = 0; i < str.length; i++)
+        for (let i = 0; i < str.length; i++)
             assertEquals(str.charAt(i), list.get(i));
     },
     function testClear() {
-        var list = new AvlTreeList();
-        for (var i = 0; i < 20; i++)
+        let list = new AvlTreeList();
+        for (let i = 0; i < 20; i++)
             list.push(i * i);
         list.clear();
         assertEquals(0, list.length);
@@ -265,10 +265,10 @@ var TEST_SUITE_FUNCS = [
         assertEquals(-27, list.get(2));
     },
     function testSlice() {
-        var list = new AvlTreeList([2, 7, 1, 8, 2, 8, 1, 8, 2, 8, 4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0]);
-        var temp = list.slice();
+        let list = new AvlTreeList([2, 7, 1, 8, 2, 8, 1, 8, 2, 8, 4, 5, 9, 0, 4, 5, 2, 3, 5, 3, 6, 0]);
+        let temp = list.slice();
         assertEquals(list.length, temp.length);
-        for (var i = 0; i < list.length; i++)
+        for (let i = 0; i < list.length; i++)
             assertEquals(list.get(i), temp.get(i));
         temp.remove(5);
         temp.set(2, 0);
@@ -280,8 +280,8 @@ var TEST_SUITE_FUNCS = [
         assertArrayEquals([3, 6], list.slice(-3, -1).toArray());
     },
     function testSplice() {
-        var list = new AvlTreeList([1, 6, 1, 8, 0, 3, 3, 9, 8, 8, 7, 4, 9, 8, 9, 4, 8, 4, 8, 2, 0, 4, 5, 8, 6, 8, 3, 4, 3]);
-        var temp = list.splice(0, 0);
+        let list = new AvlTreeList([1, 6, 1, 8, 0, 3, 3, 9, 8, 8, 7, 4, 9, 8, 9, 4, 8, 4, 8, 2, 0, 4, 5, 8, 6, 8, 3, 4, 3]);
+        let temp = list.splice(0, 0);
         assertEquals(true, temp instanceof AvlTreeList);
         assertEquals(0, temp.length);
         assertEquals(29, list.length);
@@ -306,22 +306,22 @@ var TEST_SUITE_FUNCS = [
         assertEquals(8, list.get(9));
     },
     function testForEach() {
-        var list = new AvlTreeList([1, 4, 1, 4, 2]);
-        var arr = [];
-        list.forEach(function (val, i) {
+        let list = new AvlTreeList([1, 4, 1, 4, 2]);
+        let arr = [];
+        list.forEach((val, i) => {
             arr.push(i);
             arr.push(val);
         });
         assertArrayEquals([0, 1, 1, 4, 2, 1, 3, 4, 4, 2], arr);
-        var obj = {};
+        let obj = {};
         list.forEach(function () { assertEquals(obj, this); }, obj);
     },
     function testIterator() {
-        var list = new AvlTreeList();
-        for (var i = 0; i < 50; i++)
+        let list = new AvlTreeList();
+        for (let i = 0; i < 50; i++)
             list.push(i * i);
-        var iter = list.iterator();
-        for (var i = 0; i < 50; i++) {
+        let iter = list.iterator();
+        for (let i = 0; i < 50; i++) {
             assertEquals(true, iter.hasNext());
             assertEquals(i * i, iter.next());
         }
@@ -329,11 +329,11 @@ var TEST_SUITE_FUNCS = [
     },
     // Tests most of the defined methods.
     function testAgainstJavascriptListRandomly() {
-        var list0 = [];
-        var list1 = new AvlTreeList();
-        var size = 0;
-        for (var i = 0; i < 10000; i++) {
-            var op = Math.random();
+        let list0 = [];
+        let list1 = new AvlTreeList();
+        let size = 0;
+        for (let i = 0; i < 10000; i++) {
+            const op = Math.random();
             if (op < 0.01) { // To array and clear
                 list1.checkStructure();
                 assertArrayEquals(list0, list1.toArray());
@@ -343,56 +343,56 @@ var TEST_SUITE_FUNCS = [
             }
             else if (op < 0.02) { // Set
                 if (size > 0) {
-                    var index = Math.floor(Math.random() * size);
-                    var val = Math.random();
+                    const index = Math.floor(Math.random() * size);
+                    const val = Math.random();
                     list0[index] = val;
                     list1.set(index, val);
                 }
             }
             else if (op < 0.30) { // Random insertion
-                var n = Math.floor(Math.random() * 100) + 1;
+                const n = Math.floor(Math.random() * 100) + 1;
                 for (var j = 0; j < n; j++) {
-                    var index = Math.floor(Math.random() * (size + 1));
-                    var val = Math.random();
+                    const index = Math.floor(Math.random() * (size + 1));
+                    const val = Math.random();
                     list0.splice(index, 0, val);
                     list1.insert(index, val);
                 }
                 size += n;
             }
             else if (op < 0.50) { // Ascending insertion
-                var n = Math.floor(Math.random() * 100) + 1;
-                var offset = Math.floor(Math.random() * (size + 1));
-                for (var j_1 = 0; j_1 < n; j_1++, offset++) {
-                    var val = Math.random();
+                const n = Math.floor(Math.random() * 100) + 1;
+                let offset = Math.floor(Math.random() * (size + 1));
+                for (let j = 0; j < n; j++, offset++) {
+                    const val = Math.random();
                     list0.splice(offset, 0, val);
                     list1.insert(offset, val);
                 }
                 size += n;
             }
             else if (op < 0.70) { // Descending insertion
-                var n = Math.floor(Math.random() * 100) + 1;
-                var offset = Math.floor(Math.random() * (size + 1));
-                for (var j_2 = 0; j_2 < n; j_2++) {
-                    var val = Math.random();
+                const n = Math.floor(Math.random() * 100) + 1;
+                const offset = Math.floor(Math.random() * (size + 1));
+                for (let j = 0; j < n; j++) {
+                    const val = Math.random();
                     list0.splice(offset, 0, val);
                     list1.insert(offset, val);
                 }
                 size += n;
             }
             else if (op < 0.80) { // Random deletion
-                var n = Math.floor(Math.random() * 100) + 1;
-                for (var j_3 = 0; j_3 < n && size > 0; j_3++, size--) {
-                    var index = Math.floor(Math.random() * size);
+                const n = Math.floor(Math.random() * 100) + 1;
+                for (let j = 0; j < n && size > 0; j++, size--) {
+                    const index = Math.floor(Math.random() * size);
                     assertEquals(list0[index], list1.get(index));
                     list0.splice(index, 1);
                     list1.remove(index);
                 }
             }
             else if (op < 0.90) { // Ascending deletion
-                var n = Math.floor(Math.random() * 100) + 1;
+                const n = Math.floor(Math.random() * 100) + 1;
                 if (size > 0) {
-                    var offset = Math.floor(Math.random() * size);
-                    for (var j_4 = 0; j_4 < n && offset < size; j_4++, size--) {
+                    const offset = Math.floor(Math.random() * size);
+                    for (let j = 0; j < n && offset < size; j++, size--) {
                         assertEquals(list0[offset], list1.get(offset));
                         list0.splice(offset, 1);
                         list1.remove(offset);
@@ -400,10 +400,10 @@ var TEST_SUITE_FUNCS = [
                 }
             }
             else if (op < 1.00) { // Descending deletion
-                var n = Math.floor(Math.random() * 100) + 1;
+                const n = Math.floor(Math.random() * 100) + 1;
                 if (size > 0) {
-                    var offset = Math.floor(Math.random() * size);
-                    for (var j_5 = 0; j_5 < n && offset >= 0; j_5++, offset--, size--) {
+                    let offset = Math.floor(Math.random() * size);
+                    for (let j = 0; j < n && offset >= 0; j++, offset--, size--) {
                         assertEquals(list0[offset], list1.get(offset));
                         list0.splice(offset, 1);
                         list1.remove(offset);
@@ -415,8 +415,8 @@ var TEST_SUITE_FUNCS = [
             assertEquals(size, list0.length);
             assertEquals(size, list1.length);
             if (size > 0) {
-                for (var j_6 = 0; j_6 < 10; j_6++) {
-                    var index = Math.floor(Math.random() * size);
+                for (let j = 0; j < 10; j++) {
+                    const index = Math.floor(Math.random() * size);
                     assertEquals(list0[index], list1.get(index));
                 }
             }
@@ -433,14 +433,14 @@ function assertArrayEquals(expected, actual) {
         throw new TypeError("Illegal argument");
     if (expected.length != actual.length)
         throw new Error("Array length mismatch");
-    for (var i = 0; i < expected.length; i++)
+    for (let i = 0; i < expected.length; i++)
         assertEquals(expected[i], actual[i]);
 }
 /*---- Main runner ----*/
 (function () {
-    var i = 0;
+    let i = 0;
     function iterate() {
-        var msg;
+        let msg;
         if (i >= TEST_SUITE_FUNCS.length)
             msg = "Finished";
         else {
@@ -455,7 +455,7 @@ function assertArrayEquals(expected, actual) {
             i++;
             setTimeout(iterate);
         }
-        var li = document.createElement("li");
+        let li = document.createElement("li");
         li.textContent = msg;
         document.getElementById("results").appendChild(li);
     }

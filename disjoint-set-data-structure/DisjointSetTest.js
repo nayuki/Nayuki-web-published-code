@@ -22,9 +22,9 @@
  */
 "use strict";
 /*---- Test suite ----*/
-var TEST_SUITE_FUNCS = [
+const TEST_SUITE_FUNCS = [
     function testNew() {
-        var ds = new DisjointSet(10);
+        let ds = new DisjointSet(10);
         assertEquals(10, ds.getNumSets());
         assertEquals(1, ds.getSizeOfSet(0));
         assertEquals(1, ds.getSizeOfSet(2));
@@ -35,7 +35,7 @@ var TEST_SUITE_FUNCS = [
         ds.checkStructure();
     },
     function testMerge() {
-        var ds = new DisjointSet(10);
+        let ds = new DisjointSet(10);
         assertTrue(ds.mergeSets(0, 1));
         ds.checkStructure();
         assertEquals(9, ds.getNumSets());
@@ -56,38 +56,38 @@ var TEST_SUITE_FUNCS = [
         assertTrue(ds.areInSameSet(1, 3));
     },
     function testBigMerge() {
-        var maxRank = 20;
-        var trials = 10000;
-        var numElems = 1 << maxRank; // Grows exponentially
-        var ds = new DisjointSet(numElems);
-        for (var level = 0; level < maxRank; level++) {
-            var mergeStep = 1 << level;
-            var incrStep = mergeStep * 2;
-            for (var i = 0; i < numElems; i += incrStep) {
+        const maxRank = 20;
+        const trials = 10000;
+        const numElems = 1 << maxRank; // Grows exponentially
+        let ds = new DisjointSet(numElems);
+        for (let level = 0; level < maxRank; level++) {
+            const mergeStep = 1 << level;
+            const incrStep = mergeStep * 2;
+            for (let i = 0; i < numElems; i += incrStep) {
                 assertFalse(ds.areInSameSet(i, i + mergeStep));
                 assertTrue(ds.mergeSets(i, i + mergeStep));
             }
             // Now we have a bunch of sets of size 2^(level+1)
             // Do random tests
-            var mask = -incrStep; // 0b11...100...00
-            for (var i = 0; i < trials; i++) {
-                var j = Math.floor(Math.random() * numElems);
-                var k = Math.floor(Math.random() * numElems);
-                var expect = (j & mask) == (k & mask);
+            const mask = -incrStep; // 0b11...100...00
+            for (let i = 0; i < trials; i++) {
+                const j = Math.floor(Math.random() * numElems);
+                const k = Math.floor(Math.random() * numElems);
+                const expect = (j & mask) == (k & mask);
                 assertTrue(expect == ds.areInSameSet(j, k));
             }
         }
     },
     function testAgainstNaiveRandomly() {
-        var trials = 100;
-        var iterations = 1000;
-        var numElems = 100;
-        for (var i = 0; i < trials; i++) {
-            var nds = new NaiveDisjointSet(numElems);
-            var ds = new DisjointSet(numElems);
-            for (var j = 0; j < iterations; j++) {
-                var k = Math.floor(Math.random() * numElems);
-                var l = Math.floor(Math.random() * numElems);
+        const trials = 100;
+        const iterations = 1000;
+        const numElems = 100;
+        for (let i = 0; i < trials; i++) {
+            let nds = new NaiveDisjointSet(numElems);
+            let ds = new DisjointSet(numElems);
+            for (let j = 0; j < iterations; j++) {
+                const k = Math.floor(Math.random() * numElems);
+                const l = Math.floor(Math.random() * numElems);
                 assertEquals(nds.getSizeOfSet(k), ds.getSizeOfSet(k));
                 assertTrue(nds.areInSameSet(k, l) == ds.areInSameSet(k, l));
                 if (Math.random() < 0.1)
@@ -101,45 +101,42 @@ var TEST_SUITE_FUNCS = [
     },
 ];
 /*---- Helper definitions ----*/
-var NaiveDisjointSet = /** @class */ (function () {
-    function NaiveDisjointSet(numElems) {
+class NaiveDisjointSet {
+    constructor(numElems) {
         this.representatives = [];
-        for (var i = 0; i < numElems; i++)
+        for (let i = 0; i < numElems; i++)
             this.representatives.push(i);
     }
-    NaiveDisjointSet.prototype.getNumSets = function () {
-        var result = 0;
-        this.representatives.forEach(function (repr, i) {
+    getNumSets() {
+        let result = 0;
+        this.representatives.forEach((repr, i) => {
             if (repr == i)
                 result++;
         });
         return result;
-    };
-    NaiveDisjointSet.prototype.getSizeOfSet = function (elemIndex) {
-        var repr = this.representatives[elemIndex];
-        var result = 0;
-        for (var _i = 0, _a = this.representatives; _i < _a.length; _i++) {
-            var r = _a[_i];
+    }
+    getSizeOfSet(elemIndex) {
+        const repr = this.representatives[elemIndex];
+        let result = 0;
+        for (const r of this.representatives) {
             if (r == repr)
                 result++;
         }
         return result;
-    };
-    NaiveDisjointSet.prototype.areInSameSet = function (elemIndex0, elemIndex1) {
+    }
+    areInSameSet(elemIndex0, elemIndex1) {
         return this.representatives[elemIndex0] == this.representatives[elemIndex1];
-    };
-    NaiveDisjointSet.prototype.mergeSets = function (elemIndex0, elemIndex1) {
-        var _this = this;
-        var repr0 = this.representatives[elemIndex0];
-        var repr1 = this.representatives[elemIndex1];
-        this.representatives.forEach(function (r, i) {
+    }
+    mergeSets(elemIndex0, elemIndex1) {
+        const repr0 = this.representatives[elemIndex0];
+        const repr1 = this.representatives[elemIndex1];
+        this.representatives.forEach((r, i) => {
             if (r == repr1)
-                _this.representatives[i] = repr0;
+                this.representatives[i] = repr0;
         });
         return repr0 != repr1;
-    };
-    return NaiveDisjointSet;
-}());
+    }
+}
 function assertTrue(cond) {
     if (cond !== true)
         throw new Error("Assertion error");
@@ -152,9 +149,9 @@ function assertEquals(expect, actual) {
 }
 /*---- Main runner ----*/
 (function () {
-    var i = 0;
+    let i = 0;
     function iterate() {
-        var msg;
+        let msg;
         if (i >= TEST_SUITE_FUNCS.length)
             msg = "Finished";
         else {
@@ -169,7 +166,7 @@ function assertEquals(expect, actual) {
             i++;
             setTimeout(iterate);
         }
-        var li = document.createElement("li");
+        let li = document.createElement("li");
         li.textContent = msg;
         document.getElementById("results").appendChild(li);
     }
