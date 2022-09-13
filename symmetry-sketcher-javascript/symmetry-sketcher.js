@@ -188,14 +188,14 @@ function getLocalCoordinates(ev) {
 
 // Handlers for canvas element
 
-canvasElem.onmouseover = function(ev) {
+canvasElem.onmouseover = ev => {
 	if (isDone)
 		return;
 	var coord = getLocalCoordinates(ev);
 	drawHover(coord[0], coord[1]);
 };
 
-canvasElem.onmousemove = function(ev) {
+canvasElem.onmousemove = ev => {
 	if (isDone)
 		return;
 	var coord = getLocalCoordinates(ev);
@@ -209,14 +209,14 @@ canvasElem.onmousemove = function(ev) {
 	drawHover(coord[0], coord[1]);
 };
 
-canvasElem.onmouseout = function() {
+canvasElem.onmouseout = () => {
 	if (isDone)
 		return;
 	screenGfx.drawImage(guideCanvas, 0, 0);
-	this.onmouseup();
+	canvasElem.onmouseup();
 };
 
-canvasElem.onmousedown = function(ev) {
+canvasElem.onmousedown = ev => {
 	if (!isDone && !isMouseDown) {
 		undoImages.push(baseGfx.getImageData(0, 0, width, height));
 		if (undoImages.length > MAX_UNDO_IMAGES)
@@ -231,12 +231,12 @@ canvasElem.onmousedown = function(ev) {
 	}
 };
 
-canvasElem.onmouseup = function() {
+canvasElem.onmouseup = () => {
 	isMouseDown = false;
 	lastCoord = null;
 };
 
-canvasElem.onwheel = function(ev) {
+canvasElem.onwheel = ev => {
 	if (isDone)
 		return;
 	if (!isMouseDown && !isNaN(strokeWidth)) {
@@ -252,7 +252,7 @@ canvasElem.onwheel = function(ev) {
 	return false;
 };
 
-canvasElem.oncontextmenu = function() {
+canvasElem.oncontextmenu = () => {
 	if (!isDone)
 		return false;
 };
@@ -294,7 +294,7 @@ setAndCallHandler("show-guidelines", "onchange", function() {
 
 // Handlers for button elements
 
-element("clear-button").onclick = function() {
+element("clear-button").onclick = () => {
 	if (confirm("Clear the drawing?")) {
 		initCanvasesSize();
 		updatePaintColor();
@@ -306,20 +306,20 @@ element("clear-button").onclick = function() {
 	}
 };
 
-undoButtonElem.onclick = function() {
+undoButtonElem.onclick = () => {
 	baseGfx.putImageData(undoImages.pop(), 0, 0);
-	this.disabled = undoImages.length == 0;
+	undoButtonElem.disabled = undoImages.length == 0;
 	redrawGuideCanvas();
 	screenGfx.drawImage(guideCanvas, 0, 0);
 };
 
-doneButtonElem.onclick = function() {
+doneButtonElem.onclick = () => {
 	if (isDone) {
-		this.value = "Done";
+		doneButtonElem.value = "Done";
 		isDone = false;
 		canvasElem.style.removeProperty("cursor");
 	} else {
-		this.value = "Resume";
+		doneButtonElem.value = "Resume";
 		isDone = true;
 		undoImages = [];
 		undoButtonElem.disabled = true;
@@ -328,7 +328,7 @@ doneButtonElem.onclick = function() {
 	}
 };
 
-document.onkeydown = function(ev) {
+document.onkeydown = ev => {
 	if (!isMouseDown && undoImages.length > 0 && ev.key == "z" && ev.ctrlKey) {
 		undoButtonElem.onclick();
 		return false;
@@ -338,7 +338,7 @@ document.onkeydown = function(ev) {
 // For the text boxes, confine keystrokes to the element itself and not propagate to the document root
 (function() {
 	for (let elem of document.getElementsByTagName("input"))
-		elem.onkeypress = function(ev) { ev.stopPropagation(); };
+		elem.onkeypress = ev => ev.stopPropagation();
 })();
 
 

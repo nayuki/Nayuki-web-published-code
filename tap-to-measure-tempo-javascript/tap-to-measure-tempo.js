@@ -1,7 +1,7 @@
 /* 
  * Tap to measure tempo
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/tap-to-measure-tempo-javascript
  */
@@ -36,7 +36,7 @@
 		var bPrev = NaN;
 		
 		
-		document.onkeydown = function() {
+		document.onkeydown = () => {
 			// Add beat
 			beatTimes.push(Date.now());
 			var n = beatTimes.length;
@@ -93,7 +93,7 @@
 		};
 		
 		
-		document.querySelector("#program button#done").onclick = function() {
+		document.querySelector("#program button#done").onclick = () => {
 			document.onkeydown = null;
 			clearText("simple-position");
 			clearText("simple-last-dev");

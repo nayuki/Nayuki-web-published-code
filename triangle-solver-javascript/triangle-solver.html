@@ -440,7 +440,7 @@
 			function initImageMap() {
 				var container = document.getElementById("diagramcontainer");
 				var containerWidth = parseEm(container.style.width);
-				rectangles.forEach(function(rect, i) {
+				rectangles.forEach((rect, i) => {
 					var elem = document.createElement("a");
 					container.insertBefore(elem, container.querySelector("#hoveroutput"));
 					elem.href = "#";
@@ -451,7 +451,7 @@
 					elem.style.top  = rect[1] * containerWidth + "em";
 					elem.style.width = elem.style.height = RECT_PADDED_SIZE * containerWidth + "em";
 					
-					elem.onmouseover = function() {
+					elem.onmouseover = () => {
 						if (solution === null)
 							return;
 						
@@ -470,11 +470,11 @@
 						hovelem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
 					};
 					
-					elem.onmouseout = function() {
+					elem.onmouseout = () => {
 						setElementText("hoveroutput", "");
 						document.getElementById("hoveroutput").style.display = "none";
 					};
-					elem.onclick = function(ev) {
+					elem.onclick = ev => {
 						ev.preventDefault();
 						document.getElementById(ioNames[i] + "in").select();
 					};

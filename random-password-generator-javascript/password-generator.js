@@ -45,7 +45,7 @@ function initCharsets() {
 	
 	var container = document.querySelector("#charset tbody");
 	var endElem = document.querySelector("#charset tbody > tr:last-child");
-	CHARACTER_SETS.forEach(function(entry, i) {
+	CHARACTER_SETS.forEach((entry, i) => {
 		var tr = createElem("tr");
 		var td = tr.appendChild(createElem("td"));
 		var input = td.appendChild(createElem("input", {
@@ -158,7 +158,7 @@ function doCopy() {
 function getPasswordCharacterSet() {
 	// Concatenate characters from every checked entry
 	var rawCharset = "";
-	CHARACTER_SETS.forEach(function(entry, i) {
+	CHARACTER_SETS.forEach((entry, i) => {
 		if (document.getElementById("charset-" + i).checked)
 			rawCharset += entry[2];
 	});

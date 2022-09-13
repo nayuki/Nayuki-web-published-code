@@ -33,7 +33,7 @@ var app = new function() {
 		outputState.inputText = textElem.value;
 		
 		outputState.entropies = getAllEntropies(outputState.inputText);
-		outputState.entropies.sort(function(x, y) {
+		outputState.entropies.sort((x, y) => {
 			// Compare by lowest entropy, break ties by lowest shift
 			if (x[1] != y[1])
 				return x[1] - y[1];
@@ -62,9 +62,8 @@ var app = new function() {
 			var tr = appendElem(guessesElem, "tr");
 			if (item[0] == outputState.shift)
 				tr.classList.add("active");
-			tr.onclick = function() {
+			tr.onclick = () =>
 				doShift(item[0] - outputState.shift);
-			};
 			
 			appendElem(tr, "td", item[0].toString());
 			appendElem(tr, "td", item[1].toFixed(3));

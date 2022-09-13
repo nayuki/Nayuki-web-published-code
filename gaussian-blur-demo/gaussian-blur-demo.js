@@ -253,7 +253,7 @@ function FftConvolver(kernelReal, kernelImag) {
 // callback to precompute and paint things when the image is loaded.
 function loadImage(url) {
 	image.src = url;
-	image.onload = function() {
+	image.onload = () => {
 		// Set numbers
 		canvasElem.width  = width  = image.width;
 		canvasElem.height = height = image.height;
