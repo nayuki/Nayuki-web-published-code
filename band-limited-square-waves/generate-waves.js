@@ -29,9 +29,9 @@ function updateWaveParams() {
 		return;
 	
 	var elems = document.querySelectorAll("input[type=radio][name=wave-type]");
-	for (var i = 0; i < elems.length; i++) {
-		if (elems[i].checked)
-			state.waveType = elems[i].value;
+	for (const elem of elems) {
+		if (elem.checked)
+			state.waveType = elem.value;
 	}
 	
 	state.frequency = parseFloat(document.getElementById("frequency-number").value);

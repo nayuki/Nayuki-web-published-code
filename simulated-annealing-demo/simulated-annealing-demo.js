@@ -1,7 +1,7 @@
 /* 
  * Simulated annealing on image demo (JavaScript)
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/simulated-annealing-demo
  */
@@ -12,9 +12,9 @@
 (function() {
 	var imgElem = document.getElementById("sim-anea-image");
 	var linkElems = document.querySelectorAll("#sim-anea-table a");
-	for (var i = 0; i < linkElems.length; i++) {
-		ImageSwitcher.register(linkElems[i], imgElem, null, "mouseover");
-		ImageSwitcher.register(linkElems[i], imgElem, null, "click");
+	for (let linkElem of linkElems) {
+		ImageSwitcher.register(linkElem, imgElem, null, "mouseover");
+		ImageSwitcher.register(linkElem, imgElem, null, "click");
 	}
 })();
 

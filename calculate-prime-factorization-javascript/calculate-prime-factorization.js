@@ -134,12 +134,12 @@ var app = new function() {
 		var result = [];
 		var prevFactor = factors[0];
 		var count = 1;
-		for (var i = 1; i < factors.length; i++) {
-			if (factors[i] == prevFactor) {
+		for (const factor of factors.slice(1)) {
+			if (factor == prevFactor) {
 				count++;
 			} else {
 				result.push([prevFactor, count]);
-				prevFactor = factors[i];
+				prevFactor = factor;
 				count = 1;
 			}
 		}
