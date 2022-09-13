@@ -216,10 +216,10 @@ function getInputNumber(elemId) {
 function doClearOutputs() {
 	solution = null;
 	document.getElementById("formtable").classList.add("onesoln");
-	ioNames.forEach(function(name) {
+	for (const name of ioNames) {
 		setElementText(name + "out" , "");
 		setElementText(name + "out2", "");
-	});
+	}
 	setElementText("status", "");
 }
 

@@ -205,7 +205,7 @@ var app;
         // encode the entire string prefix of length i, and end in modeTypes[j]
         let prevCosts = headCosts.slice();
         // Calculate costs using dynamic programming
-        text.forEach((c, i) => {
+        for (const c of text) {
             let cModes = modeTypes.map(_ => null);
             let curCosts = modeTypes.map(_ => Infinity);
             { // Always extend a byte mode segment
@@ -237,7 +237,7 @@ var app;
             });
             charModes.push(cModes);
             prevCosts = curCosts;
-        });
+        }
         // Find optimal ending mode
         let curModeIndex = 0;
         modeTypes.forEach((mode, i) => {

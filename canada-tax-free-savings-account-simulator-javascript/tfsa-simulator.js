@@ -153,7 +153,8 @@ function display() {
 		if (typeof content == "string")
 			content = [document.createTextNode(content)];
 		var td = tr.appendChild(document.createElement("td"));
-		content.forEach(td.appendChild, td);
+		for (const item of content)
+			td.appendChild(item);
 	}
 	
 	function formatMoney(amount) {

@@ -343,7 +343,7 @@ namespace app {
 			let tr = appendNewElem(tbody, "tr");
 			let td = appendNewElem(tr, "td", ver);
 			const numCodewords = Math.ceil(QrSegment.getTotalBits(segs, ver) / 8);
-			ERRCORRLVLS.forEach(e => {
+			for (const e of ERRCORRLVLS) {
 				let td = appendNewElem(tr, "td");
 				const capacityCodewords: int = QrCode.getNumDataCodewords(ver, e);
 				td.textContent = capacityCodewords.toString();
@@ -355,7 +355,7 @@ namespace app {
 					} else
 						td.classList.add("false");
 				}
-			});
+			}
 		}
 		getElem("chosen-version").textContent = result != -1 ? result.toString() : "Cannot fit any version";
 		return result;
@@ -366,7 +366,8 @@ namespace app {
 		let allBits: Array<bit> = [];
 		let tbody = clearChildren("#segment-and-padding-bits tbody");
 		function addRow(name: string, bits: Array<bit>): void {
-			bits.forEach(b => allBits.push(b));
+			for (const b of bits)
+				allBits.push(b);
 			let tr = appendNewElem(tbody, "tr");
 			const cells: Array<string|int> = [
 				name,
@@ -374,8 +375,8 @@ namespace app {
 				bits.length,
 				allBits.length,
 			];
-			cells.forEach(s =>
-				appendNewElem(tr, "td", s));
+			for (const s of cells)
+				appendNewElem(tr, "td", s);
 		}
 		
 		segs.forEach((seg, i) => {
@@ -448,11 +449,11 @@ namespace app {
 				appendNewElem(tr, "th", i);
 				
 				if (isDataRow) {
-					dataBlocks.forEach(block =>
-						appendNewElem(tr, "td", i < block.length ? byteToHex(block[i].value) : ""));
+					for (const block of dataBlocks)
+						appendNewElem(tr, "td", i < block.length ? byteToHex(block[i].value) : "");
 				} else {
-					eccBlocks.forEach(block =>
-						appendNewElem(tr, "td", byteToHex(block[i - (shortBlockLen + 1 - blockEccLen)].value)));
+					for (const block of eccBlocks)
+						appendNewElem(tr, "td", byteToHex(block[i - (shortBlockLen + 1 - blockEccLen)].value));
 				}
 			}
 			verticalTh.rowSpan = shortBlockLen + 1;
@@ -576,24 +577,24 @@ namespace app {
 			const penaltyInfo = qr.computePenalties();
 			
 			let group = drawSvgAndAddGroup("horizontal-runs", maskIndex);
-			penaltyInfo.horizontalRuns.forEach(
-				run => appendRect(group, run.startX, run.startY, run.runLength, 1));
+			for (const run of penaltyInfo.horizontalRuns)
+				appendRect(group, run.startX, run.startY, run.runLength, 1);
 			
 			group = drawSvgAndAddGroup("vertical-runs", maskIndex);
-			penaltyInfo.verticalRuns.forEach(
-				run => appendRect(group, run.startX, run.startY, 1, run.runLength));
+			for (const run of penaltyInfo.verticalRuns)
+				appendRect(group, run.startX, run.startY, 1, run.runLength);
 			
 			group = drawSvgAndAddGroup("two-by-two-boxes", maskIndex);
-			penaltyInfo.twoByTwoBoxes.forEach(
-				([x, y]) => appendRect(group, x, y, 2, 2));
+			for (const [x, y] of penaltyInfo.twoByTwoBoxes)
+				appendRect(group, x, y, 2, 2);
 			
 			group = drawSvgAndAddGroup("horizontal-false-finders", maskIndex, 4);
-			penaltyInfo.horizontalFalseFinders.forEach(
-				run => appendRect(group, run.startX, run.startY, run.runLength, 1));
+			for (const run of penaltyInfo.horizontalFalseFinders)
+				appendRect(group, run.startX, run.startY, run.runLength, 1);
 			
 			group = drawSvgAndAddGroup("vertical-false-finders", maskIndex, 4);
-			penaltyInfo.verticalFalseFinders.forEach(
-				run => appendRect(group, run.startX, run.startY, 1, run.runLength));
+			for (const run of penaltyInfo.verticalFalseFinders)
+				appendRect(group, run.startX, run.startY, 1, run.runLength);
 			
 			let tds = document.querySelectorAll(`#dark-light-balance-${maskIndex} td:nth-child(2)`);
 			const total = qr.size * qr.size;

@@ -1,7 +1,7 @@
 /* 
  * Automatic Caesar cipher breaker
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/automatic-caesar-cipher-breaker-javascript
  */
@@ -58,7 +58,7 @@ var app = new function() {
 		// Build table of best guesses
 		clearChildren(guessesElem);
 		var maxEntropy = outputState.entropies[outputState.entropies.length - 1][1];
-		outputState.entropies.forEach(function(item, index) {
+		for (const item of outputState.entropies) {
 			var tr = appendElem(guessesElem, "tr");
 			if (item[0] == outputState.shift)
 				tr.classList.add("active");
@@ -73,7 +73,7 @@ var app = new function() {
 			var div = appendElem(td, "div");
 			div.classList.add("bar");
 			div.style.width = (item[1] / maxEntropy * 30).toFixed(6) + "em";
-		});
+		}
 	};
 	
 	

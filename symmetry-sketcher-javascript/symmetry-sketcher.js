@@ -81,11 +81,11 @@ function drawHover(x, y) {
 // Symmetrizes the point at the given coordinates, and draws them on the given
 // graphics context,using the global stroke width and the graphics context's stroke style.
 function drawPoint(gfx, x, y) {
-	getSymmetryPoints(x, y).forEach(function(coord) {
+	for (const coord of getSymmetryPoints(x, y)) {
 		gfx.beginPath();
 		gfx.arc(coord[0], coord[1], strokeWidth / 2, 0, Math.PI * 2, false);
 		gfx.fill();
-	});
+	}
 }
 
 

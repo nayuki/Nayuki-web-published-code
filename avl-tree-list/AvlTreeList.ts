@@ -35,8 +35,10 @@ class AvlTreeList<E> {
 	//   let a = new AvlTreeList<boolean>();  // Blank, zero-length list
 	//   let b = new AvlTreeList<number>([2,7,1,8]);  // Has the four elements 2,7,1,8
 	public constructor(arr?: Readonly<Array<E>>) {
-		if (arguments.length == 1 && arr !== undefined)
-			arr.forEach((val: E) => this.push(val));
+		if (arguments.length == 1 && arr !== undefined) {
+			for (const val of arr)
+				this.push(val);
+		}
 		else if (arguments.length != 0)
 			throw new RangeError("Illegal argument");
 	}

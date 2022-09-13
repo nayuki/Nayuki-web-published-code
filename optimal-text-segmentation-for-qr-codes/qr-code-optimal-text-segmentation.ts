@@ -244,7 +244,7 @@ namespace app {
 		let prevCosts: Array<int> = headCosts.slice();
 		
 		// Calculate costs using dynamic programming
-		text.forEach((c: CodePoint, i: int) => {
+		for (const c of text) {
 			let cModes: Array<Mode|null> = modeTypes.map(_ => null);
 			
 			let curCosts: Array<int> = modeTypes.map(_ => Infinity);
@@ -279,7 +279,7 @@ namespace app {
 			
 			charModes.push(cModes as Array<Mode>);
 			prevCosts = curCosts;
-		});
+		}
 		
 		// Find optimal ending mode
 		let curModeIndex: int = 0;

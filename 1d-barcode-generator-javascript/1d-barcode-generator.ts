@@ -145,8 +145,8 @@ namespace barcodegen {
 			"100001000", "001010000", "000101000", "010111101", "010110111", "010110001",
 		];
 		let result = new Barcode();
-		encoded.forEach(x =>
-			result.appendDigits("0" + TABLE[x] + "1"))
+		for (const x of encoded)
+			result.appendDigits("0" + TABLE[x] + "1");
 		result.appendDigits("0011100010100");  // Stop code
 		return result;
 	}

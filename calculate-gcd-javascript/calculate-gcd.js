@@ -119,11 +119,11 @@ var app;
         multiply(n) {
             let newDigits = [];
             let carry = 0;
-            this.digits.forEach(digit => {
+            for (const digit of this.digits) {
                 const sum = digit * n + carry;
                 newDigits.push(sum % 10);
                 carry = Math.floor(sum / 10);
-            });
+            }
             if (carry > 0)
                 newDigits.push(carry);
             return new Uint(newDigits);

@@ -138,11 +138,11 @@ namespace app {
 		public multiply(n: number): Uint {
 			let newDigits: Array<number> = [];
 			let carry: number = 0;
-			this.digits.forEach(digit => {
+			for (const digit of this.digits) {
 				const sum = digit * n + carry;
 				newDigits.push(sum % 10);
 				carry = Math.floor(sum / 10);
-			});
+			}
 			if (carry > 0)
 				newDigits.push(carry);
 			return new Uint(newDigits);
