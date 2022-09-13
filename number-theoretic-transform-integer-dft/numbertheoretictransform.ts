@@ -13,7 +13,7 @@ namespace numbertheoretictransform {
 	
 	// Returns the forward number-theoretic transform of the given vector with
 	// respect to the given primitive nth root of unity under the given modulus.
-	export function transform(invec: Array<bigint>, root: bigint, mod: bigint): Array<bigint> {
+	export function transform(invec: Readonly<Array<bigint>>, root: bigint, mod: bigint): Array<bigint> {
 		const n: number = invec.length;
 		let outvec: Array<bigint> = [];
 		for (let i = 0; i < n; i++) {
@@ -30,7 +30,7 @@ namespace numbertheoretictransform {
 	
 	// Returns the inverse number-theoretic transform of the given vector with
 	// respect to the given primitive nth root of unity under the given modulus.
-	export function inverseTransform(invec: Array<bigint>, root: bigint, mod: bigint): Array<bigint> {
+	export function inverseTransform(invec: Readonly<Array<bigint>>, root: bigint, mod: bigint): Array<bigint> {
 		let outvec: Array<bigint> = transform(invec, reciprocalMod(root, mod), mod);
 		let scaler: bigint = reciprocalMod(BigInt(invec.length), mod);
 		for (let i = 0; i < outvec.length; i++)
@@ -97,7 +97,7 @@ namespace numbertheoretictransform {
 	// Returns the circular convolution of the given vectors of integers.
 	// All values must be non-negative. Internally, a sufficiently large modulus
 	// is chosen so that the convolved result can be represented without overflow.
-	export function circularConvolve(vec0: Array<bigint>, vec1: Array<bigint>): Array<bigint> {
+	export function circularConvolve(vec0: Readonly<Array<bigint>>, vec1: Readonly<Array<bigint>>): Array<bigint> {
 		if (vec0.length == 0 || vec0.length != vec1.length)
 			throw new RangeError();
 		let maxval: bigint = 0n;

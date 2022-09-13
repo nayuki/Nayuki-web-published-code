@@ -294,7 +294,7 @@ namespace app {
 	}
 	
 	
-	function max(vec: Array<bigint>): bigint {
+	function max(vec: Readonly<Array<bigint>>): bigint {
 		if (vec.length == 0)
 			throw new RangeError("Empty array");
 		let result: bigint = vec[0];
@@ -306,7 +306,7 @@ namespace app {
 	}
 	
 	
-	function vectorToString(vec: Array<bigint>): string {
+	function vectorToString(vec: Readonly<Array<bigint>>): string {
 		return "[" + vec.join(", ") + "]";
 	}
 	
