@@ -22,7 +22,7 @@ var app;
         }
         // DOM helper function
         function appendTextNode(elem, s) {
-            elem.appendChild(document.createTextNode(s));
+            elem.append(s);
         }
         // Formatting helper function
         function appendGaussianInteger(n) {
@@ -50,7 +50,7 @@ var app;
             });
         }
         catch (e) {
-            outElem.appendChild(document.createTextNode(e.message));
+            outElem.append(e.message);
         }
     }
     app.doFactor = doFactor;

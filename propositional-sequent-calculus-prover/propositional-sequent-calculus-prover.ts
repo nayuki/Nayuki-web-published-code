@@ -34,7 +34,7 @@ function doProve(inputSequent: string): void {
 			let highlight = codeOutElem.appendChild(document.createElement("u"));
 			if (e.position < inputSequent.length) {
 				highlight.textContent = inputSequent.substring(e.position, e.position + 1);
-				codeOutElem.appendChild(document.createTextNode(inputSequent.substring(e.position + 1)));
+				codeOutElem.append(inputSequent.substring(e.position + 1));
 			} else
 				highlight.textContent = " ";
 		} else if (e instanceof Error)
@@ -103,7 +103,7 @@ class Sequent {
 		let result = document.createDocumentFragment();
 		
 		function appendText(text: string): void {
-			result.appendChild(document.createTextNode(text));
+			result.append(text);
 		}
 		function appendSpan(text: string, clsName: string): void {
 			let elem = result.appendChild(document.createElement("span"));

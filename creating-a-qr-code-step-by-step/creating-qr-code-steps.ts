@@ -465,7 +465,7 @@ namespace app {
 		let span = appendNewElem(output, "span",
 			result.slice(0, data.length).map(cw => byteToHex(cw.value)).join(" "));
 		span.className = "data";
-		output.appendChild(document.createTextNode(" "));
+		output.append(" ");
 		span = appendNewElem(output, "span",
 			result.slice(data.length).map(cw => byteToHex(cw.value)).join(" "));
 		span.className = "ecc";

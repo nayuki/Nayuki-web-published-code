@@ -910,7 +910,7 @@ namespace app {
 								break;
 							}
 							let frag: DocumentFragment = document.createDocumentFragment();
-							frag.appendChild(document.createTextNode("Text string: "));
+							frag.append("Text string: ");
 							let span: HTMLElement = appendElem(frag, "span", text);
 							span.style.wordBreak = "break-all";
 							chunk.innerNotes.push(frag);
@@ -967,12 +967,12 @@ namespace app {
 				const unit: byte = chunk.data[8];
 				for (const [dir, val] of ([["Horizontal", horzRes], ["Vertical", vertRes]] as Array<[string,number]>)) {
 					let frag: DocumentFragment = document.createDocumentFragment();
-					frag.appendChild(document.createTextNode(`${dir} resolution: ${val} pixels per unit`));
+					frag.append(`${dir} resolution: ${val} pixels per unit`);
 					if (unit == 1) {
-						frag.appendChild(document.createTextNode(` (\u2248 ${(val*0.0254).toFixed(0)} `));
+						frag.append(` (\u2248 ${(val*0.0254).toFixed(0)} `);
 						let abbr = appendElem(frag, "abbr", "DPI");
 						abbr.title = "dots per inch";
-						frag.appendChild(document.createTextNode(")"));
+						frag.append(")");
 					}
 					chunk.innerNotes.push(frag);
 				}
@@ -1328,7 +1328,7 @@ namespace app {
 								const textBytes: Array<byte> = deflate.decompressZlib(data.slice(separatorIndex + 2));
 								const text: string = decodeIso8859_1(textBytes);
 								let frag: DocumentFragment = document.createDocumentFragment();
-								frag.appendChild(document.createTextNode("Text string: "));
+								frag.append("Text string: ");
 								let span: HTMLElement = appendElem(frag, "span", text);
 								span.style.wordBreak = "break-all";
 								chunk.innerNotes.push(frag);

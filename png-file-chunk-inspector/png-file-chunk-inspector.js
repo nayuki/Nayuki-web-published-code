@@ -816,7 +816,7 @@ var app;
                                 break;
                             }
                             let frag = document.createDocumentFragment();
-                            frag.appendChild(document.createTextNode("Text string: "));
+                            frag.append("Text string: ");
                             let span = appendElem(frag, "span", text);
                             span.style.wordBreak = "break-all";
                             chunk.innerNotes.push(frag);
@@ -864,12 +864,12 @@ var app;
                 const unit = chunk.data[8];
                 for (const [dir, val] of [["Horizontal", horzRes], ["Vertical", vertRes]]) {
                     let frag = document.createDocumentFragment();
-                    frag.appendChild(document.createTextNode(`${dir} resolution: ${val} pixels per unit`));
+                    frag.append(`${dir} resolution: ${val} pixels per unit`);
                     if (unit == 1) {
-                        frag.appendChild(document.createTextNode(` (\u2248 ${(val * 0.0254).toFixed(0)} `));
+                        frag.append(` (\u2248 ${(val * 0.0254).toFixed(0)} `);
                         let abbr = appendElem(frag, "abbr", "DPI");
                         abbr.title = "dots per inch";
-                        frag.appendChild(document.createTextNode(")"));
+                        frag.append(")");
                     }
                     chunk.innerNotes.push(frag);
                 }
@@ -1178,7 +1178,7 @@ var app;
                                 const textBytes = deflate.decompressZlib(data.slice(separatorIndex + 2));
                                 const text = decodeIso8859_1(textBytes);
                                 let frag = document.createDocumentFragment();
-                                frag.appendChild(document.createTextNode("Text string: "));
+                                frag.append("Text string: ");
                                 let span = appendElem(frag, "span", text);
                                 span.style.wordBreak = "break-all";
                                 chunk.innerNotes.push(frag);

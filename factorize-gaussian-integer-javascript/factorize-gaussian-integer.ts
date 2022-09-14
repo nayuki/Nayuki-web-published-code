@@ -24,7 +24,7 @@ namespace app {
 		
 		// DOM helper function
 		function appendTextNode(elem: HTMLElement, s: string): void {
-			elem.appendChild(document.createTextNode(s));
+			elem.append(s);
 		}
 		
 		// Formatting helper function
@@ -54,7 +54,7 @@ namespace app {
 				appendTextNode(outElem, ")");
 			});
 		} catch (e) {
-			outElem.appendChild(document.createTextNode(e.message));
+			outElem.append(e.message);
 		}
 	}
 	

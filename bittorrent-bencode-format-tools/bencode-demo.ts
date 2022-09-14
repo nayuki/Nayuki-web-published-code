@@ -58,8 +58,8 @@ namespace app {
 	
 	// Returns a new DOM node to visually represent the given value.
 	function toHtml(item: BencodeValue): Node {
-		function appendText(container: Node, text: string): void {
-			container.appendChild(document.createTextNode(text));
+		function appendText(container: Element, text: string): void {
+			container.append(text);
 		}
 		
 		function appendElem(container: Node, tagName: string): HTMLElement {

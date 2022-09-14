@@ -52,7 +52,7 @@ var app;
     // Returns a new DOM node to visually represent the given value.
     function toHtml(item) {
         function appendText(container, text) {
-            container.appendChild(document.createTextNode(text));
+            container.append(text);
         }
         function appendElem(container, tagName) {
             let result = document.createElement(tagName);

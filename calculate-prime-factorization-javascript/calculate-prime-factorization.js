@@ -48,7 +48,7 @@ const app = new function() {
 		}
 		
 		function appendText(str) {
-			outElem1.appendChild(document.createTextNode(str));
+			outElem1.append(str);
 		}
 		
 		const n = parseInt(numberText, 10);

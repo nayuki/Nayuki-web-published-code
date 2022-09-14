@@ -228,7 +228,7 @@ var app;
                     const mid = this.instructionsText.charAt(this.instructionIndex);
                     const right = this.instructionsText.substring(this.instructionIndex + 1);
                     appendElem(outputInstructionsPre, "strong", mid);
-                    outputInstructionsPre.appendChild(document.createTextNode(right));
+                    outputInstructionsPre.append(right);
                 }
             }
             queryHtml("#output-memory p span").textContent =
@@ -253,7 +253,7 @@ var app;
                     const mid = this.inputText.charAt(this.inputIndex);
                     const right = this.inputText.substring(this.inputIndex + 1);
                     appendElem(outputInputPre, "strong", mid);
-                    outputInputPre.appendChild(document.createTextNode(right));
+                    outputInputPre.append(right);
                 }
             }
             {

@@ -44,7 +44,7 @@ function doBalance(): void {
 			codeOutElem.textContent = formulaStr.substring(0, start);
 			if (end <= formulaStr.length) {
 				codeOutElem.appendChild(createElem("u", formulaStr.substring(start, end)));
-				codeOutElem.appendChild(document.createTextNode(formulaStr.substring(end, formulaStr.length)));
+				codeOutElem.append(formulaStr.substring(end, formulaStr.length));
 			} else
 				codeOutElem.appendChild(createElem("u", " "));
 			
@@ -471,7 +471,7 @@ class Group {
 		let node = createSpan("group", "(");
 		for (const item of this.items)
 			node.appendChild(item.toHtml());
-		node.appendChild(document.createTextNode(")"));
+		node.append(")");
 		if (this.count != 1)
 			node.appendChild(createElem("sub", this.count.toString()));
 		return node;

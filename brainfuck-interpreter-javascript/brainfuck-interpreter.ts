@@ -262,7 +262,7 @@ namespace app {
 					const mid: string = this.instructionsText.charAt(this.instructionIndex);
 					const right: string = this.instructionsText.substring(this.instructionIndex + 1);
 					appendElem(outputInstructionsPre, "strong", mid);
-					outputInstructionsPre.appendChild(document.createTextNode(right));
+					outputInstructionsPre.append(right);
 				}
 			}
 			
@@ -289,7 +289,7 @@ namespace app {
 					const mid: string = this.inputText.charAt(this.inputIndex);
 					const right: string = this.inputText.substring(this.inputIndex + 1);
 					appendElem(outputInputPre, "strong", mid);
-					outputInputPre.appendChild(document.createTextNode(right));
+					outputInputPre.append(right);
 				}
 			}
 			

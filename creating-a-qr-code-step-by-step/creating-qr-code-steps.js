@@ -1203,7 +1203,7 @@ var app;
         let output = clearChildren("#interleaved-codewords");
         let span = appendNewElem(output, "span", result.slice(0, data.length).map(cw => byteToHex(cw.value)).join(" "));
         span.className = "data";
-        output.appendChild(document.createTextNode(" "));
+        output.append(" ");
         span = appendNewElem(output, "span", result.slice(data.length).map(cw => byteToHex(cw.value)).join(" "));
         span.className = "ecc";
         queryElem("#final-bit-sequence span").textContent = result.map(cw => cw.value.toString(2).padStart(8, "0")).join("");
