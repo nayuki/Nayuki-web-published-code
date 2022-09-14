@@ -21,14 +21,14 @@ const app = new function() {
 			alert("Shift is not an integer");
 			return;
 		}
-		var shift = parseInt(shiftText, 10);
+		let shift = parseInt(shiftText, 10);
 		if (shift < 0 || shift >= 26) {
 			alert("Shift is out of range");
 			return;
 		}
 		if (isDecrypt)
 			shift = (26 - shift) % 26;
-		var textElem = document.getElementById("text");
+		let textElem = document.getElementById("text");
 		textElem.value = caesarShift(textElem.value, shift);
 	};
 	
@@ -45,9 +45,9 @@ const app = new function() {
 	function caesarShift(text, shift) {
 		const UPPER_A = "A".charCodeAt(0);
 		const LOWER_A = "a".charCodeAt(0);
-		var result = "";
-		for (var i = 0; i < text.length; i++) {
-			var c = text.charCodeAt(i);
+		let result = "";
+		for (let i = 0; i < text.length; i++) {
+			let c = text.charCodeAt(i);
 			if (UPPER_A <= c && c <= "Z".charCodeAt(0))  // Uppercase
 				c = (c - UPPER_A + shift) % 26 + UPPER_A;
 			else if (LOWER_A <= c && c <= "z".charCodeAt(0))  // Lowercase

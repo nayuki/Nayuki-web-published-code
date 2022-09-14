@@ -12,20 +12,20 @@
 /*---- Global variables ----*/
 
 // Input image
-var image = new Image();
-var width  = -1;
-var height = -1;
-var numPixels = -1;
+let image = new Image();
+let width  = -1;
+let height = -1;
+let numPixels = -1;
 
 // Intermediate computation
-var radius = -1;
-var imageFloatLinear = null;
-var imageData = null;
-var imageTemp = null;
+let radius = -1;
+let imageFloatLinear = null;
+let imageData = null;
+let imageTemp = null;
 
 // Output objects
-var canvasElem = document.getElementById("canvas");
-var graphics = canvasElem.getContext("2d");
+let canvasElem = document.getElementById("canvas");
+let graphics = canvasElem.getContext("2d");
 
 
 
@@ -38,16 +38,16 @@ function doGaussianBlur() {
 		return;
 	
 	function doRowConvolutions(imageIn, imageOut) {
-		var kernel = makeGaussianKernel(radius, width);
+		let kernel = makeGaussianKernel(radius, width);
 		const length = kernel.length;
 		const convolver = new FftConvolver(kernel);
-		var lineReal = new Float32Array(length);
-		var lineImag = new Float32Array(length);
-		for (var ch = 0; ch < 4; ch += 2) {
-			for (var y = 0; y < height; y++) {
+		let lineReal = new Float32Array(length);
+		let lineImag = new Float32Array(length);
+		for (let ch = 0; ch < 4; ch += 2) {
+			for (let y = 0; y < height; y++) {
 				const off0 = (ch + 0) * numPixels + y * width;
 				const off1 = (ch + 1) * numPixels + y * width;
-				var x;
+				let x;
 				for (x = 0; x < width; x++) {
 					lineReal[x] = imageIn[off0 + x];
 					lineImag[x] = imageIn[off1 + x];
@@ -64,16 +64,16 @@ function doGaussianBlur() {
 	}
 	
 	function doColumnConvolutions(imageIn, imageOut) {
-		var kernel = makeGaussianKernel(radius, height);
+		let kernel = makeGaussianKernel(radius, height);
 		const length = kernel.length;
 		const convolver = new FftConvolver(kernel);
-		var lineReal = new Float32Array(length);
-		var lineImag = new Float32Array(length);
-		for (var ch = 0; ch < 4; ch += 2) {
-			for (var x = 0; x < width; x++) {
+		let lineReal = new Float32Array(length);
+		let lineImag = new Float32Array(length);
+		for (let ch = 0; ch < 4; ch += 2) {
+			for (let x = 0; x < width; x++) {
 				const off0 = (ch + 0) * numPixels + x;
 				const off1 = (ch + 1) * numPixels + x;
-				var y;
+				let y;
 				for (y = 0; y < height; y++) {
 					lineReal[y] = imageIn[off0 + y * width];
 					lineImag[y] = imageIn[off1 + y * width];
@@ -91,9 +91,9 @@ function doGaussianBlur() {
 	
 	function convertToByteGamma(imageIn, imageOut) {
 		const lgSteps = linearToGamma.length - 1;
-		for (var i = 0; i < numPixels; i++) {
+		for (let i = 0; i < numPixels; i++) {
 			const weight = imageIn[3 * numPixels + i];
-			for (var ch = 0; ch < 3; ch++) {
+			for (let ch = 0; ch < 3; ch++) {
 				const val = imageIn[ch * numPixels + i] / weight;
 				imageOut[i * 4 + ch] = linearToGamma[Math.round(val * lgSteps)];
 			}
@@ -113,7 +113,7 @@ function updateRadius() {
 	if (width == -1)
 		return false;
 	const raw = parseFloat(document.getElementById("radius-in").value) / 100;  // Normalized from 0.0 to 1.0
-	var newRad = Math.pow(raw, 2.5) * 100;
+	let newRad = Math.pow(raw, 2.5) * 100;
 	if (newRad == 0)
 		newRad = 0.000001;  // To avoid division by zero
 	if (newRad == radius)
@@ -129,9 +129,9 @@ function updateRadius() {
 // such that the returned array's length is a power of 2 and the number of zero elements is at least (dataLen - 1).
 function makeGaussianKernel(stdDev, dataLen) {
 	// Create one-sided kernel
-	var kernel = [];
+	let kernel = [];
 	const scaler = -1 / (2 * stdDev * stdDev);
-	for (var i = 0; i < dataLen; i++) {
+	for (let i = 0; i < dataLen; i++) {
 		const temp = Math.exp(i * i * scaler);
 		kernel.push(temp);
 		if (temp < 1e-6)
@@ -139,14 +139,14 @@ function makeGaussianKernel(stdDev, dataLen) {
 	}
 	
 	// Calculate length for full padded kernel
-	var length = 1;
+	let length = 1;
 	while (length < dataLen + kernel.length - 1)
 		length *= 2;
-	var result = new Float32Array(length);
+	let result = new Float32Array(length);
 	
 	// Copy kernel like this: [a,b,c] -> [a,b,c,0,0,...,0,0,c,b]
 	result[0] = kernel[0];
-	for (var i = 0; i < kernel.length; i++) {
+	for (let i = 0; i < kernel.length; i++) {
 		result[i] = kernel[i];
 		result[length - i] = kernel[i];
 	}
@@ -154,8 +154,8 @@ function makeGaussianKernel(stdDev, dataLen) {
 }
 
 
-var linearToGamma = new Array(4096 + 1);
-for (var i = 0; i < linearToGamma.length; i++)
+let linearToGamma = new Array(4096 + 1);
+for (let i = 0; i < linearToGamma.length; i++)
 	linearToGamma[i] = Math.round(Math.pow(i / (linearToGamma.length - 1), 1 / 2.2) * 255);
 
 
@@ -169,8 +169,8 @@ function FftConvolver(kernelReal, kernelImag) {
 	const length = kernelReal.length;
 	if (length == 1)
 		throw new RangeError("Trivial transform");
-	var levels = -1;
-	for (var i = 0; i < 32; i++) {
+	let levels = -1;
+	for (let i = 0; i < 32; i++) {
 		if (1 << i == length)
 			levels = i;
 	}
@@ -178,14 +178,14 @@ function FftConvolver(kernelReal, kernelImag) {
 		throw new RangeError("Length is not a power of 2");
 	
 	// Pre-compute tables
-	var cosTable = new Float32Array(length / 2);
-	var sinTable = new Float32Array(length / 2);
-	for (var i = 0; i < length / 2; i++) {
+	let cosTable = new Float32Array(length / 2);
+	let sinTable = new Float32Array(length / 2);
+	for (let i = 0; i < length / 2; i++) {
 		cosTable[i] = Math.cos(2 * Math.PI * i / length);
 		sinTable[i] = Math.sin(2 * Math.PI * i / length);
 	}
-	var bitRevTable = new Uint32Array(length);
-	for (var i = 0; i < length; i++)
+	let bitRevTable = new Uint32Array(length);
+	for (let i = 0; i < length; i++)
 		bitRevTable[i] = reverseBits(i, levels);
 	
 	// Pre-compute transformed kernel
@@ -195,7 +195,7 @@ function FftConvolver(kernelReal, kernelImag) {
 	// Exported method
 	this.convolve = function(real, imag) {
 		transform(real, imag);
-		for (var i = 0; i < length; i++) {
+		for (let i = 0; i < length; i++) {
 			const temp = real[i] * kernelReal[i] - imag[i] * kernelImag[i];
 			imag[i]  = imag[i] * kernelReal[i] + real[i] * kernelImag[i];
 			real[i]  = temp;
@@ -209,10 +209,10 @@ function FftConvolver(kernelReal, kernelImag) {
 		if (real.length != length || imag.length != length)
 			throw new RangeError("Mismatched lengths");
 		
-		for (var i = 0; i < length; i++) {
+		for (let i = 0; i < length; i++) {
 			const j = bitRevTable[i];
 			if (j > i) {
-				var temp = real[i];
+				let temp = real[i];
 				real[i] = real[j];
 				real[j] = temp;
 				temp = imag[i];
@@ -221,11 +221,11 @@ function FftConvolver(kernelReal, kernelImag) {
 			}
 		}
 		
-		for (var size = 2; size <= length; size *= 2) {
+		for (let size = 2; size <= length; size *= 2) {
 			const halfsize = size / 2;
 			const tablestep = length / size;
-			for (var i = 0; i < length; i += size) {
-				for (var j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
+			for (let i = 0; i < length; i += size) {
+				for (let j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
 					const tpre =  real[j+halfsize] * cosTable[k] + imag[j+halfsize] * sinTable[k];
 					const tpim = -real[j+halfsize] * sinTable[k] + imag[j+halfsize] * cosTable[k];
 					real[j + halfsize] = real[j] - tpre;
@@ -239,8 +239,8 @@ function FftConvolver(kernelReal, kernelImag) {
 	
 	// Helper function
 	function reverseBits(x, bits) {
-		var y = 0;
-		for (var i = 0; i < bits; i++) {
+		let y = 0;
+		for (let i = 0; i < bits; i++) {
 			y = (y << 1) | (x & 1);
 			x >>>= 1;
 		}
@@ -265,11 +265,11 @@ function loadImage(url) {
 		graphics.drawImage(image, 0, 0, width, height);
 		imageData = graphics.getImageData(0, 0, width, height);
 		const buffer = imageData.data;
-		for (var ch = 0; ch < 3; ch++) {
-			for (var i = 0; i < numPixels; i++)
+		for (let ch = 0; ch < 3; ch++) {
+			for (let i = 0; i < numPixels; i++)
 				imageFloatLinear[ch * numPixels + i] = Math.pow(buffer[i * 4 + ch] / 255, 2.2);  // Gamma to linear
 		}
-		for (var i = 0; i < numPixels; i++)
+		for (let i = 0; i < numPixels; i++)
 			imageFloatLinear[3 * numPixels + i] = 1;
 		
 		// Clear cached radius and compute blur

@@ -19,8 +19,8 @@ const MIN_FREQUENCY = parseFloat(document.getElementById("frequency-number").min
 const MAX_FREQUENCY = parseFloat(document.getElementById("frequency-number").max);
 
 // State variables
-var audioContext = new AudioContext();
-var state = null;
+let audioContext = new AudioContext();
+let state = null;
 
 
 // Reads HTML form elements and updates the 'state' object.
@@ -41,7 +41,7 @@ function updateWaveParams() {
 	state.increment = state.frequency / SAMPLE_RATE;
 	if (state.waveType == "square-bandlimited") {
 		state.bandAmplitudes = [state.dutyCycle * 2 - 1];
-		for (var i = 1; i * state.frequency <= SAMPLE_RATE / 2; i++)
+		for (let i = 1; i * state.frequency <= SAMPLE_RATE / 2; i++)
 			state.bandAmplitudes.push(4 * Math.sin(i * state.dutyCycle * Math.PI) / (i * Math.PI));
 	}
 }
@@ -75,38 +75,38 @@ function toggleWave() {
 function renderNext() {
 	if (state === null)
 		throw new Error("Illegal state");
-	var buf = audioContext.createBuffer(1, Math.floor(SAMPLE_RATE / 4), SAMPLE_RATE);
-	var data = buf.getChannelData(0);
-	var phase = state.phase;
+	let buf = audioContext.createBuffer(1, Math.floor(SAMPLE_RATE / 4), SAMPLE_RATE);
+	let data = buf.getChannelData(0);
+	let phase = state.phase;
 	const type = state.waveType;
 	const inc = state.increment;
 	const vol = state.volume;
 	
 	if (type == "sine") {
-		for (var i = 0; i < buf.length; i++) {
+		for (let i = 0; i < buf.length; i++) {
 			data[i] = Math.cos(phase * Math.PI * 2) * vol;
 			phase = (phase + inc) % 1;
 		}
 		
 	} else if (type == "square-naive") {
 		const duty = state.dutyCycle;
-		for (var i = 0; i < buf.length; i++) {
+		for (let i = 0; i < buf.length; i++) {
 			data[i] = (phase + duty / 2) % 1 < duty ? vol : -vol;
 			phase = (phase + inc) % 1;
 		}
 		
 	} else if (type == "square-bandlimited") {
 		const amps = state.bandAmplitudes;
-		for (var i = 0; i < buf.length; i++) {
-			var val = amps[0];
-			var baseCos = Math.cos(phase * Math.PI * 2);
-			var baseSin = Math.sin(phase * Math.PI * 2);
-			var phasorCos = baseCos;
-			var phasorSin = baseSin;
-			for (var j = 1; j < amps.length; j++) {
+		for (let i = 0; i < buf.length; i++) {
+			let val = amps[0];
+			let baseCos = Math.cos(phase * Math.PI * 2);
+			let baseSin = Math.sin(phase * Math.PI * 2);
+			let phasorCos = baseCos;
+			let phasorSin = baseSin;
+			for (let j = 1; j < amps.length; j++) {
 				// At this point, phasorCos == Math.cos(j * phase * Math.PI * 2), except for rounding error
 				val += amps[j] * phasorCos;
-				var temp  = phasorCos * baseCos - phasorSin * baseSin;
+				let temp  = phasorCos * baseCos - phasorSin * baseSin;
 				phasorSin = phasorSin * baseCos + phasorCos * baseSin;
 				phasorCos = temp;
 			}
@@ -133,8 +133,8 @@ function renderNext() {
 
 function frequencySliderChanged() {
 	const sliderElem = document.getElementById("frequency-slider");
-	var numberElem = document.getElementById("frequency-number");
-	var val = parseFloat(sliderElem.value) / parseFloat(sliderElem.max);
+	let numberElem = document.getElementById("frequency-number");
+	let val = parseFloat(sliderElem.value) / parseFloat(sliderElem.max);
 	val = Math.pow(MAX_FREQUENCY / MIN_FREQUENCY, val) * MIN_FREQUENCY;
 	numberElem.value = val.toFixed(3);
 	updateNumHarmonics();
@@ -143,9 +143,9 @@ function frequencySliderChanged() {
 
 
 function frequencyNumberChanged() {
-	var sliderElem = document.getElementById("frequency-slider");
+	let sliderElem = document.getElementById("frequency-slider");
 	const numberElem = document.getElementById("frequency-number");
-	var val = parseFloat(numberElem.value);
+	let val = parseFloat(numberElem.value);
 	if (val < parseFloat(numberElem.min) || val > parseFloat(numberElem.max))
 		return;
 	val = Math.log(val / MIN_FREQUENCY) / Math.log(MAX_FREQUENCY / MIN_FREQUENCY);
@@ -157,7 +157,7 @@ function frequencyNumberChanged() {
 
 function updateNumHarmonics() {
 	const freq = parseFloat(document.getElementById("frequency-number").value);
-	var elem = document.getElementById("num-harmonics");
+	let elem = document.getElementById("num-harmonics");
 	while (elem.firstChild !== null)
 		elem.removeChild(elem.firstChild);
 	const text = "floor(" + (SAMPLE_RATE / 2) + " / " + freq.toFixed(3) + ") = " + Math.floor((SAMPLE_RATE / 2) / freq);
@@ -167,7 +167,7 @@ function updateNumHarmonics() {
 
 function dutyCycleSliderChanged() {
 	const sliderElem = document.getElementById("duty-cycle-slider");
-	var numberElem = document.getElementById("duty-cycle-number");
+	let numberElem = document.getElementById("duty-cycle-number");
 	const val = parseFloat(sliderElem.value) / parseFloat(sliderElem.max);
 	numberElem.value = val.toFixed(3);
 	updateWaveParams();
@@ -175,7 +175,7 @@ function dutyCycleSliderChanged() {
 
 
 function dutyCycleNumberChanged() {
-	var sliderElem = document.getElementById("duty-cycle-slider");
+	let sliderElem = document.getElementById("duty-cycle-slider");
 	const numberElem = document.getElementById("duty-cycle-number");
 	const val = parseFloat(numberElem.value);
 	if (val < parseFloat(numberElem.min) || val > parseFloat(numberElem.max))
@@ -187,7 +187,7 @@ function dutyCycleNumberChanged() {
 
 function volumeSliderChanged() {
 	const sliderElem = document.getElementById("volume-slider");
-	var numberElem = document.getElementById("volume-number");
+	let numberElem = document.getElementById("volume-number");
 	const val = parseFloat(sliderElem.value) / parseFloat(sliderElem.max);
 	numberElem.value = (val * 100).toFixed(1);
 	updateWaveParams();
@@ -195,7 +195,7 @@ function volumeSliderChanged() {
 
 
 function volumeNumberChanged() {
-	var sliderElem = document.getElementById("volume-slider");
+	let sliderElem = document.getElementById("volume-slider");
 	const numberElem = document.getElementById("volume-number");
 	const val = parseFloat(numberElem.value) / 100;
 	if (val < parseFloat(numberElem.min) || val > parseFloat(numberElem.max))

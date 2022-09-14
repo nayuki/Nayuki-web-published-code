@@ -11,9 +11,9 @@
 
 const app = new function() {
 	
-	var textElem = document.getElementById("text");
-	var shiftElem = document.getElementById("shift");
-	var guessesElem = document.getElementById("guesses");
+	let textElem = document.getElementById("text");
+	let shiftElem = document.getElementById("shift");
+	let guessesElem = document.getElementById("guesses");
 	
 	
 	
@@ -26,7 +26,7 @@ const app = new function() {
 	};
 	
 	
-	var outputState = null;
+	let outputState = null;
 	
 	this.doBreak = function() {
 		outputState = {};
@@ -59,7 +59,7 @@ const app = new function() {
 		clearChildren(guessesElem);
 		const maxEntropy = outputState.entropies[outputState.entropies.length - 1][1];
 		for (const item of outputState.entropies) {
-			var tr = appendElem(guessesElem, "tr");
+			let tr = appendElem(guessesElem, "tr");
 			if (item[0] == outputState.shift)
 				tr.classList.add("active");
 			tr.onclick = () =>
@@ -68,8 +68,8 @@ const app = new function() {
 			appendElem(tr, "td", item[0].toString());
 			appendElem(tr, "td", item[1].toFixed(3));
 			
-			var td = appendElem(tr, "td");
-			var div = appendElem(td, "div");
+			let td = appendElem(tr, "td");
+			let div = appendElem(td, "div");
 			div.classList.add("bar");
 			div.style.width = (item[1] / maxEntropy * 30).toFixed(6) + "em";
 		}
@@ -82,8 +82,8 @@ const app = new function() {
 	// Returns the entropies when the given string is decrypted with all 26 possible shifts,
 	// where the result is an array of pairs (int shift, float enptroy) - e.g. [[0, 2.01], [1, 4.95], ..., [25, 3.73]].
 	function getAllEntropies(str) {
-		var result = [];
-		for (var i = 0; i < 26; i++)
+		let result = [];
+		for (let i = 0; i < 26; i++)
 			result.push([i, getEntropy(decrypt(str, i))]);
 		return result;
 	}
@@ -97,9 +97,9 @@ const app = new function() {
 	
 	// Returns the cross-entropy of the given string with respect to the English unigram frequencies, which is a positive floating-point number.
 	function getEntropy(str) {
-		var sum = 0;
-		var ignored = 0;
-		for (var i = 0; i < str.length; i++) {
+		let sum = 0;
+		let ignored = 0;
+		for (let i = 0; i < str.length; i++) {
 			const c = str.charCodeAt(i);
 			if      (65 <= c && c <=  90) sum += Math.log(ENGLISH_FREQS[c - 65]);  // Uppercase
 			else if (97 <= c && c <= 122) sum += Math.log(ENGLISH_FREQS[c - 97]);  // Lowercase
@@ -112,8 +112,8 @@ const app = new function() {
 	// Decrypts the given string with the given key using the Caesar shift cipher.
 	// The key is an integer representing the number of letters to step back by - e.g. decrypt("EB", 2) = "CZ".
 	function decrypt(str, key) {
-		var result = "";
-		for (var i = 0; i < str.length; i++) {
+		let result = "";
+		for (let i = 0; i < str.length; i++) {
 			const c = str.charCodeAt(i);
 			if      (65 <= c && c <=  90) result += String.fromCharCode(mod(c - 65 - key, 26) + 65);  // Uppercase
 			else if (97 <= c && c <= 122) result += String.fromCharCode(mod(c - 97 - key, 26) + 97);  // Lowercase

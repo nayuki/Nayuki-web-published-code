@@ -11,6 +11,8 @@
 
 // The main function, which handles the HTML input/output for solving a triangle.
 function doSolve() {
+	let twosoln = false;  // Is set to true by doOutput() if any answer item is a length-2 array
+	
 	function doOutput(nodeId, val, suffix) {
 		if (typeof val == "object" && val.length == 2) {  // Array
 			setElementText(nodeId, formatNumber(val[0]) + suffix);
@@ -36,7 +38,6 @@ function doSolve() {
 		
 		// Set outputs
 		setElementText("status", answer[7]);
-		var twosoln = false;  // Is set to true by doOutput() if any answer item is a length-2 array
 		doOutput("sideAout" , answer[0], "");
 		doOutput("sideBout" , answer[1], "");
 		doOutput("sideCout" , answer[2], "");
@@ -62,7 +63,7 @@ function doSolve() {
 function solveTriangle(a, b, c, A, B, C) {
 	const sides  = (a !== null) + (b !== null) + (c !== null);  // Boolean to integer conversion
 	const angles = (A !== null) + (B !== null) + (C !== null);  // Boolean to integer conversion
-	var area, status;
+	let area, status;
 	
 	if (sides + angles != 3)
 		throw new RangeError("Give exactly 3 pieces of information");
@@ -95,7 +96,7 @@ function solveTriangle(a, b, c, A, B, C) {
 		const sinB = Math.sin(degToRad(B));
 		const sinC = Math.sin(degToRad(C));
 		// Use law of sines to find sides
-		var ratio;  // side / sin(angle)
+		let ratio;  // side / sin(angle)
 		if (a !== null) { ratio = a / sinA; area = a * ratio * sinB * sinC / 2; }
 		if (b !== null) { ratio = b / sinB; area = b * ratio * sinC * sinA / 2; }
 		if (c !== null) { ratio = c / sinC; area = c * ratio * sinA * sinB / 2; }
@@ -119,7 +120,7 @@ function solveTriangle(a, b, c, A, B, C) {
 		
 	} else {
 		status = "Side side angle (SSA) case - ";
-		var knownSide, knownAngle, partialSide;
+		let knownSide, knownAngle, partialSide;
 		if (a !== null && A !== null) { knownSide = a; knownAngle = A; }
 		if (b !== null && B !== null) { knownSide = b; knownAngle = B; }
 		if (c !== null && C !== null) { knownSide = c; knownAngle = C; }
@@ -130,7 +131,7 @@ function solveTriangle(a, b, c, A, B, C) {
 			throw new RangeError(status + "No solution");
 		const ratio = knownSide / Math.sin(degToRad(knownAngle));
 		const temp = partialSide / ratio;  // sin(partialAngle)
-		var partialAngle, unknownSide, unknownAngle;
+		let partialAngle, unknownSide, unknownAngle;
 		if (temp > 1 || knownAngle >= 90 && knownSide <= partialSide)
 			throw new RangeError(status + "No solution");
 		else if (temp == 1 || knownSide >= partialSide) {
@@ -194,7 +195,7 @@ const ioNames = ["sideA", "sideB", "sideC", "angleA", "angleB", "angleC", "area"
 
 // Either null, or an array of 6 items: [sideA, sideB, sideC, angleA, angleB, angleC].
 // Each item is either a number or an array of 2 numbers.
-var solution = null;
+let solution = null;
 
 
 // Parses the number from the HTML form field with the given ID.
@@ -237,10 +238,10 @@ const rectangles = [
 ];
 
 function initImageMap() {
-	var container = document.getElementById("diagramcontainer");
+	let container = document.getElementById("diagramcontainer");
 	const containerWidth = parseEm(container.style.width);
 	rectangles.forEach((rect, i) => {
-		var elem = document.createElement("a");
+		let elem = document.createElement("a");
 		container.insertBefore(elem, container.querySelector("#hoveroutput"));
 		elem.href = "#";
 		elem.classList.add("letterhover");
@@ -255,7 +256,7 @@ function initImageMap() {
 				return;
 			
 			const suffix = 3 <= i && i < 6 ? DEGREE : "";
-			var text;
+			let text;
 			if (typeof solution[i] == "object")
 				text = formatNumber(solution[i][0]) + suffix + " or\n" + formatNumber(solution[i][1]) + suffix;
 			else
@@ -263,7 +264,7 @@ function initImageMap() {
 			setElementText("hoveroutput", text);
 			
 			// Set hover element style
-			var hovelem = document.getElementById("hoveroutput");
+			let hovelem = document.getElementById("hoveroutput");
 			hovelem.style.display = "block";
 			hovelem.style.left = rect[0] * containerWidth + "em";
 			hovelem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";

@@ -22,18 +22,18 @@ const app = new function() {
 			return;
 		}
 		
-		var keyArray = filterKey(keyStr);
+		let keyArray = filterKey(keyStr);
 		if (keyArray.length == 0) {
 			alert("Key has no letters");
 			return;
 		}
 		
 		if (isDecrypt) {
-			for (var i = 0; i < keyArray.length; i++)
+			for (let i = 0; i < keyArray.length; i++)
 				keyArray[i] = (26 - keyArray[i]) % 26;
 		}
 		
-		var textElem = document.getElementById("text");
+		let textElem = document.getElementById("text");
 		textElem.value = crypt(textElem.value, keyArray);
 	};
 	
@@ -42,8 +42,8 @@ const app = new function() {
 	 * Returns the result the Vigenère encryption on the given text with the given key.
 	 */
 	function crypt(input, key) {
-		var output = "";
-		for (var i = 0, j = 0; i < input.length; i++) {
+		let output = "";
+		for (let i = 0, j = 0; i < input.length; i++) {
 			const c = input.charCodeAt(i);
 			if (isUppercase(c)) {
 				output += String.fromCharCode((c - 65 + key[j % key.length]) % 26 + 65);
@@ -68,8 +68,8 @@ const app = new function() {
 	 * - filterKey("the $123# EHT") = [19, 7, 4, 4, 7, 19].
 	 */
 	function filterKey(key) {
-		var result = [];
-		for (var i = 0; i < key.length; i++) {
+		let result = [];
+		for (let i = 0; i < key.length; i++) {
 			const c = key.charCodeAt(i);
 			if (isLetter(c))
 				result.push((c - 65) % 32);

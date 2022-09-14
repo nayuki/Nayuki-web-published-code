@@ -12,33 +12,33 @@
 /*---- Global variables ----*/
 
 // HTML elements
-var canvasElem     = element("canvas");
-var undoButtonElem = element("undo-button");
-var doneButtonElem = element("done-button");
+let canvasElem     = element("canvas");
+let undoButtonElem = element("undo-button");
+let doneButtonElem = element("done-button");
 
 // Graphics initialization
-var width  = null;
-var height = null;
-var baseCanvas  = document.createElement('canvas');  // Off-screen
-var guideCanvas = document.createElement('canvas');  // Off-screen
-var baseGfx   = baseCanvas .getContext("2d");
-var guideGfx  = guideCanvas.getContext("2d");
-var screenGfx = canvasElem .getContext("2d");
+let width  = null;
+let height = null;
+let baseCanvas  = document.createElement('canvas');  // Off-screen
+let guideCanvas = document.createElement('canvas');  // Off-screen
+let baseGfx   = baseCanvas .getContext("2d");
+let guideGfx  = guideCanvas.getContext("2d");
+let screenGfx = canvasElem .getContext("2d");
 initCanvasesSize();
 
 // Cached values from form inputs
-var strokeWidth      = null;  // Type number, positive
-var paintColor       = null;  // Type string
-var backgroundColor  = null;  // Type string
-var rotationSymmetry = null;  // Type integer, positive
-var mirrorSymmetry   = null;  // Type boolean
-var showGuidelines   = null;  // Type boolean
+let strokeWidth      = null;  // Type number, positive
+let paintColor       = null;  // Type string
+let backgroundColor  = null;  // Type string
+let rotationSymmetry = null;  // Type integer, positive
+let mirrorSymmetry   = null;  // Type boolean
+let showGuidelines   = null;  // Type boolean
 
 // State variables
-var isDone = true;
-var isMouseDown = false;
-var lastCoord = null;  // Is null iff isMouseDown is false
-var undoImages = [];
+let isDone = true;
+let isMouseDown = false;
+let lastCoord = null;  // Is null iff isMouseDown is false
+let undoImages = [];
 undoButtonElem.disabled = undoImages.length == 0;
 
 // Internal configuration
@@ -96,7 +96,7 @@ function drawLine(gfx, x0, y0, x1, y1) {
 	const ends   = getSymmetryPoints(x1, y1);
 	gfx.lineWidth = strokeWidth;
 	gfx.beginPath();
-	for (var i = 0; i < starts.length; i++) {
+	for (let i = 0; i < starts.length; i++) {
 		gfx.moveTo(starts[i][0], starts[i][1]);
 		gfx.lineTo(ends  [i][0], ends  [i][1]);
 	}
@@ -115,8 +115,8 @@ function getSymmetryPoints(x, y) {
 	const relY = ctrY - y;
 	const dist  = Math.hypot(relX, relY);
 	const angle = Math.atan2(relX, relY);  // Radians
-	var result = [];
-	for (var i = 0; i < rotationSymmetry; i++) {
+	let result = [];
+	for (let i = 0; i < rotationSymmetry; i++) {
 		const theta = angle + Math.PI * 2 / rotationSymmetry * i;  // Radians
 		x = ctrX + Math.sin(theta) * dist;
 		y = ctrY - Math.cos(theta) * dist;
@@ -146,9 +146,9 @@ function redrawGuideCanvas() {
 	
 	guideGfx.beginPath();
 	guideGfx.moveTo(halfwidth, halfwidth);
-	var theta = mirrorSymmetry ? 0 : -Math.PI / rotationSymmetry;  // Radians
-	var x = halfwidth  + Math.sin(theta) * dist;
-	var y = halfheight - Math.cos(theta) * dist;
+	let theta = mirrorSymmetry ? 0 : -Math.PI / rotationSymmetry;  // Radians
+	let x = halfwidth  + Math.sin(theta) * dist;
+	let y = halfheight - Math.cos(theta) * dist;
 	guideGfx.lineTo(x, y);
 	
 	guideGfx.moveTo(halfwidth, halfwidth);
@@ -346,14 +346,14 @@ document.onkeydown = ev => {
 /*---- Utilities and initialization ----*/
 
 function setAndCallHandler(elemName, eventName, func) {
-	var elem = element(elemName);
+	let elem = element(elemName);
 	elem[eventName] = func;
 	func.call(elem);
 }
 
 
 function element(name) {
-	var result = document.getElementById(name);
+	let result = document.getElementById(name);
 	if (result === null)
 		throw new RangeError("Element ID not found: " + name);
 	return result;

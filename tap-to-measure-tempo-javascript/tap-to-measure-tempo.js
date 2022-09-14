@@ -25,15 +25,15 @@
 		clearText("simple-tempo");
 		clearText("advanced-tempo");
 		
-		var beatTimes = [];
-		var xSum  = 0;
-		var xxSum = 0;
-		var ySum  = 0;
-		var yySum = 0;
-		var xySum = 0;
-		var periodPrev = NaN;
-		var aPrev = NaN;
-		var bPrev = NaN;
+		let beatTimes = [];
+		let xSum  = 0;
+		let xxSum = 0;
+		let ySum  = 0;
+		let yySum = 0;
+		let xySum = 0;
+		let periodPrev = NaN;
+		let aPrev = NaN;
+		let bPrev = NaN;
 		
 		
 		document.onkeydown = () => {

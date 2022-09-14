@@ -11,8 +11,8 @@
 
 const app = new function() {
 	
-	var numberElem = document.getElementById("number");
-	var lastInput = "";
+	let numberElem = document.getElementById("number");
+	let lastInput = "";
 	
 	
 	this.doRandom = function() {
@@ -31,7 +31,7 @@ const app = new function() {
 			return;
 		lastInput = numberText;
 		
-		var s;
+		let s;
 		if (!/^-?\d+$/.test(numberText)) {
 			s = "Not an integer";
 		} else {
@@ -57,10 +57,10 @@ const app = new function() {
 	function listDivisors(n) {
 		if (n < 1)
 			throw new RangeError("Argument error");
-		var small = [];
-		var large = [];
+		let small = [];
+		let large = [];
 		const end = Math.floor(Math.sqrt(n));
-		for (var i = 1; i <= end; i++) {
+		for (let i = 1; i <= end; i++) {
 			if (n % i == 0) {
 				small.push(i);
 				if (i * i != n)  // Don't include a square root twice

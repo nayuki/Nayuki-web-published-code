@@ -13,12 +13,12 @@
 
 /*---- State variables ----*/
 
-var date = 2009 * 12 + 0;
-var contributionRoom = 500000;  // Current contribution room, carries over indefinitely; negative means over-contribution
-var maxExcess = 0;  // Maximum excess amount encountered this month
-var withdrawn = 0;  // Amount withdrawn this year (excluding "qualifying withdrawals" that reduce the excess amount)
-var chequingTransactions = [[date, "New account", 0, 0]];  // New transactions are appended
-var tfsaTransactions     = [[date, "New account", 0, 0, contributionRoom, 0]];
+let date = 2009 * 12 + 0;
+let contributionRoom = 500000;  // Current contribution room, carries over indefinitely; negative means over-contribution
+let maxExcess = 0;  // Maximum excess amount encountered this month
+let withdrawn = 0;  // Amount withdrawn this year (excluding "qualifying withdrawals" that reduce the excess amount)
+let chequingTransactions = [[date, "New account", 0, 0]];  // New transactions are appended
+let tfsaTransactions     = [[date, "New account", 0, 0, contributionRoom, 0]];
 
 
 /*---- User interaction handlers ----*/
@@ -88,8 +88,8 @@ function transferOut(amount) {
 
 function nextMonth() {
 	// Add interest to TFSA
-	var interestElem = document.getElementById("interest-rate");
-	var s = interestElem.value;
+	let interestElem = document.getElementById("interest-rate");
+	let s = interestElem.value;
 	s = s.replace(/^\s+|\s+$/g, "");  // Trim whitespace
 	if (!/^-?(\d{1,10}(\.\d*)?|\.\d+)$/.test(s)) {
 		setText("interest-error", "Error: Invalid interest rate");
@@ -98,7 +98,7 @@ function nextMonth() {
 	}
 	setText("interest-error", "");
 	const balance = getTfsaBalance();
-	var amount = Math.round(balance * parseFloat(s) / 1200);
+	let amount = Math.round(balance * parseFloat(s) / 1200);
 	if (amount != 0) {
 		tfsaTransactions.push(
 			[date, "Interest", amount, balance + amount, contributionRoom, withdrawn]);
@@ -130,7 +130,7 @@ function nextMonth() {
 	date++;
 	if (date % 12 == 0) {
 		// Raise contribution room in January
-		var amount = getContributionRoom(Math.floor(date / 12));
+		let amount = getContributionRoom(Math.floor(date / 12));
 		amount += withdrawn;
 		contributionRoom += amount;
 		withdrawn = 0;
@@ -148,11 +148,11 @@ function nextMonth() {
 const TRANSACTION_ROWS = 16;
 
 function display() {
-	var tr;
+	let tr;
 	function appendTd(content) {
 		if (typeof content == "string")
 			content = [document.createTextNode(content)];
-		var td = tr.appendChild(document.createElement("td"));
+		let td = tr.appendChild(document.createElement("td"));
 		for (const item of content)
 			td.appendChild(item);
 	}
@@ -163,15 +163,15 @@ function display() {
 		else if (Math.abs(amount) > 1e15)
 			return [document.createTextNode("Overflow")];
 		else if (amount < 0) {
-			var result = formatMoney(-amount);
+			let result = formatMoney(-amount);
 			result.unshift(document.createTextNode(MINUS));
 			return result;
 		} else {
-			var result = [];
-			var s = Math.floor(amount / 100) + "";
+			let result = [];
+			let s = Math.floor(amount / 100) + "";
 			while (s.length > 0) {
 				const i = Math.max(s.length - 3, 0);
-				var span = document.createElement("span");
+				let span = document.createElement("span");
 				span.textContent = s.substring(i);
 				span.classList.add("digitgrouper");
 				result.push(span);
@@ -190,12 +190,12 @@ function display() {
 	
 	const showAllTransactions = document.getElementById("show-all").checked;
 	
-	var cheqElem = document.getElementById("chequing-transactions");
+	let cheqElem = document.getElementById("chequing-transactions");
 	clearChildren(cheqElem);
-	for (var i = showAllTransactions ? 0 : chequingTransactions.length - TRANSACTION_ROWS; i < chequingTransactions.length; i++) {
+	for (let i = showAllTransactions ? 0 : chequingTransactions.length - TRANSACTION_ROWS; i < chequingTransactions.length; i++) {
 		tr = cheqElem.appendChild(document.createElement("tr"));
 		if (i < 0) {
-			for (var j = 0; j < 4; j++)
+			for (let j = 0; j < 4; j++)
 				appendTd(NBSP);
 		} else {
 			const trans = chequingTransactions[i];
@@ -206,12 +206,12 @@ function display() {
 		}
 	}
 	
-	var tfsaElem = document.getElementById("tfsa-transactions");
+	let tfsaElem = document.getElementById("tfsa-transactions");
 	clearChildren(tfsaElem);
-	for (var i = showAllTransactions ? 0 : tfsaTransactions.length - TRANSACTION_ROWS; i < tfsaTransactions.length; i++) {
+	for (let i = showAllTransactions ? 0 : tfsaTransactions.length - TRANSACTION_ROWS; i < tfsaTransactions.length; i++) {
 		tr = tfsaElem.appendChild(document.createElement("tr"));
 		if (i < 0) {
-			for (var j = 0; j < 6; j++)
+			for (let j = 0; j < 6; j++)
 				appendTd(NBSP);
 		} else {
 			const trans = tfsaTransactions[i];

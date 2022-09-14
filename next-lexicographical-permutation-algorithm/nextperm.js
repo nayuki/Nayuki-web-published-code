@@ -15,14 +15,14 @@
  */
 function nextPermutation(array) {
 	// Find non-increasing suffix
-	var i = array.length - 1;
+	let i = array.length - 1;
 	while (i > 0 && array[i - 1] >= array[i])
 		i--;
 	if (i <= 0)
 		return false;
 	
 	// Find successor to pivot
-	var j = array.length - 1;
+	let j = array.length - 1;
 	while (array[j] <= array[i - 1])
 		j--;
 	const temp = array[i - 1];
@@ -57,14 +57,14 @@ function nextPermutation(array) {
  */
 function nextPermutation(array, comp) {
 	// Find non-increasing suffix
-	var i = array.length - 1;
+	let i = array.length - 1;
 	while (i > 0 && comp(array[i - 1], array[i]) >= 0)
 		i--;
 	if (i <= 0)
 		return false;
 	
 	// Find successor to pivot
-	var j = array.length - 1;
+	let j = array.length - 1;
 	while (comp(array[j], array[i - 1]) <= 0)
 		j--;
 	const temp = array[i - 1];

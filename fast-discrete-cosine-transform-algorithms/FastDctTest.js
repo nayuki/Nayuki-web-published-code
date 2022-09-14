@@ -29,11 +29,11 @@
 const TEST_SUITE_FUNCS = [
 	
 	function testFastDctLeeVsNaive() {
-		for (var len = 1; len <= (1 << 11); len *= 2) {
+		for (let len = 1; len <= (1 << 11); len *= 2) {
 			const vector = randomVector(len);
 			
-			var expect = naiveDct.transform(vector);
-			var actual = vector.slice();
+			let expect = naiveDct.transform(vector);
+			let actual = vector.slice();
 			fastDctLee.transform(actual);
 			assertArrayEquals(expect, actual, EPSILON);
 			
@@ -46,12 +46,12 @@ const TEST_SUITE_FUNCS = [
 	
 	
 	function testFastDctLeeInvertibility() {
-		for (var len = 1; len <= (1 << 17); len *= 2) {
+		for (let len = 1; len <= (1 << 17); len *= 2) {
 			const vector = randomVector(len);
-			var temp = vector.slice();
+			let temp = vector.slice();
 			fastDctLee.transform(temp);
 			fastDctLee.inverseTransform(temp);
-			for (var i = 0; i < temp.length; i++)
+			for (let i = 0; i < temp.length; i++)
 				temp[i] /= len / 2.0;
 			assertArrayEquals(vector, temp, EPSILON);
 		}
@@ -61,15 +61,15 @@ const TEST_SUITE_FUNCS = [
 	function testFastDct8VsNaive() {
 		const vector = randomVector(8);
 		
-		var expect = naiveDct.transform(vector);
-		for (var i = 0; i < expect.length; i++)
+		let expect = naiveDct.transform(vector);
+		for (let i = 0; i < expect.length; i++)
 			expect[i] /= i == 0 ? Math.sqrt(8) : 2;
-		var actual = vector.slice();
+		let actual = vector.slice();
 		fastDct8.transform(actual);
 		assertArrayEquals(expect, actual, EPSILON);
 		
 		expect = vector.slice();
-		for (var i = 0; i < expect.length; i++)
+		for (let i = 0; i < expect.length; i++)
 			expect[i] /= i == 0 ? Math.sqrt(2) : 2;
 		expect = naiveDct.inverseTransform(expect);
 		actual = vector.slice();
@@ -79,15 +79,15 @@ const TEST_SUITE_FUNCS = [
 	
 	
 	function testFastDctFftVsNaive() {
-		for (var i = 0, prev = 0; i <= 100; i++) {
+		for (let i = 0, prev = 0; i <= 100; i++) {
 			const len = Math.round(Math.pow(1000, i / 100.0));
 			if (len <= prev)
 				continue;
 			prev = len;
 			const vector = randomVector(len);
 			
-			var expect = naiveDct.transform(vector);
-			var actual = vector.slice();
+			let expect = naiveDct.transform(vector);
+			let actual = vector.slice();
 			fastDctFft.transform(actual);
 			assertArrayEquals(expect, actual, EPSILON);
 			
@@ -100,16 +100,16 @@ const TEST_SUITE_FUNCS = [
 	
 	
 	function testFastDctFftInvertibility() {
-		for (var i = 0, prev = 0; i <= 30; i++) {
+		for (let i = 0, prev = 0; i <= 30; i++) {
 			const len = Math.round(Math.pow(30000, i / 30.0));
 			if (len <= prev)
 				continue;
 			prev = len;
 			const vector = randomVector(len);
-			var temp = vector.slice();
+			let temp = vector.slice();
 			fastDctFft.transform(temp);
 			fastDctFft.inverseTransform(temp);
-			for (var j = 0; j < temp.length; j++)
+			for (let j = 0; j < temp.length; j++)
 				temp[j] /= len / 2.0;
 			assertArrayEquals(vector, temp, EPSILON);
 		}
@@ -127,7 +127,7 @@ const EPSILON = 1e-9;
 function assertArrayEquals(expect, actual, epsilon) {
 	if (expect.length != actual.length)
 		throw new Error("Length mismatch");
-	for (var i = 0; i < expect.length; i++) {
+	for (let i = 0; i < expect.length; i++) {
 		if (Math.abs(expect[i] - actual[i]) > epsilon)
 			throw new Error("Value mismatch");
 	}
@@ -135,8 +135,8 @@ function assertArrayEquals(expect, actual, epsilon) {
 
 
 function randomVector(len) {
-	var result = [];
-	for (var i = 0; i < len; i++)
+	let result = [];
+	for (let i = 0; i < len; i++)
 		result.push(Math.random() * 2 - 1);
 	return result;
 }
@@ -147,11 +147,11 @@ const naiveDct = new function() {
 	
 	// DCT type II, unscaled.
 	this.transform = function(vector) {
-		var result = [];
+		let result = [];
 		const factor = Math.PI / vector.length;
-		for (var i = 0; i < vector.length; i++) {
-			var sum = 0;
-			for (var j = 0; j < vector.length; j++)
+		for (let i = 0; i < vector.length; i++) {
+			let sum = 0;
+			for (let j = 0; j < vector.length; j++)
 				sum += vector[j] * Math.cos((j + 0.5) * i * factor);
 			result.push(sum);
 		}
@@ -161,11 +161,11 @@ const naiveDct = new function() {
 	
 	// DCT type III, unscaled.
 	this.inverseTransform = function(vector) {
-		var result = [];
+		let result = [];
 		const factor = Math.PI / vector.length;
-		for (var i = 0; i < vector.length; i++) {
-			var sum = vector[0] / 2;
-			for (var j = 1; j < vector.length; j++)
+		for (let i = 0; i < vector.length; i++) {
+			let sum = vector[0] / 2;
+			for (let j = 1; j < vector.length; j++)
 				sum += vector[j] * Math.cos(j * (i + 0.5) * factor);
 			result.push(sum);
 		}
@@ -177,9 +177,9 @@ const naiveDct = new function() {
 
 
 (function() {
-	var i = 0;
+	let i = 0;
 	function iterate() {
-		var msg;
+		let msg;
 		if (i >= TEST_SUITE_FUNCS.length)
 			msg = "Finished";
 		else {
@@ -193,7 +193,7 @@ const naiveDct = new function() {
 			i++;
 			setTimeout(iterate);
 		}
-		var li = document.createElement("li");
+		let li = document.createElement("li");
 		li.textContent = msg;
 		document.getElementById("results").appendChild(li);
 	}

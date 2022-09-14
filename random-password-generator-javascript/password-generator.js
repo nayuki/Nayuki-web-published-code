@@ -23,11 +23,11 @@ const CHARACTER_SETS = [
 
 /*---- Global variables ----*/
 
-var passwordElem   = document.getElementById("password"   );
-var statisticsElem = document.getElementById("statistics" );
-var copyElem       = document.getElementById("copy-button")
-var cryptoObject    = null;
-var currentPassword = null;
+let passwordElem   = document.getElementById("password"   );
+let statisticsElem = document.getElementById("statistics" );
+let copyElem       = document.getElementById("copy-button")
+let cryptoObject    = null;
+let currentPassword = null;
 
 
 
@@ -35,28 +35,28 @@ var currentPassword = null;
 
 function initCharsets() {
 	function createElem(tagName, attribs) {
-		var result = document.createElement(tagName);
+		let result = document.createElement(tagName);
 		if (attribs !== undefined) {
-			for (var key in attribs)
+			for (let key in attribs)
 				result[key] = attribs[key];
 		}
 		return result;
 	}
 	
-	var container = document.querySelector("#charset tbody");
-	var endElem = document.querySelector("#charset tbody > tr:last-child");
+	let container = document.querySelector("#charset tbody");
+	let endElem = document.querySelector("#charset tbody > tr:last-child");
 	CHARACTER_SETS.forEach((entry, i) => {
-		var tr = createElem("tr");
-		var td = tr.appendChild(createElem("td"));
-		var input = td.appendChild(createElem("input", {
+		let tr = createElem("tr");
+		let td = tr.appendChild(createElem("td"));
+		let input = td.appendChild(createElem("input", {
 			type: "checkbox",
 			checked: entry[0],
 			id: "charset-" + i}));
-		var td = tr.appendChild(createElem("td"));
-		var label = td.appendChild(createElem("label", {
+		td = tr.appendChild(createElem("td"));
+		let label = td.appendChild(createElem("label", {
 			htmlFor: "charset-" + i,
 			textContent: " " + entry[1] + " "}));
-		var small = label.appendChild(createElem("small", {
+		let small = label.appendChild(createElem("small", {
 			textContent: "(" + entry[2] + ")"}));
 		container.insertBefore(tr, endElem);
 	});
@@ -64,7 +64,7 @@ function initCharsets() {
 
 
 function initCrypto() {
-	var elem = document.getElementById("crypto-getrandomvalues-entropy");
+	let elem = document.getElementById("crypto-getrandomvalues-entropy");
 	elem.textContent = "\u2717";  // X mark
 	
 	if ("crypto" in window)
@@ -96,7 +96,7 @@ function doGenerate() {
 	}
 	
 	// Calculate desired length
-	var length;
+	let length;
 	if (document.getElementById("by-length").checked)
 		length = parseInt(document.getElementById("length").value, 10);
 	else if (document.getElementById("by-entropy").checked)
@@ -118,7 +118,7 @@ function doGenerate() {
 	
 	// Calculate and format entropy
 	const entropy = Math.log(charset.length) * length / Math.log(2);
-	var entropystr;
+	let entropystr;
 	if (entropy < 70)
 		entropystr = entropy.toFixed(2);
 	else if (entropy < 200)
@@ -138,8 +138,8 @@ function doCopy() {
 	if ("clipboard" in navigator)
 		navigator.clipboard.writeText(currentPassword);
 	else {
-		var container = document.querySelector("article");
-		var textarea = document.createElement("textarea");
+		let container = document.querySelector("article");
+		let textarea = document.createElement("textarea");
 		textarea.style.position = "fixed";
 		textarea.style.opacity = "0";
 		container.insertBefore(textarea, container.firstChild);
@@ -157,7 +157,7 @@ function doCopy() {
 
 function getPasswordCharacterSet() {
 	// Concatenate characters from every checked entry
-	var rawCharset = "";
+	let rawCharset = "";
 	CHARACTER_SETS.forEach((entry, i) => {
 		if (document.getElementById("charset-" + i).checked)
 			rawCharset += entry[2];
@@ -167,8 +167,8 @@ function getPasswordCharacterSet() {
 	rawCharset = rawCharset.replace(/ /g, "\u00A0");  // Replace space with non-breaking space
 	
 	// Parse UTF-16, remove duplicates, convert to array of strings
-	var charset = [];
-	for (var i = 0; i < rawCharset.length; i++) {
+	let charset = [];
+	for (let i = 0; i < rawCharset.length; i++) {
 		const c = rawCharset.charCodeAt(i);
 		if (c < 0xD800 || c >= 0xE000) {  // Regular UTF-16 character
 			const s = rawCharset.charAt(i);
@@ -193,8 +193,8 @@ function getPasswordCharacterSet() {
 
 
 function generatePassword(charset, len) {
-	var result = "";
-	for (var i = 0; i < len; i++)
+	let result = "";
+	for (let i = 0; i < len; i++)
 		result += charset[randomInt(charset.length)];
 	return result;
 }
@@ -202,7 +202,7 @@ function generatePassword(charset, len) {
 
 // Returns a random integer in the range [0, n) using a variety of methods.
 function randomInt(n) {
-	var x = randomIntMathRandom(n);
+	let x = randomIntMathRandom(n);
 	x = (x + randomIntBrowserCrypto(n)) % n;
 	return x;
 }
@@ -210,7 +210,7 @@ function randomInt(n) {
 
 // Not secure or high quality, but always available.
 function randomIntMathRandom(n) {
-	var x = Math.floor(Math.random() * n);
+	let x = Math.floor(Math.random() * n);
 	if (x < 0 || x >= n)
 		throw new Error("Arithmetic exception");
 	return x;
@@ -222,7 +222,7 @@ function randomIntBrowserCrypto(n) {
 	if (cryptoObject === null)
 		return 0;
 	// Generate an unbiased sample
-	var x = new Uint32Array(1);
+	let x = new Uint32Array(1);
 	do cryptoObject.getRandomValues(x);
 	while (x[0] - x[0] % n > 4294967296 - n);
 	return x[0] % n;

@@ -10,8 +10,8 @@
 
 
 (function() {
-	var imgElem = document.getElementById("sim-anea-image");
-	var linkElems = document.querySelectorAll("#sim-anea-table a");
+	let imgElem = document.getElementById("sim-anea-image");
+	let linkElems = document.querySelectorAll("#sim-anea-table a");
 	for (let linkElem of linkElems) {
 		ImageSwitcher.register(linkElem, imgElem, null, "mouseover");
 		ImageSwitcher.register(linkElem, imgElem, null, "click");
@@ -19,21 +19,21 @@
 })();
 
 
-var canvas   = document.getElementById("canvas");
-var graphics = canvas.getContext("2d");
-var width    = null;
-var height   = null;
-var image    = null;
-var pixels   = null;
+let canvas   = document.getElementById("canvas");
+let graphics = canvas.getContext("2d");
+let width    = null;
+let height   = null;
+let image    = null;
+let pixels   = null;
 setImageSize();
 
-var isRunning         = false;
-var numIterations     = null;
-var startTemperature  = null;
-var curIterations     = null;
-var curTemperature    = null;
-var curEnergy         = null;
-var blockOfIterations = null;
+let isRunning         = false;
+let numIterations     = null;
+let startTemperature  = null;
+let curIterations     = null;
+let curTemperature    = null;
+let curEnergy         = null;
+let blockOfIterations = null;
 
 
 function setImageSize() {
@@ -44,7 +44,7 @@ function setImageSize() {
 	pixels = image.data;
 	
 	// Make random image
-	for (var i = 0; i < width * height * 4; i++) {
+	for (let i = 0; i < width * height * 4; i++) {
 		if (i % 4 != 3)
 			pixels[i] = Math.floor(Math.random() * 255);
 		else
@@ -61,8 +61,8 @@ function startAnnealing() {
 	// Calculate energy
 	setImageSize();
 	curEnergy = 0;
-	for (var y = 0; y < height; y++) {
-		for (var x = 0; x < width; x++) {
+	for (let y = 0; y < height; y++) {
+		for (let x = 0; x < width; x++) {
 			const i = (y * width + x) << 2;
 			const r = pixels[i + 0];
 			const g = pixels[i + 1];
@@ -87,12 +87,12 @@ function startAnnealing() {
 
 function doAnnealing() {
 	const startTime = Date.now();
-	for (var i = 0; i < blockOfIterations && curIterations < numIterations; i++, curIterations++) {
+	for (let i = 0; i < blockOfIterations && curIterations < numIterations; i++, curIterations++) {
 		const t = curIterations / numIterations;  // Normalized time from 0.0 to 1.0
 		curTemperature = (1 - t) * startTemperature;  // Cooling schedule function
 		
 		const dir = Math.random() < 0.5;
-		var x0, y0, x1, y1;
+		let x0, y0, x1, y1;
 		if (dir) {  // Horizontal swap with (x + 1, y)
 			x0 = Math.floor(Math.random() * (width - 1));
 			y0 = Math.floor(Math.random() * height);
@@ -112,7 +112,7 @@ function doAnnealing() {
 		const r1 = pixels[index1 + 0];
 		const g1 = pixels[index1 + 1];
 		const b1 = pixels[index1 + 2];
-		var energyDiff = 0;
+		let energyDiff = 0;
 		
 		// Subtract old local energies, then add new
 		if (dir) {
@@ -179,7 +179,7 @@ function doAnnealing() {
 	
 	if (isRunning && curIterations < numIterations) {
 		// Try to target 30 ms run time
-		var factor = 30 / (Date.now() - startTime);
+		let factor = 30 / (Date.now() - startTime);
 		factor = Math.max(Math.min(factor, 10), 0.1);
 		blockOfIterations = Math.max(Math.round(blockOfIterations * factor), 1);
 		setTimeout(doAnnealing);
@@ -196,8 +196,8 @@ function doAnnealing() {
 
 
 function formatWithThousandsSeparators(n) {
-	var s = n.toString();
-	for (var i = s.length - 3; i > 0; i -= 3)
+	let s = n.toString();
+	for (let i = s.length - 3; i > 0; i -= 3)
 		s = s.substring(0, i) + " " + s.substring(i);
 	return s;
 }

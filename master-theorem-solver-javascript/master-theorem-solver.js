@@ -11,8 +11,8 @@
 
 const app = new function() {
 	
-	var recurrenceMath = new MathElem("recurrence");
-	var solutionMath = new MathElem("solution");
+	let recurrenceMath = new MathElem("recurrence");
+	let solutionMath = new MathElem("solution");
 	
 	
 	this.doCalculate = function() {
@@ -31,7 +31,7 @@ const app = new function() {
 		const b = parseFloat(bStr);
 		const k = parseFloat(kStr);
 		const i = parseFloat(iStr);
-		var recurrenceText = "Error: ";
+		let recurrenceText = "Error: ";
 		if (isNaN(a))
 			recurrenceText += "Invalid value for \\(a\\)";
 		else if (isNaN(b))
@@ -57,7 +57,7 @@ const app = new function() {
 		}
 		
 		const p = Math.log(a) / Math.log(b);
-		var result = "\\(T \\: \u2208 \\: \u0398(";
+		let result = "\\(T \\: \u2208 \\: \u0398(";
 		if (floatEquals(p, k))
 			result += formatPolyLog(k, i + 1);
 		else if (p < k)
@@ -78,8 +78,8 @@ const app = new function() {
 	
 	
 	function MathElem(id) {  // A container class
-		var containerElem = document.getElementById(id);
-		var nextText = null;
+		let containerElem = document.getElementById(id);
+		let nextText = null;
 		
 		this.render = function(text) {
 			const start = nextText === null;
@@ -90,9 +90,9 @@ const app = new function() {
 		
 		function update() {
 			const text = nextText;
-			var oldSpanElem = containerElem.querySelector("span");
+			let oldSpanElem = containerElem.querySelector("span");
 			oldSpanElem.style.color = "#E0E0E0";
-			var newSpanElem = document.createElement("span");
+			let newSpanElem = document.createElement("span");
 			newSpanElem.textContent = text;
 			newSpanElem.style.display = "none";
 			containerElem.appendChild(newSpanElem);
@@ -135,7 +135,7 @@ const app = new function() {
 	// Returns a natural TeX string for the polylogarithmic expression (n^k log^i n).
 	function formatPolyLog(k, i) {
 		// Process n^k
-		var result = null;
+		let result = null;
 		if (typeof k == "number") {
 			if (k == 0 && i != 0)
 				result = "";

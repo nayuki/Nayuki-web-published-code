@@ -14,12 +14,12 @@
  */
 function computeDft(inreal, inimag) {
 	const n = inreal.length;
-	var outreal = new Array(n);
-	var outimag = new Array(n);
-	for (var k = 0; k < n; k++) {  // For each output element
-		var sumreal = 0;
-		var sumimag = 0;
-		for (var t = 0; t < n; t++) {  // For each input element
+	let outreal = new Array(n);
+	let outimag = new Array(n);
+	for (let k = 0; k < n; k++) {  // For each output element
+		let sumreal = 0;
+		let sumimag = 0;
+		for (let t = 0; t < n; t++) {  // For each input element
 			const angle = 2 * Math.PI * t * k / n;
 			sumreal +=  inreal[t] * Math.cos(angle) + inimag[t] * Math.sin(angle);
 			sumimag += -inreal[t] * Math.sin(angle) + inimag[t] * Math.cos(angle);

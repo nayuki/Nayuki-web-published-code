@@ -11,8 +11,8 @@
 
 const app = new function() {
 	
-	var numberElem = document.getElementById("number");
-	var lastInput = "";
+	let numberElem = document.getElementById("number");
+	let lastInput = "";
 	
 	
 	this.doRandom = function() {
@@ -32,14 +32,14 @@ const app = new function() {
 		lastInput = numberText;
 		
 		// Reset output line 0
-		var factorization0Elem = document.getElementById("factorization0");
+		let factorization0Elem = document.getElementById("factorization0");
 		factorization0Elem.textContent = "";
 		
 		// Reset output line 1 with blank filler to prevent the page layout from bobbing up and down
-		var outElem1 = document.getElementById("factorization1");
+		let outElem1 = document.getElementById("factorization1");
 		clearChildren(outElem1);
 		outElem1.textContent = NBSP;
-		var temp = outElem1.appendChild(document.createElement("sup"));
+		let temp = outElem1.appendChild(document.createElement("sup"));
 		temp.textContent = NBSP;
 		
 		if (!/^-?\d+$/.test(numberText)) {
@@ -75,7 +75,7 @@ const app = new function() {
 					
 					appendText(factPow[0].toString());
 					if (factPow[1] > 1) {
-						var temp = outElem1.appendChild(document.createElement("sup"));
+						let temp = outElem1.appendChild(document.createElement("sup"));
 						temp.textContent = factPow[1].toString();
 					}
 				});
@@ -94,7 +94,7 @@ const app = new function() {
 	function primeFactorList(n) {
 		if (n < 1)
 			throw new RangeError("Argument error");
-		var result = [];
+		let result = [];
 		while (n != 1) {
 			const factor = smallestFactor(n);
 			result.push(factor);
@@ -116,7 +116,7 @@ const app = new function() {
 		if (n % 2 == 0)
 			return 2;
 		const end = Math.floor(Math.sqrt(n));
-		for (var i = 3; i <= end; i += 2) {
+		for (let i = 3; i <= end; i += 2) {
 			if (n % i == 0)
 				return i;
 		}
@@ -131,9 +131,9 @@ const app = new function() {
 	 * - toFactorPowerList([3, 5]) = [[3, 1], [5, 1]].
 	 */
 	function toFactorPowerList(factors) {
-		var result = [];
-		var prevFactor = factors[0];
-		var count = 1;
+		let result = [];
+		let prevFactor = factors[0];
+		let count = 1;
 		for (const factor of factors.slice(1)) {
 			if (factor == prevFactor) {
 				count++;
