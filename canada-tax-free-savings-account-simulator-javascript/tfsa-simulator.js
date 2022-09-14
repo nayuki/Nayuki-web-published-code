@@ -154,7 +154,7 @@ function display() {
 			content = [document.createTextNode(content)];
 		let td = tr.appendChild(document.createElement("td"));
 		for (const item of content)
-			td.appendChild(item);
+			td.append(item);
 	}
 	
 	function formatMoney(amount) {

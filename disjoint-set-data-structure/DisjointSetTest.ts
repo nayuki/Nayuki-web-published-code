@@ -204,7 +204,7 @@ function assertEquals(expect: number, actual: number): void {
 		}
 		let li: HTMLElement = document.createElement("li");
 		li.textContent = msg;
-		(document.getElementById("results") as HTMLElement).appendChild(li);
+		(document.getElementById("results") as HTMLElement).append(li);
 	}
 	iterate();
 })();

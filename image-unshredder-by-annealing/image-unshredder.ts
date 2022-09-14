@@ -92,7 +92,7 @@ namespace app {
 	for (const [title,,,] of DEMO_IMAGES) {
 		let option: HTMLElement = document.createElement("option");
 		option.textContent = title;
-		imageSelect.appendChild(option);
+		imageSelect.append(option);
 	}
 	imageSelect.onchange = imageSelectChanged;
 	setTimeout(imageSelectChanged);

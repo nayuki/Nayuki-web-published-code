@@ -204,7 +204,7 @@ function assertEquals(expect, actual) {
         }
         let li = document.createElement("li");
         li.textContent = msg;
-        document.getElementById("results").appendChild(li);
+        document.getElementById("results").append(li);
     }
     iterate();
 })();

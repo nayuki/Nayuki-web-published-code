@@ -28,7 +28,7 @@ namespace app {
 		// Create header row's cells
 		let tr: HTMLElement = tbodyElem.appendChild(createElement("tr", createElement("td")));
 		for (let x = 0; x < Grid.WIDTH; x++)
-			tr.appendChild(createElement("td", formatXCoordinate(x)));
+			tr.append(createElement("td", formatXCoordinate(x)));
 		
 		// Create remaining rows' cells
 		const numColors = Grid.TILE_COLORS.length;
@@ -67,7 +67,7 @@ namespace app {
 			solnHeadText = "Solution:";
 			let solnStepsElem = elemId("solution-steps");
 			for (const [x, y] of moves) {
-				solnStepsElem.appendChild(createElement("li",
+				solnStepsElem.append(createElement("li",
 					formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
 			}
 		}
@@ -221,7 +221,7 @@ namespace app {
 			if (typeof content == "string")
 				result.textContent = content;
 			else
-				result.appendChild(content);
+				result.append(content);
 		}
 		return result;
 	}

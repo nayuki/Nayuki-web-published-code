@@ -188,9 +188,9 @@ function showPointsAndHull(): void {
 		circElem.setAttribute("cy", point.y.toString());
 		circElem.setAttribute("r", POINT_RADIUS.toString());
 		if (hullSet.has(point))
-			onHullGroupElem.appendChild(circElem);
+			onHullGroupElem.append(circElem);
 		else
-			offHullGroupElem.appendChild(circElem);
+			offHullGroupElem.append(circElem);
 	}
 }
 

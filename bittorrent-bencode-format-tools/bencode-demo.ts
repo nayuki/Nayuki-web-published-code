@@ -48,7 +48,7 @@ namespace app {
 			try {
 				const bytes = new Uint8Array(reader.result as ArrayBuffer);
 				const rootVal = BencodeParser.parse(bytes);
-				rootElem.appendChild(toHtml(rootVal));
+				rootElem.append(toHtml(rootVal));
 			} catch (e) {
 				rootElem.textContent = "Error: " + e.message;
 			}
@@ -99,19 +99,19 @@ namespace app {
 				let div = appendElem(td, "div");
 				div.textContent = a;
 				td = appendElem(tr, "td");
-				td.appendChild(b);
+				td.append(b);
 			};
 			
 			if (item instanceof BencodeList) {
 				appendText(result, "List:");
 				table.classList.add("list");
-				result.appendChild(table);
+				result.append(table);
 				item.array.forEach((val, i) =>
 					addRow(i.toString(), toHtml(val)));
 			} else if (item instanceof BencodeDict) {
 				appendText(result, "Dictionary:");
 				table.classList.add("dict");
-				result.appendChild(table);
+				result.append(table);
 				for (const key of item.keys) {
 					const val = item.map.get(key);
 					if (val === undefined)

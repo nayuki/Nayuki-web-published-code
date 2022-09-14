@@ -137,7 +137,7 @@ namespace app {
 					if (typeof item == "string")
 						li.textContent = item;
 					else if (item instanceof Node)
-						li.appendChild(item);
+						li.append(item);
 					else
 						throw new Error("Assertion error");
 				}
@@ -1492,9 +1492,9 @@ namespace app {
 	}
 	
 	
-	function appendElem(container: Node, tagName: string, text?: string): HTMLElement {
+	function appendElem(container: Element|DocumentFragment, tagName: string, text?: string): HTMLElement {
 		let result = document.createElement(tagName);
-		container.appendChild(result);
+		container.append(result);
 		if (text !== undefined)
 			result.textContent = text;
 		return result;

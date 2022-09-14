@@ -445,7 +445,7 @@ namespace app {
 				tr.className = isDataRow ? "data" : "ecc";
 				
 				if (i == 0)
-					tr.appendChild(verticalTh);
+					tr.append(verticalTh);
 				appendNewElem(tr, "th", i);
 				
 				if (isDataRow) {

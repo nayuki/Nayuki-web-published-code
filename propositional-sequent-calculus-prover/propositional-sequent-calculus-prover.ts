@@ -25,7 +25,7 @@ function doProve(inputSequent: string): void {
 		const seq: Sequent = parseSequent(new Tokenizer(inputSequent));
 		let proof: Tree = prove(seq);
 		msgElem.textContent = "Proof:";
-		proofElem.appendChild(proof.toHtml());
+		proofElem.append(proof.toHtml());
 		
 	} catch (e) {
 		if (e instanceof ParseError) {
@@ -66,12 +66,12 @@ class Tree {
 		if (typeof this.sequent == "string")
 			result.textContent = this.sequent;
 		else
-			result.appendChild(this.sequent.toHtml());
+			result.append(this.sequent.toHtml());
 		
 		let ul = document.createElement("ul");
 		for (const subtree of this.children) {
-			result.appendChild(ul);
-			ul.appendChild(subtree.toHtml());
+			result.append(ul);
+			ul.append(subtree.toHtml());
 		}
 		return result;
 	}

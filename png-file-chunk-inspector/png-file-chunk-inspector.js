@@ -118,7 +118,7 @@ var app;
                     if (typeof item == "string")
                         li.textContent = item;
                     else if (item instanceof Node)
-                        li.appendChild(item);
+                        li.append(item);
                     else
                         throw new Error("Assertion error");
                 }
@@ -1270,7 +1270,7 @@ var app;
     }
     function appendElem(container, tagName, text) {
         let result = document.createElement(tagName);
-        container.appendChild(result);
+        container.append(result);
         if (text !== undefined)
             result.textContent = text;
         return result;

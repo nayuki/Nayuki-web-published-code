@@ -82,7 +82,7 @@ function assertArrayEquals<E>(expected: Readonly<Array<E>>, actual: Readonly<Arr
 		}
 		let li: HTMLElement = document.createElement("li");
 		li.textContent = msg;
-		(document.getElementById("results") as HTMLElement).appendChild(li);
+		(document.getElementById("results") as HTMLElement).append(li);
 	}
 	iterate();
 })();

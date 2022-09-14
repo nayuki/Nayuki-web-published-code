@@ -70,7 +70,7 @@ var app;
     for (const [title, , ,] of DEMO_IMAGES) {
         let option = document.createElement("option");
         option.textContent = title;
-        imageSelect.appendChild(option);
+        imageSelect.append(option);
     }
     imageSelect.onchange = imageSelectChanged;
     setTimeout(imageSelectChanged);

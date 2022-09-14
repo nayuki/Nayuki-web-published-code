@@ -190,9 +190,9 @@ function showPointsAndCircle(): void {
 		circElem.setAttribute("r", POINT_RADIUS.toString());
 		const dist: number = Math.hypot(point.x - circle.x, point.y - circle.y) / circle.r;
 		if (circle.r == 0 || 1 / MULTIPLICATIVE_EPSILON < dist && dist < MULTIPLICATIVE_EPSILON)
-			onCircleGroupElem.appendChild(circElem);
+			onCircleGroupElem.append(circElem);
 		else
-			offCircleGroupElem.appendChild(circElem);
+			offCircleGroupElem.append(circElem);
 	}
 }
 

@@ -43,10 +43,10 @@ function doBalance(): void {
 			
 			codeOutElem.textContent = formulaStr.substring(0, start);
 			if (end <= formulaStr.length) {
-				codeOutElem.appendChild(createElem("u", formulaStr.substring(start, end)));
+				codeOutElem.append(createElem("u", formulaStr.substring(start, end)));
 				codeOutElem.append(formulaStr.substring(end, formulaStr.length));
 			} else
-				codeOutElem.appendChild(createElem("u", " "));
+				codeOutElem.append(createElem("u", " "));
 			
 		} else if (e instanceof Error) {  // Simple error message string
 			msgElem.textContent = "Syntax error: " + e.message;
@@ -61,7 +61,7 @@ function doBalance(): void {
 		solve(matrix);                                           // Solve linear system
 		const coefs: Array<number> = extractCoefficients(matrix);  // Get coefficients
 		checkAnswer(eqn, coefs);                                 // Self-test, should not fail
-		balancedElem.appendChild(eqn.toHtml(coefs));             // Display balanced equation
+		balancedElem.append(eqn.toHtml(coefs));                  // Display balanced equation
 	} catch (e) {
 		msgElem.textContent = e.message;
 	}
@@ -365,21 +365,21 @@ class Equation {
 					if (head)
 						head = false;
 					else
-						node.appendChild(createSpan("plus", " + "));
+						node.append(createSpan("plus", " + "));
 					if (coef != 1) {
 						let span = createSpan("coefficient", coef.toString().replace(/-/, MINUS));
 						if (coef < 0)
 							span.classList.add("negative");
-						node.appendChild(span);
+						node.append(span);
 					}
-					node.appendChild(term.toHtml());
+					node.append(term.toHtml());
 				}
 				j++;
 			}
 		}
 		
 		termsToHtml(this.leftSide );
-		node.appendChild(createSpan("rightarrow", " \u2192 "));
+		node.append(createSpan("rightarrow", " \u2192 "));
 		termsToHtml(this.rightSide);
 		
 		return node;
@@ -423,17 +423,17 @@ class Term {
 		let node = createSpan("term");
 		if (this.items.length == 0 && this.charge == -1) {
 			node.textContent = "e";
-			node.appendChild(createElem("sup", MINUS));
+			node.append(createElem("sup", MINUS));
 		} else {
 			for (const item of this.items)
-				node.appendChild(item.toHtml());
+				node.append(item.toHtml());
 			if (this.charge != 0) {
 				let s;
 				if (Math.abs(this.charge) == 1) s = "";
 				else s = Math.abs(this.charge).toString();
 				if (this.charge > 0) s += "+";
 				else s += MINUS;
-				node.appendChild(createElem("sup", s));
+				node.append(createElem("sup", s));
 			}
 		}
 		return node;
@@ -470,10 +470,10 @@ class Group {
 	public toHtml(): HTMLElement {
 		let node = createSpan("group", "(");
 		for (const item of this.items)
-			node.appendChild(item.toHtml());
+			node.append(item.toHtml());
 		node.append(")");
 		if (this.count != 1)
-			node.appendChild(createElem("sub", this.count.toString()));
+			node.append(createElem("sub", this.count.toString()));
 		return node;
 	}
 }
@@ -501,7 +501,7 @@ class ChemElem {
 	public toHtml(): HTMLElement {
 		let node = createSpan("element", this.name);
 		if (this.count != 1)
-			node.appendChild(createElem("sub", this.count.toString()));
+			node.append(createElem("sub", this.count.toString()));
 		return node;
 	}
 }

@@ -95,7 +95,7 @@ const app = new function() {
 			let newSpanElem = document.createElement("span");
 			newSpanElem.textContent = text;
 			newSpanElem.style.display = "none";
-			containerElem.appendChild(newSpanElem);
+			containerElem.append(newSpanElem);
 			MathJax.Hub.Queue(["Typeset", MathJax.Hub, newSpanElem]);
 			MathJax.Hub.Queue(() => {
 				if (oldSpanElem.parentNode !== null)
@@ -112,7 +112,7 @@ const app = new function() {
 			nextText = null;
 			while (containerElem.firstChild !== null)
 				containerElem.removeChild(containerElem.firstChild);
-			containerElem.appendChild(document.createElement("span"));
+			containerElem.append(document.createElement("span"));
 		};
 	}
 	

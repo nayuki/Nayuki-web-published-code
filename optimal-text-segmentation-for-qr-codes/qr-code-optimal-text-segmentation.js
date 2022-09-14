@@ -119,7 +119,7 @@ var app;
     function revealElement(link, targetId) {
         let linkParent = link.parentNode;
         while (link.firstChild !== null)
-            linkParent.appendChild(link.firstChild);
+            linkParent.append(link.firstChild);
         linkParent.removeChild(link);
         let target = getElem(targetId);
         target.style.removeProperty("display");

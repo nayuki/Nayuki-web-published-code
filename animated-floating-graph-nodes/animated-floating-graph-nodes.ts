@@ -302,7 +302,7 @@ namespace app {
 			
 			// Draw every node
 			for (const node of this.nodes) {
-				gElem.appendChild(createSvgElem("circle", {
+				gElem.append(createSvgElem("circle", {
 					"cx": node.posX,
 					"cy": node.posY,
 					"r": node.radius,
@@ -321,7 +321,7 @@ namespace app {
 					dx /= mag;  // Make (dx, dy) a unit vector, pointing from B to A
 					dy /= mag;
 					const opacity: number = Math.min(Math.min(a.opacity, b.opacity), edge.opacity);
-					gElem.appendChild(createSvgElem("line", {
+					gElem.append(createSvgElem("line", {
 						// Shorten the edge so that it only touches the circumference of each circle
 						"x1": a.posX - dx * a.radius,
 						"y1": a.posY - dy * a.radius,

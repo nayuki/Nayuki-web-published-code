@@ -1185,7 +1185,7 @@ var app;
                 let tr = appendNewElem(tbody, "tr");
                 tr.className = isDataRow ? "data" : "ecc";
                 if (i == 0)
-                    tr.appendChild(verticalTh);
+                    tr.append(verticalTh);
                 appendNewElem(tr, "th", i);
                 if (isDataRow) {
                     for (const block of dataBlocks)

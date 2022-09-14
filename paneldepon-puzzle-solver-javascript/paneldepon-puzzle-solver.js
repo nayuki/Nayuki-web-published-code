@@ -20,7 +20,7 @@ var app;
         // Create header row's cells
         let tr = tbodyElem.appendChild(createElement("tr", createElement("td")));
         for (let x = 0; x < Grid.WIDTH; x++)
-            tr.appendChild(createElement("td", formatXCoordinate(x)));
+            tr.append(createElement("td", formatXCoordinate(x)));
         // Create remaining rows' cells
         const numColors = Grid.TILE_COLORS.length;
         for (let y = Grid.HEIGHT - 1; y >= 0; y--) {
@@ -55,7 +55,7 @@ var app;
             solnHeadText = "Solution:";
             let solnStepsElem = elemId("solution-steps");
             for (const [x, y] of moves) {
-                solnStepsElem.appendChild(createElement("li", formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
+                solnStepsElem.append(createElement("li", formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
             }
         }
         elemId("solution-text").textContent = solnHeadText;
@@ -196,7 +196,7 @@ var app;
             if (typeof content == "string")
                 result.textContent = content;
             else
-                result.appendChild(content);
+                result.append(content);
         }
         return result;
     }

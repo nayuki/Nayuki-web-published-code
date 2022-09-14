@@ -134,7 +134,7 @@ namespace app {
 	export function revealElement(link: HTMLElement, targetId: string): boolean {
 		let linkParent = link.parentNode as HTMLElement;
 		while (link.firstChild !== null)
-			linkParent.appendChild(link.firstChild);
+			linkParent.append(link.firstChild);
 		linkParent.removeChild(link);
 		
 		let target = getElem(targetId);
