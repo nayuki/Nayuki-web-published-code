@@ -37,7 +37,7 @@ function main() {
 	
 	// Test diverse size FFTs
 	for (var i = 0, prev = 0; i <= 100; i++) {
-		var n = Math.round(Math.pow(1500, i / 100.0));
+		const n = Math.round(Math.pow(1500, i / 100.0));
 		if (n > prev) {
 			testFft(n);
 			prev = n;
@@ -50,7 +50,7 @@ function main() {
 	
 	// Test diverse size convolutions
 	for (var i = 0, prev = 0; i <= 100; i++) {
-		var n = Math.round(Math.pow(1500, i / 100.0));
+		const n = Math.round(Math.pow(1500, i / 100.0));
 		if (n > prev) {
 			testConvolution(n);
 			prev = n;
@@ -63,8 +63,8 @@ function main() {
 
 
 function testFft(size) {
-	var inputreal = randomReals(size);
-	var inputimag = randomReals(size);
+	const inputreal = randomReals(size);
+	const inputimag = randomReals(size);
 	
 	var expectreal = new Array(size);
 	var expectimag = new Array(size);
@@ -86,11 +86,11 @@ function testFft(size) {
 
 
 function testConvolution(size) {
-	var input0real = randomReals(size);
-	var input0imag = randomReals(size);
+	const input0real = randomReals(size);
+	const input0imag = randomReals(size);
 	
-	var input1real = randomReals(size);
-	var input1imag = randomReals(size);
+	const input1real = randomReals(size);
+	const input1imag = randomReals(size);
 	
 	var expectreal = new Array(size);
 	var expectimag = new Array(size);
@@ -108,16 +108,16 @@ function testConvolution(size) {
 /*---- Naive reference computation functions ----*/
 
 function naiveDft(inreal, inimag, outreal, outimag, inverse) {
-	var n = inreal.length;
+	const n = inreal.length;
 	if (n != inimag.length || n != outreal.length || n != outimag.length)
 		throw new RangeError("Mismatched lengths");
 	
-	var coef = (inverse ? 2 : -2) * Math.PI;
+	const coef = (inverse ? 2 : -2) * Math.PI;
 	for (var k = 0; k < n; k++) {  // For each output element
 		var sumreal = 0;
 		var sumimag = 0;
 		for (var t = 0; t < n; t++) {  // For each input element
-			var angle = coef * (t * k % n) / n;  // This is more accurate than t * k
+			const angle = coef * (t * k % n) / n;  // This is more accurate than t * k
 			sumreal += inreal[t] * Math.cos(angle) - inimag[t] * Math.sin(angle);
 			sumimag += inreal[t] * Math.sin(angle) + inimag[t] * Math.cos(angle);
 		}
@@ -128,7 +128,7 @@ function naiveDft(inreal, inimag, outreal, outimag, inverse) {
 
 
 function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
-	var n = xreal.length;
+	const n = xreal.length;
 	if (n != ximag.length || n != yreal.length || n != yimag.length
 			|| n != outreal.length || n != outimag.length)
 		throw new RangeError("Mismatched lengths");
@@ -139,7 +139,7 @@ function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
 	}
 	for (var i = 0; i < n; i++) {
 		for (var j = 0; j < n; j++) {
-			var k = (i + j) % n;
+			const k = (i + j) % n;
 			outreal[k] += xreal[i] * yreal[j] - ximag[i] * yimag[j];
 			outimag[k] += xreal[i] * yimag[j] + ximag[i] * yreal[j];
 		}
@@ -152,7 +152,7 @@ function naiveConvolve(xreal, ximag, yreal, yimag, outreal, outimag) {
 var maxLogError = Number.NEGATIVE_INFINITY;
 
 function log10RmsErr(xreal, ximag, yreal, yimag) {
-	var n = xreal.length;
+	const n = xreal.length;
 	if (n != ximag.length || n != yreal.length || n != yimag.length)
 		throw new RangeError("Mismatched lengths");
 	

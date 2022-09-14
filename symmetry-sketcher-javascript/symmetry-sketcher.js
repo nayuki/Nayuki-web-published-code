@@ -42,7 +42,7 @@ var undoImages = [];
 undoButtonElem.disabled = undoImages.length == 0;
 
 // Internal configuration
-var MAX_UNDO_IMAGES = 5;
+const MAX_UNDO_IMAGES = 5;
 
 
 function initCanvasesSize() {
@@ -60,14 +60,14 @@ function initCanvasesSize() {
 function drawHover(x, y) {
 	screenGfx.drawImage(guideCanvas, 0, 0);
 	screenGfx.fillStyle = backgroundColor;
-	var temp = strokeWidth;
+	const temp = strokeWidth;
 	strokeWidth *= 1.2;
 	drawPoint(screenGfx, x, y);
 	strokeWidth = temp;
 	screenGfx.fillStyle = paintColor;
 	drawPoint(screenGfx, x, y);
 	
-	var crossSize = Math.max(strokeWidth * 2.5, 10);
+	const crossSize = Math.max(strokeWidth * 2.5, 10);
 	screenGfx.lineWidth = Math.max(strokeWidth / 8, 1);
 	screenGfx.beginPath();
 	screenGfx.moveTo(x - crossSize / 2, y);
@@ -92,8 +92,8 @@ function drawPoint(gfx, x, y) {
 // Symmetrizes the line between the given coordinates, and draws them on the given
 // graphics context, using the global stroke width and the graphics context's stroke style.
 function drawLine(gfx, x0, y0, x1, y1) {
-	var starts = getSymmetryPoints(x0, y0);
-	var ends   = getSymmetryPoints(x1, y1);
+	const starts = getSymmetryPoints(x0, y0);
+	const ends   = getSymmetryPoints(x1, y1);
 	gfx.lineWidth = strokeWidth;
 	gfx.beginPath();
 	for (var i = 0; i < starts.length; i++) {
@@ -109,15 +109,15 @@ function drawLine(gfx, x0, y0, x1, y1) {
 function getSymmetryPoints(x, y) {
 	// The coordinate system has its origin at the center of the canvas,
 	// has up as 0 degrees, right as 90 deg, down as 180 deg, and left as 270 deg.
-	var ctrX = width  / 2;
-	var ctrY = height / 2;
-	var relX = x - ctrX;
-	var relY = ctrY - y;
-	var dist  = Math.hypot(relX, relY);
-	var angle = Math.atan2(relX, relY);  // Radians
+	const ctrX = width  / 2;
+	const ctrY = height / 2;
+	const relX = x - ctrX;
+	const relY = ctrY - y;
+	const dist  = Math.hypot(relX, relY);
+	const angle = Math.atan2(relX, relY);  // Radians
 	var result = [];
 	for (var i = 0; i < rotationSymmetry; i++) {
-		var theta = angle + Math.PI * 2 / rotationSymmetry * i;  // Radians
+		const theta = angle + Math.PI * 2 / rotationSymmetry * i;  // Radians
 		x = ctrX + Math.sin(theta) * dist;
 		y = ctrY - Math.cos(theta) * dist;
 		result.push([x, y]);
@@ -136,11 +136,11 @@ function redrawGuideCanvas() {
 	if (!showGuidelines)
 		return;
 	
-	var halfwidth  = width  / 2;
-	var halfheight = height / 2;
+	const halfwidth  = width  / 2;
+	const halfheight = height / 2;
 	guideGfx.lineWidth = 1;
 	guideGfx.beginPath();
-	var dist = Math.min(halfwidth, halfheight);
+	const dist = Math.min(halfwidth, halfheight);
 	guideGfx.arc(halfwidth, halfwidth, dist, Math.PI * 2, false);
 	guideGfx.stroke();
 	
@@ -191,14 +191,14 @@ function getLocalCoordinates(ev) {
 canvasElem.onmouseover = ev => {
 	if (isDone)
 		return;
-	var coord = getLocalCoordinates(ev);
+	const coord = getLocalCoordinates(ev);
 	drawHover(coord[0], coord[1]);
 };
 
 canvasElem.onmousemove = ev => {
 	if (isDone)
 		return;
-	var coord = getLocalCoordinates(ev);
+	const coord = getLocalCoordinates(ev);
 	if (isMouseDown) {
 		drawPoint(baseGfx, coord[0], coord[1]);
 		if (lastCoord !== null)
@@ -223,7 +223,7 @@ canvasElem.onmousedown = ev => {
 			undoImages.splice(0, undoImages.length - MAX_UNDO_IMAGES);
 		undoButtonElem.disabled = undoImages.length == 0;
 		isMouseDown = true;
-		var coord = getLocalCoordinates(ev);
+		const coord = getLocalCoordinates(ev);
 		drawPoint(baseGfx, coord[0], coord[1]);
 		redrawGuideCanvas();
 		drawHover(coord[0], coord[1]);
@@ -241,12 +241,12 @@ canvasElem.onwheel = ev => {
 		return;
 	if (!isMouseDown && !isNaN(strokeWidth)) {
 		// Scroll up to increase stroke width, down to decrease
-		var step = -ev.deltaY / Math.abs(ev.deltaY);  // Signum
+		const step = -ev.deltaY / Math.abs(ev.deltaY);  // Signum
 		strokeWidth *= Math.pow(10, step / 10);
 		strokeWidth = Math.max(strokeWidth, 0.1);
 		strokeWidth = Math.min(strokeWidth, 300);
 		element("stroke-width").value = strokeWidth.toFixed(2);
-		var coord = getLocalCoordinates(ev);
+		const coord = getLocalCoordinates(ev);
 		drawHover(coord[0], coord[1]);
 	}
 	return false;

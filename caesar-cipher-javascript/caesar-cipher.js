@@ -1,7 +1,7 @@
 /* 
  * Caesar cipher
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/caesar-cipher-javascript
  */
@@ -9,14 +9,14 @@
 "use strict";
 
 
-var app = new function() {
+const app = new function() {
 	
 	/* 
 	 * Handles the HTML input/output for Caesar cipher encryption/decryption.
 	 * This is the one and only entry point function called from the HTML code.
 	 */
 	this.doCrypt = function(isDecrypt) {
-		var shiftText = document.getElementById("shift").value;
+		const shiftText = document.getElementById("shift").value;
 		if (!/^-?\d+$/.test(shiftText)) {
 			alert("Shift is not an integer");
 			return;
@@ -43,8 +43,8 @@ var app = new function() {
 	 * - caesarShift("THe 123 !@#$", 13) = "GUr 123 !@#$".
 	 */
 	function caesarShift(text, shift) {
-		var UPPER_A = "A".charCodeAt(0);
-		var LOWER_A = "a".charCodeAt(0);
+		const UPPER_A = "A".charCodeAt(0);
+		const LOWER_A = "a".charCodeAt(0);
 		var result = "";
 		for (var i = 0; i < text.length; i++) {
 			var c = text.charCodeAt(i);

@@ -1,6 +1,6 @@
 /* 
  * Next lexicographical permutation algorithm (JavaScript)
- * by Project Nayuki, 2018. Public domain.
+ * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
  */
 
@@ -25,7 +25,7 @@ function nextPermutation(array) {
 	var j = array.length - 1;
 	while (array[j] <= array[i - 1])
 		j--;
-	var temp = array[i - 1];
+	const temp = array[i - 1];
 	array[i - 1] = array[j];
 	array[j] = temp;
 	
@@ -67,7 +67,7 @@ function nextPermutation(array, comp) {
 	var j = array.length - 1;
 	while (comp(array[j], array[i - 1]) <= 0)
 		j--;
-	var temp = array[i - 1];
+	const temp = array[i - 1];
 	array[i - 1] = array[j];
 	array[j] = temp;
 	

@@ -1,6 +1,6 @@
 /* 
  * Discrete Fourier transform (JavaScript)
- * by Project Nayuki, 2018. Public domain.
+ * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/how-to-implement-the-discrete-fourier-transform
  */
 
@@ -13,14 +13,14 @@
  * Returns an array of two arrays - outreal and outimag, each of length n.
  */
 function computeDft(inreal, inimag) {
-	var n = inreal.length;
+	const n = inreal.length;
 	var outreal = new Array(n);
 	var outimag = new Array(n);
 	for (var k = 0; k < n; k++) {  // For each output element
 		var sumreal = 0;
 		var sumimag = 0;
 		for (var t = 0; t < n; t++) {  // For each input element
-			var angle = 2 * Math.PI * t * k / n;
+			const angle = 2 * Math.PI * t * k / n;
 			sumreal +=  inreal[t] * Math.cos(angle) + inimag[t] * Math.sin(angle);
 			sumimag += -inreal[t] * Math.sin(angle) + inimag[t] * Math.cos(angle);
 		}

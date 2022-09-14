@@ -37,7 +37,7 @@ var blockOfIterations = null;
 
 
 function setImageSize() {
-	var size = parseInt(document.getElementById("image-size").value, 10);
+	const size = parseInt(document.getElementById("image-size").value, 10);
 	width = canvas.width = size;
 	height = canvas.height = size;
 	image = graphics.createImageData(width, height);
@@ -63,10 +63,10 @@ function startAnnealing() {
 	curEnergy = 0;
 	for (var y = 0; y < height; y++) {
 		for (var x = 0; x < width; x++) {
-			var i = (y * width + x) << 2;
-			var r = pixels[i + 0];
-			var g = pixels[i + 1];
-			var b = pixels[i + 2];
+			const i = (y * width + x) << 2;
+			const r = pixels[i + 0];
+			const g = pixels[i + 1];
+			const b = pixels[i + 2];
 			if (x + 1 < width)
 				curEnergy += pixelDiff(r, g, b, i + 4);
 			if (y + 1 < height)
@@ -86,12 +86,12 @@ function startAnnealing() {
 
 
 function doAnnealing() {
-	var startTime = Date.now();
+	const startTime = Date.now();
 	for (var i = 0; i < blockOfIterations && curIterations < numIterations; i++, curIterations++) {
-		var t = curIterations / numIterations;  // Normalized time from 0.0 to 1.0
+		const t = curIterations / numIterations;  // Normalized time from 0.0 to 1.0
 		curTemperature = (1 - t) * startTemperature;  // Cooling schedule function
 		
-		var dir = Math.random() < 0.5;
+		const dir = Math.random() < 0.5;
 		var x0, y0, x1, y1;
 		if (dir) {  // Horizontal swap with (x + 1, y)
 			x0 = Math.floor(Math.random() * (width - 1));
@@ -104,14 +104,14 @@ function doAnnealing() {
 			x1 = x0;
 			y1 = y0 + 1;
 		}
-		var index0 = (y0 * width + x0) << 2;
-		var index1 = (y1 * width + x1) << 2;
-		var r0 = pixels[index0 + 0];
-		var g0 = pixels[index0 + 1];
-		var b0 = pixels[index0 + 2];
-		var r1 = pixels[index1 + 0];
-		var g1 = pixels[index1 + 1];
-		var b1 = pixels[index1 + 2];
+		const index0 = (y0 * width + x0) << 2;
+		const index1 = (y1 * width + x1) << 2;
+		const r0 = pixels[index0 + 0];
+		const g0 = pixels[index0 + 1];
+		const b0 = pixels[index0 + 2];
+		const r1 = pixels[index1 + 0];
+		const g1 = pixels[index1 + 1];
+		const b1 = pixels[index1 + 2];
 		var energyDiff = 0;
 		
 		// Subtract old local energies, then add new

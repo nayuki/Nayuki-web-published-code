@@ -9,7 +9,7 @@
 "use strict";
 
 
-var app = new function() {
+const app = new function() {
 	
 	var textElem = document.getElementById("text");
 	var shiftElem = document.getElementById("shift");
@@ -57,7 +57,7 @@ var app = new function() {
 		
 		// Build table of best guesses
 		clearChildren(guessesElem);
-		var maxEntropy = outputState.entropies[outputState.entropies.length - 1][1];
+		const maxEntropy = outputState.entropies[outputState.entropies.length - 1][1];
 		for (const item of outputState.entropies) {
 			var tr = appendElem(guessesElem, "tr");
 			if (item[0] == outputState.shift)
@@ -90,7 +90,7 @@ var app = new function() {
 	
 	
 	// Unigram model frequencies for letters A, B, ..., Z
-	var ENGLISH_FREQS = [
+	const ENGLISH_FREQS = [
 		0.08167, 0.01492, 0.02782, 0.04253, 0.12702, 0.02228, 0.02015, 0.06094, 0.06966, 0.00153, 0.00772, 0.04025, 0.02406,
 		0.06749, 0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758, 0.00978, 0.02360, 0.00150, 0.01974, 0.00074,
 	];
@@ -100,7 +100,7 @@ var app = new function() {
 		var sum = 0;
 		var ignored = 0;
 		for (var i = 0; i < str.length; i++) {
-			var c = str.charCodeAt(i);
+			const c = str.charCodeAt(i);
 			if      (65 <= c && c <=  90) sum += Math.log(ENGLISH_FREQS[c - 65]);  // Uppercase
 			else if (97 <= c && c <= 122) sum += Math.log(ENGLISH_FREQS[c - 97]);  // Lowercase
 			else ignored++;
@@ -114,7 +114,7 @@ var app = new function() {
 	function decrypt(str, key) {
 		var result = "";
 		for (var i = 0; i < str.length; i++) {
-			var c = str.charCodeAt(i);
+			const c = str.charCodeAt(i);
 			if      (65 <= c && c <=  90) result += String.fromCharCode(mod(c - 65 - key, 26) + 65);  // Uppercase
 			else if (97 <= c && c <= 122) result += String.fromCharCode(mod(c - 97 - key, 26) + 97);  // Lowercase
 			else result += str.charAt(i);  // Copy

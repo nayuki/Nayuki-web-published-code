@@ -9,7 +9,7 @@
 "use strict";
 
 
-var app = new function() {
+const app = new function() {
 	
 	var numberElem = document.getElementById("number");
 	var lastInput = "";
@@ -26,7 +26,7 @@ var app = new function() {
 	 */
 	this.doFactor = function() {
 		// Don't factor if input text didn't change
-		var numberText = numberElem.value;
+		const numberText = numberElem.value;
 		if (numberText == lastInput)
 			return;
 		lastInput = numberText;
@@ -51,15 +51,15 @@ var app = new function() {
 			outElem1.appendChild(document.createTextNode(str));
 		}
 		
-		var n = parseInt(numberText, 10);
+		const n = parseInt(numberText, 10);
 		if (n < 2) {
 			factorization0Elem.textContent = "Number out of range (< 2)";
 		} else if (n >= 9007199254740992) {
 			factorization0Elem.textContent = "Number too large";
 		} else {
 			// Main case
-			var factors = primeFactorList(n);
-			var factorPowers = toFactorPowerList(factors);
+			const factors = primeFactorList(n);
+			const factorPowers = toFactorPowerList(factors);
 			
 			// Build prime factor list without powers
 			factorization0Elem.textContent = n + " = " + factors.join(" " + TIMES + " ");
@@ -96,7 +96,7 @@ var app = new function() {
 			throw new RangeError("Argument error");
 		var result = [];
 		while (n != 1) {
-			var factor = smallestFactor(n);
+			const factor = smallestFactor(n);
 			result.push(factor);
 			n /= factor;
 		}
@@ -115,7 +115,7 @@ var app = new function() {
 			throw new RangeError("Argument error");
 		if (n % 2 == 0)
 			return 2;
-		var end = Math.floor(Math.sqrt(n));
+		const end = Math.floor(Math.sqrt(n));
 		for (var i = 3; i <= end; i += 2) {
 			if (n % i == 0)
 				return i;
@@ -154,7 +154,7 @@ var app = new function() {
 	}
 	
 	
-	var TIMES = "\u00D7";  // Times sign
-	var NBSP  = "\u00A0";  // No-break space
+	const TIMES = "\u00D7";  // Times sign
+	const NBSP  = "\u00A0";  // No-break space
 	
 };

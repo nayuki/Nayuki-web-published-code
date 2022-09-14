@@ -26,11 +26,11 @@
 
 /*---- Test suite ----*/
 
-var TEST_SUITE_FUNCS = [
+const TEST_SUITE_FUNCS = [
 	
 	function testFastDctLeeVsNaive() {
 		for (var len = 1; len <= (1 << 11); len *= 2) {
-			var vector = randomVector(len);
+			const vector = randomVector(len);
 			
 			var expect = naiveDct.transform(vector);
 			var actual = vector.slice();
@@ -47,7 +47,7 @@ var TEST_SUITE_FUNCS = [
 	
 	function testFastDctLeeInvertibility() {
 		for (var len = 1; len <= (1 << 17); len *= 2) {
-			var vector = randomVector(len);
+			const vector = randomVector(len);
 			var temp = vector.slice();
 			fastDctLee.transform(temp);
 			fastDctLee.inverseTransform(temp);
@@ -59,7 +59,7 @@ var TEST_SUITE_FUNCS = [
 	
 	
 	function testFastDct8VsNaive() {
-		var vector = randomVector(8);
+		const vector = randomVector(8);
 		
 		var expect = naiveDct.transform(vector);
 		for (var i = 0; i < expect.length; i++)
@@ -80,11 +80,11 @@ var TEST_SUITE_FUNCS = [
 	
 	function testFastDctFftVsNaive() {
 		for (var i = 0, prev = 0; i <= 100; i++) {
-			var len = Math.round(Math.pow(1000, i / 100.0));
+			const len = Math.round(Math.pow(1000, i / 100.0));
 			if (len <= prev)
 				continue;
 			prev = len;
-			var vector = randomVector(len);
+			const vector = randomVector(len);
 			
 			var expect = naiveDct.transform(vector);
 			var actual = vector.slice();
@@ -101,11 +101,11 @@ var TEST_SUITE_FUNCS = [
 	
 	function testFastDctFftInvertibility() {
 		for (var i = 0, prev = 0; i <= 30; i++) {
-			var len = Math.round(Math.pow(30000, i / 30.0));
+			const len = Math.round(Math.pow(30000, i / 30.0));
 			if (len <= prev)
 				continue;
 			prev = len;
-			var vector = randomVector(len);
+			const vector = randomVector(len);
 			var temp = vector.slice();
 			fastDctFft.transform(temp);
 			fastDctFft.inverseTransform(temp);
@@ -121,7 +121,7 @@ var TEST_SUITE_FUNCS = [
 
 /*---- Helper definitions ----*/
 
-var EPSILON = 1e-9;
+const EPSILON = 1e-9;
 
 
 function assertArrayEquals(expect, actual, epsilon) {
@@ -143,12 +143,12 @@ function randomVector(len) {
 
 
 
-var naiveDct = new function() {
+const naiveDct = new function() {
 	
 	// DCT type II, unscaled.
 	this.transform = function(vector) {
 		var result = [];
-		var factor = Math.PI / vector.length;
+		const factor = Math.PI / vector.length;
 		for (var i = 0; i < vector.length; i++) {
 			var sum = 0;
 			for (var j = 0; j < vector.length; j++)
@@ -162,7 +162,7 @@ var naiveDct = new function() {
 	// DCT type III, unscaled.
 	this.inverseTransform = function(vector) {
 		var result = [];
-		var factor = Math.PI / vector.length;
+		const factor = Math.PI / vector.length;
 		for (var i = 0; i < vector.length; i++) {
 			var sum = vector[0] / 2;
 			for (var j = 1; j < vector.length; j++)

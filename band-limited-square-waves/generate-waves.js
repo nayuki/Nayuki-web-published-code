@@ -14,9 +14,9 @@
 // Constant values
 // Workaround: Google Chrome seems to need a 44.1 kHz sample rate to avoid clicks at the end of each block;
 // Mozilla Firefox can work with 44.1 and 48 kHz sample rates equally well.
-var SAMPLE_RATE = 44100;
-var MIN_FREQUENCY = parseFloat(document.getElementById("frequency-number").min);
-var MAX_FREQUENCY = parseFloat(document.getElementById("frequency-number").max);
+const SAMPLE_RATE = 44100;
+const MIN_FREQUENCY = parseFloat(document.getElementById("frequency-number").min);
+const MAX_FREQUENCY = parseFloat(document.getElementById("frequency-number").max);
 
 // State variables
 var audioContext = new AudioContext();
@@ -28,7 +28,7 @@ function updateWaveParams() {
 	if (state === null)
 		return;
 	
-	var elems = document.querySelectorAll("input[type=radio][name=wave-type]");
+	const elems = document.querySelectorAll("input[type=radio][name=wave-type]");
 	for (const elem of elems) {
 		if (elem.checked)
 			state.waveType = elem.value;
@@ -78,9 +78,9 @@ function renderNext() {
 	var buf = audioContext.createBuffer(1, Math.floor(SAMPLE_RATE / 4), SAMPLE_RATE);
 	var data = buf.getChannelData(0);
 	var phase = state.phase;
-	var type = state.waveType;
-	var inc = state.increment;
-	var vol = state.volume;
+	const type = state.waveType;
+	const inc = state.increment;
+	const vol = state.volume;
 	
 	if (type == "sine") {
 		for (var i = 0; i < buf.length; i++) {
@@ -89,14 +89,14 @@ function renderNext() {
 		}
 		
 	} else if (type == "square-naive") {
-		var duty = state.dutyCycle;
+		const duty = state.dutyCycle;
 		for (var i = 0; i < buf.length; i++) {
 			data[i] = (phase + duty / 2) % 1 < duty ? vol : -vol;
 			phase = (phase + inc) % 1;
 		}
 		
 	} else if (type == "square-bandlimited") {
-		var amps = state.bandAmplitudes;
+		const amps = state.bandAmplitudes;
 		for (var i = 0; i < buf.length; i++) {
 			var val = amps[0];
 			var baseCos = Math.cos(phase * Math.PI * 2);
@@ -132,7 +132,7 @@ function renderNext() {
 /*---- Form input handlers ----*/
 
 function frequencySliderChanged() {
-	var sliderElem = document.getElementById("frequency-slider");
+	const sliderElem = document.getElementById("frequency-slider");
 	var numberElem = document.getElementById("frequency-number");
 	var val = parseFloat(sliderElem.value) / parseFloat(sliderElem.max);
 	val = Math.pow(MAX_FREQUENCY / MIN_FREQUENCY, val) * MIN_FREQUENCY;
@@ -144,7 +144,7 @@ function frequencySliderChanged() {
 
 function frequencyNumberChanged() {
 	var sliderElem = document.getElementById("frequency-slider");
-	var numberElem = document.getElementById("frequency-number");
+	const numberElem = document.getElementById("frequency-number");
 	var val = parseFloat(numberElem.value);
 	if (val < parseFloat(numberElem.min) || val > parseFloat(numberElem.max))
 		return;
@@ -156,19 +156,19 @@ function frequencyNumberChanged() {
 
 
 function updateNumHarmonics() {
-	var freq = parseFloat(document.getElementById("frequency-number").value);
+	const freq = parseFloat(document.getElementById("frequency-number").value);
 	var elem = document.getElementById("num-harmonics");
 	while (elem.firstChild !== null)
 		elem.removeChild(elem.firstChild);
-	var text = "floor(" + (SAMPLE_RATE / 2) + " / " + freq.toFixed(3) + ") = " + Math.floor((SAMPLE_RATE / 2) / freq);
+	const text = "floor(" + (SAMPLE_RATE / 2) + " / " + freq.toFixed(3) + ") = " + Math.floor((SAMPLE_RATE / 2) / freq);
 	elem.textContent = text;
 }
 
 
 function dutyCycleSliderChanged() {
-	var sliderElem = document.getElementById("duty-cycle-slider");
+	const sliderElem = document.getElementById("duty-cycle-slider");
 	var numberElem = document.getElementById("duty-cycle-number");
-	var val = parseFloat(sliderElem.value) / parseFloat(sliderElem.max);
+	const val = parseFloat(sliderElem.value) / parseFloat(sliderElem.max);
 	numberElem.value = val.toFixed(3);
 	updateWaveParams();
 }
@@ -176,8 +176,8 @@ function dutyCycleSliderChanged() {
 
 function dutyCycleNumberChanged() {
 	var sliderElem = document.getElementById("duty-cycle-slider");
-	var numberElem = document.getElementById("duty-cycle-number");
-	var val = parseFloat(numberElem.value);
+	const numberElem = document.getElementById("duty-cycle-number");
+	const val = parseFloat(numberElem.value);
 	if (val < parseFloat(numberElem.min) || val > parseFloat(numberElem.max))
 		return;
 	sliderElem.value = (val * parseFloat(sliderElem.max)).toString();
@@ -186,9 +186,9 @@ function dutyCycleNumberChanged() {
 
 
 function volumeSliderChanged() {
-	var sliderElem = document.getElementById("volume-slider");
+	const sliderElem = document.getElementById("volume-slider");
 	var numberElem = document.getElementById("volume-number");
-	var val = parseFloat(sliderElem.value) / parseFloat(sliderElem.max);
+	const val = parseFloat(sliderElem.value) / parseFloat(sliderElem.max);
 	numberElem.value = (val * 100).toFixed(1);
 	updateWaveParams();
 }
@@ -196,8 +196,8 @@ function volumeSliderChanged() {
 
 function volumeNumberChanged() {
 	var sliderElem = document.getElementById("volume-slider");
-	var numberElem = document.getElementById("volume-number");
-	var val = parseFloat(numberElem.value) / 100;
+	const numberElem = document.getElementById("volume-number");
+	const val = parseFloat(numberElem.value) / 100;
 	if (val < parseFloat(numberElem.min) || val > parseFloat(numberElem.max))
 		return;
 	sliderElem.value = (val * parseFloat(sliderElem.max)).toString();

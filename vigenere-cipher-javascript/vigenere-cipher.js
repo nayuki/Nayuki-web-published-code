@@ -1,7 +1,7 @@
 /* 
  * Vigenère cipher
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2022 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/vigenere-cipher-javascript
  */
@@ -9,14 +9,14 @@
 "use strict";
 
 
-var app = new function() {
+const app = new function() {
 	
 	/* 
 	 * Handles the HTML input/output for Vigenère cipher encryption/decription.
 	 * This is the one and only entry point function called from the HTML code.
 	 */
 	this.doCrypt = function(isDecrypt) {
-		var keyStr = document.getElementById("key").value;
+		const keyStr = document.getElementById("key").value;
 		if (keyStr.length == 0) {
 			alert("Key is empty");
 			return;
@@ -44,7 +44,7 @@ var app = new function() {
 	function crypt(input, key) {
 		var output = "";
 		for (var i = 0, j = 0; i < input.length; i++) {
-			var c = input.charCodeAt(i);
+			const c = input.charCodeAt(i);
 			if (isUppercase(c)) {
 				output += String.fromCharCode((c - 65 + key[j % key.length]) % 26 + 65);
 				j++;
@@ -70,7 +70,7 @@ var app = new function() {
 	function filterKey(key) {
 		var result = [];
 		for (var i = 0; i < key.length; i++) {
-			var c = key.charCodeAt(i);
+			const c = key.charCodeAt(i);
 			if (isLetter(c))
 				result.push((c - 65) % 32);
 		}

@@ -25,13 +25,13 @@ function doSolve() {
 	
 	try {
 		// Get input and solve
-		var a = getInputNumber("sideAin");
-		var b = getInputNumber("sideBin");
-		var c = getInputNumber("sideCin");
-		var A = getInputNumber("angleAin");
-		var B = getInputNumber("angleBin");
-		var C = getInputNumber("angleCin");
-		var answer = solveTriangle(a, b, c, A, B, C);
+		const a = getInputNumber("sideAin");
+		const b = getInputNumber("sideBin");
+		const c = getInputNumber("sideCin");
+		const A = getInputNumber("angleAin");
+		const B = getInputNumber("angleBin");
+		const C = getInputNumber("angleCin");
+		const answer = solveTriangle(a, b, c, A, B, C);
 		solution = answer.slice(0, 6);  // Global variable for mouse hover
 		
 		// Set outputs
@@ -60,8 +60,8 @@ function doSolve() {
 
 // Given some sides and angles, this returns a tuple of 8 number/string values.
 function solveTriangle(a, b, c, A, B, C) {
-	var sides  = (a !== null) + (b !== null) + (c !== null);  // Boolean to integer conversion
-	var angles = (A !== null) + (B !== null) + (C !== null);  // Boolean to integer conversion
+	const sides  = (a !== null) + (b !== null) + (c !== null);  // Boolean to integer conversion
+	const angles = (A !== null) + (B !== null) + (C !== null);  // Boolean to integer conversion
 	var area, status;
 	
 	if (sides + angles != 3)
@@ -77,7 +77,7 @@ function solveTriangle(a, b, c, A, B, C) {
 		B = solveAngle(c, a, b);
 		C = solveAngle(a, b, c);
 		// Heron's formula
-		var s = (a + b + c) / 2;
+		const s = (a + b + c) / 2;
 		area = Math.sqrt(s * (s - a) * (s - b) * (s - c));
 		
 	} else if (angles == 2) {
@@ -91,9 +91,9 @@ function solveTriangle(a, b, c, A, B, C) {
 		if (C === null) C = 180 - A - B;
 		if (A <= 0 || B <= 0 || C <= 0)
 			throw new RangeError(status + " - No solution");
-		var sinA = Math.sin(degToRad(A));
-		var sinB = Math.sin(degToRad(B));
-		var sinC = Math.sin(degToRad(C));
+		const sinA = Math.sin(degToRad(A));
+		const sinB = Math.sin(degToRad(B));
+		const sinC = Math.sin(degToRad(C));
 		// Use law of sines to find sides
 		var ratio;  // side / sin(angle)
 		if (a !== null) { ratio = a / sinA; area = a * ratio * sinB * sinC / 2; }
@@ -128,8 +128,8 @@ function solveTriangle(a, b, c, A, B, C) {
 		if (c !== null && C === null) partialSide = c;
 		if (knownAngle >= 180)
 			throw new RangeError(status + "No solution");
-		var ratio = knownSide / Math.sin(degToRad(knownAngle));
-		var temp = partialSide / ratio;  // sin(partialAngle)
+		const ratio = knownSide / Math.sin(degToRad(knownAngle));
+		const temp = partialSide / ratio;  // sin(partialAngle)
 		var partialAngle, unknownSide, unknownAngle;
 		if (temp > 1 || knownAngle >= 90 && knownSide <= partialSide)
 			throw new RangeError(status + "No solution");
@@ -141,12 +141,12 @@ function solveTriangle(a, b, c, A, B, C) {
 			area = knownSide * partialSide * Math.sin(degToRad(unknownAngle)) / 2;
 		} else {
 			status += "Two solutions";
-			var partialAngle0 = radToDeg(Math.asin(temp));
-			var partialAngle1 = 180 - partialAngle0;
-			var unknownAngle0 = 180 - knownAngle - partialAngle0;
-			var unknownAngle1 = 180 - knownAngle - partialAngle1;
-			var unknownSide0 = ratio * Math.sin(degToRad(unknownAngle0));  // Law of sines
-			var unknownSide1 = ratio * Math.sin(degToRad(unknownAngle1));  // Law of sines
+			const partialAngle0 = radToDeg(Math.asin(temp));
+			const partialAngle1 = 180 - partialAngle0;
+			const unknownAngle0 = 180 - knownAngle - partialAngle0;
+			const unknownAngle1 = 180 - knownAngle - partialAngle1;
+			const unknownSide0 = ratio * Math.sin(degToRad(unknownAngle0));  // Law of sines
+			const unknownSide1 = ratio * Math.sin(degToRad(unknownAngle1));  // Law of sines
 			partialAngle = [partialAngle0, partialAngle1];
 			unknownAngle = [unknownAngle0, unknownAngle1];
 			unknownSide = [unknownSide0, unknownSide1];
@@ -177,7 +177,7 @@ function solveSide(a, b, C) {
 
 // Returns angle C using law of cosines.
 function solveAngle(a, b, c) {
-	var temp = (a * a + b * b - c * c) / (2 * a * b);
+	const temp = (a * a + b * b - c * c) / (2 * a * b);
 	if (-1 <= temp && temp <= 0.9999999)
 		return radToDeg(Math.acos(temp));
 	else if (temp <= 1)  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
@@ -190,7 +190,7 @@ function solveAngle(a, b, c) {
 /*---- Input/output/GUI handling ----*/
 
 // e.g. sideA is associated with sideAin, sideAout, and sideAout2. But area does not have an input.
-var ioNames = ["sideA", "sideB", "sideC", "angleA", "angleB", "angleC", "area"];
+const ioNames = ["sideA", "sideB", "sideC", "angleA", "angleB", "angleC", "area"];
 
 // Either null, or an array of 6 items: [sideA, sideB, sideC, angleA, angleB, angleC].
 // Each item is either a number or an array of 2 numbers.
@@ -201,10 +201,10 @@ var solution = null;
 // Returns the number if it's positive and finite. Throws an exception if it's zero, negative, infinite, or NaN.
 // Returns null if the field is blank.
 function getInputNumber(elemId) {
-	var str = document.getElementById(elemId).value;
+	const str = document.getElementById(elemId).value;
 	if (str == "")
 		return null;
-	var result = parseFloat(str);
+	const result = parseFloat(str);
 	if (!isFinite(result))
 		throw new Error("Invalid number");
 	if (result <= 0)
@@ -224,10 +224,10 @@ function doClearOutputs() {
 }
 
 
-var RECT_PADDED_SIZE = 0.0720;
+const RECT_PADDED_SIZE = 0.0720;
 
 // List of tuples (left, top, width, height). Values will be modified by initImageMap() to include padding.
-var rectangles = [
+const rectangles = [
 	[0.4922, 0.4419, 0.0227, 0.0229],
 	[0.1784, 0.1789, 0.0221, 0.0339],
 	[0.6424, 0.1754, 0.0201, 0.0229],
@@ -238,7 +238,7 @@ var rectangles = [
 
 function initImageMap() {
 	var container = document.getElementById("diagramcontainer");
-	var containerWidth = parseEm(container.style.width);
+	const containerWidth = parseEm(container.style.width);
 	rectangles.forEach((rect, i) => {
 		var elem = document.createElement("a");
 		container.insertBefore(elem, container.querySelector("#hoveroutput"));
@@ -254,7 +254,7 @@ function initImageMap() {
 			if (solution === null)
 				return;
 			
-			var suffix = 3 <= i && i < 6 ? DEGREE : "";
+			const suffix = 3 <= i && i < 6 ? DEGREE : "";
 			var text;
 			if (typeof solution[i] == "object")
 				text = formatNumber(solution[i][0]) + suffix + " or\n" + formatNumber(solution[i][1]) + suffix;
@@ -290,7 +290,7 @@ function setElementText(nodeId, str) {
 }
 
 function parseEm(str) {
-	var match = /^(\d+(?:\.\d*)?)em$/.exec(str);
+	const match = /^(\d+(?:\.\d*)?)em$/.exec(str);
 	if (match !== null)
 		return parseFloat(match[1]);
 	else
@@ -309,4 +309,4 @@ function radToDeg(x) {
 	return x / Math.PI * 180;
 }
 
-var DEGREE = "\u00B0";
+const DEGREE = "\u00B0";

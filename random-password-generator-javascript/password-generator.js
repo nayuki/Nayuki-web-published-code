@@ -11,7 +11,7 @@
 
 /*---- Configuration ----*/
 
-var CHARACTER_SETS = [
+const CHARACTER_SETS = [
 	[true, "Numbers", "0123456789"],
 	[true, "Lowercase", "abcdefghijklmnopqrstuvwxyz"],
 	[false, "Uppercase", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"],
@@ -86,7 +86,7 @@ function initCrypto() {
 
 function doGenerate() {
 	// Get and check character set
-	var charset = getPasswordCharacterSet();
+	const charset = getPasswordCharacterSet();
 	if (charset.length == 0) {
 		alert("Error: Character set is empty");
 		return;
@@ -117,7 +117,7 @@ function doGenerate() {
 	currentPassword = generatePassword(charset, length);
 	
 	// Calculate and format entropy
-	var entropy = Math.log(charset.length) * length / Math.log(2);
+	const entropy = Math.log(charset.length) * length / Math.log(2);
 	var entropystr;
 	if (entropy < 70)
 		entropystr = entropy.toFixed(2);
@@ -169,17 +169,17 @@ function getPasswordCharacterSet() {
 	// Parse UTF-16, remove duplicates, convert to array of strings
 	var charset = [];
 	for (var i = 0; i < rawCharset.length; i++) {
-		var c = rawCharset.charCodeAt(i);
+		const c = rawCharset.charCodeAt(i);
 		if (c < 0xD800 || c >= 0xE000) {  // Regular UTF-16 character
-			var s = rawCharset.charAt(i);
+			const s = rawCharset.charAt(i);
 			if (charset.indexOf(s) == -1)
 				charset.push(s);
 			continue;
 		}
 		if (0xD800 <= c && c < 0xDC00 && i + 1 < rawCharset.length) {  // High surrogate
-			var d = rawCharset.charCodeAt(i + 1);
+			const d = rawCharset.charCodeAt(i + 1);
 			if (0xDC00 <= d && d < 0xE000) {  // Low surrogate
-				var s = rawCharset.substring(i, i + 2);
+				const s = rawCharset.substring(i, i + 2);
 				i++;
 				if (charset.indexOf(s) == -1)
 					charset.push(s);

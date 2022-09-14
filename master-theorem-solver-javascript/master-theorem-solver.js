@@ -9,7 +9,7 @@
 "use strict";
 
 
-var app = new function() {
+const app = new function() {
 	
 	var recurrenceMath = new MathElem("recurrence");
 	var solutionMath = new MathElem("solution");
@@ -19,18 +19,18 @@ var app = new function() {
 		MathJax.Hub.Config({showProcessingMessages: false});
 		
 		// Get input
-		var aStr = document.getElementById("var-a").value;
-		var bStr = document.getElementById("var-b").value;
-		var kStr = document.getElementById("var-k").value;
-		var iStr = document.getElementById("var-i").value;
+		const aStr = document.getElementById("var-a").value;
+		const bStr = document.getElementById("var-b").value;
+		const kStr = document.getElementById("var-k").value;
+		const iStr = document.getElementById("var-i").value;
 		if (aStr == "" || bStr == "" || kStr == "" || iStr == "")
 			return;
 		
 		// Check input and render the recurrence equation
-		var a = parseFloat(aStr);
-		var b = parseFloat(bStr);
-		var k = parseFloat(kStr);
-		var i = parseFloat(iStr);
+		const a = parseFloat(aStr);
+		const b = parseFloat(bStr);
+		const k = parseFloat(kStr);
+		const i = parseFloat(iStr);
 		var recurrenceText = "Error: ";
 		if (isNaN(a))
 			recurrenceText += "Invalid value for \\(a\\)";
@@ -56,7 +56,7 @@ var app = new function() {
 			return;
 		}
 		
-		var p = Math.log(a) / Math.log(b);
+		const p = Math.log(a) / Math.log(b);
 		var result = "\\(T \\: \u2208 \\: \u0398(";
 		if (floatEquals(p, k))
 			result += formatPolyLog(k, i + 1);
@@ -82,14 +82,14 @@ var app = new function() {
 		var nextText = null;
 		
 		this.render = function(text) {
-			var start = nextText === null;
+			const start = nextText === null;
 			nextText = text;
 			if (start)
 				update();
 		};
 		
 		function update() {
-			var text = nextText;
+			const text = nextText;
 			var oldSpanElem = containerElem.querySelector("span");
 			oldSpanElem.style.color = "#E0E0E0";
 			var newSpanElem = document.createElement("span");

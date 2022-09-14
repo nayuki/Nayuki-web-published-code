@@ -26,8 +26,8 @@ var tfsaTransactions     = [[date, "New account", 0, 0, contributionRoom, 0]];
 function transaction(func) {
 	try {
 		// Parse amount
-		var amountElem = document.getElementById("amount");
-		var s = amountElem.value.trim();
+		const amountElem = document.getElementById("amount");
+		const s = amountElem.value.trim();
 		if (!/^(\d{1,13}(\.\d{0,2})?|\.\d{1,2})$/.test(s))
 			throw new RangeError("Invalid amount number");
 		
@@ -48,7 +48,7 @@ function deposit(amount) {
 
 
 function withdraw(amount) {
-	var balance = getChequingBalance();
+	const balance = getChequingBalance();
 	if (balance < amount)
 		throw new RangeError("Not enough money in chequing account");
 	chequingTransactions.push(
@@ -57,7 +57,7 @@ function withdraw(amount) {
 
 
 function transferIn(amount) {
-	var balance = getChequingBalance();
+	const balance = getChequingBalance();
 	if (balance < amount)
 		throw new RangeError("Not enough money in chequing account");
 	chequingTransactions.push(
@@ -71,11 +71,11 @@ function transferIn(amount) {
 
 
 function transferOut(amount) {
-	var balance = getTfsaBalance();
+	const balance = getTfsaBalance();
 	if (balance < amount)
 		throw new RangeError("Not enough money in TFSA");
 	
-	var qualifying = Math.min(Math.max(-contributionRoom, 0), amount);
+	const qualifying = Math.min(Math.max(-contributionRoom, 0), amount);
 	contributionRoom += qualifying;
 	withdrawn += amount - qualifying;
 	tfsaTransactions.push(
@@ -97,7 +97,7 @@ function nextMonth() {
 		return;
 	}
 	setText("interest-error", "");
-	var balance = getTfsaBalance();
+	const balance = getTfsaBalance();
 	var amount = Math.round(balance * parseFloat(s) / 1200);
 	if (amount != 0) {
 		tfsaTransactions.push(
@@ -145,7 +145,7 @@ function nextMonth() {
 
 /*---- HTML output logic and formatting utilities ----*/
 
-var TRANSACTION_ROWS = 16;
+const TRANSACTION_ROWS = 16;
 
 function display() {
 	var tr;
@@ -170,7 +170,7 @@ function display() {
 			var result = [];
 			var s = Math.floor(amount / 100) + "";
 			while (s.length > 0) {
-				var i = Math.max(s.length - 3, 0);
+				const i = Math.max(s.length - 3, 0);
 				var span = document.createElement("span");
 				span.textContent = s.substring(i);
 				span.classList.add("digitgrouper");
@@ -188,7 +188,7 @@ function display() {
 		return MONTH_NAMES[d % 12] + " " + Math.floor(d / 12);
 	}
 	
-	var showAllTransactions = document.getElementById("show-all").checked;
+	const showAllTransactions = document.getElementById("show-all").checked;
 	
 	var cheqElem = document.getElementById("chequing-transactions");
 	clearChildren(cheqElem);
@@ -198,7 +198,7 @@ function display() {
 			for (var j = 0; j < 4; j++)
 				appendTd(NBSP);
 		} else {
-			var trans = chequingTransactions[i];
+			const trans = chequingTransactions[i];
 			appendTd(formatDate(trans[0]));
 			appendTd(trans[1]);
 			appendTd(formatMoney(trans[2]));
@@ -214,7 +214,7 @@ function display() {
 			for (var j = 0; j < 6; j++)
 				appendTd(NBSP);
 		} else {
-			var trans = tfsaTransactions[i];
+			const trans = tfsaTransactions[i];
 			appendTd(formatDate(trans[0]));
 			appendTd(trans[1]);
 			appendTd(formatMoney(trans[2]));
@@ -251,9 +251,9 @@ function clearChildren(node) {
 
 /*---- String constants ----*/
 
-var NBSP = "\u00A0";
-var MINUS = "\u2212";
-var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const NBSP = "\u00A0";
+const MINUS = "\u2212";
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 
 /*---- Initialization ----*/

@@ -9,13 +9,13 @@
 "use strict";
 
 
-var app = new function() {
+const app = new function() {
 	
 	this.doCalculate = function() {
 		function parseNumber(nodeId) {
 			var text = document.getElementById(nodeId).value;
 			text = text.replace(/^\s+|\s+$/g, "");  // Trim whitespace
-			var result = parseFloat(text);
+			const result = parseFloat(text);
 			if (result <= 0)
 				throw new Error("Positive number expected");
 			else if (result == Infinity || isNaN(result))
@@ -34,9 +34,9 @@ var app = new function() {
 		
 		try {
 			// Get inputs
-			var originalWidth  = parseNumber("original-width");
-			var originalHeight = parseNumber("original-height");
-			var resizedArea    = parseNumber("resized-area");
+			const originalWidth  = parseNumber("original-width");
+			const originalHeight = parseNumber("original-height");
+			const resizedArea    = parseNumber("resized-area");
 			
 			// Format aspect ratio
 			var artext;
@@ -53,7 +53,7 @@ var app = new function() {
 			var resizedHeight = Math.sqrt(resizedArea * originalHeight / originalWidth);
 			resizedWidth  = resizedWidth  > 0.5 ? Math.round(resizedWidth)  : 1;
 			resizedHeight = resizedHeight > 0.5 ? Math.round(resizedHeight) : 1;
-			var area = resizedWidth * resizedHeight / 1000000;  // In megapixels
+			const area = resizedWidth * resizedHeight / 1000000;  // In megapixels
 			
 			// Format outputs
 			resizedDimensions.textContent = resizedWidth + " " + TIMES + " " + resizedHeight;
@@ -71,6 +71,6 @@ var app = new function() {
 	};
 	
 	
-	var TIMES = "\u00D7";  // Times sign
+	const TIMES = "\u00D7";  // Times sign
 	
 };

@@ -9,7 +9,7 @@
 "use strict";
 
 
-var app = new function() {
+const app = new function() {
 	
 	var numberElem = document.getElementById("number");
 	var lastInput = "";
@@ -26,7 +26,7 @@ var app = new function() {
 	 */
 	this.doDivisors = function() {
 		// Don't calculate if input text didn't change
-		var numberText = numberElem.value;
+		const numberText = numberElem.value;
 		if (numberText == lastInput)
 			return;
 		lastInput = numberText;
@@ -35,7 +35,7 @@ var app = new function() {
 		if (!/^-?\d+$/.test(numberText)) {
 			s = "Not an integer";
 		} else {
-			var n = parseInt(numberText, 10);
+			const n = parseInt(numberText, 10);
 			if (n < 1)
 				s = "Number out of range (< 1)";
 			else if (n >= 9007199254740992)
@@ -59,7 +59,7 @@ var app = new function() {
 			throw new RangeError("Argument error");
 		var small = [];
 		var large = [];
-		var end = Math.floor(Math.sqrt(n));
+		const end = Math.floor(Math.sqrt(n));
 		for (var i = 1; i <= end; i++) {
 			if (n % i == 0) {
 				small.push(i);

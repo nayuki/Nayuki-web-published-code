@@ -39,12 +39,12 @@
 		document.onkeydown = () => {
 			// Add beat
 			beatTimes.push(Date.now());
-			var n = beatTimes.length;
+			const n = beatTimes.length;
 			setText("simple-beats", n);
 			
 			// Coordinates for linear regression
-			var x = n - 1;
-			var y = beatTimes[n - 1] - beatTimes[0];
+			const x = n - 1;
+			const y = beatTimes[n - 1] - beatTimes[0];
 			setText("simple-time", (y / 1000).toFixed(3) + " s");
 			
 			// Regression cumulative variables
@@ -54,7 +54,7 @@
 			yySum += y * y;
 			xySum += x * y;
 			
-			var tempo = 60000 * x / y;
+			const tempo = 60000 * x / y;
 			if (n < 8 || tempo < 190)
 				setText("simple-position", "Bar " + Math.floor(x / 4) + " : Beat " + x % 4);
 			else  // Two taps per beat
@@ -62,16 +62,16 @@
 			
 			if (n >= 2) {
 				// Period and tempo, simple
-				var period = y / x;
+				const period = y / x;
 				setText("simple-tempo", tempo.toFixed(2) + " BPM");
 				setText("simple-period", period.toFixed(2) + " ms");
 				
 				// Advanced
-				var xx = n * xxSum - xSum * xSum;
-				var yy = n * yySum - ySum * ySum;
-				var xy = n * xySum - xSum * ySum;
-				var a = (n * xySum - xSum * ySum) / xx;  // Slope
-				var b = (ySum * xxSum - xSum * xySum) / xx;  // Intercept
+				const xx = n * xxSum - xSum * xSum;
+				const yy = n * yySum - ySum * ySum;
+				const xy = n * xySum - xSum * ySum;
+				const a = (n * xySum - xSum * ySum) / xx;  // Slope
+				const b = (ySum * xxSum - xSum * xySum) / xx;  // Intercept
 				setText("advanced-period", a.toFixed(3) + " ms");
 				setText("advanced-offset", b.toFixed(2).replace(/-/, "\u2212") + " ms");
 				setText("advanced-correlation", (xy * xy / (xx * yy)).toFixed(9));
@@ -79,8 +79,8 @@
 				
 				// Deviations from prediction
 				if (n >= 3) {
-					var simpleLastDev = periodPrev * x - y;
-					var advancedLastDev = aPrev * x + bPrev - y;
+					const simpleLastDev = periodPrev * x - y;
+					const advancedLastDev = aPrev * x + bPrev - y;
 					setText("simple-last-dev"  , Math.abs(simpleLastDev).toFixed(1) + " ms " + (simpleLastDev < 0 ? "late" : "early"));
 					setText("advanced-std-dev" , Math.sqrt(((yy - xy * xy / xx) / n) / (n - 2)).toFixed(2) + " ms");
 					setText("advanced-last-dev", Math.abs(advancedLastDev).toFixed(1) + " ms " + (advancedLastDev < 0 ? "late" : "early"));

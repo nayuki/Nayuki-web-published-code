@@ -33,20 +33,20 @@ var graphics = canvasElem.getContext("2d");
 
 // The main entry point from the HTML code.
 function doGaussianBlur() {
-	var startTime = performance.now();
+	const startTime = performance.now();
 	if (!updateRadius())
 		return;
 	
 	function doRowConvolutions(imageIn, imageOut) {
 		var kernel = makeGaussianKernel(radius, width);
-		var length = kernel.length;
-		var convolver = new FftConvolver(kernel);
+		const length = kernel.length;
+		const convolver = new FftConvolver(kernel);
 		var lineReal = new Float32Array(length);
 		var lineImag = new Float32Array(length);
 		for (var ch = 0; ch < 4; ch += 2) {
 			for (var y = 0; y < height; y++) {
-				var off0 = (ch + 0) * numPixels + y * width;
-				var off1 = (ch + 1) * numPixels + y * width;
+				const off0 = (ch + 0) * numPixels + y * width;
+				const off1 = (ch + 1) * numPixels + y * width;
 				var x;
 				for (x = 0; x < width; x++) {
 					lineReal[x] = imageIn[off0 + x];
@@ -65,14 +65,14 @@ function doGaussianBlur() {
 	
 	function doColumnConvolutions(imageIn, imageOut) {
 		var kernel = makeGaussianKernel(radius, height);
-		var length = kernel.length;
-		var convolver = new FftConvolver(kernel);
+		const length = kernel.length;
+		const convolver = new FftConvolver(kernel);
 		var lineReal = new Float32Array(length);
 		var lineImag = new Float32Array(length);
 		for (var ch = 0; ch < 4; ch += 2) {
 			for (var x = 0; x < width; x++) {
-				var off0 = (ch + 0) * numPixels + x;
-				var off1 = (ch + 1) * numPixels + x;
+				const off0 = (ch + 0) * numPixels + x;
+				const off1 = (ch + 1) * numPixels + x;
 				var y;
 				for (y = 0; y < height; y++) {
 					lineReal[y] = imageIn[off0 + y * width];
@@ -90,11 +90,11 @@ function doGaussianBlur() {
 	}
 	
 	function convertToByteGamma(imageIn, imageOut) {
-		var lgSteps = linearToGamma.length - 1;
+		const lgSteps = linearToGamma.length - 1;
 		for (var i = 0; i < numPixels; i++) {
-			var weight = imageIn[3 * numPixels + i];
+			const weight = imageIn[3 * numPixels + i];
 			for (var ch = 0; ch < 3; ch++) {
-				var val = imageIn[ch * numPixels + i] / weight;
+				const val = imageIn[ch * numPixels + i] / weight;
 				imageOut[i * 4 + ch] = linearToGamma[Math.round(val * lgSteps)];
 			}
 		}
@@ -112,7 +112,7 @@ function doGaussianBlur() {
 function updateRadius() {
 	if (width == -1)
 		return false;
-	var raw = parseFloat(document.getElementById("radius-in").value) / 100;  // Normalized from 0.0 to 1.0
+	const raw = parseFloat(document.getElementById("radius-in").value) / 100;  // Normalized from 0.0 to 1.0
 	var newRad = Math.pow(raw, 2.5) * 100;
 	if (newRad == 0)
 		newRad = 0.000001;  // To avoid division by zero
@@ -130,9 +130,9 @@ function updateRadius() {
 function makeGaussianKernel(stdDev, dataLen) {
 	// Create one-sided kernel
 	var kernel = [];
-	var scaler = -1 / (2 * stdDev * stdDev);
+	const scaler = -1 / (2 * stdDev * stdDev);
 	for (var i = 0; i < dataLen; i++) {
-		var temp = Math.exp(i * i * scaler);
+		const temp = Math.exp(i * i * scaler);
 		kernel.push(temp);
 		if (temp < 1e-6)
 			break;
@@ -166,7 +166,7 @@ function FftConvolver(kernelReal, kernelImag) {
 		kernelImag = new Float32Array(kernelReal.length);
 	
 	// Compute number of levels
-	var length = kernelReal.length;
+	const length = kernelReal.length;
 	if (length == 1)
 		throw new RangeError("Trivial transform");
 	var levels = -1;
@@ -196,7 +196,7 @@ function FftConvolver(kernelReal, kernelImag) {
 	this.convolve = function(real, imag) {
 		transform(real, imag);
 		for (var i = 0; i < length; i++) {
-			var temp = real[i] * kernelReal[i] - imag[i] * kernelImag[i];
+			const temp = real[i] * kernelReal[i] - imag[i] * kernelImag[i];
 			imag[i]  = imag[i] * kernelReal[i] + real[i] * kernelImag[i];
 			real[i]  = temp;
 		}
@@ -210,7 +210,7 @@ function FftConvolver(kernelReal, kernelImag) {
 			throw new RangeError("Mismatched lengths");
 		
 		for (var i = 0; i < length; i++) {
-			var j = bitRevTable[i];
+			const j = bitRevTable[i];
 			if (j > i) {
 				var temp = real[i];
 				real[i] = real[j];
@@ -222,12 +222,12 @@ function FftConvolver(kernelReal, kernelImag) {
 		}
 		
 		for (var size = 2; size <= length; size *= 2) {
-			var halfsize = size / 2;
-			var tablestep = length / size;
+			const halfsize = size / 2;
+			const tablestep = length / size;
 			for (var i = 0; i < length; i += size) {
 				for (var j = i, k = 0; j < i + halfsize; j++, k += tablestep) {
-					var tpre =  real[j+halfsize] * cosTable[k] + imag[j+halfsize] * sinTable[k];
-					var tpim = -real[j+halfsize] * sinTable[k] + imag[j+halfsize] * cosTable[k];
+					const tpre =  real[j+halfsize] * cosTable[k] + imag[j+halfsize] * sinTable[k];
+					const tpim = -real[j+halfsize] * sinTable[k] + imag[j+halfsize] * cosTable[k];
 					real[j + halfsize] = real[j] - tpre;
 					imag[j + halfsize] = imag[j] - tpim;
 					real[j] += tpre;
@@ -264,7 +264,7 @@ function loadImage(url) {
 		imageTemp = new Float32Array(imageFloatLinear.length);
 		graphics.drawImage(image, 0, 0, width, height);
 		imageData = graphics.getImageData(0, 0, width, height);
-		var buffer = imageData.data;
+		const buffer = imageData.data;
 		for (var ch = 0; ch < 3; ch++) {
 			for (var i = 0; i < numPixels; i++)
 				imageFloatLinear[ch * numPixels + i] = Math.pow(buffer[i * 4 + ch] / 255, 2.2);  // Gamma to linear
