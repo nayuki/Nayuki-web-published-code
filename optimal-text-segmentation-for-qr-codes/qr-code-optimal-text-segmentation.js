@@ -120,7 +120,7 @@ var app;
         let linkParent = link.parentNode;
         while (link.firstChild !== null)
             linkParent.append(link.firstChild);
-        linkParent.removeChild(link);
+        link.remove();
         let target = getElem(targetId);
         target.style.removeProperty("display");
         const newHeight = target.clientHeight;

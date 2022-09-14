@@ -99,7 +99,7 @@ const app = new function() {
 			MathJax.Hub.Queue(["Typeset", MathJax.Hub, newSpanElem]);
 			MathJax.Hub.Queue(() => {
 				if (oldSpanElem.parentNode !== null)
-					containerElem.removeChild(oldSpanElem);
+					oldSpanElem.remove();
 				newSpanElem.style.removeProperty("display");
 				if (nextText === text || nextText === null)
 					nextText = null;

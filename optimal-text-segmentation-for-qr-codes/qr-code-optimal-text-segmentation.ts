@@ -135,7 +135,7 @@ namespace app {
 		let linkParent = link.parentNode as HTMLElement;
 		while (link.firstChild !== null)
 			linkParent.append(link.firstChild);
-		linkParent.removeChild(link);
+		link.remove();
 		
 		let target = getElem(targetId);
 		target.style.removeProperty("display");

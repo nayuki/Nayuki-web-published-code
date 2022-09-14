@@ -895,7 +895,7 @@ var app;
                 node.setAttribute("class", `${node.getAttribute("class")} ${id}`);
                 parent.insertBefore(node, elem);
             }
-            parent.removeChild(elem);
+            elem.remove();
         }
         maskShower.selectElem.onchange = showMask;
         showMask();
@@ -1169,7 +1169,7 @@ var app;
         {
             let thead = queryElem("#blocks-and-ecc thead");
             if (thead.children.length >= 2)
-                thead.removeChild(thead.children[1]);
+                thead.children[1].remove();
             thead.querySelectorAll("th")[1].colSpan = numBlocks;
             let tr = appendNewElem(thead, "tr");
             for (let i = 0; i < numBlocks; i++)

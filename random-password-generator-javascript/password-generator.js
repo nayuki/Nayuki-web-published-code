@@ -147,7 +147,7 @@ function doCopy() {
 		textarea.focus();
 		textarea.select();
 		document.execCommand("copy");
-		container.removeChild(textarea);
+		textarea.remove();
 	}
 }
 
