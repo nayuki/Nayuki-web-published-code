@@ -19,8 +19,8 @@ let doneButtonElem = element("done-button");
 // Graphics initialization
 let width  = null;
 let height = null;
-let baseCanvas  = document.createElement('canvas');  // Off-screen
-let guideCanvas = document.createElement('canvas');  // Off-screen
+let baseCanvas  = document.createElement("canvas");  // Off-screen
+let guideCanvas = document.createElement("canvas");  // Off-screen
 let baseGfx   = baseCanvas .getContext("2d");
 let guideGfx  = guideCanvas.getContext("2d");
 let screenGfx = canvasElem .getContext("2d");
