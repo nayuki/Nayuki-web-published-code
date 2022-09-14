@@ -668,7 +668,7 @@ var qrcodegen;
             let bb = [];
             for (let i = 0; i < digits.length;) { // Consume up to 3 digits per iteration
                 const n = Math.min(digits.length - i, 3);
-                appendBits(parseInt(digits.substr(i, n), 10), n * 3 + 1, bb);
+                appendBits(parseInt(digits.substring(i, i + n), 10), n * 3 + 1, bb);
                 i += n;
             }
             return new QrSegment(QrSegment.Mode.NUMERIC, digits.length, bb);
@@ -759,7 +759,7 @@ var qrcodegen;
                 if (str.charAt(i) != "%")
                     result.push(str.charCodeAt(i));
                 else {
-                    result.push(parseInt(str.substr(i + 1, 2), 16));
+                    result.push(parseInt(str.substring(i + 1, i + 3), 16));
                     i += 2;
                 }
             }
