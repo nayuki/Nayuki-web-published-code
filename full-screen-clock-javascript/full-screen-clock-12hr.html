@@ -26,13 +26,13 @@
 		<script>
 			"use strict";
 			
-			var textElem = document.getElementById("clocktext");
+			let textElem = document.getElementById("clocktext");
 			const targetWidth = 0.9;  // Proportion of full screen width
-			var curFontSize = 20;  // Do not change
+			let curFontSize = 20;  // Do not change
 			
 			function updateClock() {
 				const d = new Date();
-				var s = "";
+				let s = "";
 				s += ((d.getHours() + 11) % 12 + 1) + ":";
 				s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes() + "\u00A0";
 				s += d.getHours() >= 12 ? "pm" : "am";
@@ -41,7 +41,7 @@
 			}
 			
 			function updateTextSize() {
-				for (var i = 0; 3 > i; i++) {  // Iterate for better better convergence
+				for (let i = 0; 3 > i; i++) {  // Iterate for better better convergence
 					curFontSize *= targetWidth / (textElem.offsetWidth / textElem.parentNode.offsetWidth);
 					textElem.style.fontSize = curFontSize + "pt";
 				}

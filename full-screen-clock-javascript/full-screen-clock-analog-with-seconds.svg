@@ -24,8 +24,8 @@
 	"use strict";
 	
 	function initialize() {
-		for (var i = 0; i < 12; i++) {
-			var elem = document.getElementById("hour-marks").appendChild(
+		for (let i = 0; i < 12; i++) {
+			let elem = document.getElementById("hour-marks").appendChild(
 				document.createElementNS(document.documentElement.namespaceURI, "use"));
 			elem.setAttribute("href", "#hour-mark");
 			rotateElem(elem, i / 12 * 360);
