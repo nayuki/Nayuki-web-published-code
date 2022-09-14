@@ -9,14 +9,14 @@
 "use strict";
 
 
-(function() {
+{
 	let imgElem = document.getElementById("sim-anea-image");
 	let linkElems = document.querySelectorAll("#sim-anea-table a");
 	for (let linkElem of linkElems) {
 		ImageSwitcher.register(linkElem, imgElem, null, "mouseover");
 		ImageSwitcher.register(linkElem, imgElem, null, "click");
 	}
-})();
+}
 
 
 let canvas   = document.getElementById("canvas");
