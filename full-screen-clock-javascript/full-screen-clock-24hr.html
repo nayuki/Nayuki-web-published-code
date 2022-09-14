@@ -1,6 +1,6 @@
 <!--
   - Full screen clock (24-hour)
-  - Copyright (c) 2020 Project Nayuki. All rights reserved.
+  - Copyright (c) 2022 Project Nayuki. All rights reserved.
   - 
   - https://www.nayuki.io/page/full-screen-clock-javascript
   -->
@@ -27,11 +27,11 @@
 			"use strict";
 			
 			var textElem = document.getElementById("clocktext");
-			var targetWidth = 0.9;  // Proportion of full screen width
+			const targetWidth = 0.9;  // Proportion of full screen width
 			var curFontSize = 20;  // Do not change
 			
 			function updateClock() {
-				var d = new Date();
+				const d = new Date();
 				var s = "";
 				s += (10 > d.getHours  () ? "0" : "") + d.getHours  () + ":";
 				s += (10 > d.getMinutes() ? "0" : "") + d.getMinutes();

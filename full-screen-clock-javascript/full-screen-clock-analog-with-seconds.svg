@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!--
   - Full screen clock (analog with seconds)
-  - Copyright (c) 2020 Project Nayuki. All rights reserved.
+  - Copyright (c) 2022 Project Nayuki. All rights reserved.
   - 
   - https://www.nayuki.io/page/full-screen-clock-javascript
   -->
@@ -35,7 +35,7 @@
 	}
 	
 	function updateClock() {
-		var d = new Date();
+		const d = new Date();
 		rotateElem(document.getElementById("hour-hand"),
 			(d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600) / 12 * 360);
 		rotateElem(document.getElementById("minute-hand"),
