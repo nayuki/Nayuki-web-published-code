@@ -98,8 +98,8 @@ const app = new function() {
 	function getEntropy(str) {
 		let sum = 0;
 		let ignored = 0;
-		for (let i = 0; i < str.length; i++) {
-			const c = str.charCodeAt(i);
+		for (const a of str) {
+			const c = a.codePointAt(0);
 			if      (65 <= c && c <=  90) sum += Math.log(ENGLISH_FREQS[c - 65]);  // Uppercase
 			else if (97 <= c && c <= 122) sum += Math.log(ENGLISH_FREQS[c - 97]);  // Lowercase
 			else ignored++;
@@ -112,11 +112,11 @@ const app = new function() {
 	// The key is an integer representing the number of letters to step back by - e.g. decrypt("EB", 2) = "CZ".
 	function decrypt(str, key) {
 		let result = "";
-		for (let i = 0; i < str.length; i++) {
-			const c = str.charCodeAt(i);
-			if      (65 <= c && c <=  90) result += String.fromCharCode(mod(c - 65 - key, 26) + 65);  // Uppercase
-			else if (97 <= c && c <= 122) result += String.fromCharCode(mod(c - 97 - key, 26) + 97);  // Lowercase
-			else result += str.charAt(i);  // Copy
+		for (const a of str) {
+			const c = a.codePointAt(0);
+			if      (65 <= c && c <=  90) result += String.fromCodePoint(mod(c - 65 - key, 26) + 65);  // Uppercase
+			else if (97 <= c && c <= 122) result += String.fromCodePoint(mod(c - 97 - key, 26) + 97);  // Lowercase
+			else result += a;  // Copy
 		}
 		return result;
 	}

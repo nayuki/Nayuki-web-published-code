@@ -163,9 +163,9 @@ const TEST_SUITE_FUNCS = [
     },
     function testRemove() {
         let list = new AvlTreeList();
-        let str = "the quick brown fox jumped over the lazy dog";
-        for (let i = 0; i < str.length; i++)
-            list.push(str.charAt(i));
+        let str = Array.from("the quick brown fox jumped over the lazy dog");
+        for (const c of str)
+            list.push(c);
         assertEquals(str.length, list.length);
         assertEquals("e", list.get(2));
         list.remove(2);
@@ -211,10 +211,10 @@ const TEST_SUITE_FUNCS = [
         list.remove(18);
         assertEquals("g", list.get(22));
         list.remove(22);
-        str = "thick broom or they do";
+        str = Array.from("thick broom or they do");
         assertEquals(str.length, list.length);
         for (let i = 0; i < str.length; i++)
-            assertEquals(str.charAt(i), list.get(i));
+            assertEquals(str[i], list.get(i));
         assertEquals("t", list.get(0));
         list.remove(0);
         assertEquals("c", list.get(2));
@@ -245,10 +245,10 @@ const TEST_SUITE_FUNCS = [
         list.remove(7);
         assertEquals("y", list.get(6));
         list.remove(6);
-        str = "him red";
+        str = Array.from("him red");
         assertEquals(str.length, list.length);
         for (let i = 0; i < str.length; i++)
-            assertEquals(str.charAt(i), list.get(i));
+            assertEquals(str[i], list.get(i));
     },
     function testClear() {
         let list = new AvlTreeList();

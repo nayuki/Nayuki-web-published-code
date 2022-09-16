@@ -46,13 +46,13 @@ const app = new function() {
 		const UPPER_A = "A".charCodeAt(0);
 		const LOWER_A = "a".charCodeAt(0);
 		let result = "";
-		for (let i = 0; i < text.length; i++) {
-			let c = text.charCodeAt(i);
+		for (const a of text) {
+			let c = a.codePointAt(0);
 			if (UPPER_A <= c && c <= "Z".charCodeAt(0))  // Uppercase
 				c = (c - UPPER_A + shift) % 26 + UPPER_A;
 			else if (LOWER_A <= c && c <= "z".charCodeAt(0))  // Lowercase
 				c = (c - LOWER_A + shift) % 26 + LOWER_A;
-			result += String.fromCharCode(c);
+			result += String.fromCodePoint(c);
 		}
 		return result;
 	}

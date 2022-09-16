@@ -86,9 +86,9 @@ namespace app {
 		public constructor(code: string, text: string) {
 			// Parse/compile the code
 			let openBracketIndexes: Array<int> = [];
-			for (let i = 0; i < code.length; i++) {
+			for (const c of code) {
 				let inst: Instruction;
-				switch (code.charAt(i)) {
+				switch (c) {
 					case "<":  inst = LEFT  ;  break;
 					case ">":  inst = RIGHT ;  break;
 					case "-":  inst = MINUS ;  break;
@@ -110,7 +110,7 @@ namespace app {
 						continue;
 				}
 				this.instructions.push(inst);
-				this.instructionsText += code.charAt(i);
+				this.instructionsText += c;
 			}
 			if (openBracketIndexes.length > 0)
 				throw new RangeError("Mismatched brackets (extra left bracket)");

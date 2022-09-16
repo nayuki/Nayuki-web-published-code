@@ -1403,8 +1403,8 @@ namespace app {
 		chunk.innerNotes.push(`${noteName}: ${keyword}`);
 		if (!(1 <= keyword.length && keyword.length <= 79))
 			chunk.errorNotes.push(`Invalid ${errorName} length`);
-		for (let i = 0; i < keyword.length; i++) {
-			const c: int = keyword.charCodeAt(i);
+		for (const a of keyword) {
+			const c = a.codePointAt(0) as int;
 			if (0x20 <= c && c <= 0x7E || 0xA1 <= c && c <= 0xFF)
 				continue;
 			else {

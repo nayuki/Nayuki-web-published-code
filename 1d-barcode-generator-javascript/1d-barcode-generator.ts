@@ -114,8 +114,8 @@ namespace barcodegen {
 	export function code128(s: string): Barcode {  // Code 128
 		// Encode into a sequence of numbers
 		let encoded: Array<number> = [104];  // Start code B
-		for (let i = 0; i < s.length; i++) {
-			const c: number = s.charCodeAt(i);
+		for (const a of s) {
+			const c: number = a.codePointAt(0) as number;
 			if (c < 32)
 				encoded.push(98, c + 64);  // 98 is Shift A
 			else if (c < 128)
@@ -155,8 +155,8 @@ namespace barcodegen {
 	export function code93(s: string): Barcode {  // Code 93
 		// Escape the string
 		let t: string = "";
-		for (let i = 0; i < s.length; i++) {
-			const c: number = s.charCodeAt(i);
+		for (const a of s) {
+			const c: number = a.codePointAt(0) as number;
 			if (c >= 128)
 				throw new RangeError("Text must only contain ASCII characters");
 			else if (c == 32 || c == 45 || c == 46 || 48 <= c && c <= 57 || 65 <= c && c <= 90)

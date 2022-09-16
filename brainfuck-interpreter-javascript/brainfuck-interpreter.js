@@ -63,9 +63,9 @@ var app;
             this.runIterations = 1;
             // Parse/compile the code
             let openBracketIndexes = [];
-            for (let i = 0; i < code.length; i++) {
+            for (const c of code) {
                 let inst;
-                switch (code.charAt(i)) {
+                switch (c) {
                     case "<":
                         inst = LEFT;
                         break;
@@ -99,7 +99,7 @@ var app;
                         continue;
                 }
                 this.instructions.push(inst);
-                this.instructionsText += code.charAt(i);
+                this.instructionsText += c;
             }
             if (openBracketIndexes.length > 0)
                 throw new RangeError("Mismatched brackets (extra left bracket)");
