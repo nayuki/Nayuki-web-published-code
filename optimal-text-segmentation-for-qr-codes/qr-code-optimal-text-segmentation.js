@@ -542,19 +542,11 @@ var app;
         }
         static toArray(s) {
             let result = [];
-            for (let i = 0; i < s.length; i++) {
-                const c = s.charCodeAt(i);
-                if (0xD800 <= c && c < 0xDC00) {
-                    if (i + 1 >= s.length)
-                        throw new RangeError("Invalid UTF-16 string");
-                    i++;
-                    const d = s.charCodeAt(i);
-                    result.push(new CodePoint(((c & 0x3FF) << 10 | (d & 0x3FF)) + 0x10000));
-                }
-                else if (0xDC00 <= c && c < 0xE000)
+            for (const a of s) {
+                const c = a.codePointAt(0);
+                if (0xD800 <= c && c < 0xE000)
                     throw new RangeError("Invalid UTF-16 string");
-                else
-                    result.push(new CodePoint(c));
+                result.push(new CodePoint(c));
             }
             return result;
         }

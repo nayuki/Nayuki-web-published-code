@@ -169,25 +169,12 @@ function getPasswordCharacterSet() {
 	
 	// Parse UTF-16, remove duplicates, convert to array of strings
 	let charset = [];
-	for (let i = 0; i < rawCharset.length; i++) {
-		const c = rawCharset.charCodeAt(i);
-		if (c < 0xD800 || c >= 0xE000) {  // Regular UTF-16 character
-			const s = rawCharset.charAt(i);
-			if (!charset.includes(s))
-				charset.push(s);
-			continue;
-		}
-		if (0xD800 <= c && c < 0xDC00 && i + 1 < rawCharset.length) {  // High surrogate
-			const d = rawCharset.charCodeAt(i + 1);
-			if (0xDC00 <= d && d < 0xE000) {  // Low surrogate
-				const s = rawCharset.substring(i, i + 2);
-				i++;
-				if (!charset.includes(s))
-					charset.push(s);
-				continue;
-			}
-		}
-		throw new RangeError("Invalid UTF-16");
+	for (const a of rawCharset) {
+		const c = a.codePointAt(0);
+		if (0xD800 <= c && c < 0xE000)
+			throw new RangeError("Invalid UTF-16 string");
+		if (!charset.includes(a))
+			charset.push(a);
 	}
 	return charset;
 }
