@@ -142,7 +142,7 @@ function doCopy() {
 		let textarea = document.createElement("textarea");
 		textarea.style.position = "fixed";
 		textarea.style.opacity = "0";
-		container.insertBefore(textarea, container.firstChild);
+		container.prepend(textarea);
 		textarea.value = currentPassword;
 		textarea.focus();
 		textarea.select();

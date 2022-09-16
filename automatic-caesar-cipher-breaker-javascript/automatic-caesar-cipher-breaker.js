@@ -62,8 +62,7 @@ const app = new function() {
 			let tr = appendElem(guessesElem, "tr");
 			if (item[0] == outputState.shift)
 				tr.classList.add("active");
-			tr.onclick = () =>
-				doShift(item[0] - outputState.shift);
+			tr.onclick = () => doShift(item[0] - outputState.shift);
 			
 			appendElem(tr, "td", item[0].toString());
 			appendElem(tr, "td", item[1].toFixed(3));

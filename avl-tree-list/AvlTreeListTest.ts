@@ -359,7 +359,7 @@ const TEST_SUITE_FUNCS: Array<()=>void> = [
 				
 			} else if (op < 0.30) {  // Random insertion
 				const n: number = Math.floor(Math.random() * 100) + 1;
-				for (var j = 0; j < n; j++) {
+				for (let j = 0; j < n; j++) {
 					const index: number = Math.floor(Math.random() * (size + 1));
 					const val: number = Math.random();
 					list0.splice(index, 0, val);
