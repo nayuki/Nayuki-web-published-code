@@ -11,6 +11,48 @@
 
 const app = new function() {
 	
+	class MathElem {
+		constructor(id) {
+			this.containerElem = document.getElementById(id);
+			this.nextText = null;
+		}
+		
+		render(text) {
+			const start = this.nextText === null;
+			this.nextText = text;
+			if (start)
+				this.update();
+		}
+		
+		update() {
+			const text = this.nextText;
+			let oldSpanElem = this.containerElem.querySelector("span");
+			oldSpanElem.style.color = "#E0E0E0";
+			let newSpanElem = document.createElement("span");
+			newSpanElem.textContent = text;
+			newSpanElem.style.display = "none";
+			this.containerElem.append(newSpanElem);
+			MathJax.Hub.Queue(["Typeset", MathJax.Hub, newSpanElem]);
+			MathJax.Hub.Queue(() => {
+				if (oldSpanElem.parentNode !== null)
+					oldSpanElem.remove();
+				newSpanElem.style.removeProperty("display");
+				if (this.nextText === text || this.nextText === null)
+					this.nextText = null;
+				else
+					this.update();
+			});
+		}
+		
+		clear() {
+			this.nextText = null;
+			while (this.containerElem.firstChild !== null)
+				this.containerElem.removeChild(this.containerElem.firstChild);
+			this.containerElem.append(document.createElement("span"));
+		}
+	}
+	
+	
 	let recurrenceMath = new MathElem("recurrence");
 	let solutionMath = new MathElem("solution");
 	
@@ -75,46 +117,6 @@ const app = new function() {
 			result = "Arithmetic error";
 		solutionMath.render(result);
 	};
-	
-	
-	function MathElem(id) {  // A container class
-		let containerElem = document.getElementById(id);
-		let nextText = null;
-		
-		this.render = function(text) {
-			const start = nextText === null;
-			nextText = text;
-			if (start)
-				update();
-		};
-		
-		function update() {
-			const text = nextText;
-			let oldSpanElem = containerElem.querySelector("span");
-			oldSpanElem.style.color = "#E0E0E0";
-			let newSpanElem = document.createElement("span");
-			newSpanElem.textContent = text;
-			newSpanElem.style.display = "none";
-			containerElem.append(newSpanElem);
-			MathJax.Hub.Queue(["Typeset", MathJax.Hub, newSpanElem]);
-			MathJax.Hub.Queue(() => {
-				if (oldSpanElem.parentNode !== null)
-					oldSpanElem.remove();
-				newSpanElem.style.removeProperty("display");
-				if (nextText === text || nextText === null)
-					nextText = null;
-				else
-					update();
-			});
-		};
-		
-		this.clear = function() {
-			nextText = null;
-			while (containerElem.firstChild !== null)
-				containerElem.removeChild(containerElem.firstChild);
-			containerElem.append(document.createElement("span"));
-		};
-	}
 	
 	
 	this.doExample = function(a, b, k, i) {
