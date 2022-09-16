@@ -20,19 +20,15 @@ var app;
             outElem.textContent = NBSP;
             return;
         }
-        // DOM helper function
-        function appendTextNode(elem, s) {
-            elem.append(s);
-        }
         // Formatting helper function
         function appendGaussianInteger(n) {
             const s = n.toString();
             if (s.charAt(s.length - 1) != "i")
-                appendTextNode(outElem, s);
+                outElem.append(s);
             else {
                 let varElem = document.createElement("var");
                 varElem.textContent = "i";
-                appendTextNode(outElem, s.substring(0, s.length - 1));
+                outElem.append(s.substring(0, s.length - 1));
                 outElem.append(varElem);
             }
         }
@@ -40,13 +36,13 @@ var app;
             const num = GaussianInteger.parseString(input);
             const factorization = num.factorize();
             appendGaussianInteger(num);
-            appendTextNode(outElem, " = ");
+            outElem.append(" = ");
             factorization.forEach((factor, i) => {
                 if (i > 0)
-                    appendTextNode(outElem, " ");
-                appendTextNode(outElem, "(");
+                    outElem.append(" ");
+                outElem.append("(");
                 appendGaussianInteger(factor);
-                appendTextNode(outElem, ")");
+                outElem.append(")");
             });
         }
         catch (e) {
