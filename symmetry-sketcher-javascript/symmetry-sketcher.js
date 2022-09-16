@@ -336,10 +336,8 @@ document.onkeydown = ev => {
 };
 
 // For the text boxes, confine keystrokes to the element itself and not propagate to the document root
-{
-	for (let elem of document.getElementsByTagName("input"))
-		elem.onkeypress = ev => ev.stopPropagation();
-}
+for (let elem of document.getElementsByTagName("input"))
+	elem.onkeypress = ev => ev.stopPropagation();
 
 
 
