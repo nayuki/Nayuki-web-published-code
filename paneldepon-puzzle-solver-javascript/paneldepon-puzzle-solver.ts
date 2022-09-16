@@ -217,12 +217,8 @@ namespace app {
 	
 	function createElement(tagName: string, content?: string|HTMLElement): HTMLElement {
 		let result: HTMLElement = document.createElement(tagName);
-		if (content !== undefined) {
-			if (typeof content == "string")
-				result.textContent = content;
-			else
-				result.append(content);
-		}
+		if (content !== undefined)
+			result.append(content);
 		return result;
 	}
 	

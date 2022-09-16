@@ -115,12 +115,7 @@ var app;
                     if (list == part.errorNotes)
                         table.classList.add("errors");
                     let li = appendElem(ul, "li");
-                    if (typeof item == "string")
-                        li.textContent = item;
-                    else if (item instanceof Node)
-                        li.append(item);
-                    else
-                        throw new Error("Assertion error");
+                    li.append(item);
                 }
             }
         }

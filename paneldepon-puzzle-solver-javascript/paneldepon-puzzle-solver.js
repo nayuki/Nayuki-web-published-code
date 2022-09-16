@@ -192,12 +192,8 @@ var app;
     }
     function createElement(tagName, content) {
         let result = document.createElement(tagName);
-        if (content !== undefined) {
-            if (typeof content == "string")
-                result.textContent = content;
-            else
-                result.append(content);
-        }
+        if (content !== undefined)
+            result.append(content);
         return result;
     }
     function elemId(id) {
