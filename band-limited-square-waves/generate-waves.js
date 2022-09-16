@@ -160,7 +160,7 @@ function updateNumHarmonics() {
 	let elem = document.getElementById("num-harmonics");
 	while (elem.firstChild !== null)
 		elem.removeChild(elem.firstChild);
-	const text = "floor(" + (SAMPLE_RATE / 2) + " / " + freq.toFixed(3) + ") = " + Math.floor((SAMPLE_RATE / 2) / freq);
+	const text = `floor(${SAMPLE_RATE / 2} / ${freq.toFixed(3)}) = ${Math.floor((SAMPLE_RATE / 2) / freq)}`;
 	elem.textContent = text;
 }
 

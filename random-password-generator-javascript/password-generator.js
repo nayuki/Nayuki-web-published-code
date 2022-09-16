@@ -128,8 +128,9 @@ function doGenerate() {
 	
 	// Set output elements
 	passwordElem.textContent = currentPassword;
-	statisticsElem.textContent = "Length = " + length + " chars, \u00A0\u00A0Charset size = " +
-		charset.length + " symbols, \u00A0\u00A0Entropy = " + entropystr + " bits";
+	statisticsElem.textContent = `Length = ${length} chars, ` +
+		`\u00A0\u00A0Charset size = ${charset.length} symbols, ` +
+		`\u00A0\u00A0Entropy = ${entropystr} bits`;
 	copyElem.disabled = false;
 }
 

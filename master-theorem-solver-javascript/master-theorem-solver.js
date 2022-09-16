@@ -91,7 +91,7 @@ const app = new function() {
 		else if (i < 0)
 			recurrenceText += "\\(i\\) must be at least 0";
 		else
-			recurrenceText = "\\(T(n) \\: = \\: " + (a != 1 ? a : "") + " \\: T(n" + (b != 1 ? " / " + b : "") + ") \\, + \\, \u0398(" + formatPolyLog(k, i) + ").\\)";
+			recurrenceText = `\\(T(n) \\: = \\: ${a != 1 ? a : ""} \\: T(n${b != 1 ? " / " + b : ""}) \\, + \\, \u0398(${formatPolyLog(k, i)}).\\)`;
 		recurrenceMath.render(recurrenceText);
 		if (recurrenceText.substring(0, 6) == "Error:") {
 			solutionMath.render("");
