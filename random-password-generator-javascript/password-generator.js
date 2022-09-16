@@ -172,7 +172,7 @@ function getPasswordCharacterSet() {
 		const c = rawCharset.charCodeAt(i);
 		if (c < 0xD800 || c >= 0xE000) {  // Regular UTF-16 character
 			const s = rawCharset.charAt(i);
-			if (charset.indexOf(s) == -1)
+			if (!charset.includes(s))
 				charset.push(s);
 			continue;
 		}
@@ -181,7 +181,7 @@ function getPasswordCharacterSet() {
 			if (0xDC00 <= d && d < 0xE000) {  // Low surrogate
 				const s = rawCharset.substring(i, i + 2);
 				i++;
-				if (charset.indexOf(s) == -1)
+				if (!charset.includes(s))
 					charset.push(s);
 				continue;
 			}

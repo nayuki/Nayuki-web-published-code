@@ -785,7 +785,7 @@ class SegmentMode {
 	}
 	
 	public static isAlphanumeric(cp: int): boolean {
-		return cp < 128 && SegmentMode.ALPHANUMERIC_CHARSET.indexOf(String.fromCharCode(cp)) != -1;
+		return cp < 128 && SegmentMode.ALPHANUMERIC_CHARSET.includes(String.fromCharCode(cp));
 	}
 	
 	public static isKanji(cp: int): boolean {

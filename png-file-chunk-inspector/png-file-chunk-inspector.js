@@ -653,7 +653,7 @@ var app;
                     chunk.innerNotes.push(`Color type: ${colorTypeStr} (${colorType})`);
                     if (temp === null)
                         chunk.errorNotes.push("Unknown color type");
-                    else if (validBitDepths.indexOf(bitDepth) == -1)
+                    else if (!validBitDepths.includes(bitDepth))
                         chunk.errorNotes.push("Invalid bit depth");
                 }
                 {
@@ -1081,9 +1081,9 @@ var app;
                     annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
                     const text = decodeIso8859_1(data.slice(separatorIndex + 1));
                     chunk.innerNotes.push(`Text string: ${text}`);
-                    if (text.indexOf("\u0000") != -1)
+                    if (text.includes("\u0000"))
                         chunk.errorNotes.push("Null character in text string");
-                    if (text.indexOf("\uFFFD") != -1)
+                    if (text.includes("\uFFFD"))
                         chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
                 }
             }],
@@ -1182,7 +1182,7 @@ var app;
                                 let span = appendElem(frag, "span", text);
                                 span.style.wordBreak = "break-all";
                                 chunk.innerNotes.push(frag);
-                                if (text.indexOf("\uFFFD") != -1)
+                                if (text.includes("\uFFFD"))
                                     chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
                             }
                             catch (e) {
