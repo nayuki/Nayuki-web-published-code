@@ -207,7 +207,3 @@ class MovingPoint implements Point {
 		public vx: number,
 		public vy: number) {}
 }
-
-
-if (!("hypot" in Math))  // Polyfill
-	Math.hypot = (x: number, y: number) => Math.sqrt(x * x + y * y);

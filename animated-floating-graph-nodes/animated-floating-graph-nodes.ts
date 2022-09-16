@@ -414,10 +414,5 @@ namespace app {
 	
 	/*---- Initialization ----*/
 	
-	if (!("hypot" in Math)) {  // Polyfill
-		(Math as any).hypot = (x: number, y: number) =>
-			(Math as any).sqrt(x * x + y * y);
-	}
-	
 	main();
 }

@@ -350,8 +350,5 @@ var app;
         }
     }
     /*---- Initialization ----*/
-    if (!("hypot" in Math)) { // Polyfill
-        Math.hypot = (x, y) => Math.sqrt(x * x + y * y);
-    }
     main();
 })(app || (app = {}));

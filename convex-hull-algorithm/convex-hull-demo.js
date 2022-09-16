@@ -188,5 +188,3 @@ class MovingPoint {
         this.vy = vy;
     }
 }
-if (!("hypot" in Math)) // Polyfill
-    Math.hypot = (x, y) => Math.sqrt(x * x + y * y);
