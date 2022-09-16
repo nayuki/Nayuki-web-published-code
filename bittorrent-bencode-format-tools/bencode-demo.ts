@@ -165,8 +165,7 @@ namespace app {
 					throw new RangeError("Over-long UTF-8 sequence");
 				if (c >= 0x110000)
 					throw new RangeError("UTF-8 code point out of range");
-				c -= 0x10000;
-				result += String.fromCharCode(0xD800 | (c >>> 10), 0xDC00 | (c & 0b1111111111));
+				result += String.fromCodePoint(c);
 				i += 3;
 			} else
 				throw new RangeError("Invalid leading byte");

@@ -518,11 +518,7 @@ var app;
     class CodePoint {
         constructor(utf32) {
             this.utf32 = utf32;
-            if (utf32 < 0x10000)
-                this.utf16 = String.fromCharCode(utf32);
-            else {
-                this.utf16 = String.fromCharCode(0xD800 | ((utf32 - 0x10000) >>> 10), 0xDC00 | ((utf32 - 0x10000) & 0x3FF));
-            }
+            this.utf16 = String.fromCodePoint(utf32);
             if (utf32 < 0)
                 throw new RangeError("Invalid code point");
             else if (utf32 < 0x80)
