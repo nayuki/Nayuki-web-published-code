@@ -149,7 +149,7 @@ namespace app {
 				const c: number = (lead & 0b00011111) << 6 | cb(i + 1) << 0;
 				if (c < (1 << 7))
 					throw new RangeError("Over-long UTF-8 sequence");
-				result += String.fromCharCode(c);
+				result += String.fromCodePoint(c);
 				i += 1;
 			} else if (lead < 0b11110000) {  // Three bytes (1110xxxx 10xxxxxx 10xxxxxx)
 				const c: number = (lead & 0b00001111) << 12 | cb(i + 1) << 6 | cb(i + 2) << 0;
@@ -157,7 +157,7 @@ namespace app {
 					throw new RangeError("Over-long UTF-8 sequence");
 				if (0xD800 <= c && c < 0xE000)
 					throw new RangeError("Invalid UTF-8 containing UTF-16 surrogate");
-				result += String.fromCharCode(c);
+				result += String.fromCodePoint(c);
 				i += 2;
 			} else if (lead < 0b11111000) {  // Four bytes (11110xxx 10xxxxxx 10xxxxxx 10xxxxxx)
 				let c: number = (lead & 0b00000111) << 18 | cb(i + 1) << 12 | cb(i + 2) << 6 | cb(i + 3);
@@ -218,7 +218,7 @@ namespace app {
 			let str: string = "";
 			while (true) {
 				const b: number = this.readByte();
-				const c: string = String.fromCharCode(b);
+				const c: string = String.fromCodePoint(b);
 				if (c == "e")
 					break;
 				
@@ -246,7 +246,7 @@ namespace app {
 			const length = this.parseNaturalNumber(head);
 			let result: string = "";
 			for (let i = 0; i < length; i++)
-				result += String.fromCharCode(this.readByte());
+				result += String.fromCodePoint(this.readByte());
 			return new BencodeBytes(result);
 		}
 		
@@ -257,7 +257,7 @@ namespace app {
 			do {
 				if (b < cc("0") || b > cc("9") || str == "0")
 					throw new Error("Unexpected integer character at byte offset " + (this.index - 1));
-				str += String.fromCharCode(b);
+				str += String.fromCodePoint(b);
 				b = this.readByte();
 			} while (b != cc(":"));
 			return parseInt(str, 10);

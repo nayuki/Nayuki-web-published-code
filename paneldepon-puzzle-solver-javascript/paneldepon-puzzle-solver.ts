@@ -184,7 +184,7 @@ namespace app {
 				if (val == 0)
 					exportStr += ".";
 				else
-					exportStr += String.fromCharCode("a".charCodeAt(0) + val - 1);
+					exportStr += String.fromCodePoint("a".charCodeAt(0) + val - 1);
 			}
 		}
 		inputElemId("import-export").value = exportStr;
@@ -200,9 +200,9 @@ namespace app {
 	function formatXCoordinate(x: number): string {
 		const START = "A".charCodeAt(0);
 		if (0 <= x && x < 26)
-			return String.fromCharCode(START + x);
+			return String.fromCodePoint(START + x);
 		else if (26 <= x && x < 702)
-			return String.fromCharCode(START + Math.floor((x - 26) / 26)) + String.fromCharCode(START + (x - 26) % 26);
+			return String.fromCodePoint(START + Math.floor((x - 26) / 26)) + String.fromCodePoint(START + (x - 26) % 26);
 		else
 			throw new RangeError("Invalid value");
 	}

@@ -1225,7 +1225,7 @@ var app;
                 cc = 0x2421;
             else if (0x80 <= b && b < 0xA0)
                 cc = 0x25AF;
-            result += String.fromCharCode(cc);
+            result += String.fromCodePoint(cc);
         }
         return result;
     }
@@ -1237,7 +1237,7 @@ var app;
             else if (0x80 <= b && b < 0xA0)
                 result += "\uFFFD";
             else
-                result += String.fromCharCode(b); // ISO 8859-1 is a subset of Unicode
+                result += String.fromCodePoint(b); // ISO 8859-1 is a subset of Unicode
         }
         return result;
     }
@@ -1247,7 +1247,7 @@ var app;
             if (b == "%".charCodeAt(0) || b >= 128)
                 temp += "%" + b.toString(16).padStart(2, "0");
             else
-                temp += String.fromCharCode(b);
+                temp += String.fromCodePoint(b);
         }
         return decodeURI(temp);
     }

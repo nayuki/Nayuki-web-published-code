@@ -133,7 +133,7 @@ var barcodegen;
             if (c >= 128)
                 throw new RangeError("Text must only contain ASCII characters");
             else if (c == 32 || c == 45 || c == 46 || 48 <= c && c <= 57 || 65 <= c && c <= 90)
-                t += String.fromCharCode(c);
+                t += String.fromCodePoint(c);
             else if (c == 0)
                 t += "bU";
             else if (c == 64)
@@ -143,19 +143,19 @@ var barcodegen;
             else if (c == 127)
                 t += "bT";
             else if (c <= 26)
-                t += "a" + String.fromCharCode(c - 1 + 65);
+                t += "a" + String.fromCodePoint(c - 1 + 65);
             else if (c <= 31)
-                t += "b" + String.fromCharCode(c - 27 + 65);
+                t += "b" + String.fromCodePoint(c - 27 + 65);
             else if (c <= 58)
-                t += "c" + String.fromCharCode(c - 33 + 65);
+                t += "c" + String.fromCodePoint(c - 33 + 65);
             else if (c <= 63)
-                t += "b" + String.fromCharCode(c - 54 + 65);
+                t += "b" + String.fromCodePoint(c - 54 + 65);
             else if (c <= 95)
-                t += "b" + String.fromCharCode(c - 81 + 65);
+                t += "b" + String.fromCodePoint(c - 81 + 65);
             else if (c <= 122)
-                t += "d" + String.fromCharCode(c - 97 + 65);
+                t += "d" + String.fromCodePoint(c - 97 + 65);
             else if (c <= 126)
-                t += "b" + String.fromCharCode(c - 108 + 65);
+                t += "b" + String.fromCodePoint(c - 108 + 65);
             else
                 throw new Error("Assertion error");
         }

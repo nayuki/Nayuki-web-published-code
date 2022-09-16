@@ -639,7 +639,7 @@ class SegmentMode {
         return "0".charCodeAt(0) <= cp && cp <= "9".charCodeAt(0);
     }
     static isAlphanumeric(cp) {
-        return cp < 128 && SegmentMode.ALPHANUMERIC_CHARSET.includes(String.fromCharCode(cp));
+        return cp < 128 && SegmentMode.ALPHANUMERIC_CHARSET.includes(String.fromCodePoint(cp));
     }
     static isKanji(cp) {
         return cp < 0x10000 && ((parseInt(SegmentMode.KANJI_BIT_SET.charAt(cp >>> 2), 16) >>> (cp & 3)) & 1) != 0;

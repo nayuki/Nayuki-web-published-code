@@ -211,7 +211,7 @@ var app;
         }
         writeOutput() {
             const val = this.memoryIndex < this.memory.length ? this.memory[this.memoryIndex] : 0;
-            outputTextPre.textContent += String.fromCharCode(val);
+            outputTextPre.textContent += String.fromCodePoint(val);
         }
         showState() {
             queryHtml("#output-instructions p").textContent =

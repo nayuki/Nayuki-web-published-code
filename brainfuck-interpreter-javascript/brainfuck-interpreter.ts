@@ -243,7 +243,7 @@ namespace app {
 		
 		public writeOutput(): void {
 			const val: int = this.memoryIndex < this.memory.length ? this.memory[this.memoryIndex] : 0;
-			outputTextPre.textContent += String.fromCharCode(val);
+			outputTextPre.textContent += String.fromCodePoint(val);
 		}
 		
 		

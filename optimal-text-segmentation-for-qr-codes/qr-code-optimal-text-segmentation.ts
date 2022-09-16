@@ -440,13 +440,13 @@ namespace app {
 	
 	// Tests whether the given code point can be encoded in numeric mode.
 	function isNumeric(cp: int): boolean {
-		return cp < 128 && "0123456789".includes(String.fromCharCode(cp));
+		return cp < 128 && "0123456789".includes(String.fromCodePoint(cp));
 	}
 	
 	
 	// Tests whether the given code point can be encoded in alphanumeric mode.
 	function isAlphanumeric(cp: int): boolean {
-		return cp < 128 && "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:".includes(String.fromCharCode(cp));
+		return cp < 128 && "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:".includes(String.fromCodePoint(cp));
 	}
 	
 	
