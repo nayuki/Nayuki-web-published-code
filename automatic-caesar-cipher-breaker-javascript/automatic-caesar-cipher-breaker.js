@@ -22,7 +22,7 @@ const app = new function() {
 	this.doClear = function() {
 		outputState = null;
 		shiftElem.textContent = "";
-		clearChildren(guessesElem);
+		guessesElem.replaceChildren();
 	};
 	
 	
@@ -56,7 +56,7 @@ const app = new function() {
 		shiftElem.textContent = outputState.shift.toString();
 		
 		// Build table of best guesses
-		clearChildren(guessesElem);
+		guessesElem.replaceChildren();
 		const maxEntropy = outputState.entropies[outputState.entropies.length - 1][1];
 		for (const item of outputState.entropies) {
 			let tr = appendElem(guessesElem, "tr");
@@ -125,12 +125,6 @@ const app = new function() {
 	
 	/*---- Utilities ----*/
 	
-	function clearChildren(node) {
-		while (node.firstChild !== null)
-			node.removeChild(node.firstChild);
-	}
-	
-	
 	function appendElem(container, tagName, text) {
 		let result = document.createElement(tagName);
 		if (text !== undefined)
@@ -141,6 +135,15 @@ const app = new function() {
 	
 	function mod(x, y) {
 		return (x % y + y) % y;
+	}
+	
+	
+	if (!("replaceChildren" in Element.prototype)) {  // Polyfill
+		Element.prototype.replaceChildren = function(...newChildren) {
+			while (this.firstChild !== null)
+				this.removeChild(this.firstChild);
+			this.append(...newChildren);
+		};
 	}
 	
 };

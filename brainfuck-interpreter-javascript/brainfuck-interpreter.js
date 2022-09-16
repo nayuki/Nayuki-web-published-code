@@ -222,7 +222,7 @@ var app;
             {
                 const left = this.instructionsText.substring(0, this.instructionIndex);
                 let outputInstructionsPre = queryHtml("#output-instructions pre");
-                clearChildren(outputInstructionsPre);
+                outputInstructionsPre.replaceChildren();
                 outputInstructionsPre.textContent = left;
                 if (this.instructionIndex < this.instructions.length) {
                     const mid = this.instructionsText.charAt(this.instructionIndex);
@@ -247,7 +247,7 @@ var app;
             {
                 const left = this.inputText.substring(0, this.inputIndex);
                 let outputInputPre = queryHtml("#output-input pre");
-                clearChildren(outputInputPre);
+                outputInputPre.replaceChildren();
                 outputInputPre.textContent = left;
                 if (this.inputIndex < this.inputText.length) {
                     const mid = this.inputText.charAt(this.inputIndex);
@@ -270,7 +270,7 @@ var app;
         }
         showMemoryView() {
             let outputMemoryTbody = queryHtml("#output-memory tbody");
-            clearChildren(outputMemoryTbody);
+            outputMemoryTbody.replaceChildren();
             for (let i = 0; i < Brainfuck.MEMORY_VIEW_WINDOW; i++) {
                 const index = this.memoryViewIndex + i;
                 let tr = appendElem(outputMemoryTbody, "tr");
@@ -356,14 +356,17 @@ var app;
         else
             throw new TypeError("Invalid element type");
     }
-    function clearChildren(elem) {
-        while (elem.firstChild !== null)
-            elem.removeChild(elem.firstChild);
-    }
     function appendElem(container, tagName, text) {
         let result = document.createElement(tagName);
         if (text !== undefined)
             result.textContent = text;
         return container.appendChild(result);
+    }
+    if (!("replaceChildren" in Element.prototype)) { // Polyfill
+        Element.prototype.replaceChildren = function (...newChildren) {
+            while (this.firstChild !== null)
+                this.removeChild(this.firstChild);
+            this.append(...newChildren);
+        };
     }
 })(app || (app = {}));

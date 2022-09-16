@@ -16,7 +16,7 @@ var app;
     function initialize() {
         pageGrid = new Grid();
         const tbodyElem = document.querySelector("#game-board tbody");
-        clearChildren(tbodyElem);
+        tbodyElem.replaceChildren();
         // Create header row's cells
         let tr = tbodyElem.appendChild(createElement("tr", createElement("td")));
         for (let x = 0; x < Grid.WIDTH; x++)
@@ -187,7 +187,7 @@ var app;
     }
     function clearSolution() {
         elemId("solution-text").textContent = "";
-        clearChildren(elemId("solution-steps"));
+        elemId("solution-steps").replaceChildren();
         elemId("boards-visited").textContent = "";
     }
     function createElement(tagName, content) {
@@ -201,10 +201,6 @@ var app;
     }
     function inputElemId(id) {
         return elemId(id);
-    }
-    function clearChildren(elem) {
-        while (elem.firstChild !== null)
-            elem.removeChild(elem.firstChild);
     }
     /*---- Puzzle solver, board, grid ----*/
     // An immutable puzzle board, with high-level methods to generate/apply/solve game moves.
@@ -398,6 +394,13 @@ var app;
         "#000000", "#F01000", "#FFE000", "#00C000", "#40FFFF", "#0020F0", "#C000FF"
     ];
     Grid.EMPTY_TILE = 0;
+    if (!("replaceChildren" in Element.prototype)) { // Polyfill
+        Element.prototype.replaceChildren = function (...newChildren) {
+            while (this.firstChild !== null)
+                this.removeChild(this.firstChild);
+            this.append(...newChildren);
+        };
+    }
     // Global initialization
     initialize();
 })(app || (app = {}));

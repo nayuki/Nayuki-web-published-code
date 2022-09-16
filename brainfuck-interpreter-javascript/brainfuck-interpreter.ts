@@ -256,7 +256,7 @@ namespace app {
 			{
 				const left: string = this.instructionsText.substring(0, this.instructionIndex);
 				let outputInstructionsPre = queryHtml("#output-instructions pre");
-				clearChildren(outputInstructionsPre);
+				outputInstructionsPre.replaceChildren();
 				outputInstructionsPre.textContent = left;
 				if (this.instructionIndex < this.instructions.length) {
 					const mid: string = this.instructionsText.charAt(this.instructionIndex);
@@ -283,7 +283,7 @@ namespace app {
 			{
 				const left: string = this.inputText.substring(0, this.inputIndex);
 				let outputInputPre = queryHtml("#output-input pre");
-				clearChildren(outputInputPre);
+				outputInputPre.replaceChildren();
 				outputInputPre.textContent = left;
 				if (this.inputIndex < this.inputText.length) {
 					const mid: string = this.inputText.charAt(this.inputIndex);
@@ -310,7 +310,7 @@ namespace app {
 		
 		private showMemoryView(): void {
 			let outputMemoryTbody = queryHtml("#output-memory tbody");
-			clearChildren(outputMemoryTbody);
+			outputMemoryTbody.replaceChildren();
 			for (let i = 0; i < Brainfuck.MEMORY_VIEW_WINDOW; i++) {
 				const index: int = this.memoryViewIndex + i;
 				let tr = appendElem(outputMemoryTbody, "tr");
@@ -422,17 +422,20 @@ namespace app {
 	}
 	
 	
-	function clearChildren(elem: Element): void {
-		while (elem.firstChild !== null)
-			elem.removeChild(elem.firstChild);
-	}
-	
-	
 	function appendElem(container: Element, tagName: string, text?: string): HTMLElement {
 		let result: HTMLElement = document.createElement(tagName);
 		if (text !== undefined)
 			result.textContent = text;
 		return container.appendChild(result);
+	}
+	
+	
+	if (!("replaceChildren" in Element.prototype)) {  // Polyfill
+		Element.prototype.replaceChildren = function(...newChildren: Array<Node|string>): void {
+			while (this.firstChild !== null)
+				this.removeChild(this.firstChild);
+			this.append(...newChildren);
+		};
 	}
 	
 }

@@ -8,16 +8,12 @@
 "use strict";
 function doProve(inputSequent) {
     document.getElementById("inputSequent").value = inputSequent;
-    function clearChildren(node) {
-        while (node.firstChild !== null)
-            node.removeChild(node.firstChild);
-    }
     let msgElem = document.getElementById("message");
     let codeOutElem = document.getElementById("codeOutput");
     let proofElem = document.getElementById("proof");
-    clearChildren(msgElem);
-    clearChildren(codeOutElem);
-    clearChildren(proofElem);
+    msgElem.replaceChildren();
+    codeOutElem.replaceChildren();
+    proofElem.replaceChildren();
     try {
         const seq = parseSequent(new Tokenizer(inputSequent));
         let proof = prove(seq);
@@ -453,3 +449,10 @@ const EMPTY = "\u2205";
 const NOT = "\u00AC";
 const AND = "\u2227";
 const OR = "\u2228";
+if (!("replaceChildren" in Element.prototype)) { // Polyfill
+    Element.prototype.replaceChildren = function (...newChildren) {
+        while (this.firstChild !== null)
+            this.removeChild(this.firstChild);
+        this.append(...newChildren);
+    };
+}

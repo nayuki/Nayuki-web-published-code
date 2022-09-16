@@ -37,7 +37,7 @@ const app = new function() {
 		
 		// Reset output line 1 with blank filler to prevent the page layout from bobbing up and down
 		let outElem1 = document.getElementById("factorization1");
-		clearChildren(outElem1);
+		outElem1.replaceChildren();
 		outElem1.textContent = NBSP;
 		let temp = outElem1.appendChild(document.createElement("sup"));
 		temp.textContent = NBSP;
@@ -66,7 +66,7 @@ const app = new function() {
 			
 			// Build prime factor list with powers in superscripts
 			if (factorPowers.length < factors.length) {
-				clearChildren(outElem1);
+				outElem1.replaceChildren();
 				
 				appendText(n + " = ");
 				factorPowers.forEach(function(factPow, i) {
@@ -148,9 +148,12 @@ const app = new function() {
 	}
 	
 	
-	function clearChildren(node) {
-		while (node.firstChild !== null)
-			node.removeChild(node.firstChild);
+	if (!("replaceChildren" in Element.prototype)) {  // Polyfill
+		Element.prototype.replaceChildren = function(...newChildren): void {
+			while (this.firstChild !== null)
+				this.removeChild(this.firstChild);
+			this.append(...newChildren);
+		};
 	}
 	
 	

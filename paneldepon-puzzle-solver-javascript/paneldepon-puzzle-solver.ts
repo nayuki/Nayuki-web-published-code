@@ -23,7 +23,7 @@ namespace app {
 	function initialize(): void {
 		pageGrid = new Grid();
 		const tbodyElem = document.querySelector("#game-board tbody") as HTMLElement;
-		clearChildren(tbodyElem);
+		tbodyElem.replaceChildren();
 		
 		// Create header row's cells
 		let tr: HTMLElement = tbodyElem.appendChild(createElement("tr", createElement("td")));
@@ -210,7 +210,7 @@ namespace app {
 	
 	function clearSolution(): void {
 		elemId("solution-text").textContent = "";
-		clearChildren(elemId("solution-steps"));
+		elemId("solution-steps").replaceChildren();
 		elemId("boards-visited").textContent = "";
 	}
 	
@@ -230,12 +230,6 @@ namespace app {
 	
 	function inputElemId(id: string): HTMLInputElement {
 		return elemId(id) as HTMLInputElement;
-	}
-	
-	
-	function clearChildren(elem: HTMLElement): void {
-		while (elem.firstChild !== null)
-			elem.removeChild(elem.firstChild);
 	}
 	
 	
@@ -478,6 +472,15 @@ namespace app {
 			"#000000", "#F01000", "#FFE000", "#00C000", "#40FFFF", "#0020F0", "#C000FF"];
 		public static readonly EMPTY_TILE: number = 0;
 		
+	}
+	
+	
+	if (!("replaceChildren" in Element.prototype)) {  // Polyfill
+		Element.prototype.replaceChildren = function(...newChildren: Array<Node|string>): void {
+			while (this.firstChild !== null)
+				this.removeChild(this.firstChild);
+			this.append(...newChildren);
+		};
 	}
 	
 	

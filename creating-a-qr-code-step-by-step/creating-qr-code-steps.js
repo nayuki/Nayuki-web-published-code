@@ -1429,8 +1429,7 @@ var app;
             elem = queryElem(elemOrQuery);
         else
             elem = elemOrQuery;
-        while (elem.firstChild !== null)
-            elem.removeChild(elem.firstChild);
+        elem.replaceChildren();
         return elem;
     }
     function appendNewElem(container, tag, text) {
@@ -1504,6 +1503,13 @@ var app;
             }
             return result;
         }
+    }
+    if (!("replaceChildren" in Element.prototype)) { // Polyfill
+        Element.prototype.replaceChildren = function (...newChildren) {
+            while (this.firstChild !== null)
+                this.removeChild(this.firstChild);
+            this.append(...newChildren);
+        };
     }
     initialize();
 })(app || (app = {}));

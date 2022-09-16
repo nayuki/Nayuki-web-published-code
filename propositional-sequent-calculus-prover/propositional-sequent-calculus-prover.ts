@@ -10,16 +10,12 @@
 function doProve(inputSequent: string): void {
 	(document.getElementById("inputSequent") as HTMLInputElement).value = inputSequent;
 	
-	function clearChildren(node: HTMLElement): void {
-		while (node.firstChild !== null)
-			node.removeChild(node.firstChild);
-	}
 	let msgElem     = document.getElementById("message"   ) as HTMLElement;
 	let codeOutElem = document.getElementById("codeOutput") as HTMLElement;
 	let proofElem   = document.getElementById("proof"     ) as HTMLElement;
-	clearChildren(msgElem);
-	clearChildren(codeOutElem);
-	clearChildren(proofElem);
+	msgElem.replaceChildren();
+	codeOutElem.replaceChildren();
+	proofElem.replaceChildren();
 	
 	try {
 		const seq: Sequent = parseSequent(new Tokenizer(inputSequent));
@@ -509,3 +505,12 @@ const EMPTY     = "\u2205";
 const NOT       = "\u00AC";
 const AND       = "\u2227";
 const OR        = "\u2228";
+
+
+if (!("replaceChildren" in Element.prototype)) {  // Polyfill
+	Element.prototype.replaceChildren = function(...newChildren: Array<Node|string>): void {
+		while (this.firstChild !== null)
+			this.removeChild(this.firstChild);
+		this.append(...newChildren);
+	};
+}

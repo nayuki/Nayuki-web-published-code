@@ -191,7 +191,7 @@ function display() {
 	const showAllTransactions = document.getElementById("show-all").checked;
 	
 	let cheqElem = document.getElementById("chequing-transactions");
-	clearChildren(cheqElem);
+	cheqElem.replaceChildren();
 	for (let i = showAllTransactions ? 0 : chequingTransactions.length - TRANSACTION_ROWS; i < chequingTransactions.length; i++) {
 		tr = cheqElem.appendChild(document.createElement("tr"));
 		if (i < 0) {
@@ -207,7 +207,7 @@ function display() {
 	}
 	
 	let tfsaElem = document.getElementById("tfsa-transactions");
-	clearChildren(tfsaElem);
+	tfsaElem.replaceChildren();
 	for (let i = showAllTransactions ? 0 : tfsaTransactions.length - TRANSACTION_ROWS; i < tfsaTransactions.length; i++) {
 		tr = tfsaElem.appendChild(document.createElement("tr"));
 		if (i < 0) {
@@ -243,9 +243,12 @@ function setText(elementName, text) {
 }
 
 
-function clearChildren(node) {
-	while (node.firstChild !== null)
-		node.removeChild(node.firstChild);
+if (!("replaceChildren" in Element.prototype)) {  // Polyfill
+	Element.prototype.replaceChildren = function(...newChildren): void {
+		while (this.firstChild !== null)
+			this.removeChild(this.firstChild);
+		this.append(...newChildren);
+	};
 }
 
 
