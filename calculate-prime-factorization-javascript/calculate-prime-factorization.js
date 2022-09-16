@@ -37,8 +37,7 @@ const app = new function() {
 		
 		// Reset output line 1 with blank filler to prevent the page layout from bobbing up and down
 		let outElem1 = document.getElementById("factorization1");
-		outElem1.replaceChildren();
-		outElem1.textContent = NBSP;
+		outElem1.replaceChildren(NBSP);
 		let temp = outElem1.appendChild(document.createElement("sup"));
 		temp.textContent = NBSP;
 		

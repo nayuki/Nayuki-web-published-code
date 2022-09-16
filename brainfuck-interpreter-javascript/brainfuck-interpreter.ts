@@ -256,8 +256,7 @@ namespace app {
 			{
 				const left: string = this.instructionsText.substring(0, this.instructionIndex);
 				let outputInstructionsPre = queryHtml("#output-instructions pre");
-				outputInstructionsPre.replaceChildren();
-				outputInstructionsPre.textContent = left;
+				outputInstructionsPre.replaceChildren(left);
 				if (this.instructionIndex < this.instructions.length) {
 					const mid: string = this.instructionsText.charAt(this.instructionIndex);
 					const right: string = this.instructionsText.substring(this.instructionIndex + 1);
@@ -283,8 +282,7 @@ namespace app {
 			{
 				const left: string = this.inputText.substring(0, this.inputIndex);
 				let outputInputPre = queryHtml("#output-input pre");
-				outputInputPre.replaceChildren();
-				outputInputPre.textContent = left;
+				outputInputPre.replaceChildren(left);
 				if (this.inputIndex < this.inputText.length) {
 					const mid: string = this.inputText.charAt(this.inputIndex);
 					const right: string = this.inputText.substring(this.inputIndex + 1);

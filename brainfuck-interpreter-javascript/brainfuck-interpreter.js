@@ -222,8 +222,7 @@ var app;
             {
                 const left = this.instructionsText.substring(0, this.instructionIndex);
                 let outputInstructionsPre = queryHtml("#output-instructions pre");
-                outputInstructionsPre.replaceChildren();
-                outputInstructionsPre.textContent = left;
+                outputInstructionsPre.replaceChildren(left);
                 if (this.instructionIndex < this.instructions.length) {
                     const mid = this.instructionsText.charAt(this.instructionIndex);
                     const right = this.instructionsText.substring(this.instructionIndex + 1);
@@ -247,8 +246,7 @@ var app;
             {
                 const left = this.inputText.substring(0, this.inputIndex);
                 let outputInputPre = queryHtml("#output-input pre");
-                outputInputPre.replaceChildren();
-                outputInputPre.textContent = left;
+                outputInputPre.replaceChildren(left);
                 if (this.inputIndex < this.inputText.length) {
                     const mid = this.inputText.charAt(this.inputIndex);
                     const right = this.inputText.substring(this.inputIndex + 1);
