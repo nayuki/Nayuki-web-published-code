@@ -823,16 +823,6 @@ namespace app {
 	}
 	
 	
-	// Polyfill
-	if (!("padStart" in String.prototype)) {
-		String.prototype.padStart = function(n: int, s: string): string {
-			let result: string = this as string;
-			while (result.length < n)
-				result = s + result;
-			return result;
-		}
-	}
-	
 	initialize();
 	
 }

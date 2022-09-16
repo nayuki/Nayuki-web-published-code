@@ -1505,14 +1505,5 @@ var app;
             return result;
         }
     }
-    // Polyfill
-    if (!("padStart" in String.prototype)) {
-        String.prototype.padStart = function (n, s) {
-            let result = this;
-            while (result.length < n)
-                result = s + result;
-            return result;
-        };
-    }
     initialize();
 })(app || (app = {}));

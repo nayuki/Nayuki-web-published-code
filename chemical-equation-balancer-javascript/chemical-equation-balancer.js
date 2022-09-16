@@ -687,18 +687,3 @@ function createSpan(cls, text) {
     result.className = cls;
     return result;
 }
-// Polyfills, only valid for this application
-if (!("sign" in Math))
-    Math.sign = (x) => x > 0 ? 1 : (x < 0 ? -1 : 0);
-if (!("from" in Array)) {
-    Array.from = function (set) {
-        let result = [];
-        set.forEach(obj => result.push(obj));
-        return result;
-    };
-}
-if (!("includes" in Array.prototype)) {
-    Array.prototype.includes = function (val) {
-        return this.indexOf(val) != -1;
-    };
-}

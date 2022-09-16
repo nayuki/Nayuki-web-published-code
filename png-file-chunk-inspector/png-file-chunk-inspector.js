@@ -1309,15 +1309,6 @@ var app;
         else
             throw new TypeError("Invalid value type");
     }
-    /*---- Polyfills ----*/
-    if (!("padStart" in String.prototype)) {
-        String.prototype.padStart = function (len, padder) {
-            let result = this;
-            while (result.length < len)
-                result = padder.substring(0, Math.min(len - result.length, padder.length)) + result;
-            return result;
-        };
-    }
 })(app || (app = {}));
 // See https://www.nayuki.io/page/simple-deflate-decompressor
 var deflate;

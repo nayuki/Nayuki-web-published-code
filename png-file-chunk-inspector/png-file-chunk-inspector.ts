@@ -1546,19 +1546,6 @@ namespace app {
 			throw new TypeError("Invalid value type");
 	}
 	
-	
-	
-	/*---- Polyfills ----*/
-	
-	if (!("padStart" in String.prototype)) {
-		String.prototype.padStart = function(len: int, padder: string): string {
-			let result: string = this as string;
-			while (result.length < len)
-				result = padder.substring(0, Math.min(len - result.length, padder.length)) + result;
-			return result;
-		};
-	}
-	
 }
 
 

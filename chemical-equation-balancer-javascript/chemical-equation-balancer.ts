@@ -810,20 +810,3 @@ function createSpan(cls: string, text?: string): HTMLElement {
 	result.className = cls;
 	return result;
 }
-
-
-// Polyfills, only valid for this application
-if (!("sign" in Math))
-	(Math as any).sign = (x: number): number => x > 0 ? 1 : (x < 0 ? -1 : 0);
-if (!("from" in Array)) {
-	(Array as any).from = function<E>(set: Set<E>): Array<E> {
-		let result: Array<E> = [];
-		set.forEach(obj => result.push(obj));
-		return result;
-	};
-}
-if (!("includes" in Array.prototype)) {
-	(Array.prototype as any).includes = function(val: object): boolean {
-		return this.indexOf(val) != -1;
-	};
-}
