@@ -81,7 +81,7 @@ namespace app {
 			} catch (e) {
 				let hex: Array<string> = [];
 				for (let c of item.value) {
-					let s: string = c.charCodeAt(0).toString(16).toUpperCase();
+					let s: string = (c.codePointAt(0) as number).toString(16).toUpperCase();
 					while (s.length < 2)
 						s = "0" + s;
 					hex.push(s);
@@ -132,7 +132,7 @@ namespace app {
 		function cb(i: number): number {
 			if (i < 0 || i >= bytes.length)
 				throw new RangeError("Missing continuation bytes");
-			const result: number = bytes.charCodeAt(i);
+			const result = bytes.codePointAt(i) as number;
 			if ((result & 0b11000000) != 0b10000000)
 				throw new RangeError("Invalid continuation byte value");
 			return result & 0b00111111;
@@ -140,7 +140,7 @@ namespace app {
 		
 		let result: string = "";
 		for (let i = 0; i < bytes.length; i++) {
-			const lead: number = bytes.charCodeAt(i);
+			const lead = bytes.codePointAt(i) as number;
 			if (lead < 0b10000000)  // Single byte ASCII (0xxxxxxx)
 				result += bytes.charAt(i);
 			else if (lead < 0b11000000)  // Continuation byte (10xxxxxx)
@@ -308,7 +308,7 @@ namespace app {
 	function cc(s: string): number {
 		if (s.length != 1)
 			throw new RangeError("Invalid string length");
-		return s.charCodeAt(0);
+		return s.codePointAt(0) as number;
 	}
 	
 	

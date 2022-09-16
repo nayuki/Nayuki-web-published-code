@@ -73,7 +73,7 @@ var app;
             catch (e) {
                 let hex = [];
                 for (let c of item.value) {
-                    let s = c.charCodeAt(0).toString(16).toUpperCase();
+                    let s = c.codePointAt(0).toString(16).toUpperCase();
                     while (s.length < 2)
                         s = "0" + s;
                     hex.push(s);
@@ -121,14 +121,14 @@ var app;
         function cb(i) {
             if (i < 0 || i >= bytes.length)
                 throw new RangeError("Missing continuation bytes");
-            const result = bytes.charCodeAt(i);
+            const result = bytes.codePointAt(i);
             if ((result & 0b11000000) != 0b10000000)
                 throw new RangeError("Invalid continuation byte value");
             return result & 0b00111111;
         }
         let result = "";
         for (let i = 0; i < bytes.length; i++) {
-            const lead = bytes.charCodeAt(i);
+            const lead = bytes.codePointAt(i);
             if (lead < 0b10000000) // Single byte ASCII (0xxxxxxx)
                 result += bytes.charAt(i);
             else if (lead < 0b11000000) // Continuation byte (10xxxxxx)
@@ -271,7 +271,7 @@ var app;
     function cc(s) {
         if (s.length != 1)
             throw new RangeError("Invalid string length");
-        return s.charCodeAt(0);
+        return s.codePointAt(0);
     }
     /*-- Bencode value types --*/
     class BencodeValue {

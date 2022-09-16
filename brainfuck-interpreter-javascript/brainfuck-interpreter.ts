@@ -232,7 +232,7 @@ namespace app {
 				this.memory.push(0);
 			let val: int = 0;
 			if (this.inputIndex < this.inputText.length) {
-				val = this.inputText.charCodeAt(this.inputIndex);
+				val = this.inputText.codePointAt(this.inputIndex) as number;
 				if (val > 0xFF)
 					throw new Error("Input has character code greater than 255");
 				this.inputIndex++;

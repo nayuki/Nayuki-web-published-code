@@ -184,7 +184,7 @@ namespace app {
 				if (val == 0)
 					exportStr += ".";
 				else
-					exportStr += String.fromCodePoint("a".charCodeAt(0) + val - 1);
+					exportStr += String.fromCodePoint(("a".codePointAt(0) as number) + val - 1);
 			}
 		}
 		inputElemId("import-export").value = exportStr;
@@ -198,7 +198,7 @@ namespace app {
 	// 26 -> AA, 27 -> AB, ..., 51 -> AZ,
 	// 52 -> BA, ..., 701 -> ZZ.
 	function formatXCoordinate(x: number): string {
-		const START = "A".charCodeAt(0);
+		const START = "A".codePointAt(0) as number;
 		if (0 <= x && x < 26)
 			return String.fromCodePoint(START + x);
 		else if (26 <= x && x < 702)

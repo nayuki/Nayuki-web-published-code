@@ -781,7 +781,7 @@ class SegmentMode {
 	/*-- Character testing --*/
 	
 	public static isNumeric(cp: int): boolean {
-		return "0".charCodeAt(0) <= cp && cp <= "9".charCodeAt(0);
+		return ("0".codePointAt(0) as number) <= cp && cp <= ("9".codePointAt(0) as number);
 	}
 	
 	public static isAlphanumeric(cp: int): boolean {

@@ -43,14 +43,14 @@ const app = new function() {
 	 * - caesarShift("THe 123 !@#$", 13) = "GUr 123 !@#$".
 	 */
 	function caesarShift(text, shift) {
-		const UPPER_A = "A".charCodeAt(0);
-		const LOWER_A = "a".charCodeAt(0);
+		const UPPER_A = "A".codePointAt(0);
+		const LOWER_A = "a".codePointAt(0);
 		let result = "";
 		for (const a of text) {
 			let c = a.codePointAt(0);
-			if (UPPER_A <= c && c <= "Z".charCodeAt(0))  // Uppercase
+			if (UPPER_A <= c && c <= "Z".codePointAt(0))  // Uppercase
 				c = (c - UPPER_A + shift) % 26 + UPPER_A;
-			else if (LOWER_A <= c && c <= "z".charCodeAt(0))  // Lowercase
+			else if (LOWER_A <= c && c <= "z".codePointAt(0))  // Lowercase
 				c = (c - LOWER_A + shift) % 26 + LOWER_A;
 			result += String.fromCodePoint(c);
 		}

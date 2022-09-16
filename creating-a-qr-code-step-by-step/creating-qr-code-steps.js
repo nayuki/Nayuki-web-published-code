@@ -636,7 +636,7 @@ class SegmentMode {
     }
     /*-- Character testing --*/
     static isNumeric(cp) {
-        return "0".charCodeAt(0) <= cp && cp <= "9".charCodeAt(0);
+        return "0".codePointAt(0) <= cp && cp <= "9".codePointAt(0);
     }
     static isAlphanumeric(cp) {
         return cp < 128 && SegmentMode.ALPHANUMERIC_CHARSET.includes(String.fromCodePoint(cp));
