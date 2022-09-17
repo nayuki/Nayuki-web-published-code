@@ -61,10 +61,8 @@ const app = new function() {
 			
 			// Build prime factor list with powers in superscripts
 			if (factorPowers.length < factors.length) {
-				outElem1.replaceChildren();
-				
-				outElem1.append(n + " = ");
-				factorPowers.forEach(function(factPow, i) {
+				outElem1.replaceChildren(n + " = ");
+				factorPowers.forEach((factPow, i) => {
 					if (i != 0)
 						outElem1.append(" " + TIMES + " ");
 					

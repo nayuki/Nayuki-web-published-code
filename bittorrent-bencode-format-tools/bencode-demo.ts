@@ -66,14 +66,12 @@ namespace app {
 		let result = document.createElement("div");
 		result.classList.add("item");
 		if (item instanceof BencodeInt) {
-			const s = "Integer: " + item.value.replace(/-/, "\u2212")
-			result.append(s);
+			result.append("Integer: " + item.value.replace(/-/, "\u2212"));
 		}
 		else if (item instanceof BencodeBytes) {
 			result.append(`Byte string (${item.value.length}) `);
 			try {
-				const s: string = decodeUtf8(item.value);
-				result.append("(text): " + s);
+				result.append("(text): " + decodeUtf8(item.value));
 			} catch (e) {
 				let hex: Array<string> = [];
 				for (let c of item.value)
