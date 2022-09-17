@@ -204,7 +204,7 @@ function formatWithThousandsSeparators(n) {
 
 
 function pixelDiff(r0, g0, b0, index1) {
-	return Math.abs(r0 - pixels[index1    ])
-	     + Math.abs(g0 - pixels[index1 + 1])
-	     + Math.abs(b0 - pixels[index1 + 2]);
+	return Math.abs(r0 - pixels[index1 + 0]) +
+	       Math.abs(g0 - pixels[index1 + 1]) +
+	       Math.abs(b0 - pixels[index1 + 2]);
 }
