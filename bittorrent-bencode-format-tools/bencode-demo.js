@@ -51,9 +51,6 @@ var app;
     }
     // Returns a new DOM node to visually represent the given value.
     function toHtml(item) {
-        function appendText(container, text) {
-            container.append(text);
-        }
         function appendElem(container, tagName) {
             let result = document.createElement(tagName);
             return container.appendChild(result);
@@ -62,19 +59,19 @@ var app;
         result.classList.add("item");
         if (item instanceof BencodeInt) {
             const s = "Integer: " + item.value.replace(/-/, "\u2212");
-            appendText(result, s);
+            result.append(s);
         }
         else if (item instanceof BencodeBytes) {
-            appendText(result, `Byte string (${item.value.length}) `);
+            result.append(`Byte string (${item.value.length}) `);
             try {
                 const s = decodeUtf8(item.value);
-                appendText(result, "(text): " + s);
+                result.append("(text): " + s);
             }
             catch (e) {
                 let hex = [];
                 for (let c of item.value)
                     hex.push(c.codePointAt(0).toString(16).toUpperCase().padStart(2, "0"));
-                appendText(result, "(binary): " + hex.join(" "));
+                result.append("(binary): " + hex.join(" "));
             }
         }
         else if (item instanceof BencodeList || item instanceof BencodeDict) {
@@ -89,13 +86,13 @@ var app;
                 td.append(b);
             };
             if (item instanceof BencodeList) {
-                appendText(result, "List:");
+                result.append("List:");
                 table.classList.add("list");
                 result.append(table);
                 item.array.forEach((val, i) => addRow(i.toString(), toHtml(val)));
             }
             else if (item instanceof BencodeDict) {
-                appendText(result, "Dictionary:");
+                result.append("Dictionary:");
                 table.classList.add("dict");
                 result.append(table);
                 for (const key of item.keys) {

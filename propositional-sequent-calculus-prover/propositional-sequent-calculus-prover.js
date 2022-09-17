@@ -87,31 +87,28 @@ class Sequent {
     // The reason that an array of nodes is returned is because the comma and turnstile are styled with extra spacing.
     toHtml() {
         let result = document.createDocumentFragment();
-        function appendText(text) {
-            result.append(text);
-        }
         function appendSpan(text, clsName) {
             let elem = result.appendChild(document.createElement("span"));
             elem.textContent = text;
             elem.className = clsName;
         }
         if (this.left.length == 0)
-            appendText(EMPTY);
+            result.append(EMPTY);
         else {
             this.left.forEach((term, i) => {
                 if (i > 0)
                     appendSpan(", ", "comma");
-                appendText(term.toString(true));
+                result.append(term.toString(true));
             });
         }
         appendSpan(" " + TURNSTILE + " ", "turnstile");
         if (this.right.length == 0)
-            appendText(EMPTY);
+            result.append(EMPTY);
         else {
             this.right.forEach((term, i) => {
                 if (i > 0)
                     appendSpan(", ", "comma");
-                appendText(term.toString(true));
+                result.append(term.toString(true));
             });
         }
         return result;

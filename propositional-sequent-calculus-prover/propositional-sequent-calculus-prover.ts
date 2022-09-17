@@ -98,9 +98,6 @@ class Sequent {
 	public toHtml(): DocumentFragment {
 		let result = document.createDocumentFragment();
 		
-		function appendText(text: string): void {
-			result.append(text);
-		}
 		function appendSpan(text: string, clsName: string): void {
 			let elem = result.appendChild(document.createElement("span"));
 			elem.textContent = text;
@@ -108,23 +105,23 @@ class Sequent {
 		}
 		
 		if (this.left.length == 0)
-			appendText(EMPTY);
+			result.append(EMPTY);
 		else {
 			this.left.forEach((term, i) => {
 				if (i > 0)
 					appendSpan(", ", "comma");
-				appendText(term.toString(true));
+				result.append(term.toString(true));
 			});
 		}
 		appendSpan(" " + TURNSTILE + " ", "turnstile");
 		
 		if (this.right.length == 0)
-			appendText(EMPTY);
+			result.append(EMPTY);
 		else {
 			this.right.forEach((term, i) => {
 				if (i > 0)
 					appendSpan(", ", "comma");
-				appendText(term.toString(true));
+				result.append(term.toString(true));
 			});
 		}
 		return result;

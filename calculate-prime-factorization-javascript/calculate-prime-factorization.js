@@ -46,10 +46,6 @@ const app = new function() {
 			return;
 		}
 		
-		function appendText(str) {
-			outElem1.append(str);
-		}
-		
 		const n = parseInt(numberText, 10);
 		if (n < 2) {
 			factorization0Elem.textContent = "Number out of range (< 2)";
@@ -67,12 +63,12 @@ const app = new function() {
 			if (factorPowers.length < factors.length) {
 				outElem1.replaceChildren();
 				
-				appendText(n + " = ");
+				outElem1.append(n + " = ");
 				factorPowers.forEach(function(factPow, i) {
 					if (i != 0)
-						appendText(" " + TIMES + " ");
+						outElem1.append(" " + TIMES + " ");
 					
-					appendText(factPow[0].toString());
+					outElem1.append(factPow[0].toString());
 					if (factPow[1] > 1) {
 						let temp = outElem1.appendChild(document.createElement("sup"));
 						temp.textContent = factPow[1].toString();
