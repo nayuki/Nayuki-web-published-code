@@ -244,7 +244,7 @@ function setText(elementName, text) {
 
 
 if (!("replaceChildren" in Element.prototype)) {  // Polyfill
-	Element.prototype.replaceChildren = function(...newChildren): void {
+	Element.prototype.replaceChildren = function(...newChildren) {
 		while (this.firstChild !== null)
 			this.removeChild(this.firstChild);
 		this.append(...newChildren);
