@@ -80,12 +80,8 @@ namespace app {
 				appendText(result, "(text): " + s);
 			} catch (e) {
 				let hex: Array<string> = [];
-				for (let c of item.value) {
-					let s: string = (c.codePointAt(0) as number).toString(16).toUpperCase();
-					while (s.length < 2)
-						s = "0" + s;
-					hex.push(s);
-				}
+				for (let c of item.value)
+					hex.push((c.codePointAt(0) as number).toString(16).toUpperCase().padStart(2, "0"));
 				appendText(result, "(binary): " + hex.join(" "));
 			}
 		}

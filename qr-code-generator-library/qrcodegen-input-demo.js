@@ -123,17 +123,11 @@ var app;
         // Returns the number of Unicode code points in the given UTF-16 string.
         function countUnicodeChars(str) {
             let result = 0;
-            for (let i = 0; i < str.length; i++, result++) {
-                const c = str.charCodeAt(i);
-                if (c < 0xD800 || c >= 0xE000)
-                    continue;
-                else if (0xD800 <= c && c < 0xDC00 && i + 1 < str.length) { // High surrogate
-                    i++;
-                    const d = str.charCodeAt(i);
-                    if (0xDC00 <= d && d < 0xE000) // Low surrogate
-                        continue;
-                }
-                throw new RangeError("Invalid UTF-16 string");
+            for (const ch of str) {
+                const cc = ch.codePointAt(0);
+                if (0xD800 <= cc && cc < 0xE000)
+                    throw new RangeError("Invalid UTF-16 string");
+                result++;
             }
             return result;
         }

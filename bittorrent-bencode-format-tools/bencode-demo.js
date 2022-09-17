@@ -72,12 +72,8 @@ var app;
             }
             catch (e) {
                 let hex = [];
-                for (let c of item.value) {
-                    let s = c.codePointAt(0).toString(16).toUpperCase();
-                    while (s.length < 2)
-                        s = "0" + s;
-                    hex.push(s);
-                }
+                for (let c of item.value)
+                    hex.push(c.codePointAt(0).toString(16).toUpperCase().padStart(2, "0"));
                 appendText(result, "(binary): " + hex.join(" "));
             }
         }

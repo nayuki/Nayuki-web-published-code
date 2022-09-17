@@ -1462,7 +1462,7 @@ namespace app {
 	function decodeUtf8(bytes: Readonly<Array<byte>>): string {
 		let temp: string = "";
 		for (const b of bytes) {
-			if (b == "%".charCodeAt(0) || b >= 128)
+			if (b == ("%".codePointAt(0) as number) || b >= 128)
 				temp += "%" + b.toString(16).padStart(2, "0");
 			else
 				temp += String.fromCodePoint(b);

@@ -1244,7 +1244,7 @@ var app;
     function decodeUtf8(bytes) {
         let temp = "";
         for (const b of bytes) {
-            if (b == "%".charCodeAt(0) || b >= 128)
+            if (b == "%".codePointAt(0) || b >= 128)
                 temp += "%" + b.toString(16).padStart(2, "0");
             else
                 temp += String.fromCodePoint(b);
