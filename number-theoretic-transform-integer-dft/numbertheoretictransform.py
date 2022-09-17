@@ -44,8 +44,8 @@ def transform(invec: List[int], root: int, mod: int) -> List[int]:
 # Returns the inverse number-theoretic transform of the given vector with
 # respect to the given primitive nth root of unity under the given modulus.
 def inverse_transform(invec: List[int], root: int, mod: int) -> List[int]:
-	outvec: List[int] = transform(invec, reciprocal(root, mod), mod)
-	scaler: int = reciprocal(len(invec), mod)
+	outvec: List[int] = transform(invec, pow(root, -1, mod), mod)
+	scaler: int = pow(len(invec), -1, mod)
 	return [(val * scaler % mod) for val in outvec]
 
 
@@ -171,22 +171,6 @@ def is_primitive_root(val: int, degree: int, mod: int) -> bool:
 
 
 # ---- Low-level common number theory functions ----
-
-# Returns the multiplicative inverse of n modulo mod. The inverse x has the property that
-# 0 <= x < mod and (x * n) % mod = 1. The inverse exists if and only if gcd(n, mod) = 1.
-def reciprocal(n: int, mod: int) -> int:
-	if not (0 <= n < mod):
-		raise ValueError()
-	x, y = mod, n
-	a, b = 0, 1
-	while y != 0:
-		a, b = b, a - x // y * b
-		x, y = y, x % y
-	if x == 1:
-		return a % mod
-	else:
-		raise ValueError("Reciprocal does not exist")
-
 
 # Returns a list of unique prime factors of the given integer in
 # ascending order. For example, unique_prime_factors(60) = [2, 3, 5].

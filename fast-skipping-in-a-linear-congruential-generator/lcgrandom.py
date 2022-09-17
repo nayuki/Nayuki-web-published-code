@@ -1,7 +1,7 @@
 # 
 # Linear congruential generator (LCG) with fast skipping and backward iteration (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2022 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
 # 
@@ -67,7 +67,7 @@ class LcgRandom(random.Random):
 		assert isinstance(seed, int) and 0 <= seed < m
 		
 		self.a = a     # Multiplier
-		self.ainv = LcgRandom.reciprocal_mod(a, m)
+		self.ainv = pow(a, -1, m)
 		self.b = b     # Increment
 		self.m = m     # Modulus
 		self.x = seed  # State
@@ -127,21 +127,6 @@ class LcgRandom(random.Random):
 	# Implements a method in class random.Random.
 	def random(self) -> float:
 		return self.getrandbits(52) / (1 << 52)
-	
-	
-	@staticmethod
-	def reciprocal_mod(x: int, mod: int) -> int:
-		# Based on a simplification of the extended Euclidean algorithm
-		assert 0 <= x < mod
-		x, y = mod, x
-		a, b = 0, 1
-		while y != 0:
-			a, b = b, a - x // y * b
-			x, y = y, x % y
-		if x == 1:
-			return a % mod
-		else:
-			raise ValueError("Reciprocal does not exist")
 
 
 

@@ -1,7 +1,7 @@
 # 
 # Elliptic curve point addition in projective coordinates
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2022 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/elliptic-curve-point-addition-in-projective-coordinates
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -357,18 +357,7 @@ class FieldInt:
 	
 	
 	def reciprocal(self) -> FieldInt:
-		if self.value == 0:
-			raise ValueError("Division by zero")
-		# Extended Euclidean algorithm
-		x, y = self.modulus, self.value
-		a, b = 0, 1
-		while y != 0:
-			a, b = b, a - x // y * b
-			x, y = y, x % y
-		if x == 1:
-			return self._create(a)
-		else:
-			raise ValueError("Value and modulus not coprime")
+		return self._create(pow(self.value, -1, self.modulus))
 	
 	
 	# -- Miscellaneous methods --

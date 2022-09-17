@@ -1,7 +1,7 @@
 # 
 # Montgomery reduction algorithm (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2022 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/montgomery-reduction-algorithm
 # 
@@ -60,7 +60,7 @@ class MontgomeryReducer:
 		assert (self.reducer > mod) and (math.gcd(self.reducer, mod) == 1)
 		
 		# Other computed numbers
-		self.reciprocal = MontgomeryReducer.reciprocal_mod(self.reducer % mod, mod)
+		self.reciprocal = pow(self.reducer, -1, mod)
 		self.factor = (self.reducer * self.reciprocal - 1) // mod
 		self.convertedone = self.reducer % mod
 	
@@ -99,23 +99,6 @@ class MontgomeryReducer:
 			x = self.multiply(x, x)
 			y >>= 1
 		return z
-	
-	
-	@staticmethod
-	def reciprocal_mod(x: int, mod: int) -> int:
-		# Based on a simplification of the extended Euclidean algorithm
-		assert 0 <= x < mod
-		y: int = x
-		x = mod
-		a: int = 0
-		b: int = 1
-		while y != 0:
-			a, b = b, a - x // y * b
-			x, y = y, x % y
-		if x == 1:
-			return a % mod
-		else:
-			raise ValueError("Reciprocal does not exist")
 
 
 

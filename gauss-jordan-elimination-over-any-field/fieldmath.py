@@ -1,7 +1,7 @@
 # 
 # Gauss-Jordan elimination over any field (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2022 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/gauss-jordan-elimination-over-any-field
 # 
@@ -172,21 +172,7 @@ class PrimeField(Field):
 	
 	
 	def reciprocal(self, w):
-		# Extended Euclidean GCD algorithm
-		x = self.modulus
-		y = self._check(w)
-		if y == 0:
-			raise ValueError("Division by zero")
-		a = 0
-		b = 1
-		while y != 0:
-			q, r = x // y, x % y
-			x, y = y, r
-			a, b = b, (a - q * b)
-		if x == 1:
-			return a % self.modulus
-		else:  # All non-zero values must have a reciprocal
-			raise AssertionError("Field modulus is not prime")
+		return pow(self._check(w), -1, self.modulus)
 	
 	
 	# Checks if the given object is the correct type and within
