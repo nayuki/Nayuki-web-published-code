@@ -58,19 +58,19 @@ const app = new function() {
 		// Build table of best guesses
 		guessesElem.replaceChildren();
 		const maxEntropy = outputState.entropies[outputState.entropies.length - 1][1];
-		for (const item of outputState.entropies) {
+		for (const [shift, entropy] of outputState.entropies) {
 			let tr = appendElem(guessesElem, "tr");
-			if (item[0] == outputState.shift)
+			if (shift == outputState.shift)
 				tr.classList.add("active");
-			tr.onclick = () => doShift(item[0] - outputState.shift);
+			tr.onclick = () => doShift(shift - outputState.shift);
 			
-			appendElem(tr, "td", item[0].toString());
-			appendElem(tr, "td", item[1].toFixed(3));
+			appendElem(tr, "td", shift.toString());
+			appendElem(tr, "td", entropy.toFixed(3));
 			
 			let td = appendElem(tr, "td");
 			let div = appendElem(td, "div");
 			div.classList.add("bar");
-			div.style.width = (item[1] / maxEntropy * 30).toFixed(6) + "em";
+			div.style.width = (entropy / maxEntropy * 30).toFixed(6) + "em";
 		}
 	};
 	
