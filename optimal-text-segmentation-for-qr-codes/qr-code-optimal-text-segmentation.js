@@ -543,10 +543,10 @@ var app;
         static toArray(s) {
             let result = [];
             for (const ch of s) {
-                const c = ch.codePointAt(0);
-                if (0xD800 <= c && c < 0xE000)
+                const cc = ch.codePointAt(0);
+                if (0xD800 <= cc && cc < 0xE000)
                     throw new RangeError("Invalid UTF-16 string");
-                result.push(new CodePoint(c));
+                result.push(new CodePoint(cc));
             }
             return result;
         }

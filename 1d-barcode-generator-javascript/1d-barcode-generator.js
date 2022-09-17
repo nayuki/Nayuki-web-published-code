@@ -92,11 +92,11 @@ var barcodegen;
         // Encode into a sequence of numbers
         let encoded = [104]; // Start code B
         for (const ch of s) {
-            const c = ch.codePointAt(0);
-            if (c < 32)
-                encoded.push(98, c + 64); // 98 is Shift A
-            else if (c < 128)
-                encoded.push(c - 32);
+            const cc = ch.codePointAt(0);
+            if (cc < 32)
+                encoded.push(98, cc + 64); // 98 is Shift A
+            else if (cc < 128)
+                encoded.push(cc - 32);
             else
                 throw new RangeError("Text must only contain ASCII characters");
         }
@@ -129,33 +129,33 @@ var barcodegen;
         // Escape the string
         let t = "";
         for (const ch of s) {
-            const c = ch.codePointAt(0);
-            if (c >= 128)
+            const cc = ch.codePointAt(0);
+            if (cc >= 128)
                 throw new RangeError("Text must only contain ASCII characters");
-            else if (c == 32 || c == 45 || c == 46 || 48 <= c && c <= 57 || 65 <= c && c <= 90)
-                t += String.fromCodePoint(c);
-            else if (c == 0)
+            else if (cc == 32 || cc == 45 || cc == 46 || 48 <= cc && cc <= 57 || 65 <= cc && cc <= 90)
+                t += String.fromCodePoint(cc);
+            else if (cc == 0)
                 t += "bU";
-            else if (c == 64)
+            else if (cc == 64)
                 t += "bV";
-            else if (c == 96)
+            else if (cc == 96)
                 t += "bW";
-            else if (c == 127)
+            else if (cc == 127)
                 t += "bT";
-            else if (c <= 26)
-                t += "a" + String.fromCodePoint(c - 1 + 65);
-            else if (c <= 31)
-                t += "b" + String.fromCodePoint(c - 27 + 65);
-            else if (c <= 58)
-                t += "c" + String.fromCodePoint(c - 33 + 65);
-            else if (c <= 63)
-                t += "b" + String.fromCodePoint(c - 54 + 65);
-            else if (c <= 95)
-                t += "b" + String.fromCodePoint(c - 81 + 65);
-            else if (c <= 122)
-                t += "d" + String.fromCodePoint(c - 97 + 65);
-            else if (c <= 126)
-                t += "b" + String.fromCodePoint(c - 108 + 65);
+            else if (cc <= 26)
+                t += "a" + String.fromCodePoint(cc - 1 + 65);
+            else if (cc <= 31)
+                t += "b" + String.fromCodePoint(cc - 27 + 65);
+            else if (cc <= 58)
+                t += "c" + String.fromCodePoint(cc - 33 + 65);
+            else if (cc <= 63)
+                t += "b" + String.fromCodePoint(cc - 54 + 65);
+            else if (cc <= 95)
+                t += "b" + String.fromCodePoint(cc - 81 + 65);
+            else if (cc <= 122)
+                t += "d" + String.fromCodePoint(cc - 97 + 65);
+            else if (cc <= 126)
+                t += "b" + String.fromCodePoint(cc - 108 + 65);
             else
                 throw new Error("Assertion error");
         }

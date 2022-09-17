@@ -1194,8 +1194,8 @@ var app;
         if (!(1 <= keyword.length && keyword.length <= 79))
             chunk.errorNotes.push(`Invalid ${errorName} length`);
         for (const ch of keyword) {
-            const c = ch.codePointAt(0);
-            if (0x20 <= c && c <= 0x7E || 0xA1 <= c && c <= 0xFF)
+            const cc = ch.codePointAt(0);
+            if (0x20 <= cc && cc <= 0x7E || 0xA1 <= cc && cc <= 0xFF)
                 continue;
             else {
                 chunk.errorNotes.push(`Invalid character in ${errorName}`);

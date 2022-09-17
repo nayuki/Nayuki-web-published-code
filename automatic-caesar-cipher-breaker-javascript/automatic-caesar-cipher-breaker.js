@@ -99,9 +99,9 @@ const app = new function() {
 		let sum = 0;
 		let ignored = 0;
 		for (const ch of str) {
-			const c = ch.codePointAt(0);
-			if      (65 <= c && c <=  90) sum += Math.log(ENGLISH_FREQS[c - 65]);  // Uppercase
-			else if (97 <= c && c <= 122) sum += Math.log(ENGLISH_FREQS[c - 97]);  // Lowercase
+			const cc = ch.codePointAt(0);
+			if      (65 <= cc && cc <=  90) sum += Math.log(ENGLISH_FREQS[cc - 65]);  // Uppercase
+			else if (97 <= cc && cc <= 122) sum += Math.log(ENGLISH_FREQS[cc - 97]);  // Lowercase
 			else ignored++;
 		}
 		return -sum / Math.log(2) / (str.length - ignored);
@@ -113,9 +113,9 @@ const app = new function() {
 	function decrypt(str, key) {
 		let result = "";
 		for (const ch of str) {
-			const c = ch.codePointAt(0);
-			if      (65 <= c && c <=  90) result += String.fromCodePoint(mod(c - 65 - key, 26) + 65);  // Uppercase
-			else if (97 <= c && c <= 122) result += String.fromCodePoint(mod(c - 97 - key, 26) + 97);  // Lowercase
+			const cc = ch.codePointAt(0);
+			if      (65 <= cc && cc <=  90) result += String.fromCodePoint(mod(cc - 65 - key, 26) + 65);  // Uppercase
+			else if (97 <= cc && cc <= 122) result += String.fromCodePoint(mod(cc - 97 - key, 26) + 97);  // Lowercase
 			else result += ch;  // Copy
 		}
 		return result;

@@ -47,12 +47,12 @@ const app = new function() {
 		const LOWER_A = "a".codePointAt(0);
 		let result = "";
 		for (const ch of text) {
-			let c = ch.codePointAt(0);
-			if (UPPER_A <= c && c <= "Z".codePointAt(0))  // Uppercase
-				c = (c - UPPER_A + shift) % 26 + UPPER_A;
-			else if (LOWER_A <= c && c <= "z".codePointAt(0))  // Lowercase
-				c = (c - LOWER_A + shift) % 26 + LOWER_A;
-			result += String.fromCodePoint(c);
+			let cc = ch.codePointAt(0);
+			if (UPPER_A <= cc && cc <= "Z".codePointAt(0))  // Uppercase
+				cc = (cc - UPPER_A + shift) % 26 + UPPER_A;
+			else if (LOWER_A <= cc && cc <= "z".codePointAt(0))  // Lowercase
+				cc = (cc - LOWER_A + shift) % 26 + LOWER_A;
+			result += String.fromCodePoint(cc);
 		}
 		return result;
 	}

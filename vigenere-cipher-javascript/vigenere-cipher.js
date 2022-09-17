@@ -45,12 +45,12 @@ const app = new function() {
 		let output = "";
 		let j = 0;
 		for (const ch of input) {
-			const c = ch.codePointAt(0);
-			if (isUppercase(c)) {
-				output += String.fromCodePoint((c - 65 + key[j % key.length]) % 26 + 65);
+			const cc = ch.codePointAt(0);
+			if (isUppercase(cc)) {
+				output += String.fromCodePoint((cc - 65 + key[j % key.length]) % 26 + 65);
 				j++;
-			} else if (isLowercase(c)) {
-				output += String.fromCodePoint((c - 97 + key[j % key.length]) % 26 + 97);
+			} else if (isLowercase(cc)) {
+				output += String.fromCodePoint((cc - 97 + key[j % key.length]) % 26 + 97);
 				j++;
 			} else {
 				output += ch;
@@ -71,9 +71,9 @@ const app = new function() {
 	function filterKey(key) {
 		let result = [];
 		for (const ch of key) {
-			const c = ch.codePointAt(0);
-			if (isLetter(c))
-				result.push((c - 65) % 32);
+			const cc = ch.codePointAt(0);
+			if (isLetter(cc))
+				result.push((cc - 65) % 32);
 		}
 		return result;
 	}
