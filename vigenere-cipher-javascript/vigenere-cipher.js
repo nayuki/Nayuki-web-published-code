@@ -44,8 +44,8 @@ const app = new function() {
 	function crypt(input, key) {
 		let output = "";
 		let j = 0;
-		for (const a of input) {
-			const c = a.codePointAt(0);
+		for (const ch of input) {
+			const c = ch.codePointAt(0);
 			if (isUppercase(c)) {
 				output += String.fromCodePoint((c - 65 + key[j % key.length]) % 26 + 65);
 				j++;
@@ -53,7 +53,7 @@ const app = new function() {
 				output += String.fromCodePoint((c - 97 + key[j % key.length]) % 26 + 97);
 				j++;
 			} else {
-				output += a;
+				output += ch;
 			}
 		}
 		return output;
@@ -70,8 +70,8 @@ const app = new function() {
 	 */
 	function filterKey(key) {
 		let result = [];
-		for (const a of key) {
-			const c = a.codePointAt(0);
+		for (const ch of key) {
+			const c = ch.codePointAt(0);
 			if (isLetter(c))
 				result.push((c - 65) % 32);
 		}

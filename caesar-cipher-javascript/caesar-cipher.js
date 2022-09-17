@@ -46,8 +46,8 @@ const app = new function() {
 		const UPPER_A = "A".codePointAt(0);
 		const LOWER_A = "a".codePointAt(0);
 		let result = "";
-		for (const a of text) {
-			let c = a.codePointAt(0);
+		for (const ch of text) {
+			let c = ch.codePointAt(0);
 			if (UPPER_A <= c && c <= "Z".codePointAt(0))  // Uppercase
 				c = (c - UPPER_A + shift) % 26 + UPPER_A;
 			else if (LOWER_A <= c && c <= "z".codePointAt(0))  // Lowercase

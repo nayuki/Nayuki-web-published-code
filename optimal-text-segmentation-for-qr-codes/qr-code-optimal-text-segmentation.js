@@ -542,8 +542,8 @@ var app;
         }
         static toArray(s) {
             let result = [];
-            for (const a of s) {
-                const c = a.codePointAt(0);
+            for (const ch of s) {
+                const c = ch.codePointAt(0);
                 if (0xD800 <= c && c < 0xE000)
                     throw new RangeError("Invalid UTF-16 string");
                 result.push(new CodePoint(c));

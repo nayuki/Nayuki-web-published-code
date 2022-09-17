@@ -594,8 +594,8 @@ namespace app {
 		
 		public static toArray(s: string): Array<CodePoint> {
 			let result: Array<CodePoint> = [];
-			for (const a of s) {
-				const c = a.codePointAt(0) as int;
+			for (const ch of s) {
+				const c = ch.codePointAt(0) as int;
 				if (0xD800 <= c && c < 0xE000)
 					throw new RangeError("Invalid UTF-16 string");
 				result.push(new CodePoint(c));

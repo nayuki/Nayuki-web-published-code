@@ -91,8 +91,8 @@ var barcodegen;
     function code128(s) {
         // Encode into a sequence of numbers
         let encoded = [104]; // Start code B
-        for (const a of s) {
-            const c = a.codePointAt(0);
+        for (const ch of s) {
+            const c = ch.codePointAt(0);
             if (c < 32)
                 encoded.push(98, c + 64); // 98 is Shift A
             else if (c < 128)
@@ -128,8 +128,8 @@ var barcodegen;
     function code93(s) {
         // Escape the string
         let t = "";
-        for (const a of s) {
-            const c = a.codePointAt(0);
+        for (const ch of s) {
+            const c = ch.codePointAt(0);
             if (c >= 128)
                 throw new RangeError("Text must only contain ASCII characters");
             else if (c == 32 || c == 45 || c == 46 || 48 <= c && c <= 57 || 65 <= c && c <= 90)
