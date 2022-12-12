@@ -23,10 +23,32 @@
 
 "use strict";
 
+importScripts("fft.js", "FastDct.js");
+
+
+/*---- Main runner ----*/
+
+function main() {
+	for (const func of TEST_SUITE) {
+		let msg = func.name + "(): ";
+		try {
+			func();
+			msg += "Pass";
+		} catch (e) {
+			msg += "Fail - " + e.message;
+		}
+		postMessage(msg);
+	}
+	postMessage("Finished");
+}
+
+setTimeout(main);
+
+
 
 /*---- Test suite ----*/
 
-const TEST_SUITE_FUNCS = [
+const TEST_SUITE = [
 	
 	function testFastDctLeeVsNaive() {
 		for (let len = 1; len <= (1 << 11); len *= 2) {
@@ -173,29 +195,3 @@ const naiveDct = new function() {
 	};
 	
 };
-
-
-
-(function() {
-	let i = 0;
-	function iterate() {
-		let msg;
-		if (i >= TEST_SUITE_FUNCS.length)
-			msg = "Finished";
-		else {
-			msg = TEST_SUITE_FUNCS[i].name + "(): ";
-			try {
-				TEST_SUITE_FUNCS[i]();
-				msg += "Pass";
-			} catch (e) {
-				msg += "Fail - " + e.message;
-			}
-			i++;
-			setTimeout(iterate);
-		}
-		let li = document.createElement("li");
-		li.textContent = msg;
-		document.getElementById("results").append(li);
-	}
-	iterate();
-})();

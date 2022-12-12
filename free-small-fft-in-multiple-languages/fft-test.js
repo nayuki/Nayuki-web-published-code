@@ -23,6 +23,8 @@
 
 "use strict";
 
+importScripts("fft.js");
+
 
 /*---- Main and test functions ----*/
 
@@ -57,8 +59,8 @@ function main() {
 		}
 	}
 	
-	document.write("\nMax log err = " + maxLogError.toFixed(1));
-	document.write("\nTest " + (maxLogError < -10 ? "passed" : "failed"));
+	postMessage("\nMax log err = " + maxLogError.toFixed(1));
+	postMessage("\nTest " + (maxLogError < -10 ? "passed" : "failed"));
 }
 
 
@@ -81,7 +83,7 @@ function testFft(size) {
 	}
 	inverseTransform(actualreal, actualimag);
 	err = Math.max(log10RmsErr(inputreal, inputimag, actualreal, actualimag), err);
-	document.write("fftsize=" + size + "  logerr=" + err.toFixed(1) + "\n");
+	postMessage("fftsize=" + size + "  logerr=" + err.toFixed(1) + "\n");
 }
 
 
@@ -100,7 +102,7 @@ function testConvolution(size) {
 	let actualimag = new Array(size);
 	convolveComplex(input0real, input0imag, input1real, input1imag, actualreal, actualimag);
 	
-	document.write("convsize=" + size + "  logerr=" +
+	postMessage("convsize=" + size + "  logerr=" +
 		log10RmsErr(expectreal, expectimag, actualreal, actualimag).toFixed(1) + "\n");
 }
 

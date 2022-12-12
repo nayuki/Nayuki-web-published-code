@@ -1,8 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  - Disjoint-set data structure - Test runner (HTML+JavaScript)
+  - Fast discrete cosine transform algorithms (JavaScript+HTML)
   - 
-  - Copyright (c) 2020 Project Nayuki. (MIT License)
-  - https://www.nayuki.io/page/disjoint-set-data-structure
+  - Copyright (c) 2022 Project Nayuki. (MIT License)
+  - https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
   - 
   - Permission is hereby granted, free of charge, to any person obtaining a copy of
   - this software and associated documentation files (the "Software"), to deal in
@@ -20,18 +21,26 @@
   -   out of or in connection with the Software or the use or other dealings in the
   -   Software.
   -->
-<!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 	<head>
-		<meta charset="UTF-8">
-		<title>DisjointSetTest (JavaScript)</title>
+		<title>Fast DCT test (JavaScript)</title>
 	</head>
 	
 	<body>
-		<h1>DisjointSetTest (JavaScript)</h1>
+		<h1>Fast DCT test (JavaScript)</h1>
 		<ul id="results"></ul>
 		
-		<script src="DisjointSet.js"></script>
-		<script src="DisjointSetTest.js"></script>
+		<script>
+			<![CDATA[
+			(function() {
+				let ul = document.getElementById("results");
+				let worker = new Worker("FastDctTest.js");
+				worker.onmessage = e => {
+					let li = ul.appendChild(document.createElement("li"));
+					li.textContent = e.data;
+				};
+			})();
+			]]>
+		</script>
 	</body>
 </html>

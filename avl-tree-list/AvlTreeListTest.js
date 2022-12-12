@@ -21,8 +21,25 @@
  *   Software.
  */
 "use strict";
+importScripts("AvlTreeList.js");
+/*---- Main runner ----*/
+function main() {
+    for (const func of TEST_SUITE) {
+        let msg = func.name + "(): ";
+        try {
+            func();
+            msg += "Pass";
+        }
+        catch (e) {
+            msg += "Fail - " + e.message;
+        }
+        postMessage(msg);
+    }
+    postMessage("Finished");
+}
+setTimeout(main);
 /*---- Test suite ----*/
-const TEST_SUITE_FUNCS = [
+const TEST_SUITE = [
     function testPush() {
         let list = new AvlTreeList();
         list.push("January");
@@ -436,28 +453,3 @@ function assertArrayEquals(expected, actual) {
     for (let i = 0; i < expected.length; i++)
         assertEquals(expected[i], actual[i]);
 }
-/*---- Main runner ----*/
-(function () {
-    let i = 0;
-    function iterate() {
-        let msg;
-        if (i >= TEST_SUITE_FUNCS.length)
-            msg = "Finished";
-        else {
-            msg = TEST_SUITE_FUNCS[i].name + "(): ";
-            try {
-                TEST_SUITE_FUNCS[i]();
-                msg += "Pass";
-            }
-            catch (e) {
-                msg += "Fail - " + e.message;
-            }
-            i++;
-            setTimeout(iterate);
-        }
-        let li = document.createElement("li");
-        li.textContent = msg;
-        document.getElementById("results").append(li);
-    }
-    iterate();
-})();

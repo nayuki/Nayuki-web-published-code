@@ -4,10 +4,32 @@
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
+importScripts("eratosthenes-sieves.js");
+
+
+/*---- Main runner ----*/
+
+function main(): void {
+	for (const func of TEST_SUITE) {
+		let msg: string = func.name + "(): ";
+		try {
+			func();
+			msg += "Pass";
+		} catch (e) {
+			msg += "Fail - " + (e as Error).message;
+		}
+		postMessage(msg);
+	}
+	postMessage("Finished");
+}
+
+setTimeout(main);
+
+
 
 /*---- Test suite ----*/
 
-const TEST_SUITE_FUNCS: Array<()=>void> = [
+const TEST_SUITE: Array<()=>void> = [
 	
 	function testValues(): void {
 		assertArrayEquals(sievePrimeness(30), [false, false, true, true, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, true, false, false, false, true, false, false, false, false, false, true, false]);
@@ -58,31 +80,3 @@ function assertArrayEquals<E>(expected: Readonly<Array<E>>, actual: Readonly<Arr
 	for (let i = 0; i < expected.length; i++)
 		assertEquals(expected[i], actual[i]);
 }
-
-
-
-/*---- Main runner ----*/
-
-(function(): void {
-	let i: number = 0;
-	function iterate(): void {
-		let msg: string;
-		if (i >= TEST_SUITE_FUNCS.length)
-			msg = "Finished";
-		else {
-			msg = TEST_SUITE_FUNCS[i].name + "(): ";
-			try {
-				TEST_SUITE_FUNCS[i]();
-				msg += "Pass";
-			} catch (e) {
-				msg += "Fail - " + e.message;
-			}
-			i++;
-			setTimeout(iterate);
-		}
-		let li: HTMLElement = document.createElement("li");
-		li.textContent = msg;
-		(document.getElementById("results") as HTMLElement).append(li);
-	}
-	iterate();
-})();

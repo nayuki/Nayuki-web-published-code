@@ -21,10 +21,32 @@
  *   Software.
  */
 
+importScripts("BinaryIndexedTree.js");
+
+
+/*---- Main runner ----*/
+
+function main(): void {
+	for (const func of TEST_SUITE) {
+		let msg: string = func.name + "(): ";
+		try {
+			func();
+			msg += "Pass";
+		} catch (e) {
+			msg += "Fail - " + (e as Error).message;
+		}
+		postMessage(msg);
+	}
+	postMessage("Finished");
+}
+
+setTimeout(main);
+
+
 
 /*---- Test suite ----*/
 
-const TEST_SUITE_FUNCS: Array<()=>void> = [
+const TEST_SUITE: Array<()=>void> = [
 	
 	function testSizeConstructor(): void {
 		const SIZELIMIT: number = 3000;
@@ -208,31 +230,3 @@ function assertEquals(expect: number, actual: number): void {
 	if (actual !== expect)
 		throw new Error("Value mismatch");
 }
-
-
-
-/*---- Main runner ----*/
-
-(function(): void {
-	let i: number = 0;
-	function iterate(): void {
-		let msg: string;
-		if (i >= TEST_SUITE_FUNCS.length)
-			msg = "Finished";
-		else {
-			msg = TEST_SUITE_FUNCS[i].name + "(): ";
-			try {
-				TEST_SUITE_FUNCS[i]();
-				msg += "Pass";
-			} catch (e) {
-				msg += "Fail - " + e.message;
-			}
-			i++;
-			setTimeout(iterate);
-		}
-		let li: HTMLElement = document.createElement("li");
-		li.textContent = msg;
-		(document.getElementById("results") as HTMLElement).append(li);
-	}
-	iterate();
-})();

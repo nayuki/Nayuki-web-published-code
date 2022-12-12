@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Test of variants of the sieve of Eratosthenes (JavaScript)
+  - by Project Nayuki, 2022. Public domain.
+  - https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
+  -->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+	<head>
+		<title>Eratosthenes sieves test (JavaScript)</title>
+	</head>
+	
+	<body>
+		<h1>Eratosthenes sieves test (JavaScript)</h1>
+		<ul id="results"></ul>
+		
+		<script>
+			<![CDATA[
+			(function() {
+				let ul = document.getElementById("results");
+				let worker = new Worker("eratosthenes-sieves-test.js");
+				worker.onmessage = e => {
+					let li = ul.appendChild(document.createElement("li"));
+					li.textContent = e.data;
+				};
+			})();
+			]]>
+		</script>
+	</body>
+</html>
