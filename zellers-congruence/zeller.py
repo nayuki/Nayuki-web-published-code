@@ -27,7 +27,7 @@ def day_of_week(y: int, m: int, d: int) -> int:
 
 # ---- Test suite ----
 
-class ZellerTest(unittest.TestCase):
+class _ZellerTest(unittest.TestCase):
 	
 	def test_simple(self) -> None:
 		CASES: List[Tuple[int,int,int,int]] = [

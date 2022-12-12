@@ -178,7 +178,7 @@ function assertFalse(cond: boolean): void {
 
 
 function assertEquals(expect: number, actual: number): void {
-	assertTrue(actual === expect)
+	assertTrue(actual === expect);
 }
 
 

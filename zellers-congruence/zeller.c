@@ -1,14 +1,15 @@
 /* 
- * Zeller's congruence (C++)
+ * Zeller's congruence (C)
  * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/zellers-congruence
  */
 
-#include <cstdlib>
-#include <exception>
-#include <iostream>
-#include <random>
-#include <vector>
+#include <assert.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 
 /*---- Zeller's congruence function ----*/
@@ -49,11 +50,9 @@ static int monthLength(int y, int m) {
 }
 
 
-static void nextDate(int ymd[3]) {
-	if (!(1 <= ymd[1] && ymd[1] <= 12))
-		throw std::domain_error("Invalid month");
-	if (!(1 <= ymd[2] && ymd[2] <= monthLength(ymd[0], ymd[1])))
-		throw std::domain_error("Invalid day-of-month");
+static void nextDate(int ymd[static 3]) {
+	assert(1 <= ymd[1] && ymd[1] <= 12);
+	assert(1 <= ymd[2] && ymd[2] <= monthLength(ymd[0], ymd[1]));
 	
 	ymd[2]++;
 	if (ymd[2] > monthLength(ymd[0], ymd[1])) {
@@ -67,11 +66,9 @@ static void nextDate(int ymd[3]) {
 }
 
 
-static void previousDate(int ymd[3]) {
-	if (!(1 <= ymd[1] && ymd[1] <= 12))
-		throw std::domain_error("Invalid month");
-	if (!(1 <= ymd[2] && ymd[2] <= monthLength(ymd[0], ymd[1])))
-		throw std::domain_error("Invalid day-of-month");
+static void previousDate(int ymd[static 3]) {
+	assert(1 <= ymd[1] && ymd[1] <= 12);
+	assert(1 <= ymd[2] && ymd[2] <= monthLength(ymd[0], ymd[1]));
 	
 	ymd[2]--;
 	if (ymd[2] == 0) {
@@ -86,7 +83,7 @@ static void previousDate(int ymd[3]) {
 }
 
 
-static int compare(int ymd[3], int y, int m, int d) {
+static int compare(int ymd[static 3], int y, int m, int d) {
 	if (ymd[0] != y)
 		return ymd[0] < y ? -1 : 1;
 	else if (ymd[1] != m)
@@ -116,13 +113,11 @@ static int dayOfWeekNaive(int y, int m, int d) {
 
 /*---- Test suite ----*/
 
-std::default_random_engine randGen((std::random_device())());
-
-
-template <typename T>
-static void assertEquals(T x, T y) {
-	if (x != y)
-		throw std::runtime_error("Value mismatch");
+static void assertEquals(int x, int y) {
+	if (x != y) {
+		fprintf(stderr, "Value mismatch\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
 
@@ -133,7 +128,7 @@ static void testSimple() {
 		int d;
 		int dow;
 	};
-	const std::vector<TestCase> CASES{
+	const struct TestCase CASES[] = {
 		{-679,  9,  8, 1},
 		{-657,  2,  6, 3},
 		{-629,  5, 14, 2},
@@ -184,8 +179,10 @@ static void testSimple() {
 		{2336,  6, 20, 6},
 		{2348,  7, 16, 5},
 	};
-	for (const TestCase &cs : CASES)
-		assertEquals(cs.dow, dayOfWeek(cs.y, cs.m, cs.d));
+	for (size_t i = 0; i < sizeof(CASES) / sizeof(CASES[0]); i++) {
+		const struct TestCase *cs = &CASES[i];
+		assertEquals(cs->dow, dayOfWeek(cs->y, cs->m, cs->d));
+	}
 }
 
 
@@ -213,13 +210,10 @@ static void testDescending() {
 
 static void testVsNaiveRandomly() {
 	const long TRIALS = 1000;
-	std::uniform_int_distribution<int> yearDist(1600, 2400);
-	std::uniform_int_distribution<int> monthDist(1, 12);
 	for (long i = 0; i < TRIALS; i++) {
-		int y = yearDist(randGen);
-		int m = monthDist(randGen);
-		std::uniform_int_distribution<int> dayDist(1, monthLength(y, m));
-		int d = dayDist(randGen);
+		int y = rand() % 800 + 1600;
+		int m = rand() % 12 + 1;
+		int d = rand() % monthLength(y, m) + 1;
 		assertEquals(dayOfWeekNaive(y, m, d), dayOfWeek(y, m, d));
 	}
 }
@@ -227,38 +221,30 @@ static void testVsNaiveRandomly() {
 
 static void testLenientRandomly() {
 	const long TRIALS = 1000000;
-	std::uniform_int_distribution<int> yearDist(2000, 2400);
-	std::uniform_int_distribution<int> monthDist(1, 12);
-	std::uniform_int_distribution<int> yearPerturbDist(-2500, 2500);
-	std::uniform_int_distribution<int> dayPerturbDist(-500, 500);
 	for (long i = 0; i < TRIALS; i++) {
-		int y = yearDist(randGen);
-		int m = monthDist(randGen);
-		std::uniform_int_distribution<int> dayDist(1, monthLength(y, m));
-		int d = dayDist(randGen);
+		int y = rand() % 400 + 2000;
+		int m = rand() % 12 + 1;
+		int d = rand() % monthLength(y, m) + 1;
 		int dow = dayOfWeek(y, m, d);
 		
-		int temp = yearPerturbDist(randGen);
+		int temp = rand() % 5000 - 2500;
 		y += temp;
 		m -= temp * 12;
-		d += dayPerturbDist(randGen) * 7;
+		d += (rand() % 1000 - 500) * 7;
 		assertEquals(dow, dayOfWeek(y, m, d));
 	}
 }
 
 
-int main() {
-	try {
-		testSimple();
-		testAscending();
-		testDescending();
-		testVsNaiveRandomly();
-		testLenientRandomly();
-		
-		std::cerr << "Test passed" << std::endl;
-		return EXIT_SUCCESS;
-	} catch (std::exception &e) {
-		std::cerr << e.what() << std::endl;
-		return EXIT_FAILURE;
-	}
+int main(void) {
+	srand(time(NULL));
+	
+	testSimple();
+	testAscending();
+	testDescending();
+	testVsNaiveRandomly();
+	testLenientRandomly();
+	
+	fprintf(stderr, "Test passed\n");
+	return EXIT_SUCCESS;
 }

@@ -1,27 +1,25 @@
 /* 
- * Zeller's congruence (Java)
+ * Zeller's congruence (C#)
  * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/zellers-congruence
  */
 
-import static org.junit.Assert.assertEquals;
-import java.util.Random;
-import org.junit.Test;
+using System;
 
 
-public final class Zeller {
+public sealed class Zeller {
 	
 	/*---- Zeller's congruence function ----*/
 	
 	/**
-	 * Returns the day-of-week for the given date ({@code y}, {@code m}, {@code d}) on the
-	 * proleptic Gregorian calendar. The handling of months and days-of-month is lenient.
-	 * @param y the year
-	 * @param m the month, where strict values are are 1 = January, ..., 12 = December
-	 * @param d the day-of-month, where strict values start from 1
-	 * @return the day of week, where 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+	 * Returns the day-of-week dow for the given date
+	 * (y, m, d) on the proleptic Gregorian calendar.
+	 * Values of dow are 0 = Sunday, 1 = Monday, ..., 6 = Saturday.
+	 * Strict values of m are 1 = January, ..., 12 = December.
+	 * Strict values of d start from 1.
+	 * The handling of months and days-of-month is lenient.
 	 */
-	public static int dayOfWeek(int y, int m, int d) {
+	public static int DayOfWeek(int y, int m, int d) {
 		m = m % 4800 - 3 + 4800 * 2;
 		y = y % 400 + 400 + m / 12;
 		m %= 12;
@@ -34,8 +32,19 @@ public final class Zeller {
 	
 	/*---- Test suite ----*/
 	
-	@Test public void testSimple() {
-		final int[][] CASES = {
+	public static void Main(string[] args) {
+		TestSimple();
+		TestAscending();
+		TestDescending();
+		TestVsNaiveRandomly();
+		TestLenientExtreme();
+		TestLenientRandomly();
+		Console.WriteLine("Test passed");
+	}
+	
+	
+	private static void TestSimple() {
+		int[,] CASES = {
 			{-679,  9,  8, 1},
 			{-657,  2,  6, 3},
 			{-629,  5, 14, 2},
@@ -86,46 +95,46 @@ public final class Zeller {
 			{2336,  6, 20, 6},
 			{2348,  7, 16, 5},
 		};
-		for (int[] cs : CASES)
-			assertEquals(cs[3], dayOfWeek(cs[0], cs[1], cs[2]));
+		for (int i = 0; i < CASES.GetLength(0); i++)
+			AssertEquals(CASES[i, 3], DayOfWeek(CASES[i, 0], CASES[i, 1], CASES[i, 2]));
 	}
 	
 	
-	@Test public void testAscending() {
+	private static void TestAscending() {
 		int[] ymd = {1600, 1, 1};
 		int dow = 6;
 		while (ymd[0] < 2400) {
-			assertEquals(dow, dayOfWeek(ymd[0], ymd[1], ymd[2]));
-			nextDate(ymd);
+			AssertEquals(dow, DayOfWeek(ymd[0], ymd[1], ymd[2]));
+			NextDate(ymd);
 			dow = (dow + 1) % 7;
 		}
 	}
 	
 	
-	@Test public void testDescending() {
+	private static void TestDescending() {
 		int[] ymd = {1600, 1, 1};
 		int dow = 6;
 		while (ymd[0] > 800) {
-			assertEquals(dow, dayOfWeek(ymd[0], ymd[1], ymd[2]));
-			previousDate(ymd);
+			AssertEquals(dow, DayOfWeek(ymd[0], ymd[1], ymd[2]));
+			PreviousDate(ymd);
 			dow = (dow - 1 + 7) % 7;
 		}
 	}
 	
 	
-	@Test public void testVsNaiveRandomly() {
-		final int TRIALS = 1000;
+	private static void TestVsNaiveRandomly() {
+		const int TRIALS = 1000;
 		for (int i = 0; i < TRIALS; i++) {
-			int y = rand.nextInt(800) + 1600;
-			int m = rand.nextInt(12) + 1;
-			int d = rand.nextInt(monthLength(y, m)) + 1;
-			assertEquals(dayOfWeekNaive(y, m, d), dayOfWeek(y, m, d));
+			int y = rand.Next(800, 2400);
+			int m = rand.Next(1, 13);
+			int d = rand.Next(1, MonthLength(y, m) + 1);
+			AssertEquals(DayOfWeekNaive(y, m, d), DayOfWeek(y, m, d));
 		}
 	}
 	
 	
-	@Test public void testLenientExtreme() {
-		final int[][] CASES = {
+	private static void TestLenientExtreme() {
+		int[,] CASES = {
 			{-2147483648, -2147483648, -2147483648, 4},
 			{-2147483648, -2147483648,           0, 6},
 			{-2147483648, -2147483648,  2147483647, 0},
@@ -255,24 +264,24 @@ public final class Zeller {
 			{ 2147483177, -2147482328,         186, 2},
 			{        775,  2147474818,  2147482979, 4},
 		};
-		for (int[] cs : CASES)
-			assertEquals(cs[3], dayOfWeek(cs[0], cs[1], cs[2]));
+		for (int i = 0; i < CASES.GetLength(0); i++)
+			AssertEquals(CASES[i, 3], DayOfWeek(CASES[i, 0], CASES[i, 1], CASES[i, 2]));
 	}
 	
 	
-	@Test public void testLenientRandomly() {
-		final int TRIALS = 1_000_000;
+	private static void TestLenientRandomly() {
+		const int TRIALS = 1000000;
 		for (int i = 0; i < TRIALS; i++) {
-			int y = rand.nextInt(400) + 2000;
-			int m = rand.nextInt(12) + 1;
-			int d = rand.nextInt(monthLength(y, m)) + 1;
-			int dow = dayOfWeek(y, m, d);
+			int y = rand.Next(2000, 2400);
+			int m = rand.Next(1, 13);
+			int d = rand.Next(1, MonthLength(y, m) + 1);
+			int dow = DayOfWeek(y, m, d);
 			
-			int temp = rand.nextInt(10000) - 5000;
+			int temp = rand.Next(-5000, 5000);
 			y += temp;
 			m -= temp * 12;
-			d += (rand.nextInt(1000) - 500) * 7;
-			assertEquals(dow, dayOfWeek(y, m, d));
+			d += rand.Next(-500, 500) * 7;
+			AssertEquals(dow, DayOfWeek(y, m, d));
 		}
 	}
 	
@@ -283,45 +292,45 @@ public final class Zeller {
 	
 	/*---- Helper functions ----*/
 	
-	private static int dayOfWeekNaive(int y, int m, int d) {
+	private static int DayOfWeekNaive(int y, int m, int d) {
 		if (!(1 <= m && m <= 12))
-			throw new IllegalArgumentException("Invalid month");
-		if (!(1 <= d && d <= monthLength(y, m)))
-			throw new IllegalArgumentException("Invalid day-of-month");
+			throw new ArgumentOutOfRangeException("Invalid month");
+		if (!(1 <= d && d <= MonthLength(y, m)))
+			throw new ArgumentOutOfRangeException("Invalid day-of-month");
 		int[] ymd = {1600, 1, 1};
 		int dow = 6;
-		while (compare(ymd, y, m, d) < 0) {
-			nextDate(ymd);
+		while (Compare(ymd, y, m, d) < 0) {
+			NextDate(ymd);
 			dow = (dow + 1) % 7;
 		}
-		while (compare(ymd, y, m, d) > 0) {
-			previousDate(ymd);
+		while (Compare(ymd, y, m, d) > 0) {
+			PreviousDate(ymd);
 			dow = (dow - 1 + 7) % 7;
 		}
 		return dow;
 	}
 	
 	
-	private static int compare(int[] ymd, int y, int m, int d) {
-		if (ymd.length != 3)
-			throw new AssertionError();
+	private static int Compare(int[] ymd, int y, int m, int d) {
+		if (ymd.Length != 3)
+			throw new SystemException();
 		if (ymd[0] != y)
-			return Integer.compare(ymd[0], y);
+			return ymd[0].CompareTo(y);
 		else if (ymd[1] != m)
-			return Integer.compare(ymd[1], m);
+			return ymd[1].CompareTo(m);
 		else
-			return Integer.compare(ymd[2], d);
+			return ymd[2].CompareTo(d);
 	}
 	
 	
-	private static void nextDate(int[] ymd) {
+	private static void NextDate(int[] ymd) {
 		if (!(1 <= ymd[1] && ymd[1] <= 12))
-			throw new IllegalArgumentException("Invalid month");
-		if (!(1 <= ymd[2] && ymd[2] <= monthLength(ymd[0], ymd[1])))
-			throw new IllegalArgumentException("Invalid day-of-month");
+			throw new ArgumentOutOfRangeException("Invalid month");
+		if (!(1 <= ymd[2] && ymd[2] <= MonthLength(ymd[0], ymd[1])))
+			throw new ArgumentOutOfRangeException("Invalid day-of-month");
 		
 		ymd[2]++;
-		if (ymd[2] > monthLength(ymd[0], ymd[1])) {
+		if (ymd[2] > MonthLength(ymd[0], ymd[1])) {
 			ymd[2] = 1;
 			ymd[1]++;
 			if (ymd[1] == 13) {
@@ -332,16 +341,16 @@ public final class Zeller {
 	}
 	
 	
-	private static void previousDate(int[] ymd) {
+	private static void PreviousDate(int[] ymd) {
 		if (!(1 <= ymd[1] && ymd[1] <= 12))
-			throw new IllegalArgumentException("Invalid month");
-		if (!(1 <= ymd[2] && ymd[2] <= monthLength(ymd[0], ymd[1])))
-			throw new IllegalArgumentException("Invalid day-of-month");
+			throw new ArgumentOutOfRangeException("Invalid month");
+		if (!(1 <= ymd[2] && ymd[2] <= MonthLength(ymd[0], ymd[1])))
+			throw new ArgumentOutOfRangeException("Invalid day-of-month");
 		
 		ymd[2]--;
 		if (ymd[2] == 0) {
 			ymd[1]--;
-			ymd[2] = monthLength(ymd[0], ymd[1]);
+			ymd[2] = MonthLength(ymd[0], ymd[1]);
 			if (ymd[1] == 0) {
 				ymd[0]--;
 				ymd[1] = 12;
@@ -351,18 +360,24 @@ public final class Zeller {
 	}
 	
 	
-	private static int monthLength(int y, int m) {
+	private static int MonthLength(int y, int m) {
 		if (m != 2)
 			return MONTH_LENGTHS[m];
 		else
-			return isLeapYear(y) ? 29 : 28;
+			return IsLeapYear(y) ? 29 : 28;
 	}
 	
-	private static final int[] MONTH_LENGTHS = {-1, 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+	private static int[] MONTH_LENGTHS = {-1, 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 	
 	
-	private static boolean isLeapYear(int y) {
+	private static bool IsLeapYear(int y) {
 		return y % 4 == 0 && (y % 100 != 0 || y % 400 == 0);
+	}
+	
+	
+	private static void AssertEquals<T>(T x, T y) {
+		if (!x.Equals(y))
+			throw new SystemException("Value mismatch");
 	}
 	
 }

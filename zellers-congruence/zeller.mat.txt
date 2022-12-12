@@ -1,0 +1,19 @@
+(* 
+ * Zeller's congruence (Mathematica)
+ * by Project Nayuki, 2022. Public domain.
+ * https://www.nayuki.io/page/zellers-congruence
+ *)
+
+
+(* 
+ * Returns the day-of-week dow for the given date
+ * (y, m, d) on the proleptic Gregorian calendar.
+ * Values of dow are 0 = Sunday, 1 = Monday, ..., 6 = Saturday.
+ * Strict values of m are 1 = January, ..., 12 = December.
+ * Strict values of d start from 1.
+ * The handling of months and days-of-month is lenient.
+ *)
+DayOfWeek[y_, m_, d_] := Module[
+	{py = y + Floor[(m - 3) / 12], pm = Mod[m - 3, 12]},
+	Mod[py + Floor[py / 4] - Floor[py / 100] + Floor[py / 400] +
+		Floor[(pm * 13 + 12) / 5] + d, 7]]
