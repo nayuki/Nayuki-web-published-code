@@ -112,16 +112,28 @@ function nextMonth() {
 	}
 	
 	function getContributionRoom(year) {
-		if (year <= 2008)
+		// Known amounts
+		const CONTRIB_ROOM = {
+			2009:  5000,
+			2010:  5000,
+			2011:  5000,
+			2012:  5000,
+			2013:  5500,
+			2014:  5500,
+			2015: 10000,
+			2016:  5500,
+			2017:  5500,
+			2018:  5500,
+			2019:  6000,
+			2020:  6000,
+			2021:  6000,
+			2022:  6000,
+			2023:  6500,
+		};
+		if (year in CONTRIB_ROOM)
+			return CONTRIB_ROOM[year] * 100;
+		else if (year <= 2008)
 			return 0;
-		else if (year <= 2012)
-			return 500000;  // Known amount
-		else if (year == 2015)
-			return 1000000;  // Known amount
-		else if (year <= 2018)
-			return 550000;  // Known amount
-		else if (year <= 2022)
-			return 600000;  // Known amount
 		else  // Estimate based on 2% annual inflation
 			return Math.round(5000 * Math.pow(1.02, year - 2009) / 500) * 50000;
 	}
@@ -150,11 +162,13 @@ const TRANSACTION_ROWS = 16;
 function display() {
 	let tr;
 	function appendTd(content) {
-		if (typeof content == "string")
-			content = [document.createTextNode(content)];
 		let td = tr.appendChild(document.createElement("td"));
-		for (const item of content)
-			td.append(item);
+		if (typeof content == "string")
+			td.append(content);
+		else {
+			for (const item of content)
+				td.append(item);
+		}
 	}
 	
 	function formatMoney(amount) {
@@ -168,7 +182,7 @@ function display() {
 			return result;
 		} else {
 			let result = [];
-			let s = Math.floor(amount / 100) + "";
+			let s = Math.floor(amount / 100).toString();
 			while (s.length > 0) {
 				const i = Math.max(s.length - 3, 0);
 				let span = document.createElement("span");
@@ -185,7 +199,7 @@ function display() {
 	}
 	
 	function formatDate(d) {
-		return MONTH_NAMES[d % 12] + " " + Math.floor(d / 12);
+		return `${MONTH_NAMES[d % 12]} ${Math.floor(d / 12)}`;
 	}
 	
 	const showAllTransactions = document.getElementById("show-all").checked;
