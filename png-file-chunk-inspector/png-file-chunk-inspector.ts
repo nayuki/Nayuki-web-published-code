@@ -684,6 +684,43 @@ namespace app {
 				addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				addErrorIfHasType(earlier, "sRGB", chunk, "Chunk should not exist because sRGB chunk exists");
+				
+				let data: Array<byte> = [];
+				for (const b of chunk.data)
+					data.push(b);
+				
+				const separatorIndex: int = data.indexOf(0);
+				if (separatorIndex == -1) {
+					chunk.errorNotes.push("Missing null separator");
+					const keyword: string = decodeIso8859_1(data);
+					annotateTextKeyword(keyword, "Profile name", "name", chunk);
+				} else {
+					const keyword: string = decodeIso8859_1(data.slice(0, separatorIndex));
+					annotateTextKeyword(keyword, "Profile name", "name", chunk);
+					if (separatorIndex + 1 >= data.length)
+						chunk.errorNotes.push("Missing compression method");
+					else {
+						const compMeth: byte = data[separatorIndex + 1];
+						let s: string|null = lookUpTable(compMeth, [
+							[0, "DEFLATE"],
+						]);
+						if (s === null) {
+							s = "Unknown";
+							chunk.errorNotes.push("Unknown compression method");
+						}
+						chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
+						const compProfile: Array<byte> = data.slice(separatorIndex + 2);
+						chunk.innerNotes.push(`Compressed profile size: ${compProfile.length}`);
+						if (compMeth == 0) {
+							try {
+								const decompProfile: Array<byte> = deflate.decompressZlib(compProfile);
+								chunk.innerNotes.push(`Decompressed profile size: ${decompProfile.length}`);
+							} catch (e) {
+								chunk.errorNotes.push("Profile decompression error: " + e.message);
+							}
+						}
+					}
+				}
 			}],
 			
 			
@@ -1589,7 +1626,7 @@ namespace deflate {
 	}
 	
 	
-	export function decompressDeflate(bytes: Readonly<Array<byte>>): [Array<byte>,BitInputStream] {
+	function decompressDeflate(bytes: Readonly<Array<byte>>): [Array<byte>,BitInputStream] {
 		let input = new BitInputStream(bytes);
 		let output: Array<byte> = [];
 		let dictionary = new ByteHistory(32 * 1024);

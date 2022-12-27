@@ -603,6 +603,43 @@ var app;
                 addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 addErrorIfHasType(earlier, "sRGB", chunk, "Chunk should not exist because sRGB chunk exists");
+                let data = [];
+                for (const b of chunk.data)
+                    data.push(b);
+                const separatorIndex = data.indexOf(0);
+                if (separatorIndex == -1) {
+                    chunk.errorNotes.push("Missing null separator");
+                    const keyword = decodeIso8859_1(data);
+                    annotateTextKeyword(keyword, "Profile name", "name", chunk);
+                }
+                else {
+                    const keyword = decodeIso8859_1(data.slice(0, separatorIndex));
+                    annotateTextKeyword(keyword, "Profile name", "name", chunk);
+                    if (separatorIndex + 1 >= data.length)
+                        chunk.errorNotes.push("Missing compression method");
+                    else {
+                        const compMeth = data[separatorIndex + 1];
+                        let s = lookUpTable(compMeth, [
+                            [0, "DEFLATE"],
+                        ]);
+                        if (s === null) {
+                            s = "Unknown";
+                            chunk.errorNotes.push("Unknown compression method");
+                        }
+                        chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
+                        const compProfile = data.slice(separatorIndex + 2);
+                        chunk.innerNotes.push(`Compressed profile size: ${compProfile.length}`);
+                        if (compMeth == 0) {
+                            try {
+                                const decompProfile = deflate.decompressZlib(compProfile);
+                                chunk.innerNotes.push(`Decompressed profile size: ${decompProfile.length}`);
+                            }
+                            catch (e) {
+                                chunk.errorNotes.push("Profile decompression error: " + e.message);
+                            }
+                        }
+                    }
+                }
             }],
         ["IDAT", "Image data", true, (chunk, earlier) => {
                 if (earlier.length > 0 && earlier[earlier.length - 1].typeStr != "IDAT"
@@ -1493,7 +1530,6 @@ var deflate;
                 throw new RangeError("Reserved distance symbol");
         }
     }
-    deflate.decompressDeflate = decompressDeflate;
     class CanonicalCode {
         constructor(codeLengths) {
             this.codeBitsToSymbol = new Map();
