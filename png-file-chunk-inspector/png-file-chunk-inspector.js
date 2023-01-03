@@ -618,9 +618,7 @@ var app;
                     return;
                 }
                 const compMeth = parts[1][0];
-                let s = lookUpTable(compMeth, [
-                    [0, "DEFLATE"],
-                ]);
+                let s = lookUpTable(compMeth, COMPRESSION_METHODS);
                 if (s === null) {
                     s = "Unknown";
                     chunk.errorNotes.push("Unknown compression method");
@@ -686,9 +684,7 @@ var app;
                         chunk.errorNotes.push("Invalid bit depth");
                 }
                 {
-                    let s = lookUpTable(compMeth, [
-                        [0, "DEFLATE"],
-                    ]);
+                    let s = lookUpTable(compMeth, COMPRESSION_METHODS);
                     if (s === null) {
                         s = "Unknown";
                         chunk.errorNotes.push("Unknown compression method");
@@ -750,9 +746,7 @@ var app;
                 }
                 let compMeth = parts[1][1];
                 {
-                    let s = lookUpTable(compMeth, [
-                        [0, "DEFLATE"],
-                    ]);
+                    let s = lookUpTable(compMeth, COMPRESSION_METHODS);
                     if (s === null) {
                         s = "Unknown";
                         chunk.errorNotes.push("Unknown compression method");
@@ -1137,9 +1131,7 @@ var app;
                     return;
                 }
                 const compMeth = parts[1][0];
-                let s = lookUpTable(compMeth, [
-                    [0, "DEFLATE"],
-                ]);
+                let s = lookUpTable(compMeth, COMPRESSION_METHODS);
                 if (s === null) {
                     s = "Unknown";
                     chunk.errorNotes.push("Unknown compression method");
@@ -1164,6 +1156,9 @@ var app;
             }],
     ];
     /*---- Utility functions ----*/
+    const COMPRESSION_METHODS = [
+        [0, "DEFLATE"],
+    ];
     function annotateTextKeyword(keyword, noteName, errorName, chunk) {
         chunk.innerNotes.push(`${noteName}: ${keyword}`);
         if (!(1 <= keyword.length && keyword.length <= 79))

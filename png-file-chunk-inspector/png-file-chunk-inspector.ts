@@ -702,9 +702,7 @@ namespace app {
 					return;
 				}
 				const compMeth: byte = parts[1][0];
-				let s: string|null = lookUpTable(compMeth, [
-					[0, "DEFLATE"],
-				]);
+				let s: string|null = lookUpTable(compMeth, COMPRESSION_METHODS);
 				if (s === null) {
 					s = "Unknown";
 					chunk.errorNotes.push("Unknown compression method");
@@ -777,9 +775,7 @@ namespace app {
 						chunk.errorNotes.push("Invalid bit depth");
 				}
 				{
-					let s: string|null = lookUpTable(compMeth, [
-						[0, "DEFLATE"],
-					]);
+					let s: string|null = lookUpTable(compMeth, COMPRESSION_METHODS);
 					if (s === null) {
 						s = "Unknown";
 						chunk.errorNotes.push("Unknown compression method");
@@ -846,9 +842,7 @@ namespace app {
 				}
 				let compMeth: byte = parts[1][1];
 				{
-					let s: string|null = lookUpTable(compMeth, [
-						[0, "DEFLATE"],
-					]);
+					let s: string|null = lookUpTable(compMeth, COMPRESSION_METHODS);
 					if (s === null) {
 						s = "Unknown";
 						chunk.errorNotes.push("Unknown compression method");
@@ -1291,9 +1285,7 @@ namespace app {
 					return;
 				}
 				const compMeth: byte = parts[1][0];
-				let s: string|null = lookUpTable(compMeth, [
-					[0, "DEFLATE"],
-				]);
+				let s: string|null = lookUpTable(compMeth, COMPRESSION_METHODS);
 				if (s === null) {
 					s = "Unknown";
 					chunk.errorNotes.push("Unknown compression method");
@@ -1377,6 +1369,11 @@ namespace app {
 	
 	
 	/*---- Utility functions ----*/
+	
+	const COMPRESSION_METHODS: Array<[int,string]> = [
+		[0, "DEFLATE"],
+	];
+	
 	
 	function annotateTextKeyword(keyword: string, noteName: string, errorName: string, chunk: ChunkPart): void {
 		chunk.innerNotes.push(`${noteName}: ${keyword}`);
