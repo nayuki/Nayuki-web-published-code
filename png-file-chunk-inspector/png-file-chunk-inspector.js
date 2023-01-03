@@ -608,7 +608,7 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 2);
                 const name = decodeIso8859_1(parts[0]);
-                annotateTextKeyword(name, "Profile name", "name", chunk);
+                annotateTextKeyword(name, false, "Profile name", "name", chunk);
                 if (parts.length == 1) {
                     chunk.errorNotes.push("Missing null separator");
                     return;
@@ -719,7 +719,7 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 4);
                 const keyword = decodeIso8859_1(parts[0]);
-                annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+                annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
                 if (parts.length == 1) {
                     chunk.errorNotes.push("Missing null separator");
                     return;
@@ -974,7 +974,7 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 2);
                 const name = decodeIso8859_1(parts[0]);
-                annotateTextKeyword(name, "Palette name", "name", chunk);
+                annotateTextKeyword(name, true, "Palette name", "name", chunk);
                 if (ChunkPart.getSpltNames(earlier).has(name))
                     chunk.errorNotes.push("Duplicate palette name");
                 if (parts.length == 1) {
@@ -1042,7 +1042,7 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
-                annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+                annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
                 if (parts.length == 1) {
                     chunk.errorNotes.push("Missing null separator");
                     return;
@@ -1121,7 +1121,7 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
-                annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+                annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
                 if (parts.length == 1) {
                     chunk.errorNotes.push("Missing null separator");
                     return;
@@ -1159,7 +1159,7 @@ var app;
     const COMPRESSION_METHODS = [
         [0, "DEFLATE"],
     ];
-    function annotateTextKeyword(keyword, noteName, errorName, chunk) {
+    function annotateTextKeyword(keyword, checkSpaces, noteName, errorName, chunk) {
         chunk.innerNotes.push(`${noteName}: ${keyword}`);
         if (!(1 <= keyword.length && keyword.length <= 79))
             chunk.errorNotes.push(`Invalid ${errorName} length`);
@@ -1172,7 +1172,7 @@ var app;
                 break;
             }
         }
-        if (/^ |  | $/.test(keyword))
+        if (checkSpaces && /^ |  | $/.test(keyword))
             chunk.errorNotes.push(`Invalid space in ${errorName}`);
     }
     function calcCrc32(bytes) {

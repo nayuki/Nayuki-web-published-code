@@ -691,7 +691,7 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 2);
 				
 				const name: string = decodeIso8859_1(parts[0]);
-				annotateTextKeyword(name, "Profile name", "name", chunk);
+				annotateTextKeyword(name, false, "Profile name", "name", chunk);
 				if (parts.length == 1) {
 					chunk.errorNotes.push("Missing null separator");
 					return;
@@ -813,7 +813,7 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 4);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
-				annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+				annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
 				if (parts.length == 1) {
 					chunk.errorNotes.push("Missing null separator");
 					return;
@@ -1095,7 +1095,7 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 2);
 				
 				const name: string = decodeIso8859_1(parts[0]);
-				annotateTextKeyword(name, "Palette name", "name", chunk);
+				annotateTextKeyword(name, true, "Palette name", "name", chunk);
 				if (ChunkPart.getSpltNames(earlier).has(name))
 					chunk.errorNotes.push("Duplicate palette name");
 				if (parts.length == 1) {
@@ -1174,7 +1174,7 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
-				annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+				annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
 				if (parts.length == 1) {
 					chunk.errorNotes.push("Missing null separator");
 					return;
@@ -1274,7 +1274,7 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
-				annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+				annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
 				if (parts.length == 1) {
 					chunk.errorNotes.push("Missing null separator");
 					return;
@@ -1375,7 +1375,7 @@ namespace app {
 	];
 	
 	
-	function annotateTextKeyword(keyword: string, noteName: string, errorName: string, chunk: ChunkPart): void {
+	function annotateTextKeyword(keyword: string, checkSpaces: boolean, noteName: string, errorName: string, chunk: ChunkPart): void {
 		chunk.innerNotes.push(`${noteName}: ${keyword}`);
 		if (!(1 <= keyword.length && keyword.length <= 79))
 			chunk.errorNotes.push(`Invalid ${errorName} length`);
@@ -1388,7 +1388,7 @@ namespace app {
 				break;
 			}
 		}
-		if (/^ |  | $/.test(keyword))
+		if (checkSpaces && /^ |  | $/.test(keyword))
 			chunk.errorNotes.push(`Invalid space in ${errorName}`);
 	}
 	
