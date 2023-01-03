@@ -746,19 +746,22 @@ var app;
                 }
                 let compMeth = parts[1][1];
                 {
-                    let s = lookUpTable(compMeth, COMPRESSION_METHODS);
+                    let s = null;
+                    if (compFlag == 0 && compMeth == 0)
+                        s = "Uncompressed";
+                    else if (compFlag == 1)
+                        s = lookUpTable(compMeth, COMPRESSION_METHODS);
                     if (s === null) {
                         s = "Unknown";
                         chunk.errorNotes.push("Unknown compression method");
                     }
                     chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
                 }
-                try {
-                    const langTag = decodeUtf8(parts[1].slice(2));
+                {
+                    const langTag = decodeIso8859_1(parts[1].slice(2));
                     chunk.innerNotes.push(`Language tag: ${langTag}`);
-                }
-                catch (e) {
-                    chunk.errorNotes.push("Invalid UTF-8 in language tag");
+                    if (!/^(?:[A-Za-z0-9]{1,8}(?:-[A-Za-z0-9]{1,8})*)?$/.test(langTag))
+                        chunk.errorNotes.push("Invalid language tax syntax");
                 }
                 if (parts.length == 2) {
                     chunk.errorNotes.push("Missing null separator");
