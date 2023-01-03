@@ -445,10 +445,7 @@ var app;
             let result = new Set();
             for (const chunk of chunks) {
                 if (chunk.typeStr == "sPLT") {
-                    let data = [];
-                    for (const b of chunk.data)
-                        data.push(b);
-                    const parts = splitByNull(data, 2);
+                    const parts = splitByNull(chunk.data, 2);
                     result.add(decodeIso8859_1(parts[0]));
                 }
             }
@@ -602,10 +599,7 @@ var app;
                 addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 addErrorIfHasType(earlier, "sRGB", chunk, "Chunk should not exist because sRGB chunk exists");
-                let data = [];
-                for (const b of chunk.data)
-                    data.push(b);
-                const parts = splitByNull(data, 2);
+                const parts = splitByNull(chunk.data, 2);
                 const name = decodeIso8859_1(parts[0]);
                 annotateTextKeyword(name, false, "Profile name", "name", chunk);
                 if (parts.length == 1) {
@@ -713,10 +707,7 @@ var app;
                 }
             }],
         ["iTXt", "International textual data", true, (chunk, earlier) => {
-                let data = [];
-                for (const b of chunk.data)
-                    data.push(b);
-                let parts = splitByNull(data, 2);
+                let parts = splitByNull(chunk.data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
                 annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
                 if (parts.length == 1) {
@@ -891,15 +882,12 @@ var app;
             }],
         ["sCAL", "Physical scale of image subject", false, (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
-                let data = [];
-                for (const b of chunk.data)
-                    data.push(b);
-                if (data.length < 1) {
+                if (chunk.data.length < 1) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
                 }
                 {
-                    const unit = data[0];
+                    const unit = chunk.data[0];
                     let s = lookUpTable(unit, [
                         [0, "Metre"],
                         [1, "Radian"],
@@ -910,7 +898,7 @@ var app;
                     }
                     chunk.innerNotes.push(`Unit specifier: ${s} (${unit})`);
                 }
-                const parts = splitByNull(data.slice(1), 2);
+                const parts = splitByNull(chunk.data.slice(1), 2);
                 const ASCII_FLOAT = /^([+-]?)(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
                 {
                     const width = decodeIso8859_1(parts[0]);
@@ -968,10 +956,7 @@ var app;
             }],
         ["sPLT", "Suggested palette", true, (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
-                let data = [];
-                for (const b of chunk.data)
-                    data.push(b);
-                const parts = splitByNull(data, 2);
+                const parts = splitByNull(chunk.data, 2);
                 const name = decodeIso8859_1(parts[0]);
                 annotateTextKeyword(name, true, "Palette name", "name", chunk);
                 if (ChunkPart.getSpltNames(earlier).has(name))
@@ -1036,10 +1021,7 @@ var app;
                 chunk.innerNotes.push(`Mode: ${s} (${mode})`);
             }],
         ["tEXt", "Textual data", true, (chunk, earlier) => {
-                let data = [];
-                for (const b of chunk.data)
-                    data.push(b);
-                const parts = splitByNull(data, 2);
+                const parts = splitByNull(chunk.data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
                 annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
                 if (parts.length == 1) {
@@ -1115,10 +1097,7 @@ var app;
                 }
             }],
         ["zTXt", "Compressed textual data", true, (chunk, earlier) => {
-                let data = [];
-                for (const b of chunk.data)
-                    data.push(b);
-                const parts = splitByNull(data, 2);
+                const parts = splitByNull(chunk.data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
                 annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
                 if (parts.length == 1) {
@@ -1353,7 +1332,7 @@ var deflate;
                     throw new Error("Assertion error");
             }
             if (isFinal)
-                return [output, input];
+                return [new Uint8Array(output), input];
         }
         function decodeHuffmanCodes() {
             const numLitLenCodes = input.readUint(5) + 257;

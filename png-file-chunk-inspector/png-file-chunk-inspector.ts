@@ -685,11 +685,7 @@ namespace app {
 				addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				addErrorIfHasType(earlier, "sRGB", chunk, "Chunk should not exist because sRGB chunk exists");
-				
-				let data: Array<byte> = [];
-				for (const b of chunk.data)
-					data.push(b);
-				const parts: Array<Array<byte>> = splitByNull(data, 2);
+				const parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 				
 				const name: string = decodeIso8859_1(parts[0]);
 				annotateTextKeyword(name, false, "Profile name", "name", chunk);
@@ -709,11 +705,11 @@ namespace app {
 					chunk.errorNotes.push("Unknown compression method");
 				}
 				chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
-				const compProfile: Array<byte> = parts[1].slice(1);
+				const compProfile: Uint8Array = parts[1].slice(1);
 				chunk.innerNotes.push(`Compressed profile size: ${compProfile.length}`);
 				if (compMeth == 0) {
 					try {
-						const decompProfile: Array<byte> = deflate.decompressZlib(compProfile);
+						const decompProfile: Uint8Array = deflate.decompressZlib(compProfile);
 						chunk.innerNotes.push(`Decompressed profile size: ${decompProfile.length}`);
 					} catch (e) {
 						chunk.errorNotes.push("Profile decompression error: " + e.message);
@@ -808,10 +804,7 @@ namespace app {
 			
 			
 			["iTXt", "International textual data", true, (chunk, earlier) => {
-				let data: Array<byte> = [];
-				for (const b of chunk.data)
-					data.push(b);
-				let parts: Array<Array<byte>> = splitByNull(data, 2);
+				let parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
 				annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
@@ -877,7 +870,7 @@ namespace app {
 					return;
 				}
 				
-				let textBytes: Array<byte>|null = null;
+				let textBytes: Uint8Array|null = null;
 				switch (compFlag) {
 					case 0:  // Uncompressed
 						textBytes = parts[2];
@@ -1003,16 +996,12 @@ namespace app {
 			["sCAL", "Physical scale of image subject", false, (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
-				let data: Array<byte> = [];
-				for (const b of chunk.data)
-					data.push(b);
-				
-				if (data.length < 1) {
+				if (chunk.data.length < 1) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
 				}
 				{
-					const unit: byte = data[0];
+					const unit: byte = chunk.data[0];
 					let s: string|null = lookUpTable(unit, [
 						[0, "Metre" ],
 						[1, "Radian"],
@@ -1024,7 +1013,7 @@ namespace app {
 					chunk.innerNotes.push(`Unit specifier: ${s} (${unit})`);
 				}
 				
-				const parts: Array<Array<byte>> = splitByNull(data.slice(1), 2);
+				const parts: Array<Uint8Array> = splitByNull(chunk.data.slice(1), 2);
 				const ASCII_FLOAT: RegExp = /^([+-]?)(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 				{
 					const width: string = decodeIso8859_1(parts[0]);
@@ -1088,11 +1077,7 @@ namespace app {
 			
 			["sPLT", "Suggested palette", true, (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
-				
-				let data: Array<byte> = [];
-				for (const b of chunk.data)
-					data.push(b);
-				const parts: Array<Array<byte>> = splitByNull(data, 2);
+				const parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 				
 				const name: string = decodeIso8859_1(parts[0]);
 				annotateTextKeyword(name, true, "Palette name", "name", chunk);
@@ -1168,10 +1153,7 @@ namespace app {
 			
 			
 			["tEXt", "Textual data", true, (chunk, earlier) => {
-				let data: Array<byte> = [];
-				for (const b of chunk.data)
-					data.push(b);
-				const parts: Array<Array<byte>> = splitByNull(data, 2);
+				const parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
 				annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
@@ -1268,10 +1250,7 @@ namespace app {
 			
 			
 			["zTXt", "Compressed textual data", true, (chunk, earlier) => {
-				let data: Array<byte> = [];
-				for (const b of chunk.data)
-					data.push(b);
-				const parts: Array<Array<byte>> = splitByNull(data, 2);
+				const parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
 				annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
@@ -1293,7 +1272,7 @@ namespace app {
 				chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
 				if (compMeth == 0) {
 					try {
-						const textBytes: Array<byte> = deflate.decompressZlib(parts[1].slice(1));
+						const textBytes: Uint8Array = deflate.decompressZlib(parts[1].slice(1));
 						const text: string = decodeIso8859_1(textBytes);
 						let frag: DocumentFragment = document.createDocumentFragment();
 						frag.append("Text string: ");
@@ -1352,10 +1331,7 @@ namespace app {
 			let result = new Set<string>();
 			for (const chunk of chunks) {
 				if (chunk.typeStr == "sPLT") {
-					let data: Array<byte> = [];
-					for (const b of chunk.data)
-						data.push(b);
-					const parts: Array<Array<byte>> = splitByNull(data, 2);
+					const parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 					result.add(decodeIso8859_1(parts[0]));
 				}
 			}
@@ -1419,7 +1395,7 @@ namespace app {
 	}
 	
 	
-	function decodeIso8859_1(bytes: Readonly<Array<byte>>): string {
+	function decodeIso8859_1(bytes: Readonly<Uint8Array>): string {
 		let result: string = "";
 		for (const b of bytes) {
 			if (!(0x00 <= b && b <= 0xFF))
@@ -1433,7 +1409,7 @@ namespace app {
 	}
 	
 	
-	function decodeUtf8(bytes: Readonly<Array<byte>>): string {
+	function decodeUtf8(bytes: Readonly<Uint8Array>): string {
 		let temp: string = "";
 		for (const b of bytes) {
 			if (b == ("%".codePointAt(0) as number) || b >= 128)
@@ -1483,10 +1459,10 @@ namespace app {
 	}
 	
 	
-	function splitByNull(bytes: Readonly<Array<byte>>, maxParts: int): Array<Array<byte>> {
+	function splitByNull(bytes: Readonly<Uint8Array>, maxParts: int): Array<Uint8Array> {
 		if (maxParts < 1)
 			throw new RangeError("Non-positive number of parts");
-		let result: Array<Array<byte>> = [];
+		let result: Array<Uint8Array> = [];
 		let start: int = 0;
 		for (let i = 0; i < maxParts - 1; i++) {
 			let end = bytes.indexOf(0, start);
@@ -1539,7 +1515,7 @@ namespace app {
 // See https://www.nayuki.io/page/simple-deflate-decompressor
 namespace deflate {
 	
-	export function decompressZlib(bytes: Readonly<Array<byte>>): Array<byte> {
+	export function decompressZlib(bytes: Readonly<Uint8Array>): Uint8Array {
 		if (bytes.length < 2)
 			throw new RangeError("Invalid zlib container");
 		const compMeth: int = bytes[0] & 0xF;
@@ -1556,7 +1532,7 @@ namespace deflate {
 		if (presetDict)
 			throw new RangeError("Unsupported preset dictionary");
 		
-		const [result, input]: [Array<byte>,BitInputStream] = decompressDeflate(bytes.slice(2));
+		const [result, input]: [Uint8Array,BitInputStream] = decompressDeflate(bytes.slice(2));
 		let dataAdler: int;
 		{
 			let s1: int = 1;
@@ -1580,7 +1556,7 @@ namespace deflate {
 	}
 	
 	
-	function decompressDeflate(bytes: Readonly<Array<byte>>): [Array<byte>,BitInputStream] {
+	function decompressDeflate(bytes: Readonly<Uint8Array>): [Uint8Array,BitInputStream] {
 		let input = new BitInputStream(bytes);
 		let output: Array<byte> = [];
 		let dictionary = new ByteHistory(32 * 1024);
@@ -1604,7 +1580,7 @@ namespace deflate {
 					throw new Error("Assertion error");
 			}
 			if (isFinal)
-				return [output, input];
+				return [new Uint8Array(output), input];
 		}
 		
 		function decodeHuffmanCodes(): [CanonicalCode,CanonicalCode|null] {
@@ -1822,7 +1798,7 @@ namespace deflate {
 		private bitIndex: int = 0;
 		
 		public constructor(
-			private data: Readonly<Array<byte>>) {}
+			private data: Readonly<Uint8Array>) {}
 		
 		public getBitPosition(): int {
 			return this.bitIndex % 8;
