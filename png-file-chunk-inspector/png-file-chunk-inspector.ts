@@ -1395,7 +1395,7 @@ namespace app {
 	}
 	
 	
-	function decodeIso8859_1(bytes: Readonly<Uint8Array>): string {
+	function decodeIso8859_1(bytes: Uint8Array): string {
 		let result: string = "";
 		for (const b of bytes) {
 			if (!(0x00 <= b && b <= 0xFF))
@@ -1409,7 +1409,7 @@ namespace app {
 	}
 	
 	
-	function decodeUtf8(bytes: Readonly<Uint8Array>): string {
+	function decodeUtf8(bytes: Uint8Array): string {
 		let temp: string = "";
 		for (const b of bytes) {
 			if (b == ("%".codePointAt(0) as number) || b >= 128)
@@ -1459,7 +1459,7 @@ namespace app {
 	}
 	
 	
-	function splitByNull(bytes: Readonly<Uint8Array>, maxParts: int): Array<Uint8Array> {
+	function splitByNull(bytes: Uint8Array, maxParts: int): Array<Uint8Array> {
 		if (maxParts < 1)
 			throw new RangeError("Non-positive number of parts");
 		let result: Array<Uint8Array> = [];
@@ -1515,7 +1515,7 @@ namespace app {
 // See https://www.nayuki.io/page/simple-deflate-decompressor
 namespace deflate {
 	
-	export function decompressZlib(bytes: Readonly<Uint8Array>): Uint8Array {
+	export function decompressZlib(bytes: Uint8Array): Uint8Array {
 		if (bytes.length < 2)
 			throw new RangeError("Invalid zlib container");
 		const compMeth: int = bytes[0] & 0xF;
@@ -1556,7 +1556,7 @@ namespace deflate {
 	}
 	
 	
-	function decompressDeflate(bytes: Readonly<Uint8Array>): [Uint8Array,BitInputStream] {
+	function decompressDeflate(bytes: Uint8Array): [Uint8Array,BitInputStream] {
 		let input = new BitInputStream(bytes);
 		let output: Array<byte> = [];
 		let dictionary = new ByteHistory(32 * 1024);
@@ -1798,7 +1798,7 @@ namespace deflate {
 		private bitIndex: int = 0;
 		
 		public constructor(
-			private data: Readonly<Uint8Array>) {}
+			private data: Uint8Array) {}
 		
 		public getBitPosition(): int {
 			return this.bitIndex % 8;
