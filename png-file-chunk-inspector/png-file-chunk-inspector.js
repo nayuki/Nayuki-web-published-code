@@ -1,7 +1,7 @@
 /*
  * PNG file chunk inspector (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2023 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/png-file-chunk-inspector
  */
@@ -606,38 +606,35 @@ var app;
                 let data = [];
                 for (const b of chunk.data)
                     data.push(b);
-                const separatorIndex = data.indexOf(0);
-                if (separatorIndex == -1) {
+                const parts = splitByNull(data, 2);
+                const name = decodeIso8859_1(parts[0]);
+                if (parts.length == 1)
                     chunk.errorNotes.push("Missing null separator");
-                    const keyword = decodeIso8859_1(data);
-                    annotateTextKeyword(keyword, "Profile name", "name", chunk);
+                annotateTextKeyword(name, "Profile name", "name", chunk);
+                if (parts.length == 1)
+                    return;
+                if (parts[1].length < 1) {
+                    chunk.errorNotes.push("Missing compression method");
+                    return;
                 }
-                else {
-                    const keyword = decodeIso8859_1(data.slice(0, separatorIndex));
-                    annotateTextKeyword(keyword, "Profile name", "name", chunk);
-                    if (separatorIndex + 1 >= data.length)
-                        chunk.errorNotes.push("Missing compression method");
-                    else {
-                        const compMeth = data[separatorIndex + 1];
-                        let s = lookUpTable(compMeth, [
-                            [0, "DEFLATE"],
-                        ]);
-                        if (s === null) {
-                            s = "Unknown";
-                            chunk.errorNotes.push("Unknown compression method");
-                        }
-                        chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
-                        const compProfile = data.slice(separatorIndex + 2);
-                        chunk.innerNotes.push(`Compressed profile size: ${compProfile.length}`);
-                        if (compMeth == 0) {
-                            try {
-                                const decompProfile = deflate.decompressZlib(compProfile);
-                                chunk.innerNotes.push(`Decompressed profile size: ${decompProfile.length}`);
-                            }
-                            catch (e) {
-                                chunk.errorNotes.push("Profile decompression error: " + e.message);
-                            }
-                        }
+                const compMeth = parts[1][0];
+                let s = lookUpTable(compMeth, [
+                    [0, "DEFLATE"],
+                ]);
+                if (s === null) {
+                    s = "Unknown";
+                    chunk.errorNotes.push("Unknown compression method");
+                }
+                chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
+                const compProfile = parts[1].slice(1);
+                chunk.innerNotes.push(`Compressed profile size: ${compProfile.length}`);
+                if (compMeth == 0) {
+                    try {
+                        const decompProfile = deflate.decompressZlib(compProfile);
+                        chunk.innerNotes.push(`Decompressed profile size: ${decompProfile.length}`);
+                    }
+                    catch (e) {
+                        chunk.errorNotes.push("Profile decompression error: " + e.message);
                     }
                 }
             }],
@@ -724,139 +721,94 @@ var app;
                 let data = [];
                 for (const b of chunk.data)
                     data.push(b);
-                let dataIndex = 0;
-                function parseNullTerminatedBytes() {
-                    const nulIndex = data.indexOf(0, dataIndex);
-                    if (nulIndex == -1)
-                        return [false, data.slice(dataIndex)];
-                    else {
-                        const bytes = data.slice(dataIndex, nulIndex);
-                        dataIndex = nulIndex + 1;
-                        return [true, bytes];
-                    }
+                const parts = splitByNull(data, 4);
+                const keyword = decodeIso8859_1(parts[0]);
+                if (parts.length == 1)
+                    chunk.errorNotes.push("Missing null separator");
+                annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+                if (parts.length == 1)
+                    return;
+                if (parts[1].length < 1) {
+                    chunk.errorNotes.push("Missing compression flag");
+                    return;
                 }
-                let compFlag = null;
-                let compMeth = null;
-                loop: for (let state = 0; state < 6; state++) {
-                    switch (state) {
-                        case 0: {
-                            const [found, bytes] = parseNullTerminatedBytes();
-                            const keyword = decodeIso8859_1(bytes);
-                            annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-                            if (!found) {
-                                chunk.errorNotes.push("Missing null separator");
-                                break loop;
-                            }
-                            break;
-                        }
-                        case 1: {
-                            if (dataIndex == data.length) {
-                                chunk.errorNotes.push("Missing compression flag");
-                                break loop;
-                            }
-                            compFlag = data[dataIndex];
-                            dataIndex++;
-                            let s = lookUpTable(compFlag, [
-                                [0, "Uncompressed"],
-                                [1, "Compressed"],
-                            ]);
-                            if (s === null) {
-                                s = "Unknown";
-                                chunk.errorNotes.push("Unknown compression flag");
-                            }
-                            chunk.innerNotes.push(`Compression flag: ${s} (${compFlag})`);
-                            break;
-                        }
-                        case 2: {
-                            if (dataIndex == data.length) {
-                                chunk.errorNotes.push("Missing compression method");
-                                break loop;
-                            }
-                            compMeth = data[dataIndex];
-                            dataIndex++;
-                            let s = lookUpTable(compMeth, [
-                                [0, "DEFLATE"],
-                            ]);
-                            if (s === null) {
-                                s = "Unknown";
-                                chunk.errorNotes.push("Unknown compression method");
-                            }
-                            chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
-                            break;
-                        }
-                        case 3: {
-                            const [found, bytes] = parseNullTerminatedBytes();
-                            let langTag = null;
-                            try {
-                                langTag = decodeUtf8(bytes);
-                            }
-                            catch (e) {
-                                chunk.errorNotes.push("Invalid UTF-8 in language tag");
-                            }
-                            if (langTag !== null)
-                                chunk.innerNotes.push(`Language tag: ${langTag}`);
-                            if (!found) {
-                                chunk.errorNotes.push("Missing null separator");
-                                break loop;
-                            }
-                            break;
-                        }
-                        case 4: {
-                            const [found, bytes] = parseNullTerminatedBytes();
-                            let transKey = null;
-                            try {
-                                transKey = decodeUtf8(bytes);
-                            }
-                            catch (e) {
-                                chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
-                            }
-                            if (transKey !== null)
-                                chunk.innerNotes.push(`Translated keyword: ${transKey}`);
-                            if (!found) {
-                                chunk.errorNotes.push("Missing null separator");
-                                break loop;
-                            }
-                            break;
-                        }
-                        case 5: {
-                            let textBytes = data.slice(dataIndex);
-                            switch (compFlag) {
-                                case 0: // Uncompressed
-                                    break;
-                                case 1:
-                                    if (compMeth == 0) {
-                                        try {
-                                            textBytes = deflate.decompressZlib(textBytes);
-                                        }
-                                        catch (e) {
-                                            chunk.errorNotes.push("Text decompression error: " + e.message);
-                                            break loop;
-                                        }
-                                    }
-                                    else
-                                        break loop;
-                                    break;
-                                default:
-                                    break loop;
-                            }
-                            let text;
-                            try {
-                                text = decodeUtf8(textBytes);
-                            }
-                            catch (e) {
-                                chunk.errorNotes.push("Invalid UTF-8 in text string");
-                                break;
-                            }
-                            let frag = document.createDocumentFragment();
-                            frag.append("Text string: ");
-                            let span = appendElem(frag, "span", text);
-                            span.style.wordBreak = "break-all";
-                            chunk.innerNotes.push(frag);
-                            break;
-                        }
-                        default:
-                            throw new Error("Assertion error");
+                const compFlag = parts[1][0];
+                {
+                    let s = lookUpTable(compFlag, [
+                        [0, "Uncompressed"],
+                        [1, "Compressed"],
+                    ]);
+                    if (s === null) {
+                        s = "Unknown";
+                        chunk.errorNotes.push("Unknown compression flag");
                     }
+                    chunk.innerNotes.push(`Compression flag: ${s} (${compFlag})`);
+                }
+                if (parts[1].length < 2) {
+                    chunk.errorNotes.push("Missing compression method");
+                    return;
+                }
+                let compMeth = parts[1][1];
+                {
+                    let s = lookUpTable(compMeth, [
+                        [0, "DEFLATE"],
+                    ]);
+                    if (s === null) {
+                        s = "Unknown";
+                        chunk.errorNotes.push("Unknown compression method");
+                    }
+                    chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
+                }
+                if (parts.length == 2)
+                    chunk.errorNotes.push("Missing null separator");
+                try {
+                    const langTag = decodeUtf8(parts[1].slice(2));
+                    chunk.innerNotes.push(`Language tag: ${langTag}`);
+                }
+                catch (e) {
+                    chunk.errorNotes.push("Invalid UTF-8 in language tag");
+                }
+                if (parts.length == 2)
+                    return;
+                if (parts.length == 3)
+                    chunk.errorNotes.push("Missing null separator");
+                try {
+                    const transKey = decodeUtf8(parts[2]);
+                    chunk.innerNotes.push(`Translated keyword: ${transKey}`);
+                }
+                catch (e) {
+                    chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
+                }
+                if (parts.length == 3)
+                    return;
+                let textBytes = null;
+                switch (compFlag) {
+                    case 0: // Uncompressed
+                        textBytes = parts[3];
+                        break;
+                    case 1:
+                        if (compMeth == 0) {
+                            try {
+                                textBytes = deflate.decompressZlib(parts[3]);
+                            }
+                            catch (e) {
+                                chunk.errorNotes.push("Text decompression error: " + e.message);
+                            }
+                        }
+                        break;
+                }
+                if (textBytes === null)
+                    return;
+                try {
+                    const text = decodeUtf8(textBytes);
+                    let frag = document.createDocumentFragment();
+                    frag.append("Text string: ");
+                    let span = appendElem(frag, "span", text);
+                    span.style.wordBreak = "break-all";
+                    chunk.innerNotes.push(frag);
+                }
+                catch (e) {
+                    chunk.errorNotes.push("Invalid UTF-8 in text string");
                 }
             }],
         ["oFFs", "Image offset", false, (chunk, earlier) => {
@@ -1023,31 +975,23 @@ var app;
             }],
         ["sPLT", "Suggested palette", true, (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
-                let index;
-                let name;
-                {
-                    let data = [];
-                    for (const b of chunk.data)
-                        data.push(b);
-                    index = data.indexOf(0);
-                    if (index == -1)
-                        chunk.errorNotes.push("Missing null separator");
-                    else
-                        data = data.slice(0, index);
-                    name = decodeIso8859_1(data);
-                }
+                let data = [];
+                for (const b of chunk.data)
+                    data.push(b);
+                const parts = splitByNull(data, 2);
+                const name = decodeIso8859_1(parts[0]);
+                if (parts.length == 1)
+                    chunk.errorNotes.push("Missing null separator");
                 annotateTextKeyword(name, "Palette name", "name", chunk);
                 if (ChunkPart.getSpltNames(earlier).has(name))
                     chunk.errorNotes.push("Duplicate palette name");
-                if (index == -1)
+                if (parts.length == 1)
                     return;
-                index++;
-                if (index >= chunk.data.length) {
+                if (parts[1].length < 1) {
                     chunk.errorNotes.push("Missing sample depth");
                     return;
                 }
-                const sampDepth = chunk.data[index];
-                index++;
+                const sampDepth = parts[1][0];
                 chunk.innerNotes.push(`Sample depth: ${sampDepth}`);
                 const bytesPerEntry = lookUpTable(sampDepth, [
                     [8, 6],
@@ -1055,8 +999,8 @@ var app;
                 ]);
                 if (bytesPerEntry === null)
                     return;
-                else if ((chunk.data.length - index) % bytesPerEntry == 0)
-                    chunk.innerNotes.push(`Number of entries: ${(chunk.data.length - index) / bytesPerEntry}`);
+                else if ((parts[1].length - 1) % bytesPerEntry == 0)
+                    chunk.innerNotes.push(`Number of entries: ${(parts[1].length - 1) / bytesPerEntry}`);
                 else
                     chunk.errorNotes.push("Invalid data length");
             }],
@@ -1102,22 +1046,19 @@ var app;
                 let data = [];
                 for (const b of chunk.data)
                     data.push(b);
-                const separatorIndex = data.indexOf(0);
-                if (separatorIndex == -1) {
+                const parts = splitByNull(data, 2);
+                const keyword = decodeIso8859_1(parts[0]);
+                if (parts.length == 1)
                     chunk.errorNotes.push("Missing null separator");
-                    const keyword = decodeIso8859_1(data);
-                    annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-                }
-                else {
-                    const keyword = decodeIso8859_1(data.slice(0, separatorIndex));
-                    annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-                    const text = decodeIso8859_1(data.slice(separatorIndex + 1));
-                    chunk.innerNotes.push(`Text string: ${text}`);
-                    if (text.includes("\u0000"))
-                        chunk.errorNotes.push("Null character in text string");
-                    if (text.includes("\uFFFD"))
-                        chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
-                }
+                annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+                if (parts.length == 1)
+                    return;
+                const text = decodeIso8859_1(parts[1]);
+                chunk.innerNotes.push(`Text string: ${text}`);
+                if (text.includes("\u0000"))
+                    chunk.errorNotes.push("Null character in text string");
+                if (text.includes("\uFFFD"))
+                    chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
             }],
         ["tIME", "Image last-modification time", false, (chunk, earlier) => {
                 if (chunk.data.length != 7) {
@@ -1184,43 +1125,40 @@ var app;
                 let data = [];
                 for (const b of chunk.data)
                     data.push(b);
-                const separatorIndex = data.indexOf(0);
-                if (separatorIndex == -1) {
+                const parts = splitByNull(data, 2);
+                const keyword = decodeIso8859_1(parts[0]);
+                if (parts.length == 1)
                     chunk.errorNotes.push("Missing null separator");
-                    const keyword = decodeIso8859_1(data);
-                    annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+                annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
+                if (parts.length == 1)
+                    return;
+                if (parts[1].length < 1) {
+                    chunk.errorNotes.push("Missing compression method");
+                    return;
                 }
-                else {
-                    const keyword = decodeIso8859_1(data.slice(0, separatorIndex));
-                    annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-                    if (separatorIndex + 1 >= data.length)
-                        chunk.errorNotes.push("Missing compression method");
-                    else {
-                        const compMeth = data[separatorIndex + 1];
-                        let s = lookUpTable(compMeth, [
-                            [0, "DEFLATE"],
-                        ]);
-                        if (s === null) {
-                            s = "Unknown";
-                            chunk.errorNotes.push("Unknown compression method");
-                        }
-                        chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
-                        if (compMeth == 0) {
-                            try {
-                                const textBytes = deflate.decompressZlib(data.slice(separatorIndex + 2));
-                                const text = decodeIso8859_1(textBytes);
-                                let frag = document.createDocumentFragment();
-                                frag.append("Text string: ");
-                                let span = appendElem(frag, "span", text);
-                                span.style.wordBreak = "break-all";
-                                chunk.innerNotes.push(frag);
-                                if (text.includes("\uFFFD"))
-                                    chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
-                            }
-                            catch (e) {
-                                chunk.errorNotes.push("Text decompression error: " + e.message);
-                            }
-                        }
+                const compMeth = parts[1][0];
+                let s = lookUpTable(compMeth, [
+                    [0, "DEFLATE"],
+                ]);
+                if (s === null) {
+                    s = "Unknown";
+                    chunk.errorNotes.push("Unknown compression method");
+                }
+                chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
+                if (compMeth == 0) {
+                    try {
+                        const textBytes = deflate.decompressZlib(parts[1].slice(1));
+                        const text = decodeIso8859_1(textBytes);
+                        let frag = document.createDocumentFragment();
+                        frag.append("Text string: ");
+                        let span = appendElem(frag, "span", text);
+                        span.style.wordBreak = "break-all";
+                        chunk.innerNotes.push(frag);
+                        if (text.includes("\uFFFD"))
+                            chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
+                    }
+                    catch (e) {
+                        chunk.errorNotes.push("Text decompression error: " + e.message);
                     }
                 }
             }],
@@ -1316,6 +1254,19 @@ var app;
                 result = v;
             }
         }
+        return result;
+    }
+    function splitByNull(bytes, maxParts) {
+        let result = [];
+        let start = 0;
+        for (let i = 0; i < maxParts - 1; i++) {
+            let end = bytes.indexOf(0, start);
+            if (end == -1)
+                break;
+            result.push(bytes.slice(start, end));
+            start = end + 1;
+        }
+        result.push(bytes.slice(start));
         return result;
     }
     function readUint16(bytes, offset) {
