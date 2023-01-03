@@ -810,7 +810,7 @@ namespace app {
 				let data: Array<byte> = [];
 				for (const b of chunk.data)
 					data.push(b);
-				const parts: Array<Array<byte>> = splitByNull(data, 4);
+				let parts: Array<Array<byte>> = splitByNull(data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
 				annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
@@ -852,24 +852,26 @@ namespace app {
 					}
 					chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
 				}
+				
+				parts = splitByNull(parts[1].slice(2), 3);
 				{
-					const langTag: string = decodeIso8859_1(parts[1].slice(2));
+					const langTag: string = decodeIso8859_1(parts[0]);
 					chunk.innerNotes.push(`Language tag: ${langTag}`);
 					if (!/^(?:[A-Za-z0-9]{1,8}(?:-[A-Za-z0-9]{1,8})*)?$/.test(langTag))
 						chunk.errorNotes.push("Invalid language tax syntax");
 				}
-				if (parts.length == 2) {
+				if (parts.length == 1) {
 					chunk.errorNotes.push("Missing null separator");
 					return;
 				}
 				
 				try {
-					const transKey: string = decodeUtf8(parts[2]);
+					const transKey: string = decodeUtf8(parts[1]);
 					chunk.innerNotes.push(`Translated keyword: ${transKey}`);
 				} catch (e) {
 					chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
 				}
-				if (parts.length == 3) {
+				if (parts.length == 2) {
 					chunk.errorNotes.push("Missing null separator");
 					return;
 				}
@@ -877,12 +879,12 @@ namespace app {
 				let textBytes: Array<byte>|null = null;
 				switch (compFlag) {
 					case 0:  // Uncompressed
-						textBytes = parts[3];
+						textBytes = parts[2];
 						break;
 					case 1:
 						if (compMeth == 0) {
 							try {
-								textBytes = deflate.decompressZlib(parts[3]);
+								textBytes = deflate.decompressZlib(parts[2]);
 							} catch (e) {
 								chunk.errorNotes.push("Text decompression error: " + e.message);
 							}
