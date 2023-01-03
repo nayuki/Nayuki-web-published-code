@@ -1003,12 +1003,16 @@ namespace app {
 			["sCAL", "Physical scale of image subject", false, (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
-				if (chunk.data.length == 0) {
+				let data: Array<byte> = [];
+				for (const b of chunk.data)
+					data.push(b);
+				
+				if (data.length < 1) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
 				}
 				{
-					const unit: byte = chunk.data[0];
+					const unit: byte = data[0];
 					let s: string|null = lookUpTable(unit, [
 						[0, "Metre" ],
 						[1, "Radian"],
@@ -1020,14 +1024,10 @@ namespace app {
 					chunk.innerNotes.push(`Unit specifier: ${s} (${unit})`);
 				}
 				
-				let index: int = 1;
+				const parts: Array<Array<byte>> = splitByNull(data.slice(1), 2);
 				const ASCII_FLOAT: RegExp = /^([+-]?)(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
-				
 				{
-					let strBytes: Array<byte> = [];
-					for (; index < chunk.data.length && chunk.data[index] != 0; index++)
-						strBytes.push(chunk.data[index]);
-					const width: string = decodeIso8859_1(strBytes);
+					const width: string = decodeIso8859_1(parts[0]);
 					chunk.innerNotes.push(`Pixel width: ${width} units`)
 					const match: Array<string>|null = ASCII_FLOAT.exec(width);
 					if (match === null)
@@ -1035,18 +1035,12 @@ namespace app {
 					else if (match[1] == "-" || !/[1-9]/.test(match[2]))
 						chunk.errorNotes.push("Non-positive width");
 				}
-				
-				if (index == chunk.data.length) {
+				if (parts.length == 1) {
 					chunk.errorNotes.push("Missing null separator");
 					return;
 				}
-				index++;
-				
 				{
-					let strBytes: Array<byte> = [];
-					for (; index < chunk.data.length; index++)
-						strBytes.push(chunk.data[index]);
-					const height: string = decodeIso8859_1(strBytes);
+					const height: string = decodeIso8859_1(parts[1]);
 					chunk.innerNotes.push(`Pixel height: ${height} units`)
 					const match: Array<string>|null = ASCII_FLOAT.exec(height);
 					if (match === null)
@@ -1361,10 +1355,8 @@ namespace app {
 					let data: Array<byte> = [];
 					for (const b of chunk.data)
 						data.push(b);
-					const separatorIndex: int = data.indexOf(0);
-					if (separatorIndex != -1)
-						data = data.slice(0, separatorIndex);
-					result.add(decodeIso8859_1(data));
+					const parts: Array<Array<byte>> = splitByNull(data, 2);
+					result.add(decodeIso8859_1(parts[0]));
 				}
 			}
 			return result;
@@ -1492,6 +1484,8 @@ namespace app {
 	
 	
 	function splitByNull(bytes: Readonly<Array<byte>>, maxParts: int): Array<Array<byte>> {
+		if (maxParts < 1)
+			throw new RangeError("Non-positive number of parts");
 		let result: Array<Array<byte>> = [];
 		let start: int = 0;
 		for (let i = 0; i < maxParts - 1; i++) {

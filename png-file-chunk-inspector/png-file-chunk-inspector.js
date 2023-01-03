@@ -448,10 +448,8 @@ var app;
                     let data = [];
                     for (const b of chunk.data)
                         data.push(b);
-                    const separatorIndex = data.indexOf(0);
-                    if (separatorIndex != -1)
-                        data = data.slice(0, separatorIndex);
-                    result.add(decodeIso8859_1(data));
+                    const parts = splitByNull(data, 2);
+                    result.add(decodeIso8859_1(parts[0]));
                 }
             }
             return result;
@@ -893,12 +891,15 @@ var app;
             }],
         ["sCAL", "Physical scale of image subject", false, (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
-                if (chunk.data.length == 0) {
+                let data = [];
+                for (const b of chunk.data)
+                    data.push(b);
+                if (data.length < 1) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
                 }
                 {
-                    const unit = chunk.data[0];
+                    const unit = data[0];
                     let s = lookUpTable(unit, [
                         [0, "Metre"],
                         [1, "Radian"],
@@ -909,13 +910,10 @@ var app;
                     }
                     chunk.innerNotes.push(`Unit specifier: ${s} (${unit})`);
                 }
-                let index = 1;
+                const parts = splitByNull(data.slice(1), 2);
                 const ASCII_FLOAT = /^([+-]?)(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
                 {
-                    let strBytes = [];
-                    for (; index < chunk.data.length && chunk.data[index] != 0; index++)
-                        strBytes.push(chunk.data[index]);
-                    const width = decodeIso8859_1(strBytes);
+                    const width = decodeIso8859_1(parts[0]);
                     chunk.innerNotes.push(`Pixel width: ${width} units`);
                     const match = ASCII_FLOAT.exec(width);
                     if (match === null)
@@ -923,16 +921,12 @@ var app;
                     else if (match[1] == "-" || !/[1-9]/.test(match[2]))
                         chunk.errorNotes.push("Non-positive width");
                 }
-                if (index == chunk.data.length) {
+                if (parts.length == 1) {
                     chunk.errorNotes.push("Missing null separator");
                     return;
                 }
-                index++;
                 {
-                    let strBytes = [];
-                    for (; index < chunk.data.length; index++)
-                        strBytes.push(chunk.data[index]);
-                    const height = decodeIso8859_1(strBytes);
+                    const height = decodeIso8859_1(parts[1]);
                     chunk.innerNotes.push(`Pixel height: ${height} units`);
                     const match = ASCII_FLOAT.exec(height);
                     if (match === null)
@@ -1257,6 +1251,8 @@ var app;
         return result;
     }
     function splitByNull(bytes, maxParts) {
+        if (maxParts < 1)
+            throw new RangeError("Non-positive number of parts");
         let result = [];
         let start = 0;
         for (let i = 0; i < maxParts - 1; i++) {
