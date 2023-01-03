@@ -181,6 +181,7 @@ namespace app {
 		[false, ["IHDR", "Wrong methods"], "bad_ihdr_wrong-methods.png"],
 		[true , ["iTXt"], "good_itxt.png"],
 		[false, ["iTXt", "Wrong separators"], "bad_itxt_wrong-separators.png"],
+		[false, ["iTXt", "Wrong language tags"], "bad_itxt_wrong-language-tags.png"],
 		[false, ["iTXt", "Wrong UTF-8"], "bad_itxt_wrong-utf8.png"],
 		[false, ["iTXt", "Wrong compression methods"], "bad_itxt_wrong-compression-methods.png"],
 		[false, ["iTXt", "Wrong compressed data"], "bad_itxt_wrong-compressed-data.png"],
