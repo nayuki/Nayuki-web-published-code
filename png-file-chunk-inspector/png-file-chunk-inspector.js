@@ -608,11 +608,11 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 2);
                 const name = decodeIso8859_1(parts[0]);
-                if (parts.length == 1)
-                    chunk.errorNotes.push("Missing null separator");
                 annotateTextKeyword(name, "Profile name", "name", chunk);
-                if (parts.length == 1)
+                if (parts.length == 1) {
+                    chunk.errorNotes.push("Missing null separator");
                     return;
+                }
                 if (parts[1].length < 1) {
                     chunk.errorNotes.push("Missing compression method");
                     return;
@@ -723,11 +723,11 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 4);
                 const keyword = decodeIso8859_1(parts[0]);
-                if (parts.length == 1)
-                    chunk.errorNotes.push("Missing null separator");
                 annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-                if (parts.length == 1)
+                if (parts.length == 1) {
+                    chunk.errorNotes.push("Missing null separator");
                     return;
+                }
                 if (parts[1].length < 1) {
                     chunk.errorNotes.push("Missing compression flag");
                     return;
@@ -759,8 +759,6 @@ var app;
                     }
                     chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
                 }
-                if (parts.length == 2)
-                    chunk.errorNotes.push("Missing null separator");
                 try {
                     const langTag = decodeUtf8(parts[1].slice(2));
                     chunk.innerNotes.push(`Language tag: ${langTag}`);
@@ -768,10 +766,10 @@ var app;
                 catch (e) {
                     chunk.errorNotes.push("Invalid UTF-8 in language tag");
                 }
-                if (parts.length == 2)
-                    return;
-                if (parts.length == 3)
+                if (parts.length == 2) {
                     chunk.errorNotes.push("Missing null separator");
+                    return;
+                }
                 try {
                     const transKey = decodeUtf8(parts[2]);
                     chunk.innerNotes.push(`Translated keyword: ${transKey}`);
@@ -779,8 +777,10 @@ var app;
                 catch (e) {
                     chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
                 }
-                if (parts.length == 3)
+                if (parts.length == 3) {
+                    chunk.errorNotes.push("Missing null separator");
                     return;
+                }
                 let textBytes = null;
                 switch (compFlag) {
                     case 0: // Uncompressed
@@ -980,13 +980,13 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 2);
                 const name = decodeIso8859_1(parts[0]);
-                if (parts.length == 1)
-                    chunk.errorNotes.push("Missing null separator");
                 annotateTextKeyword(name, "Palette name", "name", chunk);
                 if (ChunkPart.getSpltNames(earlier).has(name))
                     chunk.errorNotes.push("Duplicate palette name");
-                if (parts.length == 1)
+                if (parts.length == 1) {
+                    chunk.errorNotes.push("Missing null separator");
                     return;
+                }
                 if (parts[1].length < 1) {
                     chunk.errorNotes.push("Missing sample depth");
                     return;
@@ -1048,11 +1048,11 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
-                if (parts.length == 1)
-                    chunk.errorNotes.push("Missing null separator");
                 annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-                if (parts.length == 1)
+                if (parts.length == 1) {
+                    chunk.errorNotes.push("Missing null separator");
                     return;
+                }
                 const text = decodeIso8859_1(parts[1]);
                 chunk.innerNotes.push(`Text string: ${text}`);
                 if (text.includes("\u0000"))
@@ -1127,11 +1127,11 @@ var app;
                     data.push(b);
                 const parts = splitByNull(data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
-                if (parts.length == 1)
-                    chunk.errorNotes.push("Missing null separator");
                 annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-                if (parts.length == 1)
+                if (parts.length == 1) {
+                    chunk.errorNotes.push("Missing null separator");
                     return;
+                }
                 if (parts[1].length < 1) {
                     chunk.errorNotes.push("Missing compression method");
                     return;

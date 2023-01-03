@@ -691,11 +691,11 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 2);
 				
 				const name: string = decodeIso8859_1(parts[0]);
-				if (parts.length == 1)
-					chunk.errorNotes.push("Missing null separator");
 				annotateTextKeyword(name, "Profile name", "name", chunk);
-				if (parts.length == 1)
+				if (parts.length == 1) {
+					chunk.errorNotes.push("Missing null separator");
 					return;
+				}
 				
 				if (parts[1].length < 1) {
 					chunk.errorNotes.push("Missing compression method");
@@ -817,11 +817,11 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 4);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
-				if (parts.length == 1)
-					chunk.errorNotes.push("Missing null separator");
 				annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-				if (parts.length == 1)
+				if (parts.length == 1) {
+					chunk.errorNotes.push("Missing null separator");
 					return;
+				}
 				
 				if (parts[1].length < 1) {
 					chunk.errorNotes.push("Missing compression flag");
@@ -855,27 +855,27 @@ namespace app {
 					}
 					chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
 				}
-				if (parts.length == 2)
-					chunk.errorNotes.push("Missing null separator");
 				try {
 					const langTag: string = decodeUtf8(parts[1].slice(2));
 					chunk.innerNotes.push(`Language tag: ${langTag}`);
 				} catch (e) {
 					chunk.errorNotes.push("Invalid UTF-8 in language tag");
 				}
-				if (parts.length == 2)
-					return;
-				
-				if (parts.length == 3)
+				if (parts.length == 2) {
 					chunk.errorNotes.push("Missing null separator");
+					return;
+				}
+				
 				try {
 					const transKey: string = decodeUtf8(parts[2]);
 					chunk.innerNotes.push(`Translated keyword: ${transKey}`);
 				} catch (e) {
 					chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
 				}
-				if (parts.length == 3)
+				if (parts.length == 3) {
+					chunk.errorNotes.push("Missing null separator");
 					return;
+				}
 				
 				let textBytes: Array<byte>|null = null;
 				switch (compFlag) {
@@ -1101,13 +1101,13 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 2);
 				
 				const name: string = decodeIso8859_1(parts[0]);
-				if (parts.length == 1)
-					chunk.errorNotes.push("Missing null separator");
 				annotateTextKeyword(name, "Palette name", "name", chunk);
 				if (ChunkPart.getSpltNames(earlier).has(name))
 					chunk.errorNotes.push("Duplicate palette name");
-				if (parts.length == 1)
+				if (parts.length == 1) {
+					chunk.errorNotes.push("Missing null separator");
 					return;
+				}
 				
 				if (parts[1].length < 1) {
 					chunk.errorNotes.push("Missing sample depth");
@@ -1180,11 +1180,11 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
-				if (parts.length == 1)
-					chunk.errorNotes.push("Missing null separator");
 				annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-				if (parts.length == 1)
+				if (parts.length == 1) {
+					chunk.errorNotes.push("Missing null separator");
 					return;
+				}
 				
 				const text: string = decodeIso8859_1(parts[1]);
 				chunk.innerNotes.push(`Text string: ${text}`);
@@ -1280,11 +1280,11 @@ namespace app {
 				const parts: Array<Array<byte>> = splitByNull(data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
-				if (parts.length == 1)
-					chunk.errorNotes.push("Missing null separator");
 				annotateTextKeyword(keyword, "Keyword", "keyword", chunk);
-				if (parts.length == 1)
+				if (parts.length == 1) {
+					chunk.errorNotes.push("Missing null separator");
 					return;
+				}
 				
 				if (parts[1].length < 1) {
 					chunk.errorNotes.push("Missing compression method");
