@@ -41,102 +41,228 @@ type int = number;
 		const fileBytes = new Uint8Array(fileArray);
 		let readIndex: int = 0;
 		
-		function readUint(numBytes: int): int {
+		function readUint(numBytes: int): int|null {
 			if (numBytes > fileBytes.length - readIndex)
-				throw new Error("Trying to read beyond end of file");
+				return null;
 			let result: int = 0;
 			for (let i = 0; i < numBytes; i++, readIndex++)
 				result = (result << 8) | fileBytes[readIndex];
 			return result >>> 0;
 		}
 		
-		let cells = container.querySelectorAll("tbody td:nth-child(2)");
+		let interpretedValues = container.querySelectorAll("tbody td:nth-child(2)");
+		let errorMessages     = container.querySelectorAll("tbody td:nth-child(3)");
+		for (let cell of [...interpretedValues, ...errorMessages])
+			cell.textContent = "";
 		let row: int = 0;
 		
 		let formatBytes: Array<byte> = [];
-		for (let i = 0; i < 16; i++)
-			formatBytes.push(readUint(1));
-		cells[row++].textContent = bytesToReadableString(formatBytes);
+		for (let i = 0; i < 16; i++) {
+			const b: int|null = readUint(1);
+			if (b === null)
+				break;
+			formatBytes.push(b);
+		}
+		interpretedValues[row].textContent = bytesToReadableString(formatBytes);
+		if (formatBytes.length < 16) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		} else if (String.fromCharCode.apply(null, formatBytes) != "SQLite format 3\0") {
+			errorMessages[row].textContent = "Unrecognized value";
+			return;
+		}
+		row++;
 		
-		let pageSize: int = readUint(2);
+		let pageSize: int|null = readUint(2);
+		if (pageSize === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
 		if (pageSize == 1)
 			pageSize = 65536;
-		cells[row++].textContent = `${pageSize} bytes`;
+		if ((pageSize & (pageSize - 1)) != 0)
+			errorMessages[row].textContent = "Not a power of 2";
+		else if (pageSize < 512)
+			errorMessages[row].textContent = "Too small";
+		interpretedValues[row++].textContent = `${pageSize} bytes`;
 		
 		const READ_WRITE_VERSIONS = new Map<int,string>([
 			[1, "Legacy"],
 			[2, "WAL"],
 		]);
 		
-		const writeVersion: int = readUint(1);
-		cells[row++].textContent = `${READ_WRITE_VERSIONS.has(writeVersion) ? READ_WRITE_VERSIONS.get(writeVersion) : "Unknown"} (${writeVersion})`;
+		const writeVersion: int|null = readUint(1);
+		if (writeVersion === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		if (!READ_WRITE_VERSIONS.has(writeVersion))
+			errorMessages[row].textContent = "Unrecognized value";
+		interpretedValues[row++].textContent = `${READ_WRITE_VERSIONS.has(writeVersion) ? READ_WRITE_VERSIONS.get(writeVersion) : "Unknown"} (${writeVersion})`;
 		
-		const readVersion: int = readUint(1);
-		cells[row++].textContent = `${READ_WRITE_VERSIONS.has(writeVersion) ? READ_WRITE_VERSIONS.get(readVersion) : "Unknown"} (${readVersion})`;
+		const readVersion: int|null = readUint(1);
+		if (readVersion === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		if (!READ_WRITE_VERSIONS.has(readVersion))
+			errorMessages[row].textContent = "Unrecognized value";
+		interpretedValues[row++].textContent = `${READ_WRITE_VERSIONS.has(readVersion) ? READ_WRITE_VERSIONS.get(readVersion) : "Unknown"} (${readVersion})`;
 		
-		const pageEndReservedSpace: int = readUint(1);
-		cells[row++].textContent = `${pageEndReservedSpace} bytes`;
+		const pageEndReservedSpace: int|null = readUint(1);
+		if (pageEndReservedSpace === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		if (pageSize - pageEndReservedSpace < 480)
+			errorMessages[row].textContent = "Too large";
+		interpretedValues[row++].textContent = `${pageEndReservedSpace} bytes`;
 		
-		const maxEmbeddedPayloadFraction: int = readUint(1);
-		cells[row++].textContent = `${maxEmbeddedPayloadFraction}`;
+		const maxEmbeddedPayloadFraction: int|null = readUint(1);
+		if (maxEmbeddedPayloadFraction === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		} else if (maxEmbeddedPayloadFraction != 64)
+			errorMessages[row].textContent = "Must be 64";
+		interpretedValues[row++].textContent = `${maxEmbeddedPayloadFraction}`;
 		
-		const minEmbeddedPayloadFraction: int = readUint(1);
-		cells[row++].textContent = `${minEmbeddedPayloadFraction}`;
+		const minEmbeddedPayloadFraction: int|null = readUint(1);
+		if (minEmbeddedPayloadFraction === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		} else if (minEmbeddedPayloadFraction != 32)
+			errorMessages[row].textContent = "Must be 32";
+		interpretedValues[row++].textContent = `${minEmbeddedPayloadFraction}`;
 		
-		const leafPayloadFraction: int = readUint(1);
-		cells[row++].textContent = `${leafPayloadFraction}`;
+		const leafPayloadFraction: int|null = readUint(1);
+		if (leafPayloadFraction === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		} else if (leafPayloadFraction != 32)
+			errorMessages[row].textContent = "Must be 32";
+		interpretedValues[row++].textContent = `${leafPayloadFraction}`;
 		
-		const fileChangeCounter: int = readUint(4);
-		cells[row++].textContent = `${fileChangeCounter}`;
+		const fileChangeCounter: int|null = readUint(4);
+		if (fileChangeCounter === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${fileChangeCounter}`;
 		
-		const numPages: int = readUint(4);
-		cells[row++].textContent = `${numPages} pages`;
+		const numPages: int|null = readUint(4);
+		if (numPages === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${numPages} pages`;
 		
-		const firstFreelistTrunkPage: int = readUint(4);
-		cells[row++].textContent = `${firstFreelistTrunkPage}`;
+		const firstFreelistTrunkPage: int|null = readUint(4);
+		if (firstFreelistTrunkPage === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = firstFreelistTrunkPage != 0 ? firstFreelistTrunkPage.toString() : "None (0)";
 		
-		const numFreelistPages: int = readUint(4);
-		cells[row++].textContent = `${numFreelistPages}`;
+		const numFreelistPages: int|null = readUint(4);
+		if (numFreelistPages === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${numFreelistPages}`;
 		
-		const schemaCookie: int = readUint(4);
-		cells[row++].textContent = `${schemaCookie}`;
+		const schemaCookie: int|null = readUint(4);
+		if (schemaCookie === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${schemaCookie}`;
 		
-		const schemaFormat: int = readUint(4);
-		cells[row++].textContent = `${schemaFormat}`;
+		const schemaFormat: int|null = readUint(4);
+		if (schemaFormat === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		if (!(1 <= schemaFormat && schemaFormat <= 4))
+			errorMessages[row].textContent = "Unrecognized value";
+		interpretedValues[row++].textContent = `${schemaFormat}`;
 		
-		const defaultPageCacheSize: int = readUint(4);
-		cells[row++].textContent = `${defaultPageCacheSize}`;
+		const defaultPageCacheSize: int|null = readUint(4);
+		if (defaultPageCacheSize === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${defaultPageCacheSize}`;
 		
-		const largestRootBtreePage: int = readUint(4);
-		cells[row++].textContent = `${largestRootBtreePage}`;
+		const largestRootBtreePage: int|null = readUint(4);
+		if (largestRootBtreePage === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${largestRootBtreePage}`;
 		
 		const TEXT_ENCODINGS = new Map<int,string>([
 			[1, "UTF-8"],
 			[2, "UTF-16LE"],
 			[3, "UTF-16BE"],
 		]);
-		const textEncoding: int = readUint(4);
-		cells[row++].textContent = `${TEXT_ENCODINGS.has(textEncoding) ? TEXT_ENCODINGS.get(textEncoding) : "Unknown"} (${textEncoding})`;
+		const textEncoding: int|null = readUint(4);
+		if (textEncoding === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		if (!TEXT_ENCODINGS.has(textEncoding))
+			errorMessages[row].textContent = "Unrecognized value";
+		interpretedValues[row++].textContent = `${TEXT_ENCODINGS.has(textEncoding) ? TEXT_ENCODINGS.get(textEncoding) : "Unknown"} (${textEncoding})`;
 		
-		const userVersion: int = readUint(4);
-		cells[row++].textContent = `${userVersion}`;
+		const userVersion: int|null = readUint(4);
+		if (userVersion === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${userVersion}`;
 		
-		const incrementalVacuum: int = readUint(4);
-		cells[row++].textContent = `${incrementalVacuum}`;
+		const incrementalVacuum: int|null = readUint(4);
+		if (incrementalVacuum === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${incrementalVacuum}`;
 		
-		const applicationId: int = readUint(4);
-		cells[row++].textContent = `${applicationId}`;
+		const applicationId: int|null = readUint(4);
+		if (applicationId === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${applicationId}`;
 		
 		let reserved: Array<byte> = [];
-		for (let i = 0; i < 20; i++)
-			reserved.push(readUint(1));
-		cells[row++].textContent = reserved.map(b => b.toString(16).padStart(2, "0")).join(" ");
+		for (let i = 0; i < 20; i++) {
+			const b: int|null = readUint(1);
+			if (b === null)
+				break;
+			reserved.push(b);
+		}
+		interpretedValues[row].textContent = reserved.map(b => b.toString(16).padStart(2, "0")).join(" ");
+		if (reserved.length < 20) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		} else if (reserved.some(b => b != 0))
+			errorMessages[row].textContent = "Must be all zeros";
+		row++;
 		
-		const versionValidForNumber: int = readUint(4);
-		cells[row++].textContent = `${versionValidForNumber}`;
+		const versionValidForNumber: int|null = readUint(4);
+		if (versionValidForNumber === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${versionValidForNumber}`;
 		
-		const sqliteVersionNumber: int = readUint(4);
-		cells[row++].textContent = `${Math.floor(sqliteVersionNumber/1_000_000)}.${Math.floor(sqliteVersionNumber/1_000)%1_000}.${sqliteVersionNumber%1_000} (${sqliteVersionNumber})`;
+		const sqliteVersionNumber: int|null = readUint(4);
+		if (sqliteVersionNumber === null) {
+			errorMessages[row].textContent = "Premature end of file";
+			return;
+		}
+		interpretedValues[row++].textContent = `${Math.floor(sqliteVersionNumber/1_000_000)}.${Math.floor(sqliteVersionNumber/1_000)%1_000}.${sqliteVersionNumber%1_000} (${sqliteVersionNumber})`;
 	}
 	
 	
