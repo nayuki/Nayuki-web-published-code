@@ -456,6 +456,23 @@ var app;
     ChunkPart.MAX_DATA_LENGTH = 2147483647;
     /*---- Handlers and metadata for all known PNG chunk types ----*/
     ChunkPart.TYPE_HANDLERS = [
+        ["acTL", "Animation control", false, (chunk, earlier) => {
+                addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
+                addErrorIfHasType(earlier, "fcTL", chunk, "Chunk must be before fcTL chunk");
+                addErrorIfHasType(earlier, "fdAT", chunk, "Chunk must be before fdAT chunk");
+                if (chunk.data.length != 8) {
+                    chunk.errorNotes.push("Invalid data length");
+                    return;
+                }
+                const numFrames = readUint32(chunk.data, 0);
+                const numPlays = readUint32(chunk.data, 4);
+                chunk.innerNotes.push(`Number of frames: ${numFrames}`);
+                if (!(1 <= numFrames && numFrames <= 2147483647))
+                    chunk.errorNotes.push("Number of frames out of range");
+                chunk.innerNotes.push(`Number of plays: ${numPlays == 0 ? 'Infinite (0)' : numPlays}`);
+                if (numPlays > 2147483647)
+                    chunk.errorNotes.push("Number of plays out of range");
+            }],
         ["bKGD", "Background color", false, (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 const ihdr = ChunkPart.getValidIhdrData(earlier);
@@ -517,6 +534,71 @@ var app;
             }],
         ["dSIG", "Digital signature", true, (chunk, earlier) => { }],
         ["eXIf", "Exchangeable Image File (Exif) Profile", false, (chunk, earlier) => { }],
+        ["fcTL", "Frame control", true, (chunk, earlier) => {
+                if (chunk.data.length != 26) {
+                    chunk.errorNotes.push("Invalid data length");
+                    return;
+                }
+                const sequence = readUint32(chunk.data, 0);
+                const width = readUint32(chunk.data, 4);
+                const height = readUint32(chunk.data, 8);
+                const xOffset = readUint32(chunk.data, 12);
+                const yOffset = readUint32(chunk.data, 16);
+                const delayNumerator = readUint16(chunk.data, 20);
+                const delayDenominator = readUint16(chunk.data, 22);
+                const disposeOp = chunk.data[24];
+                const blendOp = chunk.data[25];
+                const effectiveDenominator = delayDenominator == 0 ? 100 : delayDenominator;
+                let frag = document.createDocumentFragment();
+                frag.append(`Delay: ${delayNumerator * 1000 % effectiveDenominator == 0 ? "" : "\u2248"}${(delayNumerator / effectiveDenominator).toFixed(3)} `);
+                let abbr = appendElem(frag, "abbr", "s");
+                abbr.title = "seconds";
+                chunk.innerNotes.push(`Sequence number: ${sequence}`, `Width: ${width} pixels`, `Height: ${height} pixels`, `X offset: ${xOffset} pixels`, `Y offset: ${yOffset} pixels`, `Delay numerator: ${delayNumerator}`, `Delay denominator: ${delayDenominator == 0 ? "100 (0)" : delayDenominator}`, frag);
+                if (sequence > 2147483647)
+                    chunk.errorNotes.push("Sequence number out of range");
+                if (!(0 < width && width <= 2147483647))
+                    chunk.errorNotes.push("Width out of range");
+                if (!(0 < height && height <= 2147483647))
+                    chunk.errorNotes.push("Height out of range");
+                if (xOffset > 2147483647)
+                    chunk.errorNotes.push("X offset out of range");
+                if (yOffset > 2147483647)
+                    chunk.errorNotes.push("Y offset out of range");
+                {
+                    let s = lookUpTable(disposeOp, [
+                        [0, "None"],
+                        [1, "Background"],
+                        [2, "Previous"],
+                    ]);
+                    if (s === null) {
+                        s = "Unknown";
+                        chunk.errorNotes.push("Unknown dispose operation");
+                    }
+                    chunk.innerNotes.push(`Dispose operation: ${s} (${disposeOp})`);
+                }
+                {
+                    let s = lookUpTable(blendOp, [
+                        [0, "Source"],
+                        [1, "Over"],
+                    ]);
+                    if (s === null) {
+                        s = "Unknown";
+                        chunk.errorNotes.push("Unknown blend operation");
+                    }
+                    chunk.innerNotes.push(`Blend operation: ${s} (${blendOp})`);
+                }
+            }],
+        ["fdAT", "Frame data", true, (chunk, earlier) => {
+                if (chunk.data.length < 4) {
+                    chunk.errorNotes.push("Invalid data length");
+                    return;
+                }
+                const sequence = readUint32(chunk.data, 0);
+                chunk.innerNotes.push(`Sequence number: ${sequence}`);
+                if (sequence > 2147483647)
+                    chunk.errorNotes.push("Sequence number out of range");
+                chunk.innerNotes.push(`Frame data length: ${chunk.data.length - 4} bytes`);
+            }],
         ["fRAc", "Fractal image parameters", true, (chunk, earlier) => { }],
         ["gAMA", "Image gamma", false, (chunk, earlier) => {
                 addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");

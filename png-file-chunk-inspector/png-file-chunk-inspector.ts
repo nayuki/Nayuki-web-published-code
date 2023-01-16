@@ -502,6 +502,26 @@ namespace app {
 		
 		private static TYPE_HANDLERS: Array<[string,string,boolean,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]> = [
 			
+			["acTL", "Animation control", false, (chunk, earlier) => {
+				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
+				addErrorIfHasType(earlier, "fcTL", chunk, "Chunk must be before fcTL chunk");
+				addErrorIfHasType(earlier, "fdAT", chunk, "Chunk must be before fdAT chunk");
+				
+				if (chunk.data.length != 8) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const numFrames: int = readUint32(chunk.data, 0);
+				const numPlays : int = readUint32(chunk.data, 4);
+				chunk.innerNotes.push(`Number of frames: ${numFrames}`);
+				if (!(1 <= numFrames && numFrames <= 0x7FFF_FFFF))
+					chunk.errorNotes.push("Number of frames out of range");
+				chunk.innerNotes.push(`Number of plays: ${numPlays == 0 ? 'Infinite (0)' : numPlays}`);
+				if (numPlays > 0x7FFF_FFFF)
+					chunk.errorNotes.push("Number of plays out of range");
+			}],
+			
+			
 			["bKGD", "Background color", false, (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
@@ -576,6 +596,87 @@ namespace app {
 			
 			
 			["eXIf", "Exchangeable Image File (Exif) Profile", false, (chunk, earlier) => {}],
+			
+			
+			["fcTL", "Frame control", true, (chunk, earlier) => {
+				if (chunk.data.length != 26) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const sequence: int = readUint32(chunk.data,  0);
+				const width   : int = readUint32(chunk.data,  4);
+				const height  : int = readUint32(chunk.data,  8);
+				const xOffset : int = readUint32(chunk.data, 12);
+				const yOffset : int = readUint32(chunk.data, 16);
+				const delayNumerator  : int = readUint16(chunk.data, 20);
+				const delayDenominator: int = readUint16(chunk.data, 22);
+				const disposeOp: int = chunk.data[24];
+				const blendOp  : int = chunk.data[25];
+				
+				const effectiveDenominator: int = delayDenominator == 0 ? 100 : delayDenominator;
+				let frag: DocumentFragment = document.createDocumentFragment();
+				frag.append(`Delay: ${delayNumerator * 1000 % effectiveDenominator == 0 ? "" : "\u2248"}${(delayNumerator / effectiveDenominator).toFixed(3)} `);
+				let abbr = appendElem(frag, "abbr", "s");
+				abbr.title = "seconds";
+				chunk.innerNotes.push(
+					`Sequence number: ${sequence}`,
+					`Width: ${width} pixels`,
+					`Height: ${height} pixels`,
+					`X offset: ${xOffset} pixels`,
+					`Y offset: ${yOffset} pixels`,
+					`Delay numerator: ${delayNumerator}`,
+					`Delay denominator: ${delayDenominator == 0 ? "100 (0)" : delayDenominator}`,
+					frag);
+				
+				if (sequence > 0x7FFF_FFFF)
+					chunk.errorNotes.push("Sequence number out of range");
+				if (!(0 < width && width <= 0x7FFF_FFFF))
+					chunk.errorNotes.push("Width out of range");
+				if (!(0 < height && height <= 0x7FFF_FFFF))
+					chunk.errorNotes.push("Height out of range");
+				if (xOffset > 0x7FFF_FFFF)
+					chunk.errorNotes.push("X offset out of range");
+				if (yOffset > 0x7FFF_FFFF)
+					chunk.errorNotes.push("Y offset out of range");
+				
+				{
+					let s: string|null = lookUpTable(disposeOp, [
+						[0, "None"      ],
+						[1, "Background"],
+						[2, "Previous"  ],
+					]);
+					if (s === null) {
+						s = "Unknown";
+						chunk.errorNotes.push("Unknown dispose operation");
+					}
+					chunk.innerNotes.push(`Dispose operation: ${s} (${disposeOp})`);
+				}
+				
+				{
+					let s: string|null = lookUpTable(blendOp, [
+						[0, "Source"],
+						[1, "Over"  ],
+					]);
+					if (s === null) {
+						s = "Unknown";
+						chunk.errorNotes.push("Unknown blend operation");
+					}
+					chunk.innerNotes.push(`Blend operation: ${s} (${blendOp})`);
+				}
+			}],
+			
+			
+			["fdAT", "Frame data", true, (chunk, earlier) => {
+				if (chunk.data.length < 4) {
+					chunk.errorNotes.push("Invalid data length");
+					return;
+				}
+				const sequence: int = readUint32(chunk.data, 0);
+				chunk.innerNotes.push(`Sequence number: ${sequence}`);
+				if (sequence > 0x7FFF_FFFF)
+					chunk.errorNotes.push("Sequence number out of range");
+				chunk.innerNotes.push(`Frame data length: ${chunk.data.length - 4} bytes`);
+			}],
 			
 			
 			["fRAc", "Fractal image parameters", true, (chunk, earlier) => {}],
