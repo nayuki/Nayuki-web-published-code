@@ -564,6 +564,8 @@ namespace app {
 						s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
 						// s basically equals (val/100000).toFixed(5)
 						chunk.innerNotes.push(`${item} ${axis}: ${s}`);
+						if (val > 0x7FFF_FFFF)
+							chunk.errorNotes.push(`${item} ${axis} value out of range`);
 						offset += 4;
 					}
 				}
@@ -592,6 +594,8 @@ namespace app {
 				s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
 				// s basically equals (gamma/100000).toFixed(5)
 				chunk.innerNotes.push(`Gamma: ${s}`);
+				if (gamma > 0x7FFF_FFFF)
+					chunk.errorNotes.push("Gamma value out of range");
 			}],
 			
 			
@@ -912,6 +916,10 @@ namespace app {
 				const unit: byte = chunk.data[8];
 				chunk.innerNotes.push(`X position: ${xPos.toString().replace(/-/,"\u2212")} units`);
 				chunk.innerNotes.push(`Y position: ${yPos.toString().replace(/-/,"\u2212")} units`);
+				if (xPos == -0x8000_0000)
+					chunk.errorNotes.push("X position out of range");
+				if (yPos == -0x8000_0000)
+					chunk.errorNotes.push("Y position out of range");
 				{
 					let s: string|null = lookUpTable(unit, [
 						[0, "Pixel"     ],
@@ -951,6 +959,8 @@ namespace app {
 						frag.append(")");
 					}
 					chunk.innerNotes.push(frag);
+					if (val > 0x7FFF_FFFF)
+						chunk.errorNotes.push(dir + " resolution out of range");
 				}
 				{
 					let s: string|null = lookUpTable(unit, [

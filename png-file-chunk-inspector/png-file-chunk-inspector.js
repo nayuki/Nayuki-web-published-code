@@ -509,6 +509,8 @@ var app;
                         s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
                         // s basically equals (val/100000).toFixed(5)
                         chunk.innerNotes.push(`${item} ${axis}: ${s}`);
+                        if (val > 2147483647)
+                            chunk.errorNotes.push(`${item} ${axis} value out of range`);
                         offset += 4;
                     }
                 }
@@ -528,6 +530,8 @@ var app;
                 s = s.substring(0, s.length - 5) + "." + s.substring(s.length - 5);
                 // s basically equals (gamma/100000).toFixed(5)
                 chunk.innerNotes.push(`Gamma: ${s}`);
+                if (gamma > 2147483647)
+                    chunk.errorNotes.push("Gamma value out of range");
             }],
         ["gIFg", "GIF Graphic Control Extension", true, (chunk, earlier) => {
                 if (chunk.data.length != 4) {
@@ -810,6 +814,10 @@ var app;
                 const unit = chunk.data[8];
                 chunk.innerNotes.push(`X position: ${xPos.toString().replace(/-/, "\u2212")} units`);
                 chunk.innerNotes.push(`Y position: ${yPos.toString().replace(/-/, "\u2212")} units`);
+                if (xPos == -2147483648)
+                    chunk.errorNotes.push("X position out of range");
+                if (yPos == -2147483648)
+                    chunk.errorNotes.push("Y position out of range");
                 {
                     let s = lookUpTable(unit, [
                         [0, "Pixel"],
@@ -844,6 +852,8 @@ var app;
                         frag.append(")");
                     }
                     chunk.innerNotes.push(frag);
+                    if (val > 2147483647)
+                        chunk.errorNotes.push(dir + " resolution out of range");
                 }
                 {
                     let s = lookUpTable(unit, [
