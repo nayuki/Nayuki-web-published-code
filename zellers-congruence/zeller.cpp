@@ -1,9 +1,10 @@
 /* 
  * Zeller's congruence (C++)
- * by Project Nayuki, 2022. Public domain.
+ * by Project Nayuki, 2023. Public domain.
  * https://www.nayuki.io/page/zellers-congruence
  */
 
+#include <array>
 #include <cstdlib>
 #include <exception>
 #include <iostream>
@@ -49,7 +50,7 @@ static int monthLength(int y, int m) {
 }
 
 
-static void nextDate(int ymd[3]) {
+static void nextDate(std::array<int,3> &ymd) {
 	if (!(1 <= ymd[1] && ymd[1] <= 12))
 		throw std::domain_error("Invalid month");
 	if (!(1 <= ymd[2] && ymd[2] <= monthLength(ymd[0], ymd[1])))
@@ -67,7 +68,7 @@ static void nextDate(int ymd[3]) {
 }
 
 
-static void previousDate(int ymd[3]) {
+static void previousDate(std::array<int,3> &ymd) {
 	if (!(1 <= ymd[1] && ymd[1] <= 12))
 		throw std::domain_error("Invalid month");
 	if (!(1 <= ymd[2] && ymd[2] <= monthLength(ymd[0], ymd[1])))
@@ -86,7 +87,7 @@ static void previousDate(int ymd[3]) {
 }
 
 
-static int compare(int ymd[3], int y, int m, int d) {
+static int compare(const std::array<int,3> &ymd, int y, int m, int d) {
 	if (ymd[0] != y)
 		return ymd[0] < y ? -1 : 1;
 	else if (ymd[1] != m)
@@ -99,7 +100,7 @@ static int compare(int ymd[3], int y, int m, int d) {
 
 
 static int dayOfWeekNaive(int y, int m, int d) {
-	int ymd[] = {1600, 1, 1};
+	std::array<int,3> ymd = {1600, 1, 1};
 	int dow = 6;
 	while (compare(ymd, y, m, d) < 0) {
 		nextDate(ymd);
@@ -190,7 +191,7 @@ static void testSimple() {
 
 
 static void testAscending() {
-	int ymd[] = {1600, 1, 1};
+	std::array<int,3> ymd = {1600, 1, 1};
 	int dow = 6;
 	while (ymd[0] < 2400) {
 		assertEquals(dow, dayOfWeek(ymd[0], ymd[1], ymd[2]));
@@ -201,7 +202,7 @@ static void testAscending() {
 
 
 static void testDescending() {
-	int ymd[] = {1600, 1, 1};
+	std::array<int,3> ymd = {1600, 1, 1};
 	int dow = 6;
 	while (ymd[0] > 800) {
 		assertEquals(dow, dayOfWeek(ymd[0], ymd[1], ymd[2]));
