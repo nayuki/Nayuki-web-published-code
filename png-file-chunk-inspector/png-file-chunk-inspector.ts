@@ -941,7 +941,7 @@ namespace app {
 				const horzRes: int = readUint32(chunk.data, 0);
 				const vertRes: int = readUint32(chunk.data, 4);
 				const unit: byte = chunk.data[8];
-				for (const [dir, val] of ([["Horizontal", horzRes], ["Vertical", vertRes]] as Array<[string,number]>)) {
+				for (const [dir, val] of ([["Horizontal", horzRes], ["Vertical", vertRes]] as Array<[string,int]>)) {
 					let frag: DocumentFragment = document.createDocumentFragment();
 					frag.append(`${dir} resolution: ${val} pixels per unit`);
 					if (unit == 1) {
@@ -1412,7 +1412,7 @@ namespace app {
 	function decodeUtf8(bytes: Uint8Array): string {
 		let temp: string = "";
 		for (const b of bytes) {
-			if (b == ("%".codePointAt(0) as number) || b >= 128)
+			if (b == ("%".codePointAt(0) as int) || b >= 128)
 				temp += "%" + b.toString(16).padStart(2, "0");
 			else
 				temp += String.fromCodePoint(b);
