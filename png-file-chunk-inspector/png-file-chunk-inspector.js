@@ -644,7 +644,15 @@ var app;
                 const foregroundColor = chunk.data[18] << 16 | chunk.data[19] << 8 | chunk.data[20] << 0;
                 const backgroundColor = chunk.data[21] << 16 | chunk.data[22] << 8 | chunk.data[23] << 0;
                 const text = bytesToReadableString(chunk.data.subarray(24));
-                chunk.innerNotes.push(`Deprecated`, `Text grid left position: ${gridLeft}`, `Text grid top position: ${gridTop}`, `Text grid width: ${gridWidth}`, `Text grid height: ${gridHeight}`, `Character cell width: ${cellWidth}`, `Character cell height: ${cellHeight}`, `Text foreground color: #${foregroundColor.toString(16).padStart(2, "0")}`, `Text background color: #${backgroundColor.toString(16).padStart(2, "0")}`, `Plain text data: ${text}`);
+                chunk.innerNotes.push(`Deprecated`, `Text grid left position: ${gridLeft.toString().replace(/-/, "\u2212")}`, `Text grid top position: ${gridTop.toString().replace(/-/, "\u2212")}`, `Text grid width: ${gridWidth.toString().replace(/-/, "\u2212")}`, `Text grid height: ${gridHeight.toString().replace(/-/, "\u2212")}`, `Character cell width: ${cellWidth}`, `Character cell height: ${cellHeight}`, `Text foreground color: #${foregroundColor.toString(16).padStart(2, "0")}`, `Text background color: #${backgroundColor.toString(16).padStart(2, "0")}`, `Plain text data: ${text}`);
+                if (gridLeft == -2147483648)
+                    chunk.errorNotes.push("Text grid left position out of range");
+                if (gridTop == -2147483648)
+                    chunk.errorNotes.push("Text grid top position out of range");
+                if (gridWidth == -2147483648)
+                    chunk.errorNotes.push("Text grid width out of range");
+                if (gridHeight == -2147483648)
+                    chunk.errorNotes.push("Text grid height out of range");
             }],
         ["gIFx", "GIF Application Extension", true, (chunk, earlier) => {
                 if (chunk.data.length < 11) {
@@ -923,12 +931,14 @@ var app;
                 }
                 const originalZero = readInt32(parts[1], 0);
                 const originalMax = readInt32(parts[1], 4);
-                chunk.innerNotes.push(`Original zero: ${originalZero}`);
-                chunk.innerNotes.push(`Original max: ${originalMax}`);
+                chunk.innerNotes.push(`Original zero: ${originalZero.toString().replace(/-/, "\u2212")}`);
+                chunk.innerNotes.push(`Original max: ${originalMax.toString().replace(/-/, "\u2212")}`);
                 if (originalZero == -2147483648)
                     chunk.errorNotes.push("Original zero out of range");
                 if (originalMax == -2147483648)
                     chunk.errorNotes.push("Original max out of range");
+                if (originalZero == originalMax)
+                    chunk.errorNotes.push("Zero original range");
                 const equationType = parts[1][8];
                 let s = lookUpTable(equationType, [
                     [0, "Linear"],

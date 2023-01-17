@@ -733,16 +733,24 @@ namespace app {
 				const text: string = bytesToReadableString(chunk.data.subarray(24));
 				chunk.innerNotes.push(
 					`Deprecated`,
-					`Text grid left position: ${gridLeft}`,
-					`Text grid top position: ${gridTop}`,
-					`Text grid width: ${gridWidth}`,
-					`Text grid height: ${gridHeight}`,
+					`Text grid left position: ${gridLeft.toString().replace(/-/,"\u2212")}`,
+					`Text grid top position: ${gridTop.toString().replace(/-/,"\u2212")}`,
+					`Text grid width: ${gridWidth.toString().replace(/-/,"\u2212")}`,
+					`Text grid height: ${gridHeight.toString().replace(/-/,"\u2212")}`,
 					`Character cell width: ${cellWidth}`,
 					`Character cell height: ${cellHeight}`,
 					`Text foreground color: #${foregroundColor.toString(16).padStart(2,"0")}`,
 					`Text background color: #${backgroundColor.toString(16).padStart(2,"0")}`,
 					`Plain text data: ${text}`,
 				);
+				if (gridLeft == -0x8000_0000)
+					chunk.errorNotes.push("Text grid left position out of range");
+				if (gridTop == -0x8000_0000)
+					chunk.errorNotes.push("Text grid top position out of range");
+				if (gridWidth == -0x8000_0000)
+					chunk.errorNotes.push("Text grid width out of range");
+				if (gridHeight == -0x8000_0000)
+					chunk.errorNotes.push("Text grid height out of range");
 			}],
 			
 			
@@ -1048,12 +1056,14 @@ namespace app {
 				
 				const originalZero: int = readInt32(parts[1], 0);
 				const originalMax : int = readInt32(parts[1], 4);
-				chunk.innerNotes.push(`Original zero: ${originalZero}`);
-				chunk.innerNotes.push(`Original max: ${originalMax}`);
+				chunk.innerNotes.push(`Original zero: ${originalZero.toString().replace(/-/,"\u2212")}`);
+				chunk.innerNotes.push(`Original max: ${originalMax.toString().replace(/-/,"\u2212")}`);
 				if (originalZero == -0x8000_0000)
 					chunk.errorNotes.push("Original zero out of range");
 				if (originalMax == -0x8000_0000)
 					chunk.errorNotes.push("Original max out of range");
+				if (originalZero == originalMax)
+					chunk.errorNotes.push("Zero original range");
 				
 				const equationType: int = parts[1][8];
 				let s: string|null = lookUpTable(equationType, [
