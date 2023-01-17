@@ -1037,6 +1037,69 @@ namespace app {
 			
 			["pCAL", "Calibration of pixel values", false, (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
+				
+				let parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
+				const calibrationName: string = decodeIso8859_1(parts[0]);
+				annotateTextKeyword(calibrationName, true, "Calibration name", "name", chunk);
+				if (parts.length == 1) {
+					chunk.errorNotes.push("Missing null separator");
+					return;
+				}
+				
+				const originalZero: int = readInt32(parts[1], 0);
+				const originalMax : int = readInt32(parts[1], 4);
+				chunk.innerNotes.push(`Original zero: ${originalZero}`);
+				chunk.innerNotes.push(`Original max: ${originalMax}`);
+				if (originalZero == -0x8000_0000)
+					chunk.errorNotes.push("Original zero out of range");
+				if (originalMax == -0x8000_0000)
+					chunk.errorNotes.push("Original max out of range");
+				
+				const equationType: int = parts[1][8];
+				let s: string|null = lookUpTable(equationType, [
+					[0, "Linear"                    ],
+					[1, "Base-e exponential"        ],
+					[2, "Arbitrary-base exponential"],
+					[3, "Hyperbolic"                ],
+				]);
+				if (s === null) {
+					s = "Unknown";
+					chunk.errorNotes.push("Unknown equation type");
+				}
+				if (equationType != 1)
+					chunk.innerNotes.push(`Equation type: ${s} (${equationType})`);
+				else {
+					let frag: DocumentFragment = document.createDocumentFragment();
+					frag.append("Equation type: Base-");
+					appendElem(frag, "var", "e");
+					frag.append(" exponential (1)");
+					chunk.innerNotes.push(frag);
+				}
+				
+				const numParameters: int = parts[1][9];
+				const expectNumParams: int|null = lookUpTable(equationType, [
+					[0, 2],
+					[1, 2],
+					[2, 3],
+					[3, 4],
+				]);
+				if (expectNumParams !== null && expectNumParams != numParameters)
+					chunk.errorNotes.push("Invalid number of parameters for equation type");
+				chunk.innerNotes.push(`Number of parameters: ${numParameters}`);
+				
+				parts = splitByNull(parts[1].slice(10), numParameters + 1);
+				const unitName: string = decodeIso8859_1(parts[0]);
+				chunk.innerNotes.push(`Unit name: ${unitName}`);
+				if (unitName.includes("\uFFFD"))
+					chunk.errorNotes.push("Invalid ISO 8859-1 byte in unit name");
+				parts.slice(1).forEach((part, i) => {
+					const param: string = decodeIso8859_1(part);
+					chunk.innerNotes.push(`Parameter ${i}: ${param}`);
+					if (!/^([+-]?)(\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(param))
+						chunk.errorNotes.push(`Invalid parameter ${i} floating-point string`);
+				});
+				if (parts.length != numParameters + 1)
+					chunk.errorNotes.push("Missing null separator");
 			}],
 			
 			
