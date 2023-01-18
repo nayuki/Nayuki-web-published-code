@@ -238,6 +238,10 @@ var app;
             // Annotate chunks
             let earlierChunks = [];
             let earlierTypes = new Set();
+            const numFctl = result.filter(part => part instanceof ChunkPart && part.typeStr == "fcTL").length;
+            let currentFctl = null;
+            let idatAfterFctl = false;
+            let fdatAfterFctl = false;
             for (const part of result) {
                 if (!(part instanceof ChunkPart))
                     continue;
@@ -250,8 +254,29 @@ var app;
                 if (typeInfo !== null && !typeInfo[1] && earlierTypes.has(type))
                     part.errorNotes.push("Multiple chunks of this type disallowed");
                 part.annotate(earlierChunks);
+                if (part.typeStr == "acTL" && part.data.length >= 4 && readUint32(part.data, 0) != numFctl)
+                    part.errorNotes.push(`Number of frames mismatches number of fcTL chunks (${numFctl})`);
+                if (part.typeStr == "fcTL") {
+                    if (currentFctl !== null) {
+                        if (!idatAfterFctl && !fdatAfterFctl)
+                            currentFctl.errorNotes.push("Missing IDAT or fdAT chunks after");
+                        else if (idatAfterFctl && fdatAfterFctl)
+                            currentFctl.errorNotes.push("Has IDAT and fdAT chunks after");
+                    }
+                    currentFctl = part;
+                    idatAfterFctl = false;
+                    fdatAfterFctl = false;
+                }
+                idatAfterFctl = idatAfterFctl || (currentFctl !== null && part.typeStr == "IDAT");
+                fdatAfterFctl = fdatAfterFctl || (currentFctl !== null && part.typeStr == "fdAT");
                 earlierChunks.push(part);
                 earlierTypes.add(type);
+            }
+            if (currentFctl !== null) {
+                if (!idatAfterFctl && !fdatAfterFctl)
+                    currentFctl.errorNotes.push("Missing IDAT or fdAT chunks after");
+                else if (idatAfterFctl && fdatAfterFctl)
+                    currentFctl.errorNotes.push("Has IDAT and fdAT chunks after");
             }
             { // Find, pair up, and annotate dSIG chunks
                 let ihdrIndex = 0;
@@ -301,6 +326,8 @@ var app;
                 part.errorNotes.push("Missing IHDR chunk");
             if (ihdr !== null && ihdr[9] == 3 && !earlierTypes.has("PLTE"))
                 part.errorNotes.push("Missing PLTE chunk");
+            if ((earlierTypes.has("fcTL") || earlierTypes.has("fdAT")) && !earlierTypes.has("acTL"))
+                part.errorNotes.push("Missing acTL chunk");
             if (!earlierTypes.has("IDAT"))
                 part.errorNotes.push("Missing IDAT chunk");
             if (!earlierTypes.has("IEND"))
@@ -556,13 +583,35 @@ var app;
                 chunk.innerNotes.push(`Sequence number: ${sequence}`, `Width: ${width} pixels`, `Height: ${height} pixels`, `X offset: ${xOffset} pixels`, `Y offset: ${yOffset} pixels`, `Delay numerator: ${delayNumerator}`, `Delay denominator: ${delayDenominator == 0 ? "100 (0)" : delayDenominator}`, frag);
                 if (sequence > 2147483647)
                     chunk.errorNotes.push("Sequence number out of range");
-                if (!(0 < width && width <= 2147483647))
+                const expectSequence = earlier.filter(ch => ch.typeStr == "fcTL" || ch.typeStr == "fdAT").length;
+                if (sequence != expectSequence)
+                    chunk.errorNotes.push(`Invalid sequence number (should be ${expectSequence})`);
+                let widthMin = 1, widthMax = 2147483647;
+                let heightMin = 1, heightMax = 2147483647;
+                let xOffsetMin = 0, xOffsetMax = 2147483647;
+                let yOffsetMin = 0, yOffsetMax = 2147483647;
+                const ihdr = ChunkPart.getValidIhdrData(earlier);
+                if (ihdr !== null) {
+                    widthMax = readUint32(ihdr, 0);
+                    heightMax = readUint32(ihdr, 4);
+                    if (expectSequence == 0 && !earlier.some(ch => ch.typeStr == "IDAT")) { // This foremost fcTL is in front of IDAT
+                        widthMin = widthMax;
+                        heightMin = heightMax;
+                        xOffsetMax = 0;
+                        yOffsetMax = 0;
+                    }
+                    else {
+                        xOffsetMax = widthMax - width;
+                        yOffsetMax = heightMax - height;
+                    }
+                }
+                if (!(widthMin <= width && width <= widthMax))
                     chunk.errorNotes.push("Width out of range");
-                if (!(0 < height && height <= 2147483647))
+                if (!(heightMin <= height && height <= heightMax))
                     chunk.errorNotes.push("Height out of range");
-                if (xOffset > 2147483647)
+                if (!(xOffsetMin <= xOffset && xOffset <= xOffsetMax))
                     chunk.errorNotes.push("X offset out of range");
-                if (yOffset > 2147483647)
+                if (!(yOffsetMin <= yOffset && yOffset <= yOffsetMax))
                     chunk.errorNotes.push("Y offset out of range");
                 {
                     let s = lookUpTable(disposeOp, [

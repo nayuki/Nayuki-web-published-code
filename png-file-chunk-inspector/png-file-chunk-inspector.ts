@@ -268,6 +268,10 @@ namespace app {
 			// Annotate chunks
 			let earlierChunks: Array<ChunkPart> = [];
 			let earlierTypes = new Set<string>();
+			const numFctl: int = result.filter(part => part instanceof ChunkPart && part.typeStr == "fcTL").length;
+			let currentFctl: ChunkPart|null = null;
+			let idatAfterFctl: boolean = false;
+			let fdatAfterFctl: boolean = false;
 			for (const part of result) {
 				if (!(part instanceof ChunkPart))
 					continue;
@@ -282,8 +286,29 @@ namespace app {
 					part.errorNotes.push("Multiple chunks of this type disallowed");
 				
 				part.annotate(earlierChunks);
+				if (part.typeStr == "acTL" && part.data.length >= 4 && readUint32(part.data, 0) != numFctl)
+					part.errorNotes.push(`Number of frames mismatches number of fcTL chunks (${numFctl})`);
+				if (part.typeStr == "fcTL") {
+					if (currentFctl !== null) {
+						if (!idatAfterFctl && !fdatAfterFctl)
+							currentFctl.errorNotes.push("Missing IDAT or fdAT chunks after");
+						else if (idatAfterFctl && fdatAfterFctl)
+							currentFctl.errorNotes.push("Has IDAT and fdAT chunks after");
+					}
+					currentFctl = part;
+					idatAfterFctl = false;
+					fdatAfterFctl = false;
+				}
+				idatAfterFctl = idatAfterFctl || (currentFctl !== null && part.typeStr == "IDAT");
+				fdatAfterFctl = fdatAfterFctl || (currentFctl !== null && part.typeStr == "fdAT");
 				earlierChunks.push(part);
 				earlierTypes.add(type);
+			}
+			if (currentFctl !== null) {
+				if (!idatAfterFctl && !fdatAfterFctl)
+					currentFctl.errorNotes.push("Missing IDAT or fdAT chunks after");
+				else if (idatAfterFctl && fdatAfterFctl)
+					currentFctl.errorNotes.push("Has IDAT and fdAT chunks after");
 			}
 			
 			{  // Find, pair up, and annotate dSIG chunks
@@ -336,6 +361,8 @@ namespace app {
 				part.errorNotes.push("Missing IHDR chunk");
 			if (ihdr !== null && ihdr[9] == 3 && !earlierTypes.has("PLTE"))
 				part.errorNotes.push("Missing PLTE chunk");
+			if ((earlierTypes.has("fcTL") || earlierTypes.has("fdAT")) && !earlierTypes.has("acTL"))
+				part.errorNotes.push("Missing acTL chunk");
 			if (!earlierTypes.has("IDAT"))
 				part.errorNotes.push("Missing IDAT chunk");
 			if (!earlierTypes.has("IEND"))
@@ -408,7 +435,7 @@ namespace app {
 		
 		public typeStr: string = "";
 		private isDataComplete: boolean = false;
-		private data: Uint8Array = new Uint8Array();
+		public data: Uint8Array = new Uint8Array();
 		
 		
 		public constructor(
@@ -630,13 +657,35 @@ namespace app {
 				
 				if (sequence > 0x7FFF_FFFF)
 					chunk.errorNotes.push("Sequence number out of range");
-				if (!(0 < width && width <= 0x7FFF_FFFF))
+				const expectSequence: int = earlier.filter(ch => ch.typeStr == "fcTL" || ch.typeStr == "fdAT").length;
+				if (sequence != expectSequence)
+					chunk.errorNotes.push(`Invalid sequence number (should be ${expectSequence})`);
+				
+				let widthMin  : int = 1, widthMax  : int = 0x7FFF_FFFF;
+				let heightMin : int = 1, heightMax : int = 0x7FFF_FFFF;
+				let xOffsetMin: int = 0, xOffsetMax: int = 0x7FFF_FFFF;
+				let yOffsetMin: int = 0, yOffsetMax: int = 0x7FFF_FFFF;
+				const ihdr: Uint8Array|null = ChunkPart.getValidIhdrData(earlier);
+				if (ihdr !== null) {
+					widthMax  = readUint32(ihdr, 0);
+					heightMax = readUint32(ihdr, 4);
+					if (expectSequence == 0 && !earlier.some(ch => ch.typeStr == "IDAT")) {  // This foremost fcTL is in front of IDAT
+						widthMin  = widthMax;
+						heightMin = heightMax;
+						xOffsetMax = 0;
+						yOffsetMax = 0;
+					} else {
+						xOffsetMax = widthMax  - width ;
+						yOffsetMax = heightMax - height;
+					}
+				}
+				if (!(widthMin <= width && width <= widthMax))
 					chunk.errorNotes.push("Width out of range");
-				if (!(0 < height && height <= 0x7FFF_FFFF))
+				if (!(heightMin <= height && height <= heightMax))
 					chunk.errorNotes.push("Height out of range");
-				if (xOffset > 0x7FFF_FFFF)
+				if (!(xOffsetMin <= xOffset && xOffset <= xOffsetMax))
 					chunk.errorNotes.push("X offset out of range");
-				if (yOffset > 0x7FFF_FFFF)
+				if (!(yOffsetMin <= yOffset && yOffset <= yOffsetMax))
 					chunk.errorNotes.push("Y offset out of range");
 				
 				{
