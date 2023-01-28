@@ -764,7 +764,7 @@ var app;
                 chunk.innerNotes.push(`Compressed profile size: ${compProfile.length}`);
                 if (compMeth == 0) {
                     try {
-                        const decompProfile = deflate.decompressZlib(compProfile);
+                        const decompProfile = decompressZlibDeflate(compProfile);
                         chunk.innerNotes.push(`Decompressed profile size: ${decompProfile.length}`);
                     }
                     catch (e) {
@@ -920,7 +920,7 @@ var app;
                     case 1:
                         if (compMeth == 0) {
                             try {
-                                textBytes = deflate.decompressZlib(parts[2]);
+                                textBytes = decompressZlibDeflate(parts[2]);
                             }
                             catch (e) {
                                 chunk.errorNotes.push("Text decompression error: " + e.message);
@@ -1326,7 +1326,7 @@ var app;
                 chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
                 if (compMeth == 0) {
                     try {
-                        const textBytes = deflate.decompressZlib(parts[1].slice(1));
+                        const textBytes = decompressZlibDeflate(parts[1].slice(1));
                         const text = decodeIso8859_1(textBytes);
                         let frag = document.createDocumentFragment();
                         frag.append("Text string: ");
@@ -1453,6 +1453,42 @@ var app;
         result.push(bytes.slice(start));
         return result;
     }
+    function decompressZlibDeflate(bytes) {
+        if (bytes.length < 2)
+            throw new RangeError("Invalid zlib container");
+        const compMeth = bytes[0] & 0xF;
+        const compInfo = bytes[0] >>> 4;
+        const presetDict = (bytes[1] & 0x20) != 0;
+        const compLevel = bytes[1] >>> 6;
+        if ((bytes[0] << 8 | bytes[1]) % 31 != 0)
+            throw new RangeError("zlib header checksum mismatch");
+        if (compMeth != 8)
+            throw new RangeError(`Unsupported compression method (${compMeth})`);
+        if (compInfo > 7)
+            throw new RangeError(`Unsupported compression info (${compInfo})`);
+        if (presetDict)
+            throw new RangeError("Unsupported preset dictionary");
+        let input = new deflate.BitInputStream(bytes.slice(2));
+        const result = deflate.Decompressor.decompress(input);
+        let dataAdler;
+        {
+            let s1 = 1;
+            let s2 = 0;
+            for (const b of result) {
+                s1 = (s1 + b) % 65521;
+                s2 = (s2 + s1) % 65521;
+            }
+            dataAdler = s2 << 16 | s1;
+        }
+        let storedAdler = 0;
+        for (let i = 0; i < 4; i++)
+            storedAdler = storedAdler << 8 | input.readUint(8);
+        if (storedAdler != dataAdler)
+            throw new RangeError("Adler-32 mismatch");
+        if (input.readBitMaybe() != -1)
+            throw new RangeError("Unexpected data after zlib container");
+        return result;
+    }
     function readUint16(bytes, offset) {
         if (bytes.length - offset < 2)
             throw new RangeError("Index out of range");
@@ -1477,196 +1513,67 @@ var app;
             throw new TypeError("Invalid value type");
     }
 })(app || (app = {}));
-// See https://www.nayuki.io/page/simple-deflate-decompressor
+/*
+ * Simple DEFLATE decompressor (compiled from TypeScript)
+ *
+ * Copyright (c) Project Nayuki
+ * MIT License. See readme file.
+ * https://www.nayuki.io/page/simple-deflate-decompressor
+ */
 var deflate;
 (function (deflate) {
-    function decompressZlib(bytes) {
-        if (bytes.length < 2)
-            throw new RangeError("Invalid zlib container");
-        const compMeth = bytes[0] & 0xF;
-        const compInfo = bytes[0] >>> 4;
-        const presetDict = (bytes[1] & 0x20) != 0;
-        const compLevel = bytes[1] >>> 6;
-        if ((bytes[0] << 8 | bytes[1]) % 31 != 0)
-            throw new RangeError("zlib header checksum mismatch");
-        if (compMeth != 8)
-            throw new RangeError(`Unsupported compression method (${compMeth})`);
-        if (compInfo > 7)
-            throw new RangeError(`Unsupported compression info (${compInfo})`);
-        if (presetDict)
-            throw new RangeError("Unsupported preset dictionary");
-        const [result, input] = decompressDeflate(bytes.slice(2));
-        let dataAdler;
-        {
-            let s1 = 1;
-            let s2 = 0;
-            for (const b of result) {
-                s1 = (s1 + b) % 65521;
-                s2 = (s2 + s1) % 65521;
-            }
-            dataAdler = s2 << 16 | s1;
-        }
-        let storedAdler = 0;
-        input.readUint((8 - input.getBitPosition()) % 8);
-        for (let i = 0; i < 4; i++)
-            storedAdler = storedAdler << 8 | input.readUint(8);
-        if (storedAdler != dataAdler)
-            throw new RangeError("Adler-32 mismatch");
-        if (input.readBitMaybe() != -1)
-            throw new RangeError("Unexpected data after zlib container");
-        return result;
-    }
-    deflate.decompressZlib = decompressZlib;
-    function decompressDeflate(bytes) {
-        let input = new BitInputStream(bytes);
-        let output = [];
-        let dictionary = new ByteHistory(32 * 1024);
-        while (true) {
-            const isFinal = input.readUint(1) != 0;
-            const type = input.readUint(2);
-            switch (type) {
-                case 0:
-                    decompressUncompressedBlock();
-                    break;
-                case 1:
-                    decompressHuffmanBlock(FIXED_LITERAL_LENGTH_CODE, FIXED_DISTANCE_CODE);
-                    break;
-                case 2:
-                    const [litLenCode, distCode] = decodeHuffmanCodes();
-                    decompressHuffmanBlock(litLenCode, distCode);
-                    break;
-                case 3:
-                    throw new Error("Reserved block type");
-                default:
-                    throw new Error("Assertion error");
-            }
-            if (isFinal)
-                return [new Uint8Array(output), input];
-        }
-        function decodeHuffmanCodes() {
-            const numLitLenCodes = input.readUint(5) + 257;
-            const numDistCodes = input.readUint(5) + 1;
-            const numCodeLenCodes = input.readUint(4) + 4;
-            let codeLenCodeLen = [];
-            for (let i = 0; i < 19; i++)
-                codeLenCodeLen.push(0);
-            codeLenCodeLen[16] = input.readUint(3);
-            codeLenCodeLen[17] = input.readUint(3);
-            codeLenCodeLen[18] = input.readUint(3);
-            codeLenCodeLen[0] = input.readUint(3);
-            for (let i = 0; i < numCodeLenCodes - 4; i++) {
-                const j = (i % 2 == 0) ? (8 + Math.floor(i / 2)) : (7 - Math.floor(i / 2));
-                codeLenCodeLen[j] = input.readUint(3);
-            }
-            const codeLenCode = new CanonicalCode(codeLenCodeLen);
-            let codeLens = [];
-            while (codeLens.length < numLitLenCodes + numDistCodes) {
-                const sym = codeLenCode.decodeNextSymbol(input);
-                if (0 <= sym && sym <= 15)
-                    codeLens.push(sym);
-                else if (sym == 16) {
-                    if (codeLens.length == 0)
-                        throw new Error("No code length value to copy");
-                    const runLen = input.readUint(2) + 3;
-                    for (let i = 0; i < runLen; i++)
-                        codeLens.push(codeLens[codeLens.length - 1]);
-                }
-                else if (sym == 17) {
-                    const runLen = input.readUint(3) + 3;
-                    for (let i = 0; i < runLen; i++)
-                        codeLens.push(0);
-                }
-                else if (sym == 18) {
-                    const runLen = input.readUint(7) + 11;
-                    for (let i = 0; i < runLen; i++)
-                        codeLens.push(0);
-                }
-                else
-                    throw new Error("Symbol out of range");
-            }
-            if (codeLens.length > numLitLenCodes + numDistCodes)
-                throw new Error("Run exceeds number of codes");
-            const litLenCode = new CanonicalCode(codeLens.slice(0, numLitLenCodes));
-            let distCodeLen = codeLens.slice(numLitLenCodes);
-            let distCode;
-            if (distCodeLen.length == 1 && distCodeLen[0] == 0)
-                distCode = null;
-            else {
-                const oneCount = distCodeLen.filter(x => x == 1).length;
-                const otherPositiveCount = distCodeLen.filter(x => x > 1).length;
-                if (oneCount == 1 && otherPositiveCount == 0) {
-                    while (distCodeLen.length < 32)
-                        distCodeLen.push(0);
-                    distCodeLen[31] = 1;
-                }
-                distCode = new CanonicalCode(distCodeLen);
-            }
-            return [litLenCode, distCode];
-        }
-        function decompressUncompressedBlock() {
-            input.readUint((8 - input.getBitPosition()) % 8);
-            const len = input.readUint(16);
-            const nlen = input.readUint(16);
-            if ((len ^ 0xFFFF) != nlen)
-                throw new Error("Invalid length in uncompressed block");
-            for (let i = 0; i < len; i++) {
-                const b = input.readUint(8);
-                output.push(b);
-                dictionary.append(b);
-            }
-        }
-        function decompressHuffmanBlock(litLenCode, distCode) {
-            while (true) {
-                const sym = litLenCode.decodeNextSymbol(input);
-                if (sym == 256)
-                    break;
-                else if (sym < 256) {
-                    output.push(sym);
-                    dictionary.append(sym);
-                }
-                else {
-                    const run = decodeRunLength(sym);
-                    if (!(3 <= run && run <= 258))
-                        throw new Error("Invalid run length");
-                    if (distCode === null)
-                        throw new Error("Length symbol encountered with empty distance code");
-                    const distSym = distCode.decodeNextSymbol(input);
-                    const dist = decodeDistance(distSym);
-                    if (!(1 <= dist && dist <= 32768))
-                        throw new Error("Invalid distance");
-                    dictionary.copy(dist, run, output);
-                }
-            }
-        }
-        function decodeRunLength(sym) {
-            if (!(257 <= sym && sym <= 287))
-                throw new RangeError("Invalid run length symbol");
-            if (sym <= 264)
-                return sym - 254;
-            else if (sym <= 284) {
-                const numExtraBits = Math.floor((sym - 261) / 4);
-                return (((sym - 265) % 4 + 4) << numExtraBits) + 3 + input.readUint(numExtraBits);
-            }
-            else if (sym == 285)
-                return 258;
-            else
-                throw new RangeError("Reserved length symbol");
-        }
-        function decodeDistance(sym) {
-            if (!(0 <= sym && sym <= 31))
-                throw new RangeError("Invalid distance symbol");
-            if (sym <= 3)
-                return sym + 1;
-            else if (sym <= 29) {
-                const numExtraBits = Math.floor(sym / 2) - 1;
-                return ((sym % 2 + 2) << numExtraBits) + 1 + input.readUint(numExtraBits);
-            }
-            else
-                throw new RangeError("Reserved distance symbol");
-        }
-    }
+    /*
+     * A canonical Huffman code, where the code values for each symbol is
+     * derived from a given sequence of code lengths. This data structure is
+     * immutable. This could be transformed into an explicit Huffman code tree.
+     *
+     * Example:
+     *   Code lengths (canonical code):
+     *     Symbol A: 1
+     *     Symbol B: 0 (no code)
+     *     Symbol C: 3
+     *     Symbol D: 2
+     *     Symbol E: 3
+     *
+     *   Generated Huffman codes:
+     *     Symbol A: 0
+     *     Symbol B: (Absent)
+     *     Symbol C: 110
+     *     Symbol D: 10
+     *     Symbol E: 111
+     *
+     *   Huffman code tree:
+     *       .
+     *      / \
+     *     A   .
+     *        / \
+     *       D   .
+     *          / \
+     *         C   E
+     */
     class CanonicalCode {
+        // Constructs a canonical Huffman code from the given list of symbol code lengths.
+        // Each code length must be non-negative. Code length 0 means no code for the symbol.
+        // The collection of code lengths must represent a proper full Huffman code tree.
+        // Examples of code lengths that result in correct full Huffman code trees:
+        // - [1, 1] (result: A=0, B=1)
+        // - [2, 2, 1, 0, 0, 0] (result: A=10, B=11, C=0)
+        // - [3, 3, 3, 3, 3, 3, 3, 3] (result: A=000, B=001, C=010, ..., H=111)
+        // Examples of code lengths that result in under-full Huffman code trees:
+        // - [0, 2, 0] (result: B=00, unused=01, unused=1)
+        // - [0, 1, 0, 2] (result: B=0, D=10, unused=11)
+        // Examples of code lengths that result in over-full Huffman code trees:
+        // - [1, 1, 1] (result: A=0, B=1, C=overflow)
+        // - [1, 1, 2, 2, 3, 3, 3, 3] (result: A=0, B=1, C=overflow, ...)
         constructor(codeLengths) {
+            // This dictionary maps Huffman codes to symbol values. Each key is the
+            // Huffman code padded with a 1 bit at the beginning to disambiguate codes
+            // of different lengths (e.g. otherwise we can't distinguish 0b01 from
+            // 0b0001). For the example of codeLengths=[1,0,3,2,3], we would have:
+            //     0b1_0 -> 0
+            //    0b1_10 -> 3
+            //   0b1_110 -> 2
+            //   0b1_111 -> 4
             this.codeBitsToSymbol = new Map();
             let nextCode = 0;
             for (let codeLength = 1; codeLength <= CanonicalCode.MAX_CODE_LENGTH; codeLength++) {
@@ -1684,6 +1591,8 @@ var deflate;
             if (nextCode != 1 << CanonicalCode.MAX_CODE_LENGTH)
                 throw new RangeError("This canonical code produces an under-full Huffman code tree");
         }
+        // Decodes the next symbol from the given bit input stream based on this
+        // canonical code. The returned symbol value is in the range [0, codeLengths.size()).
         decodeNextSymbol(inp) {
             let codeBits = 1;
             while (true) {
@@ -1694,60 +1603,268 @@ var deflate;
             }
         }
     }
+    // The maximum Huffman code length allowed in the DEFLATE standard.
     CanonicalCode.MAX_CODE_LENGTH = 15;
-    let FIXED_LITERAL_LENGTH_CODE;
-    {
-        let codeLens = [];
-        for (let i = 0; i < 144; i++)
-            codeLens.push(8);
-        for (let i = 0; i < 112; i++)
-            codeLens.push(9);
-        for (let i = 0; i < 24; i++)
-            codeLens.push(7);
-        for (let i = 0; i < 8; i++)
-            codeLens.push(8);
-        FIXED_LITERAL_LENGTH_CODE = new CanonicalCode(codeLens);
+    /*
+     * Decompresses raw DEFLATE data (without zlib or gzip container) into bytes.
+     */
+    class Decompressor {
+        // Constructor, which immediately performs decompression.
+        constructor(input) {
+            this.input = input;
+            this.output = [];
+            this.dictionary = new ByteHistory(32 * 1024);
+            // Process the stream of blocks
+            let isFinal;
+            do {
+                // Read the block header
+                isFinal = this.input.readUint(1) != 0; // bfinal
+                const type = this.input.readUint(2); // btype
+                // Decompress rest of block based on the type
+                if (type == 0)
+                    this.decompressUncompressedBlock();
+                else if (type == 1)
+                    this.decompressHuffmanBlock(Decompressor.FIXED_LITERAL_LENGTH_CODE, Decompressor.FIXED_DISTANCE_CODE);
+                else if (type == 2) {
+                    const [litLenCode, distCode] = this.decodeHuffmanCodes();
+                    this.decompressHuffmanBlock(litLenCode, distCode);
+                }
+                else if (type == 3)
+                    throw new Error("Reserved block type");
+                else
+                    throw new Error("Unreachable value");
+            } while (!isFinal);
+            // Discard bits to align to byte boundary
+            while (this.input.getBitPosition() != 0)
+                this.input.readUint(1);
+        }
+        // Reads from the given input stream, decompresses the data, and returns a new byte array.
+        static decompress(input) {
+            return new Uint8Array(new Decompressor(input).output);
+        }
+        static makeFixedLiteralLengthCode() {
+            let codeLens = [];
+            for (let i = 0; i < 144; i++)
+                codeLens.push(8);
+            for (let i = 0; i < 112; i++)
+                codeLens.push(9);
+            for (let i = 0; i < 24; i++)
+                codeLens.push(7);
+            for (let i = 0; i < 8; i++)
+                codeLens.push(8);
+            return new CanonicalCode(codeLens);
+        }
+        static makeFixedDistanceCode() {
+            let codeLens = [];
+            for (let i = 0; i < 32; i++)
+                codeLens.push(5);
+            return new CanonicalCode(codeLens);
+        }
+        // Reads from the bit input stream, decodes the Huffman code
+        // specifications into code trees, and returns the trees.
+        decodeHuffmanCodes() {
+            const numLitLenCodes = this.input.readUint(5) + 257; // hlit + 257
+            const numDistCodes = this.input.readUint(5) + 1; // hdist + 1
+            // Read the code length code lengths
+            const numCodeLenCodes = this.input.readUint(4) + 4; // hclen + 4
+            let codeLenCodeLen = []; // This array is filled in a strange order
+            for (let i = 0; i < 19; i++)
+                codeLenCodeLen.push(0);
+            codeLenCodeLen[16] = this.input.readUint(3);
+            codeLenCodeLen[17] = this.input.readUint(3);
+            codeLenCodeLen[18] = this.input.readUint(3);
+            codeLenCodeLen[0] = this.input.readUint(3);
+            for (let i = 0; i < numCodeLenCodes - 4; i++) {
+                const j = (i % 2 == 0) ? (8 + Math.floor(i / 2)) : (7 - Math.floor(i / 2));
+                codeLenCodeLen[j] = this.input.readUint(3);
+            }
+            // Create the code length code
+            const codeLenCode = new CanonicalCode(codeLenCodeLen);
+            // Read the main code lengths and handle runs
+            let codeLens = [];
+            while (codeLens.length < numLitLenCodes + numDistCodes) {
+                const sym = codeLenCode.decodeNextSymbol(this.input);
+                if (0 <= sym && sym <= 15)
+                    codeLens.push(sym);
+                else if (sym == 16) {
+                    if (codeLens.length == 0)
+                        throw new Error("No code length value to copy");
+                    const runLen = this.input.readUint(2) + 3;
+                    for (let i = 0; i < runLen; i++)
+                        codeLens.push(codeLens[codeLens.length - 1]);
+                }
+                else if (sym == 17) {
+                    const runLen = this.input.readUint(3) + 3;
+                    for (let i = 0; i < runLen; i++)
+                        codeLens.push(0);
+                }
+                else if (sym == 18) {
+                    const runLen = this.input.readUint(7) + 11;
+                    for (let i = 0; i < runLen; i++)
+                        codeLens.push(0);
+                }
+                else
+                    throw new Error("Symbol out of range");
+            }
+            if (codeLens.length > numLitLenCodes + numDistCodes)
+                throw new Error("Run exceeds number of codes");
+            // Create literal-length code tree
+            const litLenCode = new CanonicalCode(codeLens.slice(0, numLitLenCodes));
+            // Create distance code tree with some extra processing
+            let distCodeLen = codeLens.slice(numLitLenCodes);
+            let distCode;
+            if (distCodeLen.length == 1 && distCodeLen[0] == 0)
+                distCode = null; // Empty distance code; the block shall be all literal symbols
+            else {
+                // Get statistics for upcoming logic
+                const oneCount = distCodeLen.filter(x => x == 1).length;
+                const otherPositiveCount = distCodeLen.filter(x => x > 1).length;
+                // Handle the case where only one distance code is defined
+                if (oneCount == 1 && otherPositiveCount == 0) {
+                    while (distCodeLen.length < 32)
+                        distCodeLen.push(0);
+                    distCodeLen[31] = 1;
+                }
+                distCode = new CanonicalCode(distCodeLen);
+            }
+            return [litLenCode, distCode];
+        }
+        // Handles and copies an uncompressed block from the bit input stream.
+        decompressUncompressedBlock() {
+            // Discard bits to align to byte boundary
+            while (this.input.getBitPosition() != 0)
+                this.input.readUint(1);
+            // Read length
+            const len = this.input.readUint(16);
+            const nlen = this.input.readUint(16);
+            if ((len ^ 0xFFFF) != nlen)
+                throw new Error("Invalid length in uncompressed block");
+            // Copy bytes
+            for (let i = 0; i < len; i++) {
+                const b = this.input.readUint(8); // Byte is aligned
+                this.output.push(b);
+                this.dictionary.append(b);
+            }
+        }
+        // Decompresses a Huffman-coded block from the bit input stream based on the given Huffman codes.
+        decompressHuffmanBlock(litLenCode, distCode) {
+            while (true) {
+                const sym = litLenCode.decodeNextSymbol(this.input);
+                if (sym == 256) // End of block
+                    break;
+                else if (sym < 256) { // Literal byte
+                    this.output.push(sym);
+                    this.dictionary.append(sym);
+                }
+                else { // Length and distance for copying
+                    const run = this.decodeRunLength(sym);
+                    if (!(3 <= run && run <= 258))
+                        throw new Error("Invalid run length");
+                    if (distCode === null)
+                        throw new Error("Length symbol encountered with empty distance code");
+                    const distSym = distCode.decodeNextSymbol(this.input);
+                    const dist = this.decodeDistance(distSym);
+                    if (!(1 <= dist && dist <= 32768))
+                        throw new Error("Invalid distance");
+                    this.dictionary.copy(dist, run, this.output);
+                }
+            }
+        }
+        // Returns the run length based on the given symbol and possibly reading more bits.
+        decodeRunLength(sym) {
+            // Symbols outside the range cannot occur in the bit stream;
+            // they would indicate that the decompressor is buggy
+            if (!(257 <= sym && sym <= 287))
+                throw new RangeError("Invalid run length symbol");
+            if (sym <= 264)
+                return sym - 254;
+            else if (sym <= 284) {
+                const numExtraBits = Math.floor((sym - 261) / 4);
+                return (((sym - 265) % 4 + 4) << numExtraBits) + 3 + this.input.readUint(numExtraBits);
+            }
+            else if (sym == 285)
+                return 258;
+            else // sym is 286 or 287
+                throw new RangeError("Reserved length symbol");
+        }
+        // Returns the distance based on the given symbol and possibly reading more bits.
+        decodeDistance(sym) {
+            // Symbols outside the range cannot occur in the bit stream;
+            // they would indicate that the decompressor is buggy
+            if (!(0 <= sym && sym <= 31))
+                throw new RangeError("Invalid distance symbol");
+            if (sym <= 3)
+                return sym + 1;
+            else if (sym <= 29) {
+                const numExtraBits = Math.floor(sym / 2) - 1;
+                return ((sym % 2 + 2) << numExtraBits) + 1 + this.input.readUint(numExtraBits);
+            }
+            else // sym is 30 or 31
+                throw new RangeError("Reserved distance symbol");
+        }
     }
-    let FIXED_DISTANCE_CODE;
-    {
-        let codeLens = [];
-        for (let i = 0; i < 32; i++)
-            codeLens.push(5);
-        FIXED_DISTANCE_CODE = new CanonicalCode(codeLens);
-    }
+    Decompressor.FIXED_LITERAL_LENGTH_CODE = Decompressor.makeFixedLiteralLengthCode();
+    Decompressor.FIXED_DISTANCE_CODE = Decompressor.makeFixedDistanceCode();
+    deflate.Decompressor = Decompressor;
+    /*
+     * Stores a finite recent history of a byte stream. Useful as an implicit
+     * dictionary for Lempel-Ziv schemes.
+     */
     class ByteHistory {
+        // Constructs a byte history of the given size.
         constructor(size) {
+            // Circular buffer of byte data.
+            this.data = [];
+            // Index of next byte to write to, always in the range [0, data.length).
             this.index = 0;
             if (size < 1)
                 throw new RangeError("Size must be positive");
-            this.data = new Uint8Array(size);
+            this.size = size;
         }
+        // Appends the given byte to this history.
+        // This overwrites the byte value at `size` positions ago.
         append(b) {
+            if (this.data.length < this.size)
+                this.data.push(0); // Dummy value
             if (!(0 <= this.index && this.index < this.data.length))
-                throw new Error("Assertion error");
+                throw new Error("Unreachable state");
             this.data[this.index] = b;
-            this.index = (this.index + 1) % this.data.length;
+            this.index = (this.index + 1) % this.size;
         }
-        copy(dist, count, out) {
-            if (count < 0 || !(1 <= dist && dist <= this.data.length))
-                throw new RangeError("Invalid argument");
-            let readIndex = (this.index + this.data.length - dist) % this.data.length;
-            for (let i = 0; i < count; i++) {
+        // Copies `len` bytes starting at `dist` bytes ago to the
+        // given output array and also back into this buffer itself.
+        // Note that if the count exceeds the distance, then some of the output
+        // data will be a copy of data that was copied earlier in the process.
+        copy(dist, len, out) {
+            if (len < 0 || !(1 <= dist && dist <= this.data.length))
+                throw new RangeError("Invalid length or distance");
+            let readIndex = (this.index + this.size - dist) % this.size;
+            for (let i = 0; i < len; i++) {
                 const b = this.data[readIndex];
-                readIndex = (readIndex + 1) % this.data.length;
+                readIndex = (readIndex + 1) % this.size;
                 out.push(b);
                 this.append(b);
             }
         }
     }
+    /*
+     * A stream of bits that can be read. Because they come from an underlying byte stream, the
+     * total number of bits is always a multiple of 8. Bits are packed in little endian within
+     * a byte. For example, the byte 0x87 reads as the sequence of bits [1,1,1,0,0,0,0,1].
+     */
     class BitInputStream {
+        // Constructs a bit input stream based on the given byte array.
         constructor(data) {
             this.data = data;
+            // In the range [0, data.length*8].
             this.bitIndex = 0;
         }
+        // Returns the current bit position, which ascends from 0 to 7 as bits are read.
         getBitPosition() {
             return this.bitIndex % 8;
         }
+        // Reads a bit from this stream. Returns 0 or 1 if a bit is available, or -1 if
+        // the end of stream is reached. The end of stream always occurs on a byte boundary.
         readBitMaybe() {
             const byteIndex = this.bitIndex >>> 3;
             if (byteIndex >= this.data.length)
@@ -1756,9 +1873,11 @@ var deflate;
             this.bitIndex++;
             return result;
         }
+        // Reads the given number of bits from this stream,
+        // packing them in little endian as an unsigned integer.
         readUint(numBits) {
-            if (numBits < 0)
-                throw new RangeError("Invalid argument");
+            if (numBits < 0 || numBits > 31)
+                throw new RangeError("Number of bits out of range");
             let result = 0;
             for (let i = 0; i < numBits; i++) {
                 const bit = this.readBitMaybe();
@@ -1769,4 +1888,5 @@ var deflate;
             return result;
         }
     }
+    deflate.BitInputStream = BitInputStream;
 })(deflate || (deflate = {}));

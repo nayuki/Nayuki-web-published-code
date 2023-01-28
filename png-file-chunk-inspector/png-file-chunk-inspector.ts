@@ -7,11 +7,11 @@
  */
 
 
-type byte = number;
-type int = number;
-
-
 namespace app {
+	
+	type byte = number;
+	type int = number;
+	
 	
 	/*---- Graphical user interface ----*/
 	
@@ -871,7 +871,7 @@ namespace app {
 				chunk.innerNotes.push(`Compressed profile size: ${compProfile.length}`);
 				if (compMeth == 0) {
 					try {
-						const decompProfile: Uint8Array = deflate.decompressZlib(compProfile);
+						const decompProfile: Uint8Array = decompressZlibDeflate(compProfile);
 						chunk.innerNotes.push(`Decompressed profile size: ${decompProfile.length}`);
 					} catch (e) {
 						chunk.errorNotes.push("Profile decompression error: " + e.message);
@@ -1040,7 +1040,7 @@ namespace app {
 					case 1:
 						if (compMeth == 0) {
 							try {
-								textBytes = deflate.decompressZlib(parts[2]);
+								textBytes = decompressZlibDeflate(parts[2]);
 							} catch (e) {
 								chunk.errorNotes.push("Text decompression error: " + e.message);
 							}
@@ -1505,7 +1505,7 @@ namespace app {
 				chunk.innerNotes.push(`Compression method: ${s} (${compMeth})`);
 				if (compMeth == 0) {
 					try {
-						const textBytes: Uint8Array = deflate.decompressZlib(parts[1].slice(1));
+						const textBytes: Uint8Array = decompressZlibDeflate(parts[1].slice(1));
 						const text: string = decodeIso8859_1(textBytes);
 						let frag: DocumentFragment = document.createDocumentFragment();
 						frag.append("Text string: ");
@@ -1709,6 +1709,47 @@ namespace app {
 	}
 	
 	
+	function decompressZlibDeflate(bytes: Uint8Array): Uint8Array {
+		if (bytes.length < 2)
+			throw new RangeError("Invalid zlib container");
+		const compMeth: int = bytes[0] & 0xF;
+		const compInfo: int = bytes[0] >>> 4;
+		const presetDict: boolean = (bytes[1] & 0x20) != 0;
+		const compLevel: int = bytes[1] >>> 6;
+		
+		if ((bytes[0] << 8 | bytes[1]) % 31 != 0)
+			throw new RangeError("zlib header checksum mismatch");
+		if (compMeth != 8)
+			throw new RangeError(`Unsupported compression method (${compMeth})`);
+		if (compInfo > 7)
+			throw new RangeError(`Unsupported compression info (${compInfo})`);
+		if (presetDict)
+			throw new RangeError("Unsupported preset dictionary");
+		
+		let input: deflate.BitInputStream = new deflate.BitInputStream(bytes.slice(2));
+		const result: Uint8Array = deflate.Decompressor.decompress(input);
+		let dataAdler: int;
+		{
+			let s1: int = 1;
+			let s2: int = 0;
+			for (const b of result) {
+				s1 = (s1 + b) % 65521;
+				s2 = (s2 + s1) % 65521;
+			}
+			dataAdler = s2 << 16 | s1;
+		}
+		
+		let storedAdler: int = 0;
+		for (let i = 0; i < 4; i++)
+			storedAdler = storedAdler << 8 | input.readUint(8);
+		if (storedAdler != dataAdler)
+			throw new RangeError("Adler-32 mismatch");
+		if (input.readBitMaybe() != -1)
+			throw new RangeError("Unexpected data after zlib container");
+		return result;
+	}
+	
+	
 	function readUint16(bytes: Uint8Array, offset: int): int {
 		if (bytes.length - offset < 2)
 			throw new RangeError("Index out of range");
@@ -1739,326 +1780,6 @@ namespace app {
 			return val;
 		else
 			throw new TypeError("Invalid value type");
-	}
-	
-}
-
-
-
-// See https://www.nayuki.io/page/simple-deflate-decompressor
-namespace deflate {
-	
-	export function decompressZlib(bytes: Uint8Array): Uint8Array {
-		if (bytes.length < 2)
-			throw new RangeError("Invalid zlib container");
-		const compMeth: int = bytes[0] & 0xF;
-		const compInfo: int = bytes[0] >>> 4;
-		const presetDict: boolean = (bytes[1] & 0x20) != 0;
-		const compLevel: int = bytes[1] >>> 6;
-		
-		if ((bytes[0] << 8 | bytes[1]) % 31 != 0)
-			throw new RangeError("zlib header checksum mismatch");
-		if (compMeth != 8)
-			throw new RangeError(`Unsupported compression method (${compMeth})`);
-		if (compInfo > 7)
-			throw new RangeError(`Unsupported compression info (${compInfo})`);
-		if (presetDict)
-			throw new RangeError("Unsupported preset dictionary");
-		
-		const [result, input]: [Uint8Array,BitInputStream] = decompressDeflate(bytes.slice(2));
-		let dataAdler: int;
-		{
-			let s1: int = 1;
-			let s2: int = 0;
-			for (const b of result) {
-				s1 = (s1 + b) % 65521;
-				s2 = (s2 + s1) % 65521;
-			}
-			dataAdler = s2 << 16 | s1;
-		}
-		
-		let storedAdler: int = 0;
-		input.readUint((8 - input.getBitPosition()) % 8);
-		for (let i = 0; i < 4; i++)
-			storedAdler = storedAdler << 8 | input.readUint(8);
-		if (storedAdler != dataAdler)
-			throw new RangeError("Adler-32 mismatch");
-		if (input.readBitMaybe() != -1)
-			throw new RangeError("Unexpected data after zlib container");
-		return result;
-	}
-	
-	
-	function decompressDeflate(bytes: Uint8Array): [Uint8Array,BitInputStream] {
-		let input = new BitInputStream(bytes);
-		let output: Array<byte> = [];
-		let dictionary = new ByteHistory(32 * 1024);
-		while (true) {
-			const isFinal: boolean = input.readUint(1) != 0;
-			const type: int = input.readUint(2);
-			switch (type) {
-				case 0:
-					decompressUncompressedBlock();
-					break;
-				case 1:
-					decompressHuffmanBlock(FIXED_LITERAL_LENGTH_CODE, FIXED_DISTANCE_CODE);
-					break;
-				case 2:
-					const [litLenCode, distCode]: [CanonicalCode,CanonicalCode|null] = decodeHuffmanCodes();
-					decompressHuffmanBlock(litLenCode, distCode);
-					break;
-				case 3:
-					throw new Error("Reserved block type");
-				default:
-					throw new Error("Assertion error");
-			}
-			if (isFinal)
-				return [new Uint8Array(output), input];
-		}
-		
-		function decodeHuffmanCodes(): [CanonicalCode,CanonicalCode|null] {
-			const numLitLenCodes : int = input.readUint(5) + 257;
-			const numDistCodes   : int = input.readUint(5) +   1;
-			const numCodeLenCodes: int = input.readUint(4) +   4;
-			let codeLenCodeLen: Array<int> = [];
-			for (let i = 0; i < 19; i++)
-				codeLenCodeLen.push(0);
-			codeLenCodeLen[16] = input.readUint(3);
-			codeLenCodeLen[17] = input.readUint(3);
-			codeLenCodeLen[18] = input.readUint(3);
-			codeLenCodeLen[ 0] = input.readUint(3);
-			for (let i = 0; i < numCodeLenCodes - 4; i++) {
-				const j: int = (i % 2 == 0) ? (8 + Math.floor(i / 2)) : (7 - Math.floor(i / 2));
-				codeLenCodeLen[j] = input.readUint(3);
-			}
-			const codeLenCode = new CanonicalCode(codeLenCodeLen);
-			let codeLens: Array<int> = [];
-			while (codeLens.length < numLitLenCodes + numDistCodes) {
-				const sym: int = codeLenCode.decodeNextSymbol(input);
-				if (0 <= sym && sym <= 15)
-					codeLens.push(sym);
-				else if (sym == 16) {
-					if (codeLens.length == 0)
-						throw new Error("No code length value to copy");
-					const runLen: int = input.readUint(2) + 3;
-					for (let i = 0; i < runLen; i++)
-						codeLens.push(codeLens[codeLens.length - 1]);
-				} else if (sym == 17) {
-					const runLen: int = input.readUint(3) + 3;
-					for (let i = 0; i < runLen; i++)
-						codeLens.push(0);
-				} else if (sym == 18) {
-					const runLen: int = input.readUint(7) + 11;
-					for (let i = 0; i < runLen; i++)
-						codeLens.push(0);
-				} else
-					throw new Error("Symbol out of range");
-			}
-			if (codeLens.length > numLitLenCodes + numDistCodes)
-				throw new Error("Run exceeds number of codes");
-			const litLenCode = new CanonicalCode(codeLens.slice(0, numLitLenCodes));
-			let distCodeLen: Array<int> = codeLens.slice(numLitLenCodes);
-			let distCode: CanonicalCode|null;
-			if (distCodeLen.length == 1 && distCodeLen[0] == 0)
-				distCode = null;
-			else {
-				const oneCount: int = distCodeLen.filter(x => x == 1).length;
-				const otherPositiveCount: int = distCodeLen.filter(x => x > 1).length;
-				if (oneCount == 1 && otherPositiveCount == 0) {
-					while (distCodeLen.length < 32)
-						distCodeLen.push(0);
-					distCodeLen[31] = 1;
-				}
-				distCode = new CanonicalCode(distCodeLen);
-			}
-			return [litLenCode, distCode];
-		}
-		
-		function decompressUncompressedBlock(): void {
-			input.readUint((8 - input.getBitPosition()) % 8);
-			const len : int = input.readUint(16);
-			const nlen: int = input.readUint(16);
-			if ((len ^ 0xFFFF) != nlen)
-				throw new Error("Invalid length in uncompressed block");
-			for (let i = 0; i < len; i++) {
-				const b: byte = input.readUint(8);
-				output.push(b);
-				dictionary.append(b);
-			}
-		}
-		
-		function decompressHuffmanBlock(litLenCode: CanonicalCode, distCode: CanonicalCode|null): void {
-			while (true) {
-				const sym: int = litLenCode.decodeNextSymbol(input);
-				if (sym == 256)
-					break;
-				else if (sym < 256) {
-					output.push(sym);
-					dictionary.append(sym);
-				} else {
-					const run: int = decodeRunLength(sym);
-					if (!(3 <= run && run <= 258))
-						throw new Error("Invalid run length");
-					if (distCode === null)
-						throw new Error("Length symbol encountered with empty distance code");
-					const distSym: int = distCode.decodeNextSymbol(input);
-					const dist: int = decodeDistance(distSym);
-					if (!(1 <= dist && dist <= 32768))
-						throw new Error("Invalid distance");
-					dictionary.copy(dist, run, output);
-				}
-			}
-		}
-		
-		function decodeRunLength(sym: int): int {
-			if (!(257 <= sym && sym <= 287))
-				throw new RangeError("Invalid run length symbol");
-			if (sym <= 264)
-				return sym - 254;
-			else if (sym <= 284) {
-				const numExtraBits: int = Math.floor((sym - 261) / 4);
-				return (((sym - 265) % 4 + 4) << numExtraBits) + 3 + input.readUint(numExtraBits);
-			} else if (sym == 285)
-				return 258;
-			else
-				throw new RangeError("Reserved length symbol");
-		}
-		
-		function decodeDistance(sym: int): int {
-			if (!(0 <= sym && sym <= 31))
-				throw new RangeError("Invalid distance symbol");
-			if (sym <= 3)
-				return sym + 1;
-			else if (sym <= 29) {
-				const numExtraBits: int = Math.floor(sym / 2) - 1;
-				return ((sym % 2 + 2) << numExtraBits) + 1 + input.readUint(numExtraBits);
-			} else
-				throw new RangeError("Reserved distance symbol");
-		}
-	}
-	
-	
-	class CanonicalCode {
-		
-		private codeBitsToSymbol = new Map<int,int>();
-		
-		public constructor(codeLengths: Readonly<Array<int>>) {
-			let nextCode: int = 0;
-			for (let codeLength = 1; codeLength <= CanonicalCode.MAX_CODE_LENGTH; codeLength++) {
-				nextCode <<= 1;
-				const startBit: int = 1 << codeLength;
-				codeLengths.forEach((cl, symbol) => {
-					if (cl != codeLength)
-						return;
-					if (nextCode >= startBit)
-						throw new RangeError("This canonical code produces an over-full Huffman code tree");
-					this.codeBitsToSymbol.set(startBit | nextCode, symbol);
-					nextCode++;
-				});
-			}
-			if (nextCode != 1 << CanonicalCode.MAX_CODE_LENGTH)
-				throw new RangeError("This canonical code produces an under-full Huffman code tree");
-		}
-		
-		public decodeNextSymbol(inp: BitInputStream): int {
-			let codeBits: int = 1;
-			while (true) {
-				codeBits = codeBits << 1 | inp.readUint(1);
-				const result: int|undefined = this.codeBitsToSymbol.get(codeBits);
-				if (result !== undefined)
-					return result;
-			}
-		}
-		
-		private static readonly MAX_CODE_LENGTH: int = 15;
-		
-	}
-	
-	
-	let FIXED_LITERAL_LENGTH_CODE: CanonicalCode;
-	{
-		let codeLens: Array<int> = [];
-		for (let i = 0; i < 144; i++) codeLens.push(8);
-		for (let i = 0; i < 112; i++) codeLens.push(9);
-		for (let i = 0; i <  24; i++) codeLens.push(7);
-		for (let i = 0; i <   8; i++) codeLens.push(8);
-		FIXED_LITERAL_LENGTH_CODE = new CanonicalCode(codeLens);
-	}
-	
-	let FIXED_DISTANCE_CODE: CanonicalCode;
-	{
-		let codeLens: Array<int> = [];
-		for (let i = 0; i < 32; i++) codeLens.push(5);
-		FIXED_DISTANCE_CODE = new CanonicalCode(codeLens);
-	}
-	
-	
-	class ByteHistory {
-		
-		public data: Uint8Array;
-		public index: int = 0;
-		
-		public constructor(size: int) {
-			if (size < 1)
-				throw new RangeError("Size must be positive");
-			this.data = new Uint8Array(size);
-		}
-		
-		public append(b: byte): void {
-			if (!(0 <= this.index && this.index < this.data.length))
-				throw new Error("Assertion error");
-			this.data[this.index] = b;
-			this.index = (this.index + 1) % this.data.length;
-		}
-		
-		public copy(dist: int, count: int, out: Array<byte>): void {
-			if (count < 0 || !(1 <= dist && dist <= this.data.length))
-				throw new RangeError("Invalid argument");
-			let readIndex: int = (this.index + this.data.length - dist) % this.data.length;
-			for (let i = 0; i < count; i++) {
-				const b: byte = this.data[readIndex];
-				readIndex = (readIndex + 1) % this.data.length;
-				out.push(b);
-				this.append(b);
-			}
-		}
-		
-	}
-	
-	
-	class BitInputStream {
-		
-		private bitIndex: int = 0;
-		
-		public constructor(
-			private data: Uint8Array) {}
-		
-		public getBitPosition(): int {
-			return this.bitIndex % 8;
-		}
-		
-		public readBitMaybe(): -1|0|1 {
-			const byteIndex: int = this.bitIndex >>> 3;
-			if (byteIndex >= this.data.length)
-				return -1;
-			const result = ((this.data[byteIndex] >>> (this.bitIndex & 7)) & 1) as (0|1);
-			this.bitIndex++;
-			return result;
-		}
-		
-		public readUint(numBits: int): int {
-			if (numBits < 0)
-				throw new RangeError("Invalid argument");
-			let result: int = 0;
-			for (let i = 0; i < numBits; i++) {
-				const bit: -1|0|1 = this.readBitMaybe();
-				if (bit == -1)
-					throw new Error("Unexpected end of data");
-				result |= bit << i;
-			}
-			return result;
-		}
-		
 	}
 	
 }
