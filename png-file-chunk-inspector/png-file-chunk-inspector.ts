@@ -824,7 +824,7 @@ namespace app {
 			}],
 			
 			
-			["hIST", "Palette histogram", false, (chunk, earlier) => {
+			["hIST", "Image histogram", false, (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				if (!earlier.some(ch => ch.typeStr == "PLTE"))
 					chunk.errorNotes.push("Chunk requires earlier PLTE chunk");
