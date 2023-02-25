@@ -395,10 +395,19 @@ var app;
             {
                 const typeBytes = bytes.subarray(4, 8);
                 this.typeStr = bytesToReadableString(typeBytes);
-                this.outerNotes.push("Type: " + this.typeStr);
                 if (!/^[A-Za-z]{4}$/.test(this.typeStr))
                     this.errorNotes.push("Type contains non-alphabetic characters");
                 const typeInfo = this.getTypeInfo();
+                if (typeInfo !== null) {
+                    let frag = document.createDocumentFragment();
+                    frag.append("Type: ");
+                    let a = requireType(appendElem(frag, "a", this.typeStr), HTMLAnchorElement);
+                    a.href = typeInfo[2];
+                    a.target = "_blank";
+                    this.outerNotes.push(frag);
+                }
+                else
+                    this.outerNotes.push("Type: " + this.typeStr);
                 const typeName = typeInfo !== null ? typeInfo[0] : "Unknown";
                 this.outerNotes.push("Name: " + typeName, (typeBytes[0] & 0x20) == 0 ? "Critical (0)" : "Ancillary (1)", (typeBytes[1] & 0x20) == 0 ? "Public (0)" : "Private (1)", (typeBytes[2] & 0x20) == 0 ? "Reserved (0)" : "Unknown (1)", (typeBytes[3] & 0x20) == 0 ? "Unsafe to copy (0)" : "Safe to copy (1)");
             }
@@ -423,15 +432,15 @@ var app;
                 return;
             const temp = this.getTypeInfo();
             if (temp !== null)
-                temp[2](this, earlierChunks);
+                temp[3](this, earlierChunks);
         }
         getTypeInfo() {
             let result = null;
-            for (const [type, name, multiple, func] of ChunkPart.TYPE_HANDLERS) {
+            for (const [type, name, multiple, url, func] of ChunkPart.TYPE_HANDLERS) {
                 if (type == this.typeStr) {
                     if (result !== null)
                         throw new Error("Table has duplicate keys");
-                    result = [name, multiple, func];
+                    result = [name, multiple, url, func];
                 }
             }
             return result;
@@ -483,7 +492,7 @@ var app;
     ChunkPart.MAX_DATA_LENGTH = 2147483647;
     /*---- Handlers and metadata for all known PNG chunk types ----*/
     ChunkPart.TYPE_HANDLERS = [
-        ["acTL", "Animation control", false, (chunk, earlier) => {
+        ["acTL", "Animation control", false, "https://wiki.mozilla.org/APNG_Specification#.60acTL.60:_The_Animation_Control_Chunk", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 addErrorIfHasType(earlier, "fcTL", chunk, "Chunk must be before fcTL chunk");
                 addErrorIfHasType(earlier, "fdAT", chunk, "Chunk must be before fdAT chunk");
@@ -500,7 +509,7 @@ var app;
                 if (numPlays > 2147483647)
                     chunk.errorNotes.push("Number of plays out of range");
             }],
-        ["bKGD", "Background color", false, (chunk, earlier) => {
+        ["bKGD", "Background color", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11bKGD", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 const ihdr = ChunkPart.getValidIhdrData(earlier);
                 if (ihdr === null)
@@ -538,7 +547,7 @@ var app;
                     }
                 }
             }],
-        ["cHRM", "Primary chromaticities", false, (chunk, earlier) => {
+        ["cHRM", "Primary chromaticities", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11cHRM", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 if (chunk.data.length != 32) {
@@ -559,9 +568,9 @@ var app;
                     }
                 }
             }],
-        ["dSIG", "Digital signature", true, (chunk, earlier) => { }],
-        ["eXIf", "Exchangeable Image File (Exif) Profile", false, (chunk, earlier) => { }],
-        ["fcTL", "Frame control", true, (chunk, earlier) => {
+        ["dSIG", "Digital signature", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#RC.dSIG", (chunk, earlier) => { }],
+        ["eXIf", "Exchangeable Image File (Exif) Profile", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf", (chunk, earlier) => { }],
+        ["fcTL", "Frame control", true, "https://wiki.mozilla.org/APNG_Specification#.60fcTL.60:_The_Frame_Control_Chunk", (chunk, earlier) => {
                 if (chunk.data.length != 26) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -637,7 +646,7 @@ var app;
                     chunk.innerNotes.push(`Blend operation: ${s} (${blendOp})`);
                 }
             }],
-        ["fdAT", "Frame data", true, (chunk, earlier) => {
+        ["fdAT", "Frame data", true, "https://wiki.mozilla.org/APNG_Specification#.60fdAT.60:_The_Frame_Data_Chunk", (chunk, earlier) => {
                 if (chunk.data.length < 4) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -648,8 +657,8 @@ var app;
                     chunk.errorNotes.push("Sequence number out of range");
                 chunk.innerNotes.push(`Frame data length: ${chunk.data.length - 4} bytes`);
             }],
-        ["fRAc", "Fractal image parameters", true, (chunk, earlier) => { }],
-        ["gAMA", "Image gamma", false, (chunk, earlier) => {
+        ["fRAc", "Fractal image parameters", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#RC.fRAc", (chunk, earlier) => { }],
+        ["gAMA", "Image gamma", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11gAMA", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 if (chunk.data.length != 4) {
@@ -664,7 +673,7 @@ var app;
                 if (gamma > 2147483647)
                     chunk.errorNotes.push("Gamma value out of range");
             }],
-        ["gIFg", "GIF Graphic Control Extension", true, (chunk, earlier) => {
+        ["gIFg", "GIF Graphic Control Extension", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.gIFg", (chunk, earlier) => {
                 if (chunk.data.length != 4) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -679,7 +688,7 @@ var app;
                 // s basically equals (delayTime/100).toFixed(2)
                 chunk.innerNotes.push(`Delay time: ${s} s`);
             }],
-        ["gIFt", "GIF Plain Text Extension", true, (chunk, earlier) => {
+        ["gIFt", "GIF Plain Text Extension", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#DC.gIFt", (chunk, earlier) => {
                 if (chunk.data.length < 24) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -703,7 +712,7 @@ var app;
                 if (gridHeight == -2147483648)
                     chunk.errorNotes.push("Text grid height out of range");
             }],
-        ["gIFx", "GIF Application Extension", true, (chunk, earlier) => {
+        ["gIFx", "GIF Application Extension", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.gIFx", (chunk, earlier) => {
                 if (chunk.data.length < 11) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -722,7 +731,7 @@ var app;
                     chunk.innerNotes.push(`Application data: ${hex.join(" ")}`);
                 }
             }],
-        ["hIST", "Image histogram", false, (chunk, earlier) => {
+        ["hIST", "Image histogram", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11hIST", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 if (!earlier.some(ch => ch.typeStr == "PLTE"))
                     chunk.errorNotes.push("Chunk requires earlier PLTE chunk");
@@ -738,7 +747,7 @@ var app;
                 if (numEntries != plteNumEntries)
                     chunk.errorNotes.push("Invalid data length");
             }],
-        ["iCCP", "Embedded ICC profile", false, (chunk, earlier) => {
+        ["iCCP", "Embedded ICC profile", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11iCCP", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 addErrorIfHasType(earlier, "sRGB", chunk, "Chunk should not exist because sRGB chunk exists");
@@ -772,17 +781,17 @@ var app;
                     }
                 }
             }],
-        ["IDAT", "Image data", true, (chunk, earlier) => {
+        ["IDAT", "Image data", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11IDAT", (chunk, earlier) => {
                 if (earlier.length > 0 && earlier[earlier.length - 1].typeStr != "IDAT"
                     && earlier.some(ch => ch.typeStr == "IDAT")) {
                     chunk.errorNotes.push("Non-consecutive IDAT chunk");
                 }
             }],
-        ["IEND", "Image trailer", false, (chunk, earlier) => {
+        ["IEND", "Image trailer", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11IEND", (chunk, earlier) => {
                 if (chunk.data.length != 0)
                     chunk.errorNotes.push("Non-empty data");
             }],
-        ["IHDR", "Image header", false, (chunk, earlier) => {
+        ["IHDR", "Image header", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11IHDR", (chunk, earlier) => {
                 if (chunk.data.length != 13) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -849,7 +858,7 @@ var app;
                     chunk.innerNotes.push(`Interlace method: ${s} (${laceMeth})`);
                 }
             }],
-        ["iTXt", "International textual data", true, (chunk, earlier) => {
+        ["iTXt", "International textual data", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11iTXt", (chunk, earlier) => {
                 let parts = splitByNull(chunk.data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
                 annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
@@ -942,7 +951,7 @@ var app;
                     chunk.errorNotes.push("Invalid UTF-8 in text string");
                 }
             }],
-        ["oFFs", "Image offset", false, (chunk, earlier) => {
+        ["oFFs", "Image offset", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.oFFs", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 if (chunk.data.length != 9) {
                     chunk.errorNotes.push("Invalid data length");
@@ -969,7 +978,7 @@ var app;
                     chunk.innerNotes.push(`Unit specifier: ${s} (${unit})`);
                 }
             }],
-        ["pCAL", "Calibration of pixel values", false, (chunk, earlier) => {
+        ["pCAL", "Calibration of pixel values", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.pCAL", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 let parts = splitByNull(chunk.data, 2);
                 const calibrationName = decodeIso8859_1(parts[0]);
@@ -1032,7 +1041,7 @@ var app;
                 if (parts.length != numParameters + 1)
                     chunk.errorNotes.push("Missing null separator");
             }],
-        ["pHYs", "Physical pixel dimensions", false, (chunk, earlier) => {
+        ["pHYs", "Physical pixel dimensions", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11pHYs", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 if (chunk.data.length != 9) {
                     chunk.errorNotes.push("Invalid data length");
@@ -1066,7 +1075,7 @@ var app;
                     chunk.innerNotes.push(`Unit specifier: ${s} (${unit})`);
                 }
             }],
-        ["PLTE", "Palette", false, (chunk, earlier) => {
+        ["PLTE", "Palette", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11PLTE", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "bKGD", chunk, "Chunk must be before bKGD chunk");
                 addErrorIfHasType(earlier, "hIST", chunk, "Chunk must be before hIST chunk");
                 addErrorIfHasType(earlier, "tRNS", chunk, "Chunk must be before tRNS chunk");
@@ -1089,7 +1098,7 @@ var app;
                 if (colorType == 3 && numEntries > (1 << bitDepth))
                     chunk.errorNotes.push("Number of palette entries exceeds bit depth");
             }],
-        ["sCAL", "Physical scale of image subject", false, (chunk, earlier) => {
+        ["sCAL", "Physical scale of image subject", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.sCAL", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 if (chunk.data.length < 1) {
                     chunk.errorNotes.push("Invalid data length");
@@ -1132,7 +1141,7 @@ var app;
                         chunk.errorNotes.push("Non-positive height");
                 }
             }],
-        ["sBIT", "Significant bits", false, (chunk, earlier) => {
+        ["sBIT", "Significant bits", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11sBIT", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 const ihdr = ChunkPart.getValidIhdrData(earlier);
@@ -1163,7 +1172,7 @@ var app;
                     }
                 });
             }],
-        ["sPLT", "Suggested palette", true, (chunk, earlier) => {
+        ["sPLT", "Suggested palette", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11sPLT", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 const parts = splitByNull(chunk.data, 2);
                 const name = decodeIso8859_1(parts[0]);
@@ -1191,7 +1200,7 @@ var app;
                 else
                     chunk.errorNotes.push("Invalid data length");
             }],
-        ["sRGB", "Standard RGB color space", false, (chunk, earlier) => {
+        ["sRGB", "Standard RGB color space", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11sRGB", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 addErrorIfHasType(earlier, "iCCP", chunk, "Chunk should not exist because iCCP chunk exists");
@@ -1212,7 +1221,7 @@ var app;
                 }
                 chunk.innerNotes.push(`Rendering intent: ${s} (${renderIntent})`);
             }],
-        ["sTER", "Indicator of Stereo Image", false, (chunk, earlier) => {
+        ["sTER", "Indicator of Stereo Image", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.sTER", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 if (chunk.data.length != 1) {
                     chunk.errorNotes.push("Invalid data length");
@@ -1229,7 +1238,7 @@ var app;
                 }
                 chunk.innerNotes.push(`Mode: ${s} (${mode})`);
             }],
-        ["tEXt", "Textual data", true, (chunk, earlier) => {
+        ["tEXt", "Textual data", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11tEXt", (chunk, earlier) => {
                 const parts = splitByNull(chunk.data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
                 annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
@@ -1244,7 +1253,7 @@ var app;
                 if (text.includes("\uFFFD"))
                     chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
             }],
-        ["tIME", "Image last-modification time", false, (chunk, earlier) => {
+        ["tIME", "Image last-modification time", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11tIME", (chunk, earlier) => {
                 if (chunk.data.length != 7) {
                     chunk.errorNotes.push("Invalid data length");
                     return;
@@ -1267,7 +1276,7 @@ var app;
                 if (!(0 <= second && second <= 60))
                     chunk.errorNotes.push("Invalid second");
             }],
-        ["tRNS", "Transparency", false, (chunk, earlier) => {
+        ["tRNS", "Transparency", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11tRNS", (chunk, earlier) => {
                 addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
                 const ihdr = ChunkPart.getValidIhdrData(earlier);
                 if (ihdr === null)
@@ -1305,7 +1314,7 @@ var app;
                     }
                 }
             }],
-        ["zTXt", "Compressed textual data", true, (chunk, earlier) => {
+        ["zTXt", "Compressed textual data", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11zTXt", (chunk, earlier) => {
                 const parts = splitByNull(chunk.data, 2);
                 const keyword = decodeIso8859_1(parts[0]);
                 annotateTextKeyword(keyword, true, "Keyword", "keyword", chunk);
@@ -1709,7 +1718,10 @@ var deflate;
             if (codeLens.length > numLitLenCodes + numDistCodes)
                 throw new Error("Run exceeds number of codes");
             // Create literal-length code tree
-            const litLenCode = new CanonicalCode(codeLens.slice(0, numLitLenCodes));
+            const litLenCodeLen = codeLens.slice(0, numLitLenCodes);
+            if (litLenCodeLen[256] == 0)
+                throw new Error("End-of-block symbol has zero code length");
+            const litLenCode = new CanonicalCode(litLenCodeLen);
             // Create distance code tree with some extra processing
             let distCodeLen = codeLens.slice(numLitLenCodes);
             let distCode;

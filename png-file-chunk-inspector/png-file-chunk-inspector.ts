@@ -464,10 +464,18 @@ namespace app {
 			{
 				const typeBytes: Uint8Array = bytes.subarray(4, 8);
 				this.typeStr = bytesToReadableString(typeBytes);
-				this.outerNotes.push("Type: " + this.typeStr);
 				if (!/^[A-Za-z]{4}$/.test(this.typeStr))
 					this.errorNotes.push("Type contains non-alphabetic characters");
 				const typeInfo = this.getTypeInfo();
+				if (typeInfo !== null) {
+					let frag: DocumentFragment = document.createDocumentFragment();
+					frag.append("Type: ");
+					let a = requireType(appendElem(frag, "a", this.typeStr), HTMLAnchorElement);
+					a.href = typeInfo[2];
+					a.target = "_blank";
+					this.outerNotes.push(frag);
+				} else
+					this.outerNotes.push("Type: " + this.typeStr);
 				const typeName: string = typeInfo !== null ? typeInfo[0] : "Unknown";
 				this.outerNotes.push(
 					"Name: " + typeName,
@@ -503,7 +511,7 @@ namespace app {
 				return;
 			const temp = this.getTypeInfo();
 			if (temp !== null)
-				temp[2](this, earlierChunks);
+				temp[3](this, earlierChunks);
 		}
 		
 		
@@ -511,13 +519,13 @@ namespace app {
 		public static MAX_DATA_LENGTH: int = 0x7FFF_FFFF;
 		
 		
-		public getTypeInfo(): [string,boolean,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]|null {
-			let result: [string,boolean,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]|null = null;
-			for (const [type, name, multiple, func] of ChunkPart.TYPE_HANDLERS) {
+		public getTypeInfo(): [string,boolean,string,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]|null {
+			let result: [string,boolean,string,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]|null = null;
+			for (const [type, name, multiple, url, func] of ChunkPart.TYPE_HANDLERS) {
 				if (type == this.typeStr) {
 					if (result !== null)
 						throw new Error("Table has duplicate keys");
-					result = [name, multiple, func];
+					result = [name, multiple, url, func];
 				}
 			}
 			return result;
@@ -527,9 +535,9 @@ namespace app {
 		
 		/*---- Handlers and metadata for all known PNG chunk types ----*/
 		
-		private static TYPE_HANDLERS: Array<[string,string,boolean,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]> = [
+		private static TYPE_HANDLERS: Array<[string,string,boolean,string,((chunk:ChunkPart,earlier:Readonly<Array<ChunkPart>>)=>void)]> = [
 			
-			["acTL", "Animation control", false, (chunk, earlier) => {
+			["acTL", "Animation control", false, "https://wiki.mozilla.org/APNG_Specification#.60acTL.60:_The_Animation_Control_Chunk", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				addErrorIfHasType(earlier, "fcTL", chunk, "Chunk must be before fcTL chunk");
 				addErrorIfHasType(earlier, "fdAT", chunk, "Chunk must be before fdAT chunk");
@@ -549,7 +557,7 @@ namespace app {
 			}],
 			
 			
-			["bKGD", "Background color", false, (chunk, earlier) => {
+			["bKGD", "Background color", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11bKGD", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
 				const ihdr: Uint8Array|null = ChunkPart.getValidIhdrData(earlier);
@@ -595,7 +603,7 @@ namespace app {
 			}],
 			
 			
-			["cHRM", "Primary chromaticities", false, (chunk, earlier) => {
+			["cHRM", "Primary chromaticities", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11cHRM", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
@@ -619,13 +627,13 @@ namespace app {
 			}],
 			
 			
-			["dSIG", "Digital signature", true, (chunk, earlier) => {}],
+			["dSIG", "Digital signature", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#RC.dSIG", (chunk, earlier) => {}],
 			
 			
-			["eXIf", "Exchangeable Image File (Exif) Profile", false, (chunk, earlier) => {}],
+			["eXIf", "Exchangeable Image File (Exif) Profile", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.eXIf", (chunk, earlier) => {}],
 			
 			
-			["fcTL", "Frame control", true, (chunk, earlier) => {
+			["fcTL", "Frame control", true, "https://wiki.mozilla.org/APNG_Specification#.60fcTL.60:_The_Frame_Control_Chunk", (chunk, earlier) => {
 				if (chunk.data.length != 26) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
@@ -715,7 +723,7 @@ namespace app {
 			}],
 			
 			
-			["fdAT", "Frame data", true, (chunk, earlier) => {
+			["fdAT", "Frame data", true, "https://wiki.mozilla.org/APNG_Specification#.60fdAT.60:_The_Frame_Data_Chunk", (chunk, earlier) => {
 				if (chunk.data.length < 4) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
@@ -728,10 +736,10 @@ namespace app {
 			}],
 			
 			
-			["fRAc", "Fractal image parameters", true, (chunk, earlier) => {}],
+			["fRAc", "Fractal image parameters", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#RC.fRAc", (chunk, earlier) => {}],
 			
 			
-			["gAMA", "Image gamma", false, (chunk, earlier) => {
+			["gAMA", "Image gamma", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11gAMA", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
@@ -749,7 +757,7 @@ namespace app {
 			}],
 			
 			
-			["gIFg", "GIF Graphic Control Extension", true, (chunk, earlier) => {
+			["gIFg", "GIF Graphic Control Extension", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.gIFg", (chunk, earlier) => {
 				if (chunk.data.length != 4) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
@@ -766,7 +774,7 @@ namespace app {
 			}],
 			
 			
-			["gIFt", "GIF Plain Text Extension", true, (chunk, earlier) => {
+			["gIFt", "GIF Plain Text Extension", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#DC.gIFt", (chunk, earlier) => {
 				if (chunk.data.length < 24) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
@@ -803,7 +811,7 @@ namespace app {
 			}],
 			
 			
-			["gIFx", "GIF Application Extension", true, (chunk, earlier) => {
+			["gIFx", "GIF Application Extension", true, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.gIFx", (chunk, earlier) => {
 				if (chunk.data.length < 11) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
@@ -824,7 +832,7 @@ namespace app {
 			}],
 			
 			
-			["hIST", "Image histogram", false, (chunk, earlier) => {
+			["hIST", "Image histogram", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11hIST", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				if (!earlier.some(ch => ch.typeStr == "PLTE"))
 					chunk.errorNotes.push("Chunk requires earlier PLTE chunk");
@@ -843,7 +851,7 @@ namespace app {
 			}],
 			
 			
-			["iCCP", "Embedded ICC profile", false, (chunk, earlier) => {
+			["iCCP", "Embedded ICC profile", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11iCCP", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				addErrorIfHasType(earlier, "sRGB", chunk, "Chunk should not exist because sRGB chunk exists");
@@ -880,7 +888,7 @@ namespace app {
 			}],
 			
 			
-			["IDAT", "Image data", true, (chunk, earlier) => {
+			["IDAT", "Image data", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11IDAT", (chunk, earlier) => {
 				if (earlier.length > 0 && earlier[earlier.length - 1].typeStr != "IDAT"
 						&& earlier.some(ch => ch.typeStr == "IDAT")) {
 					chunk.errorNotes.push("Non-consecutive IDAT chunk");
@@ -888,13 +896,13 @@ namespace app {
 			}],
 			
 			
-			["IEND", "Image trailer", false, (chunk, earlier) => {
+			["IEND", "Image trailer", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11IEND", (chunk, earlier) => {
 				if (chunk.data.length != 0)
 					chunk.errorNotes.push("Non-empty data");
 			}],
 			
 			
-			["IHDR", "Image header", false, (chunk, earlier) => {
+			["IHDR", "Image header", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11IHDR", (chunk, earlier) => {
 				if (chunk.data.length != 13) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
@@ -965,7 +973,7 @@ namespace app {
 			}],
 			
 			
-			["iTXt", "International textual data", true, (chunk, earlier) => {
+			["iTXt", "International textual data", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11iTXt", (chunk, earlier) => {
 				let parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
@@ -1062,7 +1070,7 @@ namespace app {
 			}],
 			
 			
-			["oFFs", "Image offset", false, (chunk, earlier) => {
+			["oFFs", "Image offset", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.oFFs", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
 				if (chunk.data.length != 9) {
@@ -1092,7 +1100,7 @@ namespace app {
 			}],
 			
 			
-			["pCAL", "Calibration of pixel values", false, (chunk, earlier) => {
+			["pCAL", "Calibration of pixel values", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.pCAL", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
 				let parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
@@ -1162,7 +1170,7 @@ namespace app {
 			}],
 			
 			
-			["pHYs", "Physical pixel dimensions", false, (chunk, earlier) => {
+			["pHYs", "Physical pixel dimensions", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11pHYs", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
 				if (chunk.data.length != 9) {
@@ -1199,7 +1207,7 @@ namespace app {
 			}],
 			
 			
-			["PLTE", "Palette", false, (chunk, earlier) => {
+			["PLTE", "Palette", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11PLTE", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "bKGD", chunk, "Chunk must be before bKGD chunk");
 				addErrorIfHasType(earlier, "hIST", chunk, "Chunk must be before hIST chunk");
 				addErrorIfHasType(earlier, "tRNS", chunk, "Chunk must be before tRNS chunk");
@@ -1226,7 +1234,7 @@ namespace app {
 			}],
 			
 			
-			["sCAL", "Physical scale of image subject", false, (chunk, earlier) => {
+			["sCAL", "Physical scale of image subject", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.sCAL", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
 				if (chunk.data.length < 1) {
@@ -1273,7 +1281,7 @@ namespace app {
 			}],
 			
 			
-			["sBIT", "Significant bits", false, (chunk, earlier) => {
+			["sBIT", "Significant bits", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11sBIT", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
@@ -1308,7 +1316,7 @@ namespace app {
 			}],
 			
 			
-			["sPLT", "Suggested palette", true, (chunk, earlier) => {
+			["sPLT", "Suggested palette", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11sPLT", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				const parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 				
@@ -1341,7 +1349,7 @@ namespace app {
 			}],
 			
 			
-			["sRGB", "Standard RGB color space", false, (chunk, earlier) => {
+			["sRGB", "Standard RGB color space", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11sRGB", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "PLTE", chunk, "Chunk must be before PLTE chunk");
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				addErrorIfHasType(earlier, "iCCP", chunk, "Chunk should not exist because iCCP chunk exists");
@@ -1365,7 +1373,7 @@ namespace app {
 			}],
 			
 			
-			["sTER", "Indicator of Stereo Image", false, (chunk, earlier) => {
+			["sTER", "Indicator of Stereo Image", false, "https://ftp-osl.osuosl.org/pub/libpng/documents/pngext-1.5.0.html#C.sTER", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
 				if (chunk.data.length != 1) {
@@ -1385,7 +1393,7 @@ namespace app {
 			}],
 			
 			
-			["tEXt", "Textual data", true, (chunk, earlier) => {
+			["tEXt", "Textual data", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11tEXt", (chunk, earlier) => {
 				const parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
@@ -1404,7 +1412,7 @@ namespace app {
 			}],
 			
 			
-			["tIME", "Image last-modification time", false, (chunk, earlier) => {
+			["tIME", "Image last-modification time", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11tIME", (chunk, earlier) => {
 				if (chunk.data.length != 7) {
 					chunk.errorNotes.push("Invalid data length");
 					return;
@@ -1436,7 +1444,7 @@ namespace app {
 			}],
 			
 			
-			["tRNS", "Transparency", false, (chunk, earlier) => {
+			["tRNS", "Transparency", false, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11tRNS", (chunk, earlier) => {
 				addErrorIfHasType(earlier, "IDAT", chunk, "Chunk must be before IDAT chunk");
 				
 				const ihdr: Uint8Array|null = ChunkPart.getValidIhdrData(earlier);
@@ -1482,7 +1490,7 @@ namespace app {
 			}],
 			
 			
-			["zTXt", "Compressed textual data", true, (chunk, earlier) => {
+			["zTXt", "Compressed textual data", true, "https://www.w3.org/TR/2003/REC-PNG-20031110/#11zTXt", (chunk, earlier) => {
 				const parts: Array<Uint8Array> = splitByNull(chunk.data, 2);
 				
 				const keyword: string = decodeIso8859_1(parts[0]);
