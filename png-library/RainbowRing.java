@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import io.nayuki.png.ImageEncoder;
 import io.nayuki.png.PngImage;
+import io.nayuki.png.chunk.Ihdr;
 import io.nayuki.png.image.RgbaImage;
 
 public final class RainbowRing {
@@ -52,7 +53,7 @@ public final class RainbowRing {
 			}
 		};
 		
-		PngImage png = ImageEncoder.toPng(img);
+		PngImage png = ImageEncoder.toPng(img, Ihdr.InterlaceMethod.NONE);
 		png.write(new File("rainbow-ring.png"));
 	}
 	

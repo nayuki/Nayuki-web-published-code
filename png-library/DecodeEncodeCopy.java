@@ -28,6 +28,7 @@ import io.nayuki.png.Chunk;
 import io.nayuki.png.ImageDecoder;
 import io.nayuki.png.ImageEncoder;
 import io.nayuki.png.PngImage;
+import io.nayuki.png.chunk.Ihdr;
 import io.nayuki.png.chunk.Sbit;
 import io.nayuki.png.image.GrayImage;
 import io.nayuki.png.image.PaletteImage;
@@ -45,11 +46,11 @@ public final class DecodeEncodeCopy {
 		
 		PngImage outPng;
 		if (image instanceof RgbaImage img)
-			outPng = ImageEncoder.toPng(img);
+			outPng = ImageEncoder.toPng(img, Ihdr.InterlaceMethod.NONE);
 		else if (image instanceof GrayImage img)
-			outPng = ImageEncoder.toPng(img);
+			outPng = ImageEncoder.toPng(img, Ihdr.InterlaceMethod.NONE);
 		else if (image instanceof PaletteImage img)
-			outPng = ImageEncoder.toPng(img);
+			outPng = ImageEncoder.toPng(img, Ihdr.InterlaceMethod.NONE);
 		else
 			throw new AssertionError("Unreachable type");
 		

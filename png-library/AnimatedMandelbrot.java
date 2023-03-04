@@ -29,6 +29,7 @@ import io.nayuki.png.chunk.Actl;
 import io.nayuki.png.chunk.Fctl;
 import io.nayuki.png.chunk.Fdat;
 import io.nayuki.png.chunk.Idat;
+import io.nayuki.png.chunk.Ihdr;
 import io.nayuki.png.image.RgbaImage;
 
 
@@ -87,7 +88,7 @@ public final class AnimatedMandelbrot {
 				}
 			};
 			
-			PngImage temp = ImageEncoder.toPng(img);
+			PngImage temp = ImageEncoder.toPng(img, Ihdr.InterlaceMethod.NONE);
 			if (png == null) {
 				png = temp;
 				png.afterIhdr.add(new Actl(NUM_FRAMES, 3));

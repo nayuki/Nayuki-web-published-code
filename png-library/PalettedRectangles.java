@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Random;
 import io.nayuki.png.ImageEncoder;
 import io.nayuki.png.PngImage;
+import io.nayuki.png.chunk.Ihdr;
 import io.nayuki.png.image.BufferedPaletteImage;
 
 
@@ -59,7 +60,7 @@ public final class PalettedRectangles {
 			}
 		}
 		
-		PngImage png = ImageEncoder.toPng(img);
+		PngImage png = ImageEncoder.toPng(img, Ihdr.InterlaceMethod.NONE);
 		png.write(new File("paletted-rectangles.png"));
 	}
 	

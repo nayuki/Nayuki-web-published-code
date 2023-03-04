@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import io.nayuki.png.ImageEncoder;
 import io.nayuki.png.PngImage;
+import io.nayuki.png.chunk.Ihdr;
 import io.nayuki.png.image.PaletteImage;
 
 
@@ -61,7 +62,7 @@ public final class PalettedCheckerboard {
 			}
 		};
 		
-		PngImage png = ImageEncoder.toPng(img);
+		PngImage png = ImageEncoder.toPng(img, Ihdr.InterlaceMethod.NONE);
 		png.write(new File("paletted-checkerboard.png"));
 	}
 	
