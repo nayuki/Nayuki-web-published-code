@@ -24,10 +24,10 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-import io.nayuki.png.Chunk;
 import io.nayuki.png.ImageDecoder;
 import io.nayuki.png.ImageEncoder;
 import io.nayuki.png.PngImage;
+import io.nayuki.png.chunk.Chunk;
 import io.nayuki.png.chunk.Ihdr;
 import io.nayuki.png.chunk.Sbit;
 import io.nayuki.png.image.GrayImage;

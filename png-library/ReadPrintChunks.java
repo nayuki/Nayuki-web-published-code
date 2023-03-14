@@ -21,15 +21,17 @@
  *   Software.
  */
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import io.nayuki.png.Chunk;
 import io.nayuki.png.PngImage;
+import io.nayuki.png.chunk.Chunk;
 import io.nayuki.png.chunk.Iend;
 
 
@@ -46,7 +48,7 @@ public final class ReadPrintChunks {
 		
 		for (Chunk chk : chunks) {
 			if (getAllInterfaces(chk).stream().anyMatch(intf -> intf.getName().equals("io.nayuki.png.chunk.BytesDataChunk")))
-				System.out.printf("%s[data = %d bytes]%n", chk.getType(), chk.getData().length);
+				System.out.printf("%s[data = %d bytes]%n", chk.getType(), getData(chk).length);
 			else if (chk instanceof Record) {
 				String s = chk.toString();
 				System.out.printf("%s%s%n", chk.getType(), s.substring(s.indexOf("[")));
@@ -74,6 +76,14 @@ public final class ReadPrintChunks {
 				break;
 		}
 		return result;
+	}
+	
+	
+	private static byte[] getData(Chunk chk) throws IOException {
+		var out = new ByteArrayOutputStream();
+		chk.writeChunk(out);
+		byte[] b = out.toByteArray();
+		return Arrays.copyOfRange(b, 8, b.length - 4);
 	}
 	
 }
