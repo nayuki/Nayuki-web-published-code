@@ -18,6 +18,7 @@ namespace app {
 	function initialize(): void {
 		let selectElem = requireType(document.querySelector("article table#input select"), HTMLSelectElement);
 		let fileElem = requireType(document.querySelector("article table#input input[type=file]"), HTMLInputElement);
+		let checkboxElem = requireType(document.querySelector("article table#input input[type=checkbox]"), HTMLInputElement);
 		let ignoreSelect: boolean = false;
 		let ignoreFile: boolean = false;
 		
@@ -44,7 +45,7 @@ namespace app {
 				aElem.style.removeProperty("display");
 				aElem.href = filePath;
 				let xhr = new XMLHttpRequest();
-				xhr.onload = (): void => visualizeFile(xhr.response);
+				xhr.onload = (): void => visualizeFile(xhr.response, checkboxElem.checked);
 				xhr.open("GET", filePath);
 				xhr.responseType = "arraybuffer";
 				xhr.send();
@@ -63,7 +64,7 @@ namespace app {
 			if (files === null || files.length < 1)
 				return;
 			let reader = new FileReader();
-			reader.onload = (): void => visualizeFile(reader.result);
+			reader.onload = (): void => visualizeFile(reader.result, checkboxElem.checked);
 			reader.readAsArrayBuffer(files[0]);
 		};
 	}
@@ -71,7 +72,7 @@ namespace app {
 	setTimeout(initialize);
 	
 	
-	function visualizeFile(fileArray: any): void {
+	function visualizeFile(fileArray: any, checkIdats: boolean): void {
 		const fileBytes = new Uint8Array(requireType(fileArray, ArrayBuffer));
 		
 		let table = requireType(document.querySelector("article table#output"), HTMLElement);
@@ -80,7 +81,7 @@ namespace app {
 		while (tbody.firstChild !== null)
 			tbody.removeChild(tbody.firstChild);
 		
-		const parts: Array<FilePart> = parseFile(fileBytes);
+		const parts: Array<FilePart> = parseFile(fileBytes, checkIdats);
 		let summary: string = "";
 		for (let i = 0; i < parts.length; i++) {
 			const part: FilePart = parts[i];
@@ -229,7 +230,7 @@ namespace app {
 	
 	/*---- PNG file parser ----*/
 	
-	function parseFile(fileBytes: Uint8Array): Array<FilePart> {
+	function parseFile(fileBytes: Uint8Array, checkIdats: boolean): Array<FilePart> {
 		let result: Array<FilePart> = [];
 		let isSignatureValid: boolean;
 		let offset: int = 0;
@@ -373,7 +374,129 @@ namespace app {
 		
 		if (offset != fileBytes.length)
 			throw new Error("Assertion error");
+		if (checkIdats)
+			doCheckIdats(result);
 		return result;
+	}
+	
+	
+	function doCheckIdats(parts: Array<FilePart>): void {
+		const chunks = parts.filter(part => part instanceof ChunkPart) as Array<ChunkPart>;
+		
+		let data: Uint8Array;
+		let chunk: ChunkPart;
+		{
+			const idats: Array<ChunkPart> = chunks.filter(ch => ch.typeStr == "IDAT");
+			if (idats.length == 0)
+				return;
+			
+			let concat = new Uint8Array(idats.reduce((a, v) => a + v.data.length, 0));
+			let offset: int = 0;
+			for (const idat of idats) {
+				for (let i = 0; i < idat.data.length; i++, offset++)
+					concat[offset] = idat.data[i];
+			}
+			
+			chunk = idats[0];
+			try {
+				data = decompressZlibDeflate(concat);
+			} catch (e) {
+				chunk.errorNotes.push("Decompression error: " + e.message);
+				return;
+			}
+		}
+		chunk.innerNotes.push(`Decompressed data length: ${uintToStrWithThousandsSeparators(data.length)} bytes`);
+		
+		const ihdr: Uint8Array|null = ChunkPart.getValidIhdrData(chunks);
+		if (ihdr === null)
+			return;
+		const width : int = readUint32(ihdr, 0);
+		const height: int = readUint32(ihdr, 4);
+		const bitDepth : byte = ihdr[ 8];
+		const colorType: byte = ihdr[ 9];
+		const laceMeth : byte = ihdr[12];
+		let numChannels: int;
+		{
+			let temp: int|null = lookUpTable(colorType, [
+				[0, 1],
+				[2, 3],
+				[3, 1],
+				[4, 2],
+				[6, 4],
+			]);
+			if (temp === null)
+				return;
+			numChannels = temp;
+		}
+		const plteNumEntries: int|null = colorType == 3 ? ChunkPart.getValidPlteNumEntries(chunks) : null;
+		
+		let xStep: int;
+		{
+			let temp: int|null = lookUpTable(laceMeth, [
+				[0, 1],
+				[1, 8],
+			]);
+			if (temp === null)
+				return;
+			xStep = temp;
+		}
+		let yStep: int = xStep;
+		let pass: int = 0;
+		let offset: int = 0;
+		
+		function handleSubimage(xOffset: int, yOffset: int): void {
+			const subwidth  = Math.ceil((width  - xOffset) / xStep);
+			const subheight = Math.ceil((height - yOffset) / yStep);
+			const bytesPerRow: int = 1 + Math.ceil(subwidth * bitDepth * numChannels / 8);
+			chunk.innerNotes.push(`Pass ${pass}: ${subwidth} \u00D7 ${subheight}, ` +
+				`${uintToStrWithThousandsSeparators((subwidth > 0 ? bytesPerRow : 0) * subheight)} bytes`);
+			pass++;
+			if (subwidth == 0 || subheight == 0)
+				return;
+			for (let y = 0; y < subheight; y++) {
+				if (data.length - offset < bytesPerRow)
+					throw new Error("Decompressed data too short");
+				const filter: byte = data[offset];
+				offset++;
+				if (filter >= 5)
+					throw new Error(`Invalid row filter (${filter})`);
+				if (plteNumEntries === null)
+					offset += bytesPerRow - 1;
+				else {
+					for (let x = 0, bitBuf = 0, bitBufLen = 0; x < subwidth; x++) {
+						if (bitBufLen == 0) {
+							bitBuf = data[offset];
+							offset++;
+							bitBufLen = 8;
+						}
+						bitBuf <<= bitDepth
+						const val: int = bitBuf >>> 8;
+						bitBuf &= 0xFF;
+						bitBufLen -= bitDepth;
+						if (val >= plteNumEntries)
+							throw new Error(`Color index (${val}) out of palette range`);
+					}
+				}
+			}
+		}
+		
+		try {
+			handleSubimage(0, 0);
+			while (yStep > 1) {
+				if (xStep == yStep) {
+					handleSubimage(xStep / 2, 0);
+					xStep /= 2;
+				} else if (xStep == yStep / 2) {
+					handleSubimage(0, xStep);
+					yStep = xStep;
+				} else
+					throw new Error("Unreachable value");
+			}
+			if (offset < data.length)
+				throw new Error("Decompressed data too long");
+		} catch (e) {
+			chunk.errorNotes.push(e.message);
+		}
 	}
 	
 	
@@ -1549,7 +1672,7 @@ namespace app {
 		}
 		
 		
-		private static getValidPlteNumEntries(chunks: Readonly<Array<ChunkPart>>): int|null {
+		public static getValidPlteNumEntries(chunks: Readonly<Array<ChunkPart>>): int|null {
 			let result: int|null = null;
 			let count: int = 0;
 			for (const chunk of chunks) {

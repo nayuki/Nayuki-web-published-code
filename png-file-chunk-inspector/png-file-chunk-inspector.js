@@ -12,6 +12,7 @@ var app;
     function initialize() {
         let selectElem = requireType(document.querySelector("article table#input select"), HTMLSelectElement);
         let fileElem = requireType(document.querySelector("article table#input input[type=file]"), HTMLInputElement);
+        let checkboxElem = requireType(document.querySelector("article table#input input[type=checkbox]"), HTMLInputElement);
         let ignoreSelect = false;
         let ignoreFile = false;
         selectElem.selectedIndex = 0;
@@ -35,7 +36,7 @@ var app;
                 aElem.style.removeProperty("display");
                 aElem.href = filePath;
                 let xhr = new XMLHttpRequest();
-                xhr.onload = () => visualizeFile(xhr.response);
+                xhr.onload = () => visualizeFile(xhr.response, checkboxElem.checked);
                 xhr.open("GET", filePath);
                 xhr.responseType = "arraybuffer";
                 xhr.send();
@@ -52,19 +53,19 @@ var app;
             if (files === null || files.length < 1)
                 return;
             let reader = new FileReader();
-            reader.onload = () => visualizeFile(reader.result);
+            reader.onload = () => visualizeFile(reader.result, checkboxElem.checked);
             reader.readAsArrayBuffer(files[0]);
         };
     }
     setTimeout(initialize);
-    function visualizeFile(fileArray) {
+    function visualizeFile(fileArray, checkIdats) {
         const fileBytes = new Uint8Array(requireType(fileArray, ArrayBuffer));
         let table = requireType(document.querySelector("article table#output"), HTMLElement);
         table.classList.remove("errors");
         let tbody = requireType(table.querySelector("tbody"), HTMLElement);
         while (tbody.firstChild !== null)
             tbody.removeChild(tbody.firstChild);
-        const parts = parseFile(fileBytes);
+        const parts = parseFile(fileBytes, checkIdats);
         let summary = "";
         for (let i = 0; i < parts.length; i++) {
             const part = parts[i];
@@ -202,7 +203,7 @@ var app;
         [false, ["zTXt", "Wrong compressed data"], "bad_ztxt_wrong-compressed-data.png"],
     ];
     /*---- PNG file parser ----*/
-    function parseFile(fileBytes) {
+    function parseFile(fileBytes, checkIdats) {
         let result = [];
         let isSignatureValid;
         let offset = 0;
@@ -337,7 +338,124 @@ var app;
         }
         if (offset != fileBytes.length)
             throw new Error("Assertion error");
+        if (checkIdats)
+            doCheckIdats(result);
         return result;
+    }
+    function doCheckIdats(parts) {
+        const chunks = parts.filter(part => part instanceof ChunkPart);
+        let data;
+        let chunk;
+        {
+            const idats = chunks.filter(ch => ch.typeStr == "IDAT");
+            if (idats.length == 0)
+                return;
+            let concat = new Uint8Array(idats.reduce((a, v) => a + v.data.length, 0));
+            let offset = 0;
+            for (const idat of idats) {
+                for (let i = 0; i < idat.data.length; i++, offset++)
+                    concat[offset] = idat.data[i];
+            }
+            chunk = idats[0];
+            try {
+                data = decompressZlibDeflate(concat);
+            }
+            catch (e) {
+                chunk.errorNotes.push("Decompression error: " + e.message);
+                return;
+            }
+        }
+        chunk.innerNotes.push(`Decompressed data length: ${uintToStrWithThousandsSeparators(data.length)} bytes`);
+        const ihdr = ChunkPart.getValidIhdrData(chunks);
+        if (ihdr === null)
+            return;
+        const width = readUint32(ihdr, 0);
+        const height = readUint32(ihdr, 4);
+        const bitDepth = ihdr[8];
+        const colorType = ihdr[9];
+        const laceMeth = ihdr[12];
+        let numChannels;
+        {
+            let temp = lookUpTable(colorType, [
+                [0, 1],
+                [2, 3],
+                [3, 1],
+                [4, 2],
+                [6, 4],
+            ]);
+            if (temp === null)
+                return;
+            numChannels = temp;
+        }
+        const plteNumEntries = colorType == 3 ? ChunkPart.getValidPlteNumEntries(chunks) : null;
+        let xStep;
+        {
+            let temp = lookUpTable(laceMeth, [
+                [0, 1],
+                [1, 8],
+            ]);
+            if (temp === null)
+                return;
+            xStep = temp;
+        }
+        let yStep = xStep;
+        let pass = 0;
+        let offset = 0;
+        function handleSubimage(xOffset, yOffset) {
+            const subwidth = Math.ceil((width - xOffset) / xStep);
+            const subheight = Math.ceil((height - yOffset) / yStep);
+            const bytesPerRow = 1 + Math.ceil(subwidth * bitDepth * numChannels / 8);
+            chunk.innerNotes.push(`Pass ${pass}: ${subwidth} \u00D7 ${subheight}, ` +
+                `${uintToStrWithThousandsSeparators((subwidth > 0 ? bytesPerRow : 0) * subheight)} bytes`);
+            pass++;
+            if (subwidth == 0 || subheight == 0)
+                return;
+            for (let y = 0; y < subheight; y++) {
+                if (data.length - offset < bytesPerRow)
+                    throw new Error("Decompressed data too short");
+                const filter = data[offset];
+                offset++;
+                if (filter >= 5)
+                    throw new Error(`Invalid row filter (${filter})`);
+                if (plteNumEntries === null)
+                    offset += bytesPerRow - 1;
+                else {
+                    for (let x = 0, bitBuf = 0, bitBufLen = 0; x < subwidth; x++) {
+                        if (bitBufLen == 0) {
+                            bitBuf = data[offset];
+                            offset++;
+                            bitBufLen = 8;
+                        }
+                        bitBuf <<= bitDepth;
+                        const val = bitBuf >>> 8;
+                        bitBuf &= 0xFF;
+                        bitBufLen -= bitDepth;
+                        if (val >= plteNumEntries)
+                            throw new Error(`Color index (${val}) out of palette range`);
+                    }
+                }
+            }
+        }
+        try {
+            handleSubimage(0, 0);
+            while (yStep > 1) {
+                if (xStep == yStep) {
+                    handleSubimage(xStep / 2, 0);
+                    xStep /= 2;
+                }
+                else if (xStep == yStep / 2) {
+                    handleSubimage(0, xStep);
+                    yStep = xStep;
+                }
+                else
+                    throw new Error("Unreachable value");
+            }
+            if (offset < data.length)
+                throw new Error("Decompressed data too long");
+        }
+        catch (e) {
+            chunk.errorNotes.push(e.message);
+        }
     }
     /*---- Classes representing different file parts ----*/
     class FilePart {
