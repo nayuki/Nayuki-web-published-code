@@ -40,17 +40,16 @@ var app;
         // Show/hide rows based on bitmap/vector image output
         const bitmapOutput = getInput("output-format-bitmap").checked;
         const scaleRow = getElem("scale-row");
-        const svgXmlRow = getElem("svg-xml-row");
+        let download = getElem("download");
         if (bitmapOutput) {
             scaleRow.style.removeProperty("display");
-            svgXmlRow.style.display = "none";
+            download.download = "qr-code.png";
         }
         else {
             scaleRow.style.display = "none";
-            svgXmlRow.style.removeProperty("display");
+            download.download = "qr-code.svg";
         }
-        const svgXml = getElem("svg-xml-output");
-        svgXml.value = "";
+        download.removeAttribute("href");
         // Reset output images in case of early termination
         const canvas = getElem("qrcode-canvas");
         const svg = document.getElementById("qrcode-svg");
@@ -88,6 +87,7 @@ var app;
                 return;
             drawCanvas(qr, scale, border, lightColor, darkColor, canvas);
             canvas.style.removeProperty("display");
+            download.href = canvas.toDataURL("image/png");
         }
         else {
             const code = toSvgString(qr, border, lightColor, darkColor);
@@ -98,7 +98,7 @@ var app;
             svg.querySelector("rect").setAttribute("fill", lightColor);
             svg.querySelector("path").setAttribute("fill", darkColor);
             svg.style.removeProperty("display");
-            svgXml.value = code;
+            download.href = "data:application/svg+xml," + encodeURIComponent(code);
         }
         // Returns a string to describe the given list of segments.
         function describeSegments(segs) {
