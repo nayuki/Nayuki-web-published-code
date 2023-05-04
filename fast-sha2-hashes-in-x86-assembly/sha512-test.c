@@ -1,7 +1,7 @@
 /* 
  * SHA-512 hash in C and x86 assembly
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2023 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -142,4 +142,6 @@ void sha512_hash(const uint8_t message[], size_t len, uint64_t hash[static STATE
 	for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
 		block[BLOCK_LEN - 1 - i] = (uint8_t)(len & 0xFFU);
 	sha512_compress(block, hash);
+	
+	#undef LENGTH_SIZE
 }

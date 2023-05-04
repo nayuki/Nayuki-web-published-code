@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in C
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2023 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha1-hash-implementation-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -141,4 +141,14 @@ void sha1_compress(const uint8_t block[static 64], uint32_t state[static 5]) {
 	state[2] = 0U + state[2] + c;
 	state[3] = 0U + state[3] + d;
 	state[4] = 0U + state[4] + e;
+	
+	#undef ROTL32
+	#undef LOADSCHEDULE
+	#undef SCHEDULE
+	#undef ROUND0a
+	#undef ROUND0b
+	#undef ROUND1
+	#undef ROUND2
+	#undef ROUND3
+	#undef ROUNDTAIL
 }

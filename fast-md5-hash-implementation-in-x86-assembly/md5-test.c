@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in C and x86 assembly
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2023 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -140,4 +140,6 @@ void md5_hash(const uint8_t message[], size_t len, uint32_t hash[static STATE_LE
 	for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
 		block[BLOCK_LEN - LENGTH_SIZE + i] = (uint8_t)(len & 0xFFU);
 	md5_compress(block, hash);
+	
+	#undef LENGTH_SIZE
 }

@@ -1,7 +1,7 @@
 /* 
  * Lowest SHA-512 value by brute force (C)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2023 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
@@ -52,6 +52,7 @@ static const uint64_t INITIAL_STATES[8][NUM_CH] = {
 	DUAL(UINT64_C(0x1F83D9ABFB41BD6B)),
 	DUAL(UINT64_C(0x5BE0CD19137E2179)),
 };
+#undef DUAL
 
 
 /* Global variables */

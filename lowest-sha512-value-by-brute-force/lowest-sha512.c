@@ -1,7 +1,7 @@
 /* 
  * Lowest SHA-512 value by brute force (C)
  * 
- * Copyright (c) 2019 Project Nayuki
+ * Copyright (c) 2023 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/lowest-sha512-value-by-brute-force
  */
@@ -378,4 +378,9 @@ static void sha512_compress(uint64_t state[static 8], const uint8_t block[static
 	state[5] = 0U + state[5] + f;
 	state[6] = 0U + state[6] + g;
 	state[7] = 0U + state[7] + h;
+	
+	#undef ROTR64
+	#undef LOADSCHEDULE
+	#undef SCHEDULE
+	#undef ROUND
 }

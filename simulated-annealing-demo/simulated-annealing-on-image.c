@@ -1,7 +1,7 @@
 /* 
  * Simulated annealing on image demo (C)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2023 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/simulated-annealing-demo
  */
@@ -164,6 +164,7 @@ void write_bmp_image(const uint32_t pixels[static 1], uint32_t width, uint32_t h
 		perror("fwrite");
 		exit(EXIT_FAILURE);
 	}
+	#undef HEADER_LEN
 	
 	// Write image rows
 	for (int32_t y = height - 1; y >= 0; y--) {

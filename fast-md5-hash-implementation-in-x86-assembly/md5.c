@@ -1,7 +1,7 @@
 /* 
  * MD5 hash in C
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2023 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-md5-hash-implementation-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -132,4 +132,12 @@ void md5_compress(const uint8_t block[static 64], uint32_t state[static 4]) {
 	state[1] = 0U + state[1] + b;
 	state[2] = 0U + state[2] + c;
 	state[3] = 0U + state[3] + d;
+	
+	#undef LOADSCHEDULE
+	#undef ROTL32
+	#undef ROUND0
+	#undef ROUND1
+	#undef ROUND2
+	#undef ROUND3
+	#undef ROUND_TAIL
 }

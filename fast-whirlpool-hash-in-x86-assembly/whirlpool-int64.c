@@ -1,7 +1,7 @@
 /* 
  * Whirlpool hash in C
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2023 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-whirlpool-hash-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -150,4 +150,7 @@ static void whirlpool_round(uint64_t block[restrict static 8], const uint64_t ke
 	DOROW(5, f, e, d, c, b, a, h, g)
 	DOROW(6, g, f, e, d, c, b, a, h)
 	DOROW(7, h, g, f, e, d, c, b, a)
+	
+	#undef ROTR64
+	#undef DOROW
 }

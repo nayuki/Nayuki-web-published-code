@@ -1,7 +1,7 @@
 /* 
  * Whirlpool hash in C and x86 assembly
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2023 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-whirlpool-hash-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -141,4 +141,6 @@ void whirlpool_hash(const uint8_t message[restrict], size_t len, uint8_t hash[re
 	for (int i = 1; i < LENGTH_SIZE; i++, len >>= 8)
 		block[BLOCK_LEN - 1 - i] = (uint8_t)(len & 0xFFU);
 	whirlpool_compress(block, hash);
+	
+	#undef LENGTH_SIZE
 }
