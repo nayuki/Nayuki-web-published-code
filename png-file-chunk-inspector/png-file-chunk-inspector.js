@@ -1501,11 +1501,9 @@ var app;
     }
     function calcCrc32(bytes) {
         let crc = ~0;
-        for (const b of bytes) {
-            for (let i = 0; i < 8; i++) {
-                crc ^= (b >>> i) & 1;
-                crc = (crc >>> 1) ^ (-(crc & 1) & 0xEDB88320);
-            }
+        for (let b of bytes) {
+            for (let i = 0; i < 8; i++, b >>>= 1)
+                crc = (crc >>> 1) ^ (-((crc ^ b) & 1) & 0xEDB88320);
         }
         return ~crc >>> 0;
     }
