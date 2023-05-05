@@ -12,15 +12,16 @@
 (function() {
 	
 	let taxBrackets = [];
+	let taxBracketsTotal = 0;
 	
 	let sliders = document.querySelectorAll("article .income-input input[type=range ]");
 	let texts   = document.querySelectorAll("article .income-input input[type=number]");
 	
 	
 	function taxBracketsChanged() {
-		let config = document.querySelector("article #configuration");
+		const config = document.querySelector("article #configuration");
 		taxBrackets = [];
-		let total = 0;
+		taxBracketsTotal = 0;
 		try {
 			for (const line of config.value.split("\n")) {
 				const parts = line.split(",");
@@ -33,18 +34,16 @@
 				if (!isFinite(rate))
 					throw new Error("Invalid bracket rate");
 				taxBrackets.push([size, rate]);
-				total += size;
+				taxBracketsTotal += size;
 			}
 		} catch (e) {
 			alert(e.message);
 			return;
 		}
 		
-		for (let elem of sliders)
-			elem.max = total.toString();
-		for (let elem of texts)
-			elem.max = total.toString();
-		grossIncomeChanged(parseFloat(sliders[0].value));
+		for (let elem of [...sliders, ...texts])
+			elem.max = taxBracketsTotal.toString();
+		grossIncomeChanged(Math.min(parseFloat(sliders[0].value), taxBracketsTotal));
 	}
 	
 	document.querySelector("article #apply").onclick = taxBracketsChanged;
@@ -52,46 +51,18 @@
 	taxBracketsChanged();
 	
 	
-	for (let elem of sliders) {
-		elem.oninput = () => {
-			const s = elem.value;
-			const val = parseFloat(s);
-			for (let el of sliders)
-				el.value = s;
-			for (let el of texts)
-				el.value = val.toFixed(0);
-			grossIncomeChanged(val);
-		};
-	}
-	for (let elem of texts) {
-		elem.oninput = () => {
-			const val = parseFloat(elem.value);
-			if (isNaN(val))
-				return;
-			const total = taxBrackets.reduce((sum, [val, _]) => sum + val, 0);
-			const clamped = Math.max(Math.min(val, total), 0);
-			const s = clamped == val ? elem.value : clamped.toString();
-			for (let el of sliders)
-				el.value = s;
-			for (let el of texts) {
-				if (clamped != val || el != elem)
-					el.value = s;
-			}
-			grossIncomeChanged(val);
-		};
-	}
-	{
-		const total = taxBrackets.reduce((sum, [val, _]) => sum + val, 0);
-		const initGrossIncome = Math.max(Math.random() * total, 1);
-		for (let el of sliders)
-			el.value = initGrossIncome;
-		for (let el of texts)
-			el.value = initGrossIncome.toFixed(0);
-		grossIncomeChanged(initGrossIncome);
-	}
+	for (let elem of [...sliders, ...texts])
+		elem.oninput = () => grossIncomeChanged(parseFloat(elem.value));
+	grossIncomeChanged(Math.max(Math.random() * taxBracketsTotal, 1));
 	
 	
 	function grossIncomeChanged(grossIncome) {
+		if (isNaN(grossIncome))
+			grossIncome = 0;
+		grossIncome = Math.round(Math.max(Math.min(grossIncome, taxBracketsTotal), 1));
+		for (let elem of [...sliders, ...texts])
+			elem.value = grossIncome.toString();
+		
 		let totalTax = 0;
 		{
 			let table = document.querySelector("article #table-visualization");
@@ -131,6 +102,7 @@
 			const BAR_HEIGHT = 150;
 			const TEXT_SIZE = 15;
 			const TEXT_GAP = 10;
+			
 			let svg = document.querySelector("article #chart-visualization");
 			svg.style.fontSize = TEXT_SIZE + "px";
 			svg.setAttribute("stroke-width", STROKE_WIDTH.toString());
@@ -138,7 +110,6 @@
 			for (let g of groups)
 				g.replaceChildren();
 			
-			const taxBracketsTotal = taxBrackets.reduce((sum, [val, _]) => sum + val, 0);
 			let bracketStart = 0;
 			let remainIncome = grossIncome;
 			let maxTextWidth = 0;
@@ -164,13 +135,14 @@
 				if (bracketGross > 0) {
 					const bracketTax = bracketGross * rate;
 					const bracketNet = bracketGross - bracketTax;
-					const partialWidth = (bracketGross / taxBracketsTotal * WIDTH).toString();
+					const partialWidth = bracketGross / taxBracketsTotal * WIDTH;
+					
 					let y = 0;
 					let height = BAR_HEIGHT * (1 - rate);
 					rect = groups[0].appendChild(document.createElementNS(svg.namespaceURI, "rect"));
 					rect.setAttribute("x", x.toString());
 					rect.setAttribute("y", y.toString());
-					rect.setAttribute("width", partialWidth);
+					rect.setAttribute("width", partialWidth.toString());
 					rect.setAttribute("height", height.toString());
 					text = groups[3].appendChild(document.createElementNS(svg.namespaceURI, "text"));
 					text.textContent = "$" + bracketNet.toFixed(0);
@@ -178,7 +150,7 @@
 					let dx;
 					if (bbox.width > bracketWidth)
 						dx = (bracketWidth - bbox.width) / 2;
-					else if (bbox.width < partialWidth)
+					else if (bbox.width < partialWidth.toString())
 						dx = (partialWidth - bbox.width) / 2;
 					else
 						dx = 0;
@@ -190,7 +162,7 @@
 					rect = groups[1].appendChild(document.createElementNS(svg.namespaceURI, "rect"));
 					rect.setAttribute("x", x.toString());
 					rect.setAttribute("y", y.toString());
-					rect.setAttribute("width", partialWidth);
+					rect.setAttribute("width", partialWidth.toString());
 					rect.setAttribute("height", height.toString());
 					text = groups[3].appendChild(document.createElementNS(svg.namespaceURI, "text"));
 					text.textContent = "$" + bracketTax.toFixed(0);
