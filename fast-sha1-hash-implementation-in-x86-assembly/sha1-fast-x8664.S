@@ -1,7 +1,7 @@
 /* 
  * SHA-1 hash in x86-64 assembly
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2023 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha1-hash-implementation-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -52,7 +52,7 @@ sha1_compress:
 		xorl    %d, %esi;           \
 		andl    %b, %esi;           \
 		xorl    %d, %esi;           \
-		ROUNDTAIL(a, b, e, i, 0x5A827999)
+		ROUNDTAIL(a, b, e, 0x5A827999)
 	
 	#define SCHEDULE(i, e)  \
 		movl  (((i- 3)&0xF)*4)(%rsp), %esi;  \
@@ -69,14 +69,14 @@ sha1_compress:
 		xorl  %d, %esi;  \
 		andl  %b, %esi;  \
 		xorl  %d, %esi;  \
-		ROUNDTAIL(a, b, e, i, 0x5A827999)
+		ROUNDTAIL(a, b, e, 0x5A827999)
 	
 	#define ROUND1(a, b, c, d, e, i)  \
 		SCHEDULE(i, e)   \
 		movl  %b, %esi;  \
 		xorl  %c, %esi;  \
 		xorl  %d, %esi;  \
-		ROUNDTAIL(a, b, e, i, 0x6ED9EBA1)
+		ROUNDTAIL(a, b, e, 0x6ED9EBA1)
 	
 	#define ROUND2(a, b, c, d, e, i)  \
 		SCHEDULE(i, e)     \
@@ -86,16 +86,16 @@ sha1_compress:
 		andl  %b, %esi;    \
 		andl  %d, %edi;    \
 		orl   %edi, %esi;  \
-		ROUNDTAIL(a, b, e, i, -0x70E44324)
+		ROUNDTAIL(a, b, e, -0x70E44324)
 	
 	#define ROUND3(a, b, c, d, e, i)  \
 		SCHEDULE(i, e)   \
 		movl  %b, %esi;  \
 		xorl  %c, %esi;  \
 		xorl  %d, %esi;  \
-		ROUNDTAIL(a, b, e, i, -0x359D3E2A)
+		ROUNDTAIL(a, b, e, -0x359D3E2A)
 	
-	#define ROUNDTAIL(a, b, e, i, k)  \
+	#define ROUNDTAIL(a, b, e, k)  \
 		roll  $30, %b;         \
 		leal  k(%e,%esi), %e;  \
 		movl  %a, %esi;        \
