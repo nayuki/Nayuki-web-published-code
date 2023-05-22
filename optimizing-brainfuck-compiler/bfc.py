@@ -4,26 +4,28 @@
 # This script translates brainfuck source code into C/Java/Python source code.
 # Usage: python bfc.py BrainfuckFile OutputFile.c/java/py
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2023 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/optimizing-brainfuck-compiler
 # 
 
-import os, pathlib, re, sys
+import pathlib, re, sys
+from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set
 
 
 # ---- Main ----
 
-def main(args):
+def main(args: Sequence[str]) -> Optional[str]:
 	# Handle command-line arguments
 	if len(args) != 2:
 		return "Usage: python bfc.py BrainfuckFile OutputFile.c/java/py"
 	
-	inpath = pathlib.Path(args[0])
+	inpath: pathlib.Path = pathlib.Path(args[0])
 	if not inpath.is_file():
 		return f"{inpath}: Not a file"
 	
-	outpath = pathlib.Path(args[1])
+	outpath: pathlib.Path = pathlib.Path(args[1])
+	outfunc: Callable[[List[Command],str,bool,int], str]
 	if   outpath.suffix == ".c"   :  outfunc = commands_to_c
 	elif outpath.suffix == ".java":  outfunc = commands_to_java
 	elif outpath.suffix == ".py"  :  outfunc = commands_to_python
@@ -43,19 +45,21 @@ def main(args):
 	outcode = outfunc(commands, outpath.stem)
 	with outpath.open("wt") as fout:
 		fout.write(outcode)
+	return None
 
 
 # ---- Parser ----
 
 # Parses the given raw code string, returning a list of Command objects.
-def parse(codestr):
+def parse(codestr: str) -> List[Command]:
 	codestr = re.sub(r"[^+\-<>.,\[\]]", "", codestr)  # Keep only the 8 Brainfuck characters
 	return _parse(iter(codestr), True)
 
 
-def _parse(chargen, maincall):
-	result = []
+def _parse(chargen: Iterator[str], maincall: bool) -> List[Command]:
+	result: List[Command] = []
 	for c in chargen:
+		item: Command
 		if   c == "+": item = Add(0, +1)
 		elif c == "-": item = Add(0, -1)
 		elif c == "<": item = Right(-1)
@@ -81,9 +85,11 @@ def _parse(chargen, maincall):
 # ---- Optimizers ----
 
 # Optimizes the given list of Commands, returning a new list of Commands.
-def optimize(commands):
-	result = []
-	offset = 0  # How much the memory pointer has moved without being updated
+def optimize(commands: List[Command]) -> List[Command]:
+	result: List[Command] = []
+	offset: int = 0  # How much the memory pointer has moved without being updated
+	off: int
+	prev: Optional[Command]
 	for cmd in commands:
 		if isinstance(cmd, Assign):
 			# Try to fuse into previous command
@@ -126,13 +132,13 @@ def optimize(commands):
 				offset = 0
 			
 			if isinstance(cmd, Loop):
-				temp = optimize_simple_loop(cmd.commands)
-				if temp is not None:
-					result.extend(temp)
+				temp0: Optional[List[Command]] = optimize_simple_loop(cmd.commands)
+				if temp0 is not None:
+					result.extend(temp0)
 				else:
-					temp = optimize_complex_loop(cmd.commands)
-					if temp is not None:
-						result.append(temp)
+					temp1: Optional[If] = optimize_complex_loop(cmd.commands)
+					if temp1 is not None:
+						result.append(temp1)
 					else:
 						result.append(Loop(optimize(cmd.commands)))
 			elif isinstance(cmd, If):
@@ -147,9 +153,9 @@ def optimize(commands):
 
 
 # Tries to optimize the given list of looped commands into a list that would be executed without looping. Returns None if not possible.
-def optimize_simple_loop(commands):
-	deltas = {}  # delta[i] = v means that in each loop iteration, mem[p + i] is added by the amount v
-	offset = 0
+def optimize_simple_loop(commands: List[Command]) -> Optional[List[Command]]:
+	deltas: Dict[int,int] = {}  # delta[i] = v means that in each loop iteration, mem[p + i] is added by the amount v
+	offset: int = 0
 	for cmd in commands:
 		# This implementation can only optimize loops that consist of only Add and Right
 		if isinstance(cmd, Add):
@@ -165,7 +171,7 @@ def optimize_simple_loop(commands):
 	
 	# Convert the loop into a list of multiply-add commands that source from the cell being tested
 	del deltas[0]
-	result = []
+	result: List[Command] = []
 	for off in sorted(deltas.keys()):
 		result.append(MultAdd(0, off, deltas[off]))
 	result.append(Assign(0, 0))
@@ -176,10 +182,10 @@ def optimize_simple_loop(commands):
 # - There are no commands other than Add/Assign/MultAdd/MultAssign (in particular, no net movement, I/O, or embedded loops)
 # - The value at offset 0 is decremented by 1
 # - All MultAdd and MultAssign commands read from {an offset other than 0 whose value is cleared before the end in the loop}
-def optimize_complex_loop(commands):
-	result = []
-	origindelta = 0
-	clears = {0}
+def optimize_complex_loop(commands: List[Command]) -> Optional[If]:
+	result: List[Command] = []
+	origindelta: int = 0
+	clears: Set[int] = {0}
 	for cmd in commands:
 		if isinstance(cmd, Add):
 			if cmd.offset == 0:
@@ -216,11 +222,11 @@ def optimize_complex_loop(commands):
 
 # ---- Output formatters ----
 
-def commands_to_c(commands, name, maincall=True, indentlevel=1):
-	def indent(line, level=indentlevel):
+def commands_to_c(commands: List[Command], name: str, maincall: bool = True, indentlevel: int = 1) -> str:
+	def indent(line: str, level: int = indentlevel) -> str:
 		return "\t" * level + line + "\n"
 	
-	result = ""
+	result: str = ""
 	if maincall:
 		result += indent("#include <stdint.h>", 0)
 		result += indent("#include <stdio.h>", 0)
@@ -240,7 +246,7 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 		if isinstance(cmd, Assign):
 			result += indent(f"p[{cmd.offset}] = {cmd.value};")
 		elif isinstance(cmd, Add):
-			s = f"p[{cmd.offset}]"
+			s: str = f"p[{cmd.offset}]"
 			if cmd.value == 1:
 				s += "++;"
 			elif cmd.value == -1:
@@ -287,11 +293,11 @@ def commands_to_c(commands, name, maincall=True, indentlevel=1):
 	return result
 
 
-def commands_to_java(commands, name, maincall=True, indentlevel=2):
-	def indent(line, level=indentlevel):
+def commands_to_java(commands: List[Command], name: str, maincall: bool = True, indentlevel: int = 2) -> str:
+	def indent(line: str, level: int = indentlevel) -> str:
 		return "\t" * level + line + "\n"
 	
-	result = ""
+	result: str = ""
 	if maincall:
 		result += indent("import java.io.IOException;", 0)
 		result += indent("", 0)
@@ -301,7 +307,7 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 		result += indent("int i = 1000;")
 		result += indent("")
 	
-	def format_memory(off):
+	def format_memory(off: int) -> str:
 		if off == 0:
 			return "mem[i]"
 		else:
@@ -355,11 +361,11 @@ def commands_to_java(commands, name, maincall=True, indentlevel=2):
 	return result
 
 
-def commands_to_python(commands, name, maincall=True, indentlevel=0):
-	def indent(line, level=indentlevel):
+def commands_to_python(commands: List[Command], name: str, maincall: bool = True, indentlevel: int = 0) -> str:
+	def indent(line: str, level: int = indentlevel) -> str:
 		return "\t" * level + line + "\n"
 	
-	result = ""
+	result: str = ""
 	if maincall:
 		result += indent("import sys")
 		result += indent("")
@@ -367,7 +373,7 @@ def commands_to_python(commands, name, maincall=True, indentlevel=0):
 		result += indent("i = 1000")
 		result += indent("")
 	
-	def format_memory(off):
+	def format_memory(off: int) -> str:
 		if off == 0:
 			return "mem[i]"
 		else:
@@ -402,7 +408,7 @@ def commands_to_python(commands, name, maincall=True, indentlevel=0):
 	return result
 
 
-def plusminus(val):
+def plusminus(val: int) -> str:
 	if val >= 0:
 		return "+"
 	else:
@@ -415,45 +421,45 @@ class Command:  # Common superclass
 	pass
 
 class Assign(Command):
-	def __init__(self, offset, value):
+	def __init__(self, offset: int, value: int):
 		self.offset = offset
 		self.value = value
 
 class Add(Command):
-	def __init__(self, offset, value):
+	def __init__(self, offset: int, value: int):
 		self.offset = offset
 		self.value = value
 
 class MultAssign(Command):
-	def __init__(self, srcOff, destOff, value):
+	def __init__(self, srcOff: int, destOff: int, value: int):
 		self.srcOff = srcOff
 		self.destOff = destOff
 		self.value = value
 
 class MultAdd(Command):
-	def __init__(self, srcOff, destOff, value):
+	def __init__(self, srcOff: int, destOff: int, value: int):
 		self.srcOff = srcOff
 		self.destOff = destOff
 		self.value = value
 
 class Right(Command):
-	def __init__(self, offset):
+	def __init__(self, offset: int):
 		self.offset = offset
 
 class Input(Command):
-	def __init__(self, offset):
+	def __init__(self, offset: int):
 		self.offset = offset
 
 class Output(Command):
-	def __init__(self, offset):
+	def __init__(self, offset: int):
 		self.offset = offset
 
 class If(Command):
-	def __init__(self, commands):
+	def __init__(self, commands: List[Command]):
 		self.commands = commands
 
 class Loop(Command):
-	def __init__(self, commands):
+	def __init__(self, commands: List[Command]):
 		self.commands = commands
 
 
