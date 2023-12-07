@@ -1,7 +1,7 @@
 # 
 # Number-theoretic transform test (Python)
 # 
-# Copyright (c) 2022 Project Nayuki
+# Copyright (c) 2023 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 # 
@@ -115,8 +115,8 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 			vec: List[int] = list(invec)
 			ntt.transform_radix_2(vec, root, mod)
 			
-			ntt.transform_radix_2(vec, ntt.reciprocal(root, mod), mod)
-			scaler: int = ntt.reciprocal(veclen, mod)
+			ntt.transform_radix_2(vec, pow(root, -1, mod), mod)
+			scaler: int = pow(veclen, -1, mod)
 			vec = [(x * scaler % mod) for x in vec]
 			self.assertEqual(invec, vec)
 	
@@ -221,65 +221,6 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 			expect = expect and (temp == 1)
 			actual: bool = ntt.is_primitive_root(val, totient, p)
 			self.assertEqual(expect, actual)
-	
-	
-	def test_reciprocal(self) -> None:
-		CASES: List[Tuple[int,int,int]] = [
-			( 2,  1,  1),
-			( 3,  1,  1),
-			( 3,  2,  2),
-			( 4,  1,  1),
-			( 4,  3,  3),
-			( 5,  1,  1),
-			( 5,  2,  3),
-			( 5,  3,  2),
-			( 5,  4,  4),
-			( 6,  1,  1),
-			( 6,  5,  5),
-			( 7,  1,  1),
-			( 7,  2,  4),
-			( 7,  3,  5),
-			( 7,  4,  2),
-			( 7,  5,  3),
-			( 7,  6,  6),
-			( 8,  1,  1),
-			( 8,  3,  3),
-			( 8,  5,  5),
-			( 8,  7,  7),
-			( 9,  1,  1),
-			( 9,  2,  5),
-			( 9,  4,  7),
-			( 9,  5,  2),
-			( 9,  7,  4),
-			( 9,  8,  8),
-			(10,  1,  1),
-			(10,  3,  7),
-			(10,  7,  3),
-			(10,  9,  9),
-			(11,  1,  1),
-			(11,  2,  6),
-			(11,  3,  4),
-			(11,  4,  3),
-			(11,  5,  9),
-			(11,  6,  2),
-			(11,  7,  8),
-			(11,  8,  7),
-			(11,  9,  5),
-			(11, 10, 10),
-		]
-		for (mod, x, y) in CASES:
-			self.assertEqual(y, ntt.reciprocal(x, mod))
-		
-		TRIALS: int = 1_000
-		for _ in range(TRIALS):
-			p: int = random.randrange(2, 10_000)
-			if not ntt.is_prime(p):
-				continue
-			for _ in range(10):
-				x = random.randrange(1, p)
-				y = ntt.reciprocal(x, p)
-				self.assertTrue(0 <= y < p)
-				self.assertEqual(1, x * y % p)
 	
 	
 	def test_unique_prime_factors(self) -> None:
