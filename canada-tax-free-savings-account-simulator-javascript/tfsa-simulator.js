@@ -1,7 +1,7 @@
 /* 
  * Tax-free savings account simulator
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2024 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/canada-tax-free-savings-account-simulator-javascript
  */
@@ -129,6 +129,7 @@ function nextMonth() {
 			2021:  6000,
 			2022:  6000,
 			2023:  6500,
+			2024:  7000,
 		};
 		if (year in CONTRIB_ROOM)
 			return CONTRIB_ROOM[year] * 100;
