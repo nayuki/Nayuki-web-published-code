@@ -4,11 +4,12 @@
 # This script translates brainfuck source code into C/Java/Python source code.
 # Usage: python bfc.py BrainfuckFile OutputFile.c/java/py
 # 
-# Copyright (c) 2023 Project Nayuki
+# Copyright (c) 2024 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/optimizing-brainfuck-compiler
 # 
 
+from __future__ import annotations
 import pathlib, re, sys
 from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set
 
@@ -36,13 +37,13 @@ def main(args: Sequence[str]) -> Optional[str]:
 		incode = fin.read()
 	
 	# Parse and optimize Brainfuck code
-	commands = parse(incode)
+	commands: List[Command] = parse(incode)
 	commands = optimize(commands)
 	commands = optimize(commands)
 	commands = optimize(commands)
 	
 	# Write output
-	outcode = outfunc(commands, outpath.stem)
+	outcode: str = outfunc(commands, outpath.stem)
 	with outpath.open("wt") as fout:
 		fout.write(outcode)
 	return None
@@ -466,6 +467,6 @@ class Loop(Command):
 # ---- Miscellaneous ----
 
 if __name__ == "__main__":
-	errmsg = main(sys.argv[1 : ])
+	errmsg: Optional[str] = main(sys.argv[1 : ])
 	if errmsg is not None:
 		sys.exit(errmsg)
