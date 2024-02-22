@@ -10,7 +10,7 @@
 # 
 
 from __future__ import annotations
-import pathlib, re, sys
+import dataclasses, pathlib, re, sys
 from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set
 
 
@@ -421,47 +421,47 @@ def plusminus(val: int) -> str:
 class Command:  # Common superclass
 	pass
 
+@dataclasses.dataclass
 class Assign(Command):
-	def __init__(self, offset: int, value: int):
-		self.offset = offset
-		self.value = value
+	offset: int
+	value: int
 
+@dataclasses.dataclass
 class Add(Command):
-	def __init__(self, offset: int, value: int):
-		self.offset = offset
-		self.value = value
+	offset: int
+	value: int
 
+@dataclasses.dataclass
 class MultAssign(Command):
-	def __init__(self, srcOff: int, destOff: int, value: int):
-		self.srcOff = srcOff
-		self.destOff = destOff
-		self.value = value
+	srcOff: int
+	destOff: int
+	value: int
 
+@dataclasses.dataclass
 class MultAdd(Command):
-	def __init__(self, srcOff: int, destOff: int, value: int):
-		self.srcOff = srcOff
-		self.destOff = destOff
-		self.value = value
+	srcOff: int
+	destOff: int
+	value: int
 
+@dataclasses.dataclass
 class Right(Command):
-	def __init__(self, offset: int):
-		self.offset = offset
+	offset: int
 
+@dataclasses.dataclass
 class Input(Command):
-	def __init__(self, offset: int):
-		self.offset = offset
+	offset: int
 
+@dataclasses.dataclass
 class Output(Command):
-	def __init__(self, offset: int):
-		self.offset = offset
+	offset: int
 
+@dataclasses.dataclass
 class If(Command):
-	def __init__(self, commands: List[Command]):
-		self.commands = commands
+	commands: List[Command]
 
+@dataclasses.dataclass
 class Loop(Command):
-	def __init__(self, commands: List[Command]):
-		self.commands = commands
+	commands: List[Command]
 
 
 # ---- Miscellaneous ----
