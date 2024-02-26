@@ -1,7 +1,7 @@
 /* 
  * Binary array set (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -99,7 +99,7 @@ public final class BinaryArraySet<E extends Comparable<? super E>> extends Abstr
 	}
 	
 	
-	// Runs in amortized O(1) time, worst-case O(n) time
+	// Runs in amortized O(log n) time, worst-case O(n) time
 	@SuppressWarnings("unchecked")
 	public void addUnique(E val) {
 		Objects.requireNonNull(val);

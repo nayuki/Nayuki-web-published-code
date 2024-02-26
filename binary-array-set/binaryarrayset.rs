@@ -1,7 +1,7 @@
 /* 
  * Binary array set (Rust)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -81,7 +81,7 @@ impl<E: Ord> BinaryArraySet<E> {
 	}
 	
 	
-	// Runs in amortized O(1) time, worst-case O(n) time
+	// Runs in amortized O(log) time, worst-case O(n) time
 	pub fn insert_unique(&mut self, val: E) {
 		self.size = self.size.checked_add(1).expect("Maximum size reached");
 		let mut toput: Vec<E> = vec![val];

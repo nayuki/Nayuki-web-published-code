@@ -1,7 +1,7 @@
 # 
 # Binary array set (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-array-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -95,7 +95,7 @@ class BinaryArraySet(Generic[E]):
 			self.add_unique(val)
 	
 	
-	# Runs in amortized O(1) time, worst-case O(n) time
+	# Runs in amortized O(log n) time, worst-case O(n) time
 	def add_unique(self, val: E) -> None:
 		toput: Optional[List[E]] = [val]
 		for (i, vals) in enumerate(self.values):

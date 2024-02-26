@@ -1,7 +1,7 @@
 /* 
  * Binary array set (C++)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-array-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -112,7 +112,7 @@ class BinaryArraySet final {
 	}
 	
 	
-	// Runs in amortized O(1) time, worst-case O(n) time
+	// Runs in amortized O(log n) time, worst-case O(n) time
 	public: void insertUnique(E val) {
 		std::vector<E> toPut{std::move(val)};
 		insertHelper(std::move(toPut));
