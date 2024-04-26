@@ -1,3 +1,10 @@
+# 
+# Number-theoretic transform library (Python)
+# 
+# Copyright (c) 2022 Project Nayuki
+# All rights reserved. Contact Nayuki for licensing.
+# https://www.nayuki.io/page/number-theoretic-transform-integer-dft
+# 
 import itertools
 from typing import List, Tuple
 
