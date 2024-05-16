@@ -1,6 +1,6 @@
 /* 
  * Variants of the sieve of Eratosthenes (Java)
- * by Project Nayuki, 2016. Public domain.
+ * by Project Nayuki, 2024. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -19,8 +19,11 @@ public final class EratosthenesSieves {
 			Arrays.fill(result, 2, result.length, true);
 		for (int i = 2, end = sqrt(limit); i <= end; i++) {
 			if (result[i]) {
-				for (int j = i * i; j < result.length; j += i)
+				for (int j = i * i, bound = Integer.MAX_VALUE - i; j < result.length; j += i) {
 					result[j] = false;
+					if (j > bound)
+						break;
+				}
 			}
 		}
 		return result;
@@ -39,9 +42,11 @@ public final class EratosthenesSieves {
 			if (result[i] == 0) {
 				result[i] = i;
 				if (i <= sqrt) {
-					for (int j = i * i; j < result.length; j += i) {
+					for (int j = i * i, bound = Integer.MAX_VALUE - i; j < result.length; j += i) {
 						if (result[j] == 0)
 							result[j] = i;
+						if (j > bound)
+							break;
 					}
 				}
 			}
