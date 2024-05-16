@@ -65,8 +65,11 @@ public final class EratosthenesSieves {
 			result[i] = i;
 		for (int i = 2; i < result.length; i++) {
 			if (result[i] == i) {
-				for (int j = i; 0 <= j && j < result.length; j += i)
+				for (int j = i, bound = Integer.MAX_VALUE - i; j < result.length; j += i) {
 					result[j] -= result[j] / i;
+					if (j > bound)
+						break;
+				}
 			}
 		}
 		return result;
@@ -81,8 +84,11 @@ public final class EratosthenesSieves {
 		int[] result = new int[limit + 1];
 		for (int i = 2; i < result.length; i++) {
 			if (result[i] == 0) {
-				for (int j = i; 0 <= j && j < result.length; j += i)
+				for (int j = i, bound = Integer.MAX_VALUE - i; j < result.length; j += i) {
 					result[j]++;
+					if (j > bound)
+						break;
+				}
 			}
 		}
 		return result;
@@ -98,8 +104,11 @@ public final class EratosthenesSieves {
 		Arrays.fill(result, 1, result.length, 1);
 		for (int i = 2; i < result.length; i++) {
 			if (result[i] == 1) {
-				for (int j = i; 0 <= j && j < result.length; j += i)
+				for (int j = i, bound = Integer.MAX_VALUE - i; j < result.length; j += i) {
 					result[j] *= i;
+					if (j > bound)
+						break;
+				}
 			}
 		}
 		return result;
