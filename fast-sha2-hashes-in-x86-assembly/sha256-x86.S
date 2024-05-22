@@ -79,15 +79,14 @@ sha256_compress:
 	#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
 		/* Part 0 */               \
 		movl  STATE(e), %eax;      \
-		movl  %eax, %ebx;          \
 		movl  %eax, %ecx;          \
 		movl  %eax, %edx;          \
-		rorl  $11, %eax;           \
-		rorl  $25, %ebx;           \
-		rorl  $6, %ecx;            \
-		movl  STATE(h), %esi;      \
-		xorl  %ebx, %eax;          \
+		rorl  $6, %eax;            \
+		rorl  $11, %ecx;           \
+		xorl  %ecx, %eax;          \
+		rorl  $14, %ecx;           \
 		xorl  %eax, %ecx;          \
+		movl  STATE(h), %esi;      \
 		addl  %ebp, %esi;          \
 		movl  STATE(g), %ebx;      \
 		movl  STATE(f), %eax;      \
@@ -100,13 +99,12 @@ sha256_compress:
 		addl  %esi, STATE(d);      \
 		/* Part 2 */               \
 		movl  STATE(a), %eax;      \
-		movl  %eax, %ebx;          \
 		movl  %eax, %ecx;          \
 		movl  %eax, %edx;          \
-		rorl  $13, %eax;           \
-		rorl  $22, %ebx;           \
-		rorl  $2, %ecx;            \
-		xorl  %ebx, %eax;          \
+		rorl  $2, %eax;            \
+		rorl  $13, %ecx;           \
+		xorl  %ecx, %eax;          \
+		rorl  $9, %ecx;            \
 		xorl  %eax, %ecx;          \
 		movl  STATE(c), %eax;      \
 		addl  %ecx, %esi;          \

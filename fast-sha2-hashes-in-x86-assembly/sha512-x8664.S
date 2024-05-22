@@ -84,13 +84,12 @@ sha512_compress:
 	
 	#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
 		/* Part 0 */       \
-		movq  %e, %rcx;    \
-		movq  %e, %rdx;    \
 		movq  %e, %rax;    \
-		rorq  $18, %rcx;   \
-		rorq  $41, %rdx;   \
+		movq  %e, %rcx;    \
 		rorq  $14, %rax;   \
-		xorq  %rdx, %rcx;  \
+		rorq  $18, %rcx;   \
+		xorq  %rcx, %rax;  \
+		rorq  $23, %rcx;   \
 		xorq  %rcx, %rax;  \
 		addq  %rbx, %h;    \
 		movq  %g, %rcx;    \
@@ -104,13 +103,12 @@ sha512_compress:
 		/* Part 1 */       \
 		addq  %h, %d;      \
 		/* Part 2 */       \
-		movq  %a, %rcx;    \
-		movq  %a, %rdx;    \
 		movq  %a, %rax;    \
-		rorq  $39, %rcx;   \
-		rorq  $34, %rdx;   \
+		movq  %a, %rcx;    \
 		rorq  $28, %rax;   \
-		xorq  %rdx, %rcx;  \
+		rorq  $34, %rcx;   \
+		xorq  %rcx, %rax;  \
+		rorq  $5, %rcx;    \
 		xorq  %rcx, %rax;  \
 		movq  %c, %rcx;    \
 		addq  %rax, %h;    \

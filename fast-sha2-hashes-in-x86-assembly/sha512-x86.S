@@ -79,12 +79,11 @@ sha512_compress:
 		paddq  STATE(h), %mm0;             \
 		movq   STATE(e), %mm1;             \
 		movq   %mm1, %mm2;                 \
-		movq   %mm1, %mm3;                 \
-		RORQ(mm1, 18, mm4)                 \
-		RORQ(mm2, 41, mm5)                 \
-		RORQ(mm3, 14, mm6)                 \
+		RORQ(mm1, 14, mm4)                 \
+		RORQ(mm2, 18, mm5)                 \
 		pxor   %mm2, %mm1;                 \
-		pxor   %mm3, %mm1;                 \
+		RORQ(mm2, 23, mm4)                 \
+		pxor   %mm2, %mm1;                 \
 		paddq  .roundconstants+i*8, %mm0;  \
 		movq   STATE(g), %mm2;             \
 		pxor   STATE(f), %mm2;             \
@@ -99,12 +98,11 @@ sha512_compress:
 		/* Part 2 */                       \
 		movq   STATE(a), %mm1;             \
 		movq   %mm1, %mm2;                 \
-		movq   %mm1, %mm3;                 \
-		RORQ(mm1, 39, mm4)                 \
+		RORQ(mm1, 28, mm4)                 \
 		RORQ(mm2, 34, mm5)                 \
-		RORQ(mm3, 28, mm6)                 \
 		pxor   %mm2, %mm1;                 \
-		pxor   %mm3, %mm1;                 \
+		RORQ(mm2,  5, mm4)                 \
+		pxor   %mm2, %mm1;                 \
 		movq   STATE(c), %mm2;             \
 		paddq  %mm1, %mm0;                 \
 		movq   %mm2, %mm3;                 \
