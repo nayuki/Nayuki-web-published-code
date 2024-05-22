@@ -1,7 +1,7 @@
 /*
  * Time-based One-Time Password tools (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -58,8 +58,7 @@ function calcTotp(secretKey, epoch = 0, timeStep = 30, timestamp = null, codeLen
     let timeCounter = Math.floor((timestamp - epoch) / timeStep);
     let counter = [];
     for (let i = 0; i < 8; i++, timeCounter = Math.floor(timeCounter / 256))
-        counter.push(timeCounter & 0xFF);
-    counter.reverse();
+        counter.unshift(timeCounter & 0xFF);
     return calcHotp(secretKey, counter, codeLen, hashFunc, blockSize);
 }
 // HMAC-based One-Time Password algorithm (RFC 4226)
@@ -105,8 +104,7 @@ function calcHmac(key, message, hashFunc, blockSize) {
 function calcSha1Hash(message) {
     let bitLenBytes = [];
     for (let i = 0, bitLen = message.length * 8; i < 8; i++, bitLen >>>= 8)
-        bitLenBytes.push(bitLen & 0xFF);
-    bitLenBytes.reverse();
+        bitLenBytes.unshift(bitLen & 0xFF);
     let msg = message.slice();
     msg.push(0x80);
     while ((msg.length + 8) % 64 != 0)
@@ -217,8 +215,7 @@ function testHotp() {
     for (let [counter, expect] of CASES) {
         let counterBytes = [];
         for (let i = 0; i < 8; i++, counter = Math.floor(counter / 256))
-            counterBytes.push(counter & 0xFF);
-        counterBytes.reverse();
+            counterBytes.unshift(counter & 0xFF);
         const actual = calcHotp(SECRET_KEY, counterBytes, 9);
         if (actual != expect)
             throw new Error("Value mismatch");

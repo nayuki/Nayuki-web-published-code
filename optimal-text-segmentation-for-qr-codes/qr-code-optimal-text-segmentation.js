@@ -1,7 +1,7 @@
 /*
  * Optimal text segmentation for QR Codes (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2024 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/optimal-text-segmentation-for-qr-codes
  */
@@ -535,8 +535,7 @@ var app;
                     throw new RangeError("Invalid code point");
                 this.utf8 = [];
                 for (let i = 0; i < n; i++, utf32 >>>= 6)
-                    this.utf8.push(0x80 | (utf32 & 0x3F));
-                this.utf8.reverse();
+                    this.utf8.unshift(0x80 | (utf32 & 0x3F));
                 this.utf8[0] |= (0xF00 >>> n) & 0xFF;
             }
         }

@@ -1,7 +1,7 @@
 /* 
  * Calculate divisors
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2024 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-divisors-javascript
  */
@@ -64,10 +64,9 @@ const app = new function() {
 			if (n % i == 0) {
 				small.push(i);
 				if (i * i != n)  // Don't include a square root twice
-					large.push(n / i);
+					large.unshift(n / i);
 			}
 		}
-		large.reverse();
 		return small.concat(large);
 	}
 	

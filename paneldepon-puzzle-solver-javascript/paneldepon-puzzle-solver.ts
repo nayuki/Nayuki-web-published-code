@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2024 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -405,10 +405,10 @@ namespace app {
 				const prevMove = info.prevMove;
 				if (prevMove === null)
 					throw new Error("Assertion error");
-				result.push(prevMove);
+				result.unshift(prevMove);
 				state = info.prevBoard;
 			}
-			return [result.reverse(), visited.size];
+			return [result, visited.size];
 		}
 		
 		

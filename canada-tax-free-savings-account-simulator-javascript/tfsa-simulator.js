@@ -189,11 +189,10 @@ function display() {
 				let span = document.createElement("span");
 				span.textContent = s.substring(i);
 				span.classList.add("digitgrouper");
-				result.push(span);
+				result.unshift(span);
 				s = s.substring(0, i);
 			}
-			result.push(document.createTextNode("$"));
-			result.reverse();
+			result.unshift(document.createTextNode("$"));
 			result.push(document.createTextNode("." + Math.floor(amount / 10) % 10 + amount % 10));
 			return result;
 		}
