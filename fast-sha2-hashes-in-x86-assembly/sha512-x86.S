@@ -76,7 +76,6 @@ sha512_compress:
 	
 	#define ROUNDTAIL(i, a, b, c, d, e, f, g, h)  \
 		/* Part 0 */                       \
-		paddq  STATE(h), %mm0;             \
 		movq   STATE(e), %mm1;             \
 		movq   %mm1, %mm2;                 \
 		RORQ(mm1, 14, mm4)                 \
@@ -84,13 +83,14 @@ sha512_compress:
 		pxor   %mm2, %mm1;                 \
 		RORQ(mm2, 23, mm4)                 \
 		pxor   %mm2, %mm1;                 \
-		paddq  .roundconstants+i*8, %mm0;  \
-		movq   STATE(g), %mm2;             \
-		pxor   STATE(f), %mm2;             \
-		pand   STATE(e), %mm2;             \
-		pxor   STATE(g), %mm2;             \
+		paddq  STATE(h), %mm0;             \
+		movq   STATE(g), %mm3;             \
+		pxor   STATE(f), %mm3;             \
+		pand   STATE(e), %mm3;             \
+		pxor   STATE(g), %mm3;             \
 		paddq  %mm1, %mm0;                 \
-		paddq  %mm2, %mm0;                 \
+		paddq  .roundconstants+i*8, %mm0;  \
+		paddq  %mm3, %mm0;                 \
 		/* Part 1 */                       \
 		movq   STATE(d), %mm1;             \
 		paddq  %mm0, %mm1;                 \
@@ -98,10 +98,10 @@ sha512_compress:
 		/* Part 2 */                       \
 		movq   STATE(a), %mm1;             \
 		movq   %mm1, %mm2;                 \
-		RORQ(mm1, 28, mm4)                 \
-		RORQ(mm2, 34, mm5)                 \
+		RORQ(mm1, 28, mm3)                 \
+		RORQ(mm2, 34, mm4)                 \
 		pxor   %mm2, %mm1;                 \
-		RORQ(mm2,  5, mm4)                 \
+		RORQ(mm2,  5, mm3)                 \
 		pxor   %mm2, %mm1;                 \
 		movq   STATE(c), %mm2;             \
 		paddq  %mm1, %mm0;                 \

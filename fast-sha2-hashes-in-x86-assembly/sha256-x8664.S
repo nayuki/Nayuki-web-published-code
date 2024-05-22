@@ -56,9 +56,9 @@ sha256_compress:
 	#define SCHED(i)  (((i)&0xF)*4)(%rsp)
 	
 	#define ROUNDa(i, a, b, c, d, e, f, g, h, k)  \
-		movl    (i*4)(%rdi), %ebx;  \
-		bswapl  %ebx;               \
-		movl    %ebx, SCHED(i);     \
+		movl    (i*4)(%rdi), %eax;  \
+		bswapl  %eax;               \
+		movl    %eax, SCHED(i);     \
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
 	
 	#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
@@ -78,44 +78,44 @@ sha256_compress:
 		xorl  %edx, %ebx;         \
 		addl  SCHED(i-16), %eax;  \
 		addl  SCHED(i- 7), %ebx;  \
-		addl  %eax, %ebx;         \
-		movl  %ebx, SCHED(i);     \
+		addl  %ebx, %eax;         \
+		movl  %eax, SCHED(i);     \
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
 	
 	#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
 		/* Part 0 */               \
-		movl  %e, %eax;            \
+		movl  %e, %ebx;            \
 		movl  %e, %ecx;            \
-		rorl  $6, %eax;            \
+		rorl  $6, %ebx;            \
 		rorl  $11, %ecx;           \
-		xorl  %ecx, %eax;          \
+		xorl  %ecx, %ebx;          \
 		rorl  $14, %ecx;           \
-		xorl  %ecx, %eax;          \
-		addl  %ebx, %h;            \
-		movl  %g, %ecx;            \
-		xorl  %f, %ecx;            \
-		andl  %e, %ecx;            \
-		xorl  %g, %ecx;            \
-		leal  k(%rax,%rcx), %eax;  \
+		xorl  %ecx, %ebx;          \
 		addl  %eax, %h;            \
+		movl  %g, %edx;            \
+		xorl  %f, %edx;            \
+		andl  %e, %edx;            \
+		xorl  %g, %edx;            \
+		leal  k(%rbx,%rdx), %ebx;  \
+		addl  %ebx, %h;            \
 		/* Part 1 */               \
 		addl  %h, %d;              \
 		/* Part 2 */               \
 		movl  %a, %eax;            \
-		movl  %a, %ecx;            \
+		movl  %a, %ebx;            \
 		rorl  $2, %eax;            \
-		rorl  $13, %ecx;           \
-		xorl  %ecx, %eax;          \
-		rorl  $9, %ecx;            \
-		xorl  %ecx, %eax;          \
+		rorl  $13, %ebx;           \
+		xorl  %ebx, %eax;          \
+		rorl  $9, %ebx;            \
+		xorl  %ebx, %eax;          \
 		movl  %c, %ecx;            \
 		addl  %eax, %h;            \
-		movl  %c, %eax;            \
-		orl   %b, %eax;            \
+		movl  %c, %edx;            \
+		orl   %b, %edx;            \
 		andl  %b, %ecx;            \
-		andl  %a, %eax;            \
-		orl   %ecx, %eax;          \
-		addl  %eax, %h;
+		andl  %a, %edx;            \
+		orl   %ecx, %edx;          \
+		addl  %edx, %h;
 	
 	/* Save registers, allocate scratch space */
 	movq  %r10, %xmm0

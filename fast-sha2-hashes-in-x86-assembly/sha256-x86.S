@@ -48,74 +48,72 @@ sha256_compress:
 	#define SCHED(i)  ((((i)&0xF)+8)*4)(%esp)
 	
 	#define ROUNDa(i, a, b, c, d, e, f, g, h, k)  \
-		movl    (i*4)(%edi), %ebp;  \
-		bswapl  %ebp;               \
-		movl    %ebp, SCHED(i);     \
+		movl    (i*4)(%edi), %eax;  \
+		bswapl  %eax;               \
+		movl    %eax, SCHED(i);     \
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
 	
 	#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
 		movl  SCHED(i-15), %eax;  \
-		movl  SCHED(i- 2), %ebp;  \
-		movl  %eax, %ebx;         \
-		movl  %ebp, %ecx;         \
+		movl  SCHED(i- 2), %ebx;  \
+		movl  %eax, %ecx;         \
+		movl  %ebx, %edx;         \
 		rorl  $7, %eax;           \
-		rorl  $17, %ebp;          \
-		shrl  $3, %ebx;           \
-		shrl  $10, %ecx;          \
-		xorl  %eax, %ebx;         \
-		xorl  %ebp, %ecx;         \
+		rorl  $17, %ebx;          \
+		shrl  $3, %ecx;           \
+		shrl  $10, %edx;          \
+		xorl  %eax, %ecx;         \
+		xorl  %ebx, %edx;         \
 		rorl  $11, %eax;          \
-		rorl  $2, %ebp;           \
-		xorl  %ebx, %eax;         \
-		xorl  %ecx, %ebp;         \
+		rorl  $2, %ebx;           \
+		xorl  %ecx, %eax;         \
+		xorl  %edx, %ebx;         \
 		addl  SCHED(i-16), %eax;  \
-		addl  SCHED(i- 7), %ebp;  \
-		addl  %eax, %ebp;         \
-		movl  %ebp, SCHED(i);     \
+		addl  SCHED(i- 7), %ebx;  \
+		addl  %ebx, %eax;         \
+		movl  %eax, SCHED(i);     \
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
 	
 	#define STATE(i)  (i*4)(%esp)
 	
 	#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
 		/* Part 0 */               \
-		movl  STATE(e), %eax;      \
-		movl  %eax, %ecx;          \
-		movl  %eax, %edx;          \
-		rorl  $6, %eax;            \
+		movl  STATE(e), %ebx;      \
+		movl  %ebx, %ecx;          \
+		movl  %ebx, %esi;          \
+		rorl  $6, %ebx;            \
 		rorl  $11, %ecx;           \
-		xorl  %ecx, %eax;          \
+		xorl  %ecx, %ebx;          \
 		rorl  $14, %ecx;           \
-		xorl  %eax, %ecx;          \
-		movl  STATE(h), %esi;      \
-		addl  %ebp, %esi;          \
-		movl  STATE(g), %ebx;      \
-		movl  STATE(f), %eax;      \
-		xorl  %ebx, %eax;          \
-		andl  %edx, %eax;          \
-		xorl  %ebx, %eax;          \
-		leal  k(%ecx,%eax), %ecx;  \
-		addl  %ecx, %esi;          \
+		xorl  %ecx, %ebx;          \
+		movl  STATE(h), %ebp;      \
+		addl  %eax, %ebp;          \
+		movl  STATE(g), %edx;      \
+		movl  %edx, %eax;          \
+		xorl  STATE(f), %edx;      \
+		andl  %esi, %edx;          \
+		xorl  %eax, %edx;          \
+		leal  k(%ebx,%edx), %ebx;  \
+		addl  %ebx, %ebp;          \
 		/* Part 1 */               \
-		addl  %esi, STATE(d);      \
+		addl  %ebp, STATE(d);      \
 		/* Part 2 */               \
 		movl  STATE(a), %eax;      \
-		movl  %eax, %ecx;          \
-		movl  %eax, %edx;          \
+		movl  %eax, %ebx;          \
 		rorl  $2, %eax;            \
-		rorl  $13, %ecx;           \
-		xorl  %ecx, %eax;          \
-		rorl  $9, %ecx;            \
-		xorl  %eax, %ecx;          \
-		movl  STATE(c), %eax;      \
-		addl  %ecx, %esi;          \
-		movl  %eax, %ecx;          \
-		movl  STATE(b), %ebx;      \
-		orl   %ebx, %ecx;          \
-		andl  %ebx, %eax;          \
-		andl  %edx, %ecx;          \
-		orl   %eax, %ecx;          \
-		addl  %ecx, %esi;          \
-		movl  %esi, STATE(h);
+		rorl  $13, %ebx;           \
+		xorl  %ebx, %eax;          \
+		rorl  $9, %ebx;            \
+		xorl  %ebx, %eax;          \
+		movl  STATE(c), %ecx;      \
+		addl  %eax, %ebp;          \
+		movl  %ecx, %edx;          \
+		orl   STATE(b), %edx;      \
+		andl  STATE(b), %ecx;      \
+		andl  STATE(a), %edx;      \
+		orl   %ecx, %edx;          \
+		addl  %edx, %ebp;          \
+		movl  %ebp, STATE(h);
 	
 	/* Allocate scratch space, save registers */
 	subl  $112, %esp
