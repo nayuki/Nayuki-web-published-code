@@ -1,7 +1,7 @@
 /* 
  * SHA-512 hash in x86-64 assembly
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -63,24 +63,21 @@ sha512_compress:
 	
 	#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
 		movq  SCHED(i-15), %rax;  \
-		movq  SCHED(i-16), %rbx;  \
-		addq  SCHED(i- 7), %rbx;  \
+		movq  SCHED(i- 2), %rbx;  \
 		movq  %rax, %rcx;         \
-		movq  %rax, %rdx;         \
-		rorq  $8, %rcx;           \
-		shrq  $7, %rdx;           \
+		movq  %rbx, %rdx;         \
 		rorq  $1, %rax;           \
-		xorq  %rdx, %rcx;         \
-		xorq  %rcx, %rax;         \
-		addq  %rax, %rbx;         \
-		movq  SCHED(i- 2), %rax;  \
-		movq  %rax, %rcx;         \
-		movq  %rax, %rdx;         \
-		rorq  $61, %rcx;          \
+		rorq  $19, %rbx;          \
+		shrq  $7, %rcx;           \
 		shrq  $6, %rdx;           \
-		rorq  $19, %rax;          \
-		xorq  %rdx, %rcx;         \
+		xorq  %rax, %rcx;         \
+		xorq  %rbx, %rdx;         \
+		rorq  $7, %rax;           \
+		rorq  $42, %rbx;          \
 		xorq  %rcx, %rax;         \
+		xorq  %rdx, %rbx;         \
+		addq  SCHED(i-16), %rax;  \
+		addq  SCHED(i- 7), %rbx;  \
 		addq  %rax, %rbx;         \
 		movq  %rbx, SCHED(i);     \
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)

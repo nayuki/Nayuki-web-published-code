@@ -55,24 +55,21 @@ sha256_compress:
 	
 	#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
 		movl  SCHED(i-15), %eax;  \
-		movl  SCHED(i-16), %ebp;  \
+		movl  SCHED(i- 2), %ebp;  \
 		movl  %eax, %ebx;         \
-		addl  SCHED(i- 7), %ebp;  \
-		movl  %eax, %ecx;         \
-		rorl  $18, %ebx;          \
-		shrl  $3, %ecx;           \
+		movl  %ebp, %ecx;         \
 		rorl  $7, %eax;           \
-		xorl  %ecx, %ebx;         \
-		xorl  %ebx, %eax;         \
-		addl  %eax, %ebp;         \
-		movl  SCHED(i- 2), %eax;  \
-		movl  %eax, %ebx;         \
-		movl  %eax, %ecx;         \
-		rorl  $19, %ebx;          \
+		rorl  $17, %ebp;          \
+		shrl  $3, %ebx;           \
 		shrl  $10, %ecx;          \
-		rorl  $17, %eax;          \
-		xorl  %ecx, %ebx;         \
+		xorl  %eax, %ebx;         \
+		xorl  %ebp, %ecx;         \
+		rorl  $11, %eax;          \
+		rorl  $2, %ebp;           \
 		xorl  %ebx, %eax;         \
+		xorl  %ecx, %ebp;         \
+		addl  SCHED(i-16), %eax;  \
+		addl  SCHED(i- 7), %ebp;  \
 		addl  %eax, %ebp;         \
 		movl  %ebp, SCHED(i);     \
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)

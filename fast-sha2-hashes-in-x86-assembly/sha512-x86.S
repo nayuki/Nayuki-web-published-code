@@ -1,7 +1,7 @@
 /* 
  * SHA-512 hash in x86 assembly
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,25 +54,22 @@ sha512_compress:
 		ROUNDTAIL(i, a, b, c, d, e, f, g, h)
 	
 	#define ROUNDb(i, a, b, c, d, e, f, g, h)  \
-		movq   SCHED(i-16), %mm0;  \
-		paddq  SCHED(i- 7), %mm0;  \
-		movq   SCHED(i-15), %mm1;  \
-		movq   %mm1, %mm2;         \
-		movq   %mm1, %mm3;         \
-		RORQ(mm1, 1, mm5)          \
-		RORQ(mm2, 8, mm4)          \
-		psrlq  $7, %mm3;           \
-		pxor   %mm3, %mm2;         \
-		pxor   %mm2, %mm1;         \
-		paddq  %mm1, %mm0;         \
+		movq   SCHED(i-15), %mm0;  \
 		movq   SCHED(i- 2), %mm1;  \
-		movq   %mm1, %mm2;         \
+		movq   %mm0, %mm2;         \
 		movq   %mm1, %mm3;         \
-		RORQ(mm1, 19, mm5)         \
-		RORQ(mm2, 61, mm4)         \
+		RORQ(mm0,  1, mm4);        \
+		RORQ(mm1, 19, mm5);        \
+		psrlq  $7, %mm2;           \
 		psrlq  $6, %mm3;           \
-		pxor   %mm3, %mm2;         \
-		pxor   %mm2, %mm1;         \
+		pxor   %mm0, %mm2;         \
+		pxor   %mm1, %mm3;         \
+		RORQ(mm0,  7, mm4);        \
+		RORQ(mm1, 42, mm5);        \
+		pxor   %mm2, %mm0;         \
+		pxor   %mm3, %mm1;         \
+		paddq  SCHED(i-16), %mm0;  \
+		paddq  SCHED(i- 7), %mm1;  \
 		paddq  %mm1, %mm0;         \
 		movq   %mm0, SCHED(i);     \
 		ROUNDTAIL(i, a, b, c, d, e, f, g, h)

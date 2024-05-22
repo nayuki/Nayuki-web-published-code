@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in x86-64 assembly
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -63,24 +63,21 @@ sha256_compress:
 	
 	#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
 		movl  SCHED(i-15), %eax;  \
-		movl  SCHED(i-16), %ebx;  \
-		addl  SCHED(i- 7), %ebx;  \
+		movl  SCHED(i- 2), %ebx;  \
 		movl  %eax, %ecx;         \
-		movl  %eax, %edx;         \
-		rorl  $18, %ecx;          \
-		shrl  $3, %edx;           \
+		movl  %ebx, %edx;         \
 		rorl  $7, %eax;           \
-		xorl  %edx, %ecx;         \
-		xorl  %ecx, %eax;         \
-		addl  %eax, %ebx;         \
-		movl  SCHED(i- 2), %eax;  \
-		movl  %eax, %ecx;         \
-		movl  %eax, %edx;         \
-		rorl  $19, %ecx;          \
+		rorl  $17, %ebx;          \
+		shrl  $3, %ecx;           \
 		shrl  $10, %edx;          \
-		rorl  $17, %eax;          \
-		xorl  %edx, %ecx;         \
+		xorl  %eax, %ecx;         \
+		xorl  %ebx, %edx;         \
+		rorl  $11, %eax;          \
+		rorl  $2, %ebx;           \
 		xorl  %ecx, %eax;         \
+		xorl  %edx, %ebx;         \
+		addl  SCHED(i-16), %eax;  \
+		addl  SCHED(i- 7), %ebx;  \
 		addl  %eax, %ebx;         \
 		movl  %ebx, SCHED(i);     \
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
