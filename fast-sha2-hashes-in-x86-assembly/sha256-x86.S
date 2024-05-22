@@ -1,7 +1,7 @@
 /* 
  * SHA-256 hash in x86 assembly
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-sha2-hashes-in-x86-assembly
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,7 +51,7 @@ sha256_compress:
 		movl    (i*4)(%edi), %ebp;  \
 		bswapl  %ebp;               \
 		movl    %ebp, SCHED(i);     \
-		ROUNDTAIL(i, a, b, c, d, e, f, g, h, k)
+		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
 	
 	#define ROUNDb(i, a, b, c, d, e, f, g, h, k)  \
 		movl  SCHED(i-15), %eax;  \
@@ -75,11 +75,11 @@ sha256_compress:
 		xorl  %ebx, %eax;         \
 		addl  %eax, %ebp;         \
 		movl  %ebp, SCHED(i);     \
-		ROUNDTAIL(i, a, b, c, d, e, f, g, h, k)
+		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
 	
 	#define STATE(i)  (i*4)(%esp)
 	
-	#define ROUNDTAIL(i, a, b, c, d, e, f, g, h, k)  \
+	#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
 		/* Part 0 */               \
 		movl  STATE(e), %eax;      \
 		movl  %eax, %ebx;          \
