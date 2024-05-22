@@ -83,41 +83,41 @@ sha512_compress:
 		ROUNDTAIL(a, b, c, d, e, f, g, h, k)
 	
 	#define ROUNDTAIL(a, b, c, d, e, f, g, h, k)  \
-		/* Part 0 */       \
-		movq  %e, %rbx;    \
-		movq  %e, %rcx;    \
-		rorq  $14, %rbx;   \
-		rorq  $18, %rcx;   \
-		xorq  %rcx, %rbx;  \
-		rorq  $23, %rcx;   \
-		xorq  %rcx, %rbx;  \
-		addq  %rax, %h;    \
-		movq  %g, %rdx;    \
-		xorq  %f, %rdx;    \
-		andq  %e, %rdx;    \
-		xorq  %g, %rdx;    \
-		addq  %rbx, %h;    \
-		movabs  $k, %rbx;  \
-		addq  %rdx, %h;    \
-		addq  %rbx, %h;    \
-		/* Part 1 */       \
-		addq  %h, %d;      \
-		/* Part 2 */       \
-		movq  %a, %rax;    \
-		movq  %a, %rbx;    \
-		rorq  $28, %rax;   \
-		rorq  $34, %rbx;   \
-		xorq  %rbx, %rax;  \
-		rorq  $5, %rbx;    \
-		xorq  %rbx, %rax;  \
-		movq  %c, %rcx;    \
-		addq  %rax, %h;    \
-		movq  %c, %rdx;    \
-		orq   %b, %rdx;    \
-		andq  %b, %rcx;    \
-		andq  %a, %rdx;    \
-		orq   %rcx, %rdx;  \
-		addq  %rdx, %h;
+		/* Part 0 */         \
+		movq    %e, %rbx;    \
+		movq    %e, %rcx;    \
+		rorq    $14, %rbx;   \
+		rorq    $18, %rcx;   \
+		xorq    %rcx, %rbx;  \
+		rorq    $23, %rcx;   \
+		xorq    %rcx, %rbx;  \
+		addq    %rax, %h;    \
+		movq    %g, %rdx;    \
+		xorq    %f, %rdx;    \
+		andq    %e, %rdx;    \
+		xorq    %g, %rdx;    \
+		addq    %rbx, %h;    \
+		movabs  $k, %rbx;    \
+		addq    %rdx, %h;    \
+		addq    %rbx, %h;    \
+		/* Part 1 */         \
+		addq    %h, %d;      \
+		/* Part 2 */         \
+		movq    %a, %rax;    \
+		movq    %a, %rbx;    \
+		rorq    $28, %rax;   \
+		rorq    $34, %rbx;   \
+		xorq    %rbx, %rax;  \
+		rorq    $5, %rbx;    \
+		xorq    %rbx, %rax;  \
+		movq    %c, %rcx;    \
+		addq    %rax, %h;    \
+		movq    %c, %rdx;    \
+		orq     %b, %rdx;    \
+		andq    %b, %rcx;    \
+		andq    %a, %rdx;    \
+		orq     %rcx, %rdx;  \
+		addq    %rdx, %h;
 	
 	/* Save registers, allocate scratch space */
 	movq  %r10, %xmm0

@@ -134,7 +134,7 @@ sha256_compress:
 	movl  28(%esi), %eax;  movl %eax, 28(%esp)
 	
 	/* Do 64 rounds of hashing */
-	movl    116(%esp), %edi  /* Argument: block */
+	movl  116(%esp), %edi  /* Argument: block */
 	ROUNDa( 0, 0, 1, 2, 3, 4, 5, 6, 7, 0x428A2F98)
 	ROUNDa( 1, 7, 0, 1, 2, 3, 4, 5, 6, 0x71374491)
 	ROUNDa( 2, 6, 7, 0, 1, 2, 3, 4, 5, 0xB5C0FBCF)

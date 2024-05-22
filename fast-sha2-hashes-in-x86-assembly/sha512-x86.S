@@ -65,76 +65,76 @@ sha512_compress:
 		ROUNDTAIL(i, a, b, c, d, e, f, g, h)
 	
 	#define ROUNDb(i, a, b, c, d, e, f, g, h)  \
-		movq   SCHED(i-15), %mm0;  \
-		movq   SCHED(i- 2), %mm1;  \
-		movq   %mm0, %mm2;         \
-		movq   %mm1, %mm3;         \
+		movq   SCHED(i-15), %mm0;          \
+		movq   SCHED(i- 2), %mm1;          \
+		movq   %mm0, %mm2;                 \
+		movq   %mm1, %mm3;                 \
 		RORQ2(mm0, mm1, 1, 19, mm4, mm5);  \
-		psrlq  $7, %mm2;           \
-		psrlq  $6, %mm3;           \
-		pxor   %mm0, %mm2;         \
-		pxor   %mm1, %mm3;         \
+		psrlq  $7, %mm2;                   \
+		psrlq  $6, %mm3;                   \
+		pxor   %mm0, %mm2;                 \
+		pxor   %mm1, %mm3;                 \
 		RORQ2(mm0, mm1, 7, 42, mm4, mm5);  \
-		pxor   %mm2, %mm0;         \
-		pxor   %mm3, %mm1;         \
-		paddq  SCHED(i-16), %mm0;  \
-		paddq  SCHED(i- 7), %mm1;  \
-		paddq  %mm1, %mm0;         \
-		movq   %mm0, SCHED(i);     \
+		pxor   %mm2, %mm0;                 \
+		pxor   %mm3, %mm1;                 \
+		paddq  SCHED(i-16), %mm0;          \
+		paddq  SCHED(i- 7), %mm1;          \
+		paddq  %mm1, %mm0;                 \
+		movq   %mm0, SCHED(i);             \
 		ROUNDTAIL(i, a, b, c, d, e, f, g, h)
 	
 	#define ROUNDTAIL(i, a, b, c, d, e, f, g, h)  \
-		/* Part 0 */                       \
-		movq   STATE(e), %mm1;             \
-		movq   %mm1, %mm2;                 \
+		/* Part 0 */                        \
+		movq   STATE(e), %mm1;              \
+		movq   %mm1, %mm2;                  \
 		RORQ2(mm1, mm2, 14, 18, mm4, mm5);  \
-		pxor   %mm2, %mm1;                 \
-		RORQ(mm2, 23, mm4)                 \
-		pxor   %mm2, %mm1;                 \
-		paddq  STATE(h), %mm0;             \
-		movq   STATE(g), %mm3;             \
-		pxor   STATE(f), %mm3;             \
-		pand   STATE(e), %mm3;             \
-		pxor   STATE(g), %mm3;             \
-		paddq  %mm1, %mm0;                 \
-		paddq  .roundconstants+i*8, %mm0;  \
-		paddq  %mm3, %mm0;                 \
-		/* Part 1 */                       \
-		movq   STATE(d), %mm1;             \
-		paddq  %mm0, %mm1;                 \
-		movq   %mm1, STATE(d);             \
-		/* Part 2 */                       \
-		movq   STATE(a), %mm1;             \
-		movq   %mm1, %mm2;                 \
+		pxor   %mm2, %mm1;                  \
+		RORQ(mm2, 23, mm4)                  \
+		pxor   %mm2, %mm1;                  \
+		paddq  STATE(h), %mm0;              \
+		movq   STATE(g), %mm3;              \
+		pxor   STATE(f), %mm3;              \
+		pand   STATE(e), %mm3;              \
+		pxor   STATE(g), %mm3;              \
+		paddq  %mm1, %mm0;                  \
+		paddq  .roundconstants+i*8, %mm0;   \
+		paddq  %mm3, %mm0;                  \
+		/* Part 1 */                        \
+		movq   STATE(d), %mm1;              \
+		paddq  %mm0, %mm1;                  \
+		movq   %mm1, STATE(d);              \
+		/* Part 2 */                        \
+		movq   STATE(a), %mm1;              \
+		movq   %mm1, %mm2;                  \
 		RORQ2(mm1, mm2, 28, 34, mm3, mm4);  \
-		pxor   %mm2, %mm1;                 \
-		RORQ(mm2,  5, mm3)                 \
-		pxor   %mm2, %mm1;                 \
-		movq   STATE(c), %mm2;             \
-		paddq  %mm1, %mm0;                 \
-		movq   %mm2, %mm3;                 \
-		por    STATE(b), %mm3;             \
-		pand   STATE(b), %mm2;             \
-		pand   STATE(a), %mm3;             \
-		por    %mm2, %mm3;                 \
-		paddq  %mm3, %mm0;                 \
+		pxor   %mm2, %mm1;                  \
+		RORQ(mm2, 5, mm3)                   \
+		pxor   %mm2, %mm1;                  \
+		movq   STATE(c), %mm2;              \
+		paddq  %mm1, %mm0;                  \
+		movq   %mm2, %mm3;                  \
+		por    STATE(b), %mm3;              \
+		pand   STATE(b), %mm2;              \
+		pand   STATE(a), %mm3;              \
+		por    %mm2, %mm3;                  \
+		paddq  %mm3, %mm0;                  \
 		movq   %mm0, STATE(h);
 	
 	/* Allocate 16-byte aligned scratch space */
-	movl   %esp, %eax
-	subl   $192, %esp
-	andl   $~0xF, %esp
+	movl  %esp, %eax
+	subl  $192, %esp
+	andl  $~0xF, %esp
 	
 	/* Copy state */
-	movl   8(%eax), %ecx
+	movl  8(%eax), %ecx
 	movdqu  0(%ecx), %xmm0;  movdqu %xmm0,  0(%esp)
 	movdqu 16(%ecx), %xmm1;  movdqu %xmm1, 16(%esp)
 	movdqu 32(%ecx), %xmm2;  movdqu %xmm2, 32(%esp)
 	movdqu 48(%ecx), %xmm3;  movdqu %xmm3, 48(%esp)
 	
 	/* Do 80 rounds of hashing */
-	movl   4(%eax), %edx
-	movq   .bswap64, %mm7
+	movl  4(%eax), %edx
+	movq  .bswap64, %mm7
 	ROUNDa( 0, 0, 1, 2, 3, 4, 5, 6, 7)
 	ROUNDa( 1, 7, 0, 1, 2, 3, 4, 5, 6)
 	ROUNDa( 2, 6, 7, 0, 1, 2, 3, 4, 5)
@@ -224,7 +224,7 @@ sha512_compress:
 	
 	/* Clean up */
 	emms
-	movl   %eax, %esp
+	movl  %eax, %esp
 	retl
 
 
