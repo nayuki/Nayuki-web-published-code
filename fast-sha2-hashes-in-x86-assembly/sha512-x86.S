@@ -28,8 +28,8 @@ sha512_compress:
 	/* 
 	 * Storage usage:
 	 *   Bytes  Location    Description
-	 *       4  eax         Temporary base address of state or block array arguments
-	 *       4  ecx         Old value of esp
+	 *       4  eax         Old value of esp
+	 *       4  ecx         Temporary base address of state or block array arguments
 	 *       4  esp         x86 stack pointer
 	 *      64  [esp+ 0]    SHA-512 state variables A,B,C,D,E,F,G,H (8 bytes each)
 	 *     128  [esp+64]    Circular buffer of most recent 16 key schedule items, 8 bytes each
@@ -48,7 +48,7 @@ sha512_compress:
 		por    %temp, %reg;
 	
 	#define ROUNDa(i, a, b, c, d, e, f, g, h)  \
-		movq    (i*8)(%eax), %mm0;  \
+		movq    (i*8)(%ecx), %mm0;  \
 		pshufb  %mm7, %mm0;         \
 		movq    %mm0, SCHED(i);     \
 		ROUNDTAIL(i, a, b, c, d, e, f, g, h)
@@ -114,19 +114,19 @@ sha512_compress:
 		movq   %mm0, STATE(h);
 	
 	/* Allocate 16-byte aligned scratch space */
-	movl   %esp, %ecx
+	movl   %esp, %eax
 	subl   $192, %esp
 	andl   $~0xF, %esp
 	
 	/* Copy state */
-	movl   8(%ecx), %eax
-	movdqu  0(%eax), %xmm0;  movdqu %xmm0,  0(%esp)
-	movdqu 16(%eax), %xmm1;  movdqu %xmm1, 16(%esp)
-	movdqu 32(%eax), %xmm2;  movdqu %xmm2, 32(%esp)
-	movdqu 48(%eax), %xmm3;  movdqu %xmm3, 48(%esp)
+	movl   8(%eax), %ecx
+	movdqu  0(%ecx), %xmm0;  movdqu %xmm0,  0(%esp)
+	movdqu 16(%ecx), %xmm1;  movdqu %xmm1, 16(%esp)
+	movdqu 32(%ecx), %xmm2;  movdqu %xmm2, 32(%esp)
+	movdqu 48(%ecx), %xmm3;  movdqu %xmm3, 48(%esp)
 	
 	/* Do 80 rounds of hashing */
-	movl   4(%ecx), %eax
+	movl   4(%eax), %ecx
 	movq   .bswap64, %mm7
 	ROUNDa( 0, 0, 1, 2, 3, 4, 5, 6, 7)
 	ROUNDa( 1, 7, 0, 1, 2, 3, 4, 5, 6)
@@ -210,15 +210,15 @@ sha512_compress:
 	ROUNDb(79, 1, 2, 3, 4, 5, 6, 7, 0)
 	
 	/* Add to state */
-	movl   8(%ecx), %eax
-	movdqu  0(%eax), %xmm0;  paddq  0(%esp), %xmm0;  movdqu %xmm0,  0(%eax)
-	movdqu 16(%eax), %xmm1;  paddq 16(%esp), %xmm1;  movdqu %xmm1, 16(%eax)
-	movdqu 32(%eax), %xmm2;  paddq 32(%esp), %xmm2;  movdqu %xmm2, 32(%eax)
-	movdqu 48(%eax), %xmm3;  paddq 48(%esp), %xmm3;  movdqu %xmm3, 48(%eax)
+	movl   8(%eax), %ecx
+	movdqu  0(%ecx), %xmm0;  paddq  0(%esp), %xmm0;  movdqu %xmm0,  0(%ecx)
+	movdqu 16(%ecx), %xmm1;  paddq 16(%esp), %xmm1;  movdqu %xmm1, 16(%ecx)
+	movdqu 32(%ecx), %xmm2;  paddq 32(%esp), %xmm2;  movdqu %xmm2, 32(%ecx)
+	movdqu 48(%ecx), %xmm3;  paddq 48(%esp), %xmm3;  movdqu %xmm3, 48(%ecx)
 	
 	/* Clean up */
 	emms
-	movl   %ecx, %esp
+	movl   %eax, %esp
 	retl
 
 
