@@ -48,6 +48,16 @@ sha512_compress:
 		psrlq  $shift, %reg;        \
 		por    %temp, %reg;
 	
+	#define RORQ2(reg0, reg1, shift0, shift1, temp0, temp1)  \
+		movq   %reg0, %temp0;         \
+		movq   %reg1, %temp1;         \
+		psllq  $(64-shift0), %temp0;  \
+		psllq  $(64-shift1), %temp1;  \
+		psrlq  $shift0, %reg0;        \
+		psrlq  $shift1, %reg1;        \
+		por    %temp0, %reg0;         \
+		por    %temp1, %reg1;
+	
 	#define ROUNDa(i, a, b, c, d, e, f, g, h)  \
 		movq    (i*8)(%edx), %mm0;  \
 		pshufb  %mm7, %mm0;         \
@@ -59,14 +69,12 @@ sha512_compress:
 		movq   SCHED(i- 2), %mm1;  \
 		movq   %mm0, %mm2;         \
 		movq   %mm1, %mm3;         \
-		RORQ(mm0,  1, mm4);        \
-		RORQ(mm1, 19, mm5);        \
+		RORQ2(mm0, mm1, 1, 19, mm4, mm5);  \
 		psrlq  $7, %mm2;           \
 		psrlq  $6, %mm3;           \
 		pxor   %mm0, %mm2;         \
 		pxor   %mm1, %mm3;         \
-		RORQ(mm0,  7, mm4);        \
-		RORQ(mm1, 42, mm5);        \
+		RORQ2(mm0, mm1, 7, 42, mm4, mm5);  \
 		pxor   %mm2, %mm0;         \
 		pxor   %mm3, %mm1;         \
 		paddq  SCHED(i-16), %mm0;  \
@@ -79,8 +87,7 @@ sha512_compress:
 		/* Part 0 */                       \
 		movq   STATE(e), %mm1;             \
 		movq   %mm1, %mm2;                 \
-		RORQ(mm1, 14, mm4)                 \
-		RORQ(mm2, 18, mm5)                 \
+		RORQ2(mm1, mm2, 14, 18, mm4, mm5);  \
 		pxor   %mm2, %mm1;                 \
 		RORQ(mm2, 23, mm4)                 \
 		pxor   %mm2, %mm1;                 \
@@ -99,8 +106,7 @@ sha512_compress:
 		/* Part 2 */                       \
 		movq   STATE(a), %mm1;             \
 		movq   %mm1, %mm2;                 \
-		RORQ(mm1, 28, mm3)                 \
-		RORQ(mm2, 34, mm4)                 \
+		RORQ2(mm1, mm2, 28, 34, mm3, mm4);  \
 		pxor   %mm2, %mm1;                 \
 		RORQ(mm2,  5, mm3)                 \
 		pxor   %mm2, %mm1;                 \
