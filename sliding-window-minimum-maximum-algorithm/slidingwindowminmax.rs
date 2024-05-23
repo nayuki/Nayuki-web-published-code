@@ -1,7 +1,7 @@
 /* 
  * Sliding window min/max (Rust)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/sliding-window-minimum-maximum-algorithm
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -63,6 +63,7 @@ pub fn compute_sliding_window_min_or_max
 
 /*---- Stateful instance for incremental computation ----*/
 
+#[derive(Default)]
 pub struct SlidingWindowMinMax<E> {
 	
 	min_deque: VecDeque<E>,

@@ -26,7 +26,7 @@ use std;
 
 /*-- Fields --*/
 
-#[derive(Clone)]
+#[derive(Clone,Default)]
 pub struct BinomialHeap<E> {
 	head: MaybeNode<E>,
 }

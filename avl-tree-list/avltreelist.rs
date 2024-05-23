@@ -24,7 +24,7 @@
 use std;
 
 
-#[derive(Clone)]
+#[derive(Clone,Default)]
 pub struct AvlTreeList<E> {
 	root: MaybeNode<E>,
 }
@@ -112,13 +112,6 @@ impl<E> AvlTreeList<E> {
 }
 
 
-impl<E> Default for AvlTreeList<E> {
-	fn default() -> Self {
-		Self::new()
-	}
-}
-
-
 impl<E> std::ops::Index<usize> for AvlTreeList<E> {
 	type Output = E;
 	
@@ -140,7 +133,7 @@ impl<E> std::ops::IndexMut<usize> for AvlTreeList<E> {
 
 /*---- Helper structs: AVL tree nodes ----*/
 
-#[derive(Clone)]
+#[derive(Clone,Default)]
 struct MaybeNode<E>(Option<Box<Node<E>>>);
 
 
