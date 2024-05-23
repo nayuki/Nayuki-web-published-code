@@ -1,7 +1,7 @@
 /* 
  * B-tree set (Rust)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,7 +43,7 @@ impl<E: Ord> BTreeSet<E> {
 	pub fn new(degree: usize) -> Self {
 		assert!(degree >= 2, "Degree must be at least 2");
 		// In other words, need maxchildren <= usize::MAX
-		let maxkeys = degree.checked_mul(2).expect("Degree too large") - 1;
+		let maxkeys: usize = degree.checked_mul(2).expect("Degree too large") - 1;
 		Self {
 			root: Node::new(maxkeys, true),
 			size: 0,
@@ -72,7 +72,7 @@ impl<E: Ord> BTreeSet<E> {
 		// Walk down the tree
 		let mut node: &Node<E> = &self.root;
 		loop {
-			let (found, index) = node.search(val);
+			let (found, index): (bool,usize) = node.search(val);
 			if found {
 				return true;
 			} else if node.is_leaf() {
@@ -87,15 +87,15 @@ impl<E: Ord> BTreeSet<E> {
 	pub fn insert(&mut self, val: E) -> bool {
 		// Special preprocessing to split root node
 		if self.root.keys.len() == self.max_keys {
-			let child = std::mem::replace(&mut self.root,
+			let child: Node<E> = std::mem::replace(&mut self.root,
 				Node::new(self.max_keys, false));  // Increment tree height
 			self.root.children.push(child);
 			self.root.split_child(self.min_keys, self.max_keys, 0);
 		}
 		
 		// Walk down the tree
-		let mut node = &mut self.root;
-		let mut isroot = true;
+		let mut node: &mut Node<E> = &mut self.root;
+		let mut isroot: bool = true;
 		loop {
 			// Search for index in current node
 			assert!(node.keys.len() < self.max_keys);
@@ -124,7 +124,7 @@ impl<E: Ord> BTreeSet<E> {
 	
 	
 	pub fn remove(&mut self, val: &E) -> bool {
-		let result = self.remove_sub(val);
+		let result: bool = self.remove_sub(val);
 		if result {
 			assert!(self.size > 0);
 			self.size -= 1;
@@ -139,9 +139,9 @@ impl<E: Ord> BTreeSet<E> {
 	
 	fn remove_sub(&mut self, val: &E) -> bool {
 		// Walk down the tree
-		let (mut found, mut index) = self.root.search(val);
-		let mut node = &mut self.root;
-		let mut isroot = true;
+		let (mut found, mut index): (bool,usize) = self.root.search(val);
+		let mut node: &mut Node<E> = &mut self.root;
+		let mut isroot: bool = true;
 		loop {
 			assert!(node.keys.len() <= self.max_keys);
 			assert!(isroot || node.keys.len() > self.min_keys);
@@ -188,7 +188,7 @@ impl<E: Ord> BTreeSet<E> {
 		
 		// Calculate height by descending into one branch
 		let mut height: i8 = 0;
-		let mut node = &self.root;
+		let mut node: &Node<E> = &self.root;
 		while !node.is_leaf() {
 			height = height.checked_add(1).unwrap();
 			node = node.children.first().unwrap();
@@ -261,10 +261,10 @@ impl<E: Ord> Node<E> {
 	// and adds the middle key and new child to this node. The left half of child's data is not moved.
 	fn split_child(&mut self, minkeys: usize, maxkeys: usize, index: usize) {
 		assert!(!self.is_leaf() && index <= self.keys.len() && self.keys.len() < maxkeys);
-		let middlekey;
-		let mut right;
+		let middlekey: E;
+		let mut right: Self;
 		{
-			let left = &mut self.children[index];
+			let left: &mut Self = &mut self.children[index];
 			assert_eq!(left.keys.len(), maxkeys);
 			right = Self::new(maxkeys, left.is_leaf());
 			if !left.is_leaf() {
@@ -287,22 +287,22 @@ impl<E: Ord> Node<E> {
 	fn ensure_child_remove(&mut self, minkeys: usize, mut index: usize) -> &mut Self {
 		// Preliminaries
 		assert!(!self.is_leaf() && index <= self.keys.len());
-		let childsize = self.children[index].keys.len();
+		let childsize: usize = self.children[index].keys.len();
 		if childsize > minkeys {  // Already satisfies the condition
 			return &mut self.children[index];
 		}
 		assert_eq!(childsize, minkeys);
 		
-		let internal = !self.children[index].is_leaf();
-		let mut leftsize  = 0;
-		let mut rightsize = 0;
+		let internal: bool = !self.children[index].is_leaf();
+		let mut leftsize : usize = 0;
+		let mut rightsize: usize = 0;
 		if index >= 1 {
-			let left = &self.children[index - 1];
+			let left: &Self = &self.children[index - 1];
 			leftsize = left.keys.len();
 			assert_eq!(!left.is_leaf(), internal);  // Sibling must be same type (internal/leaf) as child
 		}
 		if index < self.keys.len() {
-			let right = &self.children[index + 1];
+			let right: &Self = &self.children[index + 1];
 			rightsize = right.keys.len();
 			assert_eq!(!right.is_leaf(), internal);  // Sibling must be same type (internal/leaf) as child
 		}
@@ -310,19 +310,19 @@ impl<E: Ord> Node<E> {
 		
 		if leftsize > minkeys {  // Steal rightmost item from left sibling
 			if internal {
-				let temp = self.children[index - 1].children.pop().unwrap();
+				let temp: Self = self.children[index - 1].children.pop().unwrap();
 				self.children[index].children.insert(0, temp);
 			}
-			let temp = self.children[index - 1].keys.pop().unwrap();
-			let temp = std::mem::replace(&mut self.keys[index - 1], temp);
+			let temp: E = self.children[index - 1].keys.pop().unwrap();
+			let temp: E = std::mem::replace(&mut self.keys[index - 1], temp);
 			self.children[index].keys.insert(0, temp);
 		} else if rightsize > minkeys {  // Steal leftmost item from right sibling
 			if internal {
-				let temp = self.children[index + 1].children.remove(0);
+				let temp: Self = self.children[index + 1].children.remove(0);
 				self.children[index].children.push(temp);
 			}
-			let temp = self.children[index + 1].keys.remove(0);
-			let temp = std::mem::replace(&mut self.keys[index], temp);
+			let temp: E = self.children[index + 1].keys.remove(0);
+			let temp: E = std::mem::replace(&mut self.keys[index], temp);
 			self.children[index].keys.push(temp);
 		} else if leftsize == minkeys {  // Merge child into left sibling
 			self.merge_children(minkeys, index - 1);
@@ -340,9 +340,9 @@ impl<E: Ord> Node<E> {
 	// assuming the current node is not empty and both children have min_keys.
 	fn merge_children(&mut self, minkeys: usize, index: usize) {
 		assert!(!self.is_leaf() && index < self.keys.len());
-		let middlekey = self.keys.remove(index);
-		let mut right = self.children.remove(index + 1);
-		let left = &mut self.children[index];
+		let middlekey: E = self.keys.remove(index);
+		let mut right: Self = self.children.remove(index + 1);
+		let left: &mut Self = &mut self.children[index];
 		assert_eq!(left .keys.len(), minkeys);
 		assert_eq!(right.keys.len(), minkeys);
 		if !left.is_leaf() {
@@ -356,7 +356,7 @@ impl<E: Ord> Node<E> {
 	// Removes and returns the minimum key among the whole subtree rooted at this node.
 	// Requires this node to be preprocessed to have at least minkeys+1 keys.
 	fn remove_min(&mut self, minkeys: usize) -> E {
-		let mut node = self;
+		let mut node: &mut Self = self;
 		loop {
 			assert!(node.keys.len() > minkeys);
 			if node.is_leaf() {
@@ -371,13 +371,13 @@ impl<E: Ord> Node<E> {
 	// Removes and returns the maximum key among the whole subtree rooted at this node.
 	// Requires this node to be preprocessed to have at least minkeys+1 keys.
 	fn remove_max(&mut self, minkeys: usize) -> E {
-		let mut node = self;
+		let mut node: &mut Self = self;
 		loop {
 			assert!(node.keys.len() > minkeys);
 			if node.is_leaf() {
 				return node.keys.pop().unwrap();
 			} else {
-				let end = node.children.len() - 1;
+				let end: usize = node.children.len() - 1;
 				node = {node}.ensure_child_remove(minkeys, end);
 			}
 		}
@@ -391,7 +391,7 @@ impl<E: Ord> Node<E> {
 	fn check_structure(&self, minkeys: usize, maxkeys: usize,
 			isroot: bool, leafdepth: i8, min: Option<&E>, max: Option<&E>) -> usize {
 		// Check basic fields
-		let numkeys = self.keys.len();
+		let numkeys: usize = self.keys.len();
 		assert_eq!(self.is_leaf(), leafdepth == 0, "Incorrect leaf/internal node type");
 		assert!(numkeys <= maxkeys, "Invalid number of keys");
 		if isroot {
@@ -402,19 +402,19 @@ impl<E: Ord> Node<E> {
 		
 		// Check keys for strict increasing order
 		for (i, key) in self.keys.iter().enumerate() {
-			let mut fail = i == 0 && min.is_some() && *key <= *min.unwrap();
+			let mut fail: bool = i == 0 && min.is_some() && *key <= *min.unwrap();
 			fail |= i >= 1 && *key <= self.keys[i - 1];
 			fail |= i == numkeys - 1 && max.is_some() && *key >= *max.unwrap();
 			assert!(!fail, "Invalid key ordering");
 		}
 		
 		// Check children recursively and count keys in this subtree
-		let mut count = numkeys;
+		let mut count: usize = numkeys;
 		if !self.is_leaf() {
 			assert_eq!(self.children.len(), numkeys + 1, "Invalid number of children");
 			// Check children pointers and recurse
 			for (i, child) in self.children.iter().enumerate() {
-				let temp = child.check_structure(
+				let temp: usize = child.check_structure(
 					minkeys, maxkeys, false, leafdepth - 1,
 					if i > 0 { Some(&self.keys[i - 1]) } else { min },
 					if i < numkeys { Some(&self.keys[i]) } else { max });
@@ -479,9 +479,9 @@ impl<'a, E: Ord> Iterator for RefIter<'a, E> {
 	
 	fn next(&mut self) -> Option<Self::Item> {
 		let &mut (node, ref mut index) = self.stack.last_mut()?;
-		let result = &node.keys[*index];
+		let result: &E = &node.keys[*index];
 		*index += 1;
-		let index = *index;
+		let index: usize = *index;
 		if index >= node.keys.len() {
 			self.stack.pop();
 		}

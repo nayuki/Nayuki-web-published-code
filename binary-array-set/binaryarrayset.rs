@@ -73,7 +73,7 @@ impl<E: Ord> BinaryArraySet<E> {
 	
 	// Runs in average-case O((log n)^2) time, worst-case O(n) time
 	pub fn insert(&mut self, val: E) -> bool {
-		let result = !self.contains(&val);  // Checking for duplicates is expensive
+		let result: bool = !self.contains(&val);  // Checking for duplicates is expensive
 		if result {
 			self.insert_unique(val);
 		}
@@ -102,7 +102,7 @@ impl<E: Ord> BinaryArraySet<E> {
 	pub fn check_structure(&self) {
 		let mut sum: usize = 0;
 		for (i, vals) in self.values.iter().enumerate() {
-			let len = vals.len();
+			let len: usize = vals.len();
 			assert!(len == 0 || len == 1usize.checked_shl(u32::try_from(i).unwrap()).unwrap(), "Invalid sub-vector length");
 			for j in 1 .. len {
 				assert!(vals[j - 1] < vals[j], "Invalid ordering of elements in vector");
@@ -180,7 +180,7 @@ impl<E> Iterator for MoveIter<E> {
 	// Runs in amortized O(1) time, worst-case O(log n) time
 	fn next(&mut self) -> Option<Self::Item> {
 		loop {
-			let result = self.vals.next();
+			let result: Option<Self::Item> = self.vals.next();
 			if result.is_some() {
 				self.count -= 1;
 				return result;

@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Rust)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,13 +48,13 @@ impl<E> AvlTreeList<E> {
 	
 	
 	pub fn push(&mut self, val: E) {
-		let index = self.len();
+		let index: usize = self.len();
 		self.insert(index, val);
 	}
 	
 	
 	pub fn extend<I:IntoIterator<Item=E>>(&mut self, iterable: I) {
-		let index = self.len();
+		let index: usize = self.len();
 		self.insert_iter(index, iterable);
 	}
 	
@@ -77,7 +77,7 @@ impl<E> AvlTreeList<E> {
 	
 	pub fn remove(&mut self, index: usize) -> E {
 		assert!(index < self.len(), "Index out of bounds");
-		let (root, result) = self.root.pop().remove_at(index);
+		let (root, result): (MaybeNode<E>,E) = self.root.pop().remove_at(index);
 		self.root = root;
 		result
 	}
@@ -162,7 +162,7 @@ impl<E> MaybeNode<E> {
 	
 	
 	fn get_balance(&self) -> i16 {
-		let node = self.node_ref();
+		let node: &Node<E> = self.node_ref();
 		node.right.height() - node.left.height()
 	}
 	
@@ -183,9 +183,9 @@ impl<E> MaybeNode<E> {
 	
 	
 	fn get_at(&self, index: usize) -> &E {
-		let node = self.node_ref();
+		let node: &Node<E> = self.node_ref();
 		assert!(index < node.size);
-		let leftsize = node.left.size();
+		let leftsize: usize = node.left.size();
 		if index < leftsize {
 			node.left.get_at(index)
 		} else if index > leftsize {
@@ -197,9 +197,9 @@ impl<E> MaybeNode<E> {
 	
 	
 	fn get_at_mut(&mut self, index: usize) -> &mut E {
-		let node = self.node_mut();
+		let node: &mut Node<E> = self.node_mut();
 		assert!(index < node.size);
-		let leftsize = node.left.size();
+		let leftsize: usize = node.left.size();
 		if index < leftsize {
 			node.left.get_at_mut(index)
 		} else if index > leftsize {
@@ -218,7 +218,7 @@ impl<E> MaybeNode<E> {
 			None => MaybeNode(Some(Box::new(Node::new(val)))),
 			
 			Some(ref mut node) => {
-				let leftsize = node.left.size();
+				let leftsize: usize = node.left.size();
 				if index <= leftsize {
 					node.left = node.left.pop().insert_at(index, val);
 				} else {
@@ -233,43 +233,43 @@ impl<E> MaybeNode<E> {
 	
 	fn remove_at(mut self, index: usize) -> (Self,E) {
 		assert!(index < self.size());  // Automatically implies self.exists(), because MaybeNode(None).size() == 0
-		let node = self.node_mut();
-		let leftsize = node.left.size();
+		let node: &mut Node<E> = self.node_mut();
+		let leftsize: usize = node.left.size();
 		if index < leftsize {
-			let val;
+			let val: E;
 			(node.left, val) = node.left.pop().remove_at(index);
 			node.recalculate();
 			(self.balance(), val)
 		} else if index > leftsize {
-			let val;
+			let val: E;
 			(node.right, val) = node.right.pop().remove_at(index - leftsize - 1);
 			node.recalculate();
 			(self.balance(), val)
 		} else if node.left.exists() && node.right.exists() {
 			// Find successor node. (Using the predecessor is valid too.)
-			let mut temp = node.right.node_mut();
+			let mut temp: &mut Node<E> = node.right.node_mut();
 			while let Some(ref mut nd) = temp.left.0 {
 				temp = nd;
 			}
 			std::mem::swap(&mut node.value, &mut temp.value);  // Swap values with successor
-			let val;
+			let val: E;
 			(node.right, val) = node.right.pop().remove_at(0);  // Remove successor node
 			node.recalculate();
 			(self.balance(), val)
 		} else {
-			let node = *self.0.unwrap();
+			let node: Node<E> = *self.0.unwrap();
 			(if node.left.exists() {node.left} else {node.right}, node.value)
 		}
 	}
 	
 	
 	fn balance(mut self) -> Self {
-		let bal = self.get_balance();
+		let bal: i16 = self.get_balance();
 		assert!(bal.abs() <= 2);
 		if bal == -2 {
 			{
-				let node = self.node_mut();
-				let childbal = node.left.get_balance();
+				let node: &mut Node<E> = self.node_mut();
+				let childbal: i16 = node.left.get_balance();
 				assert!(childbal.abs() <= 1);
 				if childbal == 1 {
 					node.left = node.left.pop().rotate_left();
@@ -278,8 +278,8 @@ impl<E> MaybeNode<E> {
 			self = self.rotate_right();
 		} else if bal == 2 {
 			{
-				let node = self.node_mut();
-				let childbal = node.right.get_balance();
+				let node: &mut Node<E> = self.node_mut();
+				let childbal: i16 = node.right.get_balance();
 				assert!(childbal.abs() <= 1);
 				if childbal == -1 {
 					node.right = node.right.pop().rotate_right();
@@ -300,9 +300,9 @@ impl<E> MaybeNode<E> {
 	 *   1   2    0   1
 	 */
 	fn rotate_left(mut self) -> Self {
-		let selfnode = self.node_mut();
-		let mut root = selfnode.right.pop();
-		let rootnode = root.node_mut();
+		let selfnode: &mut Node<E> = self.node_mut();
+		let mut root: Self = selfnode.right.pop();
+		let rootnode: &mut Node<E> = root.node_mut();
 		selfnode.right = rootnode.left.pop();
 		selfnode.recalculate();
 		rootnode.left = self;
@@ -319,9 +319,9 @@ impl<E> MaybeNode<E> {
 	 * 0   1          1   2
 	 */
 	fn rotate_right(mut self) -> Self {
-		let selfnode = self.node_mut();
-		let mut root = selfnode.left.pop();
-		let rootnode = root.node_mut();
+		let selfnode: &mut Node<E> = self.node_mut();
+		let mut root: Self = selfnode.left.pop();
+		let rootnode: &mut Node<E> = root.node_mut();
 		selfnode.left = rootnode.right.pop();
 		selfnode.recalculate();
 		rootnode.right = self;

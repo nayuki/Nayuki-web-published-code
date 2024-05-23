@@ -1,7 +1,7 @@
 /* 
  * Binomial heap (Rust)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binomial-heap
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -65,7 +65,7 @@ impl<E: Ord> BinomialHeap<E> {
 	
 	
 	pub fn push(&mut self, val: E) {
-		let other = Some(Box::new(Node::new(val)));
+		let other: MaybeNode<E> = Some(Box::new(Node::new(val)));
 		self.merge_nodes(other);
 	}
 	
@@ -133,7 +133,7 @@ impl<E: Ord> BinomialHeap<E> {
 				node.next = merged;
 				merged = Some(node);
 			} else {
-				let mut mrgd = merged.unwrap();
+				let mut mrgd: Box<Node<E>> = merged.unwrap();
 				if mrgd.rank == node.rank + 1 {
 					node.next = mrgd.next.take();
 					mrgd.next = Some(node);
@@ -213,11 +213,11 @@ impl<E: Ord> Node<E> {
 		
 		// Check children and non-main chains
 		if self.rank > 0 {
-			let down = self.down.as_ref().expect("Down node absent");
+			let down: &Self = self.down.as_ref().expect("Down node absent");
 			assert_eq!(down.rank, self.rank - 1, "Down node has invalid rank");
 			down.check_structure(false, Some(&self.value));
 			if !ismain {
-				let next = self.next.as_ref().expect("Next node absent");
+				let next: &Self = self.next.as_ref().expect("Next node absent");
 				assert_eq!(next.rank, self.rank - 1, "Next node has invalid rank");
 				next.check_structure(false, lowerbound);
 			}
@@ -280,7 +280,7 @@ impl<E: Ord> Iterator for MoveIter<E> {
 	type Item = E;
 	
 	fn next(&mut self) -> Option<Self::Item> {
-		let result = self.heap.pop();
+		let result: Option<E> = self.heap.pop();
 		if result.is_some() {
 			self.count -= 1;
 		}
