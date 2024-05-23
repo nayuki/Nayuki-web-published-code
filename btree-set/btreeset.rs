@@ -165,10 +165,8 @@ impl<E: Ord> BTreeSet<E> {
 						index = self.min_keys;
 					}
 				} else {  // Key might be found in some child
-					node = {node}.ensure_child_remove(self.min_keys, index);
-					let (f, i) = node.search(val);
-					found = f;
-					index = i;
+					node = node.ensure_child_remove(self.min_keys, index);
+					(found, index) = node.search(val);
 				}
 				isroot = false;
 			}
@@ -212,7 +210,7 @@ struct Node<E> {
 	keys: Vec<E>,
 	
 	// If leaf then size is 0, otherwise if internal node then size always equals keys.len()+1.
-	children: Vec<Node<E>>,
+	children: Vec<Self>,
 	
 }
 
@@ -362,7 +360,7 @@ impl<E: Ord> Node<E> {
 			if node.is_leaf() {
 				return node.keys.remove(0);
 			} else {
-				node = {node}.ensure_child_remove(minkeys, 0);
+				node = node.ensure_child_remove(minkeys, 0);
 			}
 		}
 	}
@@ -378,7 +376,7 @@ impl<E: Ord> Node<E> {
 				return node.keys.pop().unwrap();
 			} else {
 				let end: usize = node.children.len() - 1;
-				node = {node}.ensure_child_remove(minkeys, end);
+				node = node.ensure_child_remove(minkeys, end);
 			}
 		}
 	}

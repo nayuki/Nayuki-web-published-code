@@ -1,7 +1,7 @@
 /* 
  * Time-based One-Time Password tools (Rust)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,20 +30,22 @@ use std::string::String;
 
 fn main() {
 	let argv: Vec<String> = std::env::args().collect();
-	if argv.len() == 1 {
-		test_hotp();
-		test_totp();
-		eprintln!("Test passed");
-	} else if argv.len() == 2 {
-		let secretkey: Vec<u8> = decode_base32(&argv[1]);
-		let timestamp = std::time::SystemTime::now()
-			.duration_since(std::time::SystemTime::UNIX_EPOCH)
-			.unwrap().as_secs() as i64;
-		let code: String = calc_totp(
-			secretkey, 0, 30, timestamp, 6, calc_sha1_hash, 64);
-		println!("{}", code);
-	} else {
-		eprintln!("Usage: totp [SecretKey]");
+	match argv.len() {
+		1 => {
+			test_hotp();
+			test_totp();
+			eprintln!("Test passed");
+		},
+		2 => {
+			let secretkey: Vec<u8> = decode_base32(&argv[1]);
+			let timestamp = std::time::SystemTime::now()
+				.duration_since(std::time::SystemTime::UNIX_EPOCH)
+				.unwrap().as_secs() as i64;
+			let code: String = calc_totp(
+				secretkey, 0, 30, timestamp, 6, calc_sha1_hash, 64);
+			println!("{}", code);
+		},
+		_ => eprintln!("Usage: totp [SecretKey]"),
 	}
 }
 
@@ -86,13 +88,8 @@ fn calc_totp(
 		-> String {
 	
 	// Calculate counter and HOTP
-	let mut temp: i64 = timestamp - epoch;
-	if temp < 0 {
-		temp -= timestep - 1;
-	}
-	let timecounter: i64 = temp / timestep;
-	let counter: [u8; 8] = timecounter.to_be_bytes();
-	calc_hotp(secretkey, &counter, codelen, hashfunc, blocksize)
+	let timecounter: i64 = (timestamp - epoch).div_euclid(timestep);
+	calc_hotp(secretkey, &timecounter.to_be_bytes(), codelen, hashfunc, blocksize)
 }
 
 
@@ -159,14 +156,10 @@ fn calc_sha1_hash(mut message: Vec<u8>) -> Vec<u8> {
 		let mut schedule: Vec<u32> = block.chunks(4).map(|bs|
 			u32::from_be_bytes(bs.try_into().unwrap())).collect();
 		for i in schedule.len() .. 80 {
-			let temp: u32 = schedule[i - 3] ^ schedule[i - 8] ^ schedule[i - 14] ^ schedule[i - 16];
-			schedule.push(temp.rotate_left(1));
+			schedule.push((schedule[i - 3] ^ schedule[i - 8] ^
+				schedule[i - 14] ^ schedule[i - 16]).rotate_left(1));
 		}
-		let mut a: u32 = state[0];
-		let mut b: u32 = state[1];
-		let mut c: u32 = state[2];
-		let mut d: u32 = state[3];
-		let mut e: u32 = state[4];
+		let [mut a, mut b, mut c, mut d, mut e] = state;
 		for (i, &sch) in schedule.iter().enumerate() {
 			let (f, rc): (u32,u32) = match i / 20 {
 				0 => ((b & c) | (!b & d)         , 0x5A827999),
@@ -177,11 +170,7 @@ fn calc_sha1_hash(mut message: Vec<u8>) -> Vec<u8> {
 			};
 			let temp: u32 = a.rotate_left(5).wrapping_add(f)
 				.wrapping_add(e).wrapping_add(sch).wrapping_add(rc);
-			e = d;
-			d = c;
-			c = b.rotate_left(30);
-			b = a;
-			a = temp;
+			(a, b, c, d, e) = (temp, a, b.rotate_left(30), c, d);
 		}
 		state[0] = state[0].wrapping_add(a);
 		state[1] = state[1].wrapping_add(b);

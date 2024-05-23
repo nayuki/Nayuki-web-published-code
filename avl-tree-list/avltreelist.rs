@@ -60,8 +60,7 @@ impl<E> AvlTreeList<E> {
 	
 	
 	pub fn insert_iter<I:IntoIterator<Item=E>>(&mut self, mut index: usize, iterable: I) {
-		let mut iterator = iterable.into_iter();
-		while let Some(val) = iterator.next() {
+		for val in iterable.into_iter() {
 			self.insert(index, val);
 			index += 1;
 		}
