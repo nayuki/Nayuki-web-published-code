@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (Rust)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -118,7 +118,7 @@ impl DisjointSet {
 	// Adds a new singleton set, incrementing get_num_elems() and get_num_sets().
 	// Returns the identity of the new element, which equals the old value of get_num_elements().
 	pub fn add_set(&mut self) -> usize {
-		let elemindex = self.get_num_elems();
+		let elemindex: usize = self.get_num_elems();
 		self.nodes.push(DisjointSetNode::Representative{size: 1});
 		self.num_sets += 1;
 		elemindex

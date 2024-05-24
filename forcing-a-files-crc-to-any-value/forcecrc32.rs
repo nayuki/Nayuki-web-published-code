@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (Rust)
  * 
- * Copyright (c) 2021 Project Nayuki
+ * Copyright (c) 2024 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -76,7 +76,7 @@ fn submain(argv: Vec<String>) -> Option<String> {
 pub fn modify_file_crc32(file: &std::path::Path, offset: u64, newcrc: u32, printstatus: bool)
 		-> io::Result<()> {
 	
-	let length = std::fs::metadata(file)?.len();
+	let length: u64 = std::fs::metadata(file)?.len();
 	let mut raf = std::fs::OpenOptions::new().read(true).write(true).open(file)?;
 	if length < 4 || offset > length - 4 {
 		return Err(io::Error::new(

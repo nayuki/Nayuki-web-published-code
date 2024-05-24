@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (Rust)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -52,7 +52,7 @@ pub fn inverse_transform(vector: &[f64]) -> Vec<f64> {
 	let mut result = Vec::<f64>::with_capacity(vector.len());
 	let factor: f64 = std::f64::consts::PI / (vector.len() as f64);
 	for i in 0 .. vector.len() {
-		let mut sum = vector[0] / 2.0;
+		let mut sum: f64 = vector[0] / 2.0;
 		for j in 1 .. vector.len() {
 			sum += vector[j] * ((j as f64) * ((i as f64) + 0.5) * factor).cos();
 		}

@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -87,7 +87,7 @@ pub fn transform_radix2(real: &mut [f64], imag: &mut [f64]) {
 	while size <= n {
 		let halfsize: usize = size / 2;
 		let tablestep: usize = n / size;
-		let mut i = 0;
+		let mut i: usize = 0;
 		while i < n {
 			let mut k: usize = 0;
 			for j in i .. i + halfsize {

@@ -1,7 +1,7 @@
 /* 
  * Fast discrete cosine transform algorithms (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/fast-discrete-cosine-transform-algorithms
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,8 +45,8 @@ fn transform_recursive(vector: &mut [f64], temp: &mut [f64]) {
 	}
 	let halflen: usize = len / 2;
 	for i in 0 .. halflen {
-		let x = vector[i];
-		let y = vector[len - 1 - i];
+		let x: f64 = vector[i];
+		let y: f64 = vector[len - 1 - i];
 		temp[i] = x + y;
 		temp[i + halflen] = (x - y) / ((((i as f64) + 0.5) * std::f64::consts::PI / (len as f64)).cos() * 2.0);
 	}
@@ -91,8 +91,8 @@ fn inverse_transform_recursive(vector: &mut [f64], temp: &mut [f64]) {
 	inverse_transform_recursive(&mut temp[.. halflen], vector);
 	inverse_transform_recursive(&mut temp[halflen .. len], vector);
 	for i in 0 .. halflen {
-		let x = temp[i];
-		let y = temp[i + halflen] / ((((i as f64) + 0.5) * std::f64::consts::PI / (len as f64)).cos() * 2.0);
+		let x: f64 = temp[i];
+		let y: f64 = temp[i + halflen] / ((((i as f64) + 0.5) * std::f64::consts::PI / (len as f64)).cos() * 2.0);
 		vector[i] = x + y;
 		vector[len - 1 - i] = x - y;
 	}
