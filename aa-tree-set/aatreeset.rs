@@ -1,7 +1,7 @@
 /* 
  * AA tree set (Rust)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/aa-tree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
  */
 
 
-#[derive(Clone)]
+#[derive(Clone,Default)]
 pub struct AaTreeSet<E> {
 	root: MaybeNode<E>,
 	size: usize,
@@ -93,7 +93,7 @@ impl<E: Ord> AaTreeSet<E> {
 }
 
 
-#[derive(Clone)]
+#[derive(Clone,Default)]
 struct MaybeNode<E>(Option<Box<Node<E>>>);
 
 
