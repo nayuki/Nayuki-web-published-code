@@ -96,7 +96,7 @@ sha256_compress:
 		xorl  %f, %edx;            \
 		andl  %e, %edx;            \
 		xorl  %g, %edx;            \
-		leal  k(%rbx,%rdx), %ebx;  \
+		leal  k(%ebx,%edx), %ebx;  \
 		addl  %ebx, %h;            \
 		/* Part 1 */               \
 		addl  %h, %d;              \
