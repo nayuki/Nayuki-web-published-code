@@ -1,7 +1,7 @@
 /* 
  * PNG file chunk inspector
  * 
- * Copyright (c) 2023 Project Nayuki
+ * Copyright (c) 2024 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/png-file-chunk-inspector
  */
@@ -1537,7 +1537,11 @@ namespace app {
 				}
 				
 				const text: string = decodeIso8859_1(parts[1]);
-				chunk.innerNotes.push(`Text string: ${text}`);
+				let frag: DocumentFragment = document.createDocumentFragment();
+				frag.append("Text string: ");
+				let span: HTMLElement = appendElem(frag, "span", text);
+				span.style.wordBreak = "break-all";
+				chunk.innerNotes.push(frag);
 				if (text.includes("\u0000"))
 					chunk.errorNotes.push("Null character in text string");
 				if (text.includes("\uFFFD"))
@@ -1724,7 +1728,11 @@ namespace app {
 	
 	
 	function annotateTextKeyword(keyword: string, checkSpaces: boolean, noteName: string, errorName: string, chunk: ChunkPart): void {
-		chunk.innerNotes.push(`${noteName}: ${keyword}`);
+		let frag: DocumentFragment = document.createDocumentFragment();
+		frag.append(`${noteName}: `);
+		let span: HTMLElement = appendElem(frag, "span", keyword);
+		span.style.wordBreak = "break-all";
+		chunk.innerNotes.push(frag);
 		if (!(1 <= keyword.length && keyword.length <= 79))
 			chunk.errorNotes.push(`Invalid ${errorName} length`);
 		for (const ch of keyword) {
