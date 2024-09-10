@@ -1195,7 +1195,7 @@ namespace app {
 					let frag: DocumentFragment = document.createDocumentFragment();
 					frag.append("Text string: ");
 					let span: HTMLElement = appendElem(frag, "span", text);
-					span.style.wordBreak = "break-all";
+					span.classList.add("break");
 					chunk.innerNotes.push(frag);
 				} catch (e) {
 					chunk.errorNotes.push("Invalid UTF-8 in text string");
@@ -1540,7 +1540,7 @@ namespace app {
 				let frag: DocumentFragment = document.createDocumentFragment();
 				frag.append("Text string: ");
 				let span: HTMLElement = appendElem(frag, "span", text);
-				span.style.wordBreak = "break-all";
+				span.classList.add("break");
 				chunk.innerNotes.push(frag);
 				if (text.includes("\u0000"))
 					chunk.errorNotes.push("Null character in text string");
@@ -1655,7 +1655,7 @@ namespace app {
 						let frag: DocumentFragment = document.createDocumentFragment();
 						frag.append("Text string: ");
 						let span: HTMLElement = appendElem(frag, "span", text);
-						span.style.wordBreak = "break-all";
+						span.classList.add("break");
 						chunk.innerNotes.push(frag);
 						if (text.includes("\uFFFD"))
 							chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
@@ -1731,7 +1731,7 @@ namespace app {
 		let frag: DocumentFragment = document.createDocumentFragment();
 		frag.append(`${noteName}: `);
 		let span: HTMLElement = appendElem(frag, "span", keyword);
-		span.style.wordBreak = "break-all";
+		span.classList.add("break");
 		chunk.innerNotes.push(frag);
 		if (!(1 <= keyword.length && keyword.length <= 79))
 			chunk.errorNotes.push(`Invalid ${errorName} length`);
