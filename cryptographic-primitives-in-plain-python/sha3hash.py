@@ -1,7 +1,7 @@
 # 
 # The SHA-3 family of hash functions. It is described in FIPS Publication 202.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -96,7 +96,7 @@ def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 	
 	# XOR block bytes into first part of state
 	for (i, chunk) in enumerate(cryptocommon.iter_blocks(block, 8)):
-		x, y = i % sz, i // sz
+		y, x = divmod(i, sz)
 		state[x][y] ^= int.from_bytes(chunk, "little")
 	
 	# Perform 24 rounds of hashing

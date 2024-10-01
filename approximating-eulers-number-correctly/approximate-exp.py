@@ -1,7 +1,7 @@
 # 
 # Approximating the exponential function correctly (Python)
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2024 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/approximating-eulers-number-correctly
 # 
@@ -65,8 +65,7 @@ def compute_exp_internal(x, accuracy, extra_precision):
 # Any rounding mode works correctly with compute_eulers_number_internal().
 # Round-half-to-even is implemented here, but truncation, flooring, etc. are acceptable too.
 def divide_and_round(num, div):
-	quot = num // div
-	rem = num % div
+	quot, rem = divmod(num, div)
 	if rem * 2 > div or (rem * 2 == div and quot & 1 == 1):
 		quot += 1
 	return quot
