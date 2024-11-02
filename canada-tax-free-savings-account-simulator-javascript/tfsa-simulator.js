@@ -130,6 +130,7 @@ function nextMonth() {
 			2022:  6000,
 			2023:  6500,
 			2024:  7000,
+			2025:  7000,
 		};
 		if (year in CONTRIB_ROOM)
 			return CONTRIB_ROOM[year] * 100;
