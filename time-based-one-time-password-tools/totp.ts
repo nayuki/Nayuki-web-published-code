@@ -81,7 +81,7 @@ function calcTotp(
 		): string {
 	
 	if (timestamp === null)
-		timestamp = Date.now();
+		timestamp = Math.floor(Date.now() / 1000);
 	
 	// Calculate counter and HOTP
 	let timeCounter: int = Math.floor((timestamp - epoch) / timeStep);

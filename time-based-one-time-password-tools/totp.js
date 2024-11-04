@@ -53,7 +53,7 @@ if (selfCheck()) {
 // Time-based One-Time Password algorithm (RFC 6238)
 function calcTotp(secretKey, epoch = 0, timeStep = 30, timestamp = null, codeLen = 6, hashFunc = calcSha1Hash, blockSize = 64) {
     if (timestamp === null)
-        timestamp = Date.now();
+        timestamp = Math.floor(Date.now() / 1000);
     // Calculate counter and HOTP
     let timeCounter = Math.floor((timestamp - epoch) / timeStep);
     let counter = [];
