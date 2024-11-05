@@ -23,10 +23,10 @@
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Objects;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,9 +46,9 @@ public final class Totp {
 		String code;
 		try {
 			long timestamp = Math.floorDiv(System.currentTimeMillis(), 1000);
-			code = calcTotp(secretKey, 0, 30, timestamp, 6, "SHA-1", 64);
-		} catch (NoSuchAlgorithmException e) {
-			// Algorithm "SHA-1" is guaranteed to exist
+			code = calcTotp(secretKey, 0, 30, timestamp, 6, "HmacSHA1");
+		} catch (InvalidKeyException|NoSuchAlgorithmException e) {
+			// Algorithm "HmacSHA1" is guaranteed to exist
 			throw new AssertionError(e);
 		}
 		System.out.println(code);
@@ -88,16 +88,15 @@ public final class Totp {
 			int timeStep,
 			long timestamp,
 			int codeLen,
-			String hashFunc,
-			int blockSize)
-			throws NoSuchAlgorithmException {
+			String hmacFunc)
+			throws InvalidKeyException, NoSuchAlgorithmException {
 		
 		// Calculate counter and HOTP
 		long timeCounter = Math.floorDiv(timestamp - epoch, timeStep);
 		byte[] counter = new byte[8];
 		for (int i = counter.length - 1; i >= 0; i--, timeCounter >>>= 8)
 			counter[i] = (byte)timeCounter;
-		return calcHotp(secretKey, counter, codeLen, hashFunc, blockSize);
+		return calcHotp(secretKey, counter, codeLen, hmacFunc);
 	}
 	
 	
@@ -106,14 +105,15 @@ public final class Totp {
 			byte[] secretKey,
 			byte[] counter,
 			int codeLen,
-			String hashFunc,
-			int blockSize)
-			throws NoSuchAlgorithmException {
+			String hmacFunc)
+			throws InvalidKeyException, NoSuchAlgorithmException {
 		
 		// Check argument, calculate HMAC
 		if (!(1 <= codeLen && codeLen <= 9))
 			throw new IllegalArgumentException("Invalid number of digits");
-		byte[] hash = calcHmac(secretKey, counter, hashFunc, blockSize);
+		Mac mac = Mac.getInstance(hmacFunc);
+		mac.init(new SecretKeySpec(secretKey, hmacFunc));
+		byte[] hash = mac.doFinal(counter);
 		
 		// Dynamically truncate the hash value
 		int offset = hash[hash.length - 1] & 0xF;
@@ -130,42 +130,13 @@ public final class Totp {
 	}
 	
 	
-	private static byte[] calcHmac(
-			byte[] key,
-			byte[] message,
-			String hashFunc,
-			int blockSize)
-			throws NoSuchAlgorithmException {
-		
-		Objects.requireNonNull(key);
-		Objects.requireNonNull(message);
-		Objects.requireNonNull(hashFunc);
-		if (blockSize < 1)
-			throw new IllegalArgumentException("Invalid block size");
-		
-		if (key.length > blockSize)
-			key = MessageDigest.getInstance(hashFunc).digest(key);
-		key = Arrays.copyOf(key, blockSize);
-		
-		MessageDigest innerHasher = MessageDigest.getInstance(hashFunc);
-		for (byte b : key)
-			innerHasher.update((byte)(b ^ 0x36));
-		byte[] innerHash = innerHasher.digest(message);
-		
-		MessageDigest outerHasher = MessageDigest.getInstance(hashFunc);
-		for (byte b : key)
-			outerHasher.update((byte)(b ^ 0x5C));
-		return outerHasher.digest(innerHash);
-	}
-	
-	
 	private static final String BASE32_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
 	
 	
 	
 	/*---- Test suite ----*/
 	
-	@Test public void testHotp() throws NoSuchAlgorithmException {
+	@Test public void testHotp() throws InvalidKeyException, NoSuchAlgorithmException {
 		final String[][] CASES = {
 			{"0", "284755224"},
 			{"1", "094287082"},
@@ -185,13 +156,13 @@ public final class Totp {
 			byte[] counterBytes = new byte[8];
 			for (int i = counterBytes.length - 1; i >= 0; i--, counter >>>= 8)
 				counterBytes[i] = (byte)counter;
-			String actual = calcHotp(SECRET_KEY, counterBytes, 9, "SHA-1", 64);
+			String actual = calcHotp(SECRET_KEY, counterBytes, 9, "HmacSHA1");
 			Assert.assertEquals(cs[1], actual);
 		}
 	}
 	
 	
-	@Test public void testTotp() throws NoSuchAlgorithmException {
+	@Test public void testTotp() throws InvalidKeyException, NoSuchAlgorithmException {
 		final String[][] CASES = {
 			{         "59", "94287082", "46119246", "90693936"},
 			{ "1111111109", "07081804", "68084774", "25091201"},
@@ -208,9 +179,9 @@ public final class Totp {
 		
 		for (String[] cs : CASES) {
 			long timestamp = Long.parseLong(cs[0]);
-			Assert.assertEquals(cs[1], calcTotp(SECRET_KEYS[0], 0, 30, timestamp, 8, "SHA-1"  ,  64));
-			Assert.assertEquals(cs[2], calcTotp(SECRET_KEYS[1], 0, 30, timestamp, 8, "SHA-256",  64));
-			Assert.assertEquals(cs[3], calcTotp(SECRET_KEYS[2], 0, 30, timestamp, 8, "SHA-512", 128));
+			Assert.assertEquals(cs[1], calcTotp(SECRET_KEYS[0], 0, 30, timestamp, 8, "HmacSHA1"  ));
+			Assert.assertEquals(cs[2], calcTotp(SECRET_KEYS[1], 0, 30, timestamp, 8, "HmacSHA256"));
+			Assert.assertEquals(cs[3], calcTotp(SECRET_KEYS[2], 0, 30, timestamp, 8, "HmacSHA512"));
 		}
 	}
 	
