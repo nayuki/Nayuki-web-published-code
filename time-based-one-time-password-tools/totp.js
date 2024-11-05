@@ -92,40 +92,31 @@ function calcHmac(key, message, hashFunc, blockSize) {
     let newKey = key.slice();
     while (newKey.length < blockSize)
         newKey.push(0x00);
-    let innerMsg = newKey.map(b => b ^ 0x36);
-    for (const b of message)
-        innerMsg.push(b);
+    let innerMsg = newKey.map(b => b ^ 0x36).concat(message);
     const innerHash = hashFunc(innerMsg);
-    let outerMsg = newKey.map(b => b ^ 0x5C);
-    for (const b of innerHash)
-        outerMsg.push(b);
+    let outerMsg = newKey.map(b => b ^ 0x5C).concat(innerHash);
     return hashFunc(outerMsg);
 }
 function calcSha1Hash(message) {
-    let bitLenBytes = [];
+    let msg = message.concat([0x80]);
+    const end = msg.length;
     for (let i = 0, bitLen = message.length * 8; i < 8; i++, bitLen >>>= 8)
-        bitLenBytes.unshift(bitLen & 0xFF);
-    let msg = message.slice();
-    msg.push(0x80);
-    while ((msg.length + 8) % 64 != 0)
-        msg.push(0x00);
-    for (const b of bitLenBytes)
-        msg.push(b);
+        msg.splice(end, 0, bitLen & 0xFF);
+    while (msg.length % 64 != 0)
+        msg.splice(end, 0, 0x00);
     let state = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
     for (let i = 0; i < msg.length; i += 64) {
-        let schedule = [];
-        for (let j = 0; j < 64; j++) {
-            if (j % 4 == 0)
-                schedule.push(0);
-            schedule[Math.floor(j / 4)] |= msg[i + j] << ((3 - j % 4) * 8);
-        }
-        for (let j = schedule.length; j < 80; j++) {
-            const temp = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
-            schedule.push((temp << 1) | (temp >>> 31));
-        }
         let [a, b, c, d, e] = state;
-        schedule.forEach((sch, j) => {
-            let f, rc;
+        let schedule = [];
+        for (let j = 0; j < 80; j++) {
+            let sch, f, rc;
+            if (j < 16)
+                sch = msg.slice(i + j * 4, i + (j + 1) * 4).reduce((x, y) => ((x << 8) | y));
+            else {
+                const temp = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
+                sch = (temp << 1) | (temp >>> 31);
+            }
+            schedule.push(sch);
             switch (Math.floor(j / 20)) {
                 case 0:
                     f = (b & c) | (~b & d);
@@ -151,7 +142,7 @@ function calcSha1Hash(message) {
             c = (b << 30) | (b >>> 2);
             b = a;
             a = temp;
-        });
+        }
         state[0] = (state[0] + a) >>> 0;
         state[1] = (state[1] + b) >>> 0;
         state[2] = (state[2] + c) >>> 0;
