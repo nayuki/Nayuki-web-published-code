@@ -1,7 +1,7 @@
 /* 
  * Time-based One-Time Password tools (Java)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2024 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -147,17 +147,15 @@ public final class Totp {
 			key = MessageDigest.getInstance(hashFunc).digest(key);
 		key = Arrays.copyOf(key, blockSize);
 		
-		byte[] innerMsg = new byte[key.length + message.length];
-		for (int i = 0; i < key.length; i++)
-			innerMsg[i] = (byte)(key[i] ^ 0x36);
-		System.arraycopy(message, 0, innerMsg, key.length, message.length);
-		byte[] innerHash = MessageDigest.getInstance(hashFunc).digest(innerMsg);
+		MessageDigest innerHasher = MessageDigest.getInstance(hashFunc);
+		for (byte b : key)
+			innerHasher.update((byte)(b ^ 0x36));
+		byte[] innerHash = innerHasher.digest(message);
 		
-		byte[] outerMsg = new byte[key.length + innerHash.length];
-		for (int i = 0; i < key.length; i++)
-			outerMsg[i] = (byte)(key[i] ^ 0x5C);
-		System.arraycopy(innerHash, 0, outerMsg, key.length, innerHash.length);
-		return MessageDigest.getInstance(hashFunc).digest(outerMsg);
+		MessageDigest outerHasher = MessageDigest.getInstance(hashFunc);
+		for (byte b : key)
+			outerHasher.update((byte)(b ^ 0x5C));
+		return outerHasher.digest(innerHash);
 	}
 	
 	
