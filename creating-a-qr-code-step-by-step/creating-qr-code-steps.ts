@@ -93,7 +93,7 @@ namespace app {
 			};
 			checkbox.onchange = onChange;
 			onChange();
-			appendNewElem(label, "span", stepStr);
+			label.append(stepStr);
 			
 			let button = document.createElement("button");
 			button.textContent = "Hide";

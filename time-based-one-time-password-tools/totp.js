@@ -37,13 +37,16 @@ function main() {
     }
     if (getInput("current-time").checked)
         getInput("timestamp").value = Math.floor(Date.now() / 1000).toString();
-    let outputElem = getElement("totp-code");
+    let outStr;
     try {
-        outputElem.textContent = calcTotp(decodeBase32(getInput("secret-key").value), parseInt(getInput("epoch").value, 10), parseInt(getInput("time-step").value, 10), parseInt(getInput("timestamp").value, 10), parseInt(getInput("code-length").value, 10));
+        outStr = calcTotp(decodeBase32(getInput("secret-key").value), parseInt(getInput("epoch").value, 10), parseInt(getInput("time-step").value, 10), parseInt(getInput("timestamp").value, 10), parseInt(getInput("code-length").value, 10));
     }
     catch (e) {
-        outputElem.textContent = e.message;
+        outStr = e.message;
     }
+    let outputElem = getElement("totp-code");
+    if (outputElem.textContent != outStr)
+        outputElem.textContent = outStr;
 }
 if (selfCheck()) {
     main();
