@@ -82,7 +82,6 @@ namespace app {
 			checkbox.type = "checkbox";
 			checkbox.checked = true;
 			checkbox.id = "step" + stepStr;
-			label.htmlFor = checkbox.id;
 			let onChange = () => {
 				if (checkbox.checked) {
 					parent.style.removeProperty("display");
