@@ -107,50 +107,29 @@ function calcSha1Hash(message) {
         msg.splice(end, 0, bitLen & 0xFF);
     while (msg.length % 64 != 0)
         msg.splice(end, 0, 0x00);
+    function rotateLeft32(val, shift) {
+        return (val << shift) | (val >>> (32 - shift));
+    }
     let state = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0];
-    for (let i = 0; i < msg.length; i += 64) {
+    for (let i = 0; i < msg.length;) {
         let [a, b, c, d, e] = state;
         let schedule = [];
         for (let j = 0; j < 80; j++) {
-            let sch, f, rc;
+            const sch = j < 16 ?
+                msg.slice(i, i + 4).reduce((x, y) => ((x << 8) | y)) :
+                rotateLeft32(schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16], 1);
             if (j < 16)
-                sch = msg.slice(i + j * 4, i + (j + 1) * 4).reduce((x, y) => ((x << 8) | y));
-            else {
-                const temp = schedule[j - 3] ^ schedule[j - 8] ^ schedule[j - 14] ^ schedule[j - 16];
-                sch = (temp << 1) | (temp >>> 31);
-            }
+                i += 4;
             schedule.push(sch);
-            switch (Math.floor(j / 20)) {
-                case 0:
-                    f = (b & c) | (~b & d);
-                    rc = 0x5A827999;
-                    break;
-                case 1:
-                    f = b ^ c ^ d;
-                    rc = 0x6ED9EBA1;
-                    break;
-                case 2:
-                    f = (b & c) ^ (b & d) ^ (c & d);
-                    rc = 0x8F1BBCDC;
-                    break;
-                case 3:
-                    f = b ^ c ^ d;
-                    rc = 0xCA62C1D6;
-                    break;
-                default: throw new Error("Assertion error");
-            }
-            const temp = (((a << 5) | (a >>> 27)) + f + e + sch + rc) >>> 0;
-            e = d;
-            d = c;
-            c = (b << 30) | (b >>> 2);
-            b = a;
-            a = temp;
+            const temp = [
+                ((b & c) | (~b & d)) + 0x5A827999,
+                (b ^ c ^ d) + 0x6ED9EBA1,
+                ((b & c) ^ (b & d) ^ (c & d)) + 0x8F1BBCDC,
+                (b ^ c ^ d) + 0xCA62C1D6,
+            ][Math.floor(j / 20)];
+            [a, b, c, d, e] = [(rotateLeft32(a, 5) + temp + e + sch) >>> 0, a, rotateLeft32(b, 30), c, d];
         }
-        state[0] = (state[0] + a) >>> 0;
-        state[1] = (state[1] + b) >>> 0;
-        state[2] = (state[2] + c) >>> 0;
-        state[3] = (state[3] + d) >>> 0;
-        state[4] = (state[4] + e) >>> 0;
+        [a, b, c, d, e].forEach((x, i) => state[i] = (state[i] + x) >>> 0);
     }
     let result = [];
     for (const val of state) {
