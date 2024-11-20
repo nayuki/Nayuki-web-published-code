@@ -21,8 +21,34 @@
  *   Software.
  */
 "use strict";
-/*---- Application ----*/
-function main() {
+var app;
+(function (app) {
+    function initialize() {
+        // Self-check
+        try {
+            for (const func of totp.TEST_SUITE)
+                func();
+        }
+        catch (e) {
+            alert("Self-check failed: " + e.message);
+            return;
+        }
+        for (let elem of document.querySelectorAll("article table#app input")) {
+            if (!(elem instanceof HTMLInputElement))
+                throw new Error("Assertion error");
+            switch (elem.type) {
+                case "checkbox":
+                    elem.onchange = update;
+                    break;
+                case "text":
+                case "number":
+                    elem.oninput = update;
+                    break;
+            }
+        }
+        update();
+    }
+    setTimeout(initialize);
     function getElement(id) {
         const result = document.getElementById(id);
         if (result instanceof HTMLElement)
@@ -35,31 +61,25 @@ function main() {
             return result;
         throw new Error("Assertion error");
     }
-    if (getInput("current-time").checked)
-        getInput("timestamp").value = Math.floor(Date.now() / 1000).toString();
-    let outStr;
-    try {
-        outStr = totp.calcTotp(totp.decodeBase32(getInput("secret-key").value), parseInt(getInput("epoch").value, 10), parseInt(getInput("time-step").value, 10), parseInt(getInput("timestamp").value, 10), parseInt(getInput("code-length").value, 10));
+    function update() {
+        if (getInput("current-time").checked)
+            getInput("timestamp").value = Math.floor(Date.now() / 1000).toString();
+        let outStr;
+        let copyButton = getElement("copy");
+        try {
+            outStr = totp.calcTotp(totp.decodeBase32(getInput("secret-key").value), parseInt(getInput("epoch").value, 10), parseInt(getInput("time-step").value, 10), parseInt(getInput("timestamp").value, 10), parseInt(getInput("code-length").value, 10));
+            copyButton.style.removeProperty("visibility");
+        }
+        catch (e) {
+            outStr = e.message;
+            copyButton.style.visibility = "hidden";
+        }
+        let outputElem = getElement("totp-code");
+        if (outputElem.textContent != outStr)
+            outputElem.textContent = outStr;
+        setTimeout(update, 1000 - Date.now() % 1000);
     }
-    catch (e) {
-        outStr = e.message;
-    }
-    let outputElem = getElement("totp-code");
-    if (outputElem.textContent != outStr)
-        outputElem.textContent = outStr;
-}
-setTimeout(() => {
-    try {
-        for (const func of totp.TEST_SUITE)
-            func();
-        main();
-        setInterval(main, 1000);
-    }
-    catch (e) {
-        alert("Self-check failed: " + e.message);
-    }
-});
-/*---- Library ----*/
+})(app || (app = {}));
 var totp;
 (function (totp) {
     // Time-based One-Time Password algorithm (RFC 6238)
