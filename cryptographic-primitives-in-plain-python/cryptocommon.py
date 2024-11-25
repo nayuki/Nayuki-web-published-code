@@ -21,8 +21,8 @@
 #   Software.
 # 
 
-from collections.abc import Sequence
-from typing import Iterator, Protocol, TypeVar, Union
+from collections.abc import Iterator, Sequence
+from typing import Protocol, TypeVar, Union
 
 
 # ---- Low-level arithmetic functions and constants ----

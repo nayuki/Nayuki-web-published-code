@@ -22,7 +22,7 @@
 # 
 
 from collections.abc import Sequence
-from typing import Dict, Union
+from typing import Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -227,21 +227,21 @@ def _bytes_to_words(bs: bytes) -> list[uint64]:
 
 # ---- Numerical constants/tables ----
 
-_NUM_ROUNDS: Dict[int,int] = {
+_NUM_ROUNDS: dict[int,int] = {
 	 4: 72,
 	 8: 72,
 	16: 80,
 }
 
 
-_PERMUTATIONS: Dict[int,list[int]] = {
+_PERMUTATIONS: dict[int,list[int]] = {
 	 4: [0, 3, 2, 1],
 	 8: [2, 1, 4, 7, 6, 5, 0, 3],
 	16: [0, 9, 2, 13, 6, 11, 4, 15, 10, 7, 12, 3, 14, 5, 8, 1],
 }
 
 
-_ROTATIONS: Dict[int,list[list[int]]] = {
+_ROTATIONS: dict[int,list[list[int]]] = {
 	4: [
 		[14, 16],
 		[52, 57],
