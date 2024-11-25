@@ -22,28 +22,27 @@
 # 
 
 from collections.abc import Sequence
-from typing import Union
 import cryptocommon
 
 
 # ---- Public functions ----
 
-def hash224(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash224(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 28 bytes."""
 	return _hash(message, 224, printdebug)
 
 
-def hash256(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash256(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 32 bytes."""
 	return _hash(message, 256, printdebug)
 
 
-def hash384(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash384(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 48 bytes."""
 	return _hash(message, 384, printdebug)
 
 
-def hash512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash512(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 64 bytes."""
 	return _hash(message, 512, printdebug)
 
@@ -51,7 +50,7 @@ def hash512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> by
 # ---- Private functions ----
 
 # Computes the hash of the given message, returning (outbitlen/8) bytes.
-def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool) -> bytes:
+def _hash(message: bytes|Sequence[int], outbitlen: int, printdebug: bool) -> bytes:
 	# Make a mutable copy for use within this function
 	msg: bytearray = bytearray(message)
 	blocksize: int = 200 - outbitlen // 4

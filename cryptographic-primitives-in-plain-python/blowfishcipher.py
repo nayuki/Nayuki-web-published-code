@@ -23,19 +23,18 @@
 
 import itertools
 from collections.abc import Sequence
-from typing import Union
 import cryptocommon
 
 
 # ---- Public functions ----
 
-def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def encrypt(block: bytes|Sequence[int], key: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the encryption of the given block (8 bytes)
 	with the given key (1 to 72 bytes), returning 8 bytes."""
 	return _crypt_outer(block, key, "encrypt", printdebug)
 
 
-def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def decrypt(block: bytes|Sequence[int], key: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the decryption of the given block (8 bytes)
 	with the given key (1 to 72 bytes), returning 8 bytes."""
 	return _crypt_outer(block, key, "decrypt", printdebug)
@@ -43,7 +42,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 
 # ---- Private cipher functions ----
 
-def _crypt_outer(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], direction: str, printdebug: bool) -> bytes:
+def _crypt_outer(block: bytes|Sequence[int], key: bytes|Sequence[int], direction: str, printdebug: bool) -> bytes:
 	# Check input arguments
 	assert len(block) == 8
 	assert direction in ("encrypt", "decrypt")
@@ -65,7 +64,7 @@ def _crypt_outer(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[in
 	return left.to_bytes(4, "big") + right.to_bytes(4, "big")
 
 
-def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> tuple[tuple[int,...],Sequence[Sequence[int]]]:
+def _expand_key_schedule(key: bytes|Sequence[int]) -> tuple[tuple[int,...],Sequence[Sequence[int]]]:
 	# Extend key to a fixed length
 	assert 1 <= len(key) <= len(_INITIAL_KEY_SCHEDULE) * 4
 	bigkey: bytes = bytes(itertools.islice(itertools.cycle(key), len(_INITIAL_KEY_SCHEDULE) * 4))

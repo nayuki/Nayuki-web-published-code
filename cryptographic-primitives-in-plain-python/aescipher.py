@@ -23,13 +23,12 @@
 # 
 
 from collections.abc import Sequence
-from typing import Union
 import cryptocommon
 
 
 # ---- Public functions ----
 
-def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def encrypt(block: bytes|Sequence[int], key: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the encryption of the given block (16 bytes)
 	with the given key (16/24/32 bytes), returning 16 bytes."""
 	
@@ -68,7 +67,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	return newblock
 
 
-def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def decrypt(block: bytes|Sequence[int], key: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the decryption of the given block (16 bytes)
 	with the given key (16/24/32 bytes), returning 16 bytes."""
 	
@@ -110,7 +109,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 # ---- Private functions ----
 
 # Given 16/24/32 bytes, this computes and returns a tuple containing 11/13/15 tuples of 16 bytes each.
-def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> tuple[bytes,...]:
+def _expand_key_schedule(key: bytes|Sequence[int]) -> tuple[bytes,...]:
 	# Initialize key schedule with the verbatim key
 	nk: int = len(key) // 4  # Number of 32-bit words in original key
 	assert nk in (4, 6, 8)

@@ -22,7 +22,7 @@
 # 
 
 from collections.abc import Iterator, Sequence
-from typing import Protocol, TypeVar, Union
+from typing import Protocol, TypeVar
 
 
 # ---- Low-level arithmetic functions and constants ----
@@ -97,5 +97,5 @@ def iter_blocks(seq: T, blocksize: int) -> Iterator[T]:
 # ---- Data conversion functions ----
 
 # For example: bytes_to_debugstr([255, 0, 192]) -> "[FF 00 C0]".
-def bytes_to_debugstr(bytelist: Union[bytes,Sequence[int]]) -> str:
+def bytes_to_debugstr(bytelist: bytes|Sequence[int]) -> str:
 	return "[" + " ".join(f"{b:02X}" for b in bytelist) + "]"

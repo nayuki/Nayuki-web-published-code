@@ -22,7 +22,6 @@
 # 
 
 from collections.abc import Sequence
-from typing import Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -32,99 +31,99 @@ uint64 = int
 
 # ---- Public functions ----
 
-def hash256_160(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash256_160(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 20 bytes."""
 	return _hash(message, 256, 160, printdebug)
 
 
-def hash256_224(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash256_224(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 28 bytes."""
 	return _hash(message, 256, 224, printdebug)
 
 
-def hash256_256(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash256_256(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 32 bytes."""
 	return _hash(message, 256, 256, printdebug)
 
 
-def hash256_384(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash256_384(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 48 bytes."""
 	return _hash(message, 256, 384, printdebug)
 
 
-def hash256_512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash256_512(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 64 bytes."""
 	return _hash(message, 256, 512, printdebug)
 
 
-def hash256_1024(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash256_1024(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 128 bytes."""
 	return _hash(message, 256, 1024, printdebug)
 
 
-def hash512_160(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash512_160(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 20 bytes."""
 	return _hash(message, 512, 160, printdebug)
 
 
-def hash512_224(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash512_224(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 28 bytes."""
 	return _hash(message, 512, 224, printdebug)
 
 
-def hash512_256(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash512_256(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 32 bytes."""
 	return _hash(message, 512, 256, printdebug)
 
 
-def hash512_384(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash512_384(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 48 bytes."""
 	return _hash(message, 512, 384, printdebug)
 
 
-def hash512_512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash512_512(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 64 bytes."""
 	return _hash(message, 512, 512, printdebug)
 
 
-def hash512_1024(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash512_1024(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 128 bytes."""
 	return _hash(message, 512, 1024, printdebug)
 
 
-def hash1024_160(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash1024_160(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 20 bytes."""
 	return _hash(message, 1024, 160, printdebug)
 
 
-def hash1024_224(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash1024_224(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 28 bytes."""
 	return _hash(message, 1024, 224, printdebug)
 
 
-def hash1024_256(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash1024_256(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 32 bytes."""
 	return _hash(message, 1024, 256, printdebug)
 
 
-def hash1024_384(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash1024_384(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 48 bytes."""
 	return _hash(message, 1024, 384, printdebug)
 
 
-def hash1024_512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash1024_512(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 64 bytes."""
 	return _hash(message, 1024, 512, printdebug)
 
 
-def hash1024_1024(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash1024_1024(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 128 bytes."""
 	return _hash(message, 1024, 1024, printdebug)
 
 
 # ---- Private functions ----
 
-def _hash(message: Union[bytes,Sequence[int]], statebits: int, outbits: int, printdebug: bool) -> bytes:
+def _hash(message: bytes|Sequence[int], statebits: int, outbits: int, printdebug: bool) -> bytes:
 	assert statebits in (256, 512, 1024)
 	assert outbits % 8 == 0
 	if printdebug:  print(f"skein.hash{statebits}_{outbits}(message = {len(message)} bytes)")

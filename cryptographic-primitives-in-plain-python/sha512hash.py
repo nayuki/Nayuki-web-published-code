@@ -22,14 +22,13 @@
 # 
 
 from collections.abc import Callable, Sequence
-from typing import Union
 import cryptocommon
 from cryptocommon import UINT64_MASK
 
 
 # ---- Public functions ----
 
-def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def hash(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 64 bytes."""
 	
 	# Make a mutable copy for use within this function

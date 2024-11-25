@@ -22,7 +22,6 @@
 # 
 
 from collections.abc import Sequence
-from typing import Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -33,13 +32,13 @@ uint32 = int
 
 # ---- Public functions ----
 
-def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def encrypt(block: bytes|Sequence[int], key: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the encryption of the given block (16 bytes)
 	with the given key (0 to 32 bytes), returning 16 bytes."""
 	return _crypt(block, key, "encrypt", printdebug)
 
 
-def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def decrypt(block: bytes|Sequence[int], key: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the decryption of the given block (16 bytes)
 	with the given key (0 to 32 bytes), returning 16 bytes."""
 	return _crypt(block, key, "decrypt", printdebug)
@@ -47,7 +46,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 
 # ---- Private cipher functions ----
 
-def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], direction: str, printdebug: bool) -> bytes:
+def _crypt(block: bytes|Sequence[int], key: bytes|Sequence[int], direction: str, printdebug: bool) -> bytes:
 	# Check input arguments
 	assert len(block) == 16
 	assert direction in ("encrypt", "decrypt")
@@ -121,7 +120,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	return b"".join(x.to_bytes(4, "little") for x in bws)
 
 
-def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> tuple[tuple[uint32,...],tuple[uint32,...]]:
+def _expand_key_schedule(key: bytes|Sequence[int]) -> tuple[tuple[uint32,...],tuple[uint32,...]]:
 	assert len(key) <= 32
 	
 	# Pad key with zero until reaching a supported length

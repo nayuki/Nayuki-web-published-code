@@ -22,14 +22,13 @@
 # 
 
 from collections.abc import Sequence
-from typing import Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
 
 # ---- Public functions ----
 
-def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def encrypt(block: bytes|Sequence[int], key: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the encryption of the given block (8 bytes)
 	with the given key (16 bytes), returning 8 bytes."""
 	
@@ -57,7 +56,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	return b"".join(x.to_bytes(4, "big") for x in m)
 
 
-def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes:
+def decrypt(block: bytes|Sequence[int], key: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the decryption of the given block (8 bytes)
 	with the given key (16 bytes), returning 8 bytes."""
 	
@@ -88,7 +87,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 # ---- Private functions ----
 
 # For example: _bytes_to_uint32_list_big_endian([0xFF, 0x00, 0xAB, 0xCD, 0x27, 0x18, 0x28, 0x44]) -> [0xFF00ABCD, 0x27182844].
-def _bytes_to_uint32_list_big_endian(bytelist: Union[bytes,Sequence[int]]) -> list[int]:
+def _bytes_to_uint32_list_big_endian(bytelist: bytes|Sequence[int]) -> list[int]:
 	assert len(bytelist) % 4 == 0
 	return [int.from_bytes(chunk, "big")
 		for chunk in cryptocommon.iter_blocks(bytes(bytelist), 4)]
