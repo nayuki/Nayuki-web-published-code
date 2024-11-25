@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -47,7 +47,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	msg.extend(bitlength.to_bytes(8, "little"))
 	
 	# Initialize the hash state
-	state: Tuple[int,int,int,int] = (
+	state: tuple[int,int,int,int] = (
 		0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476)
 	
 	# Compress each block in the augmented message
@@ -63,7 +63,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 # ---- Private functions ----
 
 # Requirement: All elements of block and state must be uint32.
-def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> Tuple[int,int,int,int]:
+def _compress(block: bytes, state: tuple[int,int,int,int], printdebug: bool) -> tuple[int,int,int,int]:
 	# Check argument lengths
 	assert len(block) == _BLOCK_SIZE
 	

@@ -22,7 +22,7 @@
 #   Software.
 # 
 
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Union
 import cryptocommon
 
 
@@ -54,7 +54,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	assert cryptocommon.is_uint64(k)
 	
 	# Compute and handle the key schedule
-	keyschedule: Tuple[int,...] = _expand_key_schedule(k)
+	keyschedule: tuple[int,...] = _expand_key_schedule(k)
 	if direction == "decrypt":
 		keyschedule = tuple(reversed(keyschedule))
 	
@@ -82,7 +82,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	return m.to_bytes(8, "big")
 
 
-def _expand_key_schedule(key: int) -> Tuple[int,...]:
+def _expand_key_schedule(key: int) -> tuple[int,...]:
 	assert cryptocommon.is_uint64(key)
 	result: list[int] = []
 	left : int = _extract_bits(key, 64, _PERMUTED_CHOICE_1_LEFT )

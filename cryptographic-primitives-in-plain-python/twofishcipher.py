@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -120,7 +120,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	return b"".join(x.to_bytes(4, "little") for x in bws)
 
 
-def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[uint32,...],Tuple[uint32,...]]:
+def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> tuple[tuple[uint32,...],tuple[uint32,...]]:
 	assert len(key) <= 32
 	
 	# Pad key with zero until reaching a supported length
@@ -160,7 +160,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[uint32,
 	return (tuple(expandedkey), tuple(s))
 
 
-def _feistel_function(r0: uint32, r1: uint32, subkey0: uint32, subkey1: uint32, s: Sequence[uint32]) -> Tuple[uint32,uint32]:
+def _feistel_function(r0: uint32, r1: uint32, subkey0: uint32, subkey1: uint32, s: Sequence[uint32]) -> tuple[uint32,uint32]:
 	assert cryptocommon.is_uint32(r0)
 	assert cryptocommon.is_uint32(r1)
 	assert cryptocommon.is_uint32(subkey0)
@@ -227,7 +227,7 @@ def _function_q(x: byte, sboxes: Sequence[Sequence[uint32]]) -> byte:
 	return y
 
 
-def _pseudo_hadamard_transform(a: uint32, b: uint32) -> Tuple[uint32,uint32]:
+def _pseudo_hadamard_transform(a: uint32, b: uint32) -> tuple[uint32,uint32]:
 	assert cryptocommon.is_uint32(a)
 	assert cryptocommon.is_uint32(b)
 	return (

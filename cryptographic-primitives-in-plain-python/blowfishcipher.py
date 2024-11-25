@@ -22,7 +22,7 @@
 # 
 
 import itertools
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Union
 import cryptocommon
 
 
@@ -64,7 +64,7 @@ def _crypt_outer(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[in
 	return left.to_bytes(4, "big") + right.to_bytes(4, "big")
 
 
-def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[int,...],Sequence[Sequence[int]]]:
+def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> tuple[tuple[int,...],Sequence[Sequence[int]]]:
 	# Extend key to a fixed length
 	assert 1 <= len(key) <= len(_INITIAL_KEY_SCHEDULE) * 4
 	bigkey: bytes = bytes(itertools.islice(itertools.cycle(key), len(_INITIAL_KEY_SCHEDULE) * 4))
@@ -97,7 +97,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[int,...
 	return (tuple(keyschedule), sboxes)
 
 
-def _crypt_inner(left: int, right: int, keyschedule: Sequence[int], sboxes: Sequence[Sequence[int]], printdebug: bool) -> Tuple[int,int]:
+def _crypt_inner(left: int, right: int, keyschedule: Sequence[int], sboxes: Sequence[Sequence[int]], printdebug: bool) -> tuple[int,int]:
 	assert cryptocommon.is_uint32(left )
 	assert cryptocommon.is_uint32(right)
 	

@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Union
 import cryptocommon
 
 
@@ -59,7 +59,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 
 # ---- Private functions ----
 
-def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> Tuple[bytes,bytes]:
+def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> tuple[bytes,bytes]:
 	# Check argument lengths
 	assert len(block) == _BLOCK_SIZE
 	assert len(state) == _BLOCK_SIZE * 3

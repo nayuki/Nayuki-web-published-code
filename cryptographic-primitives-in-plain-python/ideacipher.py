@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Union
 import cryptocommon
 from cryptocommon import UINT16_MASK
 
@@ -50,7 +50,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	if printdebug:  print(f"ideacipher.{direction}(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Compute and handle the key schedule
-	keyschedule: Tuple[int,...] = _expand_key_schedule(key)
+	keyschedule: tuple[int,...] = _expand_key_schedule(key)
 	if direction == "decrypt":
 		keyschedule = _invert_key_schedule(keyschedule)
 	
@@ -92,7 +92,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	     + z.to_bytes(2, "big")
 
 
-def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
+def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> tuple[int,...]:
 	assert len(key) == 16
 	
 	# Pack all key bytes into a single uint128
@@ -115,7 +115,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 
 # Given an encryption key schedule, this computes and returns the
 # decryption key schedule as a tuple containing 52 elements of uint16.
-def _invert_key_schedule(keysch: Tuple[int,...]) -> Tuple[int,...]:
+def _invert_key_schedule(keysch: tuple[int,...]) -> tuple[int,...]:
 	assert len(keysch) % 6 == 4
 	result: list[int] = []
 	result.append(_reciprocal(keysch[-4]))

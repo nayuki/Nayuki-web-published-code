@@ -23,7 +23,7 @@
 # 
 
 import random, unittest
-from typing import Callable, Tuple
+from typing import Callable
 import cryptocommon
 
 
@@ -765,7 +765,7 @@ class CipherTest(unittest.TestCase):
 	def _check_cipher(self,
 			encfunc: Callable[[bytes,bytes],bytes],
 			decfunc: Callable[[bytes,bytes],bytes],
-			cases: list[Tuple[str,str,str]]) -> None:
+			cases: list[tuple[str,str,str]]) -> None:
 		
 		global num_test_cases
 		

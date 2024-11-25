@@ -22,7 +22,7 @@
 #   Software.
 # 
 
-from typing import Sequence, Tuple, Union
+from typing import Sequence, Union
 import cryptocommon
 
 
@@ -38,7 +38,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	if printdebug:  print(f"aescipher.encrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Compute key schedule from key
-	keyschedule: Tuple[bytes,...] = _expand_key_schedule(key)
+	keyschedule: tuple[bytes,...] = _expand_key_schedule(key)
 	
 	# Perform special first round
 	i: int = 0
@@ -77,7 +77,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	if printdebug:  print(f"aescipher.decrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Compute key schedule from key
-	keyschedule: Tuple[bytes,...] = tuple(reversed(_expand_key_schedule(key)))
+	keyschedule: tuple[bytes,...] = tuple(reversed(_expand_key_schedule(key)))
 	
 	# Perform special first round
 	i: int = 0
@@ -109,7 +109,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 # ---- Private functions ----
 
 # Given 16/24/32 bytes, this computes and returns a tuple containing 11/13/15 tuples of 16 bytes each.
-def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
+def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> tuple[bytes,...]:
 	# Initialize key schedule with the verbatim key
 	nk: int = len(key) // 4  # Number of 32-bit words in original key
 	assert nk in (4, 6, 8)
