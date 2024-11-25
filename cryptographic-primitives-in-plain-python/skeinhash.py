@@ -21,7 +21,8 @@
 #   Software.
 # 
 
-from typing import Dict, Sequence, Union
+from collections.abc import Sequence
+from typing import Dict, Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 

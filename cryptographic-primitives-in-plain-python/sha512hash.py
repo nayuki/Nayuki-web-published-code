@@ -21,8 +21,8 @@
 #   Software.
 # 
 
-from collections.abc import Callable
-from typing import Sequence, Union
+from collections.abc import Callable, Sequence
+from typing import Union
 import cryptocommon
 from cryptocommon import UINT64_MASK
 

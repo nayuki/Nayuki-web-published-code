@@ -22,7 +22,8 @@
 # 
 
 import itertools
-from typing import Sequence, Union
+from collections.abc import Sequence
+from typing import Union
 import cryptocommon
 
 
