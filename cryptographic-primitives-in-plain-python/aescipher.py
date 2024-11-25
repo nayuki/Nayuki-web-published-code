@@ -2,7 +2,7 @@
 # The AES (Advanced Encryption Standard) block cipher. It is described in FIPS Publication 197.
 # All three key lengths (128, 192, 256 bits) are supported.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,7 +42,7 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	
 	# Perform special first round
 	i: int = 0
-	newblock = bytes(block)
+	newblock: bytes = bytes(block)
 	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	i += 1
@@ -81,7 +81,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	
 	# Perform special first round
 	i: int = 0
-	newblock = bytes(block)
+	newblock: bytes = bytes(block)
 	if printdebug:  print(f"    Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(newblock)}")
 	newblock = _add_round_key(newblock, keyschedule[0])
 	newblock = _shift_rows(newblock, -1)
@@ -113,7 +113,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
 	# Initialize key schedule with the verbatim key
 	nk: int = len(key) // 4  # Number of 32-bit words in original key
 	assert nk in (4, 6, 8)
-	schedule = bytearray(key)
+	schedule: bytearray = bytearray(key)
 	
 	# Extend the key schedule by blending previous values
 	numrounds: int = nk + 6
@@ -140,7 +140,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[bytes,...]:
 def _sub_bytes(msg: bytes, sbox: bytes) -> bytes:
 	assert len(msg) == _BLOCK_SIZE
 	assert len(sbox) == 256
-	newmsg = bytes(sbox[b] for b in msg)
+	newmsg: bytes = bytes(sbox[b] for b in msg)
 	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 
@@ -148,7 +148,7 @@ def _sub_bytes(msg: bytes, sbox: bytes) -> bytes:
 def _shift_rows(msg: bytes, direction: int) -> bytes:
 	assert len(msg) == _BLOCK_SIZE
 	assert direction in (-1, 1)
-	newmsg = bytearray([0] * _BLOCK_SIZE)  # Dummy initial values, all will be overwritten
+	newmsg: bytearray = bytearray([0] * _BLOCK_SIZE)  # Dummy initial values, all will be overwritten
 	for row in range(4):
 		for col in range(4):
 			newmsg[col * 4 + row] = msg[(col + row * direction) % 4 * 4 + row]
@@ -159,7 +159,7 @@ def _shift_rows(msg: bytes, direction: int) -> bytes:
 def _mix_columns(msg: bytes, multipliers: List[int]) -> bytes:
 	assert len(msg) == _BLOCK_SIZE
 	assert len(multipliers) == 4
-	newmsg = bytearray([0] * _BLOCK_SIZE)  # Dummy initial values, all will be overwritten
+	newmsg: bytearray = bytearray([0] * _BLOCK_SIZE)  # Dummy initial values, all will be overwritten
 	for col in range(4):
 		for row in range(4):
 			val: int = 0
@@ -172,7 +172,7 @@ def _mix_columns(msg: bytes, multipliers: List[int]) -> bytes:
 
 def _add_round_key(msg: bytes, key: bytes) -> bytes:
 	assert len(msg) == len(key) == _BLOCK_SIZE
-	newmsg = bytes((x ^ y) for (x, y) in zip(msg, key))
+	newmsg: bytes = bytes((x ^ y) for (x, y) in zip(msg, key))
 	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 

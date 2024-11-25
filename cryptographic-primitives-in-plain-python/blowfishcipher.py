@@ -1,7 +1,7 @@
 # 
 # The Blowfish block cipher.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -67,7 +67,7 @@ def _crypt_outer(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[in
 def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[int,...],Sequence[Sequence[int]]]:
 	# Extend key to a fixed length
 	assert 1 <= len(key) <= len(_INITIAL_KEY_SCHEDULE) * 4
-	bigkey = bytes(itertools.islice(itertools.cycle(key), len(_INITIAL_KEY_SCHEDULE) * 4))
+	bigkey: bytes = bytes(itertools.islice(itertools.cycle(key), len(_INITIAL_KEY_SCHEDULE) * 4))
 	
 	# XOR the extended key with initial key schedule constants
 	keyschedule: List[int] = [word0 ^ int.from_bytes(word1bytes, "big")

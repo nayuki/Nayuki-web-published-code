@@ -2,7 +2,7 @@
 # This program tests the implementations of all the known cryptographic ciphers.
 # Run with no arguments.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -787,10 +787,10 @@ class CipherTest(unittest.TestCase):
 			blocklen: int, keylen: int) -> None:
 		
 		global num_test_cases
-		TRIALS = 300
+		TRIALS: int = 300
 		for _ in range(TRIALS):
-			key = bytes(random.randrange(256) for _ in range(keylen))
-			message = bytes(random.randrange(256) for _ in range(blocklen))
+			key: bytes = bytes(random.randrange(256) for _ in range(keylen))
+			message: bytes = bytes(random.randrange(256) for _ in range(blocklen))
 			encrypted: bytes = encfunc(message, key)
 			decrypted: bytes = decfunc(encrypted, key)
 			self.assertEqual(decrypted, message)

@@ -2,7 +2,7 @@
 # This program tests the implementations of all the known cryptographic hash functions.
 # Run with no arguments.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -447,11 +447,11 @@ class HashTest(unittest.TestCase):
 			stdfunc: Callable[[bytes],Any]) -> None:
 		
 		global num_test_cases
-		TRIALS = 300
+		TRIALS: int = 300
 		for _ in range(TRIALS):
 			msglen: int = random.randrange(1000)
 			msglist = bytes(random.randrange(256) for _ in range(msglen))
-			msgstr = bytes(msglist)
+			msgstr: bytes = bytes(msglist)
 			actualhash: bytes = ourfunc(msglist)
 			expecthash: bytes = stdfunc(msgstr).digest()
 			self.assertEqual(actualhash, expecthash)

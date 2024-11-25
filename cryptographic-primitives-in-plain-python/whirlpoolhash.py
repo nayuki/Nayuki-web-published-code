@@ -1,7 +1,7 @@
 # 
 # The Whirlpool hash function.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	"""Computes the hash of the given message, returning 64 bytes."""
 	
 	# Make a mutable copy for use within this function
-	msg = bytearray(message)
+	msg: bytearray = bytearray(message)
 	if printdebug:  print(f"whirlpoolhash.hash(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
@@ -46,7 +46,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	msg.extend(bitlength.to_bytes(32, "big"))
 	
 	# Initialize the hash state
-	state = b"\x00" * _BLOCK_SIZE
+	state: bytes = b"\x00" * _BLOCK_SIZE
 	
 	# Compress each block in the augmented message
 	for (i, block) in enumerate(cryptocommon.iter_blocks(msg, _BLOCK_SIZE)):
@@ -67,7 +67,7 @@ def _compress(block: bytes, state: bytes, printdebug: bool) -> bytes:
 	# Perform 10 rounds of hashing
 	tempkey: bytes = state
 	tempmsg: bytes = _add_round_key(block, state)
-	i = 0
+	i: int = 0
 	for rcon in _ROUND_CONSTANTS:
 		if printdebug:  print(f"        Round {i:2d}: block = {cryptocommon.bytes_to_debugstr(tempmsg)}")
 		tempkey = _compute_round(tempkey, rcon)  # Compute key schedule on the fly
@@ -91,14 +91,14 @@ def _compute_round(msg: bytes, key: bytes) -> bytes:
 
 def _sub_bytes(msg: bytes) -> bytes:
 	assert len(msg) == _BLOCK_SIZE
-	newmsg = bytes(_SBOX[b] for b in msg)
+	newmsg: bytes = bytes(_SBOX[b] for b in msg)
 	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 
 
 def _shift_columns(msg: bytes) -> bytes:
 	assert len(msg) == _BLOCK_SIZE
-	newmsg = bytearray([0] * 64)  # Dummy initial values, all will be overwritten
+	newmsg: bytearray = bytearray([0] * 64)  # Dummy initial values, all will be overwritten
 	for col in range(8):
 		for row in range(8):
 			newmsg[(row + col) % 8 * 8 + col] = msg[row * 8 + col]
@@ -108,7 +108,7 @@ def _shift_columns(msg: bytes) -> bytes:
 
 def _mix_rows(msg: bytes) -> bytes:
 	assert len(msg) == _BLOCK_SIZE
-	newmsg = bytearray([0] * 64)  # Dummy initial values, all will be overwritten
+	newmsg: bytearray = bytearray([0] * 64)  # Dummy initial values, all will be overwritten
 	for row in range(8):
 		for col in range(8):
 			val: int = 0
@@ -121,7 +121,7 @@ def _mix_rows(msg: bytes) -> bytes:
 
 def _add_round_key(msg: bytes, key: bytes) -> bytes:
 	assert len(msg) == len(key) == _BLOCK_SIZE
-	newmsg = bytes((x ^ y) for (x, y) in zip(msg, key))
+	newmsg: bytes = bytes((x ^ y) for (x, y) in zip(msg, key))
 	assert len(newmsg) == _BLOCK_SIZE
 	return newmsg
 

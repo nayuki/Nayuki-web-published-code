@@ -1,7 +1,7 @@
 # 
 # The SHA-1 hash function. It is described in FIPS Publication 180.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,7 +32,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	"""Computes the hash of the given message, returning 20 bytes."""
 	
 	# Make a mutable copy for use within this function
-	msg = bytearray(message)
+	msg: bytearray = bytearray(message)
 	if printdebug:  print(f"sha1hash.hash(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)

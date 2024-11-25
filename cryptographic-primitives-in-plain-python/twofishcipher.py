@@ -1,7 +1,7 @@
 # 
 # The Twofish block cipher.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -124,7 +124,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[uint32,
 	assert len(key) <= 32
 	
 	# Pad key with zero until reaching a supported length
-	paddedkey = bytearray(key)
+	paddedkey: bytearray = bytearray(key)
 	while len(paddedkey) not in (16, 24, 32):
 		paddedkey.append(0)
 	
@@ -137,7 +137,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[uint32,
 	# Calculate RS matrix times each block of 8 key bytes
 	s: List[uint32] = []
 	for bs in cryptocommon.iter_blocks(paddedkey, 8):
-		temp = bytearray()
+		temp: bytearray = bytearray()
 		for row in _RS_MATRIX:
 			sum: byte = 0
 			for (cell, bb) in zip(row, bs):
@@ -198,7 +198,7 @@ def _function_h(x: uint32, l: Sequence[uint32]) -> uint32:
 		xs = xor_bytes(xs, l[i])
 	xs = sub_bytes(xs, _FUNCTION_H_SBOX_SEQUENCE[0])
 	
-	zs = bytearray()
+	zs: bytearray = bytearray()
 	for row in _MDS_MATRIX:
 		z: byte = 0
 		for (cell, xb) in zip(row, xs):
@@ -212,16 +212,16 @@ def _function_h(x: uint32, l: Sequence[uint32]) -> uint32:
 # Can be replaced with a constant 256-entry S-box to yield a faster implementation.
 def _function_q(x: byte, sboxes: Sequence[Sequence[uint32]]) -> byte:
 	assert cryptocommon.is_uint8(x)
-	a0 = _uint4(x >> 4)
-	b0 = _uint4(x & 0xF)
-	a1 = _uint4(a0 ^ b0)
-	b1 = _uint4(a0 ^ _rotr4(b0, 1) ^ ((a0 << 3) & 0xF))
-	a2 = _uint4(sboxes[0][a1])
-	b2 = _uint4(sboxes[1][b1])
-	a3 = _uint4(a2 ^ b2)
-	b3 = _uint4(a2 ^ _rotr4(b2, 1) ^ ((a2 << 3) & 0xF))
-	a4 = _uint4(sboxes[2][a3])
-	b4 = _uint4(sboxes[3][b3])
+	a0: int = _uint4(x >> 4)
+	b0: int = _uint4(x & 0xF)
+	a1: int = _uint4(a0 ^ b0)
+	b1: int = _uint4(a0 ^ _rotr4(b0, 1) ^ ((a0 << 3) & 0xF))
+	a2: int = _uint4(sboxes[0][a1])
+	b2: int = _uint4(sboxes[1][b1])
+	a3: int = _uint4(a2 ^ b2)
+	b3: int = _uint4(a2 ^ _rotr4(b2, 1) ^ ((a2 << 3) & 0xF))
+	a4: int = _uint4(sboxes[2][a3])
+	b4: int = _uint4(sboxes[3][b3])
 	y: byte = b4 << 4 | a4
 	assert cryptocommon.is_uint8(y)
 	return y

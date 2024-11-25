@@ -52,7 +52,7 @@ def hash512(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> by
 # Computes the hash of the given message, returning (outbitlen/8) bytes.
 def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool) -> bytes:
 	# Make a mutable copy for use within this function
-	msg = bytearray(message)
+	msg: bytearray = bytearray(message)
 	blocksize: int = 200 - outbitlen // 4
 	if printdebug:  print(f"sha3hash.hash{outbitlen}(message = {len(message)} bytes)")
 	
@@ -76,7 +76,7 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 		_compress(block, state, printdebug)
 	
 	# Serialize a prefix of the final state
-	result = bytearray()
+	result: bytearray = bytearray()
 	for y in range(_MATRIX_SIZE):
 		for x in range(_MATRIX_SIZE):
 			result.extend(state[x][y].to_bytes(8, "little"))

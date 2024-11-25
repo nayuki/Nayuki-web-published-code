@@ -1,7 +1,7 @@
 # 
 # The IDEA (International Data Encryption Algorithm) block cipher.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -105,8 +105,8 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 	# Extract consecutive 16 bits at different offsets to form the key schedule
 	result: List[int] = []
 	for i in range(_NUM_ROUNDS * 6 + 4):
-		offset = (i * 16 + i // 8 * 25) % 128
-		val = (bigkey >> (128 - offset)) & UINT16_MASK
+		offset: int = (i * 16 + i // 8 * 25) % 128
+		val: int = (bigkey >> (128 - offset)) & UINT16_MASK
 		assert cryptocommon.is_uint16(val)
 		result.append(val)
 	assert len(result) == 52

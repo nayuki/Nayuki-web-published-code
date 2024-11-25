@@ -1,7 +1,7 @@
 # 
 # The Skein hash function.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -137,7 +137,7 @@ def _hash(message: Union[bytes,Sequence[int]], statebits: int, outbits: int, pri
 	state = _unique_block_iteration(state, bytes(message), _TYPE_MESSAGE, printdebug)
 	
 	# Extract the output
-	result = bytearray()
+	result: bytearray = bytearray()
 	for i in range((outbits + statebits - 1) // statebits):
 		result.extend(_unique_block_iteration(state, i.to_bytes(8, "little"), _TYPE_OUTPUT, printdebug))
 	return result[ : outbits // 8]
@@ -147,7 +147,7 @@ def _unique_block_iteration(state: bytes, message: bytes, type: int, printdebug:
 	if printdebug:  print(f"    UBI: type={type}, state={state.hex().upper()}, message={message.hex().upper()}")
 	
 	# Pad message up to nearest full block, including at least one
-	msg = bytearray(message)
+	msg: bytearray = bytearray(message)
 	while (len(msg) == 0) or (len(msg) % len(state) != 0):
 		msg.append(0)
 	

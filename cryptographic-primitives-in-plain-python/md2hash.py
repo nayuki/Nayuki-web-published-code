@@ -1,7 +1,7 @@
 # 
 # The MD2 hash function. It is described in RFC 1319.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	"""Computes the hash of the given message, returning 16 bytes."""
 	
 	# Make a mutable copy for use within this function
-	msg = bytearray(message)
+	msg: bytearray = bytearray(message)
 	if printdebug:  print(f"md2hash.hash(message = {len(message)} bytes)")
 	
 	# Append the termination padding
@@ -40,8 +40,8 @@ def hash(message: Union[bytes,Sequence[int]], printdebug: bool = False) -> bytes
 	msg.extend([padlen] * padlen)
 	
 	# Initialize the hash state
-	checksum = b"\x00" * _BLOCK_SIZE
-	state    = checksum * 3
+	checksum: bytes = b"\x00" * _BLOCK_SIZE
+	state: bytes = checksum * 3
 	
 	# Compress each block in the augmented message
 	for (i, block) in enumerate(cryptocommon.iter_blocks(msg, _BLOCK_SIZE)):
@@ -66,7 +66,7 @@ def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> 
 	assert len(checksum) == _BLOCK_SIZE
 	
 	# Copy the block into the state
-	newstate = bytearray(state)
+	newstate: bytearray = bytearray(state)
 	for i in range(_BLOCK_SIZE):
 		b: int = block[i]
 		newstate[i + _BLOCK_SIZE] = b
@@ -81,7 +81,7 @@ def _compress(block: bytes, state: bytes, checksum: bytes, printdebug: bool) -> 
 		t = (t + i) & 0xFF
 	
 	# Checksum the block
-	newchecksum = bytearray(checksum)
+	newchecksum: bytearray = bytearray(checksum)
 	l: int = newchecksum[-1]
 	for i in range(_BLOCK_SIZE):
 		l = newchecksum[i] ^ _SBOX[block[i] ^ l]
