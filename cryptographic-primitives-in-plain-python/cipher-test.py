@@ -23,7 +23,7 @@
 # 
 
 import random, unittest
-from typing import Callable
+from collections.abc import Callable
 import cryptocommon
 
 
