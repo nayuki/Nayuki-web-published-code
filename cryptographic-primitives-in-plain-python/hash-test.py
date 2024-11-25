@@ -42,6 +42,8 @@ class HashTest(unittest.TestCase):
 			("4E8DDFF3650292AB5A4108C3AA47940B", b"abcdefghijklmnopqrstuvwxyz"),
 			("DA33DEF2A42DF13975352846C30338CD", b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"),
 			("D5976F79D83D3A0DC9806C3C66F3EFD8", b"12345678901234567890123456789012345678901234567890123456789012345678901234567890"),
+			("03D85A0D629D2C442E987525319FC471", b"The quick brown fox jumps over the lazy dog"),
+			("6B890C9292668CDBBFDA00A4EBF31F05", b"The quick brown fox jumps over the lazy cog"),
 		])
 	
 	
@@ -69,6 +71,8 @@ class HashTest(unittest.TestCase):
 			("C3FCD3D76192E4007DFB496CCA67E13B", b"abcdefghijklmnopqrstuvwxyz"),
 			("D174AB98D277D9F5A5611C2C9F419D9F", b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"),
 			("57EDF4A22BE3C955AC49DA2E2107B67A", b"12345678901234567890123456789012345678901234567890123456789012345678901234567890"),
+			("9E107D9D372BB6826BD81D3542A419D6", b"The quick brown fox jumps over the lazy dog"),
+			("E4D909C290D0FB1CA068FFADDF22CBD0", b"The quick brown fox jumps over the lazy dog."),
 		])
 	
 	
@@ -83,6 +87,8 @@ class HashTest(unittest.TestCase):
 			("32D10C7B8CF96570CA04CE37F2A19D84240D3A89", b"abcdefghijklmnopqrstuvwxyz"),
 			("84983E441C3BD26EBAAE4AA1F95129E5E54670F1", b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
 			("A49B2446A02C645BF419F995B67091253A04A259", b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
+			("2FD4E1C67A2D28FCED849EE1BB76E7391B93EB12", b"The quick brown fox jumps over the lazy dog"),
+			("DE9F2C7FD25E1B3AFAD3E85A0BD17D9B100DB4B3", b"The quick brown fox jumps over the lazy cog"),
 		])
 	
 	
