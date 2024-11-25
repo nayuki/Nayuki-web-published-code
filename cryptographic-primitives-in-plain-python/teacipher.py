@@ -1,7 +1,7 @@
 # 
 # The TEA (Tiny Encryption Algorithm) block cipher.
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/cryptographic-primitives-in-plain-python
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import List, Sequence, Union
+from typing import Sequence, Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -38,8 +38,8 @@ def encrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	if printdebug:  print(f"teacipher.encrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Pack key and block bytes
-	k: List[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
-	m: List[int] = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
+	k: list[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
+	m: list[int] = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
 	
 	# Perform 64 rounds of encryption
 	rcon: int = 0
@@ -66,8 +66,8 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 	if printdebug:  print(f"teacipher.decrypt(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Pack key and block bytes
-	k: List[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
-	m: List[int] = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
+	k: list[int] = _bytes_to_uint32_list_big_endian(key)    # 4 elements of uint32
+	m: list[int] = _bytes_to_uint32_list_big_endian(block)  # 2 elements of uint32
 	
 	# Perform 64 rounds of decryption
 	rcon: int = (_ROUND_CONSTANT * _NUM_CYCLES) & UINT32_MASK
@@ -87,7 +87,7 @@ def decrypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], 
 # ---- Private functions ----
 
 # For example: _bytes_to_uint32_list_big_endian([0xFF, 0x00, 0xAB, 0xCD, 0x27, 0x18, 0x28, 0x44]) -> [0xFF00ABCD, 0x27182844].
-def _bytes_to_uint32_list_big_endian(bytelist: Union[bytes,Sequence[int]]) -> List[int]:
+def _bytes_to_uint32_list_big_endian(bytelist: Union[bytes,Sequence[int]]) -> list[int]:
 	assert len(bytelist) % 4 == 0
 	return [int.from_bytes(chunk, "big")
 		for chunk in cryptocommon.iter_blocks(bytes(bytelist), 4)]

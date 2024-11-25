@@ -22,7 +22,7 @@
 # 
 
 import itertools
-from typing import List, Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union
 import cryptocommon
 
 
@@ -70,11 +70,11 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[int,...
 	bigkey: bytes = bytes(itertools.islice(itertools.cycle(key), len(_INITIAL_KEY_SCHEDULE) * 4))
 	
 	# XOR the extended key with initial key schedule constants
-	keyschedule: List[int] = [word0 ^ int.from_bytes(word1bytes, "big")
+	keyschedule: list[int] = [word0 ^ int.from_bytes(word1bytes, "big")
 		for (word0, word1bytes) in zip(_INITIAL_KEY_SCHEDULE, cryptocommon.iter_blocks(bigkey, 4))]
 	
 	# Prepare to repeatedly encrypt a block with current key schedule and S-boxes
-	sboxes: List[List[int]] = [list(sbox) for sbox in _INITIAL_SBOXES]
+	sboxes: list[list[int]] = [list(sbox) for sbox in _INITIAL_SBOXES]
 	left : int = 0
 	right: int = 0
 	
@@ -125,7 +125,7 @@ def _feistel_function(data: int, sboxes: Sequence[Sequence[int]]) -> int:
 
 # ---- Numerical constants/tables ----
 
-_INITIAL_KEY_SCHEDULE: List[int] = [
+_INITIAL_KEY_SCHEDULE: list[int] = [
 	0x243F6A88, 0x85A308D3, 0x13198A2E, 0x03707344, 0xA4093822,
 	0x299F31D0, 0x082EFA98, 0xEC4E6C89, 0x452821E6, 0x38D01377,
 	0xBE5466CF, 0x34E90C6C, 0xC0AC29B7, 0xC97C50DD, 0x3F84D5B5,
@@ -133,7 +133,7 @@ _INITIAL_KEY_SCHEDULE: List[int] = [
 ]
 
 
-_INITIAL_SBOXES: List[List[int]] = [
+_INITIAL_SBOXES: list[list[int]] = [
 	[
 		0xD1310BA6, 0x98DFB5AC, 0x2FFD72DB, 0xD01ADFB7, 0xB8E1AFED, 0x6A267E96, 0xBA7C9045, 0xF12C7F99,
 		0x24A19947, 0xB3916CF7, 0x0801F2E2, 0x858EFC16, 0x636920D8, 0x71574E69, 0xA458FEA3, 0xF4933D7E,

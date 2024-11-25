@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import List, Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -68,7 +68,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> 
 	assert len(block) == _BLOCK_SIZE
 	
 	# Pack block bytes into schedule
-	schedule: List[int] = [int.from_bytes(chunk, "little")
+	schedule: list[int] = [int.from_bytes(chunk, "little")
 		for chunk in cryptocommon.iter_blocks(block, 4)]
 	
 	# Unpack state into variables; each one is a uint32
@@ -114,7 +114,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int], printdebug: bool) -> 
 
 _BLOCK_SIZE: int = 64  # In bytes
 
-_ROUND_CONSTANTS: List[int] = [  # 64 elements of uint32
+_ROUND_CONSTANTS: list[int] = [  # 64 elements of uint32
 	0xD76AA478, 0xE8C7B756, 0x242070DB, 0xC1BDCEEE,
 	0xF57C0FAF, 0x4787C62A, 0xA8304613, 0xFD469501,
 	0x698098D8, 0x8B44F7AF, 0xFFFF5BB1, 0x895CD7BE,
@@ -133,7 +133,7 @@ _ROUND_CONSTANTS: List[int] = [  # 64 elements of uint32
 	0xF7537E82, 0xBD3AF235, 0x2AD7D2BB, 0xEB86D391,
 ]
 
-_ROTATION_AMOUNTS: List[int] = [
+_ROTATION_AMOUNTS: list[int] = [
 	7, 12, 17, 22,
 	5,  9, 14, 20,
 	4, 11, 16, 23,

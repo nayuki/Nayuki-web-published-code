@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Callable, List, Sequence, Tuple, Union
+from typing import Callable, Sequence, Tuple, Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -72,7 +72,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 	rotr32: Callable[[int,int],int] = cryptocommon.rotate_right_uint32
 	
 	# Pack block bytes into first part of schedule
-	schedule: List[int] = [int.from_bytes(chunk, "big")
+	schedule: list[int] = [int.from_bytes(chunk, "big")
 		for chunk in cryptocommon.iter_blocks(block, 4)]
 	
 	# Extend the message schedule by blending previous values
@@ -122,7 +122,7 @@ def _compress(block: bytes, state: Tuple[int,int,int,int,int,int,int,int], print
 
 _BLOCK_SIZE: int = 64  # In bytes
 
-_ROUND_CONSTANTS: List[int] = [  # 64 elements of uint32
+_ROUND_CONSTANTS: list[int] = [  # 64 elements of uint32
 	0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
 	0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
 	0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,

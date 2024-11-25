@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import List, Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union
 import cryptocommon
 from cryptocommon import UINT16_MASK
 
@@ -103,7 +103,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 	bigkey = (bigkey << 16) | (bigkey >> 112)
 	
 	# Extract consecutive 16 bits at different offsets to form the key schedule
-	result: List[int] = []
+	result: list[int] = []
 	for i in range(_NUM_ROUNDS * 6 + 4):
 		offset: int = (i * 16 + i // 8 * 25) % 128
 		val: int = (bigkey >> (128 - offset)) & UINT16_MASK
@@ -117,7 +117,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[int,...]:
 # decryption key schedule as a tuple containing 52 elements of uint16.
 def _invert_key_schedule(keysch: Tuple[int,...]) -> Tuple[int,...]:
 	assert len(keysch) % 6 == 4
-	result: List[int] = []
+	result: list[int] = []
 	result.append(_reciprocal(keysch[-4]))
 	result.append(_negate(keysch[-3]))
 	result.append(_negate(keysch[-2]))

@@ -23,7 +23,7 @@
 # 
 
 import random, unittest
-from typing import Callable, List, Tuple
+from typing import Callable, Tuple
 import cryptocommon
 
 
@@ -749,7 +749,7 @@ class CipherTest(unittest.TestCase):
 		])
 		
 		def do_iterated(keylen: int) -> bytes:
-			plaintexts: List[bytes] = [b"\x00" * 16] * 3
+			plaintexts: list[bytes] = [b"\x00" * 16] * 3
 			for _ in range(49):
 				key: bytes = (plaintexts[-2] + plaintexts[-3])[ : keylen]
 				ciphertext: bytes = twofishcipher.encrypt(plaintexts[-1], key)
@@ -765,7 +765,7 @@ class CipherTest(unittest.TestCase):
 	def _check_cipher(self,
 			encfunc: Callable[[bytes,bytes],bytes],
 			decfunc: Callable[[bytes,bytes],bytes],
-			cases: List[Tuple[str,str,str]]) -> None:
+			cases: list[Tuple[str,str,str]]) -> None:
 		
 		global num_test_cases
 		

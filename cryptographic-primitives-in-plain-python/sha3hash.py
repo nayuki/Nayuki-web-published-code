@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import List, Sequence, Union
+from typing import Sequence, Union
 import cryptocommon
 
 
@@ -67,7 +67,7 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 	msg[-1] |= 0x80
 	
 	# Initialize the hash state
-	state: List[List[int]] = [[0] * _MATRIX_SIZE for _ in range(_MATRIX_SIZE)]
+	state: list[list[int]] = [[0] * _MATRIX_SIZE for _ in range(_MATRIX_SIZE)]
 	
 	# Compress each block in the augmented message
 	for i in range(len(msg) // blocksize):
@@ -84,7 +84,7 @@ def _hash(message: Union[bytes,Sequence[int]], outbitlen: int, printdebug: bool)
 
 
 # State is a mutable 5*5 matrix of uint64.
-def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
+def _compress(block: bytes, state: list[list[int]], printdebug: bool) -> None:
 	# Alias shorter names for readability
 	sz: int = _MATRIX_SIZE
 	
@@ -100,36 +100,36 @@ def _compress(block: bytes, state: List[List[int]], printdebug: bool) -> None:
 		state[x][y] ^= int.from_bytes(chunk, "little")
 	
 	# Perform 24 rounds of hashing
-	a: List[List[int]] = state
+	a: list[list[int]] = state
 	r: int = 1  # 8-bit LFSR
 	for i in range(_NUM_ROUNDS):
 		if printdebug:
 			print(f"        Round {i:2d}:")
 			for j in range(sz):
 				y = (sz // 2 - j) % sz
-				parts: List[str] = []
+				parts: list[str] = []
 				for j in range(sz):
 					x = (j - sz // 2) % sz
 					parts.append(f"[{x},{y}]={a[x][y]:016X}")
 				print("            " + ", ".join(parts))
 		
 		# Theta step
-		c: List[int] = [0] * sz
+		c: list[int] = [0] * sz
 		for x in range(sz):
 			for y in range(sz):
 				c[x] ^= a[x][y]
-		d: List[int] = [(c[(x - 1) % sz] ^ cryptocommon.rotate_left_uint64(c[(x + 1) % sz], 1))
+		d: list[int] = [(c[(x - 1) % sz] ^ cryptocommon.rotate_left_uint64(c[(x + 1) % sz], 1))
 			for x in range(sz)]
 		for x in range(sz):
 			for y in range(sz):
 				a[x][y] ^= d[x]
 		
 		# Rho step
-		e: List[List[int]] = [[cryptocommon.rotate_left_uint64(a[x][y], _ROTATION[x][y])
+		e: list[list[int]] = [[cryptocommon.rotate_left_uint64(a[x][y], _ROTATION[x][y])
 			for y in range(sz)] for x in range(sz)]
 		
 		# Pi step
-		b: List[List[int]] = [[0] * sz for _ in range(sz)]  # Dummy initial values, all will be overwritten
+		b: list[list[int]] = [[0] * sz for _ in range(sz)]  # Dummy initial values, all will be overwritten
 		for x in range(sz):
 			for y in range(sz):
 				b[y][(x * 2 + y * 3) % sz] = e[x][y]
@@ -151,7 +151,7 @@ _MATRIX_SIZE: int = 5
 
 _NUM_ROUNDS: int = 24
 
-_ROTATION: List[List[int]] = [
+_ROTATION: list[list[int]] = [
 	[ 0, 36,  3, 41, 18],
 	[ 1, 44, 10, 45,  2],
 	[62,  6, 43, 15, 61],

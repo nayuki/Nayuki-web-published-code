@@ -22,7 +22,7 @@
 #   Software.
 # 
 
-from typing import List, Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union
 import cryptocommon
 
 
@@ -156,7 +156,7 @@ def _shift_rows(msg: bytes, direction: int) -> bytes:
 	return newmsg
 
 
-def _mix_columns(msg: bytes, multipliers: List[int]) -> bytes:
+def _mix_columns(msg: bytes, multipliers: list[int]) -> bytes:
 	assert len(msg) == _BLOCK_SIZE
 	assert len(multipliers) == 4
 	newmsg: bytearray = bytearray([0] * _BLOCK_SIZE)  # Dummy initial values, all will be overwritten
@@ -215,8 +215,8 @@ def _rotl8(value: int, amount: int) -> int:
 _BLOCK_SIZE: int = 16  # In bytes
 
 # For _mix_columns()
-_MULTIPLIERS_FORWARD: List[int] = [0x02, 0x03, 0x01, 0x01]
-_MULTIPLIERS_INVERSE: List[int] = [0x0E, 0x0B, 0x0D, 0x09]
+_MULTIPLIERS_FORWARD: list[int] = [0x02, 0x03, 0x01, 0x01]
+_MULTIPLIERS_INVERSE: list[int] = [0x0E, 0x0B, 0x0D, 0x09]
 
 # For _sub_bytes()
 _SBOX_FORWARD = bytearray()  # A permutation of the 256 byte values, from 0x00 to 0xFF

@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Dict, List, Sequence, Union
+from typing import Dict, Sequence, Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -170,18 +170,18 @@ def _threefish_encrypt(plaintext: bytes, key: bytes, tweak: bytes, printdebug: b
 	if printdebug:  print(f"        Threefish: plaintext={plaintext.hex().upper()}, key={key.hex().upper()}, tweak={tweak.hex().upper()}")
 	numwords: int = len(key) // 8
 	
-	keywords: List[uint64] = _bytes_to_words(key)
+	keywords: list[uint64] = _bytes_to_words(key)
 	temp: uint64 = 0x1BD11BDAA9FC1A22
 	for word in keywords:
 		temp ^= word
 	keywords.append(temp)
 	assert len(keywords) == numwords + 1
 	
-	tweakwords: List[uint64] = _bytes_to_words(tweak)
+	tweakwords: list[uint64] = _bytes_to_words(tweak)
 	tweakwords.append(tweakwords[0] ^ tweakwords[1])
 	assert len(tweakwords) == 3
 	
-	block: List[uint64] = list(_bytes_to_words(plaintext))
+	block: list[uint64] = list(_bytes_to_words(plaintext))
 	assert len(block) == numwords
 	for i in range(_NUM_ROUNDS[numwords] + 1):
 		if printdebug:  print(f"            Round {i:2}: block = {' '.join(f'{word:016X}' for word in block)}")
@@ -200,7 +200,7 @@ def _threefish_encrypt(plaintext: bytes, key: bytes, tweak: bytes, printdebug: b
 				break
 		
 		# Do mix and rotate
-		mixedblock: List[uint64] = []
+		mixedblock: list[uint64] = []
 		for (j, (x0, x1)) in enumerate(cryptocommon.iter_blocks(block, 2)):
 			y0: uint64 = (x0 + x1) & cryptocommon.UINT64_MASK
 			y1: uint64 = (cryptocommon.rotate_left_uint64(x1, _ROTATIONS[numwords][i % 8][j])) ^ y0
@@ -220,7 +220,7 @@ def _tweak_to_bytes(type: int, first: bool, final: bool, position: int) -> bytes
 	return temp.to_bytes(16, "little")
 
 
-def _bytes_to_words(bs: bytes) -> List[uint64]:
+def _bytes_to_words(bs: bytes) -> list[uint64]:
 	return [int.from_bytes(b, "little") for b in cryptocommon.iter_blocks(bs, 8)]
 
 
@@ -233,14 +233,14 @@ _NUM_ROUNDS: Dict[int,int] = {
 }
 
 
-_PERMUTATIONS: Dict[int,List[int]] = {
+_PERMUTATIONS: Dict[int,list[int]] = {
 	 4: [0, 3, 2, 1],
 	 8: [2, 1, 4, 7, 6, 5, 0, 3],
 	16: [0, 9, 2, 13, 6, 11, 4, 15, 10, 7, 12, 3, 14, 5, 8, 1],
 }
 
 
-_ROTATIONS: Dict[int,List[List[int]]] = {
+_ROTATIONS: Dict[int,list[list[int]]] = {
 	4: [
 		[14, 16],
 		[52, 57],

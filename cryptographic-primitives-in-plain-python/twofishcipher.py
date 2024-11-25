@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import List, Sequence, Tuple, Union
+from typing import Sequence, Tuple, Union
 import cryptocommon
 from cryptocommon import UINT32_MASK
 
@@ -53,7 +53,7 @@ def _crypt(block: Union[bytes,Sequence[int]], key: Union[bytes,Sequence[int]], d
 	if printdebug:  print(f"twofishcipher.{direction}(block = {cryptocommon.bytes_to_debugstr(block)}, key = {cryptocommon.bytes_to_debugstr(key)})")
 	
 	# Pack block bytes into four 32-bit words
-	bws: List[uint32] = [int.from_bytes(bs, "little") for bs in cryptocommon.iter_blocks(bytes(block), 4)]
+	bws: list[uint32] = [int.from_bytes(bs, "little") for bs in cryptocommon.iter_blocks(bytes(block), 4)]
 	
 	# Compute the key schedule and S-box tweaker
 	keyschedule, s = _expand_key_schedule(key)
@@ -129,13 +129,13 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[uint32,
 		paddedkey.append(0)
 	
 	# Pack key bytes into 32-bit words and separate into even/odd indexes
-	keywords: List[uint32] = [int.from_bytes(bs, "little") for bs in cryptocommon.iter_blocks(paddedkey, 4)]
-	keywordseven: List[uint32] = keywords[0 : : 2]
-	keywordsodd : List[uint32] = keywords[1 : : 2]
+	keywords: list[uint32] = [int.from_bytes(bs, "little") for bs in cryptocommon.iter_blocks(paddedkey, 4)]
+	keywordseven: list[uint32] = keywords[0 : : 2]
+	keywordsodd : list[uint32] = keywords[1 : : 2]
 	assert 2 <= len(keywordseven) == len(keywordsodd) <= 4
 	
 	# Calculate RS matrix times each block of 8 key bytes
-	s: List[uint32] = []
+	s: list[uint32] = []
 	for bs in cryptocommon.iter_blocks(paddedkey, 8):
 		temp: bytearray = bytearray()
 		for row in _RS_MATRIX:
@@ -148,7 +148,7 @@ def _expand_key_schedule(key: Union[bytes,Sequence[int]]) -> Tuple[Tuple[uint32,
 	assert len(s) == len(keywordseven)
 	
 	# Calculate actual key schedule
-	expandedkey: List[uint32] = []
+	expandedkey: list[uint32] = []
 	for i in range(_NUM_ROUNDS + 4):
 		rho: uint32 = 0x01010101
 		a: uint32 = _function_h((2 * i + 0) * rho, keywordseven)
@@ -184,7 +184,7 @@ def _function_h(x: uint32, l: Sequence[uint32]) -> uint32:
 	assert 2 <= len(l) <= 4
 	xs: bytes = x.to_bytes(4, "little")
 	
-	def sub_bytes(bs: bytes, sboxindexes: List[int]) -> bytes:
+	def sub_bytes(bs: bytes, sboxindexes: list[int]) -> bytes:
 		assert len(bs) == len(sboxindexes)
 		return bytes(_function_q(b, _Q_SBOXES[i]) for (b, i) in zip(bs, sboxindexes))
 	
@@ -267,7 +267,7 @@ def _uint4(v: int) -> int:
 _NUM_ROUNDS: int = 16
 
 
-_MDS_MATRIX: List[List[byte]] = [  # Stands for maximum distance separable
+_MDS_MATRIX: list[list[byte]] = [  # Stands for maximum distance separable
 	[0x01, 0xEF, 0x5B, 0x5B],
 	[0x5B, 0xEF, 0xEF, 0x01],
 	[0xEF, 0x5B, 0x01, 0xEF],
@@ -275,7 +275,7 @@ _MDS_MATRIX: List[List[byte]] = [  # Stands for maximum distance separable
 ]
 
 
-_RS_MATRIX: List[List[byte]] = [  # Stands for Reed-Solomon
+_RS_MATRIX: list[list[byte]] = [  # Stands for Reed-Solomon
 	[0x01, 0xA4, 0x55, 0x87, 0x5A, 0x58, 0xDB, 0x9E],
 	[0xA4, 0x56, 0x82, 0xF3, 0x1E, 0xC6, 0x68, 0xE5],
 	[0x02, 0xA1, 0xFC, 0xC1, 0x47, 0xAE, 0x3D, 0x19],
@@ -283,7 +283,7 @@ _RS_MATRIX: List[List[byte]] = [  # Stands for Reed-Solomon
 ]
 
 
-_Q_SBOXES: List[List[List[int]]] = [
+_Q_SBOXES: list[list[list[int]]] = [
 	[
 		[0x8, 0x1, 0x7, 0xD, 0x6, 0xF, 0x3, 0x2, 0x0, 0xB, 0x5, 0x9, 0xE, 0xC, 0xA, 0x4],
 		[0xE, 0xC, 0xB, 0x8, 0x1, 0x2, 0x3, 0x5, 0xF, 0x4, 0xA, 0x6, 0x7, 0x0, 0x9, 0xD],
@@ -299,7 +299,7 @@ _Q_SBOXES: List[List[List[int]]] = [
 ]
 
 
-_FUNCTION_H_SBOX_SEQUENCE: List[List[int]] = [
+_FUNCTION_H_SBOX_SEQUENCE: list[list[int]] = [
 	[1, 0, 1, 0],
 	[0, 0, 1, 1],
 	[0, 1, 0, 1],

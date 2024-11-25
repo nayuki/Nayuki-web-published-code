@@ -23,7 +23,7 @@
 # 
 
 import hashlib, random, unittest
-from typing import Any, Callable, List, Tuple
+from typing import Any, Callable, Tuple
 import cryptocommon
 
 
@@ -430,7 +430,7 @@ class HashTest(unittest.TestCase):
 	
 	def _check_hash_function(self,
 			func: Callable[[bytes],bytes],
-			cases: List[Tuple[str,bytes]]) -> None:
+			cases: list[Tuple[str,bytes]]) -> None:
 		
 		global num_test_cases
 		
