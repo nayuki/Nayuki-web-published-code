@@ -58,10 +58,9 @@ def _crypt(block: bytes|Sequence[int], key: bytes|Sequence[int], direction: str,
 	# Compute the key schedule and S-box tweaker
 	keyschedule, s = _expand_key_schedule(key)
 	
-	i: int
+	i: int = 0
 	if direction == "encrypt":
 		# Whitening
-		i = 0
 		if printdebug:  print(f"    Round {i:2d}: block = {' '.join(f'{x:08X}' for x in bws)}")
 		bws[0] ^= keyschedule[0]
 		bws[1] ^= keyschedule[1]
@@ -88,7 +87,6 @@ def _crypt(block: bytes|Sequence[int], key: bytes|Sequence[int], direction: str,
 	
 	elif direction == "decrypt":
 		# Whitening
-		i = 0
 		if printdebug:  print(f"    Round {i:2d}: block = {' '.join(f'{x:08X}' for x in bws)}")
 		bws[0] ^= keyschedule[4]
 		bws[1] ^= keyschedule[5]
@@ -126,7 +124,7 @@ def _expand_key_schedule(key: bytes|Sequence[int]) -> tuple[tuple[uint32,...],tu
 	# Pad key with zero until reaching a supported length
 	paddedkey: bytearray = bytearray(key)
 	while len(paddedkey) not in (16, 24, 32):
-		paddedkey.append(0)
+		paddedkey.append(0x00)
 	
 	# Pack key bytes into 32-bit words and separate into even/odd indexes
 	keywords: list[uint32] = [int.from_bytes(bs, "little") for bs in cryptocommon.iter_blocks(paddedkey, 4)]
@@ -152,7 +150,8 @@ def _expand_key_schedule(key: bytes|Sequence[int]) -> tuple[tuple[uint32,...],tu
 	for i in range(_NUM_ROUNDS + 4):
 		rho: uint32 = 0x01010101
 		a: uint32 = _function_h((2 * i + 0) * rho, keywordseven)
-		b: uint32 = cryptocommon.rotate_left_uint32(_function_h((2 * i + 1) * rho, keywordsodd), 8)
+		b: uint32 = _function_h((2 * i + 1) * rho, keywordsodd )
+		b = cryptocommon.rotate_left_uint32(b, 8)
 		a, b = _pseudo_hadamard_transform(a, b)
 		expandedkey.append(a)
 		expandedkey.append(cryptocommon.rotate_left_uint32(b, 9))

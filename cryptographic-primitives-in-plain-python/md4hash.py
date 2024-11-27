@@ -76,27 +76,23 @@ def _compress(block: bytes, state: tuple[int,int,int,int], printdebug: bool) -> 
 	
 	# Perform 48 rounds of hashing
 	for i in range(48):
-		# Compute f value, schedule index, and addition constant based on the round index i
+		# Compute f value and schedule index based on the round index i
 		if printdebug:  print(f"        Round {i:2d}: a={a:08X}, b={b:08X}, c={c:08X}, d={d:08X}")
 		f: int
 		k: int
-		add: int
 		if i < 16:
 			f = (b & c) | (~b & d)
 			k = i
-			add = 0x00000000
 		elif i < 32:
 			f = (b & c) | (b & d) | (c & d)
 			k = ((i & 0x3) << 2) | ((i & 0xC) >> 2)
-			add = 0x5A827999
 		else:
 			f = b ^ c ^ d
 			k = ((i >> 3) & 0x1) | ((i >> 1) & 0x2) | ((i << 1) & 0x4) | ((i << 3) & 0x8)  # Last 4 bits reversed
-			add = 0x6ED9EBA1
 		
 		# Perform the round calculation
 		rot: int = _ROTATION_AMOUNTS[((i >> 2) & 0xC) | (i & 0x3)]
-		temp: int = (a + f + schedule[k] + add) & UINT32_MASK
+		temp: int = (a + f + schedule[k] + _ROUND_CONSTANTS[i // 16]) & UINT32_MASK
 		temp = cryptocommon.rotate_left_uint32(temp, rot)
 		a = d
 		d = c
@@ -114,6 +110,8 @@ def _compress(block: bytes, state: tuple[int,int,int,int], printdebug: bool) -> 
 # ---- Numerical constants/tables ----
 
 _BLOCK_SIZE: int = 64  # In bytes
+
+_ROUND_CONSTANTS: list[int] = [0x00000000, 0x5A827999, 0x6ED9EBA1]
 
 _ROTATION_AMOUNTS: list[int] = [
 	3,  7, 11, 19,

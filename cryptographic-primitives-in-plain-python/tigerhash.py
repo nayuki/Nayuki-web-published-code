@@ -40,13 +40,13 @@ def hash2(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 
 # ---- Private functions ----
 
-def _hash(message: bytes|Sequence[int], padbyte: int, namesuffix: str, printdebug: bool = False) -> bytes:
+def _hash(message: bytes|Sequence[int], endbyte: int, namesuffix: str, printdebug: bool) -> bytes:
 	# Make a mutable copy for use within this function
 	msg: bytearray = bytearray(message)
 	if printdebug:  print(f"tigerhash.hash{namesuffix}(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
-	msg.append(padbyte)
+	msg.append(endbyte)
 	
 	# Append padding bytes until message is exactly 8 bytes less than a whole block
 	while (len(msg) + 8) % _BLOCK_SIZE != 0:

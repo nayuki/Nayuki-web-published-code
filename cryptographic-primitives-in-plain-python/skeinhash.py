@@ -149,7 +149,7 @@ def _unique_block_iteration(state: bytes, message: bytes, type: int, printdebug:
 	# Pad message up to nearest full block, including at least one
 	msg: bytearray = bytearray(message)
 	while (len(msg) == 0) or (len(msg) % len(state) != 0):
-		msg.append(0)
+		msg.append(0x00)
 	
 	# Compress each block
 	numblocks: int = len(msg) // len(state)

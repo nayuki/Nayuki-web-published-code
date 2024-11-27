@@ -101,7 +101,7 @@ def _compress(block: bytes, state: list[list[int]], printdebug: bool) -> None:
 	
 	# Perform 24 rounds of hashing
 	a: list[list[int]] = state
-	r: int = 1  # 8-bit LFSR
+	r: int = 1  # 8-bit LFSR, independent of block and state
 	for i in range(_NUM_ROUNDS):
 		if printdebug:
 			print(f"        Round {i:2d}:")
