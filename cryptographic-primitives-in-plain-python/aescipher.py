@@ -219,8 +219,8 @@ _MULTIPLIERS_FORWARD: list[int] = [0x02, 0x03, 0x01, 0x01]
 _MULTIPLIERS_INVERSE: list[int] = [0x0E, 0x0B, 0x0D, 0x09]
 
 # For _sub_bytes()
-_SBOX_FORWARD = bytearray()  # A permutation of the 256 byte values, from 0x00 to 0xFF
-_SBOX_INVERSE = bytearray([0] * 256)  # Also a permutation
+_SBOX_FORWARD: bytearray = bytearray()  # A permutation of the 256 byte values, from 0x00 to 0xFF
+_SBOX_INVERSE: bytearray = bytearray([0] * 256)  # Also a permutation
 def _init_sbox() -> None:
 	for i in range(256):
 		j: int = _reciprocal(i)

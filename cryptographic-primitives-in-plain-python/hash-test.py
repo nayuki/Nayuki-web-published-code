@@ -551,7 +551,7 @@ class HashTest(unittest.TestCase):
 		TRIALS: int = 300
 		for _ in range(TRIALS):
 			msglen: int = random.randrange(1000)
-			msglist = bytes(random.randrange(256) for _ in range(msglen))
+			msglist: bytes = bytes(random.randrange(256) for _ in range(msglen))
 			msgstr: bytes = bytes(msglist)
 			actualhash: bytes = ourfunc(msglist)
 			expecthash: bytes = stdfunc(msgstr).digest()
