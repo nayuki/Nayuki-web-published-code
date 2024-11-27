@@ -157,8 +157,8 @@ class HashTest(unittest.TestCase):
 	
 	def test_sha256_hash(self) -> None:
 		import sha256hash
-		self._check_vs_stdlib(sha256hash.hash, hashlib.sha256)
-		self._check_hash_function(sha256hash.hash, [
+		self._check_vs_stdlib(sha256hash.hash256, hashlib.sha256)
+		self._check_hash_function(sha256hash.hash256, [
 			("E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855", b""),
 			("CA978112CA1BBDCAFAC231B39A23DC4DA786EFF8147C4E72B9807785AFEE48BB", b"a"),
 			("BA7816BF8F01CFEA414140DE5DAE2223B00361A396177A9CB410FF61F20015AD", b"abc"),
@@ -172,8 +172,8 @@ class HashTest(unittest.TestCase):
 	
 	def test_sha512_hash(self) -> None:
 		import sha512hash
-		self._check_vs_stdlib(sha512hash.hash, hashlib.sha512)
-		self._check_hash_function(sha512hash.hash, [
+		self._check_vs_stdlib(sha512hash.hash512, hashlib.sha512)
+		self._check_hash_function(sha512hash.hash512, [
 			("CF83E1357EEFB8BDF1542850D66D8007D620E4050B5715DC83F4A921D36CE9CE47D0D13C5D85F2B0FF8318D2877EEC2F63B931BD47417A81A538327AF927DA3E", b""),
 			("1F40FC92DA241694750979EE6CF582F2D5D7D28E18335DE05ABC54D0560E0F5302860C652BF08D560252AA5E74210546F369FBBBCE8C12CFC7957B2652FE9A75", b"a"),
 			("DDAF35A193617ABACC417349AE20413112E6FA4E89A97EA20A9EEEE64B55D39A2192992A274FC1A836BA3C23A3FEEBBD454D4423643CE80E2A9AC94FA54CA49F", b"abc"),

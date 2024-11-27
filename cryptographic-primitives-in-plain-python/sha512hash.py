@@ -28,12 +28,17 @@ from cryptocommon import UINT64_MASK
 
 # ---- Public functions ----
 
-def hash(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
+def hash512(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 64 bytes."""
-	
+	return _hash(message, 512, (0x6A09E667F3BCC908, 0xBB67AE8584CAA73B, 0x3C6EF372FE94F82B, 0xA54FF53A5F1D36F1, 0x510E527FADE682D1, 0x9B05688C2B3E6C1F, 0x1F83D9ABFB41BD6B, 0x5BE0CD19137E2179), printdebug)
+
+
+# ---- Private functions ----
+
+def _hash(message: bytes|Sequence[int], outbitlen: int, initstate: tuple[int,int,int,int,int,int,int,int], printdebug: bool) -> bytes:
 	# Make a mutable copy for use within this function
 	msg: bytearray = bytearray(message)
-	if printdebug:  print(f"sha512hash.hash(message = {len(message)} bytes)")
+	if printdebug:  print(f"sha512hash.hash{outbitlen}(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
 	msg.append(0x80)
@@ -47,9 +52,7 @@ def hash(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	msg.extend(bitlength.to_bytes(16, "big"))
 	
 	# Initialize the hash state
-	state: tuple[int,int,int,int,int,int,int,int] = (
-		0x6A09E667F3BCC908, 0xBB67AE8584CAA73B, 0x3C6EF372FE94F82B, 0xA54FF53A5F1D36F1,
-		0x510E527FADE682D1, 0x9B05688C2B3E6C1F, 0x1F83D9ABFB41BD6B, 0x5BE0CD19137E2179)
+	state: tuple[int,int,int,int,int,int,int,int] = initstate
 	
 	# Compress each block in the augmented message
 	for (i, block) in enumerate(cryptocommon.iter_blocks(msg, _BLOCK_SIZE)):
@@ -58,10 +61,8 @@ def hash(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	
 	# Serialize the final state
 	if printdebug:  print()
-	return b"".join(x.to_bytes(8, "big") for x in state)
+	return b"".join(x.to_bytes(8, "big") for x in state)[ : outbitlen // 8]
 
-
-# ---- Private functions ----
 
 # Requirement: All elements of state must be uint64.
 def _compress(block: bytes, state: tuple[int,int,int,int,int,int,int,int], printdebug: bool) -> tuple[int,int,int,int,int,int,int,int]:

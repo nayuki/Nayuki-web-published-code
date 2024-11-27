@@ -28,12 +28,17 @@ from cryptocommon import UINT32_MASK
 
 # ---- Public functions ----
 
-def hash(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
+def hash256(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 32 bytes."""
-	
+	return _hash(message, 256, (0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19), printdebug)
+
+
+# ---- Private functions ----
+
+def _hash(message: bytes|Sequence[int], outbitlen: int, initstate: tuple[int,int,int,int,int,int,int,int], printdebug: bool) -> bytes:
 	# Make a mutable copy for use within this function
 	msg: bytearray = bytearray(message)
-	if printdebug:  print(f"sha256hash.hash(message = {len(message)} bytes)")
+	if printdebug:  print(f"sha256hash.hash{outbitlen}(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
 	msg.append(0x80)
@@ -47,9 +52,7 @@ def hash(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	msg.extend(bitlength.to_bytes(8, "big"))
 	
 	# Initialize the hash state
-	state: tuple[int,int,int,int,int,int,int,int] = (
-		0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A,
-		0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19)
+	state: tuple[int,int,int,int,int,int,int,int] = initstate
 	
 	# Compress each block in the augmented message
 	for (i, block) in enumerate(cryptocommon.iter_blocks(msg, _BLOCK_SIZE)):
@@ -58,10 +61,8 @@ def hash(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	
 	# Serialize the final state
 	if printdebug:  print()
-	return b"".join(x.to_bytes(4, "big") for x in state)
+	return b"".join(x.to_bytes(4, "big") for x in state)[ : outbitlen // 8]
 
-
-# ---- Private functions ----
 
 # Requirement: All elements of state must be uint32.
 def _compress(block: bytes, state: tuple[int,int,int,int,int,int,int,int], printdebug: bool) -> tuple[int,int,int,int,int,int,int,int]:
