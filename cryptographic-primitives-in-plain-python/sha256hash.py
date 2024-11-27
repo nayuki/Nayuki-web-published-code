@@ -28,6 +28,11 @@ from cryptocommon import UINT32_MASK
 
 # ---- Public functions ----
 
+def hash224(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given message, returning 28 bytes."""
+	return _hash(message, 224, (0xC1059ED8, 0x367CD507, 0x3070DD17, 0xF70E5939, 0xFFC00B31, 0x68581511, 0x64F98FA7, 0xBEFA4FA4), printdebug)
+
+
 def hash256(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 32 bytes."""
 	return _hash(message, 256, (0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19), printdebug)

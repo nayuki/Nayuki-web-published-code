@@ -28,6 +28,21 @@ from cryptocommon import UINT64_MASK
 
 # ---- Public functions ----
 
+def hash512_224(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given message, returning 28 bytes."""
+	return _hash(message, 224, (0x8C3D37C819544DA2, 0x73E1996689DCD4D6, 0x1DFAB7AE32FF9C82, 0x679DD514582F9FCF, 0x0F6D2B697BD44DA8, 0x77E36F7304C48942, 0x3F9D85A86A1D36C8, 0x1112E6AD91D692A1), printdebug)
+
+
+def hash512_256(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given message, returning 32 bytes."""
+	return _hash(message, 256, (0x22312194FC2BF72C, 0x9F555FA3C84C64C2, 0x2393B86B6F53B151, 0x963877195940EABD, 0x96283EE2A88EFFE3, 0xBE5E1E2553863992, 0x2B0199FC2C85B8AA, 0x0EB72DDC81C52CA2), printdebug)
+
+
+def hash384(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
+	"""Computes the hash of the given message, returning 48 bytes."""
+	return _hash(message, 384, (0xCBBB9D5DC1059ED8, 0x629A292A367CD507, 0x9159015A3070DD17, 0x152FECD8F70E5939, 0x67332667FFC00B31, 0x8EB44A8768581511, 0xDB0C2E0D64F98FA7, 0x47B5481DBEFA4FA4), printdebug)
+
+
 def hash512(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 	"""Computes the hash of the given message, returning 64 bytes."""
 	return _hash(message, 512, (0x6A09E667F3BCC908, 0xBB67AE8584CAA73B, 0x3C6EF372FE94F82B, 0xA54FF53A5F1D36F1, 0x510E527FADE682D1, 0x9B05688C2B3E6C1F, 0x1F83D9ABFB41BD6B, 0x5BE0CD19137E2179), printdebug)
@@ -38,7 +53,7 @@ def hash512(message: bytes|Sequence[int], printdebug: bool = False) -> bytes:
 def _hash(message: bytes|Sequence[int], outbitlen: int, initstate: tuple[int,int,int,int,int,int,int,int], printdebug: bool) -> bytes:
 	# Make a mutable copy for use within this function
 	msg: bytearray = bytearray(message)
-	if printdebug:  print(f"sha512hash.hash{outbitlen}(message = {len(message)} bytes)")
+	if printdebug:  print(f"sha512hash.hash{'512_' if (outbitlen < 384) else ''}{outbitlen}(message = {len(message)} bytes)")
 	
 	# Append the termination bit (rounded up to a whole byte)
 	msg.append(0x80)

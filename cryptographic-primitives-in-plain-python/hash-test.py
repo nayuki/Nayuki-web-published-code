@@ -155,6 +155,23 @@ class HashTest(unittest.TestCase):
 		])
 	
 	
+	def test_sha224_hash(self) -> None:
+		import sha256hash
+		self._check_vs_stdlib(sha256hash.hash224, hashlib.sha224)
+		self._check_hash_function(sha256hash.hash224, [
+			("D14A028C2A3A2BC9476102BB288234C415A2B01F828EA62AC5B3E42F", b""),
+			("ABD37534C7D9A2EFB9465DE931CD7055FFDB8879563AE98078D6D6D5", b"a"),
+			("23097D223405D8228642A477BDA255B32AADBCE4BDA0B3F7E36C9DA7", b"abc"),
+			("2CB21C83AE2F004DE7E81C3C7019CBCB65B71AB656B22D6D0C39B8EB", b"message digest"),
+			("45A5F72C39C5CFF2522EB3429799E49E5F44B356EF926BCF390DCCC2", b"abcdefghijklmnopqrstuvwxyz"),
+			("75388B16512776CC5DBA5DA1FD890150B0C6455CB4F58B1952522525", b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+			("C97CA9A559850CE97A04A96DEF6D99A9E0E0E2AB14E6B8DF265FC0B3", b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
+			("20794655980C91D8BBB4C1EA97618A4BF03F42581948B2EE4EE7AD67", b"a" * 1_000_000),
+			("730E109BD7A8A32B1CB9D9A09AA2325D2430587DDBC0C38BAD911525", b"The quick brown fox jumps over the lazy dog"),
+			("619CBA8E8E05826E9B8C519C0A5C68F4FB653E8A3D8AA04BB2C8CD4C", b"The quick brown fox jumps over the lazy dog."),
+		])
+	
+	
 	def test_sha256_hash(self) -> None:
 		import sha256hash
 		self._check_vs_stdlib(sha256hash.hash256, hashlib.sha256)
@@ -167,6 +184,39 @@ class HashTest(unittest.TestCase):
 			("248D6A61D20638B8E5C026930C3E6039A33CE45964FF2167F6ECEDD419DB06C1", b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
 			("CF5B16A778AF8380036CE59E7B0492370B249B11E8F07A51AFAC45037AFEE9D1", b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
 			("CDC76E5C9914FB9281A1C7E284D73E67F1809A48A497200E046D39CCC7112CD0", b"a" * 1_000_000),
+		])
+	
+	
+	def test_sha512_224_hash(self) -> None:
+		import sha512hash
+		self._check_hash_function(sha512hash.hash512_224, [
+			("6ED0DD02806FA89E25DE060C19D3AC86CABB87D6A0DDD05C333B84F4", b""),
+			("4634270F707B6A54DAAE7530460842E20E37ED265CEEE9A43E8924AA", b"abc"),
+			("23FEC5BB94D60B23308192640B0C453335D664734FE40E7268674AF9", b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
+		])
+	
+	
+	def test_sha512_256_hash(self) -> None:
+		import sha512hash
+		self._check_hash_function(sha512hash.hash512_256, [
+			("C672B8D1EF56ED28AB87C3622C5114069BDD3AD7B8F9737498D0C01ECEF0967A", b""),
+			("53048E2681941EF99B2E29B76B4C7DABE4C2D0C634FC6D46E0E2F13107E7AF23", b"abc"),
+			("3928E184FB8690F840DA3988121D31BE65CB9D3EF83EE6146FEAC861E19B563A", b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
+		])
+	
+	
+	def test_sha384_hash(self) -> None:
+		import sha512hash
+		self._check_vs_stdlib(sha512hash.hash384, hashlib.sha384)
+		self._check_hash_function(sha512hash.hash384, [
+			("38B060A751AC96384CD9327EB1B1E36A21FDB71114BE07434C0CC7BF63F6E1DA274EDEBFE76F65FBD51AD2F14898B95B", b""),
+			("54A59B9F22B0B80880D8427E548B7C23ABD873486E1F035DCE9CD697E85175033CAA88E6D57BC35EFAE0B5AFD3145F31", b"a"),
+			("CB00753F45A35E8BB5A03D699AC65007272C32AB0EDED1631A8B605A43FF5BED8086072BA1E7CC2358BAECA134C825A7", b"abc"),
+			("473ED35167EC1F5D8E550368A3DB39BE54639F828868E9454C239FC8B52E3C61DBD0D8B4DE1390C256DCBB5D5FD99CD5", b"message digest"),
+			("FEB67349DF3DB6F5924815D6C3DC133F091809213731FE5C7B5F4999E463479FF2877F5F2936FA63BB43784B12F3EBB4", b"abcdefghijklmnopqrstuvwxyz"),
+			("3391FDDDFC8DC7393707A65B1B4709397CF8B1D162AF05ABFE8F450DE5F36BC6B0455A8520BC4E6F5FE95B1FE3C8452B", b"abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"),
+			("09330C33F71147E83D192FC782CD1B4753111B173B3B05D22FA08086E3B0F712FCC7C71A557E2DB966C3E9FA91746039", b"abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu"),
+			("9D0E1809716474CB086E834E310A4A1CED149E9C00F248527972CEC5704C2A5B07B8B3DC38ECC4EBAE97DDD87F3D8985", b"a" * 1_000_000),
 		])
 	
 	
