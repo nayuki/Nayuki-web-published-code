@@ -6,9 +6,11 @@
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
-public final class CounterBad {
+public final class CounterLock {
 	
 	// Customizable parameters
 	private static final int NUM_THREADS = 2;
@@ -16,6 +18,7 @@ public final class CounterBad {
 	
 	
 	// State variables
+	private static Lock lock = new ReentrantLock();
 	private static int count = 0;
 	
 	
@@ -23,7 +26,7 @@ public final class CounterBad {
 		// Launch threads
 		Set<Thread> threads = new HashSet<>();
 		for (int i = 0; i < NUM_THREADS; i++)
-			threads.add(new Thread(CounterBad::worker));
+			threads.add(new Thread(CounterLock::worker));
 		long elapsedTime = -System.nanoTime();
 		for (Thread th : threads)
 			th.start();
@@ -39,8 +42,14 @@ public final class CounterBad {
 	
 	
 	private static void worker() {
-		for (int i = 0; i < ITERS_PER_THREAD; i++)
-			count++;
+		for (int i = 0; i < ITERS_PER_THREAD; i++) {
+			lock.lock();
+			try {
+				count++;
+			} finally {
+				lock.unlock();
+			}
+		}
 	}
 	
 }

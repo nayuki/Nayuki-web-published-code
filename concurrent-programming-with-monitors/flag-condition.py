@@ -21,35 +21,32 @@ _flag: bool = False
 
 def main() -> None:
 	for i in range(_NUM_WAITERS):
-		threading.Thread(target=_worker, args=[i]).start()
+		threading.Thread(name=f"Worker{i}", target=_worker).start()
 	
 	duration: float = random.uniform(0.0, _MAX_SET_DELAY_S)
-	_timestamped_print(f"Main | Sleep {round(duration * 1000)} ms")
+	_timestamped_print(f"Sleep {round(duration * 1000)} ms")
 	time.sleep(duration)
 	
-	_timestamped_print("Main | Set true")
+	_timestamped_print("Set true")
 	with _lock:
 		global _flag
 		_flag = True
 		_cond.notify_all()
 
 
-def _worker(id: int) -> None:
-	def print(s: str) -> None:
-		_timestamped_print(f"Worker {id} | {s}")
-	
+def _worker() -> None:
 	with _lock:
 		while not _flag:
-			print("Get false; wait")
+			_timestamped_print("Get false; wait")
 			_cond.wait()
-	print("Get true")
+	_timestamped_print("Get true")
 
 
 _print_lock: threading.Lock = threading.Lock()
 
 def _timestamped_print(s: str) -> None:
 	relativetime: float = time.time() - _start_time
-	s = f"[{int(relativetime * 1000):5d} ms] " + s
+	s = f"[{int(relativetime * 1000):5d} ms] {threading.current_thread().name} | {s}"
 	with _print_lock:
 		print(s)
 
