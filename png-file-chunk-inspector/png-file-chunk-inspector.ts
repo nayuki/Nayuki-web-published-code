@@ -1377,8 +1377,8 @@ namespace app {
 				{
 					const unit: byte = chunk.data[0];
 					let s: string|null = lookUpTable(unit, [
-						[0, "Metre" ],
-						[1, "Radian"],
+						[1, "Metre" ],
+						[2, "Radian"],
 					]);
 					if (s === null) {
 						s = "Unknown";
