@@ -84,8 +84,6 @@ def _compress(block: bytes, state: tuple[int,int,int], printdebug: bool) -> tupl
 	
 	# Perform 24 rounds of hashing
 	for i in range(24):
-		if printdebug:  print(f"        Round {i:2d}: a={a:016X}, b={b:016X}, c={c:016X}")
-		
 		# Update the message schedule
 		if (i > 0) and (i % 8) == 0:
 			schedule[0] = (schedule[0] - (schedule[7] ^ 0xA5A5A5A5A5A5A5A5                 )) & UINT64_MASK
@@ -104,6 +102,8 @@ def _compress(block: bytes, state: tuple[int,int,int], printdebug: bool) -> tupl
 			schedule[5] = (schedule[5] ^ (schedule[4]                                      )) & UINT64_MASK
 			schedule[6] = (schedule[6] + (schedule[5]                                      )) & UINT64_MASK
 			schedule[7] = (schedule[7] - (schedule[6] ^ 0x0123456789ABCDEF                 )) & UINT64_MASK
+		
+		if printdebug:  print(f"        Round {i:2d}: a={a:016X}, b={b:016X}, c={c:016X}")
 		
 		# Perform the round calculation
 		mul: int = 5 + i // 8 * 2

@@ -117,7 +117,7 @@ class BTreeSetTest(unittest.TestCase):
 			set1.check_structure()
 			
 			# Remove each value in random order
-			for val in random.sample(set0, len(set0)):
+			for val in random.sample(list(set0), len(set0)):
 				set0.discard(val)
 				set1.discard(val)
 				if random.random() < 1.0 / min(max(len(set1), 1), 1000):
@@ -144,7 +144,7 @@ class BTreeSetTest(unittest.TestCase):
 			self.assertEqual(set0, set(set1))
 			
 			numremove: int = random.randrange(len(set0) + 1)
-			for val in random.sample(set0, numremove):
+			for val in random.sample(list(set0), numremove):
 				set0.remove(val)
 				set1.remove(val)
 			self.assertEqual(set0, set(set1))

@@ -33,8 +33,7 @@ def main(args: Sequence[str]) -> Optional[str]:
 	else:  return f"{outpath}: Unknown output type"
 	
 	# Read input
-	with inpath.open("rt") as fin:
-		incode: str = fin.read()
+	incode: str = inpath.read_text()
 	
 	# Parse and optimize Brainfuck code
 	commands: List[Command] = parse(incode)
@@ -44,8 +43,7 @@ def main(args: Sequence[str]) -> Optional[str]:
 	
 	# Write output
 	outcode: str = outfunc(commands, outpath.stem)
-	with outpath.open("wt") as fout:
-		fout.write(outcode)
+	outpath.write_text(outcode)
 	return None
 
 

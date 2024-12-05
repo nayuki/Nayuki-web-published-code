@@ -1,9 +1,9 @@
-"use strict";
 /*
- * Zeller's congruence (TypeScript)
+ * Zeller's congruence (compiled from TypeScript)
  * by Project Nayuki, 2022. Public domain.
  * https://www.nayuki.io/page/zellers-congruence
  */
+"use strict";
 /*---- Zeller's congruence function ----*/
 /**
  * Returns the day-of-week dow for the given date
