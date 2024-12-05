@@ -1,7 +1,7 @@
 # 
 # Galois linear feedback shift register (LFSR) (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2024 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/galois-linear-feedback-shift-register
 # 
@@ -11,6 +11,11 @@ import random
 
 # Random number generator class (implements most functionality of random.Random)
 class LfsrRandom(random.Random):
+	
+	characteristic: int
+	degree: int
+	state: int
+	
 	
 	def __new__(cls, *args, **kwargs):  # Magic because the superclass doesn't cooperate
 		return random.Random.__new__(cls, random.random())
@@ -57,7 +62,7 @@ class LfsrRandom(random.Random):
 # Demo main program
 if __name__ == "__main__":
 	# Polynomial: x^16 + x^14 + x^13 + x^11 + x^0
-	rand = LfsrRandom(0b10110100000000001, 1)
+	rand: LfsrRandom = LfsrRandom(0b10110100000000001, 1)
 	for i in range(10):
 		print(rand.random())
 	for i in range(20):

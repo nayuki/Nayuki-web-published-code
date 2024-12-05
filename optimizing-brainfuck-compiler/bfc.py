@@ -34,7 +34,7 @@ def main(args: Sequence[str]) -> Optional[str]:
 	
 	# Read input
 	with inpath.open("rt") as fin:
-		incode = fin.read()
+		incode: str = fin.read()
 	
 	# Parse and optimize Brainfuck code
 	commands: List[Command] = parse(incode)

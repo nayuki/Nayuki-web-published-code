@@ -1,7 +1,7 @@
 # 
 # Elliptic curve point addition in projective coordinates
 # 
-# Copyright (c) 2022 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/elliptic-curve-point-addition-in-projective-coordinates
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -145,7 +145,7 @@ class AffineCurvePoint:
 			return f"({x}, {y})"
 	
 	def __repr__(self) -> str:
-		result = "AffineCurvePoint("
+		result: str = "AffineCurvePoint("
 		if self.xy is None:
 			result += "x=None, y=None"
 		else:
@@ -295,7 +295,7 @@ class ProjectiveCurvePoint:
 			return f"({x}, {y}, {z})"
 	
 	def __repr__(self) -> str:
-		result = "ProjectiveCurvePoint("
+		result: str = "ProjectiveCurvePoint("
 		if self.xyz is None:
 			result += "x=None, y=None, z=None"
 		else:

@@ -1,7 +1,7 @@
 # 
 # B-tree set test (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2024 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/btree-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,21 +22,22 @@
 # 
 
 import random, unittest
+from typing import Set
 from btreeset import BTreeSet
 
 
 class BTreeSetTest(unittest.TestCase):
 	
-	def test_small_randomly(self):
-		TRIALS = 30
-		OPERATIONS = 100
-		VALRANGE = 1000
+	def test_small_randomly(self) -> None:
+		TRIALS: int = 30
+		OPERATIONS: int = 100
+		VALRANGE: int = 1000
 		for _ in range(TRIALS):
-			set0 = set()
-			set1 = BTreeSet(random.randrange(5) + 2)
+			set0: Set[int] = set()
+			set1: BTreeSet[int] = BTreeSet(random.randrange(5) + 2)
 			for _ in range(OPERATIONS):
 				# Add/remove a random value
-				val = random.randrange(VALRANGE)
+				val: int = random.randrange(VALRANGE)
 				if random.random() < 0.001:
 					set0.clear()
 					set1.clear()
@@ -54,17 +55,17 @@ class BTreeSetTest(unittest.TestCase):
 					self.assertEqual(k in set0, k in set1)
 	
 	
-	def test_insert_randomly(self):
-		TRIALS = 30
-		OPERATIONS = 3000
-		VALRANGE = 100000
-		CHECKS = 10
+	def test_insert_randomly(self) -> None:
+		TRIALS: int = 30
+		OPERATIONS: int = 3000
+		VALRANGE: int = 100000
+		CHECKS: int = 10
 		for _ in range(TRIALS):
-			set0 = set()
-			set1 = BTreeSet(2)
+			set0: Set[int] = set()
+			set1: BTreeSet[int] = BTreeSet(2)
 			for _ in range(OPERATIONS):
 				# Add a random value
-				val = random.randrange(VALRANGE)
+				val: int = random.randrange(VALRANGE)
 				set0.add(val)
 				set1.add(val)
 				if random.random() < 0.003:
@@ -77,17 +78,17 @@ class BTreeSetTest(unittest.TestCase):
 					self.assertEqual(val in set0, val in set1)
 	
 	
-	def test_large_randomly(self):
-		TRIALS = 10
-		OPERATIONS = 10000
-		VALRANGE = 100000
-		CHECKS = 10
+	def test_large_randomly(self) -> None:
+		TRIALS: int = 10
+		OPERATIONS: int = 10000
+		VALRANGE: int = 100000
+		CHECKS: int = 10
 		for _ in range(TRIALS):
-			set0 = set()
-			set1 = BTreeSet(random.randrange(5) + 2)
+			set0: Set[int] = set()
+			set1: BTreeSet[int] = BTreeSet(random.randrange(5) + 2)
 			for _ in range(OPERATIONS):
 				# Add/remove a random value
-				val = random.randrange(VALRANGE)
+				val: int = random.randrange(VALRANGE)
 				if random.random() < 0.5:
 					set0.add(val)
 					set1.add(val)
@@ -104,15 +105,15 @@ class BTreeSetTest(unittest.TestCase):
 					self.assertEqual(val in set0, val in set1)
 	
 	
-	def test_remove_all_randomly(self):
-		TRIALS = 10
-		LIMIT = 10000
-		VALRANGE = 100000
-		CHECKS = 10
+	def test_remove_all_randomly(self) -> None:
+		TRIALS: int = 10
+		LIMIT: int = 10000
+		VALRANGE: int = 100000
+		CHECKS: int = 10
 		for _ in range(TRIALS):
 			# Create sets and add all values
-			set0 = set(random.randrange(VALRANGE) for _ in range(LIMIT))
-			set1 = BTreeSet(random.randrange(5) + 2, set0)
+			set0: Set[int] = set(random.randrange(VALRANGE) for _ in range(LIMIT))
+			set1: BTreeSet[int] = BTreeSet(random.randrange(5) + 2, set0)
 			set1.check_structure()
 			
 			# Remove each value in random order
@@ -127,22 +128,22 @@ class BTreeSetTest(unittest.TestCase):
 					self.assertEqual(val in set0, val in set1)
 	
 	
-	def test_iterator_randomly(self):
-		TRIALS = 1000
-		OPERATIONS = 1000
-		VALRANGE = 10000
+	def test_iterator_randomly(self) -> None:
+		TRIALS: int = 1000
+		OPERATIONS: int = 1000
+		VALRANGE: int = 10000
 		for _ in range(TRIALS):
-			set0 = set()
-			set1 = BTreeSet(random.randrange(5) + 2)
+			set0: Set[int] = set()
+			set1: BTreeSet[int] = BTreeSet(random.randrange(5) + 2)
 			
-			numinsert = random.randrange(OPERATIONS)
+			numinsert: int = random.randrange(OPERATIONS)
 			for _ in range(numinsert):
-				val = random.randrange(VALRANGE)
+				val: int = random.randrange(VALRANGE)
 				set0.add(val)
 				set1.add(val)
 			self.assertEqual(set0, set(set1))
 			
-			numremove = random.randrange(len(set0) + 1)
+			numremove: int = random.randrange(len(set0) + 1)
 			for val in random.sample(set0, numremove):
 				set0.remove(val)
 				set1.remove(val)
