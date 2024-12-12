@@ -59,13 +59,13 @@ def _parse(chargen: Iterator[str], maincall: bool) -> List[Command]:
 	result: List[Command] = []
 	for c in chargen:
 		item: Command
-		if   c == "+": item = Add(0, +1)
-		elif c == "-": item = Add(0, -1)
-		elif c == "<": item = Right(-1)
-		elif c == ">": item = Right(+1)
-		elif c == ",": item = Input (0)
-		elif c == ".": item = Output(0)
-		elif c == "[": item = Loop(_parse(chargen, False))
+		if   c == "+":  item = Add(0, +1)
+		elif c == "-":  item = Add(0, -1)
+		elif c == "<":  item = Right(-1)
+		elif c == ">":  item = Right(+1)
+		elif c == ",":  item = Input (0)
+		elif c == ".":  item = Output(0)
+		elif c == "[":  item = Loop(_parse(chargen, False))
 		elif c == "]":
 			if maincall:
 				raise ValueError("Extra loop closing")
@@ -158,7 +158,7 @@ def optimize_simple_loop(commands: List[Command]) -> Optional[List[Command]]:
 	for cmd in commands:
 		# This implementation can only optimize loops that consist of only Add and Right
 		if isinstance(cmd, Add):
-			off = cmd.offset + offset
+			off: int = cmd.offset + offset
 			deltas[off] = deltas.get(off, 0) + cmd.value
 		elif isinstance(cmd, Right):
 			offset += cmd.offset
@@ -408,10 +408,7 @@ def commands_to_python(commands: List[Command], name: str, maincall: bool = True
 
 
 def plusminus(val: int) -> str:
-	if val >= 0:
-		return "+"
-	else:
-		return "-"
+	return "+" if (val >= 0) else "-"
 
 
 # ---- Intermediate representation (IR) ----
