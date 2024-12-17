@@ -1,7 +1,7 @@
 /* 
  * CRC-32 forcer (C)
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2024 Project Nayuki
  * https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -113,8 +113,10 @@ const char *modify_file_crc32(const char *path, uint64_t offset, uint32_t newcrc
 	
 	// Patch 4 bytes in the file
 	const char *errmsg = fseek64(f, offset);
-	if (errmsg != NULL)
+	if (errmsg != NULL) {
+		fclose(f);
 		return errmsg;
+	}
 	for (int i = 0; i < 4; i++) {
 		int b = fgetc(f);
 		if (b == EOF) {
