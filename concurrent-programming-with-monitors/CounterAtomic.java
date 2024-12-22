@@ -6,11 +6,10 @@
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
-public final class CounterLock {
+public final class CounterAtomic {
 	
 	// Customizable parameters
 	private static final int NUM_THREADS = 2;
@@ -18,15 +17,14 @@ public final class CounterLock {
 	
 	
 	// State variables
-	private static Lock lock = new ReentrantLock();
-	private static int count = 0;
+	private static AtomicInteger count = new AtomicInteger(0);
 	
 	
 	public static void main(String[] args) throws InterruptedException {
 		// Launch threads
 		Set<Thread> threads = new HashSet<>();
 		for (int i = 0; i < NUM_THREADS; i++)
-			threads.add(new Thread(CounterLock::worker));
+			threads.add(new Thread(CounterAtomic::worker));
 		long elapsedTime = -System.nanoTime();
 		for (Thread th : threads)
 			th.start();
@@ -35,21 +33,15 @@ public final class CounterLock {
 		for (Thread th : threads)
 			th.join();
 		elapsedTime += System.nanoTime();
-		System.out.printf("Actual count: %d%n", count);
+		System.out.printf("Actual count: %d%n", count.get());
 		System.out.printf("Expected count: %d%n", NUM_THREADS * ITERS_PER_THREAD);
 		System.out.printf("Elapsed time: %d ms%n", elapsedTime / 1_000_000);
 	}
 	
 	
 	private static void worker() {
-		for (int i = 0; i < ITERS_PER_THREAD; i++) {
-			lock.lock();
-			try {
-				count++;
-			} finally {
-				lock.unlock();
-			}
-		}
+		for (int i = 0; i < ITERS_PER_THREAD; i++)
+			count.incrementAndGet();
 	}
 	
 }

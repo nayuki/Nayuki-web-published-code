@@ -1,7 +1,7 @@
 /* 
  * Concurrent programming with monitors (Java)
  * by Project Nayuki, 2024. Public domain.
- * https://www.nayuki.io/
+ * https://www.nayuki.io/page/concurrent-programming-with-monitors
  */
 
 import java.util.Random;
