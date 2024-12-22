@@ -32,9 +32,9 @@ public final class FlagCondition {
 		timestampedPrintf("Sleep %d ms%n", duration);
 		Thread.sleep(duration);
 		
-		timestampedPrintf("Set true%n");
 		lock.lock();
 		try {
+			timestampedPrintf("Set true%n");
 			flag = true;
 			cond.signalAll();
 		} finally {

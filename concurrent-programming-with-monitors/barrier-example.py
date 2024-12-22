@@ -30,7 +30,7 @@ def _worker() -> None:
 	_timestamped_print(f"Sleep {round(duration * 1000)} ms")
 	time.sleep(duration)
 	_timestamped_print("Enter barrier")
-	_barrier.wait()
+	_barrier.join()
 	_timestamped_print("Exit barrier")
 
 
@@ -59,7 +59,7 @@ class _Barrier:
 		self._count = initcount
 	
 	
-	def wait(self) -> None:
+	def join(self) -> None:
 		with self._lock:
 			if self._count == 0:
 				raise RuntimeError("Barrier already reached zero")

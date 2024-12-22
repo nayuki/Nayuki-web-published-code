@@ -27,8 +27,8 @@ def main() -> None:
 	_timestamped_print(f"Sleep {round(duration * 1000)} ms")
 	time.sleep(duration)
 	
-	_timestamped_print("Set true")
 	with _lock:
+		_timestamped_print("Set true")
 		global _flag
 		_flag = True
 
