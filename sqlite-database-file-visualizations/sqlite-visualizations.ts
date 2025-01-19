@@ -1,12 +1,13 @@
 /* 
  * SQLite database file visualizations
  * 
- * Copyright (c) 2023 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/sqlite-database-file-visualizations
  */
 
 
+type byte = number;
 type int = number;
 
 
@@ -290,28 +291,40 @@ type int = number;
 	
 	let container = queryHtml("article section.page-owners");
 	let fileElem = subqueryElem(container, "input", HTMLInputElement);
+	let progressContainer = subqueryElem(container, "div.progress", HTMLElement);
+	let progressNumber = subqueryElem(progressContainer, "span", HTMLElement);
+	let outputContainer = subqueryElem(container, "output", HTMLElement);
 	let svgElem = subqueryElem(container, "svg", Element);
 	let tbodyElem = subqueryElem(container, "tbody", Element);
 	
 	fileElem.onchange = async (): Promise<void> => {
+		outputContainer.style.display = "none";
 		const files: FileList|null = fileElem.files;
 		if (files === null || files.length < 1)
 			return;
-		let reader = new FileReader();
-		const arrayBuf = await new Promise<ArrayBuffer>(resolve => {
-			reader.onload = () => {
-				const temp: any = reader.result;
-				if (!(temp instanceof ArrayBuffer))
-					throw new TypeError();
-				resolve(temp);
-			};
-			reader.readAsArrayBuffer(files[0]);
-		});
-		visualize(new Uint8Array(arrayBuf));
+		try {
+			fileElem.disabled = true;
+			progressContainer.style.removeProperty("display");
+			progressNumber.textContent = "0";
+			let reader = new FileReader();
+			const arrayBuf = await new Promise<ArrayBuffer>(resolve => {
+				reader.onload = () => {
+					const temp: any = reader.result;
+					if (!(temp instanceof ArrayBuffer))
+						throw new TypeError();
+					resolve(temp);
+				};
+				reader.readAsArrayBuffer(files[0]);
+			});
+			await visualize(new Uint8Array(arrayBuf));
+		} finally {
+			fileElem.disabled = false;
+			progressContainer.style.display = "none";
+		}
 	};
 	
 	
-	function visualize(fileBytes: Uint8Array): void {
+	async function visualize(fileBytes: Uint8Array): Promise<void> {
 		{
 			let formatBytes: Array<byte> = [];
 			let deser = new Deserializer(fileBytes, 0, 16);
@@ -339,14 +352,17 @@ type int = number;
 		for (let i = 0; i < numPages; i++)
 			pageOwners.push(freeSpace);
 		
+		let numPagesRead: int = 0;
+		let prevProgressTime: int = Date.now();
 		const sqliteMaster = new Owner("sqlite_master", `hsl(${(owners.length*(Math.sqrt(5)-1)/2).toFixed(3)}turn 80% 60%)`);
 		owners.push(sqliteMaster);
-		traverseBtree(sqliteMaster, 1);
+		await traverseBtree(sqliteMaster, 1);
 		owners.push(freeSpace);
 		visualizePages();
+		outputContainer.style.removeProperty("display");
 		
 		
-		function traverseBtree(owner: Owner, pageNumber: int): void {
+		async function traverseBtree(owner: Owner, pageNumber: int): Promise<void> {
 			if (!(1 <= pageNumber && pageNumber <= Math.floor(fileBytes.length / pageSize)))
 				throw new RangeError("Page number out of range");
 			pageOwners[pageNumber - 1] = owner;
@@ -377,7 +393,7 @@ type int = number;
 				let des1 = new Deserializer(page, offset, pageEnd);
 				if (isInterior) {
 					const leftChild: int = des1.readUint32();
-					traverseBtree(owner, leftChild);
+					await traverseBtree(owner, leftChild);
 				}
 				
 				if (isTable && isInterior) {
@@ -459,14 +475,21 @@ type int = number;
 								&& typeof rootpage == "number" && rootpage != 0) {
 							const nextOwner = new Owner(name, `hsl(${(owners.length*(Math.sqrt(5)-1)/2).toFixed(3)}turn 80% 60%)`);
 							owners.push(nextOwner);
-							traverseBtree(nextOwner, rootpage);
+							await traverseBtree(nextOwner, rootpage);
 						}
 					}
 				}
 			}
 			
 			if (rightChild !== null)
-				traverseBtree(owner, rightChild);
+				await traverseBtree(owner, rightChild);
+			
+			numPagesRead++;
+			if (Date.now() - prevProgressTime > 100) {
+				progressNumber.textContent = numPagesRead.toString();
+				prevProgressTime = Date.now();
+				await new Promise(resolve => setTimeout(resolve));
+			}
 		}
 		
 		
@@ -474,26 +497,33 @@ type int = number;
 			const width: int = 50;
 			const height: int = Math.ceil(numPages / width);
 			const SIZE: number = 0.9;
-			svgElem.setAttribute("viewBox", `0 0 ${width} ${height}`);
-			svgElem.replaceChildren();
+			let newSvgElem = document.createElementNS(svgElem.namespaceURI, "svg");
+			newSvgElem.setAttribute("viewBox", `0 0 ${width} ${height}`);
+			newSvgElem.replaceChildren();
 			
-			let rect: Element = svgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "rect"));
+			let rect: Element = newSvgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "rect"));
 			rect.setAttribute("x", "-1");
 			rect.setAttribute("y", "-1");
 			rect.setAttribute("width", (width + 2).toString());
 			rect.setAttribute("height", (height + 2).toString());
 			rect.setAttribute("fill", "#FFFFFF");
 			
-			let g: Element = svgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "g"));
-			g.setAttribute("transform", `translate(${(1 - SIZE) / 2} ${(1 - SIZE) / 2})`);
 			for (let i = 0; i < numPages; i++) {
-				rect = svgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "rect"));
+				rect = newSvgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "rect"));
 				rect.setAttribute("x", (i % width).toString());
 				rect.setAttribute("y", Math.floor(i / width).toString());
 				rect.setAttribute("width", SIZE.toString());
 				rect.setAttribute("height", SIZE.toString());
 				rect.setAttribute("fill", pageOwners[i].color);
+				let title: Element = rect.appendChild(document.createElementNS(svgElem.namespaceURI, "title"));
+				title.textContent = pageOwners[i].name;
 			}
+			
+			let parent: Element|null = svgElem.parentElement;
+			if (parent === null)
+				throw new TypeError();
+			parent.replaceChild(newSvgElem, svgElem);
+			svgElem = newSvgElem;
 			
 			tbodyElem.replaceChildren();
 			for (const owner of owners) {

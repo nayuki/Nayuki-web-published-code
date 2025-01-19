@@ -1,7 +1,7 @@
 /*
  * SQLite database file visualizations (compiled from TypeScript)
  *
- * Copyright (c) 2023 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/sqlite-database-file-visualizations
  */
@@ -252,25 +252,38 @@
 (function () {
     let container = queryHtml("article section.page-owners");
     let fileElem = subqueryElem(container, "input", HTMLInputElement);
+    let progressContainer = subqueryElem(container, "div.progress", HTMLElement);
+    let progressNumber = subqueryElem(progressContainer, "span", HTMLElement);
+    let outputContainer = subqueryElem(container, "output", HTMLElement);
     let svgElem = subqueryElem(container, "svg", Element);
     let tbodyElem = subqueryElem(container, "tbody", Element);
     fileElem.onchange = async () => {
+        outputContainer.style.display = "none";
         const files = fileElem.files;
         if (files === null || files.length < 1)
             return;
-        let reader = new FileReader();
-        const arrayBuf = await new Promise(resolve => {
-            reader.onload = () => {
-                const temp = reader.result;
-                if (!(temp instanceof ArrayBuffer))
-                    throw new TypeError();
-                resolve(temp);
-            };
-            reader.readAsArrayBuffer(files[0]);
-        });
-        visualize(new Uint8Array(arrayBuf));
+        try {
+            fileElem.disabled = true;
+            progressContainer.style.removeProperty("display");
+            progressNumber.textContent = "0";
+            let reader = new FileReader();
+            const arrayBuf = await new Promise(resolve => {
+                reader.onload = () => {
+                    const temp = reader.result;
+                    if (!(temp instanceof ArrayBuffer))
+                        throw new TypeError();
+                    resolve(temp);
+                };
+                reader.readAsArrayBuffer(files[0]);
+            });
+            await visualize(new Uint8Array(arrayBuf));
+        }
+        finally {
+            fileElem.disabled = false;
+            progressContainer.style.display = "none";
+        }
     };
-    function visualize(fileBytes) {
+    async function visualize(fileBytes) {
         {
             let formatBytes = [];
             let deser = new Deserializer(fileBytes, 0, 16);
@@ -295,12 +308,15 @@
         const freeSpace = new Owner("Free space", "#404040");
         for (let i = 0; i < numPages; i++)
             pageOwners.push(freeSpace);
+        let numPagesRead = 0;
+        let prevProgressTime = Date.now();
         const sqliteMaster = new Owner("sqlite_master", `hsl(${(owners.length * (Math.sqrt(5) - 1) / 2).toFixed(3)}turn 80% 60%)`);
         owners.push(sqliteMaster);
-        traverseBtree(sqliteMaster, 1);
+        await traverseBtree(sqliteMaster, 1);
         owners.push(freeSpace);
         visualizePages();
-        function traverseBtree(owner, pageNumber) {
+        outputContainer.style.removeProperty("display");
+        async function traverseBtree(owner, pageNumber) {
             if (!(1 <= pageNumber && pageNumber <= Math.floor(fileBytes.length / pageSize)))
                 throw new RangeError("Page number out of range");
             pageOwners[pageNumber - 1] = owner;
@@ -326,7 +342,7 @@
                 let des1 = new Deserializer(page, offset, pageEnd);
                 if (isInterior) {
                     const leftChild = des1.readUint32();
-                    traverseBtree(owner, leftChild);
+                    await traverseBtree(owner, leftChild);
                 }
                 if (isTable && isInterior) {
                     const key = des1.readVarint();
@@ -408,36 +424,48 @@
                             && typeof rootpage == "number" && rootpage != 0) {
                             const nextOwner = new Owner(name, `hsl(${(owners.length * (Math.sqrt(5) - 1) / 2).toFixed(3)}turn 80% 60%)`);
                             owners.push(nextOwner);
-                            traverseBtree(nextOwner, rootpage);
+                            await traverseBtree(nextOwner, rootpage);
                         }
                     }
                 }
             }
             if (rightChild !== null)
-                traverseBtree(owner, rightChild);
+                await traverseBtree(owner, rightChild);
+            numPagesRead++;
+            if (Date.now() - prevProgressTime > 100) {
+                progressNumber.textContent = numPagesRead.toString();
+                prevProgressTime = Date.now();
+                await new Promise(resolve => setTimeout(resolve));
+            }
         }
         function visualizePages() {
             const width = 50;
             const height = Math.ceil(numPages / width);
             const SIZE = 0.9;
-            svgElem.setAttribute("viewBox", `0 0 ${width} ${height}`);
-            svgElem.replaceChildren();
-            let rect = svgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "rect"));
+            let newSvgElem = document.createElementNS(svgElem.namespaceURI, "svg");
+            newSvgElem.setAttribute("viewBox", `0 0 ${width} ${height}`);
+            newSvgElem.replaceChildren();
+            let rect = newSvgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "rect"));
             rect.setAttribute("x", "-1");
             rect.setAttribute("y", "-1");
             rect.setAttribute("width", (width + 2).toString());
             rect.setAttribute("height", (height + 2).toString());
             rect.setAttribute("fill", "#FFFFFF");
-            let g = svgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "g"));
-            g.setAttribute("transform", `translate(${(1 - SIZE) / 2} ${(1 - SIZE) / 2})`);
             for (let i = 0; i < numPages; i++) {
-                rect = svgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "rect"));
+                rect = newSvgElem.appendChild(document.createElementNS(svgElem.namespaceURI, "rect"));
                 rect.setAttribute("x", (i % width).toString());
                 rect.setAttribute("y", Math.floor(i / width).toString());
                 rect.setAttribute("width", SIZE.toString());
                 rect.setAttribute("height", SIZE.toString());
                 rect.setAttribute("fill", pageOwners[i].color);
+                let title = rect.appendChild(document.createElementNS(svgElem.namespaceURI, "title"));
+                title.textContent = pageOwners[i].name;
             }
+            let parent = svgElem.parentElement;
+            if (parent === null)
+                throw new TypeError();
+            parent.replaceChild(newSvgElem, svgElem);
+            svgElem = newSvgElem;
             tbodyElem.replaceChildren();
             for (const owner of owners) {
                 let tr = tbodyElem.appendChild(document.createElement("tr"));
