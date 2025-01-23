@@ -1,7 +1,7 @@
 /* 
  * Triangle solver
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/triangle-solver-javascript
  */
@@ -265,14 +265,14 @@ function initImageMap() {
 			
 			// Set hover element style
 			let hovelem = document.getElementById("hoveroutput");
-			hovelem.style.display = "block";
+			hovelem.hidden = false;
 			hovelem.style.left = rect[0] * containerWidth + "em";
 			hovelem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
 		};
 		
 		elem.onmouseout = () => {
 			setElementText("hoveroutput", "");
-			document.getElementById("hoveroutput").style.display = "none";
+			document.getElementById("hoveroutput").hidden = true;
 		};
 		elem.onclick = ev => {
 			ev.preventDefault();

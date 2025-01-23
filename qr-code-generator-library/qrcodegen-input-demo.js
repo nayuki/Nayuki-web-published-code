@@ -24,8 +24,8 @@
 var app;
 (function (app) {
     function initialize() {
-        getElem("loading").style.display = "none";
-        getElem("loaded").style.removeProperty("display");
+        getElem("loading").hidden = true;
+        getElem("loaded").hidden = false;
         let elems = document.querySelectorAll("input[type=number], input[type=text], textarea");
         for (let el of elems) {
             if (el.id.indexOf("version-") != 0)
@@ -40,20 +40,14 @@ var app;
         // Show/hide rows based on bitmap/vector image output
         const bitmapOutput = getInput("output-format-bitmap").checked;
         const scaleRow = getElem("scale-row");
+        scaleRow.hidden = !bitmapOutput;
         let download = getElem("download");
-        if (bitmapOutput) {
-            scaleRow.style.removeProperty("display");
-            download.download = "qr-code.png";
-        }
-        else {
-            scaleRow.style.display = "none";
-            download.download = "qr-code.svg";
-        }
+        download.download = "qr-code." + (bitmapOutput ? "png" : "svg");
         download.removeAttribute("href");
         // Reset output images in case of early termination
         const canvas = getElem("qrcode-canvas");
         const svg = document.getElementById("qrcode-svg");
-        canvas.style.display = "none";
+        canvas.hidden = true;
         svg.style.display = "none";
         // Returns a QrCode.Ecc object based on the radio buttons in the HTML form.
         function getInputErrorCorrectionLevel() {
@@ -86,7 +80,7 @@ var app;
             if (scale <= 0 || scale > 30)
                 return;
             drawCanvas(qr, scale, border, lightColor, darkColor, canvas);
-            canvas.style.removeProperty("display");
+            canvas.hidden = false;
             download.href = canvas.toDataURL("image/png");
         }
         else {

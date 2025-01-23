@@ -1,7 +1,7 @@
 /* 
  * Optimal text segmentation for QR Codes
  * 
- * Copyright (c) 2024 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/optimal-text-segmentation-for-qr-codes
  */
@@ -138,7 +138,7 @@ namespace app {
 		link.remove();
 		
 		let target = getElem(targetId);
-		target.style.removeProperty("display");
+		target.hidden = false;
 		const newHeight: number = target.clientHeight;
 		target.style.height = "0px";
 		target.style.overflow = "hidden";

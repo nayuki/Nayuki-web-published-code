@@ -1,7 +1,7 @@
 /* 
  * Master theorem solver
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/master-theorem-solver
  */
@@ -30,13 +30,13 @@ const app = new function() {
 			oldSpanElem.style.color = "#E0E0E0";
 			let newSpanElem = document.createElement("span");
 			newSpanElem.textContent = text;
-			newSpanElem.style.display = "none";
+			newSpanElem.hidden = true;
 			this.containerElem.append(newSpanElem);
 			MathJax.Hub.Queue(["Typeset", MathJax.Hub, newSpanElem]);
 			MathJax.Hub.Queue(() => {
 				if (oldSpanElem.parentNode !== null)
 					oldSpanElem.remove();
-				newSpanElem.style.removeProperty("display");
+				newSpanElem.hidden = false;
 				if (this.nextText === text || this.nextText === null)
 					this.nextText = null;
 				else

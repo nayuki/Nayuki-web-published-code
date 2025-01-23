@@ -1,7 +1,7 @@
 /*
  * PNG file chunk inspector (compiled from TypeScript)
  *
- * Copyright (c) 2024 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/png-file-chunk-inspector
  */
@@ -27,13 +27,13 @@ var app;
             if (ignoreSelect)
                 return;
             else if (selectElem.selectedIndex == 0)
-                aElem.style.display = "none";
+                aElem.hidden = true;
             else {
                 ignoreFile = true;
                 fileElem.value = "";
                 ignoreFile = false;
                 const filePath = "/res/png-file-chunk-inspector/" + selectElem.value;
-                aElem.style.removeProperty("display");
+                aElem.hidden = false;
                 aElem.href = filePath;
                 let xhr = new XMLHttpRequest();
                 xhr.onload = () => visualizeFile(xhr.response, checkboxElem.checked);
@@ -48,7 +48,7 @@ var app;
             ignoreSelect = true;
             selectElem.selectedIndex = 0;
             ignoreSelect = false;
-            aElem.style.display = "none";
+            aElem.hidden = true;
             const files = fileElem.files;
             if (files === null || files.length < 1)
                 return;

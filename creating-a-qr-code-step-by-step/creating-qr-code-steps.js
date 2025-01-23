@@ -1,7 +1,7 @@
 /*
  * Creating a QR Code step by step (compiled from TypeScript)
  *
- * Copyright (c) 2024 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/creating-a-qr-code-step-by-step
  */
@@ -846,14 +846,11 @@ var app;
             checkbox.checked = true;
             checkbox.id = "step" + stepStr;
             let onChange = () => {
-                if (checkbox.checked) {
-                    parent.style.removeProperty("display");
+                parent.hidden = !checkbox.checked;
+                if (checkbox.checked)
                     label.classList.add("checked");
-                }
-                else {
-                    parent.style.display = "none";
+                else
                     label.classList.remove("checked");
-                }
             };
             checkbox.onchange = onChange;
             onChange();
@@ -1219,15 +1216,9 @@ var app;
         getSvgAndDrawQrCode("alignment-patterns", qr);
         qr.clearNewFlags();
         let alignPatContainer = getElem("alignment-patterns-container");
-        if (qr.version == 1)
-            alignPatContainer.style.display = "none";
-        else
-            alignPatContainer.style.removeProperty("display");
+        alignPatContainer.hidden = qr.version == 1;
         let alignOverlapTiming = getElem("alignment-patterns-overlap-timing");
-        if (qr.version < 7)
-            alignOverlapTiming.style.display = "none";
-        else
-            alignOverlapTiming.style.removeProperty("display");
+        alignOverlapTiming.hidden = qr.version < 7;
         qr.drawFormatBits(-1);
         getSvgAndDrawQrCode("dummy-format-bits", qr);
         qr.clearNewFlags();
@@ -1235,10 +1226,7 @@ var app;
         getSvgAndDrawQrCode("version-information", qr);
         qr.clearNewFlags();
         let verInfoContainer = getElem("version-information-container");
-        if (qr.version < 7)
-            verInfoContainer.style.display = "none";
-        else
-            verInfoContainer.style.removeProperty("display");
+        verInfoContainer.hidden = qr.version < 7;
     }
     function doStep6(qr, allCodewords) {
         const zigZagScan = qr.makeZigZagScan();

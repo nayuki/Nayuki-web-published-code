@@ -1,7 +1,7 @@
 /* 
  * Brainfuck interpreter
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/brainfuck-interpreter-javascript
  */
@@ -43,8 +43,8 @@ namespace app {
 			alert("Error: " + e.message);
 			return;
 		}
-		inputsElem.style.display = "none";
-		outputsElem.style.removeProperty("display");
+		inputsElem.hidden = true;
+		outputsElem.hidden = false;
 		stepButton.focus();
 	}
 	
@@ -54,8 +54,8 @@ namespace app {
 			instance.pause();
 			instance = null;
 		}
-		outputsElem.style.display = "none";
-		inputsElem.style.removeProperty("display");
+		outputsElem.hidden = true;
+		inputsElem.hidden = false;
 	}
 	
 	

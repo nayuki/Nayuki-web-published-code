@@ -1,7 +1,7 @@
 /*
  * Brainfuck interpreter (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/brainfuck-interpreter-javascript
  */
@@ -34,8 +34,8 @@ var app;
             alert("Error: " + e.message);
             return;
         }
-        inputsElem.style.display = "none";
-        outputsElem.style.removeProperty("display");
+        inputsElem.hidden = true;
+        outputsElem.hidden = false;
         stepButton.focus();
     }
     app.doExecute = doExecute;
@@ -44,8 +44,8 @@ var app;
             instance.pause();
             instance = null;
         }
-        outputsElem.style.display = "none";
-        inputsElem.style.removeProperty("display");
+        outputsElem.hidden = true;
+        inputsElem.hidden = false;
     }
     app.doEditCodeInput = doEditCodeInput;
     /*---- Visual brainfuck machine ----*/
