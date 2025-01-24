@@ -298,13 +298,13 @@ type int = number;
 	let tbodyElem = subqueryElem(container, "tbody", Element);
 	
 	fileElem.onchange = async (): Promise<void> => {
-		outputContainer.style.display = "none";
+		outputContainer.hidden = true;
 		const files: FileList|null = fileElem.files;
 		if (files === null || files.length < 1)
 			return;
 		try {
 			fileElem.disabled = true;
-			progressContainer.style.removeProperty("display");
+			progressContainer.hidden = false;
 			progressNumber.textContent = "0";
 			let reader = new FileReader();
 			const arrayBuf = await new Promise<ArrayBuffer>(resolve => {
@@ -319,7 +319,7 @@ type int = number;
 			await visualize(new Uint8Array(arrayBuf));
 		} finally {
 			fileElem.disabled = false;
-			progressContainer.style.display = "none";
+			progressContainer.hidden = true;
 		}
 	};
 	
@@ -359,7 +359,7 @@ type int = number;
 		await traverseBtree(sqliteMaster, 1);
 		owners.push(freeSpace);
 		visualizePages();
-		outputContainer.style.removeProperty("display");
+		outputContainer.hidden = false;
 		
 		
 		async function traverseBtree(owner: Owner, pageNumber: int): Promise<void> {

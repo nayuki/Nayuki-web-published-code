@@ -258,13 +258,13 @@
     let svgElem = subqueryElem(container, "svg", Element);
     let tbodyElem = subqueryElem(container, "tbody", Element);
     fileElem.onchange = async () => {
-        outputContainer.style.display = "none";
+        outputContainer.hidden = true;
         const files = fileElem.files;
         if (files === null || files.length < 1)
             return;
         try {
             fileElem.disabled = true;
-            progressContainer.style.removeProperty("display");
+            progressContainer.hidden = false;
             progressNumber.textContent = "0";
             let reader = new FileReader();
             const arrayBuf = await new Promise(resolve => {
@@ -280,7 +280,7 @@
         }
         finally {
             fileElem.disabled = false;
-            progressContainer.style.display = "none";
+            progressContainer.hidden = true;
         }
     };
     async function visualize(fileBytes) {
@@ -315,7 +315,7 @@
         await traverseBtree(sqliteMaster, 1);
         owners.push(freeSpace);
         visualizePages();
-        outputContainer.style.removeProperty("display");
+        outputContainer.hidden = false;
         async function traverseBtree(owner, pageNumber) {
             if (!(1 <= pageNumber && pageNumber <= Math.floor(fileBytes.length / pageSize)))
                 throw new RangeError("Page number out of range");
