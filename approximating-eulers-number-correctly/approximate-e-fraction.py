@@ -44,7 +44,7 @@ def compute_eulers_number(accuracy: int) -> str:
 	while True:
 		term: Fraction = Fraction(1, factorial)
 		sum += term
-		if i >= 1 and factorial > error_target:  # i.e. term < 1/error_target
+		if (i >= 1) and (factorial > error_target):  # i.e. term < 1/error_target
 			lower: int = round_fraction(sum * scaler)
 			upper: int = round_fraction((sum + term) * scaler)
 			if lower == upper:
@@ -62,7 +62,7 @@ HALF_FRACTION: Fraction = Fraction(1, 2)
 def round_fraction(num: Fraction) -> int:
 	result: int = num.numerator // num.denominator
 	error: Fraction = num - Fraction(result)
-	if error > HALF_FRACTION or (error == HALF_FRACTION and result & 1 == 1):
+	if (error > HALF_FRACTION) or ((error == HALF_FRACTION) and (result & 1 == 1)):
 		result += 1
 	return result
 

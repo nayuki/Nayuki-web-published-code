@@ -1,6 +1,6 @@
 # 
 # Next lexicographical permutation algorithm (Python)
-# by Project Nayuki, 2014. Public domain.
+# by Project Nayuki, 2025. Public domain.
 # https://www.nayuki.io/page/next-lexicographical-permutation-algorithm
 # 
 
@@ -14,7 +14,7 @@
 def next_permutation(arr):
 	# Find non-increasing suffix
 	i = len(arr) - 1
-	while i > 0 and arr[i - 1] >= arr[i]:
+	while (i > 0) and (arr[i - 1] >= arr[i]):
 		i -= 1
 	if i <= 0:
 		return False
@@ -47,7 +47,7 @@ def next_permutation(arr):
 def next_permutation_comp(arr, comp):
 	# Find non-increasing suffix
 	i = len(arr) - 1
-	while i > 0 and comp(arr[i - 1], arr[i]) >= 0:
+	while (i > 0) and (comp(arr[i - 1], arr[i]) >= 0):
 		i -= 1
 	if i <= 0:
 		return False

@@ -4,7 +4,7 @@
 # This script translates brainfuck source code into C/Java/Python source code.
 # Usage: python bfc.py BrainfuckFile OutputFile.c/java/py
 # 
-# Copyright (c) 2024 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/optimizing-brainfuck-compiler
 # 
@@ -93,9 +93,9 @@ def optimize(commands: List[Command]) -> List[Command]:
 		if isinstance(cmd, Assign):
 			# Try to fuse into previous command
 			off = cmd.offset + offset
-			prev = result[-1] if len(result) >= 1 else None
-			if isinstance(prev, (Add,Assign)) and prev.offset == off \
-					or isinstance(prev, (MultAdd,MultAssign)) and prev.destOff == off:
+			prev = result[-1] if (len(result) >= 1) else None
+			if (isinstance(prev, (Add,Assign)) and (prev.offset == off)) \
+					or (isinstance(prev, (MultAdd,MultAssign)) and (prev.destOff == off)):
 				del result[-1]
 			result.append(Assign(off, cmd.value))
 		elif isinstance(cmd, MultAssign):
@@ -103,18 +103,18 @@ def optimize(commands: List[Command]) -> List[Command]:
 		elif isinstance(cmd, Add):
 			# Try to fuse into previous command
 			off = cmd.offset + offset
-			prev = result[-1] if len(result) >= 1 else None
-			if isinstance(prev, Add) and prev.offset == off:
+			prev = result[-1] if (len(result) >= 1) else None
+			if isinstance(prev, Add) and (prev.offset == off):
 				prev.value = (prev.value + cmd.value) & 0xFF
-			elif isinstance(prev, Assign) and prev.offset == off:
+			elif isinstance(prev, Assign) and (prev.offset == off):
 				prev.value = (prev.value + cmd.value) & 0xFF
 			else:
 				result.append(Add(off, cmd.value))
 		elif isinstance(cmd, MultAdd):
 			# Try to fuse into previous command
 			off = cmd.destOff + offset
-			prev = result[-1] if len(result) >= 1 else None
-			if isinstance(prev, Assign) and prev.offset == off and prev.value == 0:
+			prev = result[-1] if (len(result) >= 1) else None
+			if isinstance(prev, Assign) and (prev.offset == off) and (prev.value == 0):
 				result[-1] = MultAssign(cmd.srcOff + offset, off, cmd.value)
 			else:
 				result.append(MultAdd(cmd.srcOff + offset, off, cmd.value))
@@ -165,7 +165,7 @@ def optimize_simple_loop(commands: List[Command]) -> Optional[List[Command]]:
 		else:
 			return None
 	# Can't optimize if a loop iteration has a net pointer movement, or if the cell being tested isn't decremented by 1
-	if offset != 0 or deltas.get(0, 0) != -1:
+	if (offset != 0) or (deltas.get(0, 0) != -1):
 		return None
 	
 	# Convert the loop into a list of multiply-add commands that source from the cell being tested
@@ -212,7 +212,7 @@ def optimize_complex_loop(commands: List[Command]) -> Optional[If]:
 	if origindelta != -1:
 		return None
 	for cmd in result:
-		if isinstance(cmd, (MultAdd,MultAssign)) and cmd.srcOff not in clears:
+		if isinstance(cmd, (MultAdd,MultAssign)) and (cmd.srcOff not in clears):
 			return None
 	
 	result.append(Assign(0, 0))

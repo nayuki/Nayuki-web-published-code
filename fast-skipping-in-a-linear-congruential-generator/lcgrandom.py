@@ -61,10 +61,10 @@ class LcgRandom(random.Random):
 	
 	
 	def __init__(self, a: int, b: int, m: int, seed: int):
-		assert isinstance(a, int) and a > 0
-		assert isinstance(b, int) and b >= 0
-		assert isinstance(m, int) and m > 0
-		assert isinstance(seed, int) and 0 <= seed < m
+		assert isinstance(a, int) and (a > 0)
+		assert isinstance(b, int) and (b >= 0)
+		assert isinstance(m, int) and (m > 0)
+		assert isinstance(seed, int) and (0 <= seed < m)
 		
 		self.a = a     # Multiplier
 		self.ainv = pow(a, -1, m)

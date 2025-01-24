@@ -12,7 +12,7 @@ _CUTOFF = 1536
 
 
 def multiply(x: int, y: int) -> int:
-	if x.bit_length() <= _CUTOFF or y.bit_length() <= _CUTOFF:  # Base case
+	if (x.bit_length() <= _CUTOFF) or (y.bit_length() <= _CUTOFF):  # Base case
 		return x * y
 	
 	else:

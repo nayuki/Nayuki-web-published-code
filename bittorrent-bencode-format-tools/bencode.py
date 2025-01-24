@@ -102,7 +102,7 @@ class _Parser:
 				break
 			
 			if buf == b"":
-				ok = b == b"-" or b"0" <= b <= b"9"
+				ok = (b == b"-") or (b"0" <= b <= b"9")
 			elif buf == b"-":
 				ok = b"1" <= b <= b"9"
 			elif buf == b"0":
@@ -130,7 +130,7 @@ class _Parser:
 		buf = bytearray()
 		b = head
 		while True:
-			if b < b"0" or b > b"9" or buf == b"0":
+			if (b < b"0") or (b > b"9") or (buf == b"0"):
 				raise ValueError("Unexpected integer character")
 			buf.append(b[0])
 			b = self.read_byte()
@@ -157,7 +157,7 @@ class _Parser:
 			if b == b"e":
 				break
 			key = self._parse_byte_string(b)
-			if prevkey is not None and key <= prevkey:
+			if (prevkey is not None) and (key <= prevkey):
 				raise ValueError("Misordered dictionary key")
 			prevkey = key
 			result[key] = self.parse_value(self.read_byte())

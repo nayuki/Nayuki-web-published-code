@@ -52,7 +52,7 @@ def compute_exp_internal(x: int, accuracy: int, extra_precision: int) -> Optiona
 		term_low  = term_low  * x // accuracy_scaler
 		term_high = term_high * x // accuracy_scaler + 1
 		
-		if i > floor_x and term_high < extra_scaler:
+		if (i > floor_x) and (term_high < extra_scaler):
 			sum_upper_bound: int = sum_high + term_high
 			temp: int = divide_and_round(sum_low, extra_scaler)
 			if divide_and_round(sum_upper_bound, extra_scaler) == temp:
@@ -68,7 +68,7 @@ def compute_exp_internal(x: int, accuracy: int, extra_precision: int) -> Optiona
 # Round-half-to-even is implemented here, but truncation, flooring, etc. are acceptable too.
 def divide_and_round(num: int, div: int) -> int:
 	quot, rem = divmod(num, div)
-	if rem * 2 > div or (rem * 2 == div and quot & 1 == 1):
+	if (rem * 2 > div) or ((rem * 2 == div) and (quot & 1 == 1)):
 		quot += 1
 	return quot
 

@@ -1,7 +1,7 @@
 # 
 # BitTorrent bencode coder test suite (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/bittorrent-bencode-format-tools
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -238,9 +238,9 @@ class BencodeTest(unittest.TestCase):
 				BencodeTest._deep_equals(xe, ye)
 				for (xe, ye) in zip(x, y))
 		elif bencode.is_dict(x) and bencode.is_dict(y):
-			return len(x) == len(y) and all(
+			return (len(x) == len(y)) and all(
 				bencode.is_bytes(xk) and bencode.is_bytes(yk) and
-				xk == yk and BencodeTest._deep_equals(xv, yv)
+				(xk == yk) and BencodeTest._deep_equals(xv, yv)
 				for ((xk, xv), (yk, yv)) in zip(sorted(x.items()), sorted(y.items())))
 		else:
 			raise ValueError("Invalid type")

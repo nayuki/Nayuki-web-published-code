@@ -57,7 +57,7 @@ def compute_eulers_number_internal(accuracy: int, extra_precision: int) -> Optio
 		sum_low  += term_low
 		sum_high += term_high
 		
-		if i >= 1 and term_high < extra_scaler:
+		if (i >= 1) and (term_high < extra_scaler):
 			sum_upper_bound: int = sum_high + term_high
 			temp: int = divide_and_round(sum_low, extra_scaler)
 			if divide_and_round(sum_upper_bound, extra_scaler) == temp:
@@ -74,7 +74,7 @@ def compute_eulers_number_internal(accuracy: int, extra_precision: int) -> Optio
 # Round-half-to-even is implemented here, but truncation, flooring, etc. are acceptable too.
 def divide_and_round(num: int, div: int) -> int:
 	quot, rem = divmod(num, div)
-	if rem * 2 > div or (rem * 2 == div and quot & 1 == 1):
+	if (rem * 2 > div) or ((rem * 2 == div) and (quot & 1 == 1)):
 		quot += 1
 	return quot
 

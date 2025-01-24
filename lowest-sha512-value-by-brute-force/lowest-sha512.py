@@ -15,7 +15,7 @@ def main() -> None:
 	MSG_LEN: int = 12
 	START_CHAR: int = ord("a")
 	END_CHAR  : int = ord("z")
-	assert isinstance(MSG_LEN, int) and MSG_LEN > 0
+	assert isinstance(MSG_LEN, int) and (MSG_LEN > 0)
 	assert isinstance(START_CHAR, int) and isinstance(END_CHAR, int)
 	assert 0 <= START_CHAR < END_CHAR < 256
 	
@@ -27,13 +27,13 @@ def main() -> None:
 	for trials in itertools.count():
 		# Hash message and compare with lowest
 		hash: str = hashlib.sha512(message).hexdigest()
-		if lowesthash is None or hash < lowesthash:
+		if (lowesthash is None) or (hash < lowesthash):
 			lowesthash = hash
 			print(f"Trial #{trials}:  sha512({message.decode('ASCII')}) = {hash[ : 24]}...")
 		
 		# Increment message. For example, "aa" -> "ab", "fnzz" -> "foaa".
 		i: int = MSG_LEN - 1
-		while i >= 0 and message[i] == END_CHAR:
+		while (i >= 0) and (message[i] == END_CHAR):
 			message[i] = START_CHAR
 			i -= 1
 		if i < 0:
