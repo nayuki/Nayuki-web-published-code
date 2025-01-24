@@ -40,11 +40,6 @@ def calc_totp(
 	if timestamp is None:
 		timestamp = int(time.time())
 	
-	# Check arguments
-	assert isinstance(epoch    , int)
-	assert isinstance(timestep , int)
-	assert isinstance(timestamp, int)
-	
 	# Calculate HOTP
 	timecounter: int = (timestamp - epoch) // timestep
 	return calc_hotp(secretkey, struct.pack(">Q", timecounter), codelen, hashfunc)
@@ -59,9 +54,7 @@ def calc_hotp(
 		) -> str:
 	
 	# Check arguments
-	assert isinstance(secretkey, (bytes, bytearray))
-	assert isinstance(counter  , (bytes, bytearray))
-	assert isinstance(codelen  , int) and 1 <= codelen <= 9
+	assert 1 <= codelen <= 9
 	
 	# Calculate HMAC
 	hasher = hmac.new(secretkey, counter, hashfunc)

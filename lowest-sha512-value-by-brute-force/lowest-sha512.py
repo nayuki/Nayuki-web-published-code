@@ -15,8 +15,7 @@ def main() -> None:
 	MSG_LEN: int = 12
 	START_CHAR: int = ord("a")
 	END_CHAR  : int = ord("z")
-	assert isinstance(MSG_LEN, int) and (MSG_LEN > 0)
-	assert isinstance(START_CHAR, int) and isinstance(END_CHAR, int)
+	assert MSG_LEN > 0
 	assert 0 <= START_CHAR < END_CHAR < 256
 	
 	# Initialize values

@@ -1,7 +1,7 @@
 # 
 # Galois linear feedback shift register (LFSR) (Python)
 # 
-# Copyright (c) 2024 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/galois-linear-feedback-shift-register
 # 
@@ -22,9 +22,6 @@ class LfsrRandom(random.Random):
 	
 	
 	def __init__(self, charis: int, state: int):
-		assert isinstance(charis, int)
-		assert isinstance(state, int)
-		
 		if charis < 0:
 			raise ValueError("Invalid characteristic polynomial - negative")
 		if charis.bit_length() < 2:

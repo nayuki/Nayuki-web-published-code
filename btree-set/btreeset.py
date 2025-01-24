@@ -1,7 +1,7 @@
 # 
 # B-tree set (Python)
 # 
-# Copyright (c) 2024 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/btree-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -45,8 +45,6 @@ class BTreeSet(Generic[E]):
 	
 	# The degree is the minimum number of children each non-root internal node must have.
 	def __init__(self, degree: int, coll: Optional[Iterable[E]] = None):
-		if not isinstance(degree, int):
-			raise TypeError()
 		if degree < 2:
 			raise ValueError("Degree must be at least 2")
 		self.minkeys = degree - 1      # At least 1, equal to degree-1
