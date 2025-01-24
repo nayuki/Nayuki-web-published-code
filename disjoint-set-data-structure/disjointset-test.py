@@ -127,7 +127,7 @@ class NaiveDisjointSet:
 		return sum(1 for r in self.representatives if r == repr)
 	
 	def are_in_same_set(self, elemindex0: int, elemindex1: int) -> bool:
-		return self.representatives[elemindex0] ==  self.representatives[elemindex1]
+		return self.representatives[elemindex0] == self.representatives[elemindex1]
 	
 	def merge_sets(self, elemindex0: int, elemindex1: int) -> bool:
 		repr0: int = self.representatives[elemindex0]

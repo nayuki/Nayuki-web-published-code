@@ -68,6 +68,7 @@ def compute_eulers_number_internal(accuracy: int, extra_precision: int) -> Optio
 		i += 1
 		term_low  = term_low  // i
 		term_high = term_high // i + 1
+	return None
 
 
 # Any rounding mode works correctly with compute_eulers_number_internal().

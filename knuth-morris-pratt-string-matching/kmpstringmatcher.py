@@ -42,10 +42,10 @@ def kmp_search(pattern: str, text: str) -> Optional[int]:
 	
 	# Walk through text string
 	j = 0  # Number of chars matched in pattern
-	for i in range(len(text)):
-		while (j > 0) and (text[i] != pattern[j]):
+	for (i, c) in enumerate(text):
+		while (j > 0) and (c != pattern[j]):
 			j = lsp[j - 1]  # Fall back in the pattern
-		if text[i] == pattern[j]:
+		if c == pattern[j]:
 			j += 1  # Next char matched, increment position
 			if j == len(pattern):
 				return i - (j - 1)
