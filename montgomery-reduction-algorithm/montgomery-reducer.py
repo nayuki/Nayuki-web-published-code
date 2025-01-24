@@ -1,7 +1,7 @@
 # 
 # Montgomery reduction algorithm (Python)
 # 
-# Copyright (c) 2022 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/montgomery-reduction-algorithm
 # 
@@ -15,7 +15,7 @@ class MontgomeryReducerTest(unittest.TestCase):
 		for _ in range(3000):
 			bitlen: int = random.randint(2, 100)
 			mod: int = random.randrange(1 << bitlen, 2 << bitlen) | 1  # Force it to be odd
-			mr = MontgomeryReducer(mod)
+			mr: MontgomeryReducer = MontgomeryReducer(mod)
 			
 			for _ in range(100):
 				x: int = random.randrange(mod)

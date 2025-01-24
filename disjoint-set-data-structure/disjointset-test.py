@@ -1,7 +1,7 @@
 # 
 # Disjoint-set data structure - Test suite (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/disjoint-set-data-structure
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,7 @@
 # 
 
 import random, unittest
+from typing import List
 from disjointset import DisjointSet
 
 
@@ -29,8 +30,8 @@ from disjointset import DisjointSet
 
 class DisjointSetTest(unittest.TestCase):
 	
-	def test_new(self):
-		ds = DisjointSet(10)
+	def test_new(self) -> None:
+		ds: DisjointSet = DisjointSet(10)
 		self.assertEqual(ds.get_num_sets(), 10)
 		self.assertEqual(ds.get_size_of_set(0), 1)
 		self.assertEqual(ds.get_size_of_set(2), 1)
@@ -40,8 +41,8 @@ class DisjointSetTest(unittest.TestCase):
 		self.assertFalse(ds.are_in_same_set(9, 3))
 	
 	
-	def test_merge(self):
-		ds = DisjointSet(10)
+	def test_merge(self) -> None:
+		ds: DisjointSet = DisjointSet(10)
 		self.assertTrue(ds.merge_sets(0, 1))
 		ds.check_structure()
 		self.assertEqual(ds.get_num_sets(), 9)
@@ -65,40 +66,40 @@ class DisjointSetTest(unittest.TestCase):
 		self.assertTrue(ds.are_in_same_set(1, 3))
 	
 	
-	def test_big_merge(self):
-		maxRank = 20
-		trials = 10000
+	def test_big_merge(self) -> None:
+		maxRank: int = 20
+		trials: int = 10000
 		
-		numElems = 1 << maxRank  # Grows exponentially
-		ds = DisjointSet(numElems)
+		numElems: int = 1 << maxRank  # Grows exponentially
+		ds: DisjointSet = DisjointSet(numElems)
 		for level in range(maxRank):
-			mergeStep = 1 << level
-			incrStep = mergeStep * 2
+			mergeStep: int = 1 << level
+			incrStep: int = mergeStep * 2
 			for i in range(0, numElems, incrStep):
 				self.assertFalse(ds.are_in_same_set(i, i + mergeStep))
 				self.assertTrue(ds.merge_sets(i, i + mergeStep))
 			# Now we have a bunch of sets of size 2^(level+1)
 			
 			# Do random tests
-			mask = -incrStep
+			mask: int = -incrStep
 			for i in range(trials):
-				j = random.randrange(numElems)
-				k = random.randrange(numElems)
-				expect = (j & mask) == (k & mask)
+				j: int = random.randrange(numElems)
+				k: int = random.randrange(numElems)
+				expect: bool = (j & mask) == (k & mask)
 				self.assertTrue(ds.are_in_same_set(j, k) == expect)
 	
 	
-	def test_against_naive_randomly(self):
-		trials = 300
-		iterations = 1000
-		numElems = 100
+	def test_against_naive_randomly(self) -> None:
+		trials: int = 300
+		iterations: int = 1000
+		numElems: int = 100
 		
 		for _ in range(trials):
-			nds = NaiveDisjointSet(numElems)
-			ds = DisjointSet(numElems)
+			nds: NaiveDisjointSet = NaiveDisjointSet(numElems)
+			ds: DisjointSet = DisjointSet(numElems)
 			for _ in range(iterations):
-				i = random.randrange(numElems)
-				j = random.randrange(numElems)
+				i: int = random.randrange(numElems)
+				j: int = random.randrange(numElems)
 				self.assertEqual(ds.get_size_of_set(i), nds.get_size_of_set(i))
 				self.assertTrue(ds.are_in_same_set(i, j) == nds.are_in_same_set(i, j))
 				if random.random() < 0.1:
@@ -113,22 +114,24 @@ class DisjointSetTest(unittest.TestCase):
 # ---- Helper class ----
 
 class NaiveDisjointSet:
-	def __init__(self, numelems):
+	representatives: List[int]
+	
+	def __init__(self, numelems: int):
 		self.representatives = list(range(numelems))
 	
-	def get_num_sets(self):
+	def get_num_sets(self) -> int:
 		return sum(1 for (i, repr) in enumerate(self.representatives) if repr == i)
 	
-	def get_size_of_set(self, elemindex):
-		repr = self.representatives[elemindex]
+	def get_size_of_set(self, elemindex: int) -> int:
+		repr: int = self.representatives[elemindex]
 		return sum(1 for r in self.representatives if r == repr)
 	
-	def are_in_same_set(self, elemindex0, elemindex1):
+	def are_in_same_set(self, elemindex0: int, elemindex1: int) -> bool:
 		return self.representatives[elemindex0] ==  self.representatives[elemindex1]
 	
-	def merge_sets(self, elemindex0, elemindex1):
-		repr0 = self.representatives[elemindex0]
-		repr1 = self.representatives[elemindex1]
+	def merge_sets(self, elemindex0: int, elemindex1: int) -> bool:
+		repr0: int = self.representatives[elemindex0]
+		repr1: int = self.representatives[elemindex1]
 		self.representatives = [(repr0 if (rp == repr1) else rp) for rp in self.representatives]
 		return repr0 != repr1
 

@@ -1,7 +1,7 @@
 # 
 # Barrett reduction algorithm (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/barrett-reduction-algorithm
 # 
@@ -15,7 +15,7 @@ class BarrettReducerTest(unittest.TestCase):
 		for _ in range(10000):
 			mod: int = BarrettReducerTest.random_modulus()
 			modsqr: int = mod**2
-			br = BarrettReducer(mod)
+			br: BarrettReducer = BarrettReducer(mod)
 			for _ in range(100):
 				x: int = random.randrange(modsqr)
 				if br.reduce(x) != x % mod:
@@ -48,9 +48,9 @@ class BarrettReducer:
 	
 	# For x in [0, mod^2), this returns x % mod.
 	def reduce(self, x: int) -> int:
-		mod = self.modulus
+		mod: int = self.modulus
 		assert 0 <= x < mod**2
-		t = (x - ((x * self.factor) >> self.shift) * mod)
+		t: int = (x - ((x * self.factor) >> self.shift) * mod)
 		return t if (t < mod) else (t - mod)
 
 

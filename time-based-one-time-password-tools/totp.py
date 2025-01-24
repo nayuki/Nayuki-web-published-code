@@ -1,7 +1,7 @@
 # 
 # Time-based One-Time Password tools (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/time-based-one-time-password-tools
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -81,9 +81,9 @@ def calc_hotp(
 # Calculates TOTP for the most popular configuration:
 # epoch=0, timestep=30, hashfunc=hashlib.sha1, codelen=6.
 def calc_totp_compact_default(secretkey: bytes) -> str:
-	count = struct.pack(">Q", int(time.time()) // 30)
+	count: bytes = struct.pack(">Q", int(time.time()) // 30)
 	hash = hmac.new(secretkey, count, hashlib.sha1).digest()
-	offset = hash[-1] % 16
+	offset: int = hash[-1] % 16
 	val, = struct.unpack(">I", hash[offset : offset + 4])
 	return str(val % 2**31 % 10**6).zfill(6)
 
@@ -109,7 +109,7 @@ class TotpTest(unittest.TestCase):
 		SECRET_KEY: bytes = b"12345678901234567890"
 		
 		for cs in CASES:
-			actual = calc_hotp(SECRET_KEY, struct.pack(">Q", cs[0]), 9, hashlib.sha1)
+			actual: str = calc_hotp(SECRET_KEY, struct.pack(">Q", cs[0]), 9, hashlib.sha1)
 			self.assertEqual(cs[1], actual)
 	
 	

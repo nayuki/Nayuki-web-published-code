@@ -1,7 +1,7 @@
 # 
 # sRGB transform (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/srgb-transform-library
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -55,11 +55,11 @@ def linear_to_srgb(x: float) -> float:
 def linear_to_srgb_8bit(x: float) -> int:
 	if x <= 0.0:
 		return 0
-	table = _SRGB_8BIT_TO_LINEAR
+	table: List[float] = _SRGB_8BIT_TO_LINEAR
 	if x >= 1.0:
 		return len(table) - 1
-	y = 0
-	i = len(table) >> 1
+	y: int = 0
+	i: int = len(table) >> 1
 	while i != 0:
 		if table[y | i] <= x:
 			y |= i

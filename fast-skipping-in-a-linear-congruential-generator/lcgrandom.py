@@ -1,7 +1,7 @@
 # 
 # Linear congruential generator (LCG) with fast skipping and backward iteration (Python)
 # 
-# Copyright (c) 2022 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
 # 
@@ -19,14 +19,14 @@ def main() -> None:
 	
 	# Choose seed and create LCG RNG
 	seed: int = random.randrange(M)
-	randslow = LcgRandom(A, B, M, seed)
+	randslow: LcgRandom = LcgRandom(A, B, M, seed)
 	
 	# Start testing
 	N: int = 10000
 	
 	# Check that skipping forward is correct
 	for i in range(N):
-		randfast = LcgRandom(A, B, M, seed)
+		randfast: LcgRandom = LcgRandom(A, B, M, seed)
 		randfast.skip(i)
 		if randslow.get_state() != randfast.get_state():
 			raise AssertionError()
@@ -93,11 +93,9 @@ class LcgRandom(random.Random):
 	
 	# Advances/rewinds the state by the given number of iterations.
 	def skip(self, n: int) -> None:
-		a: int
-		b: int
 		if n >= 0:
-			a = self.a
-			b = self.b
+			a: int = self.a
+			b: int = self.b
 		else:
 			a = self.ainv
 			b = -self.ainv * self.b

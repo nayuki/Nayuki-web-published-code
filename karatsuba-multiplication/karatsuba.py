@@ -1,7 +1,7 @@
 # 
 # Karatsuba fast multiplication algorithm (Python)
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/karatsuba-multiplication
 # 
@@ -11,21 +11,21 @@
 _CUTOFF = 1536
 
 
-def multiply(x, y):
+def multiply(x: int, y: int) -> int:
 	if x.bit_length() <= _CUTOFF or y.bit_length() <= _CUTOFF:  # Base case
 		return x * y
 	
 	else:
-		n = max(x.bit_length(), y.bit_length())
-		half = (n + 32) // 64 * 32
-		mask = (1 << half) - 1
-		xlow = x & mask
-		ylow = y & mask
-		xhigh = x >> half
-		yhigh = y >> half
+		n: int = max(x.bit_length(), y.bit_length())
+		half: int = (n + 32) // 64 * 32
+		mask: int = (1 << half) - 1
+		xlow: int = x & mask
+		ylow: int = y & mask
+		xhigh: int = x >> half
+		yhigh: int = y >> half
 		
-		a = multiply(xhigh, yhigh)
-		b = multiply(xlow + xhigh, ylow + yhigh)
-		c = multiply(xlow, ylow)
-		d = b - a - c
+		a: int = multiply(xhigh, yhigh)
+		b: int = multiply(xlow + xhigh, ylow + yhigh)
+		c: int = multiply(xlow, ylow)
+		d: int = b - a - c
 		return (((a << half) + d) << half) + c

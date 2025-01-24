@@ -1,7 +1,7 @@
 # 
 # Primitive recursive functions (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/primitive-recursive-functions
 # 
@@ -94,7 +94,7 @@ class R(PrimRecFunc):
 	# Efficient evaluation - less iteration overhead (faster) and does not recurse on self (constant stack space)
 	def eval(self, xs: List[int]) -> int:
 		assert len(xs) >= 2
-		val = self.f.eval(xs[1:])
+		val: int = self.f.eval(xs[1:])
 		for i in range(xs[0]):
 			val = self.g.eval([val, i] + xs[1:])
 		return val
@@ -102,7 +102,7 @@ class R(PrimRecFunc):
 	# Naive evaluation - directly from the mathematical definition
 	def eval_naive(self, xs: List[int]) -> int:
 		assert len(xs) >= 2
-		y = xs[0]
+		y: int = xs[0]
 		if y == 0:
 			return self.f.eval(xs[1:])
 		else:
