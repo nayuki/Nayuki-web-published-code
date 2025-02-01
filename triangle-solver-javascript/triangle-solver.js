@@ -45,10 +45,7 @@ function doSolve() {
 		doOutput("angleBout", answer[4], DEGREE);
 		doOutput("angleCout", answer[5], DEGREE);
 		doOutput("areaout"  , answer[6], "");
-		if (twosoln)
-			document.getElementById("formtable").classList.remove("onesoln");
-		else
-			document.getElementById("formtable").classList.add("onesoln");
+		document.getElementById("formtable").classList.toggle("onesoln", !twosoln);
 		
 	} catch (e) {
 		doClearOutputs();

@@ -84,10 +84,7 @@ namespace app {
 			checkbox.id = "step" + stepStr;
 			let onChange = () => {
 				parent.hidden = !checkbox.checked;
-				if (checkbox.checked)
-					label.classList.add("checked");
-				else
-					label.classList.remove("checked");
+				label.classList.toggle("checked", checkbox.checked);
 			};
 			checkbox.onchange = onChange;
 			onChange();
