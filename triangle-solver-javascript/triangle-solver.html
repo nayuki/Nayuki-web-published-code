@@ -5,213 +5,213 @@
 		<title>Triangle solver (JavaScript)</title>
 		<!-- Copyright (c) 2025 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
 		<style type="text/css">
-		html {
-			background-color: #FFFFFF;
-			font-family: sans-serif;
-			color: #000000;
-		}
-		body {
-			max-width: 50em;
-			margin-left: auto;
-			margin-right: auto;
-		}
-		h1 {
-			text-align: center;
-			font-size: 160%;
-		}
-		h2 {
-			text-align: left;
-			font-size: 125%;
-		}
-		p {
-			margin: 0.5em 0em;
-			line-height: 1.35;
-		}
-		p.small {
-			margin-top: 1.0em;
-			text-align: center;
-			font-size: 85%;
-			line-height: 1.25;
-		}
-		td, th {
-			padding: 0.25em 0.5em;
-		}
-		th {
-			font-weight: bold;
-		}
-		ul {
-			margin-top: 0em;
-			margin-bottom: 0em;
-			padding-top: 0em;
-			padding-bottom: 0em;
-		}
-		li {
-			margin-top: 0.2em;
-			margin-bottom: 0.2em;
-			padding-top: 0em;
-			padding-bottom: 0em;
-		}
-		hr {
-			margin: 1.5em 0em;
-			border: none;
-			border-top: 0.1em solid #808080;
-		}
-		input, button {
-			font-family: inherit;
-			font-size: inherit;
-		}
-		var {
-			font-family: serif;
-			font-style: italic;
-		}
-		#footer {
-			text-align: center;
-			color: #808080;
-		}
-		#footer a {
-			text-decoration: none;
-		}
-		#footer a:hover {
-			text-decoration: underline;
-		}
-		article #diagram-container a {
-			display: block;
-			position: absolute;
-			border-radius: 4px;
-		}
-		article #diagram-container a:hover {
-			background-color: #808080;
-			opacity: 0.25;
-		}
-		article table:not(.at-least-1-solutions) tr > *:nth-child(3) > * {
-			display: none;
-		}
-		article table:not(.at-least-2-solutions) tr > *:nth-child(4) > * {
-			display: none;
-		}
-		article input[type=number] {
-			width: 8em;
-		}
+			html {
+				background-color: #FFFFFF;
+				font-family: sans-serif;
+				color: #000000;
+			}
+			body {
+				max-width: 50em;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			h1 {
+				text-align: center;
+				font-size: 160%;
+			}
+			h2 {
+				text-align: left;
+				font-size: 125%;
+			}
+			p {
+				margin: 0.5em 0em;
+				line-height: 1.35;
+			}
+			p.small {
+				margin-top: 1.0em;
+				text-align: center;
+				font-size: 85%;
+				line-height: 1.25;
+			}
+			td, th {
+				padding: 0.25em 0.5em;
+			}
+			th {
+				font-weight: bold;
+			}
+			ul {
+				margin-top: 0em;
+				margin-bottom: 0em;
+				padding-top: 0em;
+				padding-bottom: 0em;
+			}
+			li {
+				margin-top: 0.2em;
+				margin-bottom: 0.2em;
+				padding-top: 0em;
+				padding-bottom: 0em;
+			}
+			hr {
+				margin: 1.5em 0em;
+				border: none;
+				border-top: 0.1em solid #808080;
+			}
+			input, button {
+				font-family: inherit;
+				font-size: inherit;
+			}
+			var {
+				font-family: serif;
+				font-style: italic;
+			}
+			#footer {
+				text-align: center;
+				color: #808080;
+			}
+			#footer a {
+				text-decoration: none;
+			}
+			#footer a:hover {
+				text-decoration: underline;
+			}
+			article #diagram-container a {
+				display: block;
+				position: absolute;
+				border-radius: 4px;
+			}
+			article #diagram-container a:hover {
+				background-color: #808080;
+				opacity: 0.25;
+			}
+			article table:not(.at-least-1-solutions) tr > *:nth-child(3) > * {
+				display: none;
+			}
+			article table:not(.at-least-2-solutions) tr > *:nth-child(4) > * {
+				display: none;
+			}
+			article input[type=number] {
+				width: 8em;
+			}
 		</style>
 	</head>
 	
 	<body>
 		<article>
-		<h1>Triangle solver (JavaScript)</h1>
-		
-		<h2 hidden="hidden">Program</h2>
-		<div style="position:relative">
-			<div id="diagram-container" style="width:32em; margin:0em auto; position:relative">
-				<svg style="display:block; width:100%" viewBox="0 0 18000 9000" fill="none" stroke="none">
-					<path stroke="#000000" stroke-width="100" stroke-linejoin="round" d="M1160,7405L16964,7405,6522,914,1160,7405Z"/>
-					<g fill="#000000">
-						<path d="M9266,7960l-84,286l-9,35c-1,4,-1,7,-1,9c0,4,1,7,3,10c3,2,5,3,8,3c5,0,14,-4,24,-13c4,-4,14,-17,31,-40l15,8c-21,37,-42,64,-65,81c-23,17,-48,26,-75,26c-16,0,-29,-4,-37,-13c-9,-8,-13,-19,-13,-32c0,-11,5,-32,14,-62l11,-35c-34,57,-66,98,-97,121c-18,14,-37,21,-57,21c-26,0,-45,-11,-57,-32c-12,-22,-18,-47,-18,-74c0,-40,12,-87,37,-139c25,-52,58,-95,98,-126c34,-27,65,-40,94,-40c16,0,29,5,39,14c10,9,17,26,22,51l16,-53l101,-6z m-138,82c0,-23,-3,-40,-11,-50c-5,-7,-12,-11,-21,-11c-9,0,-18,4,-27,13c-20,18,-40,54,-63,108c-22,54,-33,101,-33,141c0,15,2,26,7,33c5,7,11,10,17,10c13,0,26,-7,39,-22c19,-22,36,-48,51,-78c27,-54,41,-102,41,-144z"/>
-						<path d="M3486,3220l-77,260c22,-25,40,-41,54,-49c15,-8,31,-12,48,-12c33,0,57,12,74,37c16,25,24,54,24,86c0,78,-28,147,-83,208c-48,53,-104,80,-166,80c-47,0,-96,-14,-147,-42l133,-453c6,-22,10,-37,10,-46c0,-8,-3,-14,-9,-18c-9,-6,-22,-9,-40,-8l4,-17l148,-26l27,0z m-169,572c13,9,24,13,35,13c14,0,27,-3,36,-9c16,-10,32,-27,50,-53c17,-26,31,-56,43,-93c11,-36,17,-72,17,-108c0,-20,-4,-35,-13,-46c-8,-11,-18,-16,-30,-16c-18,0,-35,10,-49,30c-9,13,-19,41,-30,83l-59,199z"/>
-						<path d="M11872,3454l13,12c-28,33,-55,57,-82,72c-36,21,-73,31,-112,31c-26,0,-49,-6,-69,-17c-20,-11,-34,-26,-44,-46c-9,-20,-14,-40,-14,-61c0,-47,13,-94,38,-139c26,-46,60,-82,102,-108c42,-27,83,-40,123,-40c33,0,57,7,73,21c17,15,25,33,25,54c0,19,-6,35,-19,49c-12,13,-26,20,-41,20c-13,0,-24,-4,-33,-13c-9,-8,-13,-19,-13,-30c0,-16,8,-29,23,-41c11,-8,16,-15,16,-21c0,-5,-2,-9,-6,-12c-6,-5,-13,-7,-23,-7c-24,0,-47,10,-68,29c-28,26,-50,59,-65,98c-15,40,-22,77,-22,113c0,28,8,50,23,67c15,17,33,25,54,25c19,0,39,-5,60,-14c21,-9,42,-23,61,-42z"/>
-						<path d="M6693,2146l-181,0l-36,45l-42,49c-8,11,-14,21,-18,29c-3,7,-4,14,-4,20c0,7,4,14,11,20c7,6,19,9,36,10l0,15l-174,0l4,-15c16,-3,30,-8,42,-17c16,-11,39,-35,69,-71l415,-495l19,0l-20,479c-1,25,-1,40,-1,45c0,20,4,34,12,43c8,9,21,15,39,16l-4,15l-253,0l5,-15c25,-2,39,-4,43,-6c8,-4,15,-13,22,-26c7,-13,11,-35,12,-67l4,-74z m0,-37l11,-189l-161,189l150,0z"/>
-						<path d="M14204,6356l232,0c51,0,88,3,110,8c29,7,52,21,68,41c16,20,24,42,24,68c0,20,-6,42,-19,63c-13,22,-32,40,-57,54c-26,14,-65,26,-117,38c54,15,93,35,114,59c21,24,32,51,32,83c0,30,-10,59,-31,88c-21,29,-48,50,-83,63c-34,13,-97,20,-188,20l-243,0l5,-15c24,0,41,-2,51,-6c10,-5,18,-11,24,-21c7,-9,14,-28,22,-56l104,-360c10,-38,16,-62,16,-75c0,-10,-5,-18,-13,-25c-9,-7,-27,-11,-55,-12l4,-15z m132,259c39,-1,69,-7,91,-19c23,-11,40,-31,54,-58c13,-27,20,-52,20,-76c0,-22,-7,-41,-21,-55c-14,-14,-32,-21,-55,-20l-24,1l-65,227z m-9,32l-75,261c14,1,25,1,32,1c64,0,108,-18,133,-54c25,-36,37,-74,37,-115c0,-20,-5,-37,-14,-53c-10,-15,-22,-25,-37,-31c-15,-6,-41,-9,-76,-9z"/>
-						<path d="M3086,6308l-43,186l-15,0c-2,-51,-15,-89,-38,-114c-23,-25,-53,-38,-90,-38c-40,0,-80,17,-120,51c-40,34,-74,86,-101,156c-23,56,-34,112,-34,168c0,49,12,87,37,113c24,26,58,39,100,39c34,0,66,-7,94,-22c28,-15,57,-39,86,-73l21,0c-36,54,-71,91,-108,113c-36,21,-80,32,-133,32c-70,0,-127,-21,-170,-64c-43,-43,-64,-98,-64,-167c0,-64,17,-126,51,-184c35,-59,84,-106,148,-142c64,-36,128,-54,192,-54c24,0,54,5,90,15c18,5,31,7,38,7c15,0,29,-7,44,-22l15,0z"/>
-					</g>
-				</svg>
-				<output hidden="hidden" style="position:absolute; padding:0.5em; background-color:#FFFFFF; border:0.06em solid #A0A0A0; border-radius:0.2em; white-space:pre"></output>
+			<h1>Triangle solver (JavaScript)</h1>
+			
+			<h2 hidden="hidden">Program</h2>
+			<div style="position:relative">
+				<div id="diagram-container" style="width:32em; margin:0em auto; position:relative">
+					<svg style="display:block; width:100%" viewBox="0 0 18000 9000" fill="none" stroke="none">
+						<path stroke="#000000" stroke-width="100" stroke-linejoin="round" d="M1160,7405L16964,7405,6522,914,1160,7405Z"/>
+						<g fill="#000000">
+							<path d="M9266,7960l-84,286l-9,35c-1,4,-1,7,-1,9c0,4,1,7,3,10c3,2,5,3,8,3c5,0,14,-4,24,-13c4,-4,14,-17,31,-40l15,8c-21,37,-42,64,-65,81c-23,17,-48,26,-75,26c-16,0,-29,-4,-37,-13c-9,-8,-13,-19,-13,-32c0,-11,5,-32,14,-62l11,-35c-34,57,-66,98,-97,121c-18,14,-37,21,-57,21c-26,0,-45,-11,-57,-32c-12,-22,-18,-47,-18,-74c0,-40,12,-87,37,-139c25,-52,58,-95,98,-126c34,-27,65,-40,94,-40c16,0,29,5,39,14c10,9,17,26,22,51l16,-53l101,-6z m-138,82c0,-23,-3,-40,-11,-50c-5,-7,-12,-11,-21,-11c-9,0,-18,4,-27,13c-20,18,-40,54,-63,108c-22,54,-33,101,-33,141c0,15,2,26,7,33c5,7,11,10,17,10c13,0,26,-7,39,-22c19,-22,36,-48,51,-78c27,-54,41,-102,41,-144z"/>
+							<path d="M3486,3220l-77,260c22,-25,40,-41,54,-49c15,-8,31,-12,48,-12c33,0,57,12,74,37c16,25,24,54,24,86c0,78,-28,147,-83,208c-48,53,-104,80,-166,80c-47,0,-96,-14,-147,-42l133,-453c6,-22,10,-37,10,-46c0,-8,-3,-14,-9,-18c-9,-6,-22,-9,-40,-8l4,-17l148,-26l27,0z m-169,572c13,9,24,13,35,13c14,0,27,-3,36,-9c16,-10,32,-27,50,-53c17,-26,31,-56,43,-93c11,-36,17,-72,17,-108c0,-20,-4,-35,-13,-46c-8,-11,-18,-16,-30,-16c-18,0,-35,10,-49,30c-9,13,-19,41,-30,83l-59,199z"/>
+							<path d="M11872,3454l13,12c-28,33,-55,57,-82,72c-36,21,-73,31,-112,31c-26,0,-49,-6,-69,-17c-20,-11,-34,-26,-44,-46c-9,-20,-14,-40,-14,-61c0,-47,13,-94,38,-139c26,-46,60,-82,102,-108c42,-27,83,-40,123,-40c33,0,57,7,73,21c17,15,25,33,25,54c0,19,-6,35,-19,49c-12,13,-26,20,-41,20c-13,0,-24,-4,-33,-13c-9,-8,-13,-19,-13,-30c0,-16,8,-29,23,-41c11,-8,16,-15,16,-21c0,-5,-2,-9,-6,-12c-6,-5,-13,-7,-23,-7c-24,0,-47,10,-68,29c-28,26,-50,59,-65,98c-15,40,-22,77,-22,113c0,28,8,50,23,67c15,17,33,25,54,25c19,0,39,-5,60,-14c21,-9,42,-23,61,-42z"/>
+							<path d="M6693,2146l-181,0l-36,45l-42,49c-8,11,-14,21,-18,29c-3,7,-4,14,-4,20c0,7,4,14,11,20c7,6,19,9,36,10l0,15l-174,0l4,-15c16,-3,30,-8,42,-17c16,-11,39,-35,69,-71l415,-495l19,0l-20,479c-1,25,-1,40,-1,45c0,20,4,34,12,43c8,9,21,15,39,16l-4,15l-253,0l5,-15c25,-2,39,-4,43,-6c8,-4,15,-13,22,-26c7,-13,11,-35,12,-67l4,-74z m0,-37l11,-189l-161,189l150,0z"/>
+							<path d="M14204,6356l232,0c51,0,88,3,110,8c29,7,52,21,68,41c16,20,24,42,24,68c0,20,-6,42,-19,63c-13,22,-32,40,-57,54c-26,14,-65,26,-117,38c54,15,93,35,114,59c21,24,32,51,32,83c0,30,-10,59,-31,88c-21,29,-48,50,-83,63c-34,13,-97,20,-188,20l-243,0l5,-15c24,0,41,-2,51,-6c10,-5,18,-11,24,-21c7,-9,14,-28,22,-56l104,-360c10,-38,16,-62,16,-75c0,-10,-5,-18,-13,-25c-9,-7,-27,-11,-55,-12l4,-15z m132,259c39,-1,69,-7,91,-19c23,-11,40,-31,54,-58c13,-27,20,-52,20,-76c0,-22,-7,-41,-21,-55c-14,-14,-32,-21,-55,-20l-24,1l-65,227z m-9,32l-75,261c14,1,25,1,32,1c64,0,108,-18,133,-54c25,-36,37,-74,37,-115c0,-20,-5,-37,-14,-53c-10,-15,-22,-25,-37,-31c-15,-6,-41,-9,-76,-9z"/>
+							<path d="M3086,6308l-43,186l-15,0c-2,-51,-15,-89,-38,-114c-23,-25,-53,-38,-90,-38c-40,0,-80,17,-120,51c-40,34,-74,86,-101,156c-23,56,-34,112,-34,168c0,49,12,87,37,113c24,26,58,39,100,39c34,0,66,-7,94,-22c28,-15,57,-39,86,-73l21,0c-36,54,-71,91,-108,113c-36,21,-80,32,-133,32c-70,0,-127,-21,-170,-64c-43,-43,-64,-98,-64,-167c0,-64,17,-126,51,-184c35,-59,84,-106,148,-142c64,-36,128,-54,192,-54c24,0,54,5,90,15c18,5,31,7,38,7c15,0,29,-7,44,-22l15,0z"/>
+						</g>
+					</svg>
+					<output hidden="hidden" style="position:absolute; padding:0.5em; background-color:#FFFFFF; border:0.06em solid #A0A0A0; border-radius:0.2em; white-space:pre"></output>
+				</div>
 			</div>
-		</div>
-		
-		<form onsubmit="event.preventDefault(); doSolve();" onreset="doClearOutputs();">
-			<table style="margin-left:auto; margin-right:auto">
-				<thead>
-					<tr>
-						<th>Variable</th>
-						<th>Input</th>
-						<th style="min-width:8em"><span>Solution</span></th>
-						<th style="min-width:8em"><span>Solution 2</span></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr id="side-a">
-						<td><label for="side-a-in">Side <var>a</var> (units):</label></td>
-						<td><input type="number" min="0" step="any" autocomplete="off" id="side-a-in" oninput="doSolve();"/></td>
-						<td><output></output></td>
-						<td><output></output></td>
-					</tr>
-					<tr id="side-b">
-						<td><label for="side-b-in">Side <var>b</var> (units):</label></td>
-						<td><input type="number" min="0" step="any" autocomplete="off" id="side-b-in" oninput="doSolve();"/></td>
-						<td><output></output></td>
-						<td><output></output></td>
-					</tr>
-					<tr id="side-c">
-						<td><label for="side-c-in">Side <var>c</var> (units):</label></td>
-						<td><input type="number" min="0" step="any" autocomplete="off" id="side-c-in" oninput="doSolve();"/></td>
-						<td><output></output></td>
-						<td><output></output></td>
-					</tr>
-					<tr id="angle-a">
-						<td><label for="angle-a-in">Angle <var>A</var> (degrees):</label></td>
-						<td><input type="number" min="0" step="any" autocomplete="off" id="angle-a-in" oninput="doSolve();"/></td>
-						<td><output></output></td>
-						<td><output></output></td>
-					</tr>
-					<tr id="angle-b">
-						<td><label for="angle-b-in">Angle <var>B</var> (degrees):</label></td>
-						<td><input type="number" min="0" step="any" autocomplete="off" id="angle-b-in" oninput="doSolve();"/></td>
-						<td><output></output></td>
-						<td><output></output></td>
-					</tr>
-					<tr id="angle-c">
-						<td><label for="angle-c-in">Angle <var>C</var> (degrees):</label></td>
-						<td><input type="number" min="0" step="any" autocomplete="off" id="angle-c-in" oninput="doSolve();"/></td>
-						<td><output></output></td>
-						<td><output></output></td>
-					</tr>
-					<tr id="area">
-						<td>Area (square units):</td>
-						<td></td>
-						<td><output></output></td>
-						<td><output></output></td>
-					</tr>
-					<tr id="status">
-						<td>Status:</td>
-						<td colspan="3"><output></output></td>
-					</tr>
-					<tr>
-						<td></td>
-						<td style="text-align:center">
-							<button type="submit">Solve</button>
-							<button type="reset">Clear</button>
-						</td>
-						<td></td>
-						<td></td>
-					</tr>
-				</tbody>
-			</table>
-		</form>
-		<p class="small">Tips: In the triangle diagram, click on a letter to jump to that input.<br/>
-		When solved, hover over a letter to read its value.</p>
-		
-		<hr>
-		<h2>Description</h2>
-		<p>This JavaScript program calculates the missing sides and angles of a triangle. Give exactly 3 pieces of information, including at least one side.</p>
-		<p>Notes:</p>
-		<ul>
-			<li><p>All sides are measured in the same unit. For example, you cannot directly solve a triangle with the sides 3 metres, 5 feet, and 2 yards; you must convert the side lengths to a common unit first.</p></li>
-			<li><p>In a valid solution, all side lengths are positive, and all angles are greater than 0° and less than 180°.</p></li>
-			<li><p>2 sides and an enclosed angle (<abbr title="side angle side">SAS</abbr>) always yields a unique solution.</p></li>
-			<li><p>2 angles and a side (<abbr title="angle side angle">ASA</abbr>, <abbr title="angle angle side">AAS</abbr>) always yields a unique solution, provided that the two given angles add up to less than 180°.</p></li>
-			<li><p>3 sides (<abbr title="side side side">SSS</abbr>) yields a unique solution, or no solution if the longest side is longer than the sum of the other sides.</p></li>
-			<li><p>2 sides and a non-enclosed angle (<abbr title="side side angle">SSA</abbr>) yields 0, 1, or 2 solutions.</p></li>
-		</ul>
-		<p>More info:</p>
-		<ul>
-			<li><a href="https://en.wikipedia.org/wiki/Solution_of_triangles#Solving_plane_triangles">Wikipedia: Solution of triangles - Solving plane triangles</a></li>
-			<li><a href="http://en.wikipedia.org/wiki/Law_of_cosines">Wikipedia: Law of cosines</a></li>
-			<li><a href="http://en.wikipedia.org/wiki/Law_of_sines">Wikipedia: Law of sines</a></li>
-		</ul>
-		<hr>
-		<p id="footer">Copyright © 2025 Project Nayuki – <a href="https://www.nayuki.io/page/triangle-solver-javascript">https://www.nayuki.io/page/triangle-solver-javascript</a></p>
-		
-		
-		<script>
+			
+			<form onsubmit="event.preventDefault(); doSolve();" onreset="doClearOutputs();">
+				<table style="margin-left:auto; margin-right:auto">
+					<thead>
+						<tr>
+							<th>Variable</th>
+							<th>Input</th>
+							<th style="min-width:8em"><span>Solution</span></th>
+							<th style="min-width:8em"><span>Solution 2</span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr id="side-a">
+							<td><label for="side-a-in">Side <var>a</var> (units):</label></td>
+							<td><input type="number" min="0" step="any" autocomplete="off" id="side-a-in" oninput="doSolve();"/></td>
+							<td><output></output></td>
+							<td><output></output></td>
+						</tr>
+						<tr id="side-b">
+							<td><label for="side-b-in">Side <var>b</var> (units):</label></td>
+							<td><input type="number" min="0" step="any" autocomplete="off" id="side-b-in" oninput="doSolve();"/></td>
+							<td><output></output></td>
+							<td><output></output></td>
+						</tr>
+						<tr id="side-c">
+							<td><label for="side-c-in">Side <var>c</var> (units):</label></td>
+							<td><input type="number" min="0" step="any" autocomplete="off" id="side-c-in" oninput="doSolve();"/></td>
+							<td><output></output></td>
+							<td><output></output></td>
+						</tr>
+						<tr id="angle-a">
+							<td><label for="angle-a-in">Angle <var>A</var> (degrees):</label></td>
+							<td><input type="number" min="0" step="any" autocomplete="off" id="angle-a-in" oninput="doSolve();"/></td>
+							<td><output></output></td>
+							<td><output></output></td>
+						</tr>
+						<tr id="angle-b">
+							<td><label for="angle-b-in">Angle <var>B</var> (degrees):</label></td>
+							<td><input type="number" min="0" step="any" autocomplete="off" id="angle-b-in" oninput="doSolve();"/></td>
+							<td><output></output></td>
+							<td><output></output></td>
+						</tr>
+						<tr id="angle-c">
+							<td><label for="angle-c-in">Angle <var>C</var> (degrees):</label></td>
+							<td><input type="number" min="0" step="any" autocomplete="off" id="angle-c-in" oninput="doSolve();"/></td>
+							<td><output></output></td>
+							<td><output></output></td>
+						</tr>
+						<tr id="area">
+							<td>Area (square units):</td>
+							<td></td>
+							<td><output></output></td>
+							<td><output></output></td>
+						</tr>
+						<tr id="status">
+							<td>Status:</td>
+							<td colspan="3"><output></output></td>
+						</tr>
+						<tr>
+							<td></td>
+							<td style="text-align:center">
+								<button type="submit">Solve</button>
+								<button type="reset">Clear</button>
+							</td>
+							<td></td>
+							<td></td>
+						</tr>
+					</tbody>
+				</table>
+			</form>
+			<p class="small">Tips: In the triangle diagram, click on a letter to jump to that input.<br/>
+			When solved, hover over a letter to read its value.</p>
+			
+			<hr>
+			<h2>Description</h2>
+			<p>This JavaScript program calculates the missing sides and angles of a triangle. Give exactly 3 pieces of information, including at least one side.</p>
+			<p>Notes:</p>
+			<ul>
+				<li><p>All sides are measured in the same unit. For example, you cannot directly solve a triangle with the sides 3 metres, 5 feet, and 2 yards; you must convert the side lengths to a common unit first.</p></li>
+				<li><p>In a valid solution, all side lengths are positive, and all angles are greater than 0° and less than 180°.</p></li>
+				<li><p>2 sides and an enclosed angle (<abbr title="side angle side">SAS</abbr>) always yields a unique solution.</p></li>
+				<li><p>2 angles and a side (<abbr title="angle side angle">ASA</abbr>, <abbr title="angle angle side">AAS</abbr>) always yields a unique solution, provided that the two given angles add up to less than 180°.</p></li>
+				<li><p>3 sides (<abbr title="side side side">SSS</abbr>) yields a unique solution, or no solution if the longest side is longer than the sum of the other sides.</p></li>
+				<li><p>2 sides and a non-enclosed angle (<abbr title="side side angle">SSA</abbr>) yields 0, 1, or 2 solutions.</p></li>
+			</ul>
+			<p>More info:</p>
+			<ul>
+				<li><a href="https://en.wikipedia.org/wiki/Solution_of_triangles#Solving_plane_triangles">Wikipedia: Solution of triangles - Solving plane triangles</a></li>
+				<li><a href="http://en.wikipedia.org/wiki/Law_of_cosines">Wikipedia: Law of cosines</a></li>
+				<li><a href="http://en.wikipedia.org/wiki/Law_of_sines">Wikipedia: Law of sines</a></li>
+			</ul>
+			<hr>
+			<p id="footer">Copyright © 2025 Project Nayuki – <a href="https://www.nayuki.io/page/triangle-solver-javascript">https://www.nayuki.io/page/triangle-solver-javascript</a></p>
+			
+			
+			<script>
 "use strict";
 /*---- HTML elements ----*/
 let tableElem = queryElem("article form table");
@@ -568,7 +568,7 @@ function parseEm(str) {
     else
         throw new RangeError("Invalid unit");
 }
-		</script>
+			</script>
 		</article>
 	</body>
 </html>
