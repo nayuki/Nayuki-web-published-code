@@ -1,7 +1,5 @@
-<!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
-		<meta charset="UTF-8">
 		<title>Triangle solver (JavaScript)</title>
 		<!-- Copyright (c) 2025 Project Nayuki - https://www.nayuki.io/page/triangle-solver-javascript -->
 		<style type="text/css">
@@ -102,7 +100,7 @@
 			<h2 hidden="hidden">Program</h2>
 			<div style="position:relative">
 				<div id="diagram-container" style="width:32em; margin:0em auto; position:relative">
-					<svg style="display:block; width:100%" viewBox="0 0 18000 9000" fill="none" stroke="none">
+					<svg xmlns="http://www.w3.org/2000/svg" style="display:block; width:100%" viewBox="0 0 18000 9000" fill="none" stroke="none">
 						<path stroke="#000000" stroke-width="100" stroke-linejoin="round" d="M1160,7405L16964,7405,6522,914,1160,7405Z"/>
 						<g fill="#000000">
 							<path d="M9266,7960l-84,286l-9,35c-1,4,-1,7,-1,9c0,4,1,7,3,10c3,2,5,3,8,3c5,0,14,-4,24,-13c4,-4,14,-17,31,-40l15,8c-21,37,-42,64,-65,81c-23,17,-48,26,-75,26c-16,0,-29,-4,-37,-13c-9,-8,-13,-19,-13,-32c0,-11,5,-32,14,-62l11,-35c-34,57,-66,98,-97,121c-18,14,-37,21,-57,21c-26,0,-45,-11,-57,-32c-12,-22,-18,-47,-18,-74c0,-40,12,-87,37,-139c25,-52,58,-95,98,-126c34,-27,65,-40,94,-40c16,0,29,5,39,14c10,9,17,26,22,51l16,-53l101,-6z m-138,82c0,-23,-3,-40,-11,-50c-5,-7,-12,-11,-21,-11c-9,0,-18,4,-27,13c-20,18,-40,54,-63,108c-22,54,-33,101,-33,141c0,15,2,26,7,33c5,7,11,10,17,10c13,0,26,-7,39,-22c19,-22,36,-48,51,-78c27,-54,41,-102,41,-144z"/>
@@ -189,7 +187,7 @@
 			<p class="small">Tips: In the triangle diagram, click on a letter to jump to that input.<br/>
 			When solved, hover over a letter to read its value.</p>
 			
-			<hr>
+			<hr/>
 			<h2>Description</h2>
 			<p>This JavaScript program calculates the missing sides and angles of a triangle. Give exactly 3 pieces of information, including at least one side.</p>
 			<p>Notes:</p>
@@ -207,11 +205,12 @@
 				<li><a href="http://en.wikipedia.org/wiki/Law_of_cosines">Wikipedia: Law of cosines</a></li>
 				<li><a href="http://en.wikipedia.org/wiki/Law_of_sines">Wikipedia: Law of sines</a></li>
 			</ul>
-			<hr>
+			<hr/>
 			<p id="footer">Copyright © 2025 Project Nayuki – <a href="https://www.nayuki.io/page/triangle-solver-javascript">https://www.nayuki.io/page/triangle-solver-javascript</a></p>
 			
 			
 			<script>
+				<![CDATA[
 "use strict";
 /*---- HTML elements ----*/
 let tableElem = queryElem("article form table");
@@ -568,6 +567,7 @@ function parseEm(str) {
     else
         throw new RangeError("Invalid unit");
 }
+				]]>
 			</script>
 		</article>
 	</body>
