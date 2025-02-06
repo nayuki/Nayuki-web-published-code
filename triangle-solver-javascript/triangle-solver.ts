@@ -29,10 +29,7 @@ function getIoElems(rowId: string): [HTMLInputElement,[HTMLElement,HTMLElement]]
 
 
 function getOutElems(rowId: string): [HTMLElement,HTMLElement] {
-	const temp: NodeListOf<Element> = document.querySelectorAll(`article #${rowId} output`);
-	if (temp.length != 2)
-		throw new Error();
-	const [a, b] = temp;
+	const [a, b] = document.querySelectorAll(`article #${rowId} output`);
 	if (a instanceof HTMLElement && b instanceof HTMLElement)
 		return [a, b];
 	throw new TypeError();
@@ -56,8 +53,7 @@ let solutions: Array<SolvedTriangle> = [];
 function doSolve(): void {
 	/*-- Clear outputs --*/
 	solutions = [];
-	tableElem.classList.remove("at-least-1-solutions");
-	tableElem.classList.remove("at-least-2-solutions");
+	tableElem.classList.remove("at-least-1-solutions", "at-least-2-solutions");
 	for (let elem of document.querySelectorAll("article output"))
 		elem.textContent = "";
 	
@@ -71,9 +67,9 @@ function doSolve(): void {
 				return null;
 			const result: number = parseFloat(input.value);
 			if (!isFinite(result))
-				throw new Error("Invalid number");
+				throw new RangeError("Invalid number");
 			if (result <= 0)
-				throw new Error("All inputs must be positive");
+				throw new RangeError("All inputs must be positive");
 			return result;
 		}
 		
@@ -106,14 +102,15 @@ function doSolve(): void {
 	setOutputs(t => t.angleC, DEGREE, angleCElems[1]);
 	setOutputs(t => t.area  , ""    , areaOuts      );
 	
+	const EN_DASH: string = "\u2013";
 	statusOut.textContent = status.charAt(0) + Array.from(status).map(c => ({"A":"angle","S":"side"})[c]).join(" ").substring(1) + ` (${status}) case`;
 	if (solutions.length == 0)
-		statusOut.textContent += " - No solution";
+		statusOut.textContent += ` ${EN_DASH} No solution`;
 	else if (status == "SSA") {
 		if (solutions.length == 1)
-			statusOut.textContent += " - Unique solution";
+			statusOut.textContent += ` ${EN_DASH} Unique solution`;
 		else if (solutions.length == 2)
-			statusOut.textContent += " - Two solutions";
+			statusOut.textContent += ` ${EN_DASH} Two solutions`;
 	}
 	
 	tableElem.classList.toggle("at-least-1-solutions", solutions.length >= 1);
@@ -145,6 +142,34 @@ class SolvedTriangle {
 
 
 function solveTriangles(a: number|null, b: number|null, c: number|null, A: number|null, B: number|null, C: number|null): [string,Array<SolvedTriangle>] {
+	
+	function degToRad(x: number): number {
+		return x / 180 * Math.PI;
+	}
+	
+	function radToDeg(x: number): number {
+		return x / Math.PI * 180;
+	}
+	
+	// Returns side c using law of cosines.
+	function solveSide(a: number, b: number, C: number): number {
+		C = degToRad(C);
+		if (C > 0.001)
+			return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(C));
+		else  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
+			return Math.sqrt((a - b) * (a - b) + a * b * C * C * (1 - C * C / 12));
+	}
+	
+	// Returns angle C using law of cosines.
+	function solveAngle(a: number, b: number, c: number): number {
+		const temp: number = (a * a + b * b - c * c) / (2 * a * b);
+		if (-1 <= temp && temp <= 0.9999999)
+			return radToDeg(Math.acos(temp));
+		else if (temp <= 1)  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
+			return radToDeg(Math.sqrt((c * c - (a - b) * (a - b)) / (a * b)));
+		else
+			throw new RangeError("No solution");
+	}
 	
 	function solveSss(x: number, y: number, z: number): Array<[number,number,number,number]> {
 		if (x + y <= z || y + z <= x || z + x <= y)
@@ -215,6 +240,7 @@ function solveTriangles(a: number|null, b: number|null, c: number|null, A: numbe
 	let area: number;
 	let solns: Array<SolvedTriangle> = [];
 	
+	// There are (6 choose 3) = 20 cases where exactly 3 pieces of information are provided
 	if      (a !== null && b !== null && c !== null && A === null && B === null && C === null) {  stat = "SSS";  for ([A, B, C, area] of solveSss(a, b, c)) solns.push(new SolvedTriangle(a, b, c, A, B, C, area));  }
 	
 	else if (a !== null && b === null && c === null && A === null && B !== null && C !== null) {  stat = "ASA";  for ([b, c, A, area] of solveAsa(a, B, C)) solns.push(new SolvedTriangle(a, b, c, A, B, C, area));  }
@@ -246,92 +272,63 @@ function solveTriangles(a: number|null, b: number|null, c: number|null, A: numbe
 }
 
 
-// Returns side c using law of cosines.
-function solveSide(a: number, b: number, C: number): number {
-	C = degToRad(C);
-	if (C > 0.001)
-		return Math.sqrt(a * a + b * b - 2 * a * b * Math.cos(C));
-	else  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
-		return Math.sqrt((a - b) * (a - b) + a * b * C * C * (1 - C * C / 12));
-}
-
-
-// Returns angle C using law of cosines.
-function solveAngle(a: number, b: number, c: number): number {
-	const temp: number = (a * a + b * b - c * c) / (2 * a * b);
-	if (-1 <= temp && temp <= 0.9999999)
-		return radToDeg(Math.acos(temp));
-	else if (temp <= 1)  // Explained in https://www.nayuki.io/page/numerically-stable-law-of-cosines
-		return radToDeg(Math.sqrt((c * c - (a - b) * (a - b)) / (a * b)));
-	else
-		throw new RangeError("No solution");
-}
-
-
-function degToRad(x: number): number {
-	return x / 180 * Math.PI;
-}
-
-
-function radToDeg(x: number): number {
-	return x / Math.PI * 180;
-}
-
-
 
 /*---- Diagram hover ----*/
 
-const RECT_PADDED_SIZE: number = 0.0720;
-
-// List of tuples (left, top, width, height). Values will be modified by initImageMap() to include padding.
-const rectangles: Array<[number,number,number,number,((t:SolvedTriangle)=>number)]> = [
-	[0.4922, 0.4419, 0.0227, 0.0229, t => t.sideA ],
-	[0.1784, 0.1789, 0.0221, 0.0339, t => t.sideB ],
-	[0.6424, 0.1754, 0.0201, 0.0229, t => t.sideC ],
-	[0.3492, 0.0964, 0.0322, 0.0333, t => t.angleA],
-	[0.7803, 0.3531, 0.0330, 0.0326, t => t.angleB],
-	[0.1393, 0.3504, 0.0322, 0.0340, t => t.angleC],
-];
-
-
 function initImageMap(): void {
+	function parseEm(str: string): number {
+		const match: RegExpExecArray|null = /^(\d+(?:\.\d*)?)em$/.exec(str);
+		if (match !== null)
+			return parseFloat(match[1]);
+		else
+			throw new RangeError("Invalid unit");
+	}
+	
 	let container: HTMLElement = queryElem("article #diagram-container");
 	const containerWidth: number = parseEm(container.style.width);
-	let hovElem: HTMLElement = queryElem("#diagram-container output");
-	rectangles.forEach((rect, i) => {
-		let elem: HTMLAnchorElement = document.createElement("a");
-		container.insertBefore(elem, hovElem);
-		elem.href = "#";
-		rect[0] -= (RECT_PADDED_SIZE - rect[2]) / 2;
-		rect[1] -= (RECT_PADDED_SIZE - rect[3]) / 2;
-		elem.style.left = rect[0] * containerWidth + "em";
-		elem.style.top  = rect[1] * containerWidth + "em";
-		elem.style.width = elem.style.height = RECT_PADDED_SIZE * containerWidth + "em";
+	let hoverTextElem: HTMLElement = queryElem("#diagram-container output");
+	
+	// Each entry is (left, top, width, height, extractor)
+	const RECTANGLES: Array<[number,number,number,number,((t:SolvedTriangle)=>number)]> = [
+		[0.4922, 0.4419, 0.0227, 0.0229, t => t.sideA ],
+		[0.1784, 0.1789, 0.0221, 0.0339, t => t.sideB ],
+		[0.6424, 0.1754, 0.0201, 0.0229, t => t.sideC ],
+		[0.3492, 0.0964, 0.0322, 0.0333, t => t.angleA],
+		[0.7803, 0.3531, 0.0330, 0.0326, t => t.angleB],
+		[0.1393, 0.3504, 0.0322, 0.0340, t => t.angleC],
+	];
+	const RECT_PADDED_SIZE: number = 0.0720;
+	
+	RECTANGLES.forEach((rect, i) => {
+		let highlightElem: HTMLAnchorElement = document.createElement("a");
+		container.insertBefore(highlightElem, hoverTextElem);
+		highlightElem.href = "#";
+		highlightElem.style.left = (rect[0] - (RECT_PADDED_SIZE - rect[2]) / 2) * containerWidth + "em";
+		highlightElem.style.top  = (rect[1] - (RECT_PADDED_SIZE - rect[3]) / 2) * containerWidth + "em";
+		highlightElem.style.width = highlightElem.style.height = RECT_PADDED_SIZE * containerWidth + "em";
 		
 		const extractor: (t:SolvedTriangle)=>number = rect[4];
-		elem.onmouseover = () => {
+		highlightElem.onmouseover = () => {
 			if (solutions.length == 0)
 				return;
 			
 			const suffix: string = 3 <= i && i < 6 ? DEGREE : "";
-			let text: string;
-			if (solutions.length == 1 || solutions.length == 2 && extractor(solutions[0]) == extractor(solutions[1]))
-				text = formatNumber(extractor(solutions[0])) + suffix;
-			else  // solutions.length == 2
-				text = formatNumber(extractor(solutions[0])) + suffix + " or\n" + formatNumber(extractor(solutions[1])) + suffix;
-			hovElem.textContent = text;
+			let text: string = formatNumber(extractor(solutions[0])) + suffix;
+			if (solutions.length == 2 && extractor(solutions[0]) != extractor(solutions[1]))
+				text += " or\n" + formatNumber(extractor(solutions[1])) + suffix;
+			hoverTextElem.textContent = text;
 			
 			// Set hover element style
-			hovElem.hidden = false;
-			hovElem.style.left = rect[0] * containerWidth + "em";
-			hovElem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
+			hoverTextElem.hidden = false;
+			hoverTextElem.style.left = rect[0] * containerWidth + "em";
+			hoverTextElem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
 		};
 		
-		elem.onmouseout = () => {
-			hovElem.textContent = "";
-			hovElem.hidden = true;
+		highlightElem.onmouseout = () => {
+			hoverTextElem.textContent = "";
+			hoverTextElem.hidden = true;
 		};
-		elem.onclick = ev => {
+		highlightElem.onclick = ev => {
 			ev.preventDefault();
 			[sideAElems, sideBElems, sideCElems, angleAElems, angleBElems, angleCElems][i][0].select();
 		};
@@ -339,12 +336,3 @@ function initImageMap(): void {
 }
 
 setTimeout(initImageMap);
-
-
-function parseEm(str: string): number {
-	const match: RegExpExecArray|null = /^(\d+(?:\.\d*)?)em$/.exec(str);
-	if (match !== null)
-		return parseFloat(match[1]);
-	else
-		throw new RangeError("Invalid unit");
-}
