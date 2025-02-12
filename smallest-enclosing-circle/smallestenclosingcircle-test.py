@@ -1,7 +1,7 @@
 # 
 # Smallest enclosing circle - Test suite (Python)
 # 
-# Copyright (c) 2017 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # https://www.nayuki.io/page/smallest-enclosing-circle
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 # 
 
 import random, unittest
+from typing import Sequence
 import smallestenclosingcircle
 
 
@@ -27,47 +28,53 @@ import smallestenclosingcircle
 
 class SmallestEnclosingCircleTest(unittest.TestCase):
 	
-	def test_matching_naive_algorithm(self):
-		TRIALS = 1000
+	def test_matching_naive_algorithm(self) -> None:
+		TRIALS: int = 1000
 		for _ in range(TRIALS):
-			points = _make_random_points(random.randint(1, 30))
+			points: Sequence[tuple[float,float]] = _make_random_points(random.randint(1, 30))
 			reference = _smallest_enclosing_circle_naive(points)
 			actual = smallestenclosingcircle.make_circle(points)
+			if (reference is None) or (actual is None):
+				raise AssertionError()
 			self.assertAlmostEqual(actual[0], reference[0], delta=_EPSILON)
 			self.assertAlmostEqual(actual[1], reference[1], delta=_EPSILON)
 			self.assertAlmostEqual(actual[2], reference[2], delta=_EPSILON)
 	
 	
-	def test_translation(self):
-		TRIALS = 100
-		CHECKS = 10
+	def test_translation(self) -> None:
+		TRIALS: int = 100
+		CHECKS: int = 10
 		for _ in range(TRIALS):
-			points = _make_random_points(random.randint(1, 300))
+			points: Sequence[tuple[float,float]] = _make_random_points(random.randint(1, 300))
 			reference = smallestenclosingcircle.make_circle(points)
 			
 			for _ in range(CHECKS):
-				dx = random.gauss(0, 1)
-				dy = random.gauss(0, 1)
+				dx: float = random.gauss(0, 1)
+				dy: float = random.gauss(0, 1)
 				newpoints = [(x + dx, y + dy) for (x, y) in points]
 				
 				translated = smallestenclosingcircle.make_circle(newpoints)
+				if (reference is None) or (translated is None):
+					raise AssertionError()
 				self.assertAlmostEqual(translated[0], reference[0] + dx, delta=_EPSILON)
 				self.assertAlmostEqual(translated[1], reference[1] + dy, delta=_EPSILON)
 				self.assertAlmostEqual(translated[2], reference[2]     , delta=_EPSILON)
 	
 	
-	def test_scaling(self):
-		TRIALS = 100
-		CHECKS = 10
+	def test_scaling(self) -> None:
+		TRIALS: int = 100
+		CHECKS: int = 10
 		for _ in range(TRIALS):
-			points = _make_random_points(random.randint(1, 300))
+			points: Sequence[tuple[float,float]] = _make_random_points(random.randint(1, 300))
 			reference = smallestenclosingcircle.make_circle(points)
 			
 			for _ in range(CHECKS):
-				scale = random.gauss(0, 1)
-				newpoints = [(x * scale, y * scale) for (x, y) in points]
+				scale: float = random.gauss(0, 1)
+				newpoints: Sequence[tuple[float,float]] = [(x * scale, y * scale) for (x, y) in points]
 				
 				scaled = smallestenclosingcircle.make_circle(newpoints)
+				if (reference is None) or (scaled is None):
+					raise AssertionError()
 				self.assertAlmostEqual(scaled[0], reference[0] * scale     , delta=_EPSILON)
 				self.assertAlmostEqual(scaled[1], reference[1] * scale     , delta=_EPSILON)
 				self.assertAlmostEqual(scaled[2], reference[2] * abs(scale), delta=_EPSILON)
@@ -76,7 +83,7 @@ class SmallestEnclosingCircleTest(unittest.TestCase):
 
 # ---- Helper functions ----
 
-def _make_random_points(n):
+def _make_random_points(n: int) -> list[tuple[float,float]]:
 	if random.random() < 0.2:  # Discrete lattice (to have a chance of duplicated points)
 		return [(random.randrange(10), random.randrange(10)) for _ in range(n)]
 	else:  # Gaussian distribution
@@ -84,7 +91,7 @@ def _make_random_points(n):
 
 
 # Returns the smallest enclosing circle in O(n^4) time using the naive algorithm.
-def _smallest_enclosing_circle_naive(points):
+def _smallest_enclosing_circle_naive(points: Sequence[tuple[float,float]]) -> tuple[float,float,float]|None:
 	# Degenerate cases
 	if len(points) == 0:
 		return None
@@ -94,10 +101,10 @@ def _smallest_enclosing_circle_naive(points):
 	# Try all unique pairs
 	result = None
 	for i in range(len(points)):
-		p = points[i]
+		p: tuple[float,float] = points[i]
 		for j in range(i + 1, len(points)):
-			q = points[j]
-			c = smallestenclosingcircle.make_diameter(p, q)
+			q: tuple[float,float] = points[j]
+			c: tuple[float,float,float] = smallestenclosingcircle.make_diameter(p, q)
 			if (result is None or c[2] < result[2]) and \
 					all(smallestenclosingcircle.is_in_circle(c, r) for r in points):
 				result = c
@@ -110,18 +117,18 @@ def _smallest_enclosing_circle_naive(points):
 		for j in range(i + 1, len(points)):
 			q = points[j]
 			for k in range(j + 1, len(points)):
-				r = points[k]
-				c = smallestenclosingcircle.make_circumcircle(p, q, r)
-				if c is not None and (result is None or c[2] < result[2]) and \
-						all(smallestenclosingcircle.is_in_circle(c, s) for s in points):
-					result = c
+				r: tuple[float,float] = points[k]
+				d: tuple[float,float,float]|None = smallestenclosingcircle.make_circumcircle(p, q, r)
+				if d is not None and (result is None or d[2] < result[2]) and \
+						all(smallestenclosingcircle.is_in_circle(d, s) for s in points):
+					result = d
 	
 	if result is None:
 		raise AssertionError()
 	return result
 
 
-_EPSILON = 1e-12
+_EPSILON: float = 1e-12
 
 
 # ---- Main runner ----

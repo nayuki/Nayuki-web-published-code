@@ -1,7 +1,7 @@
 /*
  * Smallest enclosing circle - Demo (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * https://www.nayuki.io/page/smallest-enclosing-circle
  *
  * This program is free software: you can redistribute it and/or modify
@@ -30,18 +30,20 @@ let points = [];
 let draggingPointIndex = -1;
 function initialize() {
     handleRadioButtons();
-    svgElem.onmousedown = ev => handleMouse(ev, "down");
-    svgElem.onmousemove = ev => handleMouse(ev, "move");
-    svgElem.onmouseup = ev => handleMouse(ev, "up");
-    svgElem.onselectstart = ev => ev.preventDefault();
-    function handleMouse(ev, type) {
+    svgElem.addEventListener("selectstart", (ev) => ev.preventDefault());
+    svgElem.addEventListener("mousedown", handleMouse);
+    svgElem.addEventListener("mousemove", handleMouse);
+    svgElem.addEventListener("mouseup", handleMouse);
+    function handleMouse(ev) {
+        if (!(ev instanceof MouseEvent))
+            throw new Error("Unreachable");
         // Calculate SVG coordinates
         const bounds = svgElem.getBoundingClientRect();
         const width = bounds.width / Math.min(bounds.width, bounds.height);
         const height = bounds.height / Math.min(bounds.width, bounds.height);
         const evX = ((ev.clientX - bounds.left) / bounds.width - 0.5) * width;
         const evY = ((ev.clientY - bounds.top) / bounds.height - 0.5) * height;
-        if (type == "down") {
+        if (ev.type == "mousedown") {
             // Find nearest existing point
             let nearestIndex = -1;
             let nearestDist = Infinity;
@@ -65,10 +67,10 @@ function initialize() {
                 if (nearestIndex != -1 && nearestDist < POINT_RADIUS * 1.5)
                     points.splice(nearestIndex, 1);
                 if (nearestDist < POINT_RADIUS * 5) {
-                    svgElem.oncontextmenu = ev => {
+                    svgElem.addEventListener("contextmenu", function handler(ev) {
                         ev.preventDefault();
-                        svgElem.oncontextmenu = null;
-                    };
+                        svgElem.removeEventListener("contextmenu", handler);
+                    });
                 }
             }
             else
@@ -76,11 +78,11 @@ function initialize() {
             manualRadio.checked = true;
             handleRadioButtons();
         }
-        else if (type == "move" || type == "up") {
+        else if (ev.type == "mousemove" || ev.type == "mouseup") {
             if (draggingPointIndex == -1)
                 return;
             points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
-            if (type == "up")
+            if (ev.type == "mouseup")
                 draggingPointIndex = -1;
         }
         else
@@ -88,7 +90,7 @@ function initialize() {
         showPointsAndCircle();
     }
 }
-window.addEventListener("DOMContentLoaded", initialize);
+setTimeout(initialize);
 function handleRadioButtons() {
     staticDemo.stop();
     movingDemo.stop();

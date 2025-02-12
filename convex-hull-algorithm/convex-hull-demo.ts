@@ -1,7 +1,7 @@
 /* 
  * Convex hull algorithm - Demo (TypeScript)
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * https://www.nayuki.io/page/convex-hull-algorithm
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@
 
 
 // DOM elements
-let svgElem = document.querySelector("article svg") as HTMLElement;
+let svgElem = document.querySelector("article svg") as Element;
 let staticRadio = document.getElementById("random-static"  ) as HTMLInputElement;
 let movingRadio = document.getElementById("random-moving"  ) as HTMLInputElement;
 let manualRadio = document.getElementById("manual-position") as HTMLInputElement;
@@ -35,12 +35,15 @@ let draggingPointIndex: number = -1;
 function initialize(): void {
 	handleRadioButtons();
 	
-	svgElem.onmousedown   = ev => handleMouse(ev, "down");
-	svgElem.onmousemove   = ev => handleMouse(ev, "move");
-	svgElem.onmouseup     = ev => handleMouse(ev, "up"  );
-	svgElem.onselectstart = ev => ev.preventDefault();
+	svgElem.addEventListener("selectstart", (ev: Event) => ev.preventDefault());
+	svgElem.addEventListener("mousedown", handleMouse);
+	svgElem.addEventListener("mousemove", handleMouse);
+	svgElem.addEventListener("mouseup"  , handleMouse);
 	
-	function handleMouse(ev: MouseEvent, type: "down"|"move"|"up"): void {
+	function handleMouse(ev: Event): void {
+		if (!(ev instanceof MouseEvent))
+			throw new Error("Unreachable");
+		
 		// Calculate SVG coordinates
 		const bounds: DOMRect = svgElem.getBoundingClientRect();
 		const width : number = bounds.width  / Math.min(bounds.width, bounds.height);
@@ -48,7 +51,7 @@ function initialize(): void {
 		const evX: number = ((ev.clientX - bounds.left) / bounds.width  - 0.5) * width ;
 		const evY: number = ((ev.clientY - bounds.top ) / bounds.height - 0.5) * height;
 		
-		if (type == "down") {
+		if (ev.type == "mousedown") {
 			// Find nearest existing point
 			let nearestIndex: number = -1;
 			let nearestDist: number = Infinity;
@@ -72,21 +75,21 @@ function initialize(): void {
 				if (nearestIndex != -1 && nearestDist < POINT_RADIUS * 1.5)
 					points.splice(nearestIndex, 1);
 				if (nearestDist < POINT_RADIUS * 5) {
-					svgElem.oncontextmenu = ev => {
+					svgElem.addEventListener("contextmenu", function handler(ev: Event): void {
 						ev.preventDefault();
-						svgElem.oncontextmenu = null;
-					};
+						svgElem.removeEventListener("contextmenu", handler);
+					});
 				}
 			} else
 				return;
 			manualRadio.checked = true;
 			handleRadioButtons();
 			
-		} else if (type == "move" || type == "up") {
+		} else if (ev.type == "mousemove" || ev.type == "mouseup") {
 			if (draggingPointIndex == -1)
 				return;
 			points[draggingPointIndex] = new MovingPoint(evX, evY, 0, 0);
-			if (type == "up")
+			if (ev.type == "mouseup")
 				draggingPointIndex = -1;
 		} else
 			throw new Error("Assertion error");
@@ -94,7 +97,7 @@ function initialize(): void {
 	}
 }
 
-window.addEventListener("DOMContentLoaded", initialize);
+setTimeout(initialize);
 
 
 function handleRadioButtons(): void {
