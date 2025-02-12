@@ -22,7 +22,7 @@
 # 
 
 import base64, hashlib, hmac, time, struct, sys, unittest
-from typing import Optional, Union
+from typing import Union
 
 
 # ---- Library functions ----
@@ -32,7 +32,7 @@ def calc_totp(
 		secretkey: bytes,
 		epoch: int = 0,
 		timestep: int = 30,
-		timestamp: Optional[int] = None,
+		timestamp: int|None = None,
 		codelen: int = 6,
 		hashfunc = hashlib.sha1,
 		) -> str:

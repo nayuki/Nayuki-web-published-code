@@ -22,7 +22,7 @@
 # 
 
 import random, unittest
-from typing import Iterator, Optional
+from typing import Iterator
 from avltreelist import AvlTreeList
 
 
@@ -86,7 +86,7 @@ class AvlTreeListTest(unittest.TestCase):
 	
 	
 	def test_set(self) -> None:
-		lst: AvlTreeList[Optional[str]] = AvlTreeList()
+		lst: AvlTreeList[str|None] = AvlTreeList()
 		for _ in range(10):
 			lst.append(None)
 		lst[0] = "zero"

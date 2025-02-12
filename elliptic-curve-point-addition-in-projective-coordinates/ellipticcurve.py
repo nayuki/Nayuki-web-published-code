@@ -22,20 +22,19 @@
 # 
 
 from __future__ import annotations
-from typing import Optional
 
 
 # ---- Elliptic curve points in affine coordinates ----
 
 class AffineCurvePoint:
 	
-	xy: Optional[tuple[FieldInt,FieldInt]]
+	xy: tuple[FieldInt,FieldInt]|None
 	a: FieldInt
 	b: FieldInt
 	modulus: int
 	
 	
-	def __init__(self, xy: Optional[tuple[FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
+	def __init__(self, xy: tuple[FieldInt,FieldInt]|None, a: FieldInt, b: FieldInt, mod: int) -> None:
 		if (xy is not None) and not (xy[0].modulus == xy[1].modulus == mod):
 			raise ValueError("Moduli must match")
 		if not (a.modulus == b.modulus == mod):
@@ -47,7 +46,7 @@ class AffineCurvePoint:
 		self.modulus = mod
 	
 	
-	def _create(self, xy: Optional[tuple[FieldInt,FieldInt]]) -> AffineCurvePoint:
+	def _create(self, xy: tuple[FieldInt,FieldInt]|None) -> AffineCurvePoint:
 		return AffineCurvePoint(xy, self.a, self.b, self.modulus)
 	
 	
@@ -160,13 +159,13 @@ class AffineCurvePoint:
 
 class ProjectiveCurvePoint:
 	
-	xyz: Optional[tuple[FieldInt,FieldInt,FieldInt]]
+	xyz: tuple[FieldInt,FieldInt,FieldInt]|None
 	a: FieldInt
 	b: FieldInt
 	modulus: int
 	
 	
-	def __init__(self, xyz: Optional[tuple[FieldInt,FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
+	def __init__(self, xyz: tuple[FieldInt,FieldInt,FieldInt]|None, a: FieldInt, b: FieldInt, mod: int) -> None:
 		if (xyz is not None) and not (xyz[0].modulus == xyz[1].modulus == xyz[2].modulus == mod):
 			raise ValueError("Moduli must match")
 		if not (a.modulus == b.modulus == mod):
@@ -178,7 +177,7 @@ class ProjectiveCurvePoint:
 		self.modulus = mod
 	
 	
-	def _create(self, xyz: Optional[tuple[FieldInt,FieldInt,FieldInt]]) -> ProjectiveCurvePoint:
+	def _create(self, xyz: tuple[FieldInt,FieldInt,FieldInt]|None) -> ProjectiveCurvePoint:
 		return ProjectiveCurvePoint(xyz, self.a, self.b, self.modulus)
 	
 	

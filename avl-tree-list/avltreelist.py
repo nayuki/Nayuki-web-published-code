@@ -22,7 +22,7 @@
 # 
 
 from __future__ import annotations
-from typing import cast, ClassVar, Generator, Generic, Iterable, Optional, TypeVar
+from typing import cast, ClassVar, Generator, Generic, Iterable, TypeVar
 
 
 E = TypeVar("E")
@@ -34,7 +34,7 @@ class AvlTreeList(Generic[E]):
 	size: int
 	
 	
-	def __init__(self, lst: Optional[Iterable[E]] = None):
+	def __init__(self, lst: Iterable[E]|None = None):
 		self.clear()
 		if lst is not None:
 			self.extend(lst)
@@ -71,7 +71,7 @@ class AvlTreeList(Generic[E]):
 			self.append(val)
 	
 	
-	def pop(self, index: Optional[int] = None) -> E:
+	def pop(self, index: int|None = None) -> E:
 		if index is None:
 			index = len(self) - 1
 		result: E = self[index]
@@ -122,8 +122,8 @@ class AvlTreeList(Generic[E]):
 		value: T
 		height: int
 		size: int
-		left: Optional[AvlTreeList.Node[T]]
-		right: Optional[AvlTreeList.Node[T]]
+		left: AvlTreeList.Node[T]|None
+		right: AvlTreeList.Node[T]|None
 		
 		
 		def __init__(self, val: T, isleaf: bool = False):
@@ -304,7 +304,7 @@ class AvlTreeList(Generic[E]):
 AvlTreeList.Node.EMPTY_LEAF = AvlTreeList.Node(None, True)
 
 
-def _non_none(val: Optional[AvlTreeList.Node[E]]) -> AvlTreeList.Node[E]:
+def _non_none(val: AvlTreeList.Node[E]|None) -> AvlTreeList.Node[E]:
 	if val is None:
 		raise ValueError()
 	return val

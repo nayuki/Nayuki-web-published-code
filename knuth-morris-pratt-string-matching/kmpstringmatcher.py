@@ -21,12 +21,10 @@
 #   Software.
 # 
 
-from typing import Optional
-
 
 # Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
 # If the pattern is found, this returns the index of the start of the earliest match in 'text'. Otherwise None is returned.
-def kmp_search(pattern: str, text: str) -> Optional[int]:
+def kmp_search(pattern: str, text: str) -> int|None:
 	if pattern == "":
 		return 0  # Immediate match
 	

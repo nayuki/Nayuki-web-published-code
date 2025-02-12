@@ -1,7 +1,7 @@
 # 
 # Binomial heap (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binomial-heap
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 from __future__ import annotations
-from typing import Generic, Optional, Protocol, TypeVar
+from typing import Generic, Protocol, TypeVar
 
 
 E = TypeVar("E", bound="_Comparable")
@@ -50,7 +50,7 @@ class BinomialHeap(Generic[E]):
 	
 	def __len__(self) -> int:
 		result: int = 0
-		node: Optional[BinomialHeap.Node[E]] = self.head.next
+		node: BinomialHeap.Node[E]|None = self.head.next
 		while node is not None:
 			result |= 1 << node.rank
 			node = node.next
@@ -68,8 +68,8 @@ class BinomialHeap(Generic[E]):
 	def peek(self) -> E:
 		if self.head.next is None:
 			raise Exception("Empty heap")
-		result: Optional[E] = None
-		node: Optional[BinomialHeap.Node[E]] = self.head.next
+		result: E|None = None
+		node: BinomialHeap.Node[E]|None = self.head.next
 		while node is not None:
 			if result is None or _non_none(node.value) < result:
 				result = node.value
@@ -82,11 +82,11 @@ class BinomialHeap(Generic[E]):
 	def dequeue(self) -> E:
 		if self.head.next is None:
 			raise Exception("Empty heap")
-		min: Optional[E] = None
-		nodebeforemin: Optional[BinomialHeap.Node[E]] = None
+		min: E|None = None
+		nodebeforemin: BinomialHeap.Node[E]|None = None
 		prevnode: BinomialHeap.Node[E] = self.head
 		while True:
-			node: Optional[BinomialHeap.Node[E]] = prevnode.next
+			node: BinomialHeap.Node[E]|None = prevnode.next
 			if node is None:
 				break
 			if min is None or _non_none(node.value) < min:
@@ -111,12 +111,12 @@ class BinomialHeap(Generic[E]):
 		other.head.next = None
 	
 	
-	def _merge(self, other: Optional[BinomialHeap.Node[E]]) -> None:
+	def _merge(self, other: BinomialHeap.Node[E]|None) -> None:
 		assert self.head.rank == -1
 		assert other is None or other.rank >= 0
-		this: Optional[BinomialHeap.Node[E]] = self.head.next
+		this: BinomialHeap.Node[E]|None = self.head.next
 		self.head.next = None
-		prevtail: Optional[BinomialHeap.Node[E]] = None
+		prevtail: BinomialHeap.Node[E]|None = None
 		tail: BinomialHeap.Node[E] = self.head
 		
 		while this is not None or other is not None:
@@ -170,13 +170,13 @@ class BinomialHeap(Generic[E]):
 	
 	class Node(Generic[T]):
 		
-		value: Optional[T]
+		value: T|None
 		rank: int
-		down: Optional[BinomialHeap.Node[T]]
-		next: Optional[BinomialHeap.Node[T]]
+		down: BinomialHeap.Node[T]|None
+		next: BinomialHeap.Node[T]|None
 		
 		
-		def __init__(self, val: Optional[T] = None):
+		def __init__(self, val: T|None = None):
 			self.value = val
 			if val is None:  # Dummy sentinel node at head of list
 				self.rank = -1
@@ -186,12 +186,12 @@ class BinomialHeap(Generic[E]):
 			self.next = None
 		
 		
-		def remove_root(self) -> Optional[BinomialHeap.Node[T]]:
+		def remove_root(self) -> BinomialHeap.Node[T]|None:
 			assert self.next is None
-			result: Optional[BinomialHeap.Node[T]] = None
-			node: Optional[BinomialHeap.Node[T]] = self.down
+			result: BinomialHeap.Node[T]|None = None
+			node: BinomialHeap.Node[T]|None = self.down
 			while node is not None:  # Reverse the order of nodes from descending rank to ascending rank
-				next: Optional[BinomialHeap.Node[T]] = node.next
+				next: BinomialHeap.Node[T]|None = node.next
 				node.next = result
 				result = node
 				node = next
@@ -199,7 +199,7 @@ class BinomialHeap(Generic[E]):
 		
 		
 		# For unit tests
-		def check_structure(self, ismain: bool, lowerbound: Optional[T]) -> None:
+		def check_structure(self, ismain: bool, lowerbound: T|None) -> None:
 			# Basic checks
 			if (self.rank < 0) != (self.value is None):
 				raise AssertionError("Invalid node rank or value")
@@ -233,7 +233,7 @@ class BinomialHeap(Generic[E]):
 
 U = TypeVar("U")
 
-def _non_none(val: Optional[U]) -> U:
+def _non_none(val: U|None) -> U:
 	if val is None:
 		raise ValueError()
 	return val

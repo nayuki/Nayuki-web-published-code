@@ -7,7 +7,6 @@
 # 
 
 import hashlib, itertools
-from typing import Optional
 
 
 def main() -> None:
@@ -20,7 +19,7 @@ def main() -> None:
 	
 	# Initialize values
 	message: bytearray = bytearray([START_CHAR] * MSG_LEN)
-	lowesthash: Optional[str] = None
+	lowesthash: str|None = None
 	
 	# Test all (END_CHAR - START_CHAR + 1)^MSG_LEN possible messages
 	for trials in itertools.count():

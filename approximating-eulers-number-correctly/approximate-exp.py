@@ -6,8 +6,6 @@
 # https://www.nayuki.io/page/approximating-eulers-number-correctly
 # 
 
-from typing import Optional
-
 
 # Runs a demo that prints out some numbers
 def main() -> None:
@@ -29,13 +27,13 @@ def compute_exp(x: int, accuracy: int) -> str:
 	
 	extra_precision: int = x * 4343 // 10 ** (accuracy + 4) + 10  # Initial estimate based on x / log(10)
 	while True:
-		result: Optional[str] = compute_exp_internal(x, accuracy, extra_precision)
+		result: str|None = compute_exp_internal(x, accuracy, extra_precision)
 		if result is not None:
 			return result
 		extra_precision += 2
 
 
-def compute_exp_internal(x: int, accuracy: int, extra_precision: int) -> Optional[str]:
+def compute_exp_internal(x: int, accuracy: int, extra_precision: int) -> str|None:
 	accuracy_scaler: int = 10 ** accuracy
 	extra_scaler   : int = 10 ** extra_precision
 	full_scaler: int = accuracy_scaler * extra_scaler

@@ -20,12 +20,12 @@
 # 
 
 import os, sys, zlib
-from typing import BinaryIO, Optional
+from typing import BinaryIO
 
 
 # ---- Main application ----
 
-def main(args: list[str]) -> Optional[str]:
+def main(args: list[str]) -> str|None:
 	# Handle arguments
 	if len(args) != 3:
 		return "Usage: python forcecrc32.py FileName ByteOffset NewCrc32Value"

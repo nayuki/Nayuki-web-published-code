@@ -22,7 +22,7 @@
 # 
 
 import abc
-from typing import Generator, Generic, Iterable, Optional, Protocol, TypeVar
+from typing import Generator, Generic, Iterable, Protocol, TypeVar
 
 
 E = TypeVar("E", bound="_Comparable")
@@ -36,12 +36,12 @@ class _Comparable(Protocol):
 
 class BinaryArraySet(Generic[E]):
 	
-	values: list[Optional[list[E]]]
+	values: list[list[E]|None]
 	length: int
 	
 	
 	# Runs in O(n * (log n)^2) time
-	def __init__(self, coll: Optional[Iterable[E]] = None):
+	def __init__(self, coll: Iterable[E]|None = None):
 		self.clear()
 		if coll is not None:
 			for val in coll:
@@ -97,7 +97,7 @@ class BinaryArraySet(Generic[E]):
 	
 	# Runs in amortized O(log n) time, worst-case O(n) time
 	def add_unique(self, val: E) -> None:
-		toput: Optional[list[E]] = [val]
+		toput: list[E]|None = [val]
 		for (i, vals) in enumerate(self.values):
 			assert (toput is not None) and (len(toput) == 1 << i)
 			if vals is None:

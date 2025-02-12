@@ -22,7 +22,7 @@
 # 
 
 from __future__ import annotations
-from typing import Generic, Iterable, Iterator, Optional, Protocol, TypeVar, cast
+from typing import Generic, Iterable, Iterator, Protocol, TypeVar, cast
 
 
 E = TypeVar("E", bound="_Comparable")
@@ -44,7 +44,7 @@ class BTreeSet(Generic[E]):
 	
 	
 	# The degree is the minimum number of children each non-root internal node must have.
-	def __init__(self, degree: int, coll: Optional[Iterable[E]] = None):
+	def __init__(self, degree: int, coll: Iterable[E]|None = None):
 		if degree < 2:
 			raise ValueError("Degree must be at least 2")
 		self.minkeys = degree - 1      # At least 1, equal to degree-1
@@ -220,7 +220,7 @@ class BTreeSet(Generic[E]):
 	class Node(Generic[T]):
 		
 		keys: list[T]
-		children: Optional[list[BTreeSet.Node[T]]]
+		children: list[BTreeSet.Node[T]]|None
 		
 		
 		# -- Constructor --
@@ -293,8 +293,8 @@ class BTreeSet(Generic[E]):
 			assert len(child.keys) == minkeys
 			
 			# Get siblings
-			left : Optional[BTreeSet.Node[T]] = cast(list[BTreeSet.Node[T]], self.children)[index - 1] if index >= 1 else None
-			right: Optional[BTreeSet.Node[T]] = cast(list[BTreeSet.Node[T]], self.children)[index + 1] if index < len(self.keys) else None
+			left : BTreeSet.Node[T]|None = cast(list[BTreeSet.Node[T]], self.children)[index - 1] if index >= 1 else None
+			right: BTreeSet.Node[T]|None = cast(list[BTreeSet.Node[T]], self.children)[index + 1] if index < len(self.keys) else None
 			internal: bool = not child.is_leaf()
 			assert left is not None or right is not None  # At least one sibling exists because degree >= 2
 			assert left  is None or left .is_leaf() != internal  # Sibling must be same type (internal/leaf) as child
@@ -369,7 +369,7 @@ class BTreeSet(Generic[E]):
 		
 		# Checks the structure recursively and returns the total number
 		# of keys in the subtree rooted at this node. For unit tests.
-		def check_structure(self, minkeys: int, maxkeys: int, isroot: bool, leafdepth: int, min: Optional[T], max: Optional[T]) -> int:
+		def check_structure(self, minkeys: int, maxkeys: int, isroot: bool, leafdepth: int, min: T|None, max: T|None) -> int:
 			# Check basic fields
 			keys: list[T] = self.keys
 			numkeys: int = len(keys)
@@ -383,10 +383,10 @@ class BTreeSet(Generic[E]):
 				raise AssertionError("Invalid number of keys")
 			
 			# Check keys for strict increasing order
-			tempkeys: list[Optional[T]] = [min] + keys + [max]
+			tempkeys: list[T|None] = [min] + keys + [max]
 			for i in range(len(tempkeys) - 1):
-				x: Optional[T] = tempkeys[i]
-				y: Optional[T] = tempkeys[i + 1]
+				x: T|None = tempkeys[i]
+				y: T|None = tempkeys[i + 1]
 				if x is not None and y is not None and y <= x:
 					raise AssertionError("Invalid key ordering")
 			

@@ -9,7 +9,7 @@
 from __future__ import annotations
 import datetime, os, subprocess
 from types import TracebackType
-from typing import IO, Optional, Type
+from typing import IO, Type
 
 
 # Note: Ticks is the number of 100-nanosecond units since the epoch of
@@ -46,7 +46,7 @@ class WindowsTimestampAccessor:
 	def __enter__(self) -> WindowsTimestampAccessor:
 		return self
 	
-	def __exit__(self, type: Optional[Type[BaseException]], value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+	def __exit__(self, type: Type[BaseException]|None, value: BaseException|None, traceback: TracebackType|None) -> None:
 		self.close()
 	
 	

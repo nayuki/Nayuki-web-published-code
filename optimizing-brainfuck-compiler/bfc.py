@@ -11,12 +11,12 @@
 
 from __future__ import annotations
 import dataclasses, pathlib, re, sys
-from typing import Callable, Dict, Iterator, Optional, Sequence
+from typing import Callable, Dict, Iterator, Sequence
 
 
 # ---- Main ----
 
-def main(args: Sequence[str]) -> Optional[str]:
+def main(args: Sequence[str]) -> str|None:
 	# Handle command-line arguments
 	if len(args) != 2:
 		return "Usage: python bfc.py BrainfuckFile OutputFile.c/java/py"
@@ -88,7 +88,7 @@ def optimize(commands: list[Command]) -> list[Command]:
 	result: list[Command] = []
 	offset: int = 0  # How much the memory pointer has moved without being updated
 	off: int
-	prev: Optional[Command]
+	prev: Command|None
 	for cmd in commands:
 		if isinstance(cmd, Assign):
 			# Try to fuse into previous command
@@ -131,11 +131,11 @@ def optimize(commands: list[Command]) -> list[Command]:
 				offset = 0
 			
 			if isinstance(cmd, Loop):
-				temp0: Optional[list[Command]] = optimize_simple_loop(cmd.commands)
+				temp0: list[Command]|None = optimize_simple_loop(cmd.commands)
 				if temp0 is not None:
 					result.extend(temp0)
 				else:
-					temp1: Optional[If] = optimize_complex_loop(cmd.commands)
+					temp1: If|None = optimize_complex_loop(cmd.commands)
 					if temp1 is not None:
 						result.append(temp1)
 					else:
@@ -152,7 +152,7 @@ def optimize(commands: list[Command]) -> list[Command]:
 
 
 # Tries to optimize the given list of looped commands into a list that would be executed without looping. Returns None if not possible.
-def optimize_simple_loop(commands: list[Command]) -> Optional[list[Command]]:
+def optimize_simple_loop(commands: list[Command]) -> list[Command]|None:
 	deltas: Dict[int,int] = {}  # delta[i] = v means that in each loop iteration, mem[p + i] is added by the amount v
 	offset: int = 0
 	for cmd in commands:
@@ -181,7 +181,7 @@ def optimize_simple_loop(commands: list[Command]) -> Optional[list[Command]]:
 # - There are no commands other than Add/Assign/MultAdd/MultAssign (in particular, no net movement, I/O, or embedded loops)
 # - The value at offset 0 is decremented by 1
 # - All MultAdd and MultAssign commands read from {an offset other than 0 whose value is cleared before the end in the loop}
-def optimize_complex_loop(commands: list[Command]) -> Optional[If]:
+def optimize_complex_loop(commands: list[Command]) -> If|None:
 	result: list[Command] = []
 	origindelta: int = 0
 	clears: set[int] = {0}
@@ -462,6 +462,6 @@ class Loop(Command):
 # ---- Miscellaneous ----
 
 if __name__ == "__main__":
-	errmsg: Optional[str] = main(sys.argv[1 : ])
+	errmsg: str|None = main(sys.argv[1 : ])
 	if errmsg is not None:
 		sys.exit(errmsg)

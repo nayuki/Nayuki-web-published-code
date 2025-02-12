@@ -7,7 +7,6 @@
 # 
 
 import time
-from typing import Optional
 
 
 # Runs a demo that prints out some numbers
@@ -38,13 +37,13 @@ def compute_eulers_number(accuracy: int) -> str:
 	
 	extra_precision: int = 7
 	while True:
-		result: Optional[str] = compute_eulers_number_internal(accuracy, extra_precision)
+		result: str|None = compute_eulers_number_internal(accuracy, extra_precision)
 		if result is not None:
 			return result
 		extra_precision += 2
 
 
-def compute_eulers_number_internal(accuracy: int, extra_precision: int) -> Optional[str]:
+def compute_eulers_number_internal(accuracy: int, extra_precision: int) -> str|None:
 	full_scaler: int = 10 ** (accuracy + extra_precision)
 	extra_scaler: int = 10 ** extra_precision
 	
