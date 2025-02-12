@@ -1,7 +1,7 @@
 # 
 # AVL tree list (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/avl-tree-list
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 from __future__ import annotations
-from typing import cast, ClassVar, Generator, Generic, Iterable, List, Optional, Set, TypeVar
+from typing import cast, ClassVar, Generator, Generic, Iterable, Optional, Set, TypeVar
 
 
 E = TypeVar("E")
@@ -91,7 +91,7 @@ class AvlTreeList(Generic[E]):
 	
 	# Note: Not fail-fast on concurrent modification.
 	def __iter__(self) -> Generator[E,None,None]:
-		stack: List[AvlTreeList.Node[E]] = []
+		stack: list[AvlTreeList.Node[E]] = []
 		node: AvlTreeList.Node[E] = self.root
 		while True:
 			while node is not cast(AvlTreeList.Node[E], AvlTreeList.Node.EMPTY_LEAF):

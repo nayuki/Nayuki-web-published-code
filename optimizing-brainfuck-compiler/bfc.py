@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 import dataclasses, pathlib, re, sys
-from typing import Callable, Dict, Iterator, List, Optional, Sequence, Set
+from typing import Callable, Dict, Iterator, Optional, Sequence, Set
 
 
 # ---- Main ----
@@ -26,7 +26,7 @@ def main(args: Sequence[str]) -> Optional[str]:
 		return f"{inpath}: Not a file"
 	
 	outpath: pathlib.Path = pathlib.Path(args[1])
-	outfunc: Callable[[List[Command],str,bool,int], str]
+	outfunc: Callable[[list[Command],str,bool,int], str]
 	if   outpath.suffix == ".c"   :  outfunc = commands_to_c
 	elif outpath.suffix == ".java":  outfunc = commands_to_java
 	elif outpath.suffix == ".py"  :  outfunc = commands_to_python
@@ -36,7 +36,7 @@ def main(args: Sequence[str]) -> Optional[str]:
 	incode: str = inpath.read_text()
 	
 	# Parse and optimize Brainfuck code
-	commands: List[Command] = parse(incode)
+	commands: list[Command] = parse(incode)
 	commands = optimize(commands)
 	commands = optimize(commands)
 	commands = optimize(commands)
@@ -50,13 +50,13 @@ def main(args: Sequence[str]) -> Optional[str]:
 # ---- Parser ----
 
 # Parses the given raw code string, returning a list of Command objects.
-def parse(codestr: str) -> List[Command]:
+def parse(codestr: str) -> list[Command]:
 	codestr = re.sub(r"[^+\-<>.,\[\]]", "", codestr)  # Keep only the 8 Brainfuck characters
 	return _parse(iter(codestr), True)
 
 
-def _parse(chargen: Iterator[str], maincall: bool) -> List[Command]:
-	result: List[Command] = []
+def _parse(chargen: Iterator[str], maincall: bool) -> list[Command]:
+	result: list[Command] = []
 	for c in chargen:
 		item: Command
 		if   c == "+":  item = Add(0, +1)
@@ -84,8 +84,8 @@ def _parse(chargen: Iterator[str], maincall: bool) -> List[Command]:
 # ---- Optimizers ----
 
 # Optimizes the given list of Commands, returning a new list of Commands.
-def optimize(commands: List[Command]) -> List[Command]:
-	result: List[Command] = []
+def optimize(commands: list[Command]) -> list[Command]:
+	result: list[Command] = []
 	offset: int = 0  # How much the memory pointer has moved without being updated
 	off: int
 	prev: Optional[Command]
@@ -131,7 +131,7 @@ def optimize(commands: List[Command]) -> List[Command]:
 				offset = 0
 			
 			if isinstance(cmd, Loop):
-				temp0: Optional[List[Command]] = optimize_simple_loop(cmd.commands)
+				temp0: Optional[list[Command]] = optimize_simple_loop(cmd.commands)
 				if temp0 is not None:
 					result.extend(temp0)
 				else:
@@ -152,7 +152,7 @@ def optimize(commands: List[Command]) -> List[Command]:
 
 
 # Tries to optimize the given list of looped commands into a list that would be executed without looping. Returns None if not possible.
-def optimize_simple_loop(commands: List[Command]) -> Optional[List[Command]]:
+def optimize_simple_loop(commands: list[Command]) -> Optional[list[Command]]:
 	deltas: Dict[int,int] = {}  # delta[i] = v means that in each loop iteration, mem[p + i] is added by the amount v
 	offset: int = 0
 	for cmd in commands:
@@ -170,7 +170,7 @@ def optimize_simple_loop(commands: List[Command]) -> Optional[List[Command]]:
 	
 	# Convert the loop into a list of multiply-add commands that source from the cell being tested
 	del deltas[0]
-	result: List[Command] = []
+	result: list[Command] = []
 	for off in sorted(deltas.keys()):
 		result.append(MultAdd(0, off, deltas[off]))
 	result.append(Assign(0, 0))
@@ -181,8 +181,8 @@ def optimize_simple_loop(commands: List[Command]) -> Optional[List[Command]]:
 # - There are no commands other than Add/Assign/MultAdd/MultAssign (in particular, no net movement, I/O, or embedded loops)
 # - The value at offset 0 is decremented by 1
 # - All MultAdd and MultAssign commands read from {an offset other than 0 whose value is cleared before the end in the loop}
-def optimize_complex_loop(commands: List[Command]) -> Optional[If]:
-	result: List[Command] = []
+def optimize_complex_loop(commands: list[Command]) -> Optional[If]:
+	result: list[Command] = []
 	origindelta: int = 0
 	clears: Set[int] = {0}
 	for cmd in commands:
@@ -221,7 +221,7 @@ def optimize_complex_loop(commands: List[Command]) -> Optional[If]:
 
 # ---- Output formatters ----
 
-def commands_to_c(commands: List[Command], name: str, maincall: bool = True, indentlevel: int = 1) -> str:
+def commands_to_c(commands: list[Command], name: str, maincall: bool = True, indentlevel: int = 1) -> str:
 	def indent(line: str, level: int = indentlevel) -> str:
 		return "\t" * level + line + "\n"
 	
@@ -292,7 +292,7 @@ def commands_to_c(commands: List[Command], name: str, maincall: bool = True, ind
 	return result
 
 
-def commands_to_java(commands: List[Command], name: str, maincall: bool = True, indentlevel: int = 2) -> str:
+def commands_to_java(commands: list[Command], name: str, maincall: bool = True, indentlevel: int = 2) -> str:
 	def indent(line: str, level: int = indentlevel) -> str:
 		return "\t" * level + line + "\n"
 	
@@ -360,7 +360,7 @@ def commands_to_java(commands: List[Command], name: str, maincall: bool = True, 
 	return result
 
 
-def commands_to_python(commands: List[Command], name: str, maincall: bool = True, indentlevel: int = 0) -> str:
+def commands_to_python(commands: list[Command], name: str, maincall: bool = True, indentlevel: int = 0) -> str:
 	def indent(line: str, level: int = indentlevel) -> str:
 		return "\t" * level + line + "\n"
 	
@@ -452,11 +452,11 @@ class Output(Command):
 
 @dataclasses.dataclass
 class If(Command):
-	commands: List[Command]
+	commands: list[Command]
 
 @dataclasses.dataclass
 class Loop(Command):
-	commands: List[Command]
+	commands: list[Command]
 
 
 # ---- Miscellaneous ----

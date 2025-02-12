@@ -22,7 +22,6 @@
 # 
 
 import itertools
-from typing import List
 
 
 # Represents a set of disjoint sets. Also known as the union-find data structure.
@@ -31,8 +30,8 @@ from typing import List
 class DisjointSet:
 	
 	num_sets: int
-	parents: List[int]
-	sizes: List[int]
+	parents: list[int]
+	sizes: list[int]
 	
 	
 	# Constructs a new set containing the given number of singleton sets.

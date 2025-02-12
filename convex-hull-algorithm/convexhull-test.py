@@ -1,7 +1,7 @@
 # 
 # Convex hull algorithm - Test suite (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # https://www.nayuki.io/page/convex-hull-algorithm
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 # 
 
 import random, unittest
-from typing import List, Sequence, Tuple
+from typing import Sequence, Tuple
 import convexhull
 
 
@@ -29,72 +29,72 @@ class ConvexHullTest(unittest.TestCase):
 	# ---- Fixed test vectors ----
 	
 	def test_empty(self) -> None:
-		points: List[Tuple[float,float]] = []
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = []
+		points: list[Tuple[float,float]] = []
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = []
 		self.assertEqual(expect, actual)
 	
 	
 	def test_one(self) -> None:
-		points: List[Tuple[float,float]] = [(3, 1)]
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = points
+		points: list[Tuple[float,float]] = [(3, 1)]
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = points
 		self.assertEqual(expect, actual)
 	
 	
 	def test_two_duplicate(self) -> None:
-		points: List[Tuple[float,float]] = [(0, 0), (0, 0)]
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = [(0, 0)]
+		points: list[Tuple[float,float]] = [(0, 0), (0, 0)]
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = [(0, 0)]
 		self.assertEqual(expect, actual)
 	
 	
 	def test_two_horizontal0(self) -> None:
-		points: List[Tuple[float,float]] = [(2, 0), (5, 0)]
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = points
+		points: list[Tuple[float,float]] = [(2, 0), (5, 0)]
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = points
 		self.assertEqual(expect, actual)
 	
 	
 	def test_two_horizontal1(self) -> None:
-		points: List[Tuple[float,float]] = [(-6, -3), (-8, -3)]
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = [(-8, -3), (-6, -3)]
+		points: list[Tuple[float,float]] = [(-6, -3), (-8, -3)]
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = [(-8, -3), (-6, -3)]
 		self.assertEqual(expect, actual)
 	
 	
 	def test_two_vertical0(self) -> None:
-		points: List[Tuple[float,float]] = [(1, -4), (1, 4)]
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = points
+		points: list[Tuple[float,float]] = [(1, -4), (1, 4)]
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = points
 		self.assertEqual(expect, actual)
 	
 	
 	def test_two_vertical1(self) -> None:
-		points: List[Tuple[float,float]] = [(-1, 2), (-1, -3)]
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = [(-1, -3), (-1, 2)]
+		points: list[Tuple[float,float]] = [(-1, 2), (-1, -3)]
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = [(-1, -3), (-1, 2)]
 		self.assertEqual(expect, actual)
 	
 	
 	def test_two_diagonal0(self) -> None:
-		points: List[Tuple[float,float]] = [(-2, -3), (2, 0)]
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = points
+		points: list[Tuple[float,float]] = [(-2, -3), (2, 0)]
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = points
 		self.assertEqual(expect, actual)
 	
 	
 	def test_two_diagonal1(self) -> None:
-		points: List[Tuple[float,float]] = [(-2, 3), (2, 0)]
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = points
+		points: list[Tuple[float,float]] = [(-2, 3), (2, 0)]
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = points
 		self.assertEqual(expect, actual)
 	
 	
 	def test_rectangle(self) -> None:
-		points: List[Tuple[float,float]] = [(-3, 2), (1, 2), (1, -4), (-3, -4)]
-		actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-		expect: List[Tuple[float,float]] = [(-3, -4), (-3, 2), (1, 2), (1, -4)]
+		points: list[Tuple[float,float]] = [(-3, 2), (1, 2), (1, -4), (-3, -4)]
+		actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+		expect: list[Tuple[float,float]] = [(-3, -4), (-3, 2), (1, 2), (1, -4)]
 		self.assertEqual(expect, actual)
 	
 	
@@ -107,12 +107,12 @@ class ConvexHullTest(unittest.TestCase):
 			numpoints: int = random.randrange(30) + 1
 			if random.random() < 0.5:
 				y: float = random.gauss(0, 1)
-				points: List[Tuple[float,float]] = [(random.gauss(0, 1), y) for _ in range(numpoints)]
+				points: list[Tuple[float,float]] = [(random.gauss(0, 1), y) for _ in range(numpoints)]
 			else:
 				y = random.randrange(20) - 10
 				points = [(random.randrange(30), y) for _ in range(numpoints)]
-			actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-			expected: List[Tuple[float,float]] = [min(points)]
+			actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+			expected: list[Tuple[float,float]] = [min(points)]
 			if max(points) != min(points):
 				expected.append(max(points))
 			self.assertEqual(actual, expected)
@@ -124,12 +124,12 @@ class ConvexHullTest(unittest.TestCase):
 			numpoints: int = random.randrange(30) + 1
 			if random.random() < 0.5:
 				x: float = random.gauss(0, 1)
-				points: List[Tuple[float,float]] = [(x, random.gauss(0, 1)) for _ in range(numpoints)]
+				points: list[Tuple[float,float]] = [(x, random.gauss(0, 1)) for _ in range(numpoints)]
 			else:
 				x = random.randrange(20) - 10
 				points = [(x, random.randrange(30)) for _ in range(numpoints)]
-			actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-			expected: List[Tuple[float,float]] = [min(points)]
+			actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+			expected: list[Tuple[float,float]] = [min(points)]
 			if max(points) != min(points):
 				expected.append(max(points))
 			self.assertEqual(actual, expected)
@@ -140,11 +140,11 @@ class ConvexHullTest(unittest.TestCase):
 		for _ in range(TRIALS):
 			numpoints: int = random.randrange(100)
 			if random.random() < 0.5:
-				points: List[Tuple[float,float]] = [(random.gauss(0, 1), random.gauss(0, 1)) for _ in range(numpoints)]
+				points: list[Tuple[float,float]] = [(random.gauss(0, 1), random.gauss(0, 1)) for _ in range(numpoints)]
 			else:
 				points = [(random.randrange(10), random.randrange(10)) for _ in range(numpoints)]
-			actual: List[Tuple[float,float]] = convexhull.make_hull(points)
-			expected: List[Tuple[float,float]] = ConvexHullTest.make_hull_naive(points)
+			actual: list[Tuple[float,float]] = convexhull.make_hull(points)
+			expected: list[Tuple[float,float]] = ConvexHullTest.make_hull_naive(points)
 			self.assertEqual(actual, expected)
 	
 	
@@ -155,12 +155,12 @@ class ConvexHullTest(unittest.TestCase):
 			# Generate random points
 			numpoints: int = random.randrange(100)
 			if random.random() < 0.5:
-				points: List[Tuple[float,float]] = [(random.gauss(0, 1), random.gauss(0, 1)) for _ in range(numpoints)]
+				points: list[Tuple[float,float]] = [(random.gauss(0, 1), random.gauss(0, 1)) for _ in range(numpoints)]
 			else:
 				points = [(random.randrange(10), random.randrange(10)) for _ in range(numpoints)]
 			
 			# Compute hull and check properties
-			hull: List[Tuple[float,float]] = convexhull.make_hull(points)
+			hull: list[Tuple[float,float]] = convexhull.make_hull(points)
 			self.assertTrue(ConvexHullTest.is_polygon_convex(hull))
 			for p in points:
 				self.assertTrue(ConvexHullTest.is_point_in_convex_polygon(hull, p))
@@ -170,17 +170,17 @@ class ConvexHullTest(unittest.TestCase):
 				dupe: int = random.randrange(10) + 1
 				for _ in range(dupe):
 					points.append(points[random.randrange(len(points))])
-				nexthull: List[Tuple[float,float]] = convexhull.make_hull(points)
+				nexthull: list[Tuple[float,float]] = convexhull.make_hull(points)
 				self.assertEqual(hull, nexthull)
 	
 	
 	@staticmethod
-	def make_hull_naive(points: Sequence[Tuple[float,float]]) -> List[Tuple[float,float]]:
+	def make_hull_naive(points: Sequence[Tuple[float,float]]) -> list[Tuple[float,float]]:
 		if len(points) <= 1:
 			return list(points)
 		
 		# Jarvis march / gift wrapping algorithm
-		result: List[Tuple[float,float]] = []
+		result: list[Tuple[float,float]] = []
 		point: Tuple[float,float] = min(points)
 		while True:
 			result.append(point)

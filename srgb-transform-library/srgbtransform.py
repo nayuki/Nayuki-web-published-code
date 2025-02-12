@@ -21,8 +21,6 @@
 #   Software.
 # 
 
-from typing import List
-
 
 def srgb_to_linear(x: float) -> float:
 	if x <= 0.0:
@@ -55,7 +53,7 @@ def linear_to_srgb(x: float) -> float:
 def linear_to_srgb_8bit(x: float) -> int:
 	if x <= 0.0:
 		return 0
-	table: List[float] = _SRGB_8BIT_TO_LINEAR
+	table: list[float] = _SRGB_8BIT_TO_LINEAR
 	if x >= 1.0:
 		return len(table) - 1
 	y: int = 0
@@ -67,4 +65,4 @@ def linear_to_srgb_8bit(x: float) -> int:
 	return y if (x - table[y] <= table[y + 1] - x) else (y + 1)
 
 
-_SRGB_8BIT_TO_LINEAR: List[float] = [srgb_to_linear(i / 255) for i in range(256)]
+_SRGB_8BIT_TO_LINEAR: list[float] = [srgb_to_linear(i / 255) for i in range(256)]

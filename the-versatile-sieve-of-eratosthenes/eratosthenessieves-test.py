@@ -1,11 +1,11 @@
 # 
 # Test of variants of the sieve of Eratosthenes (Python)
-# by Project Nayuki, 2021. Public domain.
+# by Project Nayuki, 2025. Public domain.
 # https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
 # 
 
 import unittest
-from typing import Any, Callable, List
+from typing import Any, Callable
 import eratosthenessieves
 
 
@@ -21,7 +21,7 @@ class EratosthenesSievesTest(unittest.TestCase):
 	
 	def test_prefix_consistency(self) -> None:
 		N: int = 3000
-		FUNCS: List[Callable[[int], List[Any]]] = [
+		FUNCS: list[Callable[[int], list[Any]]] = [
 			eratosthenessieves.sieve_primeness,
 			eratosthenessieves.sieve_smallest_prime_factor,
 			eratosthenessieves.sieve_totient,
@@ -29,9 +29,9 @@ class EratosthenesSievesTest(unittest.TestCase):
 			eratosthenessieves.sieve_radical,
 		]
 		for func in FUNCS:
-			prev: List[Any] = []
+			prev: list[Any] = []
 			for i in range(N):
-				cur: List[Any] = func(i)
+				cur: list[Any] = func(i)
 				self.assertEqual(len(cur), len(prev) + 1)
 				self.assertEqual(cur[ : -1], prev)
 				prev = cur

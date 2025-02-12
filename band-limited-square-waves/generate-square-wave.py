@@ -1,16 +1,15 @@
 # 
 # Band-limited square waves (Python)
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/band-limited-square-waves
 # 
 
 import math, pathlib, struct, sys
-from typing import List
 
 
-def main(args: List[str]) -> None:
+def main(args: list[str]) -> None:
 	# Check number of command line arguments
 	if len(args) not in (5, 6):
 		sys.exit("""Usage: python generate-square-wave.py Frequency DutyCycle SampleRate Duration [BandLimited/Naive] Output.wav
@@ -61,7 +60,7 @@ Example: python generate-square-wave.py 440.0 0.5 48000 1.0 BandLimited Output.w
 		
 		if mode == "BandLimited":
 			# Calculate harmonic amplitudes
-			coefficients: List[float] = [dutycycle - 0.5]  # Start with DC coefficient
+			coefficients: list[float] = [dutycycle - 0.5]  # Start with DC coefficient
 			numharmonics: int = int(samplerate // (frequency * 2))
 			coefficients += [math.sin(i * dutycycle * math.pi) * 2 / (i * math.pi)
 				for i in range(1, numharmonics + 1)]

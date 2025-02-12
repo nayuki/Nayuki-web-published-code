@@ -1,7 +1,7 @@
 # 
 # CRC-32 forcer (Python)
 # 
-# Copyright (c) 2020 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # https://www.nayuki.io/page/forcing-a-files-crc-to-any-value
 # 
 # This program is free software: you can redistribute it and/or modify
@@ -20,12 +20,12 @@
 # 
 
 import os, sys, zlib
-from typing import BinaryIO, List, Optional, Tuple
+from typing import BinaryIO, Optional, Tuple
 
 
 # ---- Main application ----
 
-def main(args: List[str]) -> Optional[str]:
+def main(args: list[str]) -> Optional[str]:
 	# Handle arguments
 	if len(args) != 3:
 		return "Usage: python forcecrc32.py FileName ByteOffset NewCrc32Value"

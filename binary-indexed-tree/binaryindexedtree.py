@@ -1,7 +1,7 @@
 # 
 # Binary indexed tree (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-indexed-tree
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,12 +21,12 @@
 #   Software.
 # 
 
-from typing import Iterable, List, Union
+from typing import Iterable, Union
 
 
 class BinaryIndexedTree:
 	
-	sumtree: List[int]
+	sumtree: list[int]
 	
 	
 	def __init__(self, arg: Union[int,Iterable[int]]):

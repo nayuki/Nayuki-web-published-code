@@ -22,7 +22,7 @@
 # 
 
 import base64, hashlib, hmac, time, struct, sys, unittest
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 
 
 # ---- Library functions ----
@@ -87,7 +87,7 @@ def calc_totp_compact_default(secretkey: bytes) -> str:
 class TotpTest(unittest.TestCase):
 	
 	def test_hotp(self) -> None:
-		CASES: List[Tuple[int,str]] = [
+		CASES: list[Tuple[int,str]] = [
 			(0, "284755224"),
 			(1, "094287082"),
 			(2, "137359152"),
@@ -107,7 +107,7 @@ class TotpTest(unittest.TestCase):
 	
 	
 	def test_totp(self) -> None:
-		CASES: List[Tuple[int,str,str,str]] = [
+		CASES: list[Tuple[int,str,str,str]] = [
 			(         59, "94287082", "46119246", "90693936"),
 			( 1111111109, "07081804", "68084774", "25091201"),
 			( 1111111111, "14050471", "67062674", "99943326"),
@@ -115,7 +115,7 @@ class TotpTest(unittest.TestCase):
 			( 2000000000, "69279037", "90698825", "38618901"),
 			(20000000000, "65353130", "77737706", "47863826"),
 		]
-		SECRET_KEYS: List[bytes] = [
+		SECRET_KEYS: list[bytes] = [
 			b"12345678901234567890",
 			b"12345678901234567890123456789012",
 			b"1234567890123456789012345678901234567890123456789012345678901234",
@@ -130,7 +130,7 @@ class TotpTest(unittest.TestCase):
 
 # ---- Main program ----
 
-def main(args: List[str]) -> None:
+def main(args: list[str]) -> None:
 	if len(args) == 0:
 		unittest.main()
 	elif len(args) == 1:

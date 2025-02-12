@@ -22,7 +22,6 @@
 # 
 
 import random, unittest
-from typing import List
 from disjointset import DisjointSet
 
 
@@ -114,7 +113,7 @@ class DisjointSetTest(unittest.TestCase):
 # ---- Helper class ----
 
 class NaiveDisjointSet:
-	representatives: List[int]
+	representatives: list[int]
 	
 	def __init__(self, numelems: int):
 		self.representatives = list(range(numelems))

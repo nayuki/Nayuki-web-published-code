@@ -1,7 +1,7 @@
 # 
 # Elliptic curve point addition in projective coordinates
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/elliptic-curve-point-addition-in-projective-coordinates
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,6 @@
 # 
 
 import random, unittest
-from typing import List
 from ellipticcurve import AffineCurvePoint, ProjectiveCurvePoint, FieldInt
 
 
@@ -102,7 +101,7 @@ class EllipticCurveTest(unittest.TestCase):
 class FieldIntTest(unittest.TestCase):
 	
 	def test_reciprocal(self) -> None:
-		CASES: List[List[int]] = [
+		CASES: list[list[int]] = [
 			[0x0000000000000000000000000000000000000000000000000000000000000001, 0x0000000000000000000000000000000000000000000000000000000000000001],
 			[0x0000000000000000000000000000000000000000000000000000000000000002, 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7FFFFE18],
 			[0x0000000000000000000000000000000000000000000000000000000000000003, 0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9FFFFFD75],

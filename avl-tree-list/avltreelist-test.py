@@ -1,7 +1,7 @@
 # 
 # AVL tree list test (Python)
 # 
-# Copyright (c) 2022 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/avl-tree-list
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 import random, unittest
-from typing import Iterator, List, Optional
+from typing import Iterator, Optional
 from avltreelist import AvlTreeList
 
 
@@ -328,7 +328,7 @@ class AvlTreeListTest(unittest.TestCase):
 	# Comprehensively tests all the defined methods.
 	def test_against_python_list_randomly(self) -> None:
 		ITERATIONS: int = 3000
-		list0: List[int] = []
+		list0: list[int] = []
 		list1: AvlTreeList[int] = AvlTreeList()
 		length = 0
 		for i in range(ITERATIONS):

@@ -6,7 +6,7 @@
 # https://www.nayuki.io/page/primitive-recursive-functions
 # 
 
-from typing import Callable, List
+from typing import Callable
 
 
 # ---- Classes for primitive recursive functions ----
@@ -15,7 +15,7 @@ from typing import Callable, List
 # All subclasses should be designed to be immutable.
 class PrimRecFunc:
 	
-	def eval(self, xs: List[int]) -> int:
+	def eval(self, xs: list[int]) -> int:
 		raise NotImplementedError()
 	
 	def __str__(self) -> str:
@@ -25,7 +25,7 @@ class PrimRecFunc:
 # Zero function: Z(x) = 0
 class _Z(PrimRecFunc):  # Private class
 	
-	def eval(self, xs: List[int]) -> int:
+	def eval(self, xs: list[int]) -> int:
 		assert len(xs) == 1
 		assert xs[0] >= 0
 		return 0
@@ -39,7 +39,7 @@ Z: PrimRecFunc = _Z()  # Public singleton instance
 # Successor function: S(x) = x + 1
 class _S(PrimRecFunc):  # Private class
 	
-	def eval(self, xs: List[int]) -> int:
+	def eval(self, xs: list[int]) -> int:
 		assert len(xs) == 1
 		assert xs[0] >= 0
 		return xs[0] + 1
@@ -59,7 +59,7 @@ class I(PrimRecFunc):
 		self.n = n
 		self.i = i
 	
-	def eval(self, xs: List[int]) -> int:
+	def eval(self, xs: list[int]) -> int:
 		assert len(xs) == self.n
 		for x in xs:
 			assert x >= 0
@@ -72,12 +72,12 @@ class I(PrimRecFunc):
 # Composition function: C_{f, g_0, ..., g_{k-1}}(xs) = f(g_0(xs), ..., g_{k-1}(xs))
 class C(PrimRecFunc):
 	
-	def __init__(self, f: PrimRecFunc, gs: List[PrimRecFunc]):
+	def __init__(self, f: PrimRecFunc, gs: list[PrimRecFunc]):
 		assert len(gs) > 0
 		self.f  = f
 		self.gs = gs
 	
-	def eval(self, xs: List[int]) -> int:
+	def eval(self, xs: list[int]) -> int:
 		return self.f.eval([g.eval(xs) for g in self.gs])
 	
 	def __str__(self) -> str:
@@ -92,7 +92,7 @@ class R(PrimRecFunc):
 		self.g = g
 	
 	# Efficient evaluation - less iteration overhead (faster) and does not recurse on self (constant stack space)
-	def eval(self, xs: List[int]) -> int:
+	def eval(self, xs: list[int]) -> int:
 		assert len(xs) >= 2
 		val: int = self.f.eval(xs[1:])
 		for i in range(xs[0]):
@@ -100,7 +100,7 @@ class R(PrimRecFunc):
 		return val
 	
 	# Naive evaluation - directly from the mathematical definition
-	def eval_naive(self, xs: List[int]) -> int:
+	def eval_naive(self, xs: list[int]) -> int:
 		assert len(xs) >= 2
 		y: int = xs[0]
 		if y == 0:
@@ -115,10 +115,10 @@ class R(PrimRecFunc):
 # Native function implementation
 class Native(PrimRecFunc):
 	
-	def __init__(self, f: Callable[[List[int]],int]):
+	def __init__(self, f: Callable[[list[int]],int]):
 		self.f = f
 	
-	def eval(self, xs: List[int]) -> int:
+	def eval(self, xs: list[int]) -> int:
 		return self.f(xs)
 	
 	def __str__(self) -> str:

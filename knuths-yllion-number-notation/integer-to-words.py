@@ -3,13 +3,12 @@
 # 
 # Run main program with no arguments. Prints stuff to standard output.
 # 
-# Copyright (c) 2022 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/knuths-yllion-number-notation
 # 
 
 import codecs, itertools, random, sys
-from typing import List
 
 
 # ---- Main runnable demo ----
@@ -70,7 +69,7 @@ class ConventionalEnglishNotation:
 			return s
 		
 		else:  # n >= 1000
-			parts: List[str] = []
+			parts: list[str] = []
 			for illion in ConventionalEnglishNotation._ILLIONS:
 				if n == 0:
 					break
@@ -97,14 +96,14 @@ class ConventionalEnglishNotation:
 			return s
 	
 	
-	_ONES: List[str] = [
+	_ONES: list[str] = [
 		"", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
 		"ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"]
 	
-	_TENS: List[str] = [
+	_TENS: list[str] = [
 		"", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
 	
-	_ILLIONS: List[str] = [
+	_ILLIONS: list[str] = [
 		"", "thousand", "million", "billion", "trillion", "quadrillion",
 		"quintillion", "sextillion", "septillion", "octillion", "nonillion",
 		"decillion", "undecillion", "duodecillion", "tredecillion", "quattuordecillion",
@@ -154,11 +153,11 @@ class YllionEnglishNotation:
 			return s
 	
 	
-	_YLLIONS: List[str] = [
+	_YLLIONS: list[str] = [
 		"", "hundred", "myriad", "myllion", "byllion", "tryllion", "quadryllion",
 		"quintyllion", "sextyllion", "septyllion", "octyllion", "nonyllion", "decyllion"]
 	
-	_SEPARATORS: List[str] = [",", ";", ":", "'"]
+	_SEPARATORS: list[str] = [",", ";", ":", "'"]
 
 
 
@@ -189,9 +188,9 @@ class YllionChineseNotation:
 			raise AssertionError()
 	
 	
-	_ONES: List[str] = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"]
+	_ONES: list[str] = ["", "一", "二", "三", "四", "五", "六", "七", "八", "九"]
 	
-	_YLLIONS: List[str] = ["", "百", "萬", "億", "兆", "京", "垓", "秭", "穰", "溝", "澗", "正", "載"]
+	_YLLIONS: list[str] = ["", "百", "萬", "億", "兆", "京", "垓", "秭", "穰", "溝", "澗", "正", "載"]
 
 
 

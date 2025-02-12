@@ -1,7 +1,7 @@
 # 
 # Windows timestamp accessor (Python)
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/windows-timestamp-accessor-library
 # 
@@ -9,7 +9,7 @@
 from __future__ import annotations
 import datetime, os, subprocess
 from types import TracebackType
-from typing import IO, List, Optional, Type
+from typing import IO, Optional, Type
 
 
 # Note: Ticks is the number of 100-nanosecond units since the epoch of
@@ -64,7 +64,7 @@ class WindowsTimestampAccessor:
 	def _get_some_time(self, type: str, path: str) -> int:
 		self.query.write(f"Get{type}Time\t{os.path.abspath(path)}\n".encode("UTF-8"))
 		self.query.flush()
-		tokens: List[str] = self.response.readline().decode("UTF-8").rstrip("\r\n").split("\t")
+		tokens: list[str] = self.response.readline().decode("UTF-8").rstrip("\r\n").split("\t")
 		if len(tokens) != 2 or tokens[0] != "ok":
 			raise Exception("Invalid data")
 		return int(tokens[1])

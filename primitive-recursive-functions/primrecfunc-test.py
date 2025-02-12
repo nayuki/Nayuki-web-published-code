@@ -2,18 +2,18 @@
 # Test suite for primrecfunc (Python).
 # Runnable as a main program, which should print "All N tests passed".
 # 
-# Copyright (c) 2021 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/primitive-recursive-functions
 # 
 
-from typing import List, Tuple
+from typing import Tuple
 from primrecfunc import *
 
 
-TestCase = Tuple[List[int],int]  # (arguments, answer)
-TestSuite = Tuple[PrimRecFunc,List[TestCase]]
-testsuites: List[TestSuite] = [
+TestCase = Tuple[list[int],int]  # (arguments, answer)
+TestSuite = Tuple[PrimRecFunc,list[TestCase]]
+testsuites: list[TestSuite] = [
 	# Primitive functions
 	(Z, [
 		([0], 0),

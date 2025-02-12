@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import List, Optional
+from typing import Optional
 
 
 # Searches for the given pattern string in the given text string using the Knuth-Morris-Pratt string matching algorithm.
@@ -31,7 +31,7 @@ def kmp_search(pattern: str, text: str) -> Optional[int]:
 		return 0  # Immediate match
 	
 	# Compute longest suffix-prefix table
-	lsp: List[int] = [0]  # Base case
+	lsp: list[int] = [0]  # Base case
 	for c in pattern[1 : ]:
 		j: int = lsp[-1]  # Start by assuming we're extending the previous LSP
 		while (j > 0) and (c != pattern[j]):

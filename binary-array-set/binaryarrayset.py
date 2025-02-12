@@ -1,7 +1,7 @@
 # 
 # Binary array set (Python)
 # 
-# Copyright (c) 2024 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-array-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 import abc
-from typing import Generator, Generic, Iterable, List, Optional, Protocol, TypeVar
+from typing import Generator, Generic, Iterable, Optional, Protocol, TypeVar
 
 
 E = TypeVar("E", bound="_Comparable")
@@ -36,7 +36,7 @@ class _Comparable(Protocol):
 
 class BinaryArraySet(Generic[E]):
 	
-	values: List[Optional[List[E]]]
+	values: list[Optional[list[E]]]
 	length: int
 	
 	
@@ -97,7 +97,7 @@ class BinaryArraySet(Generic[E]):
 	
 	# Runs in amortized O(log n) time, worst-case O(n) time
 	def add_unique(self, val: E) -> None:
-		toput: Optional[List[E]] = [val]
+		toput: Optional[list[E]] = [val]
 		for (i, vals) in enumerate(self.values):
 			assert (toput is not None) and (len(toput) == 1 << i)
 			if vals is None:
@@ -107,7 +107,7 @@ class BinaryArraySet(Generic[E]):
 			else:
 				# Merge two sorted arrays
 				assert len(vals) == 1 << i
-				next: List[E] = []
+				next: list[E] = []
 				j: int = 0
 				k: int = 0
 				while j < len(vals) and k < len(toput):

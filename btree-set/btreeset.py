@@ -22,7 +22,7 @@
 # 
 
 from __future__ import annotations
-from typing import Generic, Iterable, Iterator, List, Optional, Protocol, Tuple, TypeVar, cast
+from typing import Generic, Iterable, Iterator, Optional, Protocol, Tuple, TypeVar, cast
 
 
 E = TypeVar("E", bound="_Comparable")
@@ -75,7 +75,7 @@ class BTreeSet(Generic[E]):
 			elif node.is_leaf():
 				return False
 			else:  # Internal node
-				node = cast(List[BTreeSet.Node[E]], node.children)[index]
+				node = cast(list[BTreeSet.Node[E]], node.children)[index]
 	
 	
 	def add(self, obj: E) -> None:
@@ -84,7 +84,7 @@ class BTreeSet(Generic[E]):
 		if len(root.keys) == self.maxkeys:
 			child: BTreeSet.Node[E] = root
 			self.root = root = BTreeSet.Node(self.maxkeys, False)  # Increment tree height
-			cast(List[BTreeSet.Node[E]], root.children).append(child)
+			cast(list[BTreeSet.Node[E]], root.children).append(child)
 			root.split_child(self.minkeys, self.maxkeys, 0)
 		
 		# Walk down the tree
@@ -103,13 +103,13 @@ class BTreeSet(Generic[E]):
 				return  # Successfully added
 				
 			else:  # Handle internal node
-				child = cast(List[BTreeSet.Node[E]], node.children)[index]
+				child = cast(list[BTreeSet.Node[E]], node.children)[index]
 				if len(child.keys) == self.maxkeys:  # Split child node
 					node.split_child(self.minkeys, self.maxkeys, index)
 					if obj == node.keys[index]:
 						return  # Key already exists in tree
 					elif obj > node.keys[index]:
-						child = cast(List[BTreeSet.Node[E]], node.children)[index + 1]
+						child = cast(list[BTreeSet.Node[E]], node.children)[index + 1]
 				node = child
 	
 	
@@ -139,7 +139,7 @@ class BTreeSet(Generic[E]):
 			
 			else:  # Internal node
 				if found:  # Key is stored at current node
-					left, right = cast(List[BTreeSet.Node[E]], node.children)[index : index + 2]
+					left, right = cast(list[BTreeSet.Node[E]], node.children)[index : index + 2]
 					if len(left.keys) > self.minkeys:  # Replace key with predecessor
 						node.keys[index] = left.remove_max(self.minkeys)
 						assert self.size > 0
@@ -153,7 +153,7 @@ class BTreeSet(Generic[E]):
 					else:  # Merge key and right node into left node, then recurse
 						node.merge_children(self.minkeys, index)
 						if node is root and len(root.keys) == 0:
-							assert len(cast(List[BTreeSet.Node[E]], root.children)) == 1
+							assert len(cast(list[BTreeSet.Node[E]], root.children)) == 1
 							self.root = root = left  # Decrement tree height
 						node = left
 						index = self.minkeys  # Index known due to merging; no need to search
@@ -161,8 +161,8 @@ class BTreeSet(Generic[E]):
 				else:  # Key might be found in some child
 					child: BTreeSet.Node[E] = node.ensure_child_remove(self.minkeys, index)
 					if node is root and len(root.keys) == 0:
-						assert len(cast(List[BTreeSet.Node[E]], root.children)) == 1
-						self.root = root = cast(List[BTreeSet.Node[E]], root.children)[0]  # Decrement tree height
+						assert len(cast(list[BTreeSet.Node[E]], root.children)) == 1
+						self.root = root = cast(list[BTreeSet.Node[E]], root.children)[0]  # Decrement tree height
 					node = child
 					found, index = node.search(obj)
 	
@@ -170,13 +170,13 @@ class BTreeSet(Generic[E]):
 	# Note: Not fail-fast on concurrent modification.
 	def __iter__(self) -> Iterator[E]:
 		# Initialization
-		stack: List[Tuple[BTreeSet.Node[E],int]] = []
+		stack: list[Tuple[BTreeSet.Node[E],int]] = []
 		def push_left_path(node: BTreeSet.Node[E]) -> None:
 			while True:
 				stack.append((node, 0))
 				if node.is_leaf():
 					break
-				node = cast(List[BTreeSet.Node[E]], node.children)[0]
+				node = cast(list[BTreeSet.Node[E]], node.children)[0]
 		push_left_path(self.root)
 		
 		# Generate elements
@@ -190,7 +190,7 @@ class BTreeSet(Generic[E]):
 				index += 1
 				if index < len(node.keys):
 					stack.append((node, index))
-				push_left_path(cast(List[BTreeSet.Node[E]], node.children)[index])
+				push_left_path(cast(list[BTreeSet.Node[E]], node.children)[index])
 	
 	
 	# For unit tests
@@ -207,7 +207,7 @@ class BTreeSet(Generic[E]):
 		node: BTreeSet.Node[E] = root
 		while not node.is_leaf():
 			height += 1
-			node = cast(List[BTreeSet.Node[E]], node.children)[0]
+			node = cast(list[BTreeSet.Node[E]], node.children)[0]
 		
 		# Check all nodes and total size
 		if root.check_structure(self.minkeys, self.maxkeys, True, height, None, None) != size:
@@ -219,8 +219,8 @@ class BTreeSet(Generic[E]):
 	
 	class Node(Generic[T]):
 		
-		keys: List[T]
-		children: Optional[List[BTreeSet.Node[T]]]
+		keys: list[T]
+		children: Optional[list[BTreeSet.Node[T]]]
 		
 		
 		# -- Constructor --
@@ -242,7 +242,7 @@ class BTreeSet(Generic[E]):
 		# otherwise returns (False, i) if children[i] should be explored. For simplicity,
 		# the implementation uses linear search. It's possible to replace it with binary search for speed.
 		def search(self, obj: T) -> Tuple[bool,int]:
-			keys: List[T] = self.keys
+			keys: list[T] = self.keys
 			i: int = 0
 			while i < len(keys):
 				if obj == keys[i]:
@@ -262,15 +262,15 @@ class BTreeSet(Generic[E]):
 		# and adds the middle key and new child to this node. The left half of child's data is not moved.
 		def split_child(self, minkeys: int, maxkeys: int, index: int) -> None:
 			assert not self.is_leaf() and 0 <= index <= len(self.keys) < maxkeys
-			left: BTreeSet.Node[T] = cast(List[BTreeSet.Node[T]], self.children)[index]
+			left: BTreeSet.Node[T] = cast(list[BTreeSet.Node[T]], self.children)[index]
 			assert len(left.keys) == maxkeys
 			right: BTreeSet.Node[T] = BTreeSet.Node(maxkeys, left.is_leaf())
-			cast(List[BTreeSet.Node[T]], self.children).insert(index + 1, right)
+			cast(list[BTreeSet.Node[T]], self.children).insert(index + 1, right)
 			
 			# Handle children
 			if not left.is_leaf():
-				cast(List[BTreeSet.Node[T]], right.children).extend(cast(List[BTreeSet.Node[T]], left.children)[minkeys + 1 : ])
-				del cast(List[BTreeSet.Node[T]], left.children)[minkeys + 1 : ]
+				cast(list[BTreeSet.Node[T]], right.children).extend(cast(list[BTreeSet.Node[T]], left.children)[minkeys + 1 : ])
+				del cast(list[BTreeSet.Node[T]], left.children)[minkeys + 1 : ]
 			
 			# Handle keys
 			self.keys.insert(index, left.keys[minkeys])
@@ -286,15 +286,15 @@ class BTreeSet(Generic[E]):
 		# A reference to the appropriate child is returned, which is helpful if the old child no longer exists.
 		def ensure_child_remove(self, minkeys: int, index: int) -> BTreeSet.Node[T]:
 			# Preliminaries
-			assert not self.is_leaf() and 0 <= index < len(cast(List[BTreeSet.Node[T]], self.children))
-			child: BTreeSet.Node[T] = cast(List[BTreeSet.Node[T]], self.children)[index]
+			assert not self.is_leaf() and 0 <= index < len(cast(list[BTreeSet.Node[T]], self.children))
+			child: BTreeSet.Node[T] = cast(list[BTreeSet.Node[T]], self.children)[index]
 			if len(child.keys) > minkeys:  # Already satisfies the condition
 				return child
 			assert len(child.keys) == minkeys
 			
 			# Get siblings
-			left : Optional[BTreeSet.Node[T]] = cast(List[BTreeSet.Node[T]], self.children)[index - 1] if index >= 1 else None
-			right: Optional[BTreeSet.Node[T]] = cast(List[BTreeSet.Node[T]], self.children)[index + 1] if index < len(self.keys) else None
+			left : Optional[BTreeSet.Node[T]] = cast(list[BTreeSet.Node[T]], self.children)[index - 1] if index >= 1 else None
+			right: Optional[BTreeSet.Node[T]] = cast(list[BTreeSet.Node[T]], self.children)[index + 1] if index < len(self.keys) else None
 			internal: bool = not child.is_leaf()
 			assert left is not None or right is not None  # At least one sibling exists because degree >= 2
 			assert left  is None or left .is_leaf() != internal  # Sibling must be same type (internal/leaf) as child
@@ -302,13 +302,13 @@ class BTreeSet(Generic[E]):
 			
 			if left is not None and len(left.keys) > minkeys:  # Steal rightmost item from left sibling
 				if internal:
-					cast(List[BTreeSet.Node[T]], child.children).insert(0, cast(List[BTreeSet.Node[T]], left.children).pop(-1))
+					cast(list[BTreeSet.Node[T]], child.children).insert(0, cast(list[BTreeSet.Node[T]], left.children).pop(-1))
 				child.keys.insert(0, self.keys[index - 1])
 				self.keys[index - 1] = left.remove_key(len(left.keys) - 1)
 				return child
 			elif right is not None and len(right.keys) > minkeys:  # Steal leftmost item from right sibling
 				if internal:
-					cast(List[BTreeSet.Node[T]], child.children).append(cast(List[BTreeSet.Node[T]], right.children).pop(0))
+					cast(list[BTreeSet.Node[T]], child.children).append(cast(list[BTreeSet.Node[T]], right.children).pop(0))
 				child.keys.append(self.keys[index])
 				self.keys[index] = right.remove_key(0)
 				return child
@@ -326,11 +326,11 @@ class BTreeSet(Generic[E]):
 		# assuming the current node is not empty and both children have minkeys.
 		def merge_children(self, minkeys: int, index: int) -> None:
 			assert not self.is_leaf() and 0 <= index < len(self.keys)
-			left, right = cast(List[BTreeSet.Node[T]], self.children)[index : index + 2]
+			left, right = cast(list[BTreeSet.Node[T]], self.children)[index : index + 2]
 			assert len(left.keys) == len(right.keys) == minkeys
 			if not left.is_leaf():
-				cast(List[BTreeSet.Node[T]], left.children).extend(cast(List[BTreeSet.Node[T]], right.children))
-			del cast(List[BTreeSet.Node[T]], self.children)[index + 1]
+				cast(list[BTreeSet.Node[T]], left.children).extend(cast(list[BTreeSet.Node[T]], right.children))
+			del cast(list[BTreeSet.Node[T]], self.children)[index + 1]
 			left.keys.append(self.remove_key(index))
 			left.keys.extend(right.keys)
 		
@@ -356,7 +356,7 @@ class BTreeSet(Generic[E]):
 				if node.is_leaf():
 					return node.remove_key(len(node.keys) - 1)
 				else:
-					node = node.ensure_child_remove(minkeys, len(cast(List[BTreeSet.Node[T]], node.children)) - 1)
+					node = node.ensure_child_remove(minkeys, len(cast(list[BTreeSet.Node[T]], node.children)) - 1)
 		
 		
 		# Removes and returns this node's key at the given index.
@@ -371,7 +371,7 @@ class BTreeSet(Generic[E]):
 		# of keys in the subtree rooted at this node. For unit tests.
 		def check_structure(self, minkeys: int, maxkeys: int, isroot: bool, leafdepth: int, min: Optional[T], max: Optional[T]) -> int:
 			# Check basic fields
-			keys: List[T] = self.keys
+			keys: list[T] = self.keys
 			numkeys: int = len(keys)
 			if self.is_leaf() != (leafdepth == 0):
 				raise AssertionError("Incorrect leaf/internal node type")
@@ -383,7 +383,7 @@ class BTreeSet(Generic[E]):
 				raise AssertionError("Invalid number of keys")
 			
 			# Check keys for strict increasing order
-			tempkeys: List[Optional[T]] = [min] + keys + [max]
+			tempkeys: list[Optional[T]] = [min] + keys + [max]
 			for i in range(len(tempkeys) - 1):
 				x: Optional[T] = tempkeys[i]
 				y: Optional[T] = tempkeys[i + 1]
@@ -393,9 +393,9 @@ class BTreeSet(Generic[E]):
 			# Check children recursively and count keys in this subtree
 			count: int = numkeys
 			if not self.is_leaf():
-				if len(cast(List[BTreeSet.Node[T]], self.children)) != numkeys + 1:
+				if len(cast(list[BTreeSet.Node[T]], self.children)) != numkeys + 1:
 					raise AssertionError("Invalid number of children")
-				for (i, child) in enumerate(cast(List[BTreeSet.Node[T]], self.children)):
+				for (i, child) in enumerate(cast(list[BTreeSet.Node[T]], self.children)):
 					# Check children pointers and recurse
 					if not isinstance(child, BTreeSet.Node):
 						raise TypeError()

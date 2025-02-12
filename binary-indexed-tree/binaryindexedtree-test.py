@@ -1,7 +1,7 @@
 # 
 # Binary indexed tree test (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-indexed-tree
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 import random, unittest
-from typing import List, Tuple
+from typing import Tuple
 from binaryindexedtree import BinaryIndexedTree
 
 
@@ -83,8 +83,8 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 		for _ in range(TRIALS):
 			
 			length: int = random.randrange(SIZELIMIT)
-			vals: List[int] = [random.randrange(-1000, 1000) for _ in range(length)]
-			cums: List[int] = [0]
+			vals: list[int] = [random.randrange(-1000, 1000) for _ in range(length)]
+			cums: list[int] = [0]
 			for x in vals:
 				cums.append(cums[-1] + x)
 			
@@ -111,7 +111,7 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 			
 			length: int = random.randrange(1, SIZELIMIT)
 			if random.randrange(2) == 0:
-				vals: List[int] = [0] * length
+				vals: list[int] = [0] * length
 				bt: BinaryIndexedTree = BinaryIndexedTree(length)
 			else:
 				vals = [random.randrange(-1000, 1000) for _ in range(length)]
@@ -127,7 +127,7 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 					vals[k] = x
 					bt[k] = x
 			
-			cums: List[int] = [0]
+			cums: list[int] = [0]
 			for x in vals:
 				cums.append(cums[-1] + x)
 			

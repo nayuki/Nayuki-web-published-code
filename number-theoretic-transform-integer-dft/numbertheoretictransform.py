@@ -1,13 +1,13 @@
 # 
 # Number-theoretic transform library (Python)
 # 
-# Copyright (c) 2022 Project Nayuki
+# Copyright (c) 2025 Project Nayuki
 # All rights reserved. Contact Nayuki for licensing.
 # https://www.nayuki.io/page/number-theoretic-transform-integer-dft
 # 
 
 import itertools
-from typing import List, Tuple
+from typing import Tuple
 
 
 # ---- High-level NTT functions ----
@@ -15,7 +15,7 @@ from typing import List, Tuple
 # Finds an appropriate set of parameters for the NTT, computes the forward transform on
 # the given vector, and returns a tuple containing the output vector and NTT parameters.
 # Note that all input values must be integers in the range [0, minmod).
-def find_params_and_transform(invec: List[int], minmod: int) -> Tuple[List[int],int,int]:
+def find_params_and_transform(invec: list[int], minmod: int) -> Tuple[list[int],int,int]:
 	mod: int = find_modulus(len(invec), minmod)
 	root: int = find_primitive_root(len(invec), mod - 1, mod)
 	return (transform(invec, root, mod), root, mod)
@@ -23,7 +23,7 @@ def find_params_and_transform(invec: List[int], minmod: int) -> Tuple[List[int],
 
 # Returns the forward number-theoretic transform of the given vector with
 # respect to the given primitive nth root of unity under the given modulus.
-def transform(invec: List[int], root: int, mod: int) -> List[int]:
+def transform(invec: list[int], root: int, mod: int) -> list[int]:
 	if len(invec) >= mod:
 		raise ValueError()
 	if not all((0 <= val < mod) for val in invec):
@@ -31,7 +31,7 @@ def transform(invec: List[int], root: int, mod: int) -> List[int]:
 	if not (1 <= root < mod):
 		raise ValueError()
 	
-	outvec: List[int] = []
+	outvec: list[int] = []
 	for i in range(len(invec)):
 		temp: int = 0
 		for (j, val) in enumerate(invec):
@@ -43,8 +43,8 @@ def transform(invec: List[int], root: int, mod: int) -> List[int]:
 
 # Returns the inverse number-theoretic transform of the given vector with
 # respect to the given primitive nth root of unity under the given modulus.
-def inverse_transform(invec: List[int], root: int, mod: int) -> List[int]:
-	outvec: List[int] = transform(invec, pow(root, -1, mod), mod)
+def inverse_transform(invec: list[int], root: int, mod: int) -> list[int]:
+	outvec: list[int] = transform(invec, pow(root, -1, mod), mod)
 	scaler: int = pow(len(invec), -1, mod)
 	return [(val * scaler % mod) for val in outvec]
 
@@ -52,7 +52,7 @@ def inverse_transform(invec: List[int], root: int, mod: int) -> List[int]:
 # Computes the forward number-theoretic transform of the given vector in place,
 # with respect to the given primitive nth root of unity under the given modulus.
 # The length of the vector must be a power of 2.
-def transform_radix_2(vector: List[int], root: int, mod: int) -> None:
+def transform_radix_2(vector: list[int], root: int, mod: int) -> None:
 	n: int = len(vector)
 	levels: int = n.bit_length() - 1
 	if 1 << levels != n:
@@ -69,7 +69,7 @@ def transform_radix_2(vector: List[int], root: int, mod: int) -> None:
 		if j > i:
 			vector[i], vector[j] = vector[j], vector[i]
 	
-	powtable: List[int] = []
+	powtable: list[int] = []
 	temp: int = 1
 	for i in range(n // 2):
 		powtable.append(temp)
@@ -94,7 +94,7 @@ def transform_radix_2(vector: List[int], root: int, mod: int) -> None:
 # Returns the circular convolution of the given vectors of integers.
 # All values must be non-negative. Internally, a sufficiently large modulus
 # is chosen so that the convolved result can be represented without overflow.
-def circular_convolve(vec0: List[int], vec1: List[int]) -> List[int]:
+def circular_convolve(vec0: list[int], vec1: list[int]) -> list[int]:
 	if not (0 < len(vec0) == len(vec1)):
 		raise ValueError()
 	if any((val < 0) for val in itertools.chain(vec0, vec1)):
@@ -102,8 +102,8 @@ def circular_convolve(vec0: List[int], vec1: List[int]) -> List[int]:
 	maxval: int = max(val for val in itertools.chain(vec0, vec1))
 	minmod: int = maxval**2 * len(vec0) + 1
 	temp0, root, mod = find_params_and_transform(vec0, minmod)
-	temp1: List[int] = transform(vec1, root, mod)
-	temp2: List[int] = [(x * y % mod) for (x, y) in zip(temp0, temp1)]
+	temp1: list[int] = transform(vec1, root, mod)
+	temp2: list[int] = [(x * y % mod) for (x, y) in zip(temp0, temp1)]
 	return inverse_transform(temp2, root, mod)
 
 
@@ -164,7 +164,7 @@ def is_primitive_root(val: int, degree: int, mod: int) -> bool:
 		raise ValueError()
 	if not (1 <= degree < mod):
 		raise ValueError()
-	pf: List[int] = unique_prime_factors(degree)
+	pf: list[int] = unique_prime_factors(degree)
 	return pow(val, degree, mod) == 1 and \
 		all((pow(val, degree // p, mod) != 1) for p in pf)
 
@@ -174,10 +174,10 @@ def is_primitive_root(val: int, degree: int, mod: int) -> bool:
 
 # Returns a list of unique prime factors of the given integer in
 # ascending order. For example, unique_prime_factors(60) = [2, 3, 5].
-def unique_prime_factors(n: int) -> List[int]:
+def unique_prime_factors(n: int) -> list[int]:
 	if n < 1:
 		raise ValueError()
-	result: List[int] = []
+	result: list[int] = []
 	i: int = 2
 	end: int = sqrt(n)
 	while i <= end:

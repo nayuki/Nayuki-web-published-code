@@ -1,7 +1,7 @@
 # 
 # BitTorrent bencode decoder demo (Python)
 # 
-# Copyright (c) 2020 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/bittorrent-bencode-format-tools
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,13 +22,13 @@
 # 
 
 import os, pathlib, sys
-from typing import Any, List
+from typing import Any
 import bencode
 
 
 # Reads the given file, parses its data as bencode, then prints the
 # data structure with hierarchical formatting to standard output.
-def main(args: List[str]) -> None:
+def main(args: list[str]) -> None:
 	USAGE = "Usage: python decode-bencode-demo.py Input.torrent"
 	if len(args) != 1:
 		sys.exit(USAGE)
@@ -80,7 +80,7 @@ def _render_byte_string(bs: bytes) -> str:
 	try:
 		return bs.decode("UTF-8")
 	except UnicodeDecodeError:
-		parts: List[str] = []
+		parts: list[str] = []
 		for (i, b) in enumerate(bs):
 			parts.append(f"{b:02X}")
 			if i + 1 < len(bs) and i == 30:

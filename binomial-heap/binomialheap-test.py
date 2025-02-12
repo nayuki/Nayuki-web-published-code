@@ -1,7 +1,7 @@
 # 
 # Binomial heap test (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binomial-heap
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,6 @@
 # 
 
 import queue, random, unittest
-from typing import List
 from binomialheap import BinomialHeap
 
 
@@ -86,7 +85,7 @@ class BinomialHeapTest(unittest.TestCase):
 		heap: BinomialHeap[int] = BinomialHeap()
 		for _ in range(TRIALS):
 			size: int = random.randrange(MAX_SIZE)
-			values: List[int] = [random.randrange(RANGE) for _ in range(size)]
+			values: list[int] = [random.randrange(RANGE) for _ in range(size)]
 			for val in values:
 				heap.enqueue(val)
 			

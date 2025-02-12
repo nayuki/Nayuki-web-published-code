@@ -1,7 +1,7 @@
 # 
 # Binary array set test (Python)
 # 
-# Copyright (c) 2021 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/binary-array-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,7 @@
 # 
 
 import itertools, random, unittest
-from typing import List, Set
+from typing import Set
 from binaryarrayset import BinaryArraySet
 
 
@@ -82,7 +82,7 @@ class BinaryArraySetTest(unittest.TestCase):
 		for i in range(1, 101):
 			s.add((i - 1)**2)
 			
-			lst: List[int] = sorted(list(s))
+			lst: list[int] = sorted(list(s))
 			self.assertEqual(i, len(lst))
 			
 			for j in range(i):

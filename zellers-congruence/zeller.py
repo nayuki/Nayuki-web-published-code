@@ -1,11 +1,11 @@
 # 
 # Zeller's congruence (Python)
-# by Project Nayuki, 2022. Public domain.
+# by Project Nayuki, 2025. Public domain.
 # https://www.nayuki.io/page/zellers-congruence
 # 
 
 import random, sys, unittest
-from typing import List, Tuple
+from typing import Tuple
 
 
 # ---- Zeller's congruence function ----
@@ -30,7 +30,7 @@ def day_of_week(y: int, m: int, d: int) -> int:
 class _ZellerTest(unittest.TestCase):
 	
 	def test_simple(self) -> None:
-		CASES: List[Tuple[int,int,int,int]] = [
+		CASES: list[Tuple[int,int,int,int]] = [
 			(-679,  9,  8, 1),
 			(-657,  2,  6, 3),
 			(-629,  5, 14, 2),
@@ -190,7 +190,7 @@ class _ZellerTest(unittest.TestCase):
 		else:
 			return 29 if ZellerTest._is_leap_year(y) else 28
 	
-	_MONTH_LENGTHS: List[int] = [-1, 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+	_MONTH_LENGTHS: list[int] = [-1, 31, -1, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 	
 	
 	@staticmethod
