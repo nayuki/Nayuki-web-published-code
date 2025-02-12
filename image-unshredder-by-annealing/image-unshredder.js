@@ -1,7 +1,7 @@
 /*
  * Image unshredder demo (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -24,7 +24,7 @@ var app;
     const YIELD_AFTER_TIME = 20; // In milliseconds; a long computation relinquishes/yields after this amount of time; short will mean high execution overhead; long will mean the GUI hangs
     const ANNEAL_REDRAW_TIME = 300; // In milliseconds; the minimum amount of time between image and text updates when performing annealing
     /*---- HTML input/output elements ----*/
-    let canvas = queryElem("canvas", HTMLCanvasElement);
+    let canvas = queryElem("article canvas", HTMLCanvasElement);
     let graphics;
     {
         const temp = canvas.getContext("2d");
@@ -32,25 +32,16 @@ var app;
             throw new Error("Assertion error");
         graphics = temp;
     }
-    let imageSelect = queryElem("select#image-select", HTMLSelectElement);
-    let numberIterationsInput = queryElem("input#number-iterations", HTMLInputElement);
-    let startTemperatureInput = queryElem("input#start-temperature", HTMLInputElement);
-    let shuffleButton = queryElem("button.shuffle", HTMLButtonElement);
-    let annealButton = queryElem("button.anneal", HTMLButtonElement);
-    let stopButton = queryElem("button.stop", HTMLButtonElement);
-    let imageAttribution = queryElem("a.image-attribution", HTMLAnchorElement);
-    let curIterationsElem = queryElem("td.current-iterations", HTMLElement);
-    let curTemperatureElem = queryElem("td.current-temperature", HTMLElement);
-    let curEnergyElem = queryElem("td.current-energy", HTMLElement);
-    function queryElem(query, type) {
-        const result = document.querySelector("article " + query);
-        if (result instanceof type)
-            return result;
-        else if (result === null)
-            throw new Error("Element not found");
-        else
-            throw new TypeError("Invalid element type");
-    }
+    let imageSelect = queryElem("article select#image-select", HTMLSelectElement);
+    let numberIterationsInput = queryElem("article input#number-iterations", HTMLInputElement);
+    let startTemperatureInput = queryElem("article input#start-temperature", HTMLInputElement);
+    let shuffleButton = queryElem("article button.shuffle", HTMLButtonElement);
+    let annealButton = queryElem("article button.anneal", HTMLButtonElement);
+    let stopButton = queryElem("article button.stop", HTMLButtonElement);
+    let imageAttribution = queryElem("article a.image-attribution", HTMLAnchorElement);
+    let curIterationsElem = queryElem("article td.current-iterations", HTMLElement);
+    let curTemperatureElem = queryElem("article td.current-temperature", HTMLElement);
+    let curEnergyElem = queryElem("article td.current-energy", HTMLElement);
     function setButtonsBusy(busy) {
         if (busy) {
             imageSelect.disabled = true;

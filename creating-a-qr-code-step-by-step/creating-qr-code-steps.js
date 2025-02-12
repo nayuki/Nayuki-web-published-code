@@ -1133,7 +1133,7 @@ var app;
                 bytePad.push(0, 0, 0, 1, 0, 0, 0, 1);
         }
         addRow("Byte padding", bytePad);
-        queryElem("#full-bitstream span").textContent = allBits.join("");
+        queryHtml("#full-bitstream span").textContent = allBits.join("");
         let result = [];
         for (let i = 0; i < allBits.length; i += 8) {
             let cw = new DataCodeword(parseInt(allBits.slice(i, i + 8).join(""), 2));
@@ -1160,7 +1160,7 @@ var app;
         let dataBlocks = qr.splitIntoBlocks(data);
         let eccBlocks = qr.computeEccForBlocks(dataBlocks);
         {
-            let thead = queryElem("#blocks-and-ecc thead");
+            let thead = queryHtml("#blocks-and-ecc thead");
             if (thead.children.length >= 2)
                 thead.children[1].remove();
             thead.querySelectorAll("th")[1].colSpan = numBlocks;
@@ -1199,7 +1199,7 @@ var app;
         output.append(" ");
         span = appendNewElem(output, "span", result.slice(data.length).map(cw => byteToHex(cw.value)).join(" "));
         span.className = "ecc";
-        queryElem("#final-bit-sequence span").textContent = result.map(cw => cw.value.toString(2).padStart(8, "0")).join("");
+        queryHtml("#final-bit-sequence span").textContent = result.map(cw => cw.value.toString(2).padStart(8, "0")).join("");
         return result;
     }
     function doStep5(qr) {
@@ -1401,16 +1401,10 @@ var app;
             return result;
         throw new Error("Assertion error");
     }
-    function queryElem(q) {
-        const result = document.querySelector(q);
-        if (result instanceof HTMLElement)
-            return result;
-        throw new Error("Assertion error");
-    }
     function clearChildren(elemOrQuery) {
         let elem;
         if (typeof elemOrQuery == "string")
-            elem = queryElem(elemOrQuery);
+            elem = queryHtml(elemOrQuery);
         else
             elem = elemOrQuery;
         elem.replaceChildren();

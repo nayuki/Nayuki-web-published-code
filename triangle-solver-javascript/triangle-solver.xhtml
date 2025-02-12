@@ -210,8 +210,21 @@
 			<script>
 				<![CDATA[
 "use strict";
+function queryHtml(query) {
+    return queryElem(query, HTMLElement);
+}
+function queryElem(query, type) {
+    let result = document.querySelector(query);
+    if (result instanceof type)
+        return result;
+    else if (result === null)
+        throw new Error("Element not found");
+    else
+        throw new TypeError("Invalid element type");
+}
+"use strict";
 /*---- HTML elements ----*/
-let tableElem = queryElem("article form table");
+let tableElem = queryHtml("article form table");
 let sideAElems = getIoElems("side-a");
 let sideBElems = getIoElems("side-b");
 let sideCElems = getIoElems("side-c");
@@ -219,23 +232,14 @@ let angleAElems = getIoElems("angle-a");
 let angleBElems = getIoElems("angle-b");
 let angleCElems = getIoElems("angle-c");
 let areaOuts = getOutElems("area");
-let statusOut = queryElem("article #status output");
+let statusOut = queryHtml("article #status output");
 function getIoElems(rowId) {
-    const input = queryElem(`article #${rowId} input`);
-    if (input instanceof HTMLInputElement)
-        return [input, getOutElems(rowId)];
-    throw new TypeError();
+    return [queryElem(`article #${rowId} input`, HTMLInputElement), getOutElems(rowId)];
 }
 function getOutElems(rowId) {
     const [a, b] = document.querySelectorAll(`article #${rowId} output`);
     if (a instanceof HTMLElement && b instanceof HTMLElement)
         return [a, b];
-    throw new TypeError();
-}
-function queryElem(query) {
-    const result = document.querySelector(query);
-    if (result instanceof HTMLElement)
-        return result;
     throw new TypeError();
 }
 /*---- Main entry point ----*/
@@ -514,9 +518,9 @@ function initImageMap() {
         else
             throw new RangeError("Invalid unit");
     }
-    let container = queryElem("article #diagram-container");
+    let container = queryHtml("article #diagram-container");
     const containerWidth = parseEm(container.style.width);
-    let hoverTextElem = queryElem("#diagram-container output");
+    let hoverTextElem = queryHtml("#diagram-container output");
     // Each entry is (left, top, width, height, extractor)
     const RECTANGLES = [
         [0.4922, 0.4419, 0.0227, 0.0229, t => t.sideA],

@@ -611,10 +611,6 @@ type int = number;
 
 /*---- Shared utilities ----*/
 
-function queryHtml(query: string): HTMLElement {
-	return subqueryElem(document, query, HTMLElement);
-}
-
 type Constructor<T> = { new(...args: Array<any>): T };
 
 function subqueryElem<T>(root: HTMLElement|Document, query: string, type: Constructor<T>): T {

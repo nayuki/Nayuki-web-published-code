@@ -9,7 +9,7 @@
 
 /*---- HTML elements ----*/
 
-let tableElem: HTMLElement = queryElem("article form table");
+let tableElem: HTMLElement = queryHtml("article form table");
 let sideAElems : [HTMLInputElement,[HTMLElement,HTMLElement]] = getIoElems("side-a" );
 let sideBElems : [HTMLInputElement,[HTMLElement,HTMLElement]] = getIoElems("side-b" );
 let sideCElems : [HTMLInputElement,[HTMLElement,HTMLElement]] = getIoElems("side-c" );
@@ -17,14 +17,11 @@ let angleAElems: [HTMLInputElement,[HTMLElement,HTMLElement]] = getIoElems("angl
 let angleBElems: [HTMLInputElement,[HTMLElement,HTMLElement]] = getIoElems("angle-b");
 let angleCElems: [HTMLInputElement,[HTMLElement,HTMLElement]] = getIoElems("angle-c");
 let areaOuts: [HTMLElement,HTMLElement] = getOutElems("area");
-let statusOut: HTMLElement = queryElem("article #status output");
+let statusOut: HTMLElement = queryHtml("article #status output");
 
 
 function getIoElems(rowId: string): [HTMLInputElement,[HTMLElement,HTMLElement]] {
-	const input: HTMLElement = queryElem(`article #${rowId} input`);
-	if (input instanceof HTMLInputElement)
-		return [input, getOutElems(rowId)];
-	throw new TypeError();
+	return [queryElem(`article #${rowId} input`, HTMLInputElement), getOutElems(rowId)];
 }
 
 
@@ -32,14 +29,6 @@ function getOutElems(rowId: string): [HTMLElement,HTMLElement] {
 	const [a, b] = document.querySelectorAll(`article #${rowId} output`);
 	if (a instanceof HTMLElement && b instanceof HTMLElement)
 		return [a, b];
-	throw new TypeError();
-}
-
-
-function queryElem(query: string): HTMLElement {
-	const result: HTMLElement|null = document.querySelector(query);
-	if (result instanceof HTMLElement)
-		return result;
 	throw new TypeError();
 }
 
@@ -284,9 +273,9 @@ function initImageMap(): void {
 			throw new RangeError("Invalid unit");
 	}
 	
-	let container: HTMLElement = queryElem("article #diagram-container");
+	let container: HTMLElement = queryHtml("article #diagram-container");
 	const containerWidth: number = parseEm(container.style.width);
-	let hoverTextElem: HTMLElement = queryElem("#diagram-container output");
+	let hoverTextElem: HTMLElement = queryHtml("#diagram-container output");
 	
 	// Each entry is (left, top, width, height, extractor)
 	const RECTANGLES: Array<[number,number,number,number,((t:SolvedTriangle)=>number)]> = [

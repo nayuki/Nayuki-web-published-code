@@ -403,23 +403,6 @@ namespace app {
 	}
 	
 	
-	function queryHtml(query: string): HTMLElement {
-		return queryElem(query, HTMLElement);
-	}
-	
-	type Constructor<T> = { new(...args: Array<any>): T };
-	
-	function queryElem<T>(query: string, type: Constructor<T>): T {
-		let result: Element|null = document.querySelector(query);
-		if (result instanceof type)
-			return result;
-		else if (result === null)
-			throw new Error("Element not found");
-		else
-			throw new TypeError("Invalid element type");
-	}
-	
-	
 	function appendElem(container: Element, tagName: string, text?: string): HTMLElement {
 		let result: HTMLElement = document.createElement(tagName);
 		if (text !== undefined)

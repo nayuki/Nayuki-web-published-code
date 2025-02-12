@@ -391,7 +391,7 @@ namespace app {
 		}
 		addRow("Byte padding", bytePad);
 		
-		queryElem("#full-bitstream span").textContent = allBits.join("");
+		queryHtml("#full-bitstream span").textContent = allBits.join("");
 		let result: Array<DataCodeword> = [];
 		for (let i = 0; i < allBits.length; i += 8) {
 			let cw = new DataCodeword(parseInt(allBits.slice(i, i + 8).join(""), 2));
@@ -421,7 +421,7 @@ namespace app {
 		let dataBlocks: Array<Array<DataCodeword>> = qr.splitIntoBlocks(data);
 		let eccBlocks: Array<Array<EccCodeword>> = qr.computeEccForBlocks(dataBlocks);
 		{
-			let thead = queryElem("#blocks-and-ecc thead");
+			let thead = queryHtml("#blocks-and-ecc thead");
 			if (thead.children.length >= 2)
 				thead.children[1].remove();
 			(thead.querySelectorAll("th")[1] as HTMLTableHeaderCellElement).colSpan = numBlocks;
@@ -464,7 +464,7 @@ namespace app {
 			result.slice(data.length).map(cw => byteToHex(cw.value)).join(" "));
 		span.className = "ecc";
 		
-		queryElem("#final-bit-sequence span").textContent = result.map(
+		queryHtml("#final-bit-sequence span").textContent = result.map(
 			cw => cw.value.toString(2).padStart(8, "0")).join("");
 		return result;
 	}
@@ -703,18 +703,10 @@ namespace app {
 	}
 	
 	
-	function queryElem(q: string): HTMLElement {
-		const result = document.querySelector(q);
-		if (result instanceof HTMLElement)
-			return result;
-		throw new Error("Assertion error");
-	}
-	
-	
 	function clearChildren(elemOrQuery: string|HTMLElement): HTMLElement {
 		let elem: HTMLElement;
 		if (typeof elemOrQuery == "string")
-			elem = queryElem(elemOrQuery);
+			elem = queryHtml(elemOrQuery);
 		else
 			elem = elemOrQuery;
 		elem.replaceChildren();

@@ -1,7 +1,7 @@
 /* 
  * Image unshredder demo (TypeScript)
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/image-unshredder-by-annealing
  */
@@ -35,7 +35,7 @@ namespace app {
 	
 	/*---- HTML input/output elements ----*/
 	
-	let canvas = queryElem("canvas", HTMLCanvasElement);
+	let canvas = queryElem("article canvas", HTMLCanvasElement);
 	let graphics: CanvasRenderingContext2D;
 	{
 		const temp = canvas.getContext("2d");
@@ -44,30 +44,17 @@ namespace app {
 		graphics = temp;
 	}
 	
-	let imageSelect = queryElem("select#image-select", HTMLSelectElement);
-	let numberIterationsInput = queryElem("input#number-iterations", HTMLInputElement);
-	let startTemperatureInput = queryElem("input#start-temperature", HTMLInputElement);
-	let shuffleButton = queryElem("button.shuffle", HTMLButtonElement);
-	let annealButton  = queryElem("button.anneal" , HTMLButtonElement);
-	let stopButton    = queryElem("button.stop"   , HTMLButtonElement);
+	let imageSelect = queryElem("article select#image-select", HTMLSelectElement);
+	let numberIterationsInput = queryElem("article input#number-iterations", HTMLInputElement);
+	let startTemperatureInput = queryElem("article input#start-temperature", HTMLInputElement);
+	let shuffleButton = queryElem("article button.shuffle", HTMLButtonElement);
+	let annealButton  = queryElem("article button.anneal" , HTMLButtonElement);
+	let stopButton    = queryElem("article button.stop"   , HTMLButtonElement);
 	
-	let imageAttribution = queryElem("a.image-attribution", HTMLAnchorElement);
-	let curIterationsElem  = queryElem("td.current-iterations" , HTMLElement);
-	let curTemperatureElem = queryElem("td.current-temperature", HTMLElement);
-	let curEnergyElem      = queryElem("td.current-energy"     , HTMLElement);
-	
-	
-	type Constructor<T> = { new(...args: Array<any>): T };
-	
-	function queryElem<T>(query: string, type: Constructor<T>): T {
-		const result: Element|null = document.querySelector("article " + query);
-		if (result instanceof type)
-			return result;
-		else if (result === null)
-			throw new Error("Element not found");
-		else
-			throw new TypeError("Invalid element type");
-	}
+	let imageAttribution = queryElem("article a.image-attribution", HTMLAnchorElement);
+	let curIterationsElem  = queryElem("article td.current-iterations" , HTMLElement);
+	let curTemperatureElem = queryElem("article td.current-temperature", HTMLElement);
+	let curEnergyElem      = queryElem("article td.current-energy"     , HTMLElement);
 	
 	
 	function setButtonsBusy(busy: boolean): void {

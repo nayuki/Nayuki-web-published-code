@@ -539,9 +539,6 @@
     }
 })();
 /*---- Shared utilities ----*/
-function queryHtml(query) {
-    return subqueryElem(document, query, HTMLElement);
-}
 function subqueryElem(root, query, type) {
     let result = root.querySelector(query);
     if (result instanceof type)

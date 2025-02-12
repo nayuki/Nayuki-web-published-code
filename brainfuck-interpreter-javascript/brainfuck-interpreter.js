@@ -342,18 +342,6 @@ var app;
             result = result.substring(0, i) + "\u00A0" + result.substring(i); // Non-breaking space
         return result;
     }
-    function queryHtml(query) {
-        return queryElem(query, HTMLElement);
-    }
-    function queryElem(query, type) {
-        let result = document.querySelector(query);
-        if (result instanceof type)
-            return result;
-        else if (result === null)
-            throw new Error("Element not found");
-        else
-            throw new TypeError("Invalid element type");
-    }
     function appendElem(container, tagName, text) {
         let result = document.createElement(tagName);
         if (text !== undefined)
