@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver
  * 
- * Copyright (c) 2024 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -473,16 +473,6 @@ namespace app {
 		public static readonly EMPTY_TILE: number = 0;
 		
 	}
-	
-	
-	if (!("replaceChildren" in Element.prototype)) {  // Polyfill
-		Element.prototype.replaceChildren = function(...newChildren: Array<Node|string>): void {
-			while (this.firstChild !== null)
-				this.removeChild(this.firstChild);
-			this.append(...newChildren);
-		};
-	}
-	
 	
 	
 	// Global initialization

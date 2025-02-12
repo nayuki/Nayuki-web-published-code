@@ -1,7 +1,7 @@
 /* 
  * Calculate prime factorization
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-prime-factorization-javascript
  */
@@ -138,15 +138,6 @@ const app = new function() {
 		}
 		result.push([prevFactor, count]);
 		return result;
-	}
-	
-	
-	if (!("replaceChildren" in Element.prototype)) {  // Polyfill
-		Element.prototype.replaceChildren = function(...newChildren) {
-			while (this.firstChild !== null)
-				this.removeChild(this.firstChild);
-			this.append(...newChildren);
-		};
 	}
 	
 	

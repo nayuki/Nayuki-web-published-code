@@ -1,7 +1,7 @@
 /*
  * Propositional sequent calculus prover (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
@@ -446,10 +446,3 @@ const EMPTY = "\u2205";
 const NOT = "\u00AC";
 const AND = "\u2227";
 const OR = "\u2228";
-if (!("replaceChildren" in Element.prototype)) { // Polyfill
-    Element.prototype.replaceChildren = function (...newChildren) {
-        while (this.firstChild !== null)
-            this.removeChild(this.firstChild);
-        this.append(...newChildren);
-    };
-}

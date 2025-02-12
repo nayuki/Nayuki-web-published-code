@@ -427,13 +427,4 @@ namespace app {
 		return container.appendChild(result);
 	}
 	
-	
-	if (!("replaceChildren" in Element.prototype)) {  // Polyfill
-		Element.prototype.replaceChildren = function(...newChildren: Array<Node|string>): void {
-			while (this.firstChild !== null)
-				this.removeChild(this.firstChild);
-			this.append(...newChildren);
-		};
-	}
-	
 }

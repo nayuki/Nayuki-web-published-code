@@ -1,7 +1,7 @@
 /*
  * Panel de Pon puzzle solver (compiled from TypeScript)
  *
- * Copyright (c) 2024 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/panel-de-pon-puzzle-solver-javascript
  */
@@ -394,13 +394,6 @@ var app;
         "#000000", "#F01000", "#FFE000", "#00C000", "#40FFFF", "#0020F0", "#C000FF"
     ];
     Grid.EMPTY_TILE = 0;
-    if (!("replaceChildren" in Element.prototype)) { // Polyfill
-        Element.prototype.replaceChildren = function (...newChildren) {
-            while (this.firstChild !== null)
-                this.removeChild(this.firstChild);
-            this.append(...newChildren);
-        };
-    }
     // Global initialization
     initialize();
 })(app || (app = {}));

@@ -360,11 +360,4 @@ var app;
             result.textContent = text;
         return container.appendChild(result);
     }
-    if (!("replaceChildren" in Element.prototype)) { // Polyfill
-        Element.prototype.replaceChildren = function (...newChildren) {
-            while (this.firstChild !== null)
-                this.removeChild(this.firstChild);
-            this.append(...newChildren);
-        };
-    }
 })(app || (app = {}));

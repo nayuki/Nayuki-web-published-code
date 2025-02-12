@@ -1,7 +1,7 @@
 /* 
  * Tax-free savings account simulator
  * 
- * Copyright (c) 2024 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/canada-tax-free-savings-account-simulator-javascript
  */
@@ -255,15 +255,6 @@ function getTfsaBalance() {
 
 function setText(elementName, text) {
 	document.getElementById(elementName).textContent = text;
-}
-
-
-if (!("replaceChildren" in Element.prototype)) {  // Polyfill
-	Element.prototype.replaceChildren = function(...newChildren) {
-		while (this.firstChild !== null)
-			this.removeChild(this.firstChild);
-		this.append(...newChildren);
-	};
 }
 
 
