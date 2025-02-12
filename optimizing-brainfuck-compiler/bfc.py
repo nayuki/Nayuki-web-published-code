@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 import dataclasses, pathlib, re, sys
-from typing import Callable, Dict, Iterator, Sequence
+from typing import Callable, Iterator, Sequence
 
 
 # ---- Main ----
@@ -153,7 +153,7 @@ def optimize(commands: list[Command]) -> list[Command]:
 
 # Tries to optimize the given list of looped commands into a list that would be executed without looping. Returns None if not possible.
 def optimize_simple_loop(commands: list[Command]) -> list[Command]|None:
-	deltas: Dict[int,int] = {}  # delta[i] = v means that in each loop iteration, mem[p + i] is added by the amount v
+	deltas: dict[int,int] = {}  # delta[i] = v means that in each loop iteration, mem[p + i] is added by the amount v
 	offset: int = 0
 	for cmd in commands:
 		# This implementation can only optimize loops that consist of only Add and Right

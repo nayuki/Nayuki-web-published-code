@@ -4,7 +4,7 @@
 # https://www.nayuki.io/page/zellers-congruence
 # 
 
-import random, sys, unittest
+import random, unittest
 
 
 # ---- Zeller's congruence function ----

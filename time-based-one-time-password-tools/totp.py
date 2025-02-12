@@ -22,7 +22,6 @@
 # 
 
 import base64, hashlib, hmac, time, struct, sys, unittest
-from typing import Union
 
 
 # ---- Library functions ----

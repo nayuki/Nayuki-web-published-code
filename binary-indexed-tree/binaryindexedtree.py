@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-from typing import Iterable, Union
+from typing import Iterable
 
 
 class BinaryIndexedTree:
@@ -29,7 +29,7 @@ class BinaryIndexedTree:
 	sumtree: list[int]
 	
 	
-	def __init__(self, arg: Union[int,Iterable[int]]):
+	def __init__(self, arg: int|Iterable[int]):
 		if isinstance(arg, int):
 			self.sumtree = [0] * arg
 		else:
