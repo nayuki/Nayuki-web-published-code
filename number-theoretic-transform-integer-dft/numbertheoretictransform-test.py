@@ -7,7 +7,7 @@
 # 
 
 import random, unittest
-from typing import Set, Tuple
+from typing import Set
 import numbertheoretictransform as ntt
 
 
@@ -122,7 +122,7 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_find_generator(self) -> None:
-		CASES: list[Tuple[int,int,Set[int]]] = [
+		CASES: list[tuple[int,int,Set[int]]] = [
 			( 2,  1, {1}),
 			( 3,  2, {2}),
 			( 4,  2, {3}),
@@ -155,7 +155,7 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_is_primitive_root(self) -> None:
-		CASES: list[Tuple[int,int,Set[int]]] = [
+		CASES: list[tuple[int,int,Set[int]]] = [
 			( 2,  1, {1}),
 			( 3,  2, {2}),
 			( 4,  2, {3}),
@@ -224,7 +224,7 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_unique_prime_factors(self) -> None:
-		CASES: list[Tuple[int,list[int]]] = [
+		CASES: list[tuple[int,list[int]]] = [
 			( 1, []),
 			( 2, [2]),
 			( 3, [3]),
@@ -254,7 +254,7 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_is_prime(self) -> None:
-		CASES: list[Tuple[int,bool]] = [
+		CASES: list[tuple[int,bool]] = [
 			( 2, True ),
 			( 3, True ),
 			( 4, False),
@@ -277,7 +277,7 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_sqrt(self) -> None:
-		CASES: list[Tuple[int,int]] = [
+		CASES: list[tuple[int,int]] = [
 			(0, 0),
 			(1, 1),
 			(2, 1),

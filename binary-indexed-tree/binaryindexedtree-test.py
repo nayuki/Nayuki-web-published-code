@@ -22,7 +22,6 @@
 # 
 
 import random, unittest
-from typing import Tuple
 from binaryindexedtree import BinaryIndexedTree
 
 
@@ -141,7 +140,7 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 	
 	
 	@staticmethod
-	def _rand_start_end(length: int) -> Tuple[int,int]:
+	def _rand_start_end(length: int) -> tuple[int,int]:
 		x: int = random.randrange(length + 1)
 		y: int = random.randrange(length + 1)
 		return (min(x, y), max(x, y))

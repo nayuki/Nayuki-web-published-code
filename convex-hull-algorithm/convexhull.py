@@ -19,18 +19,18 @@
 # If not, see <http://www.gnu.org/licenses/>.
 # 
 
-from typing import Sequence, Tuple
+from typing import Sequence
 
 
 # Returns a new list of points representing the convex hull of
 # the given set of points. The convex hull excludes collinear points.
 # This algorithm runs in O(n log n) time.
-def make_hull(points: Sequence[Tuple[float,float]]) -> list[Tuple[float,float]]:
+def make_hull(points: Sequence[tuple[float,float]]) -> list[tuple[float,float]]:
 	return make_hull_presorted(sorted(points))
 
 
 # Returns the convex hull, assuming that each points[i] <= points[i + 1]. Runs in O(n) time.
-def make_hull_presorted(points: Sequence[Tuple[float,float]]) -> list[Tuple[float,float]]:
+def make_hull_presorted(points: Sequence[tuple[float,float]]) -> list[tuple[float,float]]:
 	if len(points) <= 1:
 		return list(points)
 	
@@ -38,8 +38,8 @@ def make_hull_presorted(points: Sequence[Tuple[float,float]]) -> list[Tuple[floa
 	# as per the mathematical convention, instead of "down" as per the computer
 	# graphics convention. This doesn't affect the correctness of the result.
 	
-	upperhull: list[Tuple[float,float]] = []
-	lowerhull: list[Tuple[float,float]] = []
+	upperhull: list[tuple[float,float]] = []
+	lowerhull: list[tuple[float,float]] = []
 	for hull in (upperhull, lowerhull):
 		for p in (points if (hull is upperhull) else reversed(points)):
 			while len(hull) >= 2:

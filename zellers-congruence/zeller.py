@@ -5,7 +5,6 @@
 # 
 
 import random, sys, unittest
-from typing import Tuple
 
 
 # ---- Zeller's congruence function ----
@@ -30,7 +29,7 @@ def day_of_week(y: int, m: int, d: int) -> int:
 class _ZellerTest(unittest.TestCase):
 	
 	def test_simple(self) -> None:
-		CASES: list[Tuple[int,int,int,int]] = [
+		CASES: list[tuple[int,int,int,int]] = [
 			(-679,  9,  8, 1),
 			(-657,  2,  6, 3),
 			(-629,  5, 14, 2),
@@ -142,7 +141,7 @@ class _ZellerTest(unittest.TestCase):
 		if not (1 <= d <= ZellerTest._month_length(y, m)):
 			raise ValueError("Invalid day-of-month")
 		
-		ymd: Tuple[int,int,int] = (1600, 1, 1)
+		ymd: tuple[int,int,int] = (1600, 1, 1)
 		dow: int = 6
 		while ymd < (y, m, d):
 			ymd = ZellerTest._next_date(*ymd)
@@ -154,7 +153,7 @@ class _ZellerTest(unittest.TestCase):
 	
 	
 	@staticmethod
-	def _next_date(y: int, m: int, d: int) -> Tuple[int,int,int]:
+	def _next_date(y: int, m: int, d: int) -> tuple[int,int,int]:
 		if not (1 <= m <= 12):
 			raise ValueError("Invalid month")
 		if not (1 <= d <= ZellerTest._month_length(y, m)):
@@ -169,7 +168,7 @@ class _ZellerTest(unittest.TestCase):
 	
 	
 	@staticmethod
-	def _previous_date(y: int, m: int, d: int) -> Tuple[int,int,int]:
+	def _previous_date(y: int, m: int, d: int) -> tuple[int,int,int]:
 		if not (1 <= m <= 12):
 			raise ValueError("Invalid month")
 		if not (1 <= d <= ZellerTest._month_length(y, m)):

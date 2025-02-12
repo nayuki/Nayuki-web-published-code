@@ -7,7 +7,6 @@
 # 
 
 import itertools
-from typing import Tuple
 
 
 # ---- High-level NTT functions ----
@@ -15,7 +14,7 @@ from typing import Tuple
 # Finds an appropriate set of parameters for the NTT, computes the forward transform on
 # the given vector, and returns a tuple containing the output vector and NTT parameters.
 # Note that all input values must be integers in the range [0, minmod).
-def find_params_and_transform(invec: list[int], minmod: int) -> Tuple[list[int],int,int]:
+def find_params_and_transform(invec: list[int], minmod: int) -> tuple[list[int],int,int]:
 	mod: int = find_modulus(len(invec), minmod)
 	root: int = find_primitive_root(len(invec), mod - 1, mod)
 	return (transform(invec, root, mod), root, mod)

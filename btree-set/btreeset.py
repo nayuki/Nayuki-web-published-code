@@ -22,7 +22,7 @@
 # 
 
 from __future__ import annotations
-from typing import Generic, Iterable, Iterator, Optional, Protocol, Tuple, TypeVar, cast
+from typing import Generic, Iterable, Iterator, Optional, Protocol, TypeVar, cast
 
 
 E = TypeVar("E", bound="_Comparable")
@@ -170,7 +170,7 @@ class BTreeSet(Generic[E]):
 	# Note: Not fail-fast on concurrent modification.
 	def __iter__(self) -> Iterator[E]:
 		# Initialization
-		stack: list[Tuple[BTreeSet.Node[E],int]] = []
+		stack: list[tuple[BTreeSet.Node[E],int]] = []
 		def push_left_path(node: BTreeSet.Node[E]) -> None:
 			while True:
 				stack.append((node, 0))
@@ -241,7 +241,7 @@ class BTreeSet(Generic[E]):
 		# Searches this node's keys list and returns (True, i) if obj equals keys[i],
 		# otherwise returns (False, i) if children[i] should be explored. For simplicity,
 		# the implementation uses linear search. It's possible to replace it with binary search for speed.
-		def search(self, obj: T) -> Tuple[bool,int]:
+		def search(self, obj: T) -> tuple[bool,int]:
 			keys: list[T] = self.keys
 			i: int = 0
 			while i < len(keys):

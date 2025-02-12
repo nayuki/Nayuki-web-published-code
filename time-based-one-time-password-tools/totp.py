@@ -22,7 +22,7 @@
 # 
 
 import base64, hashlib, hmac, time, struct, sys, unittest
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 
 # ---- Library functions ----
@@ -87,7 +87,7 @@ def calc_totp_compact_default(secretkey: bytes) -> str:
 class TotpTest(unittest.TestCase):
 	
 	def test_hotp(self) -> None:
-		CASES: list[Tuple[int,str]] = [
+		CASES: list[tuple[int,str]] = [
 			(0, "284755224"),
 			(1, "094287082"),
 			(2, "137359152"),
@@ -107,7 +107,7 @@ class TotpTest(unittest.TestCase):
 	
 	
 	def test_totp(self) -> None:
-		CASES: list[Tuple[int,str,str,str]] = [
+		CASES: list[tuple[int,str,str,str]] = [
 			(         59, "94287082", "46119246", "90693936"),
 			( 1111111109, "07081804", "68084774", "25091201"),
 			( 1111111111, "14050471", "67062674", "99943326"),

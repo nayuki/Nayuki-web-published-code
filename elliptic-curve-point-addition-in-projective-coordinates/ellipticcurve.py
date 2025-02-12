@@ -1,7 +1,7 @@
 # 
 # Elliptic curve point addition in projective coordinates
 # 
-# Copyright (c) 2024 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/elliptic-curve-point-addition-in-projective-coordinates
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,20 +22,20 @@
 # 
 
 from __future__ import annotations
-from typing import Optional, Tuple
+from typing import Optional
 
 
 # ---- Elliptic curve points in affine coordinates ----
 
 class AffineCurvePoint:
 	
-	xy: Optional[Tuple[FieldInt,FieldInt]]
+	xy: Optional[tuple[FieldInt,FieldInt]]
 	a: FieldInt
 	b: FieldInt
 	modulus: int
 	
 	
-	def __init__(self, xy: Optional[Tuple[FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
+	def __init__(self, xy: Optional[tuple[FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
 		if (xy is not None) and not (xy[0].modulus == xy[1].modulus == mod):
 			raise ValueError("Moduli must match")
 		if not (a.modulus == b.modulus == mod):
@@ -47,7 +47,7 @@ class AffineCurvePoint:
 		self.modulus = mod
 	
 	
-	def _create(self, xy: Optional[Tuple[FieldInt,FieldInt]]) -> AffineCurvePoint:
+	def _create(self, xy: Optional[tuple[FieldInt,FieldInt]]) -> AffineCurvePoint:
 		return AffineCurvePoint(xy, self.a, self.b, self.modulus)
 	
 	
@@ -160,13 +160,13 @@ class AffineCurvePoint:
 
 class ProjectiveCurvePoint:
 	
-	xyz: Optional[Tuple[FieldInt,FieldInt,FieldInt]]
+	xyz: Optional[tuple[FieldInt,FieldInt,FieldInt]]
 	a: FieldInt
 	b: FieldInt
 	modulus: int
 	
 	
-	def __init__(self, xyz: Optional[Tuple[FieldInt,FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
+	def __init__(self, xyz: Optional[tuple[FieldInt,FieldInt,FieldInt]], a: FieldInt, b: FieldInt, mod: int) -> None:
 		if (xyz is not None) and not (xyz[0].modulus == xyz[1].modulus == xyz[2].modulus == mod):
 			raise ValueError("Moduli must match")
 		if not (a.modulus == b.modulus == mod):
@@ -178,7 +178,7 @@ class ProjectiveCurvePoint:
 		self.modulus = mod
 	
 	
-	def _create(self, xyz: Optional[Tuple[FieldInt,FieldInt,FieldInt]]) -> ProjectiveCurvePoint:
+	def _create(self, xyz: Optional[tuple[FieldInt,FieldInt,FieldInt]]) -> ProjectiveCurvePoint:
 		return ProjectiveCurvePoint(xyz, self.a, self.b, self.modulus)
 	
 	

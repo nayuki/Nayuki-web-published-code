@@ -20,7 +20,7 @@
 # 
 
 import os, sys, zlib
-from typing import BinaryIO, Optional, Tuple
+from typing import BinaryIO, Optional
 
 
 # ---- Main application ----
@@ -148,7 +148,7 @@ def pow_mod(x: int, y: int) -> int:
 
 
 # Computes polynomial x divided by polynomial y, returning the quotient and remainder.
-def divide_and_remainder(x: int, y: int) -> Tuple[int,int]:
+def divide_and_remainder(x: int, y: int) -> tuple[int,int]:
 	if y == 0:
 		raise ValueError("Division by zero")
 	if x == 0:

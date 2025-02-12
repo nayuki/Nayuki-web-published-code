@@ -7,12 +7,11 @@
 # https://www.nayuki.io/page/primitive-recursive-functions
 # 
 
-from typing import Tuple
 from primrecfunc import *
 
 
-TestCase = Tuple[list[int],int]  # (arguments, answer)
-TestSuite = Tuple[PrimRecFunc,list[TestCase]]
+TestCase = tuple[list[int],int]  # (arguments, answer)
+TestSuite = tuple[PrimRecFunc,list[TestCase]]
 testsuites: list[TestSuite] = [
 	# Primitive functions
 	(Z, [
