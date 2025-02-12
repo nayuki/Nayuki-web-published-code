@@ -16,9 +16,9 @@ namespace app {
 	/*---- Graphical user interface ----*/
 	
 	function initialize(): void {
-		let selectElem = requireType(document.querySelector("article table#input select"), HTMLSelectElement);
-		let fileElem = requireType(document.querySelector("article table#input input[type=file]"), HTMLInputElement);
-		let checkboxElem = requireType(document.querySelector("article table#input input[type=checkbox]"), HTMLInputElement);
+		let selectElem: HTMLSelectElement = queryElem("article table#input select", HTMLSelectElement);
+		let fileElem: HTMLInputElement = queryElem("article table#input input[type=file]", HTMLInputElement);
+		let checkboxElem: HTMLInputElement = queryElem("article table#input input[type=checkbox]", HTMLInputElement);
 		let ignoreSelect: boolean = false;
 		let ignoreFile: boolean = false;
 		
@@ -29,7 +29,7 @@ namespace app {
 			let option = requireType(appendElem(selectElem, "option", temp.join(" - ")), HTMLOptionElement);
 			option.value = fileName;
 		}
-		let aElem = requireType(document.querySelector("article table#input a"), HTMLAnchorElement);
+		let aElem: HTMLAnchorElement = queryElem("article table#input a", HTMLAnchorElement);
 		
 		selectElem.onchange = (): void => {
 			if (ignoreSelect)
@@ -75,7 +75,7 @@ namespace app {
 	function visualizeFile(fileArray: any, checkIdats: boolean): void {
 		const fileBytes = new Uint8Array(requireType(fileArray, ArrayBuffer));
 		
-		let table = requireType(document.querySelector("article table#output"), HTMLElement);
+		let table: HTMLElement = queryHtml("article table#output");
 		table.classList.remove("errors");
 		let tbody = requireType(table.querySelector("tbody"), HTMLElement);
 		while (tbody.firstChild !== null)
@@ -101,7 +101,7 @@ namespace app {
 				}
 			}
 		}
-		requireType(document.querySelector("article span#summary"), HTMLElement).textContent = summary;
+		queryHtml("article span#summary").textContent = summary;
 		
 		for (const part of parts) {
 			let tr: HTMLElement = appendElem(tbody, "tr");

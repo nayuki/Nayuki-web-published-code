@@ -1,7 +1,7 @@
 /*
  * BitTorrent bencode decoder demo (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -24,12 +24,12 @@
 var app;
 (function (app) {
     /*---- User interface ----*/
-    let fileElem = document.querySelector("article input[type='file']");
+    let fileElem = queryElem("article input[type='file']", HTMLInputElement);
     fileElem.addEventListener("change", render);
     // Reads the input file, parses its data as bencode, then renders
     // HTML elements to this page in order to represent the data structure.
     function render() {
-        let rootElem = document.querySelector("article #file-dissection");
+        let rootElem = queryHtml("article #file-dissection");
         while (rootElem.firstChild !== null)
             rootElem.removeChild(rootElem.firstChild);
         const files = fileElem.files;

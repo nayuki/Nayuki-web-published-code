@@ -20,7 +20,7 @@
  */
 "use strict";
 // DOM elements
-let svgElem = document.querySelector("article svg");
+let svgElem = queryElem("article svg", Element);
 let staticRadio = document.getElementById("random-static");
 let movingRadio = document.getElementById("random-moving");
 let manualRadio = document.getElementById("manual-position");

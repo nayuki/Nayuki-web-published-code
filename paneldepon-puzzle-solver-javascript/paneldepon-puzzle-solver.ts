@@ -22,7 +22,7 @@ namespace app {
 	
 	function initialize(): void {
 		pageGrid = new Grid();
-		const tbodyElem = document.querySelector("#game-board tbody") as HTMLElement;
+		const tbodyElem: HTMLElement = queryHtml("#game-board tbody");
 		tbodyElem.replaceChildren();
 		
 		// Create header row's cells
@@ -167,7 +167,7 @@ namespace app {
 	
 	export function handleBoardChanged(): void {
 		// Update colors on all cells
-		const tbodyElem = document.querySelector("#game-board tbody") as HTMLElement;
+		const tbodyElem: HTMLElement = queryHtml("#game-board tbody");
 		let trs: NodeListOf<HTMLElement> = tbodyElem.querySelectorAll("tr");
 		for (let y = 0; y < Grid.HEIGHT; y++) {
 			let tds: NodeListOf<HTMLElement> = trs[trs.length - 1 - y].querySelectorAll("td");

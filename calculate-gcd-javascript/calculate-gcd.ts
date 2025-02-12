@@ -1,7 +1,7 @@
 /* 
  * GCD calculator
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-gcd-javascript
  */
@@ -11,12 +11,12 @@ namespace app {
 	
 	/*---- Entry points from HTML page ----*/
 	
-	let inputXElem = document.querySelector("#numberX") as HTMLInputElement;
-	let inputYElem = document.querySelector("#numberY") as HTMLInputElement;
+	let inputXElem: HTMLInputElement = queryElem("#numberX", HTMLInputElement);
+	let inputYElem: HTMLInputElement = queryElem("#numberY", HTMLInputElement);
 	
 	
 	export function doCalculate(): void {
-		let outputElem = document.querySelector("#output") as HTMLElement;
+		let outputElem: HTMLElement = queryHtml("#output");
 		const xStr: string = inputXElem.value;
 		const yStr: string = inputYElem.value;
 		if (xStr == "" || yStr == "") {

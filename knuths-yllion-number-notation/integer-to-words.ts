@@ -1,7 +1,7 @@
 /* 
  * Knuth's -yllion number notation demo (TypeScript)
  * 
- * Copyright (c) 2023 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/knuths-yllion-number-notation
  */
@@ -9,12 +9,12 @@
 
 namespace app {
 	
-	let numberInput = document.querySelector("article input#number") as HTMLInputElement;
-	let conventionalEnglishGroupingOutput = document.querySelector("article output#conventional-english-grouping") as HTMLElement;
-	let conventionalEnglishNotationOutput = document.querySelector("article output#conventional-english-notation") as HTMLElement;
-	let yllionGroupingOutput              = document.querySelector("article output#yllion-grouping              ") as HTMLElement;
-	let yllionEnglishOutput               = document.querySelector("article output#yllion-english               ") as HTMLElement;
-	let yllionChineseOutput               = document.querySelector("article output#yllion-chinese               ") as HTMLElement;
+	let numberInput: HTMLInputElement = queryElem("article input#number", HTMLInputElement);
+	let conventionalEnglishGroupingOutput: HTMLElement = queryHtml("article output#conventional-english-grouping");
+	let conventionalEnglishNotationOutput: HTMLElement = queryHtml("article output#conventional-english-notation");
+	let yllionGroupingOutput             : HTMLElement = queryHtml("article output#yllion-grouping              ");
+	let yllionEnglishOutput              : HTMLElement = queryHtml("article output#yllion-english               ");
+	let yllionChineseOutput              : HTMLElement = queryHtml("article output#yllion-chinese               ");
 	
 	
 	function update(): void {

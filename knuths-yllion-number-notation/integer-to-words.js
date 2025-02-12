@@ -1,19 +1,19 @@
 /*
  * Knuth's -yllion number notation demo (compiled from TypeScript)
  *
- * Copyright (c) 2023 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/knuths-yllion-number-notation
  */
 "use strict";
 var app;
 (function (app) {
-    let numberInput = document.querySelector("article input#number");
-    let conventionalEnglishGroupingOutput = document.querySelector("article output#conventional-english-grouping");
-    let conventionalEnglishNotationOutput = document.querySelector("article output#conventional-english-notation");
-    let yllionGroupingOutput = document.querySelector("article output#yllion-grouping              ");
-    let yllionEnglishOutput = document.querySelector("article output#yllion-english               ");
-    let yllionChineseOutput = document.querySelector("article output#yllion-chinese               ");
+    let numberInput = queryElem("article input#number", HTMLInputElement);
+    let conventionalEnglishGroupingOutput = queryHtml("article output#conventional-english-grouping");
+    let conventionalEnglishNotationOutput = queryHtml("article output#conventional-english-notation");
+    let yllionGroupingOutput = queryHtml("article output#yllion-grouping              ");
+    let yllionEnglishOutput = queryHtml("article output#yllion-english               ");
+    let yllionChineseOutput = queryHtml("article output#yllion-chinese               ");
     function update() {
         conventionalEnglishGroupingOutput.textContent = "";
         conventionalEnglishNotationOutput.textContent = "";

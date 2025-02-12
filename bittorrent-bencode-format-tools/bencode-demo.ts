@@ -1,7 +1,7 @@
 /* 
  * BitTorrent bencode decoder demo (TypeScript)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/bittorrent-bencode-format-tools
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,14 +26,14 @@ namespace app {
 	
 	/*---- User interface ----*/
 	
-	let fileElem = document.querySelector("article input[type='file']") as HTMLInputElement;
+	let fileElem: HTMLInputElement = queryElem("article input[type='file']", HTMLInputElement);
 	fileElem.addEventListener("change", render);
 	
 	
 	// Reads the input file, parses its data as bencode, then renders
 	// HTML elements to this page in order to represent the data structure.
 	function render(): void {
-		let rootElem = document.querySelector("article #file-dissection") as HTMLElement;
+		let rootElem: HTMLElement = queryHtml("article #file-dissection");
 		while (rootElem.firstChild !== null)
 			rootElem.removeChild(rootElem.firstChild);
 		

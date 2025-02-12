@@ -15,7 +15,7 @@ var app;
     let currentExampleIndex = -1;
     function initialize() {
         pageGrid = new Grid();
-        const tbodyElem = document.querySelector("#game-board tbody");
+        const tbodyElem = queryHtml("#game-board tbody");
         tbodyElem.replaceChildren();
         // Create header row's cells
         let tr = tbodyElem.appendChild(createElement("tr", createElement("td")));
@@ -149,7 +149,7 @@ var app;
     app.doClear = doClear;
     function handleBoardChanged() {
         // Update colors on all cells
-        const tbodyElem = document.querySelector("#game-board tbody");
+        const tbodyElem = queryHtml("#game-board tbody");
         let trs = tbodyElem.querySelectorAll("tr");
         for (let y = 0; y < Grid.HEIGHT; y++) {
             let tds = trs[trs.length - 1 - y].querySelectorAll("td");

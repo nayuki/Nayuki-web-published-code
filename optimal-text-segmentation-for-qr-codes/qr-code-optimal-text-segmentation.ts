@@ -75,7 +75,7 @@ namespace app {
 		
 		// Clear container elements
 		const textOut = getElem("text-split");
-		const tableOut = document.querySelector("#segment-details tbody") as HTMLElement;
+		const tableOut: HTMLElement = queryHtml("#segment-details tbody");
 		while (textOut.firstChild !== null)
 			textOut.removeChild(textOut.firstChild);
 		while (tableOut.firstChild !== null)

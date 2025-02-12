@@ -1,7 +1,7 @@
 /*
  * Animated floating graph nodes (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
@@ -12,7 +12,7 @@ var app;
         // Initialize the graph, form inputs, SVG output
         let graph = new SvgGraph();
         initInputHandlers(graph);
-        let svg = document.querySelector("article svg");
+        let svg = queryElem("article svg", Element);
         graph.setOutput(svg).initSvgGraph();
         // Periodically update graph to create animation
         const frameIntervalMs = 20;

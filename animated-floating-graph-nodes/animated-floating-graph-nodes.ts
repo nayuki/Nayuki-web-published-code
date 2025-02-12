@@ -1,7 +1,7 @@
 /* 
  * Animated floating graph nodes
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/animated-floating-graph-nodes
  */
@@ -13,7 +13,7 @@ namespace app {
 		// Initialize the graph, form inputs, SVG output
 		let graph = new SvgGraph();
 		initInputHandlers(graph);
-		let svg = document.querySelector("article svg") as Element;
+		let svg: Element = queryElem("article svg", Element);
 		graph.setOutput(svg).initSvgGraph();
 		
 		// Periodically update graph to create animation

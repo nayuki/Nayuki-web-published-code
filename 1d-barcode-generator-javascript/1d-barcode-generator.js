@@ -1,7 +1,7 @@
 /*
  * 1D barcode generator (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/1d-barcode-generator-javascript
  */
@@ -11,7 +11,7 @@ var app;
 (function (app) {
     // Sets event handler on form inputs.
     function initialize() {
-        let formElem = document.querySelector("article form");
+        let formElem = queryElem("article form", HTMLFormElement);
         formElem.onsubmit = () => {
             doGenerate();
             return false;
@@ -29,15 +29,13 @@ var app;
     function doGenerate() {
         try {
             // Get canvas and graphics
-            const canvas = document.querySelector("article form canvas");
-            if (!(canvas instanceof HTMLCanvasElement))
-                throw new Error("Assertion error");
+            const canvas = queryElem("article form canvas", HTMLCanvasElement);
             const graphics = canvas.getContext("2d");
             if (!(graphics instanceof CanvasRenderingContext2D))
                 throw new Error("Assertion error");
             graphics.clearRect(0, 0, canvas.width, canvas.height);
             // Select barcode generator function based on radio buttons
-            let radioElem = document.querySelector("#barcode-type-container input:checked");
+            let radioElem = queryElem("#barcode-type-container input:checked", HTMLInputElement);
             const func = barcodegen[radioElem.id];
             if (func === undefined)
                 throw new Error("Assertion error");

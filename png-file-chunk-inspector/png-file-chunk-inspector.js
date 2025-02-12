@@ -10,9 +10,9 @@ var app;
 (function (app) {
     /*---- Graphical user interface ----*/
     function initialize() {
-        let selectElem = requireType(document.querySelector("article table#input select"), HTMLSelectElement);
-        let fileElem = requireType(document.querySelector("article table#input input[type=file]"), HTMLInputElement);
-        let checkboxElem = requireType(document.querySelector("article table#input input[type=checkbox]"), HTMLInputElement);
+        let selectElem = queryElem("article table#input select", HTMLSelectElement);
+        let fileElem = queryElem("article table#input input[type=file]", HTMLInputElement);
+        let checkboxElem = queryElem("article table#input input[type=checkbox]", HTMLInputElement);
         let ignoreSelect = false;
         let ignoreFile = false;
         selectElem.selectedIndex = 0;
@@ -22,7 +22,7 @@ var app;
             let option = requireType(appendElem(selectElem, "option", temp.join(" - ")), HTMLOptionElement);
             option.value = fileName;
         }
-        let aElem = requireType(document.querySelector("article table#input a"), HTMLAnchorElement);
+        let aElem = queryElem("article table#input a", HTMLAnchorElement);
         selectElem.onchange = () => {
             if (ignoreSelect)
                 return;
@@ -60,7 +60,7 @@ var app;
     setTimeout(initialize);
     function visualizeFile(fileArray, checkIdats) {
         const fileBytes = new Uint8Array(requireType(fileArray, ArrayBuffer));
-        let table = requireType(document.querySelector("article table#output"), HTMLElement);
+        let table = queryHtml("article table#output");
         table.classList.remove("errors");
         let tbody = requireType(table.querySelector("tbody"), HTMLElement);
         while (tbody.firstChild !== null)
@@ -85,7 +85,7 @@ var app;
                 }
             }
         }
-        requireType(document.querySelector("article span#summary"), HTMLElement).textContent = summary;
+        queryHtml("article span#summary").textContent = summary;
         for (const part of parts) {
             let tr = appendElem(tbody, "tr");
             appendElem(tr, "td", uintToStrWithThousandsSeparators(part.offset));

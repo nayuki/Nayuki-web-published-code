@@ -21,7 +21,7 @@
 
 
 // DOM elements
-let svgElem = document.querySelector("article svg") as Element;
+let svgElem: Element = queryElem("article svg", Element);
 let staticRadio = document.getElementById("random-static"  ) as HTMLInputElement;
 let movingRadio = document.getElementById("random-moving"  ) as HTMLInputElement;
 let manualRadio = document.getElementById("manual-position") as HTMLInputElement;
