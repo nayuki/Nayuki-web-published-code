@@ -7,7 +7,6 @@
 # 
 
 import random, unittest
-from typing import Set
 import numbertheoretictransform as ntt
 
 
@@ -122,7 +121,7 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_find_generator(self) -> None:
-		CASES: list[tuple[int,int,Set[int]]] = [
+		CASES: list[tuple[int,int,set[int]]] = [
 			( 2,  1, {1}),
 			( 3,  2, {2}),
 			( 4,  2, {3}),
@@ -155,7 +154,7 @@ class NumberTheoreticTransformTest(unittest.TestCase):
 	
 	
 	def test_is_primitive_root(self) -> None:
-		CASES: list[tuple[int,int,Set[int]]] = [
+		CASES: list[tuple[int,int,set[int]]] = [
 			( 2,  1, {1}),
 			( 3,  2, {2}),
 			( 4,  2, {3}),

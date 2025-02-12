@@ -22,7 +22,7 @@
 # 
 
 from __future__ import annotations
-from typing import cast, ClassVar, Generator, Generic, Iterable, Optional, Set, TypeVar
+from typing import cast, ClassVar, Generator, Generic, Iterable, Optional, TypeVar
 
 
 E = TypeVar("E")
@@ -278,7 +278,7 @@ class AvlTreeList(Generic[E]):
 		
 		
 		# For unit tests, invokable by the outer class.
-		def check_structure(self, visitednodes: Set[AvlTreeList.Node[T]]) -> None:
+		def check_structure(self, visitednodes: set[AvlTreeList.Node[T]]) -> None:
 			if self is self._empty_leaf():
 				return
 			

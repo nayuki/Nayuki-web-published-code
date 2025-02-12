@@ -1,7 +1,7 @@
 # 
 # B-tree set test (Python)
 # 
-# Copyright (c) 2024 Project Nayuki. (MIT License)
+# Copyright (c) 2025 Project Nayuki. (MIT License)
 # https://www.nayuki.io/page/btree-set
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,7 +22,6 @@
 # 
 
 import random, unittest
-from typing import Set
 from btreeset import BTreeSet
 
 
@@ -33,7 +32,7 @@ class BTreeSetTest(unittest.TestCase):
 		OPERATIONS: int = 100
 		VALRANGE: int = 1000
 		for _ in range(TRIALS):
-			set0: Set[int] = set()
+			set0: set[int] = set()
 			set1: BTreeSet[int] = BTreeSet(random.randrange(5) + 2)
 			for _ in range(OPERATIONS):
 				# Add/remove a random value
@@ -61,7 +60,7 @@ class BTreeSetTest(unittest.TestCase):
 		VALRANGE: int = 100000
 		CHECKS: int = 10
 		for _ in range(TRIALS):
-			set0: Set[int] = set()
+			set0: set[int] = set()
 			set1: BTreeSet[int] = BTreeSet(2)
 			for _ in range(OPERATIONS):
 				# Add a random value
@@ -84,7 +83,7 @@ class BTreeSetTest(unittest.TestCase):
 		VALRANGE: int = 100000
 		CHECKS: int = 10
 		for _ in range(TRIALS):
-			set0: Set[int] = set()
+			set0: set[int] = set()
 			set1: BTreeSet[int] = BTreeSet(random.randrange(5) + 2)
 			for _ in range(OPERATIONS):
 				# Add/remove a random value
@@ -112,7 +111,7 @@ class BTreeSetTest(unittest.TestCase):
 		CHECKS: int = 10
 		for _ in range(TRIALS):
 			# Create sets and add all values
-			set0: Set[int] = set(random.randrange(VALRANGE) for _ in range(LIMIT))
+			set0: set[int] = set(random.randrange(VALRANGE) for _ in range(LIMIT))
 			set1: BTreeSet[int] = BTreeSet(random.randrange(5) + 2, set0)
 			set1.check_structure()
 			
@@ -133,7 +132,7 @@ class BTreeSetTest(unittest.TestCase):
 		OPERATIONS: int = 1000
 		VALRANGE: int = 10000
 		for _ in range(TRIALS):
-			set0: Set[int] = set()
+			set0: set[int] = set()
 			set1: BTreeSet[int] = BTreeSet(random.randrange(5) + 2)
 			
 			numinsert: int = random.randrange(OPERATIONS)

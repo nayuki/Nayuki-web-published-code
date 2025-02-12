@@ -22,7 +22,6 @@
 # 
 
 import itertools, random, unittest
-from typing import Set
 from binaryarrayset import BinaryArraySet
 
 
@@ -92,7 +91,7 @@ class BinaryArraySetTest(unittest.TestCase):
 	# Comprehensively tests all the defined methods
 	def test_against_python_set_randomly(self) -> None:
 		ITERATIONS: int = 10000
-		set0: Set[int] = set()
+		set0: set[int] = set()
 		set1: BinaryArraySet[int] = BinaryArraySet()
 		length: int = 0
 		for i in range(ITERATIONS):

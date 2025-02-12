@@ -11,7 +11,7 @@
 
 from __future__ import annotations
 import dataclasses, pathlib, re, sys
-from typing import Callable, Dict, Iterator, Optional, Sequence, Set
+from typing import Callable, Dict, Iterator, Optional, Sequence
 
 
 # ---- Main ----
@@ -184,7 +184,7 @@ def optimize_simple_loop(commands: list[Command]) -> Optional[list[Command]]:
 def optimize_complex_loop(commands: list[Command]) -> Optional[If]:
 	result: list[Command] = []
 	origindelta: int = 0
-	clears: Set[int] = {0}
+	clears: set[int] = {0}
 	for cmd in commands:
 		if isinstance(cmd, Add):
 			if cmd.offset == 0:
