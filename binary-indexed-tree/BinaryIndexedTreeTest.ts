@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree test (TypeScript)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -130,15 +130,15 @@ const TEST_SUITE: Array<()=>void> = [
 			
 			const len: number = randInt(SIZELIMIT);
 			let vals: Array<number> = [];
-			let cums: Array<number> = [0];
+			let cmls: Array<number> = [0];
 			for (let j = 0; j < len; j++) {
 				vals.push(randInt(2001) - 1000);
-				cums.push(cums[j] + vals[j]);
+				cmls.push(cmls[j] + vals[j]);
 			}
 			
 			let bt = new BinaryIndexedTree(vals);
 			assertEquals(len, bt.length);
-			assertEquals(cums[len], bt.getTotal());
+			assertEquals(cmls[len], bt.getTotal());
 			
 			for (let j = 0; j < CHECKS; j++) {
 				if (len > 0) {
@@ -146,7 +146,7 @@ const TEST_SUITE: Array<()=>void> = [
 					assertEquals(vals[k], bt.get(k));
 				}
 				const k: number = randInt(len + 1);
-				assertEquals(cums[k], bt.getPrefixSum(k));
+				assertEquals(cmls[k], bt.getPrefixSum(k));
 				
 				let start: number = randInt(len + 1);
 				let end  : number = randInt(len + 1);
@@ -155,7 +155,7 @@ const TEST_SUITE: Array<()=>void> = [
 					start = end;
 					end = temp;
 				}
-				assertEquals(cums[end] - cums[start], bt.getRangeSum(start, end));
+				assertEquals(cmls[end] - cmls[start], bt.getRangeSum(start, end));
 			}
 		}
 	},
@@ -193,15 +193,15 @@ const TEST_SUITE: Array<()=>void> = [
 				}
 			}
 			
-			let cums: Array<number> = [0];
+			let cmls: Array<number> = [0];
 			vals.forEach((x, j) =>
-				cums.push(cums[j] + x));
+				cmls.push(cmls[j] + x));
 			
 			for (let j = 0; j < CHECKS; j++) {
 				let k: number = randInt(len);
 				assertEquals(vals[k], bt.get(k));
 				k = randInt(len + 1);
-				assertEquals(cums[k], bt.getPrefixSum(k));
+				assertEquals(cmls[k], bt.getPrefixSum(k));
 				
 				let start: number = randInt(len + 1);
 				let end  : number = randInt(len + 1);
@@ -210,7 +210,7 @@ const TEST_SUITE: Array<()=>void> = [
 					start = end;
 					end = temp;
 				}
-				assertEquals(cums[end] - cums[start], bt.getRangeSum(start, end));
+				assertEquals(cmls[end] - cmls[start], bt.getRangeSum(start, end));
 			}
 		}
 	},

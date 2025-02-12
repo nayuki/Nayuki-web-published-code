@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree test (Java)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -110,16 +110,16 @@ public final class BinaryIndexedTreeTest {
 			
 			int len = rand.nextInt(SIZELIMIT);
 			long[] vals = new long[len];
-			long[] cums = new long[len + 1];
-			cums[0] = 0;
+			long[] cmls = new long[len + 1];
+			cmls[0] = 0;
 			for (int j = 0; j < vals.length; j++) {
 				vals[j] = rand.nextLong();
-				cums[j + 1] = cums[j] + vals[j];
+				cmls[j + 1] = cmls[j] + vals[j];
 			}
 			
 			BinaryIndexedTree bt = new BinaryIndexedTree(vals);
 			assertEquals(len, bt.length());
-			assertEquals(cums[len], bt.getTotal());
+			assertEquals(cmls[len], bt.getTotal());
 			
 			for (int j = 0; j < CHECKS; j++) {
 				if (len > 0) {
@@ -127,7 +127,7 @@ public final class BinaryIndexedTreeTest {
 					assertEquals(vals[k], bt.get(k));
 				}
 				int k = rand.nextInt(len + 1);
-				assertEquals(cums[k], bt.getPrefixSum(k));
+				assertEquals(cmls[k], bt.getPrefixSum(k));
 				
 				int start = rand.nextInt(len + 1);
 				int end   = rand.nextInt(len + 1);
@@ -136,7 +136,7 @@ public final class BinaryIndexedTreeTest {
 					start = end;
 					end = temp;
 				}
-				assertEquals(cums[end] - cums[start], bt.getRangeSum(start, end));
+				assertEquals(cmls[end] - cmls[start], bt.getRangeSum(start, end));
 			}
 		}
 	}
@@ -172,15 +172,15 @@ public final class BinaryIndexedTreeTest {
 				}
 			}
 			
-			long[] cums = new long[vals.length + 1];
+			long[] cmls = new long[vals.length + 1];
 			for (int j = 0; j < vals.length; j++)
-				cums[j + 1] = cums[j] + vals[j];
+				cmls[j + 1] = cmls[j] + vals[j];
 			
 			for (int j = 0; j < CHECKS; j++) {
 				int k = rand.nextInt(len);
 				assertEquals(vals[k], bt.get(k));
 				k = rand.nextInt(len + 1);
-				assertEquals(cums[k], bt.getPrefixSum(k));
+				assertEquals(cmls[k], bt.getPrefixSum(k));
 				
 				int start = rand.nextInt(len + 1);
 				int end   = rand.nextInt(len + 1);
@@ -189,7 +189,7 @@ public final class BinaryIndexedTreeTest {
 					start = end;
 					end = temp;
 				}
-				assertEquals(cums[end] - cums[start], bt.getRangeSum(start, end));
+				assertEquals(cmls[end] - cmls[start], bt.getRangeSum(start, end));
 			}
 		}
 	}

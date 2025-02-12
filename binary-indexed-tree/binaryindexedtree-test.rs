@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree test (Rust)
  * 
- * Copyright (c) 2019 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -128,18 +128,18 @@ fn test_array_constructor_randomly() {
 		
 		let len = lendist.ind_sample(rng);
 		let mut vals: Vec<T> = vec![];
-		let mut cums: Vec<T> = vec![0];
+		let mut cmls: Vec<T> = vec![0];
 		let valdist = Range::new(-1000, 1001);
 		for _ in 0 .. len {
 			let x = valdist.ind_sample(rng);
 			vals.push(x);
-			let y = *cums.last().unwrap();
-			cums.push(y + x);
+			let y = *cmls.last().unwrap();
+			cmls.push(y + x);
 		}
 		
 		let bt = BinaryIndexedTree::<T>::new_array(&vals);
 		assert_eq!(len, bt.len());
-		assert_eq!(cums[len], bt.get_total());
+		assert_eq!(cmls[len], bt.get_total());
 		
 		let indexdist = Range::new(0, len.max(1));
 		let indexonedist = Range::new(0, len + 1);
@@ -149,14 +149,14 @@ fn test_array_constructor_randomly() {
 				assert_eq!(vals[k], bt.get(k));
 			}
 			let k = indexonedist.ind_sample(rng);
-			assert_eq!(cums[k], bt.get_prefix_sum(k));
+			assert_eq!(cmls[k], bt.get_prefix_sum(k));
 			
 			let mut start = indexonedist.ind_sample(rng);
 			let mut end   = indexonedist.ind_sample(rng);
 			if start > end {
 				std::mem::swap(&mut start, &mut end);
 			}
-			assert_eq!(cums[end] - cums[start], bt.get_range_sum(start, end));
+			assert_eq!(cmls[end] - cmls[start], bt.get_range_sum(start, end));
 		}
 	}
 }
@@ -196,10 +196,10 @@ fn test_add_and_set_randomly() {
 			}
 		}
 		
-		let mut cums = vec![std::num::Wrapping(0)];
+		let mut cmls = vec![std::num::Wrapping(0)];
 		for x in vals.iter() {
-			let y = *cums.last().unwrap();
-			cums.push(y + x);
+			let y = *cmls.last().unwrap();
+			cmls.push(y + x);
 		}
 		
 		let indexonedist = Range::new(0, len + 1);
@@ -207,14 +207,14 @@ fn test_add_and_set_randomly() {
 			let k = indexdist.ind_sample(rng);
 			assert_eq!(vals[k], bt.get(k));
 			let k = indexonedist.ind_sample(rng);
-			assert_eq!(cums[k], bt.get_prefix_sum(k));
+			assert_eq!(cmls[k], bt.get_prefix_sum(k));
 			
 			let mut start = indexonedist.ind_sample(rng);
 			let mut end   = indexonedist.ind_sample(rng);
 			if start > end {
 				std::mem::swap(&mut start, &mut end);
 			}
-			assert_eq!(cums[end] - cums[start], bt.get_range_sum(start, end));
+			assert_eq!(cmls[end] - cmls[start], bt.get_range_sum(start, end));
 		}
 	}
 }

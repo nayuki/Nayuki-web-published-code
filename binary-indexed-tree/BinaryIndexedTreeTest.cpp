@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree test (C++)
  * 
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -156,15 +156,15 @@ static void testArrayConstructorRandomly() {
 		
 		size_t len = lenDist(randGen);
 		vector<T> vals;
-		vector<T> cums{0};
+		vector<T> cmls{0};
 		for (size_t j = 0; j < len; j++) {
 			vals.push_back(valDist(randGen));
-			cums.push_back(cums.back() + vals.back());
+			cmls.push_back(cmls.back() + vals.back());
 		}
 		
 		BinaryIndexedTree<T> bt(vals);
 		assertEquals(len, bt.size());
-		assertEquals(cums.at(len), bt.getTotal());
+		assertEquals(cmls.at(len), bt.getTotal());
 		
 		uniform_int_distribution<size_t> indexDist(0, len > 0 ? len - 1 : 0);
 		uniform_int_distribution<size_t> indexOneDist(0, len);
@@ -174,13 +174,13 @@ static void testArrayConstructorRandomly() {
 				assertEquals(vals.at(k), bt[k]);
 			}
 			size_t k = indexOneDist(randGen);
-			assertEquals(cums.at(k), bt.getPrefixSum(k));
+			assertEquals(cmls.at(k), bt.getPrefixSum(k));
 			
 			size_t start = indexOneDist(randGen);
 			size_t end   = indexOneDist(randGen);
 			if (start > end)
 				std::swap(start, end);
-			assertEquals(cums.at(end) - cums.at(start), bt.getRangeSum(start, end));
+			assertEquals(cmls.at(end) - cmls.at(start), bt.getRangeSum(start, end));
 		}
 	}
 }
@@ -222,22 +222,22 @@ static void testAddAndSetRandomly() {
 			}
 		}
 		
-		vector<T> cums{0};
+		vector<T> cmls{0};
 		for (T x : vals)
-			cums.push_back(cums.back() + x);
+			cmls.push_back(cmls.back() + x);
 		
 		uniform_int_distribution<size_t> indexOneDist(0, len);
 		for (long j = 0; j < CHECKS; j++) {
 			size_t k = indexDist(randGen);
 			assertEquals(vals.at(k), bt[k]);
 			k = indexOneDist(randGen);
-			assertEquals(cums.at(k), bt.getPrefixSum(k));
+			assertEquals(cmls.at(k), bt.getPrefixSum(k));
 			
 			size_t start = indexOneDist(randGen);
 			size_t end   = indexOneDist(randGen);
 			if (start > end)
 				std::swap(start, end);
-			assertEquals(cums.at(end) - cums.at(start), bt.getRangeSum(start, end));
+			assertEquals(cmls.at(end) - cmls.at(start), bt.getRangeSum(start, end));
 		}
 	}
 }

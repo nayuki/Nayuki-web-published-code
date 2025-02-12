@@ -1,7 +1,7 @@
 /*
  * Binary indexed tree test (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -116,21 +116,21 @@ const TEST_SUITE = [
         for (let i = 0; i < TRIALS; i++) {
             const len = randInt(SIZELIMIT);
             let vals = [];
-            let cums = [0];
+            let cmls = [0];
             for (let j = 0; j < len; j++) {
                 vals.push(randInt(2001) - 1000);
-                cums.push(cums[j] + vals[j]);
+                cmls.push(cmls[j] + vals[j]);
             }
             let bt = new BinaryIndexedTree(vals);
             assertEquals(len, bt.length);
-            assertEquals(cums[len], bt.getTotal());
+            assertEquals(cmls[len], bt.getTotal());
             for (let j = 0; j < CHECKS; j++) {
                 if (len > 0) {
                     const k = randInt(len);
                     assertEquals(vals[k], bt.get(k));
                 }
                 const k = randInt(len + 1);
-                assertEquals(cums[k], bt.getPrefixSum(k));
+                assertEquals(cmls[k], bt.getPrefixSum(k));
                 let start = randInt(len + 1);
                 let end = randInt(len + 1);
                 if (start > end) {
@@ -138,7 +138,7 @@ const TEST_SUITE = [
                     start = end;
                     end = temp;
                 }
-                assertEquals(cums[end] - cums[start], bt.getRangeSum(start, end));
+                assertEquals(cmls[end] - cmls[start], bt.getRangeSum(start, end));
             }
         }
     },
@@ -173,13 +173,13 @@ const TEST_SUITE = [
                     bt.set(k, x);
                 }
             }
-            let cums = [0];
-            vals.forEach((x, j) => cums.push(cums[j] + x));
+            let cmls = [0];
+            vals.forEach((x, j) => cmls.push(cmls[j] + x));
             for (let j = 0; j < CHECKS; j++) {
                 let k = randInt(len);
                 assertEquals(vals[k], bt.get(k));
                 k = randInt(len + 1);
-                assertEquals(cums[k], bt.getPrefixSum(k));
+                assertEquals(cmls[k], bt.getPrefixSum(k));
                 let start = randInt(len + 1);
                 let end = randInt(len + 1);
                 if (start > end) {
@@ -187,7 +187,7 @@ const TEST_SUITE = [
                     start = end;
                     end = temp;
                 }
-                assertEquals(cums[end] - cums[start], bt.getRangeSum(start, end));
+                assertEquals(cmls[end] - cmls[start], bt.getRangeSum(start, end));
             }
         }
     },

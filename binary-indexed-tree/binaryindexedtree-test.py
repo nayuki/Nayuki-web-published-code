@@ -83,22 +83,22 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 			
 			length: int = random.randrange(SIZELIMIT)
 			vals: list[int] = [random.randrange(-1000, 1000) for _ in range(length)]
-			cums: list[int] = [0]
+			cmls: list[int] = [0]
 			for x in vals:
-				cums.append(cums[-1] + x)
+				cmls.append(cmls[-1] + x)
 			
 			bt: BinaryIndexedTree = BinaryIndexedTree(vals)
 			self.assertEqual(length, len(bt))
-			self.assertEqual(cums[length], bt.get_total())
+			self.assertEqual(cmls[length], bt.get_total())
 			
 			for _ in range(CHECKS):
 				if length > 0:
 					k: int = random.randrange(length)
 					self.assertEqual(vals[k], bt[k])
 				k = random.randrange(length + 1)
-				self.assertEqual(cums[k], bt.get_prefix_sum(k))
+				self.assertEqual(cmls[k], bt.get_prefix_sum(k))
 				start, end = BinaryIndexedTreeTest._rand_start_end(length)
-				self.assertEqual(cums[end] - cums[start], bt.get_range_sum(start, end))
+				self.assertEqual(cmls[end] - cmls[start], bt.get_range_sum(start, end))
 	
 	
 	def test_add_and_set_randomly(self) -> None:
@@ -126,17 +126,17 @@ class BinaryIndexedTreeTest(unittest.TestCase):
 					vals[k] = x
 					bt[k] = x
 			
-			cums: list[int] = [0]
+			cmls: list[int] = [0]
 			for x in vals:
-				cums.append(cums[-1] + x)
+				cmls.append(cmls[-1] + x)
 			
 			for _ in range(CHECKS):
 				k = random.randrange(length)
 				self.assertEqual(vals[k], bt[k])
 				k = random.randrange(length + 1)
-				self.assertEqual(cums[k], bt.get_prefix_sum(k))
+				self.assertEqual(cmls[k], bt.get_prefix_sum(k))
 				start, end = BinaryIndexedTreeTest._rand_start_end(length)
-				self.assertEqual(cums[end] - cums[start], bt.get_range_sum(start, end))
+				self.assertEqual(cmls[end] - cmls[start], bt.get_range_sum(start, end))
 	
 	
 	@staticmethod
