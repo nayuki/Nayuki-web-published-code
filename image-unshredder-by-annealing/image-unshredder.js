@@ -39,9 +39,9 @@ var app;
     let annealButton = queryElem("article button.anneal", HTMLButtonElement);
     let stopButton = queryElem("article button.stop", HTMLButtonElement);
     let imageAttribution = queryElem("article a.image-attribution", HTMLAnchorElement);
-    let curIterationsElem = queryElem("article td.current-iterations", HTMLElement);
-    let curTemperatureElem = queryElem("article td.current-temperature", HTMLElement);
-    let curEnergyElem = queryElem("article td.current-energy", HTMLElement);
+    let curIterationsElem = queryHtml("article td.current-iterations");
+    let curTemperatureElem = queryHtml("article td.current-temperature");
+    let curEnergyElem = queryHtml("article td.current-energy");
     function setButtonsBusy(busy) {
         if (busy) {
             imageSelect.disabled = true;
