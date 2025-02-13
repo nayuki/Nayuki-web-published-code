@@ -15,14 +15,14 @@ var app;
         inVecInput.onkeydown = doCalculate;
         minModInput.onkeydown = doCalculate;
         rootInput.onkeydown = doCalculate;
-        getHtml("forward-transform-calculate").onclick = doCalculate;
+        queryHtml("#forward-transform-calculate").onclick = doCalculate;
         function doCalculate(e) {
             if (e instanceof KeyboardEvent && e.key != "Enter")
                 return;
-            let vecLenElem = getHtml("forward-transform-vector-length");
-            let modulusElem = getHtml("forward-transform-chosen-modulus");
-            let rootElem = getHtml("forward-transform-chosen-nth-root-of-unity");
-            let outVecElem = getHtml("forward-transform-output-vector");
+            let vecLenElem = queryHtml("#forward-transform-vector-length");
+            let modulusElem = queryHtml("#forward-transform-chosen-modulus");
+            let rootElem = queryHtml("#forward-transform-chosen-nth-root-of-unity");
+            let outVecElem = queryHtml("#forward-transform-output-vector");
             vecLenElem.textContent = "";
             modulusElem.textContent = "";
             rootElem.textContent = "";
@@ -81,15 +81,15 @@ var app;
         inVecInput.onkeydown = doCalculate;
         minModInput.onkeydown = doCalculate;
         rootInput.onkeydown = doCalculate;
-        getHtml("inverse-transform-calculate").onclick = doCalculate;
+        queryHtml("#inverse-transform-calculate").onclick = doCalculate;
         function doCalculate(e) {
             if (e instanceof KeyboardEvent && e.key != "Enter")
                 return;
-            let vecLenElem = getHtml("inverse-transform-vector-length");
-            let modulusElem = getHtml("inverse-transform-chosen-modulus");
-            let rootElem = getHtml("inverse-transform-chosen-nth-root-of-unity");
-            let outVecElem0 = getHtml("inverse-transform-output-vector-unscaled");
-            let outVecElem1 = getHtml("inverse-transform-output-vector-scaled");
+            let vecLenElem = queryHtml("#inverse-transform-vector-length");
+            let modulusElem = queryHtml("#inverse-transform-chosen-modulus");
+            let rootElem = queryHtml("#inverse-transform-chosen-nth-root-of-unity");
+            let outVecElem0 = queryHtml("#inverse-transform-output-vector-unscaled");
+            let outVecElem1 = queryHtml("#inverse-transform-output-vector-scaled");
             vecLenElem.textContent = "";
             modulusElem.textContent = "";
             rootElem.textContent = "";
@@ -153,17 +153,17 @@ var app;
         inVec1Input.onkeydown = doCalculate;
         minModInput.onkeydown = doCalculate;
         rootInput.onkeydown = doCalculate;
-        getHtml("circular-convolution-calculate").onclick = doCalculate;
+        queryHtml("#circular-convolution-calculate").onclick = doCalculate;
         function doCalculate(e) {
             if (e instanceof KeyboardEvent && e.key != "Enter")
                 return;
-            let vecLenElem = getHtml("circular-convolution-vector-length");
-            let modulusElem = getHtml("circular-convolution-chosen-modulus");
-            let rootElem = getHtml("circular-convolution-chosen-nth-root-of-unity");
-            let transVec0Elem = getHtml("circular-convolution-transformed-vector-0");
-            let transVec1Elem = getHtml("circular-convolution-transformed-vector-1");
-            let multVecElem = getHtml("circular-convolution-pointwise-multiplied-vector");
-            let outVecElem = getHtml("circular-convolution-output-vector");
+            let vecLenElem = queryHtml("#circular-convolution-vector-length");
+            let modulusElem = queryHtml("#circular-convolution-chosen-modulus");
+            let rootElem = queryHtml("#circular-convolution-chosen-nth-root-of-unity");
+            let transVec0Elem = queryHtml("#circular-convolution-transformed-vector-0");
+            let transVec1Elem = queryHtml("#circular-convolution-transformed-vector-1");
+            let multVecElem = queryHtml("#circular-convolution-pointwise-multiplied-vector");
+            let outVecElem = queryHtml("#circular-convolution-output-vector");
             vecLenElem.textContent = "";
             modulusElem.textContent = "";
             rootElem.textContent = "";
@@ -275,8 +275,5 @@ var app;
     }
     function getInput(id) {
         return getElem(id, HTMLInputElement);
-    }
-    function getHtml(id) {
-        return getElem(id, HTMLElement);
     }
 })(app || (app = {}));

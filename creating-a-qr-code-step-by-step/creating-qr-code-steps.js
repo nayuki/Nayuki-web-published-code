@@ -801,13 +801,13 @@ var app;
                     "180722843312481903540481542120481909180722783060240828240963809421660240963819481903536436843301180647542120487542481" +
                     "903542210843301178993542120481888481903536436843301180647542120487542481903542210843301", ErrorCorrectionLevel.LOW, 1, 4],
         ];
-        let selectElem = getElem("show-example");
+        let selectElem = queryElem("#show-example", HTMLSelectElement);
         for (const [name, text, ecl, minVer, mask] of EXAMPLES)
             appendNewElem(selectElem, "option", name);
         selectElem.selectedIndex = 1;
         function selectChanged() {
             const [_, text, ecl, minVer, mask] = EXAMPLES[selectElem.selectedIndex];
-            getElem("input-text").value = text;
+            queryElem("#input-text", HTMLTextAreaElement).value = text;
             getInput("force-min-version").value = minVer.toString();
             getInput("force-mask-pattern").value = mask.toString();
             if (ecl == ErrorCorrectionLevel.LOW)
@@ -836,7 +836,7 @@ var app;
     }
     function initShowHideSteps() {
         let headings = document.querySelectorAll("article section h3");
-        let showHideP = getElem("show-hide-steps");
+        let showHideP = queryHtml("#show-hide-steps");
         for (let heading of headings) {
             let parent = heading.parentNode;
             const stepStr = /^\d+(?=\. )/.exec(heading.textContent)[0];
@@ -874,7 +874,7 @@ var app;
             "vertical-false-finders",
             "dark-light-balance",
         ];
-        maskShower.selectElem = getElem("show-mask");
+        maskShower.selectElem = queryElem("#show-mask", HTMLSelectElement);
         for (const id of MASK_DEPENDENT_ELEMS) {
             let elem = queryElem("#" + id, Element);
             let parent = elem.parentNode;
@@ -903,7 +903,7 @@ var app;
     /*---- Main application ----*/
     function doGenerate() {
         // Get input values
-        const textStr = getElem("input-text").value;
+        const textStr = queryElem("#input-text", HTMLTextAreaElement).value;
         const minVer = parseInt(getInput("force-min-version").value, 10);
         const forceMask = parseInt(getInput("force-mask-pattern").value, 10);
         let errCorrLvl;
@@ -942,7 +942,7 @@ var app;
     }
     app.doGenerate = doGenerate;
     function doStep0(text) {
-        getElem("num-code-points").textContent = text.length.toString();
+        queryHtml("#num-code-points").textContent = text.length.toString();
         let allNumeric = true;
         let allAlphanum = true;
         let allKanji = true;
@@ -993,11 +993,11 @@ var app;
         else
             result = SegmentMode.BYTE;
         // Kanji mode encoding is not supported due to big conversion table
-        getElem("chosen-segment-mode").textContent = result.name;
+        queryHtml("#chosen-segment-mode").textContent = result.name;
         return result;
     }
     function doStep1(text, mode) {
-        getElem("data-segment-chars").className = mode.name.toLowerCase() + " possibly-long";
+        queryHtml("#data-segment-chars").className = mode.name.toLowerCase() + " possibly-long";
         let bitData = [];
         let numChars = text.length;
         let tbody = clearChildren("#data-segment-chars tbody");
@@ -1055,9 +1055,9 @@ var app;
                     td.rowSpan = rowSpan;
             });
         });
-        getElem("segment-mode").textContent = mode.name.toString();
-        getElem("segment-count").textContent = numChars + " " + (mode == SegmentMode.BYTE ? "bytes" : "characters");
-        getElem("segment-data").textContent = bitData.length + " bits long";
+        queryHtml("#segment-mode").textContent = mode.name.toString();
+        queryHtml("#segment-count").textContent = numChars + " " + (mode == SegmentMode.BYTE ? "bytes" : "characters");
+        queryHtml("#segment-data").textContent = bitData.length + " bits long";
         return new QrSegment(mode, numChars, bitData);
     }
     function doStep2(segs, ecl, minVer) {
@@ -1096,7 +1096,7 @@ var app;
                 }
             }
         }
-        getElem("chosen-version").textContent = result != -1 ? result.toString() : "Cannot fit any version";
+        queryHtml("#chosen-version").textContent = result != -1 ? result.toString() : "Cannot fit any version";
         return result;
     }
     function doStep3(segs, ver, ecl) {
@@ -1138,7 +1138,7 @@ var app;
             cw.preEccIndex = i / 8;
             result.push(cw);
         }
-        getElem("all-data-codewords").textContent = result.map(cw => byteToHex(cw.value)).join(" ");
+        queryHtml("#all-data-codewords").textContent = result.map(cw => byteToHex(cw.value)).join(" ");
         return result;
     }
     function doStep4(qr, data) {
@@ -1210,9 +1210,9 @@ var app;
         qr.drawAlignmentPatterns();
         getSvgAndDrawQrCode("alignment-patterns", qr);
         qr.clearNewFlags();
-        let alignPatContainer = getElem("alignment-patterns-container");
+        let alignPatContainer = queryHtml("#alignment-patterns-container");
         alignPatContainer.hidden = qr.version == 1;
-        let alignOverlapTiming = getElem("alignment-patterns-overlap-timing");
+        let alignOverlapTiming = queryHtml("#alignment-patterns-overlap-timing");
         alignOverlapTiming.hidden = qr.version < 7;
         qr.drawFormatBits(-1);
         getSvgAndDrawQrCode("dummy-format-bits", qr);
@@ -1220,7 +1220,7 @@ var app;
         qr.drawVersionInformation();
         getSvgAndDrawQrCode("version-information", qr);
         qr.clearNewFlags();
-        let verInfoContainer = getElem("version-information-container");
+        let verInfoContainer = queryHtml("#version-information-container");
         verInfoContainer.hidden = qr.version < 7;
     }
     function doStep6(qr, allCodewords) {
@@ -1331,7 +1331,7 @@ var app;
                     appendNewElem(td, "strong", val);
             });
         });
-        getElem("lowest-penalty-mask").textContent = result.toString();
+        queryHtml("#lowest-penalty-mask").textContent = result.toString();
         tbody.children[result].classList.add("true");
         return result;
     }
@@ -1387,14 +1387,8 @@ var app;
         return svg;
     }
     /*---- Simple utility functions ----*/
-    function getElem(id) {
-        return queryHtml("#" + id);
-    }
     function getInput(id) {
-        const result = getElem(id);
-        if (result instanceof HTMLInputElement)
-            return result;
-        throw new Error("Assertion error");
+        return queryElem("#" + id, HTMLInputElement);
     }
     function clearChildren(elemOrQuery) {
         let elem;

@@ -18,17 +18,17 @@ namespace app {
 		minModInput.onkeydown = doCalculate;
 		rootInput  .onkeydown = doCalculate;
 		
-		getHtml("forward-transform-calculate").onclick = doCalculate;
+		queryHtml("#forward-transform-calculate").onclick = doCalculate;
 		
 		
 		function doCalculate(e: Event): void {
 			if (e instanceof KeyboardEvent && e.key != "Enter")
 				return;
 			
-			let vecLenElem : HTMLElement = getHtml("forward-transform-vector-length");
-			let modulusElem: HTMLElement = getHtml("forward-transform-chosen-modulus");
-			let rootElem   : HTMLElement = getHtml("forward-transform-chosen-nth-root-of-unity");
-			let outVecElem : HTMLElement = getHtml("forward-transform-output-vector");
+			let vecLenElem : HTMLElement = queryHtml("#forward-transform-vector-length");
+			let modulusElem: HTMLElement = queryHtml("#forward-transform-chosen-modulus");
+			let rootElem   : HTMLElement = queryHtml("#forward-transform-chosen-nth-root-of-unity");
+			let outVecElem : HTMLElement = queryHtml("#forward-transform-output-vector");
 			
 			vecLenElem .textContent = "";
 			modulusElem.textContent = "";
@@ -94,18 +94,18 @@ namespace app {
 		minModInput.onkeydown = doCalculate;
 		rootInput  .onkeydown = doCalculate;
 		
-		getHtml("inverse-transform-calculate").onclick = doCalculate;
+		queryHtml("#inverse-transform-calculate").onclick = doCalculate;
 		
 		
 		function doCalculate(e: Event): void {
 			if (e instanceof KeyboardEvent && e.key != "Enter")
 				return;
 			
-			let vecLenElem : HTMLElement = getHtml("inverse-transform-vector-length");
-			let modulusElem: HTMLElement = getHtml("inverse-transform-chosen-modulus");
-			let rootElem   : HTMLElement = getHtml("inverse-transform-chosen-nth-root-of-unity");
-			let outVecElem0: HTMLElement = getHtml("inverse-transform-output-vector-unscaled");
-			let outVecElem1: HTMLElement = getHtml("inverse-transform-output-vector-scaled");
+			let vecLenElem : HTMLElement = queryHtml("#inverse-transform-vector-length");
+			let modulusElem: HTMLElement = queryHtml("#inverse-transform-chosen-modulus");
+			let rootElem   : HTMLElement = queryHtml("#inverse-transform-chosen-nth-root-of-unity");
+			let outVecElem0: HTMLElement = queryHtml("#inverse-transform-output-vector-unscaled");
+			let outVecElem1: HTMLElement = queryHtml("#inverse-transform-output-vector-scaled");
 			
 			vecLenElem .textContent = "";
 			modulusElem.textContent = "";
@@ -176,20 +176,20 @@ namespace app {
 		minModInput.onkeydown = doCalculate;
 		rootInput  .onkeydown = doCalculate;
 		
-		getHtml("circular-convolution-calculate").onclick = doCalculate;
+		queryHtml("#circular-convolution-calculate").onclick = doCalculate;
 		
 		
 		function doCalculate(e: Event): void {
 			if (e instanceof KeyboardEvent && e.key != "Enter")
 				return;
 			
-			let vecLenElem   : HTMLElement = getHtml("circular-convolution-vector-length");
-			let modulusElem  : HTMLElement = getHtml("circular-convolution-chosen-modulus");
-			let rootElem     : HTMLElement = getHtml("circular-convolution-chosen-nth-root-of-unity");
-			let transVec0Elem: HTMLElement = getHtml("circular-convolution-transformed-vector-0");
-			let transVec1Elem: HTMLElement = getHtml("circular-convolution-transformed-vector-1");
-			let multVecElem  : HTMLElement = getHtml("circular-convolution-pointwise-multiplied-vector");
-			let outVecElem   : HTMLElement = getHtml("circular-convolution-output-vector");
+			let vecLenElem   : HTMLElement = queryHtml("#circular-convolution-vector-length");
+			let modulusElem  : HTMLElement = queryHtml("#circular-convolution-chosen-modulus");
+			let rootElem     : HTMLElement = queryHtml("#circular-convolution-chosen-nth-root-of-unity");
+			let transVec0Elem: HTMLElement = queryHtml("#circular-convolution-transformed-vector-0");
+			let transVec1Elem: HTMLElement = queryHtml("#circular-convolution-transformed-vector-1");
+			let multVecElem  : HTMLElement = queryHtml("#circular-convolution-pointwise-multiplied-vector");
+			let outVecElem   : HTMLElement = queryHtml("#circular-convolution-output-vector");
 			
 			vecLenElem   .textContent = "";
 			modulusElem  .textContent = "";
@@ -320,11 +320,6 @@ namespace app {
 	
 	function getInput(id: string): HTMLInputElement {
 		return getElem(id, HTMLInputElement);
-	}
-	
-	
-	function getHtml(id: string): HTMLElement {
-		return getElem(id, HTMLElement);
 	}
 	
 }

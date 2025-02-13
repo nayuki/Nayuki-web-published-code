@@ -9,17 +9,11 @@
 var app;
 (function (app) {
     /*---- Preamble definitions ----*/
-    function getElem(id) {
-        return queryHtml("#" + id);
-    }
     function getInput(id) {
-        const result = getElem(id);
-        if (result instanceof HTMLInputElement)
-            return result;
-        throw new Error("Assertion error");
+        return queryElem("#" + id, HTMLInputElement);
     }
-    const userTextInputElem = getElem("user-text-input");
-    const demoTextElem = getElem("demo-text");
+    const userTextInputElem = queryElem("#user-text-input", HTMLTextAreaElement);
+    const demoTextElem = queryElem("#demo-text", HTMLSelectElement);
     /*---- Entry points from HTML page ----*/
     function demoChanged() {
         userTextInputElem.value = demoTextElem.value;
@@ -59,7 +53,7 @@ var app;
             setText("total-segment-bits-byte-only", getTotalBits(segs, version));
         }
         // Clear container elements
-        const textOut = getElem("text-split");
+        const textOut = queryHtml("#text-split");
         const tableOut = queryHtml("#segment-details tbody");
         while (textOut.firstChild !== null)
             textOut.removeChild(textOut.firstChild);
@@ -118,7 +112,7 @@ var app;
         while (link.firstChild !== null)
             linkParent.append(link.firstChild);
         link.remove();
-        let target = getElem(targetId);
+        let target = queryHtml("#" + targetId);
         target.hidden = false;
         const newHeight = target.clientHeight;
         target.style.height = "0px";
@@ -549,7 +543,7 @@ var app;
     }
     /*---- Miscellaneous ----*/
     function setText(id, text) {
-        getElem(id).textContent = text.toString();
+        queryHtml("#" + id).textContent = text.toString();
     }
     // Initialization
     if (demoTextElem.value != "")

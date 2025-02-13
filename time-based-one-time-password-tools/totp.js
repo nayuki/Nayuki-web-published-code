@@ -49,20 +49,14 @@ var app;
         update();
     }
     setTimeout(initialize);
-    function getElement(id) {
-        return queryHtml("#" + id);
-    }
     function getInput(id) {
-        const result = getElement(id);
-        if (result instanceof HTMLInputElement)
-            return result;
-        throw new Error("Assertion error");
+        return queryElem("#" + id, HTMLInputElement);
     }
     function update() {
         if (getInput("current-time").checked)
             getInput("timestamp").value = Math.floor(Date.now() / 1000).toString();
         let outStr;
-        let copyButton = getElement("copy");
+        let copyButton = queryHtml("#copy");
         try {
             outStr = totp.calcTotp(totp.decodeBase32(getInput("secret-key").value), parseInt(getInput("epoch").value, 10), parseInt(getInput("time-step").value, 10), parseInt(getInput("timestamp").value, 10), parseInt(getInput("code-length").value, 10));
             copyButton.style.removeProperty("visibility");
@@ -71,7 +65,7 @@ var app;
             outStr = e.message;
             copyButton.style.visibility = "hidden";
         }
-        let outputElem = getElement("totp-code");
+        let outputElem = queryHtml("#totp-code");
         if (outputElem.textContent != outStr)
             outputElem.textContent = outStr;
         setTimeout(update, 1000 - Date.now() % 1000);

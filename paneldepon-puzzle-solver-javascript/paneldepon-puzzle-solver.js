@@ -53,13 +53,13 @@ var app;
             solnHeadText = "Solution: Self-clearing";
         else {
             solnHeadText = "Solution:";
-            let solnStepsElem = elemId("solution-steps");
+            let solnStepsElem = queryHtml("#solution-steps");
             for (const [x, y] of moves) {
                 solnStepsElem.append(createElement("li", formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
             }
         }
-        elemId("solution-text").textContent = solnHeadText;
-        elemId("boards-visited").textContent = "Boards visited: " + numVisited;
+        queryHtml("#solution-text").textContent = solnHeadText;
+        queryHtml("#boards-visited").textContent = "Boards visited: " + numVisited;
     }
     app.doSolve = doSolve;
     function doImport() {
@@ -186,9 +186,9 @@ var app;
             throw new RangeError("Invalid value");
     }
     function clearSolution() {
-        elemId("solution-text").textContent = "";
-        elemId("solution-steps").replaceChildren();
-        elemId("boards-visited").textContent = "";
+        queryHtml("#solution-text").textContent = "";
+        queryHtml("#solution-steps").replaceChildren();
+        queryHtml("#boards-visited").textContent = "";
     }
     function createElement(tagName, content) {
         let result = document.createElement(tagName);
@@ -196,11 +196,8 @@ var app;
             result.append(content);
         return result;
     }
-    function elemId(id) {
-        return queryHtml("#" + id);
-    }
     function inputElemId(id) {
-        return elemId(id);
+        return queryElem("#" + id, HTMLInputElement);
     }
     /*---- Puzzle solver, board, grid ----*/
     // An immutable puzzle board, with high-level methods to generate/apply/solve game moves.

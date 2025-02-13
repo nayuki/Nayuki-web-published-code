@@ -61,21 +61,15 @@ var app;
                 }
             });
             graphics.putImageData(image, 0, 0);
-            getElem("feedback").textContent = "OK";
+            queryHtml("#feedback").textContent = "OK";
         }
         catch (e) {
-            getElem("feedback").textContent = "Error: " + e.message;
+            queryHtml("#feedback").textContent = "Error: " + e.message;
         }
     }
     /*-- Utility functions --*/
-    function getElem(id) {
-        return queryHtml("#" + id);
-    }
     function getInput(id) {
-        const result = getElem(id);
-        if (result instanceof HTMLInputElement)
-            return result;
-        throw new Error("Assertion error");
+        return queryElem("#" + id, HTMLInputElement);
     }
 })(app || (app = {}));
 /*---- Barcode generator functions ----*/

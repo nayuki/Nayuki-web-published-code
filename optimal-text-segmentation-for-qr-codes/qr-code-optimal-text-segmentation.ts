@@ -15,21 +15,13 @@ namespace app {
 	type Mode = "BYTE" | "NUMERIC" | "ALPHANUMERIC" | "KANJI";
 	
 	
-	function getElem(id: string): HTMLElement {
-		return queryHtml("#" + id);
-	}
-	
-	
 	function getInput(id: string): HTMLInputElement {
-		const result: HTMLElement = getElem(id);
-		if (result instanceof HTMLInputElement)
-			return result;
-		throw new Error("Assertion error");
+		return queryElem("#" + id, HTMLInputElement);
 	}
 	
 	
-	const userTextInputElem = getElem("user-text-input") as HTMLTextAreaElement;
-	const demoTextElem = getElem("demo-text") as HTMLSelectElement;
+	const userTextInputElem: HTMLTextAreaElement = queryElem("#user-text-input", HTMLTextAreaElement);
+	const demoTextElem: HTMLSelectElement = queryElem("#demo-text", HTMLSelectElement);
 	
 	
 	
@@ -71,7 +63,7 @@ namespace app {
 		}
 		
 		// Clear container elements
-		const textOut = getElem("text-split");
+		const textOut: HTMLElement = queryHtml("#text-split");
 		const tableOut: HTMLElement = queryHtml("#segment-details tbody");
 		while (textOut.firstChild !== null)
 			textOut.removeChild(textOut.firstChild);
@@ -134,7 +126,7 @@ namespace app {
 			linkParent.append(link.firstChild);
 		link.remove();
 		
-		let target = getElem(targetId);
+		let target: HTMLElement = queryHtml("#" + targetId);
 		target.hidden = false;
 		const newHeight: number = target.clientHeight;
 		target.style.height = "0px";
@@ -633,7 +625,7 @@ namespace app {
 	/*---- Miscellaneous ----*/
 	
 	function setText(id: string, text: string|int): void {
-		getElem(id).textContent = text.toString();
+		queryHtml("#" + id).textContent = text.toString();
 	}
 	
 	

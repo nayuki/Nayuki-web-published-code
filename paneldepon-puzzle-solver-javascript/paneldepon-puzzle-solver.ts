@@ -65,14 +65,14 @@ namespace app {
 			solnHeadText = "Solution: Self-clearing";
 		else {
 			solnHeadText = "Solution:";
-			let solnStepsElem = elemId("solution-steps");
+			let solnStepsElem: HTMLElement = queryHtml("#solution-steps");
 			for (const [x, y] of moves) {
 				solnStepsElem.append(createElement("li",
 					formatXCoordinate(x) + y + "-" + formatXCoordinate(x + 1) + y));
 			}
 		}
-		elemId("solution-text" ).textContent = solnHeadText;
-		elemId("boards-visited").textContent = "Boards visited: " + numVisited;
+		queryHtml("#solution-text" ).textContent = solnHeadText;
+		queryHtml("#boards-visited").textContent = "Boards visited: " + numVisited;
 	}
 	
 	
@@ -209,9 +209,9 @@ namespace app {
 	
 	
 	function clearSolution(): void {
-		elemId("solution-text").textContent = "";
-		elemId("solution-steps").replaceChildren();
-		elemId("boards-visited").textContent = "";
+		queryHtml("#solution-text").textContent = "";
+		queryHtml("#solution-steps").replaceChildren();
+		queryHtml("#boards-visited").textContent = "";
 	}
 	
 	
@@ -223,13 +223,8 @@ namespace app {
 	}
 	
 	
-	function elemId(id: string): HTMLElement {
-		return queryHtml("#" + id);
-	}
-	
-	
 	function inputElemId(id: string): HTMLInputElement {
-		return elemId(id) as HTMLInputElement;
+		return queryElem("#" + id, HTMLInputElement);
 	}
 	
 	

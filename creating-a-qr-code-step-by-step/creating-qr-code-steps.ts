@@ -39,13 +39,13 @@ namespace app {
 			                              "903542210843301178993542120481888481903536436843301180647542120487542481903542210843301", ErrorCorrectionLevel.LOW, 1, 4],
 		];
 		
-		let selectElem = getElem("show-example") as HTMLSelectElement;
+		let selectElem: HTMLSelectElement = queryElem("#show-example", HTMLSelectElement);
 		for (const [name,text,ecl,minVer,mask] of EXAMPLES)
 			appendNewElem(selectElem, "option", name);
 		selectElem.selectedIndex = 1;
 		function selectChanged(): void {
 			const [_, text, ecl, minVer, mask] = EXAMPLES[selectElem.selectedIndex];
-			(getElem("input-text") as HTMLTextAreaElement).value = text;
+			queryElem("#input-text", HTMLTextAreaElement).value = text;
 			getInput("force-min-version" ).value = minVer.toString();
 			getInput("force-mask-pattern").value = mask.toString();
 			if      (ecl == ErrorCorrectionLevel.LOW     )  getInput("errcorlvl-low"     ).checked = true;
@@ -72,7 +72,7 @@ namespace app {
 	
 	function initShowHideSteps(): void {
 		let headings = document.querySelectorAll("article section h3");
-		let showHideP = getElem("show-hide-steps");
+		let showHideP: HTMLElement = queryHtml("#show-hide-steps");
 		for (let heading of headings) {
 			let parent = heading.parentNode as HTMLElement;
 			const stepStr: string = (/^\d+(?=\. )/.exec(heading.textContent as string) as RegExpExecArray)[0];
@@ -115,7 +115,7 @@ namespace app {
 			"dark-light-balance",
 		];
 		
-		export let selectElem = getElem("show-mask") as HTMLSelectElement;
+		export let selectElem: HTMLSelectElement = queryElem("#show-mask", HTMLSelectElement);
 		
 		for (const id of MASK_DEPENDENT_ELEMS) {
 			let elem: Element = queryElem("#" + id, Element);
@@ -151,7 +151,7 @@ namespace app {
 	
 	export function doGenerate(): void {
 		// Get input values
-		const textStr: string = (getElem("input-text") as HTMLTextAreaElement).value;
+		const textStr: string = queryElem("#input-text", HTMLTextAreaElement).value;
 		const minVer   : int = parseInt(getInput("force-min-version" ).value, 10);
 		const forceMask: int = parseInt(getInput("force-mask-pattern").value, 10);
 		let errCorrLvl: ErrorCorrectionLevel;
@@ -189,7 +189,7 @@ namespace app {
 	
 	
 	function doStep0(text: Readonly<Array<CodePoint>>): SegmentMode {
-		getElem("num-code-points").textContent = text.length.toString();
+		queryHtml("#num-code-points").textContent = text.length.toString();
 		let allNumeric  = true;
 		let allAlphanum = true;
 		let allKanji    = true;
@@ -242,13 +242,13 @@ namespace app {
 		else
 			result = SegmentMode.BYTE;
 		// Kanji mode encoding is not supported due to big conversion table
-		getElem("chosen-segment-mode").textContent = result.name;
+		queryHtml("#chosen-segment-mode").textContent = result.name;
 		return result;
 	}
 	
 	
 	function doStep1(text: Readonly<Array<CodePoint>>, mode: SegmentMode): QrSegment {
-		getElem("data-segment-chars").className = mode.name.toLowerCase() + " possibly-long";
+		queryHtml("#data-segment-chars").className = mode.name.toLowerCase() + " possibly-long";
 		
 		let bitData: Array<bit> = [];
 		let numChars: int = text.length;
@@ -306,9 +306,9 @@ namespace app {
 			});
 		});
 		
-		getElem("segment-mode" ).textContent = mode.name.toString();
-		getElem("segment-count").textContent = numChars + " " + (mode == SegmentMode.BYTE ? "bytes" : "characters");
-		getElem("segment-data" ).textContent = bitData.length + " bits long";
+		queryHtml("#segment-mode" ).textContent = mode.name.toString();
+		queryHtml("#segment-count").textContent = numChars + " " + (mode == SegmentMode.BYTE ? "bytes" : "characters");
+		queryHtml("#segment-data" ).textContent = bitData.length + " bits long";
 		return new QrSegment(mode, numChars, bitData);
 	}
 	
@@ -349,7 +349,7 @@ namespace app {
 				}
 			}
 		}
-		getElem("chosen-version").textContent = result != -1 ? result.toString() : "Cannot fit any version";
+		queryHtml("#chosen-version").textContent = result != -1 ? result.toString() : "Cannot fit any version";
 		return result;
 	}
 	
@@ -396,7 +396,7 @@ namespace app {
 			cw.preEccIndex = i / 8;
 			result.push(cw);
 		}
-		getElem("all-data-codewords").textContent = result.map(cw => byteToHex(cw.value)).join(" ");
+		queryHtml("#all-data-codewords").textContent = result.map(cw => byteToHex(cw.value)).join(" ");
 		return result;
 	}
 	
@@ -480,9 +480,9 @@ namespace app {
 		qr.drawAlignmentPatterns();
 		getSvgAndDrawQrCode("alignment-patterns", qr);
 		qr.clearNewFlags();
-		let alignPatContainer = getElem("alignment-patterns-container");
+		let alignPatContainer: HTMLElement = queryHtml("#alignment-patterns-container");
 		alignPatContainer.hidden = qr.version == 1;
-		let alignOverlapTiming = getElem("alignment-patterns-overlap-timing");
+		let alignOverlapTiming: HTMLElement = queryHtml("#alignment-patterns-overlap-timing");
 		alignOverlapTiming.hidden = qr.version < 7;
 		
 		qr.drawFormatBits(-1);
@@ -492,7 +492,7 @@ namespace app {
 		qr.drawVersionInformation();
 		getSvgAndDrawQrCode("version-information", qr);
 		qr.clearNewFlags();
-		let verInfoContainer = getElem("version-information-container");
+		let verInfoContainer: HTMLElement = queryHtml("#version-information-container");
 		verInfoContainer.hidden = qr.version < 7;
 	}
 	
@@ -622,7 +622,7 @@ namespace app {
 					appendNewElem(td, "strong", val);
 			});
 		});
-		getElem("lowest-penalty-mask").textContent = result.toString();
+		queryHtml("#lowest-penalty-mask").textContent = result.toString();
 		tbody.children[result].classList.add("true");
 		return result;
 	}
@@ -685,16 +685,8 @@ namespace app {
 	
 	/*---- Simple utility functions ----*/
 	
-	function getElem(id: string): HTMLElement {
-		return queryHtml("#" + id);
-	}
-	
-	
 	function getInput(id: string): HTMLInputElement {
-		const result = getElem(id);
-		if (result instanceof HTMLInputElement)
-			return result;
-		throw new Error("Assertion error");
+		return queryElem("#" + id, HTMLInputElement);
 	}
 	
 	

@@ -57,15 +57,8 @@ namespace app {
 	setTimeout(initialize);
 	
 	
-	function getElement(id: string): HTMLElement {
-		return queryHtml("#" + id);
-	}
-	
 	function getInput(id: string): HTMLInputElement {
-		const result = getElement(id);
-		if (result instanceof HTMLInputElement)
-			return result;
-		throw new Error("Assertion error");
+		return queryElem("#" + id, HTMLInputElement);
 	}
 	
 	
@@ -74,7 +67,7 @@ namespace app {
 			getInput("timestamp").value = Math.floor(Date.now() / 1000).toString();
 		
 		let outStr: string;
-		let copyButton: HTMLElement = getElement("copy");
+		let copyButton: HTMLElement = queryHtml("#copy");
 		try {
 			outStr = totp.calcTotp(
 				totp.decodeBase32(getInput("secret-key").value),
@@ -87,7 +80,7 @@ namespace app {
 			outStr = e.message;
 			copyButton.style.visibility = "hidden";
 		}
-		let outputElem: HTMLElement = getElement("totp-code");
+		let outputElem: HTMLElement = queryHtml("#totp-code");
 		if (outputElem.textContent != outStr)
 			outputElem.textContent = outStr;
 		
