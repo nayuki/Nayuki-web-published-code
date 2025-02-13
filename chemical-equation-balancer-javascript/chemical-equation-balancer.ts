@@ -9,7 +9,7 @@
 
 /*---- Entry point functions from HTML GUI ----*/
 
-const formulaElem: HTMLInputElement = queryElem("#inputFormula", HTMLInputElement);
+const formulaElem: HTMLInputElement = queryInput("#inputFormula");
 
 
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.

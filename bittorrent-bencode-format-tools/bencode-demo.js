@@ -24,7 +24,7 @@
 var app;
 (function (app) {
     /*---- User interface ----*/
-    let fileElem = queryElem("article input[type='file']", HTMLInputElement);
+    let fileElem = queryInput("article input[type='file']");
     fileElem.addEventListener("change", render);
     // Reads the input file, parses its data as bencode, then renders
     // HTML elements to this page in order to represent the data structure.

@@ -7,7 +7,7 @@
  */
 "use strict";
 function doProve(inputSequent) {
-    queryElem("#inputSequent", HTMLInputElement).value = inputSequent;
+    queryInput("#inputSequent").value = inputSequent;
     let msgElem = queryHtml("#message");
     let codeOutElem = queryHtml("#codeOutput");
     let proofElem = queryHtml("#proof");

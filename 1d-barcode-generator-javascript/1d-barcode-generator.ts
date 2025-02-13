@@ -44,7 +44,7 @@ namespace app {
 			graphics.clearRect(0, 0, canvas.width, canvas.height);
 			
 			// Select barcode generator function based on radio buttons
-			let radioElem: HTMLInputElement = queryElem("#barcode-type-container input:checked", HTMLInputElement);
+			let radioElem: HTMLInputElement = queryInput("#barcode-type-container input:checked");
 			const func = (barcodegen as any)[radioElem.id] as (((s: string) => barcodegen.Barcode) | undefined);
 			if (func === undefined)
 				throw new Error("Assertion error");

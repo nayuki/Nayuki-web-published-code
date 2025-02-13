@@ -17,8 +17,8 @@ namespace app {
 	
 	function initialize(): void {
 		let selectElem: HTMLSelectElement = queryElem("article table#input select", HTMLSelectElement);
-		let fileElem: HTMLInputElement = queryElem("article table#input input[type=file]", HTMLInputElement);
-		let checkboxElem: HTMLInputElement = queryElem("article table#input input[type=checkbox]", HTMLInputElement);
+		let fileElem: HTMLInputElement = queryInput("article table#input input[type=file]");
+		let checkboxElem: HTMLInputElement = queryInput("article table#input input[type=checkbox]");
 		let ignoreSelect: boolean = false;
 		let ignoreFile: boolean = false;
 		

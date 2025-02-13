@@ -8,7 +8,7 @@
 "use strict";
 var app;
 (function (app) {
-    let numberInput = queryElem("article input#number", HTMLInputElement);
+    let numberInput = queryInput("article input#number");
     let conventionalEnglishGroupingOutput = queryHtml("article output#conventional-english-grouping");
     let conventionalEnglishNotationOutput = queryHtml("article output#conventional-english-notation");
     let yllionGroupingOutput = queryHtml("article output#yllion-grouping              ");

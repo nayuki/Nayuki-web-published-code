@@ -8,7 +8,7 @@
 
 
 function doProve(inputSequent: string): void {
-	queryElem("#inputSequent", HTMLInputElement).value = inputSequent;
+	queryInput("#inputSequent").value = inputSequent;
 	
 	let msgElem    : HTMLElement = queryHtml("#message"   );
 	let codeOutElem: HTMLElement = queryHtml("#codeOutput");

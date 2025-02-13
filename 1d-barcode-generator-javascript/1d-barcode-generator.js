@@ -35,7 +35,7 @@ var app;
                 throw new Error("Assertion error");
             graphics.clearRect(0, 0, canvas.width, canvas.height);
             // Select barcode generator function based on radio buttons
-            let radioElem = queryElem("#barcode-type-container input:checked", HTMLInputElement);
+            let radioElem = queryInput("#barcode-type-container input:checked");
             const func = barcodegen[radioElem.id];
             if (func === undefined)
                 throw new Error("Assertion error");

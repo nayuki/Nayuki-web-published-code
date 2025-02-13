@@ -16,7 +16,7 @@ namespace app {
 		let outElem: HTMLElement = queryHtml("#factorization");
 		while (outElem.firstChild !== null)
 			outElem.removeChild(outElem.firstChild);
-		const input = queryElem("#number", HTMLInputElement).value;
+		const input = queryInput("#number").value;
 		if (/^\s*$/.test(input)) {  // Blank input
 			outElem.textContent = NBSP;
 			return;
@@ -70,7 +70,7 @@ namespace app {
 			const imag = randInt();
 			str = real + (imag >= 0 ? " + " : " - ") + Math.abs(imag) + "i";
 		}
-		queryElem("#number", HTMLInputElement).value = str;
+		queryInput("#number").value = str;
 		doFactor();
 	}
 	

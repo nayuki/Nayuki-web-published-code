@@ -21,7 +21,7 @@ let statusOut: HTMLElement = queryHtml("article #status output");
 
 
 function getIoElems(rowId: string): [HTMLInputElement,[HTMLElement,HTMLElement]] {
-	return [queryElem(`article #${rowId} input`, HTMLInputElement), getOutElems(rowId)];
+	return [queryInput(`article #${rowId} input`), getOutElems(rowId)];
 }
 
 

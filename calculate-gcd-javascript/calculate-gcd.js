@@ -9,8 +9,8 @@
 var app;
 (function (app) {
     /*---- Entry points from HTML page ----*/
-    let inputXElem = queryElem("#numberX", HTMLInputElement);
-    let inputYElem = queryElem("#numberY", HTMLInputElement);
+    let inputXElem = queryInput("#numberX");
+    let inputYElem = queryInput("#numberY");
     function doCalculate() {
         let outputElem = queryHtml("#output");
         const xStr = inputXElem.value;

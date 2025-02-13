@@ -11,8 +11,8 @@ namespace app {
 	
 	/*---- Entry points from HTML page ----*/
 	
-	let inputXElem: HTMLInputElement = queryElem("#numberX", HTMLInputElement);
-	let inputYElem: HTMLInputElement = queryElem("#numberY", HTMLInputElement);
+	let inputXElem: HTMLInputElement = queryInput("#numberX");
+	let inputYElem: HTMLInputElement = queryInput("#numberY");
 	
 	
 	export function doCalculate(): void {

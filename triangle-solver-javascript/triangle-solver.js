@@ -17,7 +17,7 @@ let angleCElems = getIoElems("angle-c");
 let areaOuts = getOutElems("area");
 let statusOut = queryHtml("article #status output");
 function getIoElems(rowId) {
-    return [queryElem(`article #${rowId} input`, HTMLInputElement), getOutElems(rowId)];
+    return [queryInput(`article #${rowId} input`), getOutElems(rowId)];
 }
 function getOutElems(rowId) {
     const [a, b] = document.querySelectorAll(`article #${rowId} output`);

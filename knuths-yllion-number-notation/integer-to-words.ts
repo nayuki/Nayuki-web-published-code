@@ -9,7 +9,7 @@
 
 namespace app {
 	
-	let numberInput: HTMLInputElement = queryElem("article input#number", HTMLInputElement);
+	let numberInput: HTMLInputElement = queryInput("article input#number");
 	let conventionalEnglishGroupingOutput: HTMLElement = queryHtml("article output#conventional-english-grouping");
 	let conventionalEnglishNotationOutput: HTMLElement = queryHtml("article output#conventional-english-notation");
 	let yllionGroupingOutput             : HTMLElement = queryHtml("article output#yllion-grouping              ");

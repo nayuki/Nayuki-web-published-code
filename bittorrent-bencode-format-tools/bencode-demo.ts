@@ -26,7 +26,7 @@ namespace app {
 	
 	/*---- User interface ----*/
 	
-	let fileElem: HTMLInputElement = queryElem("article input[type='file']", HTMLInputElement);
+	let fileElem: HTMLInputElement = queryInput("article input[type='file']");
 	fileElem.addEventListener("change", render);
 	
 	

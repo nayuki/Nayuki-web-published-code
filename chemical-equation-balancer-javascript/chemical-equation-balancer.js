@@ -7,7 +7,7 @@
  */
 "use strict";
 /*---- Entry point functions from HTML GUI ----*/
-const formulaElem = queryElem("#inputFormula", HTMLInputElement);
+const formulaElem = queryInput("#inputFormula");
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function doBalance() {
     // Clear output

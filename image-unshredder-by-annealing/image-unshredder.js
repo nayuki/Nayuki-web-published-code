@@ -33,8 +33,8 @@ var app;
         graphics = temp;
     }
     let imageSelect = queryElem("article select#image-select", HTMLSelectElement);
-    let numberIterationsInput = queryElem("article input#number-iterations", HTMLInputElement);
-    let startTemperatureInput = queryElem("article input#start-temperature", HTMLInputElement);
+    let numberIterationsInput = queryInput("article input#number-iterations");
+    let startTemperatureInput = queryInput("article input#start-temperature");
     let shuffleButton = queryElem("article button.shuffle", HTMLButtonElement);
     let annealButton = queryElem("article button.anneal", HTMLButtonElement);
     let stopButton = queryElem("article button.stop", HTMLButtonElement);

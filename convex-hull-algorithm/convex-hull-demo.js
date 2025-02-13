@@ -21,9 +21,9 @@
 "use strict";
 // DOM elements
 let svgElem = queryElem("article svg", Element);
-let staticRadio = queryElem("#random-static", HTMLInputElement);
-let movingRadio = queryElem("#random-moving", HTMLInputElement);
-let manualRadio = queryElem("#manual-position", HTMLInputElement);
+let staticRadio = queryInput("#random-static");
+let movingRadio = queryInput("#random-moving");
+let manualRadio = queryInput("#manual-position");
 // Constants and mutable state
 const POINT_RADIUS = 0.012;
 let points = [];

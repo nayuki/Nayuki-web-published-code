@@ -11,8 +11,8 @@ var app;
     /*---- Graphical user interface ----*/
     function initialize() {
         let selectElem = queryElem("article table#input select", HTMLSelectElement);
-        let fileElem = queryElem("article table#input input[type=file]", HTMLInputElement);
-        let checkboxElem = queryElem("article table#input input[type=checkbox]", HTMLInputElement);
+        let fileElem = queryInput("article table#input input[type=file]");
+        let checkboxElem = queryInput("article table#input input[type=checkbox]");
         let ignoreSelect = false;
         let ignoreFile = false;
         selectElem.selectedIndex = 0;
