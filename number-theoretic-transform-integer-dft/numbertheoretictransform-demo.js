@@ -1,7 +1,7 @@
 /*
  * Number-theoretic transform demo (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/number-theoretic-transform-integer-dft
  */
@@ -271,13 +271,7 @@ var app;
         return "[" + vec.join(", ") + "]";
     }
     function getElem(id, type) {
-        const result = document.getElementById(id);
-        if (result instanceof type)
-            return result;
-        else if (result === null)
-            throw new Error("Element not found");
-        else
-            throw new TypeError("Invalid element type");
+        return queryElem("#" + id, type);
     }
     function getInput(id) {
         return getElem(id, HTMLInputElement);

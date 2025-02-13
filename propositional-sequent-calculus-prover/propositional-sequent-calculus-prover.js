@@ -7,10 +7,10 @@
  */
 "use strict";
 function doProve(inputSequent) {
-    document.getElementById("inputSequent").value = inputSequent;
-    let msgElem = document.getElementById("message");
-    let codeOutElem = document.getElementById("codeOutput");
-    let proofElem = document.getElementById("proof");
+    queryElem("#inputSequent", HTMLInputElement).value = inputSequent;
+    let msgElem = queryHtml("#message");
+    let codeOutElem = queryHtml("#codeOutput");
+    let proofElem = queryHtml("#proof");
     msgElem.replaceChildren();
     codeOutElem.replaceChildren();
     proofElem.replaceChildren();

@@ -8,11 +8,11 @@
 
 
 function doProve(inputSequent: string): void {
-	(document.getElementById("inputSequent") as HTMLInputElement).value = inputSequent;
+	queryElem("#inputSequent", HTMLInputElement).value = inputSequent;
 	
-	let msgElem     = document.getElementById("message"   ) as HTMLElement;
-	let codeOutElem = document.getElementById("codeOutput") as HTMLElement;
-	let proofElem   = document.getElementById("proof"     ) as HTMLElement;
+	let msgElem    : HTMLElement = queryHtml("#message"   );
+	let codeOutElem: HTMLElement = queryHtml("#codeOutput");
+	let proofElem  : HTMLElement = queryHtml("#proof"     );
 	msgElem.replaceChildren();
 	codeOutElem.replaceChildren();
 	proofElem.replaceChildren();

@@ -16,10 +16,7 @@ namespace app {
 	
 	
 	function getElem(id: string): HTMLElement {
-		const result: HTMLElement|null = document.getElementById(id);
-		if (result instanceof HTMLElement)
-			return result;
-		throw new Error("Assertion error");
+		return queryHtml("#" + id);
 	}
 	
 	

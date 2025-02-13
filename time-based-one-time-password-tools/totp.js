@@ -1,7 +1,7 @@
 /*
  * Time-based One-Time Password tools (compiled from TypeScript)
  *
- * Copyright (c) 2024 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/time-based-one-time-password-tools
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -50,10 +50,7 @@ var app;
     }
     setTimeout(initialize);
     function getElement(id) {
-        const result = document.getElementById(id);
-        if (result instanceof HTMLElement)
-            return result;
-        throw new Error("Assertion error");
+        return queryHtml("#" + id);
     }
     function getInput(id) {
         const result = getElement(id);

@@ -22,9 +22,9 @@
 
 // DOM elements
 let svgElem: Element = queryElem("article svg", Element);
-let staticRadio = document.getElementById("random-static"  ) as HTMLInputElement;
-let movingRadio = document.getElementById("random-moving"  ) as HTMLInputElement;
-let manualRadio = document.getElementById("manual-position") as HTMLInputElement;
+let staticRadio: HTMLInputElement = queryElem("#random-static"  , HTMLInputElement);
+let movingRadio: HTMLInputElement = queryElem("#random-moving"  , HTMLInputElement);
+let manualRadio: HTMLInputElement = queryElem("#manual-position", HTMLInputElement);
 
 // Constants and mutable state
 const POINT_RADIUS: number = 0.012;

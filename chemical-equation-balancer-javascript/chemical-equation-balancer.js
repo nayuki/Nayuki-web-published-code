@@ -1,19 +1,19 @@
 /*
  * Chemical equation balancer (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
 "use strict";
 /*---- Entry point functions from HTML GUI ----*/
-const formulaElem = document.getElementById("inputFormula");
+const formulaElem = queryElem("#inputFormula", HTMLInputElement);
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function doBalance() {
     // Clear output
-    const msgElem = document.getElementById("message");
-    const balancedElem = document.getElementById("balanced");
-    const codeOutElem = document.getElementById("codeOutput");
+    const msgElem = queryHtml("#message");
+    const balancedElem = queryHtml("#balanced");
+    const codeOutElem = queryHtml("#codeOutput");
     msgElem.textContent = "";
     while (balancedElem.firstChild !== null)
         balancedElem.removeChild(balancedElem.firstChild);

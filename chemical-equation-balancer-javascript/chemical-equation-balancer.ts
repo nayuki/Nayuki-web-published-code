@@ -1,7 +1,7 @@
 /* 
  * Chemical equation balancer
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/chemical-equation-balancer-javascript
  */
@@ -9,15 +9,15 @@
 
 /*---- Entry point functions from HTML GUI ----*/
 
-const formulaElem = document.getElementById("inputFormula") as HTMLInputElement;
+const formulaElem: HTMLInputElement = queryElem("#inputFormula", HTMLInputElement);
 
 
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function doBalance(): void {
 	// Clear output
-	const msgElem = document.getElementById("message") as HTMLElement;
-	const balancedElem = document.getElementById("balanced") as HTMLElement;
-	const codeOutElem  = document.getElementById("codeOutput") as HTMLElement;
+	const msgElem: HTMLElement = queryHtml("#message");
+	const balancedElem: HTMLElement = queryHtml("#balanced");
+	const codeOutElem : HTMLElement = queryHtml("#codeOutput");
 	msgElem.textContent = "";
 	while (balancedElem.firstChild !== null)
 		balancedElem.removeChild(balancedElem.firstChild);

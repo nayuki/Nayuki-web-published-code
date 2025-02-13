@@ -224,7 +224,7 @@ namespace app {
 	
 	
 	function elemId(id: string): HTMLElement {
-		return document.getElementById(id) as HTMLElement;
+		return queryHtml("#" + id);
 	}
 	
 	

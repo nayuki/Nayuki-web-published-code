@@ -118,9 +118,7 @@ namespace app {
 		export let selectElem = getElem("show-mask") as HTMLSelectElement;
 		
 		for (const id of MASK_DEPENDENT_ELEMS) {
-			let elem = document.getElementById(id);
-			if (!(elem instanceof Element))
-				throw new Error("Assertion error");
+			let elem: Element = queryElem("#" + id, Element);
 			let parent = elem.parentNode;
 			if (!(parent instanceof HTMLElement))
 				throw new Error("Assertion error");
@@ -139,7 +137,7 @@ namespace app {
 		export function showMask(): void {
 			for (const id of MASK_DEPENDENT_ELEMS) {
 				for (let i = 0; i < 8; i++) {
-					let elem = document.getElementById(`${id}-${i}`) as Element;
+					let elem: Element = queryElem(`#${id}-${i}`, Element);
 					elem.setAttribute("style", i == selectElem.selectedIndex ? "" : "display:none");
 				}
 			}
@@ -631,7 +629,7 @@ namespace app {
 	
 	
 	function getSvgAndDrawQrCode(id: string, qr: QrCode, border: number = 0): Element {
-		let svg = document.getElementById(id) as Element;
+		let svg: Element = queryElem("#" + id, Element);
 		border += 0.2;
 		const a = -border, b = qr.size + border * 2;
 		svg.setAttribute("viewBox", `${a} ${a} ${b} ${b}`);
@@ -688,10 +686,7 @@ namespace app {
 	/*---- Simple utility functions ----*/
 	
 	function getElem(id: string): HTMLElement {
-		const result = document.getElementById(id);
-		if (result instanceof HTMLElement)
-			return result;
-		throw new Error("Assertion error");
+		return queryHtml("#" + id);
 	}
 	
 	

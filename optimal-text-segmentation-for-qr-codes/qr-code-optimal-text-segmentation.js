@@ -10,10 +10,7 @@ var app;
 (function (app) {
     /*---- Preamble definitions ----*/
     function getElem(id) {
-        const result = document.getElementById(id);
-        if (result instanceof HTMLElement)
-            return result;
-        throw new Error("Assertion error");
+        return queryHtml("#" + id);
     }
     function getInput(id) {
         const result = getElem(id);

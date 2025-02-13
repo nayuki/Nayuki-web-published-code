@@ -1,7 +1,7 @@
 /* 
  * Factorize Gaussian integer
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
@@ -13,10 +13,10 @@ namespace app {
 	 * Handles the HTML input/output for factoring a Gaussian integer.
 	 */
 	export function doFactor(): void {
-		let outElem = document.getElementById("factorization") as HTMLElement;
+		let outElem: HTMLElement = queryHtml("#factorization");
 		while (outElem.firstChild !== null)
 			outElem.removeChild(outElem.firstChild);
-		const input = (document.getElementById("number") as HTMLInputElement).value;
+		const input = queryElem("#number", HTMLInputElement).value;
 		if (/^\s*$/.test(input)) {  // Blank input
 			outElem.textContent = NBSP;
 			return;
@@ -70,7 +70,7 @@ namespace app {
 			const imag = randInt();
 			str = real + (imag >= 0 ? " + " : " - ") + Math.abs(imag) + "i";
 		}
-		(document.getElementById("number") as HTMLInputElement).value = str;
+		queryElem("#number", HTMLInputElement).value = str;
 		doFactor();
 	}
 	

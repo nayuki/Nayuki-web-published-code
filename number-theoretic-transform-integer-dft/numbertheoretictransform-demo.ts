@@ -1,7 +1,7 @@
 /* 
  * Number-theoretic transform demo (TypeScript)
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/number-theoretic-transform-integer-dft
  */
@@ -314,13 +314,7 @@ namespace app {
 	type Constructor<T> = { new(...args: Array<any>): T };
 	
 	function getElem<T>(id: string, type: Constructor<T>): T {
-		const result: HTMLElement|null = document.getElementById(id);
-		if (result instanceof type)
-			return result;
-		else if (result === null)
-			throw new Error("Element not found");
-		else
-			throw new TypeError("Invalid element type");
+		return queryElem("#" + id, type);
 	}
 	
 	

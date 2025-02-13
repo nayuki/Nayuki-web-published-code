@@ -876,9 +876,7 @@ var app;
         ];
         maskShower.selectElem = getElem("show-mask");
         for (const id of MASK_DEPENDENT_ELEMS) {
-            let elem = document.getElementById(id);
-            if (!(elem instanceof Element))
-                throw new Error("Assertion error");
+            let elem = queryElem("#" + id, Element);
             let parent = elem.parentNode;
             if (!(parent instanceof HTMLElement))
                 throw new Error("Assertion error");
@@ -895,7 +893,7 @@ var app;
         function showMask() {
             for (const id of MASK_DEPENDENT_ELEMS) {
                 for (let i = 0; i < 8; i++) {
-                    let elem = document.getElementById(`${id}-${i}`);
+                    let elem = queryElem(`#${id}-${i}`, Element);
                     elem.setAttribute("style", i == maskShower.selectElem.selectedIndex ? "" : "display:none");
                 }
             }
@@ -1338,7 +1336,7 @@ var app;
         return result;
     }
     function getSvgAndDrawQrCode(id, qr, border = 0) {
-        let svg = document.getElementById(id);
+        let svg = queryElem("#" + id, Element);
         border += 0.2;
         const a = -border, b = qr.size + border * 2;
         svg.setAttribute("viewBox", `${a} ${a} ${b} ${b}`);
@@ -1390,10 +1388,7 @@ var app;
     }
     /*---- Simple utility functions ----*/
     function getElem(id) {
-        const result = document.getElementById(id);
-        if (result instanceof HTMLElement)
-            return result;
-        throw new Error("Assertion error");
+        return queryHtml("#" + id);
     }
     function getInput(id) {
         const result = getElem(id);

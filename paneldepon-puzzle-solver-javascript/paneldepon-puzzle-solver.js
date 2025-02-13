@@ -197,7 +197,7 @@ var app;
         return result;
     }
     function elemId(id) {
-        return document.getElementById(id);
+        return queryHtml("#" + id);
     }
     function inputElemId(id) {
         return elemId(id);
