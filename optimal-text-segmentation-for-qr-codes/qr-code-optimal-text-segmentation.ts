@@ -15,8 +15,8 @@ namespace app {
 	type Mode = "BYTE" | "NUMERIC" | "ALPHANUMERIC" | "KANJI";
 	
 	
-	function getInput(id: string): HTMLInputElement {
-		return queryElem("#" + id, HTMLInputElement);
+	function queryInput(query: string): HTMLInputElement {
+		return queryElem(query, HTMLInputElement);
 	}
 	
 	
@@ -37,12 +37,12 @@ namespace app {
 		const textStr: string = userTextInputElem.value;
 		if (textStr != demoTextElem.value)
 			demoTextElem.selectedIndex = 0;  // Indicates custom input
-		const minVersion: int = parseInt(getInput("minimum-version").value, 10);
+		const minVersion: int = parseInt(queryInput("#minimum-version").value, 10);
 		let errCorrLvl: int;
-		if      (getInput("errcorlvl-low"     ).checked)  errCorrLvl = 0;
-		else if (getInput("errcorlvl-medium"  ).checked)  errCorrLvl = 1;
-		else if (getInput("errcorlvl-quartile").checked)  errCorrLvl = 2;
-		else if (getInput("errcorlvl-high"    ).checked)  errCorrLvl = 3;
+		if      (queryInput("#errcorlvl-low"     ).checked)  errCorrLvl = 0;
+		else if (queryInput("#errcorlvl-medium"  ).checked)  errCorrLvl = 1;
+		else if (queryInput("#errcorlvl-quartile").checked)  errCorrLvl = 2;
+		else if (queryInput("#errcorlvl-high"    ).checked)  errCorrLvl = 3;
 		else  throw new Error("Assertion error");
 		
 		// Handle code points

@@ -808,16 +808,16 @@ var app;
         function selectChanged() {
             const [_, text, ecl, minVer, mask] = EXAMPLES[selectElem.selectedIndex];
             queryElem("#input-text", HTMLTextAreaElement).value = text;
-            getInput("force-min-version").value = minVer.toString();
-            getInput("force-mask-pattern").value = mask.toString();
+            queryInput("#force-min-version").value = minVer.toString();
+            queryInput("#force-mask-pattern").value = mask.toString();
             if (ecl == ErrorCorrectionLevel.LOW)
-                getInput("errcorlvl-low").checked = true;
+                queryInput("#errcorlvl-low").checked = true;
             else if (ecl == ErrorCorrectionLevel.MEDIUM)
-                getInput("errcorlvl-medium").checked = true;
+                queryInput("#errcorlvl-medium").checked = true;
             else if (ecl == ErrorCorrectionLevel.QUARTILE)
-                getInput("errcorlvl-quartile").checked = true;
+                queryInput("#errcorlvl-quartile").checked = true;
             else if (ecl == ErrorCorrectionLevel.HIGH)
-                getInput("errcorlvl-high").checked = true;
+                queryInput("#errcorlvl-high").checked = true;
             else
                 throw new Error("Assertion error");
             doGenerate();
@@ -904,16 +904,16 @@ var app;
     function doGenerate() {
         // Get input values
         const textStr = queryElem("#input-text", HTMLTextAreaElement).value;
-        const minVer = parseInt(getInput("force-min-version").value, 10);
-        const forceMask = parseInt(getInput("force-mask-pattern").value, 10);
+        const minVer = parseInt(queryInput("#force-min-version").value, 10);
+        const forceMask = parseInt(queryInput("#force-mask-pattern").value, 10);
         let errCorrLvl;
-        if (getInput("errcorlvl-low").checked)
+        if (queryInput("#errcorlvl-low").checked)
             errCorrLvl = ErrorCorrectionLevel.LOW;
-        else if (getInput("errcorlvl-medium").checked)
+        else if (queryInput("#errcorlvl-medium").checked)
             errCorrLvl = ErrorCorrectionLevel.MEDIUM;
-        else if (getInput("errcorlvl-quartile").checked)
+        else if (queryInput("#errcorlvl-quartile").checked)
             errCorrLvl = ErrorCorrectionLevel.QUARTILE;
-        else if (getInput("errcorlvl-high").checked)
+        else if (queryInput("#errcorlvl-high").checked)
             errCorrLvl = ErrorCorrectionLevel.HIGH;
         else
             throw new Error("Assertion error");
@@ -1387,8 +1387,8 @@ var app;
         return svg;
     }
     /*---- Simple utility functions ----*/
-    function getInput(id) {
-        return queryElem("#" + id, HTMLInputElement);
+    function queryInput(query) {
+        return queryElem(query, HTMLInputElement);
     }
     function clearChildren(elemOrQuery) {
         let elem;

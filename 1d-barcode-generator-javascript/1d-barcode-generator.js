@@ -40,12 +40,12 @@ var app;
             if (func === undefined)
                 throw new Error("Assertion error");
             // Try to generate barcode
-            let barcode = func(getInput("text").value).bars; // 0s and 1s
+            let barcode = func(queryInput("#text").value).bars; // 0s and 1s
             // Dimensions of canvas and new image
-            const scale = parseInt(getInput("bar-width").value, 10);
-            const padding = parseInt(getInput("padding").value, 10); // Number of pixels on each of the four sides
+            const scale = parseInt(queryInput("#bar-width").value, 10);
+            const padding = parseInt(queryInput("#padding").value, 10); // Number of pixels on each of the four sides
             const width = canvas.width = barcode.length * scale + padding * 2;
-            const height = canvas.height = parseInt(getInput("bar-height").value) + padding * 2;
+            const height = canvas.height = parseInt(queryInput("#bar-height").value) + padding * 2;
             // Create image and fill with opaque white color
             let image = graphics.createImageData(width, height);
             let pixels = image.data; // An array of bytes in RGBA format
@@ -68,8 +68,8 @@ var app;
         }
     }
     /*-- Utility functions --*/
-    function getInput(id) {
-        return queryElem("#" + id, HTMLInputElement);
+    function queryInput(query) {
+        return queryElem(query, HTMLInputElement);
     }
 })(app || (app = {}));
 /*---- Barcode generator functions ----*/

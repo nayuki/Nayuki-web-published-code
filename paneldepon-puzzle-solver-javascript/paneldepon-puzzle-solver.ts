@@ -55,7 +55,7 @@ namespace app {
 	
 	export function doSolve(): void {
 		clearSolution();
-		const numMoves: number = parseInt(inputElemId("num-moves").value, 10);
+		const numMoves: number = parseInt(queryInput("#num-moves").value, 10);
 		const [moves, numVisited] = new Board(pageGrid.clone()).solve(numMoves);
 		
 		let solnHeadText: string;
@@ -77,7 +77,7 @@ namespace app {
 	
 	
 	export function doImport(): void {
-		const lines: Array<string> = inputElemId("import-export").value.replace(/^\s+|\s+$/, "").split("\n");
+		const lines: Array<string> = queryInput("#import-export").value.replace(/^\s+|\s+$/, "").split("\n");
 		if (lines.length != Grid.HEIGHT + 1) {
 			alert(`Invalid number of lines (should be ${Grid.HEIGHT + 1})`);
 			return;
@@ -107,7 +107,7 @@ namespace app {
 				}
 			}
 		}
-		inputElemId("num-moves").value = moves.toString();
+		queryInput("#num-moves").value = moves.toString();
 		handleBoardChanged();
 	}
 	
@@ -116,7 +116,7 @@ namespace app {
 		let index: number;
 		do index = Math.floor(Math.random() * EXAMPLE_PUZZLES.length);
 		while (index == currentExampleIndex);
-		inputElemId("import-export").value = EXAMPLE_PUZZLES[index];
+		queryInput("#import-export").value = EXAMPLE_PUZZLES[index];
 		doImport();
 		currentExampleIndex = index;
 	}
@@ -176,7 +176,7 @@ namespace app {
 		}
 		
 		// Update export text
-		let exportStr: string = inputElemId("num-moves").value;
+		let exportStr: string = queryInput("#num-moves").value;
 		for (let y = 0; y < Grid.HEIGHT; y++) {
 			exportStr += "\n";
 			for (let x = 0; x < Grid.WIDTH; x++) {
@@ -187,7 +187,7 @@ namespace app {
 					exportStr += String.fromCodePoint(("a".codePointAt(0) as number) + val - 1);
 			}
 		}
-		inputElemId("import-export").value = exportStr;
+		queryInput("#import-export").value = exportStr;
 		
 		clearSolution();
 		currentExampleIndex = -1;
@@ -223,8 +223,8 @@ namespace app {
 	}
 	
 	
-	function inputElemId(id: string): HTMLInputElement {
-		return queryElem("#" + id, HTMLInputElement);
+	function queryInput(query: string): HTMLInputElement {
+		return queryElem(query, HTMLInputElement);
 	}
 	
 	

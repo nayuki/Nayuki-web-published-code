@@ -46,12 +46,12 @@ namespace app {
 		function selectChanged(): void {
 			const [_, text, ecl, minVer, mask] = EXAMPLES[selectElem.selectedIndex];
 			queryElem("#input-text", HTMLTextAreaElement).value = text;
-			getInput("force-min-version" ).value = minVer.toString();
-			getInput("force-mask-pattern").value = mask.toString();
-			if      (ecl == ErrorCorrectionLevel.LOW     )  getInput("errcorlvl-low"     ).checked = true;
-			else if (ecl == ErrorCorrectionLevel.MEDIUM  )  getInput("errcorlvl-medium"  ).checked = true;
-			else if (ecl == ErrorCorrectionLevel.QUARTILE)  getInput("errcorlvl-quartile").checked = true;
-			else if (ecl == ErrorCorrectionLevel.HIGH    )  getInput("errcorlvl-high"    ).checked = true;
+			queryInput("#force-min-version" ).value = minVer.toString();
+			queryInput("#force-mask-pattern").value = mask.toString();
+			if      (ecl == ErrorCorrectionLevel.LOW     )  queryInput("#errcorlvl-low"     ).checked = true;
+			else if (ecl == ErrorCorrectionLevel.MEDIUM  )  queryInput("#errcorlvl-medium"  ).checked = true;
+			else if (ecl == ErrorCorrectionLevel.QUARTILE)  queryInput("#errcorlvl-quartile").checked = true;
+			else if (ecl == ErrorCorrectionLevel.HIGH    )  queryInput("#errcorlvl-high"    ).checked = true;
 			else  throw new Error("Assertion error");
 			doGenerate();
 		}
@@ -152,13 +152,13 @@ namespace app {
 	export function doGenerate(): void {
 		// Get input values
 		const textStr: string = queryElem("#input-text", HTMLTextAreaElement).value;
-		const minVer   : int = parseInt(getInput("force-min-version" ).value, 10);
-		const forceMask: int = parseInt(getInput("force-mask-pattern").value, 10);
+		const minVer   : int = parseInt(queryInput("#force-min-version" ).value, 10);
+		const forceMask: int = parseInt(queryInput("#force-mask-pattern").value, 10);
 		let errCorrLvl: ErrorCorrectionLevel;
-		if      (getInput("errcorlvl-low"     ).checked)  errCorrLvl = ErrorCorrectionLevel.LOW     ;
-		else if (getInput("errcorlvl-medium"  ).checked)  errCorrLvl = ErrorCorrectionLevel.MEDIUM  ;
-		else if (getInput("errcorlvl-quartile").checked)  errCorrLvl = ErrorCorrectionLevel.QUARTILE;
-		else if (getInput("errcorlvl-high"    ).checked)  errCorrLvl = ErrorCorrectionLevel.HIGH    ;
+		if      (queryInput("#errcorlvl-low"     ).checked)  errCorrLvl = ErrorCorrectionLevel.LOW     ;
+		else if (queryInput("#errcorlvl-medium"  ).checked)  errCorrLvl = ErrorCorrectionLevel.MEDIUM  ;
+		else if (queryInput("#errcorlvl-quartile").checked)  errCorrLvl = ErrorCorrectionLevel.QUARTILE;
+		else if (queryInput("#errcorlvl-high"    ).checked)  errCorrLvl = ErrorCorrectionLevel.HIGH    ;
 		else  throw new Error("Assertion error");
 		
 		const text: Array<CodePoint> = CodePoint.toArray(textStr);
@@ -685,8 +685,8 @@ namespace app {
 	
 	/*---- Simple utility functions ----*/
 	
-	function getInput(id: string): HTMLInputElement {
-		return queryElem("#" + id, HTMLInputElement);
+	function queryInput(query: string): HTMLInputElement {
+		return queryElem(query, HTMLInputElement);
 	}
 	
 	

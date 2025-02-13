@@ -9,9 +9,9 @@
 var app;
 (function (app) {
     { // Forward transform
-        let inVecInput = getInput("forward-transform-input-vector");
-        let minModInput = getInput("forward-transform-minimum-working-modulus");
-        let rootInput = getInput("forward-transform-nth-root-of-unity");
+        let inVecInput = queryInput("#forward-transform-input-vector");
+        let minModInput = queryInput("#forward-transform-minimum-working-modulus");
+        let rootInput = queryInput("#forward-transform-nth-root-of-unity");
         inVecInput.onkeydown = doCalculate;
         minModInput.onkeydown = doCalculate;
         rootInput.onkeydown = doCalculate;
@@ -75,9 +75,9 @@ var app;
         }
     }
     { // Inverse transform
-        let inVecInput = getInput("inverse-transform-input-vector");
-        let minModInput = getInput("inverse-transform-minimum-working-modulus");
-        let rootInput = getInput("inverse-transform-nth-root-of-unity");
+        let inVecInput = queryInput("#inverse-transform-input-vector");
+        let minModInput = queryInput("#inverse-transform-minimum-working-modulus");
+        let rootInput = queryInput("#inverse-transform-nth-root-of-unity");
         inVecInput.onkeydown = doCalculate;
         minModInput.onkeydown = doCalculate;
         rootInput.onkeydown = doCalculate;
@@ -145,10 +145,10 @@ var app;
         }
     }
     { // Circular convolution
-        let inVec0Input = getInput("circular-convolution-input-vector-0");
-        let inVec1Input = getInput("circular-convolution-input-vector-1");
-        let minModInput = getInput("circular-convolution-minimum-working-modulus");
-        let rootInput = getInput("circular-convolution-nth-root-of-unity");
+        let inVec0Input = queryInput("#circular-convolution-input-vector-0");
+        let inVec1Input = queryInput("#circular-convolution-input-vector-1");
+        let minModInput = queryInput("#circular-convolution-minimum-working-modulus");
+        let rootInput = queryInput("#circular-convolution-nth-root-of-unity");
         inVec0Input.onkeydown = doCalculate;
         inVec1Input.onkeydown = doCalculate;
         minModInput.onkeydown = doCalculate;
@@ -270,10 +270,7 @@ var app;
     function vectorToString(vec) {
         return "[" + vec.join(", ") + "]";
     }
-    function getElem(id, type) {
-        return queryElem("#" + id, type);
-    }
-    function getInput(id) {
-        return getElem(id, HTMLInputElement);
+    function queryInput(query) {
+        return queryElem(query, HTMLInputElement);
     }
 })(app || (app = {}));

@@ -10,9 +10,9 @@
 namespace app {
 	
 	{  // Forward transform
-		let inVecInput : HTMLInputElement = getInput("forward-transform-input-vector");
-		let minModInput: HTMLInputElement = getInput("forward-transform-minimum-working-modulus");
-		let rootInput  : HTMLInputElement = getInput("forward-transform-nth-root-of-unity");
+		let inVecInput : HTMLInputElement = queryInput("#forward-transform-input-vector");
+		let minModInput: HTMLInputElement = queryInput("#forward-transform-minimum-working-modulus");
+		let rootInput  : HTMLInputElement = queryInput("#forward-transform-nth-root-of-unity");
 		
 		inVecInput .onkeydown = doCalculate;
 		minModInput.onkeydown = doCalculate;
@@ -86,9 +86,9 @@ namespace app {
 	
 	
 	{  // Inverse transform
-		let inVecInput : HTMLInputElement = getInput("inverse-transform-input-vector");
-		let minModInput: HTMLInputElement = getInput("inverse-transform-minimum-working-modulus");
-		let rootInput  : HTMLInputElement = getInput("inverse-transform-nth-root-of-unity");
+		let inVecInput : HTMLInputElement = queryInput("#inverse-transform-input-vector");
+		let minModInput: HTMLInputElement = queryInput("#inverse-transform-minimum-working-modulus");
+		let rootInput  : HTMLInputElement = queryInput("#inverse-transform-nth-root-of-unity");
 		
 		inVecInput .onkeydown = doCalculate;
 		minModInput.onkeydown = doCalculate;
@@ -166,10 +166,10 @@ namespace app {
 	
 	
 	{  // Circular convolution
-		let inVec0Input: HTMLInputElement = getInput("circular-convolution-input-vector-0");
-		let inVec1Input: HTMLInputElement = getInput("circular-convolution-input-vector-1");
-		let minModInput: HTMLInputElement = getInput("circular-convolution-minimum-working-modulus");
-		let rootInput  : HTMLInputElement = getInput("circular-convolution-nth-root-of-unity");
+		let inVec0Input: HTMLInputElement = queryInput("#circular-convolution-input-vector-0");
+		let inVec1Input: HTMLInputElement = queryInput("#circular-convolution-input-vector-1");
+		let minModInput: HTMLInputElement = queryInput("#circular-convolution-minimum-working-modulus");
+		let rootInput  : HTMLInputElement = queryInput("#circular-convolution-nth-root-of-unity");
 		
 		inVec0Input.onkeydown = doCalculate;
 		inVec1Input.onkeydown = doCalculate;
@@ -311,15 +311,8 @@ namespace app {
 	}
 	
 	
-	type Constructor<T> = { new(...args: Array<any>): T };
-	
-	function getElem<T>(id: string, type: Constructor<T>): T {
-		return queryElem("#" + id, type);
-	}
-	
-	
-	function getInput(id: string): HTMLInputElement {
-		return getElem(id, HTMLInputElement);
+	function queryInput(query: string): HTMLInputElement {
+		return queryElem(query, HTMLInputElement);
 	}
 	
 }

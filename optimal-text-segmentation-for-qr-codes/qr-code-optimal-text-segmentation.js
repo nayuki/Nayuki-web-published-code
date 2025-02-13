@@ -9,8 +9,8 @@
 var app;
 (function (app) {
     /*---- Preamble definitions ----*/
-    function getInput(id) {
-        return queryElem("#" + id, HTMLInputElement);
+    function queryInput(query) {
+        return queryElem(query, HTMLInputElement);
     }
     const userTextInputElem = queryElem("#user-text-input", HTMLTextAreaElement);
     const demoTextElem = queryElem("#demo-text", HTMLSelectElement);
@@ -24,15 +24,15 @@ var app;
         const textStr = userTextInputElem.value;
         if (textStr != demoTextElem.value)
             demoTextElem.selectedIndex = 0; // Indicates custom input
-        const minVersion = parseInt(getInput("minimum-version").value, 10);
+        const minVersion = parseInt(queryInput("#minimum-version").value, 10);
         let errCorrLvl;
-        if (getInput("errcorlvl-low").checked)
+        if (queryInput("#errcorlvl-low").checked)
             errCorrLvl = 0;
-        else if (getInput("errcorlvl-medium").checked)
+        else if (queryInput("#errcorlvl-medium").checked)
             errCorrLvl = 1;
-        else if (getInput("errcorlvl-quartile").checked)
+        else if (queryInput("#errcorlvl-quartile").checked)
             errCorrLvl = 2;
-        else if (getInput("errcorlvl-high").checked)
+        else if (queryInput("#errcorlvl-high").checked)
             errCorrLvl = 3;
         else
             throw new Error("Assertion error");

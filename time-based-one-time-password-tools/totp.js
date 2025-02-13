@@ -49,16 +49,16 @@ var app;
         update();
     }
     setTimeout(initialize);
-    function getInput(id) {
-        return queryElem("#" + id, HTMLInputElement);
+    function queryInput(query) {
+        return queryElem(query, HTMLInputElement);
     }
     function update() {
-        if (getInput("current-time").checked)
-            getInput("timestamp").value = Math.floor(Date.now() / 1000).toString();
+        if (queryInput("#current-time").checked)
+            queryInput("#timestamp").value = Math.floor(Date.now() / 1000).toString();
         let outStr;
         let copyButton = queryHtml("#copy");
         try {
-            outStr = totp.calcTotp(totp.decodeBase32(getInput("secret-key").value), parseInt(getInput("epoch").value, 10), parseInt(getInput("time-step").value, 10), parseInt(getInput("timestamp").value, 10), parseInt(getInput("code-length").value, 10));
+            outStr = totp.calcTotp(totp.decodeBase32(queryInput("#secret-key").value), parseInt(queryInput("#epoch").value, 10), parseInt(queryInput("#time-step").value, 10), parseInt(queryInput("#timestamp").value, 10), parseInt(queryInput("#code-length").value, 10));
             copyButton.style.removeProperty("visibility");
         }
         catch (e) {

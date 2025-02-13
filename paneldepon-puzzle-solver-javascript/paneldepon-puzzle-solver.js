@@ -44,7 +44,7 @@ var app;
     }
     function doSolve() {
         clearSolution();
-        const numMoves = parseInt(inputElemId("num-moves").value, 10);
+        const numMoves = parseInt(queryInput("#num-moves").value, 10);
         const [moves, numVisited] = new Board(pageGrid.clone()).solve(numMoves);
         let solnHeadText;
         if (moves === null)
@@ -63,7 +63,7 @@ var app;
     }
     app.doSolve = doSolve;
     function doImport() {
-        const lines = inputElemId("import-export").value.replace(/^\s+|\s+$/, "").split("\n");
+        const lines = queryInput("#import-export").value.replace(/^\s+|\s+$/, "").split("\n");
         if (lines.length != Grid.HEIGHT + 1) {
             alert(`Invalid number of lines (should be ${Grid.HEIGHT + 1})`);
             return;
@@ -92,7 +92,7 @@ var app;
                 }
             }
         }
-        inputElemId("num-moves").value = moves.toString();
+        queryInput("#num-moves").value = moves.toString();
         handleBoardChanged();
     }
     app.doImport = doImport;
@@ -101,7 +101,7 @@ var app;
         do
             index = Math.floor(Math.random() * EXAMPLE_PUZZLES.length);
         while (index == currentExampleIndex);
-        inputElemId("import-export").value = EXAMPLE_PUZZLES[index];
+        queryInput("#import-export").value = EXAMPLE_PUZZLES[index];
         doImport();
         currentExampleIndex = index;
     }
@@ -157,7 +157,7 @@ var app;
                 tds[x + 1].style.backgroundColor = Grid.TILE_COLORS[pageGrid.get(x, y)];
         }
         // Update export text
-        let exportStr = inputElemId("num-moves").value;
+        let exportStr = queryInput("#num-moves").value;
         for (let y = 0; y < Grid.HEIGHT; y++) {
             exportStr += "\n";
             for (let x = 0; x < Grid.WIDTH; x++) {
@@ -168,7 +168,7 @@ var app;
                     exportStr += String.fromCodePoint("a".codePointAt(0) + val - 1);
             }
         }
-        inputElemId("import-export").value = exportStr;
+        queryInput("#import-export").value = exportStr;
         clearSolution();
         currentExampleIndex = -1;
     }
@@ -196,8 +196,8 @@ var app;
             result.append(content);
         return result;
     }
-    function inputElemId(id) {
-        return queryElem("#" + id, HTMLInputElement);
+    function queryInput(query) {
+        return queryElem(query, HTMLInputElement);
     }
     /*---- Puzzle solver, board, grid ----*/
     // An immutable puzzle board, with high-level methods to generate/apply/solve game moves.

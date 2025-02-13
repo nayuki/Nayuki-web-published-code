@@ -50,13 +50,13 @@ namespace app {
 				throw new Error("Assertion error");
 			
 			// Try to generate barcode
-			let barcode: Array<number> = func(getInput("text").value).bars;  // 0s and 1s
+			let barcode: Array<number> = func(queryInput("#text").value).bars;  // 0s and 1s
 			
 			// Dimensions of canvas and new image
-			const scale = parseInt(getInput("bar-width").value, 10);
-			const padding = parseInt(getInput("padding").value, 10);  // Number of pixels on each of the four sides
+			const scale = parseInt(queryInput("#bar-width").value, 10);
+			const padding = parseInt(queryInput("#padding").value, 10);  // Number of pixels on each of the four sides
 			const width  = canvas.width  = barcode.length * scale + padding * 2;
-			const height = canvas.height = parseInt(getInput("bar-height").value) + padding * 2;
+			const height = canvas.height = parseInt(queryInput("#bar-height").value) + padding * 2;
 			
 			// Create image and fill with opaque white color
 			let image = graphics.createImageData(width, height);
@@ -84,8 +84,8 @@ namespace app {
 	
 	/*-- Utility functions --*/
 	
-	function getInput(id: string): HTMLInputElement {
-		return queryElem("#" + id, HTMLInputElement);
+	function queryInput(query: string): HTMLInputElement {
+		return queryElem(query, HTMLInputElement);
 	}
 	
 }
