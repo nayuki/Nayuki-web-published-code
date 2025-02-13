@@ -67,10 +67,6 @@ var app;
             queryHtml("#feedback").textContent = "Error: " + e.message;
         }
     }
-    /*-- Utility functions --*/
-    function queryInput(query) {
-        return queryElem(query, HTMLInputElement);
-    }
 })(app || (app = {}));
 /*---- Barcode generator functions ----*/
 // In the barcodegen module, each exported function takes a text string and returns

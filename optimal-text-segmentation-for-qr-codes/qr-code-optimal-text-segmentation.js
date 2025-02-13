@@ -9,9 +9,6 @@
 var app;
 (function (app) {
     /*---- Preamble definitions ----*/
-    function queryInput(query) {
-        return queryElem(query, HTMLInputElement);
-    }
     const userTextInputElem = queryElem("#user-text-input", HTMLTextAreaElement);
     const demoTextElem = queryElem("#demo-text", HTMLSelectElement);
     /*---- Entry points from HTML page ----*/

@@ -81,13 +81,6 @@ namespace app {
 		}
 	}
 	
-	
-	/*-- Utility functions --*/
-	
-	function queryInput(query: string): HTMLInputElement {
-		return queryElem(query, HTMLInputElement);
-	}
-	
 }
 
 

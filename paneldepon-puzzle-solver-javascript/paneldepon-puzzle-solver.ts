@@ -223,11 +223,6 @@ namespace app {
 	}
 	
 	
-	function queryInput(query: string): HTMLInputElement {
-		return queryElem(query, HTMLInputElement);
-	}
-	
-	
 	
 	/*---- Puzzle solver, board, grid ----*/
 	

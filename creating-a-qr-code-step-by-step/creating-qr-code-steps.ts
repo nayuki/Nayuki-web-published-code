@@ -685,11 +685,6 @@ namespace app {
 	
 	/*---- Simple utility functions ----*/
 	
-	function queryInput(query: string): HTMLInputElement {
-		return queryElem(query, HTMLInputElement);
-	}
-	
-	
 	function clearChildren(elemOrQuery: string|HTMLElement): HTMLElement {
 		let elem: HTMLElement;
 		if (typeof elemOrQuery == "string")

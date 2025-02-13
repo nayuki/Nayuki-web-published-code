@@ -49,9 +49,6 @@ var app;
         update();
     }
     setTimeout(initialize);
-    function queryInput(query) {
-        return queryElem(query, HTMLInputElement);
-    }
     function update() {
         if (queryInput("#current-time").checked)
             queryInput("#timestamp").value = Math.floor(Date.now() / 1000).toString();

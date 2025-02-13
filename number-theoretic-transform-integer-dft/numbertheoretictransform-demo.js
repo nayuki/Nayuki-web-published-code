@@ -270,7 +270,4 @@ var app;
     function vectorToString(vec) {
         return "[" + vec.join(", ") + "]";
     }
-    function queryInput(query) {
-        return queryElem(query, HTMLInputElement);
-    }
 })(app || (app = {}));

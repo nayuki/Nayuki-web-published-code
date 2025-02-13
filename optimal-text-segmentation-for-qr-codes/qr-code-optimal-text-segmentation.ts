@@ -15,11 +15,6 @@ namespace app {
 	type Mode = "BYTE" | "NUMERIC" | "ALPHANUMERIC" | "KANJI";
 	
 	
-	function queryInput(query: string): HTMLInputElement {
-		return queryElem(query, HTMLInputElement);
-	}
-	
-	
 	const userTextInputElem: HTMLTextAreaElement = queryElem("#user-text-input", HTMLTextAreaElement);
 	const demoTextElem: HTMLSelectElement = queryElem("#demo-text", HTMLSelectElement);
 	

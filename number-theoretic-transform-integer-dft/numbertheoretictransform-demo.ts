@@ -310,9 +310,4 @@ namespace app {
 		return "[" + vec.join(", ") + "]";
 	}
 	
-	
-	function queryInput(query: string): HTMLInputElement {
-		return queryElem(query, HTMLInputElement);
-	}
-	
 }

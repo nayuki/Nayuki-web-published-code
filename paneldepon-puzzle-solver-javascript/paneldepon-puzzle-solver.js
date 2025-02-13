@@ -196,9 +196,6 @@ var app;
             result.append(content);
         return result;
     }
-    function queryInput(query) {
-        return queryElem(query, HTMLInputElement);
-    }
     /*---- Puzzle solver, board, grid ----*/
     // An immutable puzzle board, with high-level methods to generate/apply/solve game moves.
     class Board {

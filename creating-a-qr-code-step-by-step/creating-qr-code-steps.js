@@ -1387,9 +1387,6 @@ var app;
         return svg;
     }
     /*---- Simple utility functions ----*/
-    function queryInput(query) {
-        return queryElem(query, HTMLInputElement);
-    }
     function clearChildren(elemOrQuery) {
         let elem;
         if (typeof elemOrQuery == "string")
