@@ -101,7 +101,7 @@ class Sequent {
 		function appendSpan(text: string, clsName: string): void {
 			let elem = result.appendChild(document.createElement("span"));
 			elem.textContent = text;
-			elem.className = clsName;
+			elem.classList.add(clsName);
 		}
 		
 		if (this.left.length == 0)

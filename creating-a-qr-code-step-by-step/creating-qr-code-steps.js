@@ -997,7 +997,7 @@ var app;
         return result;
     }
     function doStep1(text, mode) {
-        queryHtml("#data-segment-chars").className = mode.name.toLowerCase() + " possibly-long";
+        queryHtml("#data-segment-chars").classList.add(mode.name.toLowerCase(), "possibly-long");
         let bitData = [];
         let numChars = text.length;
         let tbody = clearChildren("#data-segment-chars tbody");
@@ -1174,7 +1174,7 @@ var app;
             for (let i = 0; i < shortBlockLen + 1; i++) {
                 const isDataRow = i < shortBlockLen + 1 - blockEccLen;
                 let tr = appendNewElem(tbody, "tr");
-                tr.className = isDataRow ? "data" : "ecc";
+                tr.classList.add(isDataRow ? "data" : "ecc");
                 if (i == 0)
                     tr.append(verticalTh);
                 appendNewElem(tr, "th", i);
@@ -1193,10 +1193,10 @@ var app;
         let result = qr.interleaveBlocks(dataBlocks, eccBlocks);
         let output = clearChildren("#interleaved-codewords");
         let span = appendNewElem(output, "span", result.slice(0, data.length).map(cw => byteToHex(cw.value)).join(" "));
-        span.className = "data";
+        span.classList.add("data");
         output.append(" ");
         span = appendNewElem(output, "span", result.slice(data.length).map(cw => byteToHex(cw.value)).join(" "));
-        span.className = "ecc";
+        span.classList.add("ecc");
         queryHtml("#final-bit-sequence span").textContent = result.map(cw => cw.value.toString(2).padStart(8, "0")).join("");
         return result;
     }

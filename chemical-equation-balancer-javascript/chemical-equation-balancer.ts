@@ -807,6 +807,6 @@ function createElem(tagName: string, text?: string): HTMLElement {
 // Returns a new DOM node like this: <span class="cls">text</span>
 function createSpan(cls: string, text?: string): HTMLElement {
 	let result = createElem("span", text);
-	result.className = cls;
+	result.classList.add(cls);
 	return result;
 }

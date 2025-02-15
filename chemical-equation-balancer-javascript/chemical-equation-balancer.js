@@ -684,6 +684,6 @@ function createElem(tagName, text) {
 // Returns a new DOM node like this: <span class="cls">text</span>
 function createSpan(cls, text) {
     let result = createElem("span", text);
-    result.className = cls;
+    result.classList.add(cls);
     return result;
 }
