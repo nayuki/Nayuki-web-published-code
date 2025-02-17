@@ -1,7 +1,7 @@
 /* 
  * B-tree set (Java)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/btree-set
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -546,15 +546,12 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		
 		/*-- Fields --*/
 		
-		private Stack<Node<E>> nodeStack;
-		private Stack<Integer> indexStack;
+		private Stack<Pair<Node<E>,Integer>> stack = new Stack<>();
 		
 		
 		/*-- Constructors --*/
 		
 		public Iter() {
-			nodeStack  = new Stack<>();
-			indexStack = new Stack<>();
 			if (root.numKeys > 0)
 				pushLeftPath(root);
 		}
@@ -563,7 +560,7 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		/*-- Methods --*/
 		
 		public boolean hasNext() {
-			return !nodeStack.isEmpty();
+			return !stack.isEmpty();
 		}
 		
 		
@@ -571,14 +568,13 @@ public final class BTreeSet<E extends Comparable<? super E>>
 			if (!hasNext())
 				throw new NoSuchElementException();
 			
-			Node<E> node = nodeStack.peek();
-			int index = indexStack.pop();
+			Pair<Node<E>,Integer> item = stack.pop();
+			Node<E> node = item.zeroth;
+			int index = item.first;
 			E result = node.keys[index];
 			index++;
 			if (index < node.numKeys)
-				indexStack.push(index);
-			else
-				nodeStack.pop();
+				stack.push(new Pair<>(node, index));
 			if (!node.isLeaf())
 				pushLeftPath(node.children[index]);
 			return result;
@@ -592,13 +588,16 @@ public final class BTreeSet<E extends Comparable<? super E>>
 		
 		private void pushLeftPath(Node<E> node) {
 			while (true) {
-				nodeStack.push(node);
-				indexStack.push(0);
+				stack.push(new Pair<>(node, 0));
 				if (node.isLeaf())
 					break;
 				node = node.children[0];
 			}
 		}
+		
+		
+		
+		private record Pair<A,B>(A zeroth, B first) {}
 		
 	}
 	
