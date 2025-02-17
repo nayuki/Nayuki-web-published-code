@@ -39,7 +39,7 @@ function main(): void {
 			msg += "Pass";
 		} catch (e: unknown) {
 			assertIsError(e);
-			msg += "Fail - " + (e as Error).message;
+			msg += "Fail - " + e.message;
 		}
 		postMessage(msg);
 	}
