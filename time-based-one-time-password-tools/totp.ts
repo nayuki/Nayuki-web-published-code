@@ -33,7 +33,7 @@ namespace app {
 		try {
 			for (const func of totp.TEST_SUITE)
 				func();
-		} catch (e) {
+		} catch (e: unknown) {
 			alert("Self-check failed: " + e.message);
 			return;
 		}
@@ -71,7 +71,7 @@ namespace app {
 				parseInt(queryInput("#timestamp"  ).value, 10),
 				parseInt(queryInput("#code-length").value, 10));
 			copyButton.style.removeProperty("visibility");
-		} catch (e) {
+		} catch (e: unknown) {
 			outStr = e.message;
 			copyButton.style.visibility = "hidden";
 		}

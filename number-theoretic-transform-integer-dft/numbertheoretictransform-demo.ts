@@ -39,7 +39,7 @@ namespace app {
 			try {
 				vec = parseVector(inVecInput.value);
 				vecLenElem.textContent = vec.length.toString();
-			} catch (e) {
+			} catch (e: unknown) {
 				if (e instanceof Error)
 					vecLenElem.textContent = e.message;
 				return;
@@ -117,7 +117,7 @@ namespace app {
 			try {
 				vec = parseVector(inVecInput.value);
 				vecLenElem.textContent = vec.length.toString();
-			} catch (e) {
+			} catch (e: unknown) {
 				if (e instanceof Error)
 					vecLenElem.textContent = e.message;
 				return;
@@ -207,7 +207,7 @@ namespace app {
 				if (vec0.length != vec1.length)
 					throw new RangeError("Unequal vector lengths");
 				vecLenElem.textContent = vec0.length.toString();
-			} catch (e) {
+			} catch (e: unknown) {
 				if (e instanceof Error)
 					vecLenElem.textContent = e.message;
 				return;

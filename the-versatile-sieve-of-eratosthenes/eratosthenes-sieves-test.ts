@@ -1,6 +1,6 @@
 /* 
  * Test of variants of the sieve of Eratosthenes (TypeScript)
- * by Project Nayuki, 2022. Public domain.
+ * by Project Nayuki, 2025. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 
@@ -15,7 +15,7 @@ function main(): void {
 		try {
 			func();
 			msg += "Pass";
-		} catch (e) {
+		} catch (e: unknown) {
 			msg += "Fail - " + (e as Error).message;
 		}
 		postMessage(msg);

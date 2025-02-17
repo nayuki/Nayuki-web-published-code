@@ -39,7 +39,7 @@ namespace app {
 		doEditCodeInput();
 		try {
 			instance = new Brainfuck(inputCodeElem.value, inputTextElem.value);
-		} catch (e) {
+		} catch (e: unknown) {
 			alert("Error: " + e.message);
 			return;
 		}
@@ -172,7 +172,7 @@ namespace app {
 			try {
 				inst.execute(this);
 				this.numExecuted++;
-			} catch (e) {
+			} catch (e: unknown) {
 				alert("Error: " + e.message);
 				this.instructionIndex = this.instructions.length;
 			}

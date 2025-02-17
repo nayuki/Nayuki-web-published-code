@@ -76,7 +76,7 @@ namespace app {
 			graphics.putImageData(image, 0, 0);
 			queryHtml("#feedback").textContent = "OK";
 			
-		} catch (e) {
+		} catch (e: unknown) {
 			queryHtml("#feedback").textContent = "Error: " + e.message;
 		}
 	}

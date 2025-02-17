@@ -32,7 +32,7 @@ function main(): void {
 		try {
 			func();
 			msg += "Pass";
-		} catch (e) {
+		} catch (e: unknown) {
 			msg += "Fail - " + (e as Error).message;
 		}
 		postMessage(msg);

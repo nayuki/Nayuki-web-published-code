@@ -1,6 +1,6 @@
 /*
  * Zeller's congruence (compiled from TypeScript)
- * by Project Nayuki, 2022. Public domain.
+ * by Project Nayuki, 2025. Public domain.
  * https://www.nayuki.io/page/zellers-congruence
  */
 "use strict";

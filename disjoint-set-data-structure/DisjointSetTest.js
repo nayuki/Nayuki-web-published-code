@@ -1,7 +1,7 @@
 /*
  * Disjoint-set data structure - Test suite (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

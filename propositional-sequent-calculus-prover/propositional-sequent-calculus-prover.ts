@@ -23,7 +23,7 @@ function doProve(inputSequent: string): void {
 		msgElem.textContent = "Proof:";
 		proofElem.append(proof.toHtml());
 		
-	} catch (e) {
+	} catch (e: unknown) {
 		if (e instanceof ParseError) {
 			msgElem.textContent = "Syntax error: " + e.message;
 			codeOutElem.textContent = inputSequent.substring(0, e.position);

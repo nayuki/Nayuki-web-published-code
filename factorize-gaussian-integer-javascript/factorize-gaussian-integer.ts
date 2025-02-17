@@ -48,7 +48,7 @@ namespace app {
 				appendGaussianInteger(factor);
 				outElem.append(")");
 			});
-		} catch (e) {
+		} catch (e: unknown) {
 			outElem.append(e.message);
 		}
 	}

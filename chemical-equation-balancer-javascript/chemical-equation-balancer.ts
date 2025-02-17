@@ -30,7 +30,7 @@ function doBalance(): void {
 	let eqn: Equation;
 	try {
 		eqn = new Parser(formulaStr).parseEquation();
-	} catch (e) {
+	} catch (e: unknown) {
 		if (e instanceof ParseError) {  // Error message object with start and possibly end character indices
 			msgElem.textContent = "Syntax error: " + e.message;
 			
@@ -62,7 +62,7 @@ function doBalance(): void {
 		const coefs: Array<number> = extractCoefficients(matrix);  // Get coefficients
 		checkAnswer(eqn, coefs);                                 // Self-test, should not fail
 		balancedElem.append(eqn.toHtml(coefs));                  // Display balanced equation
-	} catch (e) {
+	} catch (e: unknown) {
 		msgElem.textContent = e.message;
 	}
 }

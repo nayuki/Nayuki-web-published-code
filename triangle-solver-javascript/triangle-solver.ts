@@ -70,7 +70,7 @@ function doSolve(): void {
 		const C: number|null = parseNumber(angleCElems[0]);
 		[status, solutions] = solveTriangles(a, b, c, A, B, C);
 		
-	} catch (e) {
+	} catch (e: unknown) {
 		if (!(e instanceof Error))
 			throw new TypeError();
 		statusOut.textContent = e.message;

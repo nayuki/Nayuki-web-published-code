@@ -49,7 +49,7 @@ namespace app {
 				const bytes = new Uint8Array(reader.result as ArrayBuffer);
 				const rootVal = BencodeParser.parse(bytes);
 				rootElem.append(toHtml(rootVal));
-			} catch (e) {
+			} catch (e: unknown) {
 				rootElem.textContent = "Error: " + e.message;
 			}
 		}
@@ -72,7 +72,7 @@ namespace app {
 			result.append(`Byte string (${item.value.length}) `);
 			try {
 				result.append("(text): " + decodeUtf8(item.value));
-			} catch (e) {
+			} catch (e: unknown) {
 				let hex: Array<string> = [];
 				for (let c of item.value)
 					hex.push((c.codePointAt(0) as number).toString(16).toUpperCase().padStart(2, "0"));

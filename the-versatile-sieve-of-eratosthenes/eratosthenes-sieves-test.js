@@ -1,6 +1,6 @@
 /*
  * Test of variants of the sieve of Eratosthenes (compiled from TypeScript)
- * by Project Nayuki, 2022. Public domain.
+ * by Project Nayuki, 2025. Public domain.
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 "use strict";

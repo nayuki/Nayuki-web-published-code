@@ -28,13 +28,13 @@ namespace app {
 		try {
 			xInt = new Uint(xStr);
 			yInt = new Uint(yStr);
-		} catch (e) {
+		} catch (e: unknown) {
 			outputElem.textContent = "Not zero or positive integer";
 			return;
 		}
 		try {
 			outputElem.textContent = xInt.gcd(yInt).toString();
-		} catch (e) {
+		} catch (e: unknown) {
 			outputElem.textContent = "Assertion error";
 		}
 	}

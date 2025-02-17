@@ -1,6 +1,6 @@
 /* 
  * Zeller's congruence (TypeScript)
- * by Project Nayuki, 2022. Public domain.
+ * by Project Nayuki, 2025. Public domain.
  * https://www.nayuki.io/page/zellers-congruence
  */
 
@@ -37,7 +37,7 @@ function main(): void {
 		try {
 			func();
 			msg += "Pass";
-		} catch (e) {
+		} catch (e: unknown) {
 			msg += "Fail - " + (e as Error).message;
 		}
 		postMessage(msg);
