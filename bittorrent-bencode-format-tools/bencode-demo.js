@@ -45,6 +45,7 @@ var app;
                 rootElem.append(toHtml(rootVal));
             }
             catch (e) {
+                assertIsError(e);
                 rootElem.textContent = "Error: " + e.message;
             }
         }

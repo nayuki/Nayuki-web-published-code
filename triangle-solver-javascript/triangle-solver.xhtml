@@ -225,7 +225,10 @@ function queryElem(query, type) {
     else
         throw new TypeError("Invalid element type");
 }
-"use strict";
+function assertIsError(e) {
+    if (!(e instanceof Error))
+        throw e;
+}
 /*---- HTML elements ----*/
 let tableElem = queryHtml("article form table");
 let sideAElems = getIoElems("side-a");
@@ -277,8 +280,7 @@ function doSolve() {
         [status, solutions] = solveTriangles(a, b, c, A, B, C);
     }
     catch (e) {
-        if (!(e instanceof Error))
-            throw new TypeError();
+        assertIsError(e);
         statusOut.textContent = e.message;
         return;
     }

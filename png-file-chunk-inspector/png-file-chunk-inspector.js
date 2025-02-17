@@ -371,6 +371,7 @@ var app;
                 data = decompressZlibDeflate(concat);
             }
             catch (e) {
+                assertIsError(e);
                 chunk.errorNotes.push("Decompression error: " + e.message);
                 return;
             }
@@ -464,6 +465,7 @@ var app;
                 throw new Error("Decompressed data too long");
         }
         catch (e) {
+            assertIsError(e);
             chunk.errorNotes.push(e.message);
         }
     }
@@ -905,6 +907,7 @@ var app;
                         chunk.innerNotes.push(`Decompressed profile size: ${decompProfile.length}`);
                     }
                     catch (e) {
+                        assertIsError(e);
                         chunk.errorNotes.push("Profile decompression error: " + e.message);
                     }
                 }
@@ -1043,6 +1046,7 @@ var app;
                     chunk.innerNotes.push(`Translated keyword: ${transKey}`);
                 }
                 catch (e) {
+                    assertIsError(e);
                     chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
                 }
                 if (parts.length == 2) {
@@ -1060,6 +1064,7 @@ var app;
                                 textBytes = decompressZlibDeflate(parts[2]);
                             }
                             catch (e) {
+                                assertIsError(e);
                                 chunk.errorNotes.push("Text decompression error: " + e.message);
                             }
                         }
@@ -1076,6 +1081,7 @@ var app;
                     chunk.innerNotes.push(frag);
                 }
                 catch (e) {
+                    assertIsError(e);
                     chunk.errorNotes.push("Invalid UTF-8 in text string");
                 }
             }],
@@ -1478,6 +1484,7 @@ var app;
                             chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
                     }
                     catch (e) {
+                        assertIsError(e);
                         chunk.errorNotes.push("Text decompression error: " + e.message);
                     }
                 }

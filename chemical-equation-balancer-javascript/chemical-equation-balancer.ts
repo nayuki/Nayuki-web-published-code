@@ -63,6 +63,7 @@ function doBalance(): void {
 		checkAnswer(eqn, coefs);                                 // Self-test, should not fail
 		balancedElem.append(eqn.toHtml(coefs));                  // Display balanced equation
 	} catch (e: unknown) {
+		assertIsError(e);
 		msgElem.textContent = e.message;
 	}
 }

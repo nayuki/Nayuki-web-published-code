@@ -50,6 +50,7 @@ namespace app {
 				const rootVal = BencodeParser.parse(bytes);
 				rootElem.append(toHtml(rootVal));
 			} catch (e: unknown) {
+				assertIsError(e);
 				rootElem.textContent = "Error: " + e.message;
 			}
 		}

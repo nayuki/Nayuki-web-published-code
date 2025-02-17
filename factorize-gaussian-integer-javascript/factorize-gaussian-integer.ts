@@ -49,6 +49,7 @@ namespace app {
 				outElem.append(")");
 			});
 		} catch (e: unknown) {
+			assertIsError(e);
 			outElem.append(e.message);
 		}
 	}

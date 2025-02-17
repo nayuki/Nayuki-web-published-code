@@ -64,6 +64,7 @@ var app;
             queryHtml("#feedback").textContent = "OK";
         }
         catch (e) {
+            assertIsError(e);
             queryHtml("#feedback").textContent = "Error: " + e.message;
         }
     }

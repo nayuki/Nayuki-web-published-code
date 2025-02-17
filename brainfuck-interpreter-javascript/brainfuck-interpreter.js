@@ -31,6 +31,7 @@ var app;
             instance = new Brainfuck(inputCodeElem.value, inputTextElem.value);
         }
         catch (e) {
+            assertIsError(e);
             alert("Error: " + e.message);
             return;
         }
@@ -155,6 +156,7 @@ var app;
                 this.numExecuted++;
             }
             catch (e) {
+                assertIsError(e);
                 alert("Error: " + e.message);
                 this.instructionIndex = this.instructions.length;
             }

@@ -77,6 +77,7 @@ namespace app {
 			queryHtml("#feedback").textContent = "OK";
 			
 		} catch (e: unknown) {
+			assertIsError(e);
 			queryHtml("#feedback").textContent = "Error: " + e.message;
 		}
 	}

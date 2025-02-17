@@ -71,8 +71,7 @@ function doSolve(): void {
 		[status, solutions] = solveTriangles(a, b, c, A, B, C);
 		
 	} catch (e: unknown) {
-		if (!(e instanceof Error))
-			throw new TypeError();
+		assertIsError(e);
 		statusOut.textContent = e.message;
 		return;
 	}

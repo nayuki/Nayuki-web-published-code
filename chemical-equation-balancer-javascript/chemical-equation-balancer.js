@@ -59,6 +59,7 @@ function doBalance() {
         balancedElem.append(eqn.toHtml(coefs)); // Display balanced equation
     }
     catch (e) {
+        assertIsError(e);
         msgElem.textContent = e.message;
     }
 }

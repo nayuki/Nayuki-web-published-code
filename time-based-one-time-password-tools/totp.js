@@ -30,6 +30,7 @@ var app;
                 func();
         }
         catch (e) {
+            assertIsError(e);
             alert("Self-check failed: " + e.message);
             return;
         }
@@ -59,6 +60,7 @@ var app;
             copyButton.style.removeProperty("visibility");
         }
         catch (e) {
+            assertIsError(e);
             outStr = e.message;
             copyButton.style.visibility = "hidden";
         }

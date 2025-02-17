@@ -16,6 +16,7 @@ function main(): void {
 			func();
 			msg += "Pass";
 		} catch (e: unknown) {
+			assertIsError(e);
 			msg += "Fail - " + (e as Error).message;
 		}
 		postMessage(msg);

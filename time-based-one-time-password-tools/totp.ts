@@ -34,6 +34,7 @@ namespace app {
 			for (const func of totp.TEST_SUITE)
 				func();
 		} catch (e: unknown) {
+			assertIsError(e);
 			alert("Self-check failed: " + e.message);
 			return;
 		}
@@ -72,6 +73,7 @@ namespace app {
 				parseInt(queryInput("#code-length").value, 10));
 			copyButton.style.removeProperty("visibility");
 		} catch (e: unknown) {
+			assertIsError(e);
 			outStr = e.message;
 			copyButton.style.visibility = "hidden";
 		}

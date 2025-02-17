@@ -40,6 +40,7 @@ namespace app {
 		try {
 			instance = new Brainfuck(inputCodeElem.value, inputTextElem.value);
 		} catch (e: unknown) {
+			assertIsError(e);
 			alert("Error: " + e.message);
 			return;
 		}
@@ -173,6 +174,7 @@ namespace app {
 				inst.execute(this);
 				this.numExecuted++;
 			} catch (e: unknown) {
+				assertIsError(e);
 				alert("Error: " + e.message);
 				this.instructionIndex = this.instructions.length;
 			}

@@ -411,6 +411,7 @@ namespace app {
 			try {
 				data = decompressZlibDeflate(concat);
 			} catch (e: unknown) {
+				assertIsError(e);
 				chunk.errorNotes.push("Decompression error: " + e.message);
 				return;
 			}
@@ -505,6 +506,7 @@ namespace app {
 			if (offset < data.length)
 				throw new Error("Decompressed data too long");
 		} catch (e: unknown) {
+			assertIsError(e);
 			chunk.errorNotes.push(e.message);
 		}
 	}
@@ -1015,6 +1017,7 @@ namespace app {
 						const decompProfile: Uint8Array = decompressZlibDeflate(compProfile);
 						chunk.innerNotes.push(`Decompressed profile size: ${decompProfile.length}`);
 					} catch (e: unknown) {
+						assertIsError(e);
 						chunk.errorNotes.push("Profile decompression error: " + e.message);
 					}
 				}
@@ -1166,6 +1169,7 @@ namespace app {
 					const transKey: string = decodeUtf8(parts[1]);
 					chunk.innerNotes.push(`Translated keyword: ${transKey}`);
 				} catch (e: unknown) {
+					assertIsError(e);
 					chunk.errorNotes.push("Invalid UTF-8 in translated keyword");
 				}
 				if (parts.length == 2) {
@@ -1183,6 +1187,7 @@ namespace app {
 							try {
 								textBytes = decompressZlibDeflate(parts[2]);
 							} catch (e: unknown) {
+								assertIsError(e);
 								chunk.errorNotes.push("Text decompression error: " + e.message);
 							}
 						}
@@ -1198,6 +1203,7 @@ namespace app {
 					span.classList.add("break");
 					chunk.innerNotes.push(frag);
 				} catch (e: unknown) {
+					assertIsError(e);
 					chunk.errorNotes.push("Invalid UTF-8 in text string");
 				}
 			}],
@@ -1660,6 +1666,7 @@ namespace app {
 						if (text.includes("\uFFFD"))
 							chunk.errorNotes.push("Invalid ISO 8859-1 byte in text string");
 					} catch (e: unknown) {
+						assertIsError(e);
 						chunk.errorNotes.push("Text decompression error: " + e.message);
 					}
 				}

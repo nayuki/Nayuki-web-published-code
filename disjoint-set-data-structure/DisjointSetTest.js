@@ -31,6 +31,7 @@ function main() {
             msg += "Pass";
         }
         catch (e) {
+            assertIsError(e);
             msg += "Fail - " + e.message;
         }
         postMessage(msg);

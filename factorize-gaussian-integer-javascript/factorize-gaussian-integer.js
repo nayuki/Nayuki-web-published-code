@@ -46,6 +46,7 @@ var app;
             });
         }
         catch (e) {
+            assertIsError(e);
             outElem.append(e.message);
         }
     }
