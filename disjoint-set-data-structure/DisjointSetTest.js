@@ -21,6 +21,7 @@
  *   Software.
  */
 "use strict";
+importScripts("../common/common.js");
 importScripts("DisjointSet.js");
 /*---- Main runner ----*/
 function main() {

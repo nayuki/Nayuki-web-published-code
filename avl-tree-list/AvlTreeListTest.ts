@@ -21,6 +21,7 @@
  *   Software.
  */
 
+importScripts("../common/common.js");
 importScripts("AvlTreeList.js");
 
 

@@ -21,6 +21,7 @@
  *   Software.
  */
 "use strict";
+importScripts("../common/common.js");
 importScripts("AvlTreeList.js");
 /*---- Main runner ----*/
 function main() {

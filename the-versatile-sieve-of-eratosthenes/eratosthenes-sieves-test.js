@@ -4,6 +4,7 @@
  * https://www.nayuki.io/page/the-versatile-sieve-of-eratosthenes
  */
 "use strict";
+importScripts("../common/common.js");
 importScripts("eratosthenes-sieves.js");
 /*---- Main runner ----*/
 function main() {
