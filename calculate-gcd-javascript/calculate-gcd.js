@@ -9,37 +9,62 @@
 var app;
 (function (app) {
     let container = queryHtml("article .program-container");
-    let inputXElem = queryInput("article .program-container #numberX");
-    let inputYElem = queryInput("article .program-container #numberY");
+    let inputAElem = queryInput("article .program-container #number-a");
+    let inputBElem = queryInput("article .program-container #number-b");
     function initialize() {
         container.hidden = false;
     }
     setTimeout(initialize);
     /*---- Entry points from HTML page ----*/
     function doCalculate() {
-        let outputElem = queryHtml("article .program-container output");
-        const xStr = inputXElem.value;
-        const yStr = inputYElem.value;
-        if (xStr == "" || yStr == "") {
-            outputElem.textContent = "";
+        // Clear outputs
+        let gcdOut = queryHtml("article .program-container output.gcd");
+        let eeaOut = queryHtml("article .program-container output.eea tbody");
+        gcdOut.textContent = "";
+        eeaOut.replaceChildren();
+        // Handle inputs
+        const aStr = inputAElem.value;
+        const bStr = inputBElem.value;
+        if (aStr == "" || bStr == "")
             return;
-        }
-        let xInt;
-        let yInt;
+        let a;
+        let b;
         try {
-            xInt = new Uint(xStr);
-            yInt = new Uint(yStr);
+            a = BigInt(aStr);
+            b = BigInt(bStr);
+            if (a < 0n || b < 0n)
+                throw new RangeError();
         }
         catch {
-            outputElem.textContent = "Not zero or positive integer";
+            gcdOut.textContent = "Input needs to be positive integer or zero";
             return;
         }
-        try {
-            outputElem.textContent = xInt.gcd(yInt).toString();
+        function addRow(i, q, r, x, y) {
+            let tr = eeaOut.appendChild(document.createElement("tr"));
+            for (const val of [i, q, "|", x, "\u00D7", a, "+", y, "\u00D7", b, "=", r]) {
+                let td = tr.appendChild(document.createElement("td"));
+                td.textContent = val.toString().replace(/-/, "\u2212");
+            }
         }
-        catch {
-            outputElem.textContent = "Assertion error";
+        // Calculate and render
+        let r0 = a, x0 = 1n, y0 = 0n;
+        let r1 = b, x1 = 0n, y1 = 1n;
+        addRow(0, 0n, r0, x0, y0);
+        addRow(1, 0n, r1, x1, y1);
+        for (let i = 2; r1 != 0n; i++) {
+            const q2 = r0 / r1;
+            const r2 = r0 % r1;
+            const x2 = x0 - q2 * x1;
+            const y2 = y0 - q2 * y1;
+            addRow(i, q2, r2, x2, y2);
+            r0 = r1;
+            x0 = x1;
+            y0 = y1;
+            r1 = r2;
+            x1 = x2;
+            y1 = y2;
         }
+        gcdOut.textContent = r0.toString();
     }
     app.doCalculate = doCalculate;
     let numRandomClicked = 0;
@@ -47,7 +72,7 @@ var app;
         numRandomClicked++;
         const limit = numRandomClicked / 10;
         const len = Math.floor(Math.random() * limit) + 1;
-        for (let elem of [inputXElem, inputYElem]) {
+        for (let elem of [inputAElem, inputBElem]) {
             let s = "";
             for (let i = 0; i < len; i++)
                 s += Math.floor(Math.random() * 10);
@@ -56,113 +81,4 @@ var app;
         doCalculate();
     }
     app.doRandom = doRandom;
-    /*---- Data structure and algorithms ----*/
-    // An unsigned big integer represented in decimal (base 10).
-    class Uint {
-        constructor(val) {
-            let digits;
-            if (typeof val == "string") {
-                if (!/^[0-9]+$/.test(val))
-                    throw new RangeError("Invalid number string");
-                digits = [];
-                for (const c of val)
-                    digits.push(parseInt(c, 10));
-                digits.reverse();
-            }
-            else if (Array.isArray(val))
-                digits = val.slice();
-            else
-                throw new TypeError("Invalid argument type");
-            while (digits.length > 0 && digits[digits.length - 1] == 0) // Remove trailing zeros in the array
-                digits.pop();
-            if (digits.length == 0) // Ensure at least one digit
-                digits.push(0);
-            this.digits = digits;
-        }
-        isZero() {
-            return this.digits.every(d => d == 0);
-        }
-        isEven() {
-            return this.digits[0] % 2 == 0;
-        }
-        isLessThan(other) {
-            let result = false;
-            const a = this.digits;
-            const b = other.digits;
-            for (let i = 0; i < a.length || i < b.length; i++) {
-                const x = i < a.length ? a[i] : 0;
-                const y = i < b.length ? b[i] : 0;
-                if (x < y)
-                    result = true;
-                if (x > y)
-                    result = false;
-            }
-            return result;
-        }
-        subtract(other) {
-            let newDigits = [];
-            let borrow = 0;
-            const a = this.digits;
-            const b = other.digits;
-            for (let i = 0; i < a.length || i < b.length; i++) {
-                const x = i < a.length ? a[i] : 0;
-                const y = i < b.length ? b[i] : 0;
-                const diff = x - y - borrow;
-                borrow = -Math.floor(diff / 10);
-                newDigits.push(diff + borrow * 10);
-            }
-            if (borrow > 0)
-                throw new RangeError("Negative result");
-            return new Uint(newDigits);
-        }
-        // n must be in the range [0, 9].
-        multiply(n) {
-            let newDigits = [];
-            let carry = 0;
-            for (const digit of this.digits) {
-                const sum = digit * n + carry;
-                newDigits.push(sum % 10);
-                carry = Math.floor(sum / 10);
-            }
-            if (carry > 0)
-                newDigits.push(carry);
-            return new Uint(newDigits);
-        }
-        divide2Exact() {
-            if (!this.isEven())
-                throw new RangeError("Number is odd");
-            const temp = this.multiply(5);
-            let newDigits = temp.digits.slice();
-            newDigits.shift();
-            return new Uint(newDigits);
-        }
-        gcd(other) {
-            let x = this;
-            let y = other;
-            let twos = 0;
-            while (true) { // Binary GCD algorithm
-                if (x.isLessThan(y))
-                    [x, y] = [y, x];
-                if (y.isZero())
-                    break;
-                if (x.isEven() && y.isEven()) {
-                    x = x.divide2Exact();
-                    y = y.divide2Exact();
-                    twos++;
-                }
-                else if (x.isEven())
-                    x = x.divide2Exact();
-                else if (y.isEven())
-                    y = y.divide2Exact();
-                else
-                    x = x.subtract(y).divide2Exact();
-            }
-            for (let i = 0; i < twos; i++)
-                x = x.multiply(2);
-            return x;
-        }
-        toString() {
-            return this.digits.slice().reverse().map(d => d.toString()).join("");
-        }
-    }
 })(app || (app = {}));
