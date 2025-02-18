@@ -11,65 +11,66 @@
 
 const app = new function() {
 	
-	let numberElem = document.getElementById("number");
-	let lastInput = "";
+	let container = document.querySelector("article .program-container");
+	let numberElem = container.querySelector("#number");
+	let previousInput = "";
+	
+	
+	function initialize() {
+		container.hidden = false;
+	}
+	
+	setTimeout(initialize);
 	
 	
 	this.doRandom = function() {
-		numberElem.value = Math.floor(Math.pow(1000, Math.random()) * 10).toString();
-		this.doFactor();
+		numberElem.value = Math.floor(Math.pow(1000000, Math.random()) + 2).toString();
+		this.doCalculate();
 	};
 	
 	
 	/* 
 	 * Handles the HTML input/output for factoring an integer.
 	 */
-	this.doFactor = function() {
+	this.doCalculate = function() {
 		// Don't factor if input text didn't change
 		const numberText = numberElem.value;
-		if (numberText == lastInput)
+		if (numberText == previousInput)
 			return;
-		lastInput = numberText;
+		previousInput = numberText;
 		
-		// Reset output line 0
-		let factorization0Elem = document.getElementById("factorization0");
-		factorization0Elem.textContent = "";
-		
-		// Reset output line 1 with blank filler to prevent the page layout from bobbing up and down
-		let outElem1 = document.getElementById("factorization1");
-		outElem1.replaceChildren(NBSP);
-		let temp = outElem1.appendChild(document.createElement("sup"));
-		temp.textContent = NBSP;
+		// Clear outputs
+		let [primeListOut, primePowerListOut] = container.querySelectorAll("output");
+		primeListOut.textContent = "";
+		let sup = document.createElement("sup");
+		sup.textContent = NBSP;  // Use spaces to prevent layout shift
+		primePowerListOut.replaceChildren(NBSP, sup);
 		
 		if (!/^-?\d+$/.test(numberText)) {
-			factorization0Elem.textContent = "Not an integer";
+			primeListOut.textContent = "Not an integer";
 			return;
 		}
 		
 		const n = parseInt(numberText, 10);
-		if (n < 2) {
-			factorization0Elem.textContent = "Number out of range (< 2)";
-		} else if (n >= 9007199254740992) {
-			factorization0Elem.textContent = "Number too large";
-		} else {
+		if (n < 2)
+			primeListOut.textContent = "Number out of range (< 2)";
+		else if (n >= 9007199254740992)
+			primeListOut.textContent = "Number too large";
+		else {
 			// Main case
-			const factors = primeFactorList(n);
+			const factors = calcPrimeFactorList(n);
+			primeListOut.textContent = "= " + factors.join(` ${TIMES} `);
+			
 			const factorPowers = toFactorPowerList(factors);
-			
-			// Build prime factor list without powers
-			factorization0Elem.textContent = n + " = " + factors.join(" " + TIMES + " ");
-			
-			// Build prime factor list with powers in superscripts
 			if (factorPowers.length < factors.length) {
-				outElem1.replaceChildren(n + " = ");
-				factorPowers.forEach((factPow, i) => {
-					if (i != 0)
-						outElem1.append(" " + TIMES + " ");
-					
-					outElem1.append(factPow[0].toString());
-					if (factPow[1] > 1) {
-						let temp = outElem1.appendChild(document.createElement("sup"));
-						temp.textContent = factPow[1].toString();
+				primePowerListOut.replaceChildren("= ");
+				factorPowers.forEach(([base, exp], i) => {
+					if (i > 0)
+						primePowerListOut.append(` ${TIMES} `);
+					primePowerListOut.append(base.toString());
+					if (exp > 1) {
+						let sup = primePowerListOut.appendChild(document.createElement("sup"));
+						sup.textContent = exp.toString();
 					}
 				});
 			}
@@ -78,18 +79,18 @@ const app = new function() {
 	
 	
 	/* 
-	 * Returns the list of prime factors (in ascending order) of the given integer.
-	 * Examples:
-	 * - primeFactorList(1) = [].
-	 * - primeFactorList(7) = [7].
-	 * - primeFactorList(60) = [2, 2, 3, 5].
+	 * Returns the list of (not necessarily unique) prime factors
+	 * (in non-descending order) of the given integer. Examples:
+	 * - calcPrimeFactorList(1) = [].
+	 * - calcPrimeFactorList(7) = [7].
+	 * - calcPrimeFactorList(60) = [2, 2, 3, 5].
 	 */
-	function primeFactorList(n) {
+	function calcPrimeFactorList(n) {
 		if (n < 1)
-			throw new RangeError("Argument error");
+			throw new RangeError("Number is less than 1");
 		let result = [];
 		while (n != 1) {
-			const factor = smallestFactor(n);
+			const factor = calcSmallestFactor(n);
 			result.push(factor);
 			n /= factor;
 		}
@@ -98,14 +99,14 @@ const app = new function() {
 	
 	
 	/* 
-	 * Returns the smallest prime factor of the given integer.
-	 * Examples:
-	 * - smallestFactor(2) = 2.
-	 * - smallestFactor(15) = 3.
+	 * Returns the smallest prime factor of the given integer. Examples:
+	 * - calcSmallestFactor(2) = 2.
+	 * - calcSmallestFactor(9) = 3.
+	 * - calcSmallestFactor(35) = 5.
 	 */
-	function smallestFactor(n) {
+	function calcSmallestFactor(n) {
 		if (n < 2)
-			throw new RangeError("Argument error");
+			throw new RangeError("Number is less than 2");
 		if (n % 2 == 0)
 			return 2;
 		const end = Math.floor(Math.sqrt(n));
@@ -118,8 +119,9 @@ const app = new function() {
 	
 	
 	/* 
-	 * Returns the prime factorization as a list of factor-power pairs, from the
-	 * given factor list. The given list must be in ascending order. Examples:
+	 * Given a non-empty list of non-descending numbers, this returns a list of
+	 * pairs where in each pair, the initial element is a unique number from
+	 * the input and the final element is the number of repeats. Examples:
 	 * - toFactorPowerList([2, 2, 2]) = [[2, 3]].
 	 * - toFactorPowerList([3, 5]) = [[3, 1], [5, 1]].
 	 */
@@ -128,16 +130,15 @@ const app = new function() {
 		let prevFactor = factors[0];
 		let count = 1;
 		for (const factor of factors.slice(1)) {
-			if (factor == prevFactor) {
+			if (factor == prevFactor)
 				count++;
-			} else {
+			else {
 				result.push([prevFactor, count]);
 				prevFactor = factor;
 				count = 1;
 			}
 		}
-		result.push([prevFactor, count]);
-		return result;
+		return result.concat([[prevFactor, count]]);
 	}
 	
 	

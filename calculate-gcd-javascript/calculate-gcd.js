@@ -8,11 +8,16 @@
 "use strict";
 var app;
 (function (app) {
+    let container = queryHtml("article .program-container");
+    let inputXElem = queryInput("article .program-container #numberX");
+    let inputYElem = queryInput("article .program-container #numberY");
+    function initialize() {
+        container.hidden = false;
+    }
+    setTimeout(initialize);
     /*---- Entry points from HTML page ----*/
-    let inputXElem = queryInput("#numberX");
-    let inputYElem = queryInput("#numberY");
     function doCalculate() {
-        let outputElem = queryHtml("#output");
+        let outputElem = queryHtml("article .program-container output");
         const xStr = inputXElem.value;
         const yStr = inputYElem.value;
         if (xStr == "" || yStr == "") {
@@ -25,14 +30,14 @@ var app;
             xInt = new Uint(xStr);
             yInt = new Uint(yStr);
         }
-        catch (e) {
+        catch {
             outputElem.textContent = "Not zero or positive integer";
             return;
         }
         try {
             outputElem.textContent = xInt.gcd(yInt).toString();
         }
-        catch (e) {
+        catch {
             outputElem.textContent = "Assertion error";
         }
     }
@@ -42,14 +47,12 @@ var app;
         numRandomClicked++;
         const limit = numRandomClicked / 10;
         const len = Math.floor(Math.random() * limit) + 1;
-        function genRandom() {
-            let result = "";
+        for (let elem of [inputXElem, inputYElem]) {
+            let s = "";
             for (let i = 0; i < len; i++)
-                result += Math.floor(Math.random() * 10);
-            return result.replace(/^0+(.)/g, "$1");
+                s += Math.floor(Math.random() * 10);
+            elem.value = s.replace(/^0+(.)/g, "$1");
         }
-        inputXElem.value = genRandom();
-        inputYElem.value = genRandom();
         doCalculate();
     }
     app.doRandom = doRandom;
@@ -57,27 +60,24 @@ var app;
     // An unsigned big integer represented in decimal (base 10).
     class Uint {
         constructor(val) {
-            this.digits = []; // Little endian
+            let digits;
             if (typeof val == "string") {
                 if (!/^[0-9]+$/.test(val))
                     throw new RangeError("Invalid number string");
+                digits = [];
                 for (const c of val)
-                    this.digits.push(parseInt(c, 10));
-                this.digits.reverse();
+                    digits.push(parseInt(c, 10));
+                digits.reverse();
             }
-            else if (Array.isArray(val)) {
-                if (val.length == 0)
-                    this.digits = [0];
-                else
-                    this.digits = val.slice();
-            }
+            else if (Array.isArray(val))
+                digits = val.slice();
             else
                 throw new TypeError("Invalid argument type");
-            // Remove trailing zeros
-            while (this.digits.length > 1 && this.digits[this.digits.length - 1] == 0)
-                this.digits.pop();
-            if (this.digits.length == 0)
-                throw new Error("Assertion error");
+            while (digits.length > 0 && digits[digits.length - 1] == 0) // Remove trailing zeros in the array
+                digits.pop();
+            if (digits.length == 0) // Ensure at least one digit
+                digits.push(0);
+            this.digits = digits;
         }
         isZero() {
             return this.digits.every(d => d == 0);
@@ -130,7 +130,7 @@ var app;
         }
         divide2Exact() {
             if (!this.isEven())
-                throw new Error("Number is odd");
+                throw new RangeError("Number is odd");
             const temp = this.multiply(5);
             let newDigits = temp.digits.slice();
             newDigits.shift();

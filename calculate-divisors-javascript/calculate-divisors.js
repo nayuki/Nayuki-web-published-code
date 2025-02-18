@@ -1,7 +1,7 @@
 /* 
  * Calculate divisors
  * 
- * Copyright (c) 2024 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/calculate-divisors-javascript
  */
@@ -11,50 +11,62 @@
 
 const app = new function() {
 	
-	let numberElem = document.getElementById("number");
-	let lastInput = "";
+	let container = document.querySelector("article .program-container");
+	let numberElem = container.querySelector("#number");
+	let previousInput = "";
+	
+	
+	function initialize() {
+		container.hidden = false;
+	}
+	
+	setTimeout(initialize);
 	
 	
 	this.doRandom = function() {
-		numberElem.value = Math.floor(Math.pow(1000, Math.random()) * 10).toString();
-		this.doDivisors();
+		numberElem.value = Math.floor(Math.pow(1000000, Math.random()) + 1).toString();
+		this.doCalculate();
 	};
 	
 	
 	/* 
 	 * Handles the HTML input/output for calculating the divisors of an integer.
 	 */
-	this.doDivisors = function() {
+	this.doCalculate = function() {
 		// Don't calculate if input text didn't change
 		const numberText = numberElem.value;
-		if (numberText == lastInput)
+		if (numberText == previousInput)
 			return;
-		lastInput = numberText;
+		previousInput = numberText;
 		
-		let s;
-		if (!/^-?\d+$/.test(numberText)) {
-			s = "Not an integer";
-		} else {
+		let outputText;
+		let divisors = [];
+		if (!/^-?\d+$/.test(numberText))
+			outputText = "Not an integer";
+		else {
 			const n = parseInt(numberText, 10);
 			if (n < 1)
-				s = "Number out of range (< 1)";
+				outputText = "Number out of range (< 1)";
 			else if (n >= 9007199254740992)
-				s = "Number too large";
-			else  // Main case
-				s = listDivisors(n).join(", ");
+				outputText = "Number too large";
+			else {  // Main case
+				divisors = calcDivisors(n);
+				outputText = divisors.join(", ");
+			}
 		}
-		document.getElementById("output").textContent = s;
+		container.querySelector(".divisors").textContent = outputText;
+		container.querySelector(".num-divisors").textContent = divisors.length.toString();
 	};
 	
 	
 	/* 
 	 * Returns the list of divisors (in ascending order) of the given integer.
 	 * Examples:
-	 * - listDivisors(1) = [1].
-	 * - listDivisors(5) = [1, 5].
-	 * - listDivisors(12) = [1, 2, 3, 4, 6, 12].
+	 * - calcDivisors(1) = [1].
+	 * - calcDivisors(5) = [1, 5].
+	 * - calcDivisors(12) = [1, 2, 3, 4, 6, 12].
 	 */
-	function listDivisors(n) {
+	function calcDivisors(n) {
 		if (n < 1)
 			throw new RangeError("Argument error");
 		let small = [];

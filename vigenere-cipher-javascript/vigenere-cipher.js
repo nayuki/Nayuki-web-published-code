@@ -1,7 +1,7 @@
 /* 
  * Vigenère cipher
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/vigenere-cipher-javascript
  */
@@ -11,18 +11,23 @@
 
 const app = new function() {
 	
+	let container = document.querySelector("article .program-container");
+	
+	
+	function initialize() {
+		container.hidden = false;
+		container.style.display = "grid";
+	}
+	
+	setTimeout(initialize);
+	
+	
 	/* 
 	 * Handles the HTML input/output for Vigenère cipher encryption/decription.
 	 * This is the one and only entry point function called from the HTML code.
 	 */
 	this.doCrypt = function(isDecrypt) {
-		const keyStr = document.getElementById("key").value;
-		if (keyStr.length == 0) {
-			alert("Key is empty");
-			return;
-		}
-		
-		let keyArray = filterKey(keyStr);
+		let keyArray = filterKey(container.querySelector("#key").value);
 		if (keyArray.length == 0) {
 			alert("Key has no letters");
 			return;
@@ -33,13 +38,13 @@ const app = new function() {
 				keyArray[i] = (26 - keyArray[i]) % 26;
 		}
 		
-		let textElem = document.getElementById("text");
+		let textElem = container.querySelector("#text");
 		textElem.value = crypt(textElem.value, keyArray);
 	};
 	
 	
 	/* 
-	 * Returns the result the Vigenère encryption on the given text with the given key.
+	 * Returns the result of Vigenère encryption on the given text with the given key.
 	 */
 	function crypt(input, key) {
 		let output = "";
@@ -72,26 +77,22 @@ const app = new function() {
 		let result = [];
 		for (const ch of key) {
 			const cc = ch.codePointAt(0);
-			if (isLetter(cc))
+			if (isUppercase(cc) || isLowercase(cc))
 				result.push((cc - 65) % 32);
 		}
 		return result;
 	}
 	
 	
-	// Tests whether the given character code is a Latin letter.
-	function isLetter(c) {
-		return isUppercase(c) || isLowercase(c);
-	}
-	
 	// Tests whether the given character code is an Latin uppercase letter.
 	function isUppercase(c) {
-		return 65 <= c && c <= 90;  // 65 is character code for 'A'. 90 is 'Z'.
+		return "A".charCodeAt(0) <= c && c <= "Z".charCodeAt(0);
 	}
+	
 	
 	// Tests whether the given character code is a Latin lowercase letter.
 	function isLowercase(c) {
-		return 97 <= c && c <= 122;  // 97 is character code for 'a'. 122 is 'z'.
+		return "a".charCodeAt(0) <= c && c <= "z".charCodeAt(0);
 	}
 	
 };

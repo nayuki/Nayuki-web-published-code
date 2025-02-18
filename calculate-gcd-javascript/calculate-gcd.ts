@@ -9,14 +9,23 @@
 
 namespace app {
 	
+	let container: HTMLElement = queryHtml("article .program-container");
+	
+	let inputXElem: HTMLInputElement = queryInput("article .program-container #numberX");
+	let inputYElem: HTMLInputElement = queryInput("article .program-container #numberY");
+	
+	
+	function initialize(): void {
+		container.hidden = false;
+	}
+	
+	setTimeout(initialize);
+	
+	
 	/*---- Entry points from HTML page ----*/
 	
-	let inputXElem: HTMLInputElement = queryInput("#numberX");
-	let inputYElem: HTMLInputElement = queryInput("#numberY");
-	
-	
 	export function doCalculate(): void {
-		let outputElem: HTMLElement = queryHtml("#output");
+		let outputElem: HTMLElement = queryHtml("article .program-container output");
 		const xStr: string = inputXElem.value;
 		const yStr: string = inputYElem.value;
 		if (xStr == "" || yStr == "") {
@@ -28,13 +37,13 @@ namespace app {
 		try {
 			xInt = new Uint(xStr);
 			yInt = new Uint(yStr);
-		} catch (e: unknown) {
+		} catch {
 			outputElem.textContent = "Not zero or positive integer";
 			return;
 		}
 		try {
 			outputElem.textContent = xInt.gcd(yInt).toString();
-		} catch (e: unknown) {
+		} catch {
 			outputElem.textContent = "Assertion error";
 		}
 	}
@@ -46,14 +55,12 @@ namespace app {
 		numRandomClicked++;
 		const limit: number = numRandomClicked / 10;
 		const len: number = Math.floor(Math.random() * limit) + 1;
-		function genRandom(): string {
-			let result: string = "";
+		for (let elem of [inputXElem, inputYElem]) {
+			let s: string = "";
 			for (let i = 0; i < len; i++)
-				result += Math.floor(Math.random() * 10);
-			return result.replace(/^0+(.)/g, "$1");
+				s += Math.floor(Math.random() * 10);
+			elem.value = s.replace(/^0+(.)/g, "$1");
 		}
-		inputXElem.value = genRandom();
-		inputYElem.value = genRandom();
 		doCalculate();
 	}
 	
@@ -64,29 +71,28 @@ namespace app {
 	// An unsigned big integer represented in decimal (base 10).
 	class Uint {
 		
-		private readonly digits: Array<number> = [];  // Little endian
+		private readonly digits: Array<number>;  // Little endian
 		
 		
 		public constructor(val: string|Readonly<Array<number>>) {
+			let digits: Array<number>;
 			if (typeof val == "string") {
 				if (!/^[0-9]+$/.test(val))
 					throw new RangeError("Invalid number string");
+				digits = [];
 				for (const c of val)
-					this.digits.push(parseInt(c, 10));
-				this.digits.reverse();
-			} else if (Array.isArray(val)) {
-				if (val.length == 0)
-					this.digits = [0];
-				else
-					this.digits = val.slice();
-			} else
+					digits.push(parseInt(c, 10));
+				digits.reverse();
+			} else if (Array.isArray(val))
+				digits = val.slice();
+			else
 				throw new TypeError("Invalid argument type");
 			
-			// Remove trailing zeros
-			while (this.digits.length > 1 && this.digits[this.digits.length - 1] == 0)
-				this.digits.pop();
-			if (this.digits.length == 0)
-				throw new Error("Assertion error");
+			while (digits.length > 0 && digits[digits.length - 1] == 0)  // Remove trailing zeros in the array
+				digits.pop();
+			if (digits.length == 0)  // Ensure at least one digit
+				digits.push(0);
+			this.digits = digits;
 		}
 		
 		
@@ -151,7 +157,7 @@ namespace app {
 		
 		public divide2Exact(): Uint {
 			if (!this.isEven())
-				throw new Error("Number is odd");
+				throw new RangeError("Number is odd");
 			const temp: Uint = this.multiply(5);
 			let newDigits: Array<number> = temp.digits.slice();
 			newDigits.shift();
