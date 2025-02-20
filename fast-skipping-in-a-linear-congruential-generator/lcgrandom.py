@@ -6,55 +6,12 @@
 # https://www.nayuki.io/page/fast-skipping-in-a-linear-congruential-generator
 # 
 
-import random, time
+import random, unittest
 
 
-# ---- Demo main program, which runs a correctness check ----
+# ---- Library ----
 
-def main() -> None:
-	# Use the parameters from Java's LCG RNG
-	A: int = 25214903917
-	B: int = 11
-	M: int = 2**48
-	
-	# Choose seed and create LCG RNG
-	seed: int = random.randrange(M)
-	randslow: LcgRandom = LcgRandom(A, B, M, seed)
-	
-	# Start testing
-	N: int = 10000
-	
-	# Check that skipping forward is correct
-	for i in range(N):
-		randfast: LcgRandom = LcgRandom(A, B, M, seed)
-		randfast.skip(i)
-		if randslow.get_state() != randfast.get_state():
-			raise AssertionError()
-		randslow.next()
-	
-	# Check that backward iteration is correct
-	for i in reversed(range(N)):
-		randslow.previous()
-		randfast = LcgRandom(A, B, M, seed)
-		randfast.skip(i)
-		if randslow.get_state() != randfast.get_state():
-			raise AssertionError()
-	
-	# Check that backward skipping is correct
-	for i in range(N):
-		randfast = LcgRandom(A, B, M, seed)
-		randfast.skip(-i)
-		if randslow.get_state() != randfast.get_state():
-			raise AssertionError()
-		randslow.previous()
-	
-	print(f"Test passed (n={N})")
-
-
-
-# ---- Random number generator class (implements most functionality of random.Random) ----
-
-class LcgRandom(random.Random):
+class LcgRandom(random.Random):  # Implements most functionality of random.Random
 	
 	def __new__(cls, *args, **kwargs):  # Magic because the superclass doesn't cooperate
 		return random.Random.__new__(cls, random.random())
@@ -128,5 +85,52 @@ class LcgRandom(random.Random):
 
 
 
+# ---- Test suite ----
+
+class LcgRandomTest(unittest.TestCase):
+	
+	def test_skip_forward(self) -> None:
+		ITERS: int = 10000
+		randslow: LcgRandom = LcgRandomTest.new_lcg_random()
+		for i in range(ITERS):
+			randfast: LcgRandom = LcgRandomTest.new_lcg_random()
+			randfast.skip(i)
+			self.assertEqual(randfast.get_state(), randslow.get_state())
+			randslow.next()
+	
+	
+	def test_iterate_backward(self) -> None:
+		ITERS: int = 10000
+		randslow: LcgRandom = LcgRandomTest.new_lcg_random()
+		randslow.skip(ITERS)
+		for i in reversed(range(ITERS)):
+			randslow.previous()
+			randfast: LcgRandom = LcgRandomTest.new_lcg_random()
+			randfast.skip(i)
+			self.assertEqual(randslow.get_state(), randfast.get_state())
+	
+	
+	def test_skip_backward(self) -> None:
+		ITERS: int = 10000
+		randslow: LcgRandom = LcgRandomTest.new_lcg_random()
+		for i in range(ITERS):
+			randfast: LcgRandom = LcgRandomTest.new_lcg_random()
+			randfast.skip(-i)
+			self.assertEqual(randfast.get_state(), randslow.get_state())
+			randslow.previous()
+	
+	
+	modulus: int = 2**48
+	seed: int
+	
+	@staticmethod
+	def new_lcg_random() -> LcgRandom:
+		# Use the parameters from Java's LCG RNG
+		return LcgRandom(a=25214903917, b=11, m=LcgRandomTest.modulus, seed=LcgRandomTest.seed)
+
+LcgRandomTest.seed = random.randrange(LcgRandomTest.modulus)
+
+
+
 if __name__ == "__main__":
-	main()
+	unittest.main()
