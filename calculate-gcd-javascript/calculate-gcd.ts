@@ -27,8 +27,10 @@ namespace app {
 	export function doCalculate(): void {
 		// Clear outputs
 		let gcdOut: HTMLElement = queryHtml("article .program-container output.gcd");
+		let lcmOut: HTMLElement = queryHtml("article .program-container output.lcm");
 		let eeaOut: HTMLElement = queryHtml("article .program-container output.eea tbody");
 		gcdOut.textContent = "";
+		lcmOut.textContent = "";
 		eeaOut.replaceChildren();
 		
 		// Handle inputs
@@ -71,6 +73,7 @@ namespace app {
 			r1 = r2;  x1 = x2;  y1 = y2;
 		}
 		gcdOut.textContent = r0.toString();
+		lcmOut.textContent = a != 0n && b != 0n ? (a / r0 * b).toString() : "N/A";
 	}
 	
 	

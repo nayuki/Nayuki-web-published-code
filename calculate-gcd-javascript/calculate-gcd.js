@@ -19,8 +19,10 @@ var app;
     function doCalculate() {
         // Clear outputs
         let gcdOut = queryHtml("article .program-container output.gcd");
+        let lcmOut = queryHtml("article .program-container output.lcm");
         let eeaOut = queryHtml("article .program-container output.eea tbody");
         gcdOut.textContent = "";
+        lcmOut.textContent = "";
         eeaOut.replaceChildren();
         // Handle inputs
         const aStr = inputAElem.value;
@@ -65,6 +67,7 @@ var app;
             y1 = y2;
         }
         gcdOut.textContent = r0.toString();
+        lcmOut.textContent = a != 0n && b != 0n ? (a / r0 * b).toString() : "N/A";
     }
     app.doCalculate = doCalculate;
     let numRandomClicked = 0;
