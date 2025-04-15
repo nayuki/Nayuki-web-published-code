@@ -21,7 +21,7 @@
 #   Software.
 # 
 
-import base64, hashlib, hmac, time, struct, sys, unittest
+import base64, hashlib, hmac, struct, sys, time, unittest
 
 
 # ---- Library functions ----
@@ -134,6 +134,7 @@ def main(args: list[str]) -> None:
 		unittest.main()
 	elif len(args) == 1:
 		keystr: str = args[0].replace(" ", "").upper()
+		keystr += "=" * ((8 - len(keystr)) % 8)
 		secretkey: bytes = base64.b32decode(keystr)
 		code: str = calc_totp(secretkey)
 		assert calc_totp_compact_default(secretkey) == code
