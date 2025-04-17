@@ -12,10 +12,11 @@ var app;
     (function (simpleParity) {
         let root = queryHtml("article .demo.simple-parity");
         let msgLenInput = subqueryElem(root, "input", HTMLInputElement);
+        let codeLenOutput = subqueryElem(root, "output.codeword-length", HTMLElement);
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
-        let statusElem = subqueryElem(root, "output", HTMLElement);
+        let statusElem = subqueryElem(root, "output.status", HTMLElement);
         let inputBits = [];
         let codewordBits = [];
         root.hidden = false;
@@ -24,6 +25,7 @@ var app;
         function paramsChanged() {
             const msgLen = parseInt(msgLenInput.value, 10);
             resizeArray(inputBits, msgLen, 0);
+            codeLenOutput.textContent = (msgLen + 1).toString();
             resizeArray(codewordBits, msgLen + 1, 0);
             visualizeLength(inputBits, inputChanged, null, inputTbody);
             const types = inputBits.map(_ => "data").concat(["parity"]);
@@ -93,10 +95,12 @@ var app;
         let root = queryHtml("article .demo.grid-parity");
         let msgRowsInput = subqueryElem(root, "#grid-parity-message-rows", HTMLInputElement);
         let msgColsInput = subqueryElem(root, "#grid-parity-message-columns", HTMLInputElement);
+        let msgLenOutput = subqueryElem(root, "output.message-length ", HTMLElement);
+        let codeLenOutput = subqueryElem(root, "output.codeword-length", HTMLElement);
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
-        let statusElem = subqueryElem(root, "output", HTMLElement);
+        let statusElem = subqueryElem(root, "output.status", HTMLElement);
         let inputBits = [];
         let codewordBits = [];
         root.hidden = false;
@@ -106,6 +110,8 @@ var app;
         function paramsChanged() {
             const msgRows = parseInt(msgRowsInput.value, 10);
             const msgCols = parseInt(msgColsInput.value, 10);
+            msgLenOutput.textContent = (msgRows * msgCols).toString();
+            codeLenOutput.textContent = (msgRows * msgCols + msgRows + msgCols).toString();
             while (inputBits.length < msgRows)
                 inputBits.push([]);
             inputBits.splice(msgRows, inputBits.length - msgRows);
@@ -229,6 +235,214 @@ var app;
             });
         }
     })(gridParity || (gridParity = {}));
+    let almostHamming;
+    (function (almostHamming) {
+        let root = queryHtml("article .demo.almost-hamming");
+        let msgLenInput = subqueryElem(root, "input", HTMLInputElement);
+        let codeLenOutput = subqueryElem(root, "output.codeword-length", HTMLElement);
+        let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
+        let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
+        let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
+        let statusElem = subqueryElem(root, "output.status", HTMLElement);
+        let inputBits = [];
+        let codewordBits = [];
+        root.hidden = false;
+        msgLenInput.oninput = paramsChanged;
+        paramsChanged();
+        function paramsChanged() {
+            const msgLen = parseInt(msgLenInput.value, 10);
+            resizeArray(inputBits, msgLen, 0);
+            let numParity = 0;
+            for (; 1 << numParity < msgLen; numParity++) { }
+            const codeLen = msgLen + numParity;
+            codeLenOutput.textContent = codeLen.toString();
+            resizeArray(codewordBits, codeLen, 0);
+            visualizeLength(inputBits, inputChanged, null, inputTbody);
+            const types = codewordBits.map((_, i) => i < msgLen ? "data" : "parity");
+            visualizeLength(codewordBits, codewordChanged, types, codewordTbody);
+            visualizeLength(inputBits, null, null, outputTbody);
+            inputChanged();
+        }
+        function inputChanged() {
+            visualizeValues(inputBits, inputTbody);
+            inputBits.forEach((x, i) => codewordBits[i] = x);
+            const numParity = codewordBits.length - inputBits.length;
+            for (let i = 0; i < numParity; i++)
+                codewordBits[inputBits.length + i] = calcParity(inputBits.filter((_, j) => (j & (1 << i)) != 0));
+            codewordChanged();
+        }
+        function codewordChanged() {
+            visualizeValues(codewordBits, codewordTbody);
+            const msg = codewordBits.slice(0, inputBits.length);
+            let syndrome = 0;
+            const numParity = codewordBits.length - inputBits.length;
+            for (let i = 0; i < numParity; i++) {
+                if (calcParity(msg.filter((_, j) => (j & (1 << i)) != 0)) != codewordBits[msg.length + i])
+                    syndrome += 1 << i;
+            }
+            let outputBits;
+            if (syndrome < msg.length) {
+                if (syndrome > 0)
+                    msg[syndrome] ^= 1;
+                outputBits = msg;
+            }
+            else
+                outputBits = null;
+            visualizeValues(outputBits, outputTbody);
+            if (outputBits === null)
+                statusElem.textContent = "Error";
+            else if (areArraysEqual(outputBits, inputBits))
+                statusElem.textContent = "Same message";
+            else
+                statusElem.textContent = "Different message";
+        }
+        function visualizeLength(bits, changeFunc, types, tbody) {
+            let indexRow = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
+            let bitRow = subqueryElem(tbody, ":scope > tr:nth-child(2)", HTMLElement);
+            let indexCells = Array.from(indexRow.querySelectorAll(":scope > td"));
+            let bitCells = Array.from(bitRow.querySelectorAll(":scope > td"));
+            while (indexCells.length > bits.length) {
+                notUndefined(indexCells.pop()).remove();
+                notUndefined(bitCells.pop()).remove();
+            }
+            while (indexCells.length < bits.length) {
+                const i = indexCells.length;
+                let td = addElem(indexRow, "td", i.toString());
+                indexCells.push(td);
+                td = addElem(bitRow, "td");
+                bitCells.push(td);
+                td.classList.add("bit");
+                if (changeFunc !== null) {
+                    let button = addElem(td, "button");
+                    button.onclick = () => {
+                        bits[i] ^= 1;
+                        changeFunc();
+                    };
+                }
+            }
+            if (types !== null) {
+                bitCells.forEach((td, i) => {
+                    td.className = "";
+                    td.classList.add("bit", types[i]);
+                });
+            }
+        }
+        function visualizeValues(bits, tbody) {
+            tbody.classList.toggle("error", bits === null);
+            tbody.querySelectorAll(":scope > tr:nth-child(2) > td").forEach((td, i) => {
+                let button = td.querySelector("button");
+                (button === null ? td : button).textContent = bits !== null ? bits[i].toString() : "\u2012";
+            });
+        }
+    })(almostHamming || (almostHamming = {}));
+    let hammingCodes;
+    (function (hammingCodes) {
+        let root = queryHtml("article .demo.hamming-codes");
+        let msgLenOutput = subqueryElem(root, "output.message-length", HTMLElement);
+        let codeLenInput = subqueryElem(root, "input", HTMLInputElement);
+        let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
+        let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
+        let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
+        let statusElem = subqueryElem(root, "output.status", HTMLElement);
+        let inputBits = [];
+        let codewordBits = [];
+        root.hidden = false;
+        codeLenInput.oninput = paramsChanged;
+        paramsChanged();
+        function paramsChanged() {
+            const codeLen = parseInt(codeLenInput.value, 10);
+            let numParity = 0;
+            for (; 1 << numParity <= codeLen; numParity++) { }
+            const msgLen = codeLen - numParity;
+            msgLenOutput.textContent = msgLen.toString();
+            resizeArray(inputBits, msgLen, 0);
+            resizeArray(codewordBits, codeLen, 0);
+            visualizeLength(inputBits, inputChanged, null, inputTbody);
+            const types = codewordBits.map((_, i) => ((i + 1) & i) != 0 ? "data" : "parity");
+            visualizeLength(codewordBits, codewordChanged, types, codewordTbody);
+            visualizeLength(inputBits, null, null, outputTbody);
+            inputChanged();
+        }
+        function inputChanged() {
+            visualizeValues(inputBits, inputTbody);
+            let inputIndex = 0;
+            codewordBits.forEach((_, i) => {
+                if (((i + 1) & i) != 0) {
+                    codewordBits[i] = inputBits[inputIndex];
+                    inputIndex++;
+                }
+                else
+                    codewordBits[i] = 0;
+            });
+            codewordBits.forEach((_, i) => {
+                if (((i + 1) & i) == 0)
+                    codewordBits[i] = calcParity(codewordBits.filter((_, j) => ((j + 1) & (i + 1)) != 0));
+            });
+            codewordChanged();
+        }
+        function codewordChanged() {
+            visualizeValues(codewordBits, codewordTbody);
+            let syndrome = 0;
+            codewordBits.forEach((x, i) => {
+                if (((i + 1) & i) == 0 && calcParity(codewordBits.filter((_, j) => ((j + 1) & (i + 1)) != 0)) != 0)
+                    syndrome += i + 1;
+            });
+            let outputBits;
+            if (syndrome <= codewordBits.length) {
+                let corrected = codewordBits.slice();
+                if (syndrome > 0)
+                    corrected[syndrome - 1] ^= 1;
+                outputBits = corrected.filter((_, i) => ((i + 1) & i) != 0);
+            }
+            else
+                outputBits = null;
+            visualizeValues(outputBits, outputTbody);
+            if (outputBits === null)
+                statusElem.textContent = "Error";
+            else if (areArraysEqual(outputBits, inputBits))
+                statusElem.textContent = "Same message";
+            else
+                statusElem.textContent = "Different message";
+        }
+        function visualizeLength(bits, changeFunc, types, tbody) {
+            let indexRow = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
+            let bitRow = subqueryElem(tbody, ":scope > tr:nth-child(2)", HTMLElement);
+            let indexCells = Array.from(indexRow.querySelectorAll(":scope > td"));
+            let bitCells = Array.from(bitRow.querySelectorAll(":scope > td"));
+            while (indexCells.length > bits.length) {
+                notUndefined(indexCells.pop()).remove();
+                notUndefined(bitCells.pop()).remove();
+            }
+            while (indexCells.length < bits.length) {
+                const i = indexCells.length;
+                let td = addElem(indexRow, "td", (i + 1).toString());
+                indexCells.push(td);
+                td = addElem(bitRow, "td");
+                bitCells.push(td);
+                td.classList.add("bit");
+                if (changeFunc !== null) {
+                    let button = addElem(td, "button");
+                    button.onclick = () => {
+                        bits[i] ^= 1;
+                        changeFunc();
+                    };
+                }
+            }
+            if (types !== null) {
+                bitCells.forEach((td, i) => {
+                    td.className = "";
+                    td.classList.add("bit", types[i]);
+                });
+            }
+        }
+        function visualizeValues(bits, tbody) {
+            tbody.classList.toggle("error", bits === null);
+            tbody.querySelectorAll(":scope > tr:nth-child(2) > td").forEach((td, i) => {
+                let button = td.querySelector("button");
+                (button === null ? td : button).textContent = bits !== null ? bits[i].toString() : "\u2012";
+            });
+        }
+    })(hammingCodes || (hammingCodes = {}));
     function calcParity(bits) {
         return bits.reduce((x, y) => (x + y) % 2, 0);
     }
