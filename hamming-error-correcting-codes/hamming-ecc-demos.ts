@@ -3,7 +3,7 @@
  * 
  * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
- * https://www.nayuki.io/page/hamming-error-correcting-code
+ * https://www.nayuki.io/page/hamming-error-correcting-codes
  */
 
 type bit = number;
