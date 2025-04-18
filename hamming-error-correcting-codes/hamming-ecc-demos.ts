@@ -14,6 +14,8 @@ namespace app {
 	
 	abstract class OneDimensionalCodeDemo {
 		
+		private static template: HTMLTemplateElement = queryElem("#one-dimensional-code-demo-input-output-rows", HTMLTemplateElement);
+		
 		protected rootElem: HTMLElement;
 		
 		protected inputBits: Array<bit> = [];
@@ -33,6 +35,7 @@ namespace app {
 		
 		public constructor(rootHtmlClass: string) {
 			this.rootElem = queryHtml("article .demo." + rootHtmlClass);
+			subqueryElem(this.rootElem, "tbody", HTMLElement).append(OneDimensionalCodeDemo.template.content.cloneNode(true));
 			this.inputTbody    = subqueryElem(this.rootElem, ".input-message"       , HTMLElement);
 			this.codewordTbody = subqueryElem(this.rootElem, ".codeword"            , HTMLElement);
 			this.changedElem   = subqueryElem(this.rootElem, "output.bits-changed"  , HTMLElement);
