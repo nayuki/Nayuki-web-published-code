@@ -45,11 +45,11 @@ namespace app {
 		
 		protected paramsChanged(msgLen: int, codeBitTypes: Array<string>): void {
 			resizeArray(this.inputBits, msgLen, 0);
-			OneDimensionalCodeDemo.visualizeLength(this.inputBits, () => this.inputChanged(), null, this.inputTbody);
+			OneDimensionalCodeDemo.visualizeLength(this.inputBits, i => i, () => this.inputChanged(), null, this.inputTbody);
 			resizeArray(this.sentCodewordBits, codeBitTypes.length, 0);
 			resizeArray(this.recvCodewordBits, this.sentCodewordBits.length, 0);
-			OneDimensionalCodeDemo.visualizeLength(this.recvCodewordBits, () => this.codewordChanged(), codeBitTypes, this.codewordTbody);
-			OneDimensionalCodeDemo.visualizeLength(this.inputBits, null, null, this.outputTbody);
+			OneDimensionalCodeDemo.visualizeLength(this.recvCodewordBits, this.mapCodewordIndex, () => this.codewordChanged(), codeBitTypes, this.codewordTbody);
+			OneDimensionalCodeDemo.visualizeLength(this.inputBits, i => i, null, null, this.outputTbody);
 			this.inputChanged();
 		}
 		
@@ -70,7 +70,12 @@ namespace app {
 		}
 		
 		
-		private static visualizeLength(bits: Array<bit>, changeFunc: (()=>void)|null, types: Array<string>|null, tbody: HTMLElement): void {
+		protected mapCodewordIndex(i: int): int {
+			return i;
+		}
+		
+		
+		private static visualizeLength(bits: Array<bit>, indexMapper: (i:int)=>int, changeFunc: (()=>void)|null, types: Array<string>|null, tbody: HTMLElement): void {
 			let indexRow: HTMLElement = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
 			let bitRow  : HTMLElement = subqueryElem(tbody, ":scope > tr:nth-child(2)", HTMLElement);
 			let indexCells: Array<HTMLElement> = Array.from(indexRow.querySelectorAll(":scope > td"));
@@ -81,7 +86,7 @@ namespace app {
 			}
 			while (indexCells.length < bits.length) {
 				const i: int = indexCells.length;
-				let td: HTMLElement = addElem(indexRow, "td", i.toString());
+				let td: HTMLElement = addElem(indexRow, "td", indexMapper(i).toString());
 				indexCells.push(td);
 				td = addElem(bitRow, "td");
 				bitCells.push(td);
@@ -476,6 +481,11 @@ namespace app {
 				this.outputBits = null;
 			this.outputError = this.outputBits === null || syndrome != 0;
 			super.codewordChanged();
+		}
+		
+		
+		protected mapCodewordIndex(i: int): int {
+			return i + 1;
 		}
 		
 		

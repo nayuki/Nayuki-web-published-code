@@ -26,11 +26,11 @@ var app;
         }
         paramsChanged(msgLen, codeBitTypes) {
             resizeArray(this.inputBits, msgLen, 0);
-            OneDimensionalCodeDemo.visualizeLength(this.inputBits, () => this.inputChanged(), null, this.inputTbody);
+            OneDimensionalCodeDemo.visualizeLength(this.inputBits, i => i, () => this.inputChanged(), null, this.inputTbody);
             resizeArray(this.sentCodewordBits, codeBitTypes.length, 0);
             resizeArray(this.recvCodewordBits, this.sentCodewordBits.length, 0);
-            OneDimensionalCodeDemo.visualizeLength(this.recvCodewordBits, () => this.codewordChanged(), codeBitTypes, this.codewordTbody);
-            OneDimensionalCodeDemo.visualizeLength(this.inputBits, null, null, this.outputTbody);
+            OneDimensionalCodeDemo.visualizeLength(this.recvCodewordBits, this.mapCodewordIndex, () => this.codewordChanged(), codeBitTypes, this.codewordTbody);
+            OneDimensionalCodeDemo.visualizeLength(this.inputBits, i => i, null, null, this.outputTbody);
             this.inputChanged();
         }
         inputChanged() {
@@ -45,7 +45,10 @@ var app;
             this.errorElem.textContent = this.outputError ? "True" : "False";
             this.matchesElem.textContent = this.outputBits !== null && areArraysEqual(this.outputBits, this.inputBits) ? "True" : "False";
         }
-        static visualizeLength(bits, changeFunc, types, tbody) {
+        mapCodewordIndex(i) {
+            return i;
+        }
+        static visualizeLength(bits, indexMapper, changeFunc, types, tbody) {
             let indexRow = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
             let bitRow = subqueryElem(tbody, ":scope > tr:nth-child(2)", HTMLElement);
             let indexCells = Array.from(indexRow.querySelectorAll(":scope > td"));
@@ -56,7 +59,7 @@ var app;
             }
             while (indexCells.length < bits.length) {
                 const i = indexCells.length;
-                let td = addElem(indexRow, "td", i.toString());
+                let td = addElem(indexRow, "td", indexMapper(i).toString());
                 indexCells.push(td);
                 td = addElem(bitRow, "td");
                 bitCells.push(td);
@@ -382,6 +385,9 @@ var app;
                 this.outputBits = null;
             this.outputError = this.outputBits === null || syndrome != 0;
             super.codewordChanged();
+        }
+        mapCodewordIndex(i) {
+            return i + 1;
         }
     }
     HammingCodesDemo.SINGLETON = new HammingCodesDemo();
