@@ -18,17 +18,17 @@ var app;
             this.rootElem = queryHtml("article .demo." + rootHtmlClass);
             this.inputTbody = subqueryElem(this.rootElem, ".input-message", HTMLElement);
             this.codewordTbody = subqueryElem(this.rootElem, ".codeword", HTMLElement);
-            this.outputTbody = subqueryElem(this.rootElem, ".output-message", HTMLElement);
             this.changedElem = subqueryElem(this.rootElem, "output.bits-changed", HTMLElement);
+            this.outputTbody = subqueryElem(this.rootElem, ".output-message", HTMLElement);
             this.errorElem = subqueryElem(this.rootElem, "output.detected-error", HTMLElement);
             this.matchesElem = subqueryElem(this.rootElem, "output.matches-input", HTMLElement);
             this.rootElem.hidden = false;
         }
         paramsChanged(msgLen, codeBitTypes) {
             resizeArray(this.inputBits, msgLen, 0);
+            OneDimensionalCodeDemo.visualizeLength(this.inputBits, () => this.inputChanged(), null, this.inputTbody);
             resizeArray(this.sentCodewordBits, codeBitTypes.length, 0);
             resizeArray(this.recvCodewordBits, this.sentCodewordBits.length, 0);
-            OneDimensionalCodeDemo.visualizeLength(this.inputBits, () => this.inputChanged(), null, this.inputTbody);
             OneDimensionalCodeDemo.visualizeLength(this.recvCodewordBits, () => this.codewordChanged(), codeBitTypes, this.codewordTbody);
             OneDimensionalCodeDemo.visualizeLength(this.inputBits, null, null, this.outputTbody);
             this.inputChanged();
@@ -88,6 +88,7 @@ var app;
         constructor() {
             super("simple-parity");
             this.msgLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
+            this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
             const func = () => {
                 const msgLen = parseInt(this.msgLenInput.value, 10);
                 let types = [];
@@ -97,7 +98,6 @@ var app;
                 this.paramsChanged(msgLen, types);
             };
             this.msgLenInput.oninput = func;
-            this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
             func();
         }
         paramsChanged(msgLen, codeBitTypes) {
@@ -283,6 +283,7 @@ var app;
         constructor() {
             super("almost-hamming");
             this.msgLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
+            this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
             const func = () => {
                 const msgLen = parseInt(this.msgLenInput.value, 10);
                 let numParity = 0;
@@ -295,7 +296,6 @@ var app;
                 this.paramsChanged(msgLen, types);
             };
             this.msgLenInput.oninput = func;
-            this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
             func();
         }
         paramsChanged(msgLen, codeBitTypes) {
@@ -333,6 +333,7 @@ var app;
         constructor() {
             super("hamming-codes");
             this.codeLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
+            this.msgLenOutput = subqueryElem(this.rootElem, "output.message-length", HTMLElement);
             const func = () => {
                 const codeLen = parseInt(this.codeLenInput.value, 10);
                 let numParity = 0;
@@ -343,7 +344,6 @@ var app;
                 this.paramsChanged(codeLen - numParity, types);
             };
             this.codeLenInput.oninput = func;
-            this.msgLenOutput = subqueryElem(this.rootElem, "output.message-length", HTMLElement);
             func();
         }
         paramsChanged(msgLen, codeBitTypes) {
