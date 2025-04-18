@@ -14,7 +14,7 @@ namespace app {
 	
 	abstract class OneDimensionalCodeDemo {
 		
-		protected root: HTMLElement;
+		protected rootElem: HTMLElement;
 		private inputTbody   : HTMLElement;
 		private codewordTbody: HTMLElement;
 		private outputTbody  : HTMLElement;
@@ -29,14 +29,14 @@ namespace app {
 		
 		
 		public constructor(rootHtmlClass: string) {
-			this.root = queryHtml("article .demo." + rootHtmlClass);
-			this.inputTbody    = subqueryElem(this.root, ".input-message"  , HTMLElement);
-			this.codewordTbody = subqueryElem(this.root, ".codeword"       , HTMLElement);
-			this.outputTbody   = subqueryElem(this.root, ".output-message" , HTMLElement);
-			this.changedElem = subqueryElem(this.root, "output.bits-changed"  , HTMLElement);
-			this.errorElem   = subqueryElem(this.root, "output.detected-error", HTMLElement);
-			this.matchesElem = subqueryElem(this.root, "output.matches-input" , HTMLElement);
-			this.root.hidden = false;
+			this.rootElem = queryHtml("article .demo." + rootHtmlClass);
+			this.inputTbody    = subqueryElem(this.rootElem, ".input-message"  , HTMLElement);
+			this.codewordTbody = subqueryElem(this.rootElem, ".codeword"       , HTMLElement);
+			this.outputTbody   = subqueryElem(this.rootElem, ".output-message" , HTMLElement);
+			this.changedElem = subqueryElem(this.rootElem, "output.bits-changed"  , HTMLElement);
+			this.errorElem   = subqueryElem(this.rootElem, "output.detected-error", HTMLElement);
+			this.matchesElem = subqueryElem(this.rootElem, "output.matches-input" , HTMLElement);
+			this.rootElem.hidden = false;
 		}
 		
 		
@@ -120,7 +120,7 @@ namespace app {
 		
 		private constructor() {
 			super("simple-parity");
-			this.msgLenInput = subqueryElem(this.root, "input", HTMLInputElement);
+			this.msgLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
 			const func: ()=>void = () => {
 				const msgLen: int = parseInt(this.msgLenInput.value, 10);
 				let types: Array<string> = [];
@@ -130,7 +130,7 @@ namespace app {
 				this.paramsChanged(msgLen, types);
 			};
 			this.msgLenInput.oninput = func;
-			this.codeLenOutput = subqueryElem(this.root, "output.codeword-length", HTMLElement);
+			this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
 			func();
 		}
 		
@@ -163,22 +163,22 @@ namespace app {
 	
 	
 	namespace gridParity {
-		let root: HTMLElement = queryHtml("article .demo.grid-parity");
-		let msgRowsInput: HTMLInputElement = subqueryElem(root, "#grid-parity-message-rows"   , HTMLInputElement);
-		let msgColsInput: HTMLInputElement = subqueryElem(root, "#grid-parity-message-columns", HTMLInputElement);
-		let msgLenOutput : HTMLElement = subqueryElem(root, "output.message-length ", HTMLElement);
-		let codeLenOutput: HTMLElement = subqueryElem(root, "output.codeword-length", HTMLElement);
-		let inputTbody   : HTMLElement = subqueryElem(root, ".input-message"  , HTMLElement);
-		let codewordTbody: HTMLElement = subqueryElem(root, ".codeword"       , HTMLElement);
-		let outputTbody  : HTMLElement = subqueryElem(root, ".output-message" , HTMLElement);
-		let changedElem: HTMLElement = subqueryElem(root, "output.bits-changed"  , HTMLElement);
-		let errorElem  : HTMLElement = subqueryElem(root, "output.detected-error", HTMLElement);
-		let matchesElem: HTMLElement = subqueryElem(root, "output.matches-input" , HTMLElement);
+		let rootElem: HTMLElement = queryHtml("article .demo.grid-parity");
+		let msgRowsInput: HTMLInputElement = subqueryElem(rootElem, "#grid-parity-message-rows"   , HTMLInputElement);
+		let msgColsInput: HTMLInputElement = subqueryElem(rootElem, "#grid-parity-message-columns", HTMLInputElement);
+		let msgLenOutput : HTMLElement = subqueryElem(rootElem, "output.message-length ", HTMLElement);
+		let codeLenOutput: HTMLElement = subqueryElem(rootElem, "output.codeword-length", HTMLElement);
+		let inputTbody   : HTMLElement = subqueryElem(rootElem, ".input-message"  , HTMLElement);
+		let codewordTbody: HTMLElement = subqueryElem(rootElem, ".codeword"       , HTMLElement);
+		let outputTbody  : HTMLElement = subqueryElem(rootElem, ".output-message" , HTMLElement);
+		let changedElem: HTMLElement = subqueryElem(rootElem, "output.bits-changed"  , HTMLElement);
+		let errorElem  : HTMLElement = subqueryElem(rootElem, "output.detected-error", HTMLElement);
+		let matchesElem: HTMLElement = subqueryElem(rootElem, "output.matches-input" , HTMLElement);
 		let inputBits: Array<Array<bit>> = [];
 		let sentCodewordBits: Array<Array<bit>> = [];
 		let recvCodewordBits: Array<Array<bit>> = [];
 		
-		root.hidden = false;
+		rootElem.hidden = false;
 		msgColsInput.oninput = paramsChanged;
 		msgRowsInput.oninput = paramsChanged;
 		paramsChanged();
@@ -353,7 +353,7 @@ namespace app {
 		
 		private constructor() {
 			super("almost-hamming");
-			this.msgLenInput = subqueryElem(this.root, "input", HTMLInputElement);
+			this.msgLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
 			const func: ()=>void = () => {
 				const msgLen: int = parseInt(this.msgLenInput.value, 10);
 				let numParity: int = 0;
@@ -366,7 +366,7 @@ namespace app {
 				this.paramsChanged(msgLen, types);
 			};
 			this.msgLenInput.oninput = func;
-			this.codeLenOutput = subqueryElem(this.root, "output.codeword-length", HTMLElement);
+			this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
 			func();
 		}
 		
@@ -419,7 +419,7 @@ namespace app {
 		
 		private constructor() {
 			super("hamming-codes");
-			this.codeLenInput = subqueryElem(this.root, "input", HTMLInputElement);
+			this.codeLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
 			const func: ()=>void = () => {
 				const codeLen: int = parseInt(this.codeLenInput.value, 10);
 				let numParity: int = 0;
@@ -430,7 +430,7 @@ namespace app {
 				this.paramsChanged(codeLen - numParity, types);
 			};
 			this.codeLenInput.oninput = func;
-			this.msgLenOutput = subqueryElem(this.root, "output.message-length", HTMLElement);
+			this.msgLenOutput = subqueryElem(this.rootElem, "output.message-length", HTMLElement);
 			func();
 		}
 		

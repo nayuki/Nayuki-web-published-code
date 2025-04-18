@@ -15,14 +15,14 @@ var app;
             this.recvCodewordBits = [];
             this.outputBits = null;
             this.outputError = false;
-            this.root = queryHtml("article .demo." + rootHtmlClass);
-            this.inputTbody = subqueryElem(this.root, ".input-message", HTMLElement);
-            this.codewordTbody = subqueryElem(this.root, ".codeword", HTMLElement);
-            this.outputTbody = subqueryElem(this.root, ".output-message", HTMLElement);
-            this.changedElem = subqueryElem(this.root, "output.bits-changed", HTMLElement);
-            this.errorElem = subqueryElem(this.root, "output.detected-error", HTMLElement);
-            this.matchesElem = subqueryElem(this.root, "output.matches-input", HTMLElement);
-            this.root.hidden = false;
+            this.rootElem = queryHtml("article .demo." + rootHtmlClass);
+            this.inputTbody = subqueryElem(this.rootElem, ".input-message", HTMLElement);
+            this.codewordTbody = subqueryElem(this.rootElem, ".codeword", HTMLElement);
+            this.outputTbody = subqueryElem(this.rootElem, ".output-message", HTMLElement);
+            this.changedElem = subqueryElem(this.rootElem, "output.bits-changed", HTMLElement);
+            this.errorElem = subqueryElem(this.rootElem, "output.detected-error", HTMLElement);
+            this.matchesElem = subqueryElem(this.rootElem, "output.matches-input", HTMLElement);
+            this.rootElem.hidden = false;
         }
         paramsChanged(msgLen, codeBitTypes) {
             resizeArray(this.inputBits, msgLen, 0);
@@ -87,7 +87,7 @@ var app;
     class SimpleParityDemo extends OneDimensionalCodeDemo {
         constructor() {
             super("simple-parity");
-            this.msgLenInput = subqueryElem(this.root, "input", HTMLInputElement);
+            this.msgLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
             const func = () => {
                 const msgLen = parseInt(this.msgLenInput.value, 10);
                 let types = [];
@@ -97,7 +97,7 @@ var app;
                 this.paramsChanged(msgLen, types);
             };
             this.msgLenInput.oninput = func;
-            this.codeLenOutput = subqueryElem(this.root, "output.codeword-length", HTMLElement);
+            this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
             func();
         }
         paramsChanged(msgLen, codeBitTypes) {
@@ -119,21 +119,21 @@ var app;
     SimpleParityDemo.SINGLETON = new SimpleParityDemo();
     let gridParity;
     (function (gridParity) {
-        let root = queryHtml("article .demo.grid-parity");
-        let msgRowsInput = subqueryElem(root, "#grid-parity-message-rows", HTMLInputElement);
-        let msgColsInput = subqueryElem(root, "#grid-parity-message-columns", HTMLInputElement);
-        let msgLenOutput = subqueryElem(root, "output.message-length ", HTMLElement);
-        let codeLenOutput = subqueryElem(root, "output.codeword-length", HTMLElement);
-        let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
-        let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
-        let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
-        let changedElem = subqueryElem(root, "output.bits-changed", HTMLElement);
-        let errorElem = subqueryElem(root, "output.detected-error", HTMLElement);
-        let matchesElem = subqueryElem(root, "output.matches-input", HTMLElement);
+        let rootElem = queryHtml("article .demo.grid-parity");
+        let msgRowsInput = subqueryElem(rootElem, "#grid-parity-message-rows", HTMLInputElement);
+        let msgColsInput = subqueryElem(rootElem, "#grid-parity-message-columns", HTMLInputElement);
+        let msgLenOutput = subqueryElem(rootElem, "output.message-length ", HTMLElement);
+        let codeLenOutput = subqueryElem(rootElem, "output.codeword-length", HTMLElement);
+        let inputTbody = subqueryElem(rootElem, ".input-message", HTMLElement);
+        let codewordTbody = subqueryElem(rootElem, ".codeword", HTMLElement);
+        let outputTbody = subqueryElem(rootElem, ".output-message", HTMLElement);
+        let changedElem = subqueryElem(rootElem, "output.bits-changed", HTMLElement);
+        let errorElem = subqueryElem(rootElem, "output.detected-error", HTMLElement);
+        let matchesElem = subqueryElem(rootElem, "output.matches-input", HTMLElement);
         let inputBits = [];
         let sentCodewordBits = [];
         let recvCodewordBits = [];
-        root.hidden = false;
+        rootElem.hidden = false;
         msgColsInput.oninput = paramsChanged;
         msgRowsInput.oninput = paramsChanged;
         paramsChanged();
@@ -282,7 +282,7 @@ var app;
     class AlmostHammingDemo extends OneDimensionalCodeDemo {
         constructor() {
             super("almost-hamming");
-            this.msgLenInput = subqueryElem(this.root, "input", HTMLInputElement);
+            this.msgLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
             const func = () => {
                 const msgLen = parseInt(this.msgLenInput.value, 10);
                 let numParity = 0;
@@ -295,7 +295,7 @@ var app;
                 this.paramsChanged(msgLen, types);
             };
             this.msgLenInput.oninput = func;
-            this.codeLenOutput = subqueryElem(this.root, "output.codeword-length", HTMLElement);
+            this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
             func();
         }
         paramsChanged(msgLen, codeBitTypes) {
@@ -332,7 +332,7 @@ var app;
     class HammingCodesDemo extends OneDimensionalCodeDemo {
         constructor() {
             super("hamming-codes");
-            this.codeLenInput = subqueryElem(this.root, "input", HTMLInputElement);
+            this.codeLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
             const func = () => {
                 const codeLen = parseInt(this.codeLenInput.value, 10);
                 let numParity = 0;
@@ -343,7 +343,7 @@ var app;
                 this.paramsChanged(codeLen - numParity, types);
             };
             this.codeLenInput.oninput = func;
-            this.msgLenOutput = subqueryElem(this.root, "output.message-length", HTMLElement);
+            this.msgLenOutput = subqueryElem(this.rootElem, "output.message-length", HTMLElement);
             func();
         }
         paramsChanged(msgLen, codeBitTypes) {
