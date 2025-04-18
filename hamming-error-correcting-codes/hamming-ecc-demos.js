@@ -282,16 +282,17 @@ var app;
     class AlmostHammingDemo extends OneDimensionalCodeDemo {
         constructor() {
             super("almost-hamming");
+            this.numParity = 0;
             this.msgLenInput = subqueryElem(this.rootElem, "input", HTMLInputElement);
             this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
             const func = () => {
                 const msgLen = parseInt(this.msgLenInput.value, 10);
-                let numParity = 0;
-                for (; 1 << numParity < msgLen; numParity++) { }
+                this.numParity = 0;
+                for (; 1 << this.numParity < msgLen; this.numParity++) { }
                 let types = [];
                 for (let i = 0; i < msgLen; i++)
                     types.push("data");
-                for (let i = 0; i < numParity; i++)
+                for (let i = 0; i < this.numParity; i++)
                     types.push("parity");
                 this.paramsChanged(msgLen, types);
             };
@@ -304,16 +305,14 @@ var app;
         }
         inputChanged() {
             this.inputBits.forEach((x, i) => this.sentCodewordBits[i] = x);
-            const numParity = this.sentCodewordBits.length - this.inputBits.length;
-            for (let i = 0; i < numParity; i++)
+            for (let i = 0; i < this.numParity; i++)
                 this.sentCodewordBits[this.inputBits.length + i] = calcParity(this.inputBits.filter((_, j) => (j & (1 << i)) != 0));
             super.inputChanged();
         }
         codewordChanged() {
             const msg = this.recvCodewordBits.slice(0, this.inputBits.length);
             let syndrome = 0;
-            const numParity = this.recvCodewordBits.length - this.inputBits.length;
-            for (let i = 0; i < numParity; i++) {
+            for (let i = 0; i < this.numParity; i++) {
                 if (calcParity(msg.filter((_, j) => (j & (1 << i)) != 0)) != this.recvCodewordBits[msg.length + i])
                     syndrome += 1 << i;
             }

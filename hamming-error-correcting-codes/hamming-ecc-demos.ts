@@ -352,6 +352,7 @@ namespace app {
 		
 		private msgLenInput: HTMLInputElement;
 		private codeLenOutput: HTMLElement;
+		private numParity: int = 0;
 		
 		
 		private constructor() {
@@ -360,12 +361,12 @@ namespace app {
 			this.codeLenOutput = subqueryElem(this.rootElem, "output.codeword-length", HTMLElement);
 			const func: ()=>void = () => {
 				const msgLen: int = parseInt(this.msgLenInput.value, 10);
-				let numParity: int = 0;
-				for (; 1 << numParity < msgLen; numParity++) {}
+				this.numParity = 0;
+				for (; 1 << this.numParity < msgLen; this.numParity++) {}
 				let types: Array<string> = [];
 				for (let i = 0; i < msgLen; i++)
 					types.push("data");
-				for (let i = 0; i < numParity; i++)
+				for (let i = 0; i < this.numParity; i++)
 					types.push("parity");
 				this.paramsChanged(msgLen, types);
 			};
@@ -382,8 +383,7 @@ namespace app {
 		
 		protected inputChanged(): void {
 			this.inputBits.forEach((x, i) => this.sentCodewordBits[i] = x);
-			const numParity: int = this.sentCodewordBits.length - this.inputBits.length;
-			for (let i = 0; i < numParity; i++)
+			for (let i = 0; i < this.numParity; i++)
 				this.sentCodewordBits[this.inputBits.length + i] = calcParity(this.inputBits.filter((_, j) => (j & (1 << i)) != 0));
 			super.inputChanged();
 		}
@@ -392,8 +392,7 @@ namespace app {
 		protected codewordChanged(): void {
 			const msg: Array<bit> = this.recvCodewordBits.slice(0, this.inputBits.length);
 			let syndrome: int = 0;
-			const numParity: int = this.recvCodewordBits.length - this.inputBits.length;
-			for (let i = 0; i < numParity; i++) {
+			for (let i = 0; i < this.numParity; i++) {
 				if (calcParity(msg.filter((_, j) => (j & (1 << i)) != 0)) != this.recvCodewordBits[msg.length + i])
 					syndrome += 1 << i;
 			}
