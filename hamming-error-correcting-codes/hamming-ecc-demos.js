@@ -201,21 +201,22 @@ var app;
                 columnParities.push(calcParity(recvCodewordBits.map(row => row[j])));
             const rowFails = rowParities.reduce((x, y) => x + y, 0);
             const columnFails = columnParities.reduce((x, y) => x + y, 0);
-            let outputBits = recvCodewordBits.slice(0, -1).map(row => row.slice(0, -1));
+            let outBits = recvCodewordBits.slice(0, -1).map(row => row.slice(0, -1));
+            let outputBits = outBits;
             if (rowFails == 0 && columnFails == 0) {
             }
             else if (rowFails == 1) {
                 const i = rowParities.findIndex(x => x == 1);
                 columnParities.forEach((x, j) => {
                     if (x == 1)
-                        notNull(outputBits)[i][j] ^= 1;
+                        outBits[i][j] ^= 1;
                 });
             }
             else if (columnFails == 1) {
                 const j = columnParities.findIndex(x => x == 1);
                 rowParities.forEach((x, i) => {
                     if (x == 1)
-                        notNull(outputBits)[i][j] ^= 1;
+                        outBits[i][j] ^= 1;
                 });
             }
             else
@@ -410,11 +411,6 @@ var app;
         while (arr.length < newLen)
             arr.push(fillVal);
         arr.splice(newLen, arr.length - newLen);
-    }
-    function notNull(val) {
-        if (val === null)
-            throw new TypeError();
-        return val;
     }
     function notUndefined(val) {
         if (val === undefined)
