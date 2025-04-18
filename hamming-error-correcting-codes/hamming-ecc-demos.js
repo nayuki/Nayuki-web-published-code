@@ -16,7 +16,8 @@ var app;
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
-        let statusElem = subqueryElem(root, "output.status", HTMLElement);
+        let errorElem = subqueryElem(root, "output.detected-error", HTMLElement);
+        let matchesElem = subqueryElem(root, "output.matches-input", HTMLElement);
         let inputBits = [];
         let codewordBits = [];
         root.hidden = false;
@@ -44,12 +45,8 @@ var app;
             const outputBits = calcParity(codewordBits) == 0 ?
                 codewordBits.slice(0, -1) : null;
             visualizeValues(outputBits, outputTbody);
-            if (outputBits === null)
-                statusElem.textContent = "Error";
-            else if (areArraysEqual(outputBits, inputBits))
-                statusElem.textContent = "Same message";
-            else
-                statusElem.textContent = "Different message";
+            errorElem.textContent = outputBits === null ? "True" : "False";
+            matchesElem.textContent = outputBits !== null && areArraysEqual(outputBits, inputBits) ? "True" : "False";
         }
         function visualizeLength(bits, changeFunc, types, tbody) {
             let indexRow = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
@@ -100,7 +97,8 @@ var app;
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
-        let statusElem = subqueryElem(root, "output.status", HTMLElement);
+        let errorElem = subqueryElem(root, "output.detected-error", HTMLElement);
+        let matchesElem = subqueryElem(root, "output.matches-input", HTMLElement);
         let inputBits = [];
         let codewordBits = [];
         root.hidden = false;
@@ -173,12 +171,8 @@ var app;
             else
                 outputBits = null;
             visualizeValues(outputBits, outputTbody);
-            if (outputBits === null)
-                statusElem.textContent = "Error";
-            else if (outputBits.every((row, i) => areArraysEqual(row, inputBits[i])))
-                statusElem.textContent = "Same message";
-            else
-                statusElem.textContent = "Different message";
+            errorElem.textContent = outputBits === null || rowFails > 0 || columnFails > 0 ? "True" : "False";
+            matchesElem.textContent = outputBits !== null && outputBits.every((row, i) => areArraysEqual(row, inputBits[i])) ? "True" : "False";
         }
         function visualizeSize(bits, changeFunc, types, tbody) {
             let columnRow = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
@@ -243,7 +237,8 @@ var app;
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
-        let statusElem = subqueryElem(root, "output.status", HTMLElement);
+        let errorElem = subqueryElem(root, "output.detected-error", HTMLElement);
+        let matchesElem = subqueryElem(root, "output.matches-input", HTMLElement);
         let inputBits = [];
         let codewordBits = [];
         root.hidden = false;
@@ -289,12 +284,8 @@ var app;
             else
                 outputBits = null;
             visualizeValues(outputBits, outputTbody);
-            if (outputBits === null)
-                statusElem.textContent = "Error";
-            else if (areArraysEqual(outputBits, inputBits))
-                statusElem.textContent = "Same message";
-            else
-                statusElem.textContent = "Different message";
+            errorElem.textContent = outputBits === null || syndrome != 0 ? "True" : "False";
+            matchesElem.textContent = outputBits !== null && areArraysEqual(outputBits, inputBits) ? "True" : "False";
         }
         function visualizeLength(bits, changeFunc, types, tbody) {
             let indexRow = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
@@ -343,7 +334,8 @@ var app;
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
-        let statusElem = subqueryElem(root, "output.status", HTMLElement);
+        let errorElem = subqueryElem(root, "output.detected-error", HTMLElement);
+        let matchesElem = subqueryElem(root, "output.matches-input", HTMLElement);
         let inputBits = [];
         let codewordBits = [];
         root.hidden = false;
@@ -397,12 +389,8 @@ var app;
             else
                 outputBits = null;
             visualizeValues(outputBits, outputTbody);
-            if (outputBits === null)
-                statusElem.textContent = "Error";
-            else if (areArraysEqual(outputBits, inputBits))
-                statusElem.textContent = "Same message";
-            else
-                statusElem.textContent = "Different message";
+            errorElem.textContent = outputBits === null || syndrome != 0 ? "True" : "False";
+            matchesElem.textContent = outputBits !== null && areArraysEqual(outputBits, inputBits) ? "True" : "False";
         }
         function visualizeLength(bits, changeFunc, types, tbody) {
             let indexRow = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
