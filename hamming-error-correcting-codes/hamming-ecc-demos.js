@@ -16,9 +16,11 @@ var app;
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
+        let changedElem = subqueryElem(root, "output.bits-changed", HTMLElement);
         let errorElem = subqueryElem(root, "output.detected-error", HTMLElement);
         let matchesElem = subqueryElem(root, "output.matches-input", HTMLElement);
         let inputBits = [];
+        let sentCodewordBits = [];
         let recvCodewordBits = [];
         root.hidden = false;
         msgLenInput.oninput = paramsChanged;
@@ -27,7 +29,8 @@ var app;
             const msgLen = parseInt(msgLenInput.value, 10);
             resizeArray(inputBits, msgLen, 0);
             codeLenOutput.textContent = (msgLen + 1).toString();
-            resizeArray(recvCodewordBits, msgLen + 1, 0);
+            resizeArray(sentCodewordBits, msgLen + 1, 0);
+            resizeArray(recvCodewordBits, sentCodewordBits.length, 0);
             visualizeLength(inputBits, inputChanged, null, inputTbody);
             const types = inputBits.map(_ => "data").concat(["parity"]);
             visualizeLength(recvCodewordBits, codewordChanged, types, codewordTbody);
@@ -36,14 +39,16 @@ var app;
         }
         function inputChanged() {
             visualizeValues(inputBits, inputTbody);
-            inputBits.forEach((x, i) => recvCodewordBits[i] = x);
-            recvCodewordBits[recvCodewordBits.length - 1] = calcParity(inputBits);
+            inputBits.forEach((x, i) => sentCodewordBits[i] = x);
+            sentCodewordBits[sentCodewordBits.length - 1] = calcParity(inputBits);
+            sentCodewordBits.forEach((x, i) => recvCodewordBits[i] = x);
             codewordChanged();
         }
         function codewordChanged() {
             visualizeValues(recvCodewordBits, codewordTbody);
             const outputBits = calcParity(recvCodewordBits) == 0 ?
                 recvCodewordBits.slice(0, -1) : null;
+            changedElem.textContent = recvCodewordBits.filter((x, i) => sentCodewordBits[i] != x).length.toString();
             visualizeValues(outputBits, outputTbody);
             errorElem.textContent = outputBits === null ? "True" : "False";
             matchesElem.textContent = outputBits !== null && areArraysEqual(outputBits, inputBits) ? "True" : "False";
@@ -97,9 +102,11 @@ var app;
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
+        let changedElem = subqueryElem(root, "output.bits-changed", HTMLElement);
         let errorElem = subqueryElem(root, "output.detected-error", HTMLElement);
         let matchesElem = subqueryElem(root, "output.matches-input", HTMLElement);
         let inputBits = [];
+        let sentCodewordBits = [];
         let recvCodewordBits = [];
         root.hidden = false;
         msgColsInput.oninput = paramsChanged;
@@ -115,13 +122,22 @@ var app;
             inputBits.splice(msgRows, inputBits.length - msgRows);
             for (let row of inputBits)
                 resizeArray(row, msgCols, 0);
+            sentCodewordBits.pop();
+            while (sentCodewordBits.length < msgRows)
+                sentCodewordBits.push([]);
+            sentCodewordBits.splice(msgRows, sentCodewordBits.length - msgRows);
+            for (let row of sentCodewordBits)
+                resizeArray(row, msgCols + 1, 0);
+            let row = [];
+            resizeArray(row, msgCols, 0);
+            sentCodewordBits.push(row);
             recvCodewordBits.pop();
             while (recvCodewordBits.length < msgRows)
                 recvCodewordBits.push([]);
             recvCodewordBits.splice(msgRows, recvCodewordBits.length - msgRows);
             for (let row of recvCodewordBits)
                 resizeArray(row, msgCols + 1, 0);
-            let row = [];
+            row = [];
             resizeArray(row, msgCols, 0);
             recvCodewordBits.push(row);
             visualizeSize(inputBits, inputChanged, null, inputTbody);
@@ -132,19 +148,28 @@ var app;
         }
         function inputChanged() {
             visualizeValues(inputBits, inputTbody);
-            let columnParities = recvCodewordBits[recvCodewordBits.length - 1];
+            let columnParities = sentCodewordBits[sentCodewordBits.length - 1];
             columnParities.forEach((_, i) => columnParities[i] = 0);
             inputBits.forEach((row, i) => {
                 row.forEach((x, j) => {
-                    recvCodewordBits[i][j] = x;
+                    sentCodewordBits[i][j] = x;
                     columnParities[j] ^= x;
                 });
-                recvCodewordBits[i][row.length] = calcParity(row);
+                sentCodewordBits[i][row.length] = calcParity(row);
             });
+            sentCodewordBits.forEach((row, i) => row.forEach((x, j) => recvCodewordBits[i][j] = x));
             codewordChanged();
         }
         function codewordChanged() {
             visualizeValues(recvCodewordBits, codewordTbody);
+            let changes = 0;
+            sentCodewordBits.forEach((row, i) => {
+                row.forEach((x, j) => {
+                    if (recvCodewordBits[i][j] != x)
+                        changes++;
+                });
+            });
+            changedElem.textContent = changes.toString();
             const rowParities = recvCodewordBits.slice(0, -1).map(row => calcParity(row));
             let columnParities = [];
             for (let j = 0; j < recvCodewordBits[0].length - 1; j++)
@@ -237,9 +262,11 @@ var app;
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
+        let changedElem = subqueryElem(root, "output.bits-changed", HTMLElement);
         let errorElem = subqueryElem(root, "output.detected-error", HTMLElement);
         let matchesElem = subqueryElem(root, "output.matches-input", HTMLElement);
         let inputBits = [];
+        let sentCodewordBits = [];
         let recvCodewordBits = [];
         root.hidden = false;
         msgLenInput.oninput = paramsChanged;
@@ -251,7 +278,8 @@ var app;
             for (; 1 << numParity < msgLen; numParity++) { }
             const codeLen = msgLen + numParity;
             codeLenOutput.textContent = codeLen.toString();
-            resizeArray(recvCodewordBits, codeLen, 0);
+            resizeArray(sentCodewordBits, codeLen, 0);
+            resizeArray(recvCodewordBits, sentCodewordBits.length, 0);
             visualizeLength(inputBits, inputChanged, null, inputTbody);
             const types = recvCodewordBits.map((_, i) => i < msgLen ? "data" : "parity");
             visualizeLength(recvCodewordBits, codewordChanged, types, codewordTbody);
@@ -260,14 +288,16 @@ var app;
         }
         function inputChanged() {
             visualizeValues(inputBits, inputTbody);
-            inputBits.forEach((x, i) => recvCodewordBits[i] = x);
-            const numParity = recvCodewordBits.length - inputBits.length;
+            inputBits.forEach((x, i) => sentCodewordBits[i] = x);
+            const numParity = sentCodewordBits.length - inputBits.length;
             for (let i = 0; i < numParity; i++)
-                recvCodewordBits[inputBits.length + i] = calcParity(inputBits.filter((_, j) => (j & (1 << i)) != 0));
+                sentCodewordBits[inputBits.length + i] = calcParity(inputBits.filter((_, j) => (j & (1 << i)) != 0));
+            sentCodewordBits.forEach((x, i) => recvCodewordBits[i] = x);
             codewordChanged();
         }
         function codewordChanged() {
             visualizeValues(recvCodewordBits, codewordTbody);
+            changedElem.textContent = recvCodewordBits.filter((x, i) => sentCodewordBits[i] != x).length.toString();
             const msg = recvCodewordBits.slice(0, inputBits.length);
             let syndrome = 0;
             const numParity = recvCodewordBits.length - inputBits.length;
@@ -334,9 +364,11 @@ var app;
         let inputTbody = subqueryElem(root, ".input-message", HTMLElement);
         let codewordTbody = subqueryElem(root, ".codeword", HTMLElement);
         let outputTbody = subqueryElem(root, ".output-message", HTMLElement);
+        let changedElem = subqueryElem(root, "output.bits-changed", HTMLElement);
         let errorElem = subqueryElem(root, "output.detected-error", HTMLElement);
         let matchesElem = subqueryElem(root, "output.matches-input", HTMLElement);
         let inputBits = [];
+        let sentCodewordBits = [];
         let recvCodewordBits = [];
         root.hidden = false;
         codeLenInput.oninput = paramsChanged;
@@ -348,7 +380,8 @@ var app;
             const msgLen = codeLen - numParity;
             msgLenOutput.textContent = msgLen.toString();
             resizeArray(inputBits, msgLen, 0);
-            resizeArray(recvCodewordBits, codeLen, 0);
+            resizeArray(sentCodewordBits, codeLen, 0);
+            resizeArray(recvCodewordBits, sentCodewordBits.length, 0);
             visualizeLength(inputBits, inputChanged, null, inputTbody);
             const types = recvCodewordBits.map((_, i) => ((i + 1) & i) != 0 ? "data" : "parity");
             visualizeLength(recvCodewordBits, codewordChanged, types, codewordTbody);
@@ -358,22 +391,24 @@ var app;
         function inputChanged() {
             visualizeValues(inputBits, inputTbody);
             let inputIndex = 0;
-            recvCodewordBits.forEach((_, i) => {
+            sentCodewordBits.forEach((_, i) => {
                 if (((i + 1) & i) != 0) {
-                    recvCodewordBits[i] = inputBits[inputIndex];
+                    sentCodewordBits[i] = inputBits[inputIndex];
                     inputIndex++;
                 }
                 else
-                    recvCodewordBits[i] = 0;
+                    sentCodewordBits[i] = 0;
             });
-            recvCodewordBits.forEach((_, i) => {
+            sentCodewordBits.forEach((_, i) => {
                 if (((i + 1) & i) == 0)
-                    recvCodewordBits[i] = calcParity(recvCodewordBits.filter((_, j) => ((j + 1) & (i + 1)) != 0));
+                    sentCodewordBits[i] = calcParity(sentCodewordBits.filter((_, j) => ((j + 1) & (i + 1)) != 0));
             });
+            sentCodewordBits.forEach((x, i) => recvCodewordBits[i] = x);
             codewordChanged();
         }
         function codewordChanged() {
             visualizeValues(recvCodewordBits, codewordTbody);
+            changedElem.textContent = recvCodewordBits.filter((x, i) => sentCodewordBits[i] != x).length.toString();
             let syndrome = 0;
             recvCodewordBits.forEach((x, i) => {
                 if (((i + 1) & i) == 0 && calcParity(recvCodewordBits.filter((_, j) => ((j + 1) & (i + 1)) != 0)) != 0)
