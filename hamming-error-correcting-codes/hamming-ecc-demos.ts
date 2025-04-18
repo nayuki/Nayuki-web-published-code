@@ -12,60 +12,62 @@ type int = number;
 
 namespace app {
 	
-	namespace simpleParity {
-		let root: HTMLElement = queryHtml("article .demo.simple-parity");
-		let msgLenInput: HTMLInputElement = subqueryElem(root, "input", HTMLInputElement);
-		let codeLenOutput: HTMLElement = subqueryElem(root, "output.codeword-length", HTMLElement);
-		let inputTbody   : HTMLElement = subqueryElem(root, ".input-message"  , HTMLElement);
-		let codewordTbody: HTMLElement = subqueryElem(root, ".codeword"       , HTMLElement);
-		let outputTbody  : HTMLElement = subqueryElem(root, ".output-message" , HTMLElement);
-		let changedElem: HTMLElement = subqueryElem(root, "output.bits-changed"  , HTMLElement);
-		let errorElem  : HTMLElement = subqueryElem(root, "output.detected-error", HTMLElement);
-		let matchesElem: HTMLElement = subqueryElem(root, "output.matches-input" , HTMLElement);
-		let inputBits: Array<bit> = [];
-		let sentCodewordBits: Array<bit> = [];
-		let recvCodewordBits: Array<bit> = [];
+	abstract class OneDimensionalCodeDemo {
 		
-		root.hidden = false;
-		msgLenInput.oninput = paramsChanged;
-		paramsChanged();
+		protected root: HTMLElement;
+		private inputTbody   : HTMLElement;
+		private codewordTbody: HTMLElement;
+		private outputTbody  : HTMLElement;
+		private changedElem: HTMLElement;
+		private errorElem  : HTMLElement;
+		private matchesElem: HTMLElement;
+		protected inputBits: Array<bit> = [];
+		protected sentCodewordBits: Array<bit> = [];
+		protected recvCodewordBits: Array<bit> = [];
+		protected outputBits: Array<bit>|null = null;
+		protected outputError: boolean = false;
 		
 		
-		function paramsChanged(): void {
-			const msgLen: int = parseInt(msgLenInput.value, 10);
-			resizeArray(inputBits, msgLen, 0);
-			codeLenOutput.textContent = (msgLen + 1).toString();
-			resizeArray(sentCodewordBits, msgLen + 1, 0);
-			resizeArray(recvCodewordBits, sentCodewordBits.length, 0);
-			visualizeLength(inputBits, inputChanged, null, inputTbody);
-			const types: Array<string> = inputBits.map(_ => "data").concat(["parity"]);
-			visualizeLength(recvCodewordBits, codewordChanged, types, codewordTbody);
-			visualizeLength(inputBits, null, null, outputTbody);
-			inputChanged();
+		public constructor(rootHtmlClass: string) {
+			this.root = queryHtml("article .demo." + rootHtmlClass);
+			this.inputTbody    = subqueryElem(this.root, ".input-message"  , HTMLElement);
+			this.codewordTbody = subqueryElem(this.root, ".codeword"       , HTMLElement);
+			this.outputTbody   = subqueryElem(this.root, ".output-message" , HTMLElement);
+			this.changedElem = subqueryElem(this.root, "output.bits-changed"  , HTMLElement);
+			this.errorElem   = subqueryElem(this.root, "output.detected-error", HTMLElement);
+			this.matchesElem = subqueryElem(this.root, "output.matches-input" , HTMLElement);
+			this.root.hidden = false;
 		}
 		
 		
-		function inputChanged(): void {
-			visualizeValues(inputBits, inputTbody);
-			inputBits.forEach((x, i) => sentCodewordBits[i] = x);
-			sentCodewordBits[sentCodewordBits.length - 1] = calcParity(inputBits);
-			sentCodewordBits.forEach((x, i) => recvCodewordBits[i] = x);
-			codewordChanged();
+		protected paramsChanged(msgLen: int, codeBitTypes: Array<string>): void {
+			resizeArray(this.inputBits, msgLen, 0);
+			resizeArray(this.sentCodewordBits, codeBitTypes.length, 0);
+			resizeArray(this.recvCodewordBits, this.sentCodewordBits.length, 0);
+			OneDimensionalCodeDemo.visualizeLength(this.inputBits, () => this.inputChanged(), null, this.inputTbody);
+			OneDimensionalCodeDemo.visualizeLength(this.recvCodewordBits, () => this.codewordChanged(), codeBitTypes, this.codewordTbody);
+			OneDimensionalCodeDemo.visualizeLength(this.inputBits, null, null, this.outputTbody);
+			this.inputChanged();
 		}
 		
 		
-		function codewordChanged(): void {
-			visualizeValues(recvCodewordBits, codewordTbody);
-			const outputBits: Array<bit>|null = calcParity(recvCodewordBits) == 0 ?
-				recvCodewordBits.slice(0, -1) : null;
-			changedElem.textContent = recvCodewordBits.filter((x, i) => sentCodewordBits[i] != x).length.toString();
-			visualizeValues(outputBits, outputTbody);
-			errorElem.textContent = outputBits === null ? "True" : "False";
-			matchesElem.textContent = outputBits !== null && areArraysEqual(outputBits, inputBits) ? "True" : "False";
+		protected inputChanged(): void {
+			OneDimensionalCodeDemo.visualizeValues(this.inputBits, this.inputTbody);
+			this.sentCodewordBits.forEach((x, i) => this.recvCodewordBits[i] = x);
+			this.codewordChanged();
 		}
 		
 		
-		function visualizeLength(bits: Array<bit>, changeFunc: (()=>void)|null, types: Array<string>|null, tbody: HTMLElement): void {
+		protected codewordChanged(): void {
+			OneDimensionalCodeDemo.visualizeValues(this.recvCodewordBits, this.codewordTbody);
+			this.changedElem.textContent = this.recvCodewordBits.filter((x, i) => this.sentCodewordBits[i] != x).length.toString();
+			OneDimensionalCodeDemo.visualizeValues(this.outputBits, this.outputTbody);
+			this.errorElem.textContent = this.outputError ? "True" : "False";
+			this.matchesElem.textContent = this.outputBits !== null && areArraysEqual(this.outputBits, this.inputBits) ? "True" : "False";
+		}
+		
+		
+		private static visualizeLength(bits: Array<bit>, changeFunc: (()=>void)|null, types: Array<string>|null, tbody: HTMLElement): void {
 			let indexRow: HTMLElement = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
 			let bitRow  : HTMLElement = subqueryElem(tbody, ":scope > tr:nth-child(2)", HTMLElement);
 			let indexCells: Array<HTMLElement> = Array.from(indexRow.querySelectorAll(":scope > td"));
@@ -98,13 +100,64 @@ namespace app {
 		}
 		
 		
-		function visualizeValues(bits: Array<bit>|null, tbody: HTMLElement) {
+		private static visualizeValues(bits: Array<bit>|null, tbody: HTMLElement) {
 			tbody.classList.toggle("error", bits === null);
 			tbody.querySelectorAll(":scope > tr:nth-child(2) > td").forEach((td, i) => {
 				let button = td.querySelector("button");
 				(button === null ? td : button).textContent = bits !== null ? bits[i].toString() : "\u2012";
 			});
 		}
+		
+	}
+	
+	
+	
+	class SimpleParityDemo extends OneDimensionalCodeDemo {
+		
+		private msgLenInput: HTMLInputElement;
+		private codeLenOutput: HTMLElement;
+		
+		
+		private constructor() {
+			super("simple-parity");
+			this.msgLenInput = subqueryElem(this.root, "input", HTMLInputElement);
+			const func: ()=>void = () => {
+				const msgLen: int = parseInt(this.msgLenInput.value, 10);
+				let types: Array<string> = [];
+				for (let i = 0; i < msgLen; i++)
+					types.push("data");
+				types.push("parity");
+				this.paramsChanged(msgLen, types);
+			};
+			this.msgLenInput.oninput = func;
+			this.codeLenOutput = subqueryElem(this.root, "output.codeword-length", HTMLElement);
+			func();
+		}
+		
+		
+		protected paramsChanged(msgLen: int, codeBitTypes: Array<string>): void {
+			this.codeLenOutput.textContent = codeBitTypes.length.toString();
+			super.paramsChanged(msgLen, codeBitTypes);
+		}
+		
+		
+		protected inputChanged(): void {
+			this.inputBits.forEach((x, i) => this.sentCodewordBits[i] = x);
+			this.sentCodewordBits[this.sentCodewordBits.length - 1] = calcParity(this.inputBits);
+			super.inputChanged();
+		}
+		
+		
+		protected codewordChanged(): void {
+			this.outputBits = calcParity(this.recvCodewordBits) == 0 ?
+				this.recvCodewordBits.slice(0, -1) : null;
+			this.outputError = this.outputBits === null;
+			super.codewordChanged();
+		}
+		
+		
+		private static SINGLETON: SimpleParityDemo = new SimpleParityDemo();
+		
 	}
 	
 	
@@ -292,241 +345,139 @@ namespace app {
 	
 	
 	
-	namespace almostHamming {
-		let root: HTMLElement = queryHtml("article .demo.almost-hamming");
-		let msgLenInput: HTMLInputElement = subqueryElem(root, "input", HTMLInputElement);
-		let codeLenOutput: HTMLElement = subqueryElem(root, "output.codeword-length", HTMLElement);
-		let inputTbody   : HTMLElement = subqueryElem(root, ".input-message"  , HTMLElement);
-		let codewordTbody: HTMLElement = subqueryElem(root, ".codeword"       , HTMLElement);
-		let outputTbody  : HTMLElement = subqueryElem(root, ".output-message" , HTMLElement);
-		let changedElem: HTMLElement = subqueryElem(root, "output.bits-changed"  , HTMLElement);
-		let errorElem  : HTMLElement = subqueryElem(root, "output.detected-error", HTMLElement);
-		let matchesElem: HTMLElement = subqueryElem(root, "output.matches-input" , HTMLElement);
-		let inputBits: Array<bit> = [];
-		let sentCodewordBits: Array<bit> = [];
-		let recvCodewordBits: Array<bit> = [];
+	class AlmostHammingDemo extends OneDimensionalCodeDemo {
 		
-		root.hidden = false;
-		msgLenInput.oninput = paramsChanged;
-		paramsChanged();
+		private msgLenInput: HTMLInputElement;
+		private codeLenOutput: HTMLElement;
 		
 		
-		function paramsChanged(): void {
-			const msgLen: int = parseInt(msgLenInput.value, 10);
-			resizeArray(inputBits, msgLen, 0);
-			let numParity: int = 0;
-			for (; 1 << numParity < msgLen; numParity++) {}
-			const codeLen: int = msgLen + numParity;
-			codeLenOutput.textContent = codeLen.toString();
-			resizeArray(sentCodewordBits, codeLen, 0);
-			resizeArray(recvCodewordBits, sentCodewordBits.length, 0);
-			visualizeLength(inputBits, inputChanged, null, inputTbody);
-			const types: Array<string> = recvCodewordBits.map((_, i) => i < msgLen ? "data" : "parity");
-			visualizeLength(recvCodewordBits, codewordChanged, types, codewordTbody);
-			visualizeLength(inputBits, null, null, outputTbody);
-			inputChanged();
+		private constructor() {
+			super("almost-hamming");
+			this.msgLenInput = subqueryElem(this.root, "input", HTMLInputElement);
+			const func: ()=>void = () => {
+				const msgLen: int = parseInt(this.msgLenInput.value, 10);
+				let numParity: int = 0;
+				for (; 1 << numParity < msgLen; numParity++) {}
+				let types: Array<string> = [];
+				for (let i = 0; i < msgLen; i++)
+					types.push("data");
+				for (let i = 0; i < numParity; i++)
+					types.push("parity");
+				this.paramsChanged(msgLen, types);
+			};
+			this.msgLenInput.oninput = func;
+			this.codeLenOutput = subqueryElem(this.root, "output.codeword-length", HTMLElement);
+			func();
 		}
 		
 		
-		function inputChanged(): void {
-			visualizeValues(inputBits, inputTbody);
-			inputBits.forEach((x, i) => sentCodewordBits[i] = x);
-			const numParity: int = sentCodewordBits.length - inputBits.length;
+		protected paramsChanged(msgLen: int, codeBitTypes: Array<string>): void {
+			this.codeLenOutput.textContent = codeBitTypes.length.toString();
+			super.paramsChanged(msgLen, codeBitTypes);
+		}
+		
+		
+		protected inputChanged(): void {
+			this.inputBits.forEach((x, i) => this.sentCodewordBits[i] = x);
+			const numParity: int = this.sentCodewordBits.length - this.inputBits.length;
 			for (let i = 0; i < numParity; i++)
-				sentCodewordBits[inputBits.length + i] = calcParity(inputBits.filter((_, j) => (j & (1 << i)) != 0));
-			sentCodewordBits.forEach((x, i) => recvCodewordBits[i] = x);
-			codewordChanged();
+				this.sentCodewordBits[this.inputBits.length + i] = calcParity(this.inputBits.filter((_, j) => (j & (1 << i)) != 0));
+			super.inputChanged();
 		}
 		
 		
-		function codewordChanged(): void {
-			visualizeValues(recvCodewordBits, codewordTbody);
-			changedElem.textContent = recvCodewordBits.filter((x, i) => sentCodewordBits[i] != x).length.toString();
-			
-			const msg: Array<bit> = recvCodewordBits.slice(0, inputBits.length);
+		protected codewordChanged(): void {
+			const msg: Array<bit> = this.recvCodewordBits.slice(0, this.inputBits.length);
 			let syndrome: int = 0;
-			const numParity: int = recvCodewordBits.length - inputBits.length;
+			const numParity: int = this.recvCodewordBits.length - this.inputBits.length;
 			for (let i = 0; i < numParity; i++) {
-				if (calcParity(msg.filter((_, j) => (j & (1 << i)) != 0)) != recvCodewordBits[msg.length + i])
+				if (calcParity(msg.filter((_, j) => (j & (1 << i)) != 0)) != this.recvCodewordBits[msg.length + i])
 					syndrome += 1 << i;
 			}
-			let outputBits: Array<bit>|null;
 			if (syndrome < msg.length) {
 				if (syndrome > 0)
 					msg[syndrome] ^= 1;
-				outputBits = msg;
+				this.outputBits = msg;
 			} else
-				outputBits = null;
-			
-			visualizeValues(outputBits, outputTbody);
-			errorElem.textContent = outputBits === null || syndrome != 0 ? "True" : "False";
-			matchesElem.textContent = outputBits !== null && areArraysEqual(outputBits, inputBits) ? "True" : "False";
+				this.outputBits = null;
+			this.outputError = this.outputBits === null || syndrome != 0;
+			super.codewordChanged();
 		}
 		
 		
-		function visualizeLength(bits: Array<bit>, changeFunc: (()=>void)|null, types: Array<string>|null, tbody: HTMLElement): void {
-			let indexRow: HTMLElement = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
-			let bitRow  : HTMLElement = subqueryElem(tbody, ":scope > tr:nth-child(2)", HTMLElement);
-			let indexCells: Array<HTMLElement> = Array.from(indexRow.querySelectorAll(":scope > td"));
-			let bitCells  : Array<HTMLElement> = Array.from(bitRow  .querySelectorAll(":scope > td"));
-			while (indexCells.length > bits.length) {
-				notUndefined(indexCells.pop()).remove();
-				notUndefined(bitCells  .pop()).remove();
-			}
-			while (indexCells.length < bits.length) {
-				const i: int = indexCells.length;
-				let td: HTMLElement = addElem(indexRow, "td", i.toString());
-				indexCells.push(td);
-				td = addElem(bitRow, "td");
-				bitCells.push(td);
-				td.classList.add("bit");
-				if (changeFunc !== null) {
-					let button: HTMLElement = addElem(td, "button");
-					button.onclick = () => {
-						bits[i] ^= 1;
-						changeFunc();
-					};
-				}
-			}
-			if (types !== null) {
-				bitCells.forEach((td, i) => {
-					td.className = "";
-					td.classList.add("bit", types[i]);
-				});
-			}
-		}
+		private static SINGLETON: AlmostHammingDemo = new AlmostHammingDemo();
 		
-		
-		function visualizeValues(bits: Array<bit>|null, tbody: HTMLElement) {
-			tbody.classList.toggle("error", bits === null);
-			tbody.querySelectorAll(":scope > tr:nth-child(2) > td").forEach((td, i) => {
-				let button = td.querySelector("button");
-				(button === null ? td : button).textContent = bits !== null ? bits[i].toString() : "\u2012";
-			});
-		}
 	}
 	
 	
 	
-	namespace hammingCodes {
-		let root: HTMLElement = queryHtml("article .demo.hamming-codes");
-		let msgLenOutput: HTMLElement = subqueryElem(root, "output.message-length", HTMLElement);
-		let codeLenInput: HTMLInputElement = subqueryElem(root, "input", HTMLInputElement);
-		let inputTbody   : HTMLElement = subqueryElem(root, ".input-message"  , HTMLElement);
-		let codewordTbody: HTMLElement = subqueryElem(root, ".codeword"       , HTMLElement);
-		let outputTbody  : HTMLElement = subqueryElem(root, ".output-message" , HTMLElement);
-		let changedElem: HTMLElement = subqueryElem(root, "output.bits-changed"  , HTMLElement);
-		let errorElem  : HTMLElement = subqueryElem(root, "output.detected-error", HTMLElement);
-		let matchesElem: HTMLElement = subqueryElem(root, "output.matches-input" , HTMLElement);
-		let inputBits: Array<bit> = [];
-		let sentCodewordBits: Array<bit> = [];
-		let recvCodewordBits: Array<bit> = [];
+	class HammingCodesDemo extends OneDimensionalCodeDemo {
 		
-		root.hidden = false;
-		codeLenInput.oninput = paramsChanged;
-		paramsChanged();
+		private msgLenOutput: HTMLElement;
+		private codeLenInput: HTMLInputElement;
 		
 		
-		function paramsChanged(): void {
-			const codeLen: int = parseInt(codeLenInput.value, 10);
-			let numParity: int = 0;
-			for (; 1 << numParity <= codeLen; numParity++) {}
-			const msgLen: int = codeLen - numParity;
-			msgLenOutput.textContent = msgLen.toString();
-			resizeArray(inputBits, msgLen, 0);
-			resizeArray(sentCodewordBits, codeLen, 0);
-			resizeArray(recvCodewordBits, sentCodewordBits.length, 0);
-			visualizeLength(inputBits, inputChanged, null, inputTbody);
-			const types: Array<string> = recvCodewordBits.map((_, i) => ((i + 1) & i) != 0 ? "data" : "parity");
-			visualizeLength(recvCodewordBits, codewordChanged, types, codewordTbody);
-			visualizeLength(inputBits, null, null, outputTbody);
-			inputChanged();
+		private constructor() {
+			super("hamming-codes");
+			this.codeLenInput = subqueryElem(this.root, "input", HTMLInputElement);
+			const func: ()=>void = () => {
+				const codeLen: int = parseInt(this.codeLenInput.value, 10);
+				let numParity: int = 0;
+				for (; 1 << numParity <= codeLen; numParity++) {}
+				let types: Array<string> = [];
+				for (let i = 0; i < codeLen; i++)
+					types.push(((i + 1) & i) != 0 ? "data" : "parity");
+				this.paramsChanged(codeLen - numParity, types);
+			};
+			this.codeLenInput.oninput = func;
+			this.msgLenOutput = subqueryElem(this.root, "output.message-length", HTMLElement);
+			func();
 		}
 		
 		
-		function inputChanged(): void {
-			visualizeValues(inputBits, inputTbody);
+		protected paramsChanged(msgLen: int, codeBitTypes: Array<string>): void {
+			this.msgLenOutput.textContent = msgLen.toString();
+			super.paramsChanged(msgLen, codeBitTypes);
+		}
+		
+		
+		protected inputChanged(): void {
 			let inputIndex: int = 0;
-			sentCodewordBits.forEach((_, i) => {
+			this.sentCodewordBits.forEach((_, i) => {
 				if (((i + 1) & i) != 0) {
-					sentCodewordBits[i] = inputBits[inputIndex];
+					this.sentCodewordBits[i] = this.inputBits[inputIndex];
 					inputIndex++;
 				} else
-					sentCodewordBits[i] = 0;
+					this.sentCodewordBits[i] = 0;
 			});
-			sentCodewordBits.forEach((_, i) => {
+			this.sentCodewordBits.forEach((_, i) => {
 				if (((i + 1) & i) == 0)
-					sentCodewordBits[i] = calcParity(sentCodewordBits.filter((_, j) => ((j + 1) & (i + 1)) != 0));
+					this.sentCodewordBits[i] = calcParity(this.sentCodewordBits.filter((_, j) => ((j + 1) & (i + 1)) != 0));
 			});
-			sentCodewordBits.forEach((x, i) => recvCodewordBits[i] = x);
-			codewordChanged();
+			super.inputChanged();
 		}
 		
 		
-		function codewordChanged(): void {
-			visualizeValues(recvCodewordBits, codewordTbody);
-			changedElem.textContent = recvCodewordBits.filter((x, i) => sentCodewordBits[i] != x).length.toString();
-			
+		protected codewordChanged(): void {
 			let syndrome: int = 0;
-			recvCodewordBits.forEach((x, i) => {
-				if (((i + 1) & i) == 0 && calcParity(recvCodewordBits.filter((_, j) => ((j + 1) & (i + 1)) != 0)) != 0)
+			this.recvCodewordBits.forEach((x, i) => {
+				if (((i + 1) & i) == 0 && calcParity(this.recvCodewordBits.filter((_, j) => ((j + 1) & (i + 1)) != 0)) != 0)
 					syndrome += i + 1;
 			});
-			let outputBits: Array<bit>|null;
-			if (syndrome <= recvCodewordBits.length) {
-				let corrected: Array<bit> = recvCodewordBits.slice();
+			if (syndrome <= this.recvCodewordBits.length) {
+				let corrected: Array<bit> = this.recvCodewordBits.slice();
 				if (syndrome > 0)
 					corrected[syndrome - 1] ^= 1;
-				outputBits = corrected.filter((_, i) => ((i + 1) & i) != 0);
+				this.outputBits = corrected.filter((_, i) => ((i + 1) & i) != 0);
 			} else
-				outputBits = null;
-			
-			visualizeValues(outputBits, outputTbody);
-			errorElem.textContent = outputBits === null || syndrome != 0 ? "True" : "False";
-			matchesElem.textContent = outputBits !== null && areArraysEqual(outputBits, inputBits) ? "True" : "False";
+				this.outputBits = null;
+			this.outputError = this.outputBits === null || syndrome != 0;
+			super.codewordChanged();
 		}
 		
 		
-		function visualizeLength(bits: Array<bit>, changeFunc: (()=>void)|null, types: Array<string>|null, tbody: HTMLElement): void {
-			let indexRow: HTMLElement = subqueryElem(tbody, ":scope > tr:nth-child(1)", HTMLElement);
-			let bitRow  : HTMLElement = subqueryElem(tbody, ":scope > tr:nth-child(2)", HTMLElement);
-			let indexCells: Array<HTMLElement> = Array.from(indexRow.querySelectorAll(":scope > td"));
-			let bitCells  : Array<HTMLElement> = Array.from(bitRow  .querySelectorAll(":scope > td"));
-			while (indexCells.length > bits.length) {
-				notUndefined(indexCells.pop()).remove();
-				notUndefined(bitCells  .pop()).remove();
-			}
-			while (indexCells.length < bits.length) {
-				const i: int = indexCells.length;
-				let td: HTMLElement = addElem(indexRow, "td", (i + 1).toString());
-				indexCells.push(td);
-				td = addElem(bitRow, "td");
-				bitCells.push(td);
-				td.classList.add("bit");
-				if (changeFunc !== null) {
-					let button: HTMLElement = addElem(td, "button");
-					button.onclick = () => {
-						bits[i] ^= 1;
-						changeFunc();
-					};
-				}
-			}
-			if (types !== null) {
-				bitCells.forEach((td, i) => {
-					td.className = "";
-					td.classList.add("bit", types[i]);
-				});
-			}
-		}
+		private static SINGLETON: HammingCodesDemo = new HammingCodesDemo();
 		
-		
-		function visualizeValues(bits: Array<bit>|null, tbody: HTMLElement) {
-			tbody.classList.toggle("error", bits === null);
-			tbody.querySelectorAll(":scope > tr:nth-child(2) > td").forEach((td, i) => {
-				let button = td.querySelector("button");
-				(button === null ? td : button).textContent = bits !== null ? bits[i].toString() : "\u2012";
-			});
-		}
 	}
 	
 	
