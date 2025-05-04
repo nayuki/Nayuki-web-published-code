@@ -809,7 +809,7 @@ var app;
             const [_, text, ecl, minVer, mask] = EXAMPLES[selectElem.selectedIndex];
             queryElem("#input-text", HTMLTextAreaElement).value = text;
             queryInput("#force-min-version").value = minVer.toString();
-            queryInput("#force-mask-pattern").value = mask.toString();
+            queryElem("#force-mask-pattern", HTMLSelectElement).selectedIndex = mask + 1;
             if (ecl == ErrorCorrectionLevel.LOW)
                 queryInput("#errcorlvl-low").checked = true;
             else if (ecl == ErrorCorrectionLevel.MEDIUM)
@@ -830,7 +830,7 @@ var app;
         let inputs = document.querySelectorAll("#input-table textarea, #input-table input[type=number]");
         for (let elem of inputs)
             elem.oninput = resetSelect;
-        inputs = document.querySelectorAll("#input-table input[type=radio]");
+        inputs = document.querySelectorAll("#input-table input[type=radio], #input-table #force-mask-pattern");
         for (let elem of inputs)
             elem.onchange = resetSelect;
     }
@@ -905,7 +905,7 @@ var app;
         // Get input values
         const textStr = queryElem("#input-text", HTMLTextAreaElement).value;
         const minVer = parseInt(queryInput("#force-min-version").value, 10);
-        const forceMask = parseInt(queryInput("#force-mask-pattern").value, 10);
+        const forceMask = parseInt(queryElem("#force-mask-pattern", HTMLSelectElement).value, 10);
         let errCorrLvl;
         if (queryInput("#errcorlvl-low").checked)
             errCorrLvl = ErrorCorrectionLevel.LOW;

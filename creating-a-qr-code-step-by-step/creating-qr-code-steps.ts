@@ -46,8 +46,8 @@ namespace app {
 		function selectChanged(): void {
 			const [_, text, ecl, minVer, mask] = EXAMPLES[selectElem.selectedIndex];
 			queryElem("#input-text", HTMLTextAreaElement).value = text;
-			queryInput("#force-min-version" ).value = minVer.toString();
-			queryInput("#force-mask-pattern").value = mask.toString();
+			queryInput("#force-min-version").value = minVer.toString();
+			queryElem("#force-mask-pattern", HTMLSelectElement).selectedIndex = mask + 1;
 			if      (ecl == ErrorCorrectionLevel.LOW     )  queryInput("#errcorlvl-low"     ).checked = true;
 			else if (ecl == ErrorCorrectionLevel.MEDIUM  )  queryInput("#errcorlvl-medium"  ).checked = true;
 			else if (ecl == ErrorCorrectionLevel.QUARTILE)  queryInput("#errcorlvl-quartile").checked = true;
@@ -64,7 +64,7 @@ namespace app {
 		let inputs = document.querySelectorAll("#input-table textarea, #input-table input[type=number]");
 		for (let elem of inputs)
 			(elem as HTMLInputElement).oninput = resetSelect;
-		inputs = document.querySelectorAll("#input-table input[type=radio]");
+		inputs = document.querySelectorAll("#input-table input[type=radio], #input-table #force-mask-pattern");
 		for (let elem of inputs)
 			(elem as HTMLInputElement).onchange = resetSelect;
 	}
@@ -153,7 +153,7 @@ namespace app {
 		// Get input values
 		const textStr: string = queryElem("#input-text", HTMLTextAreaElement).value;
 		const minVer   : int = parseInt(queryInput("#force-min-version" ).value, 10);
-		const forceMask: int = parseInt(queryInput("#force-mask-pattern").value, 10);
+		const forceMask: int = parseInt(queryElem("#force-mask-pattern", HTMLSelectElement).value, 10);
 		let errCorrLvl: ErrorCorrectionLevel;
 		if      (queryInput("#errcorlvl-low"     ).checked)  errCorrLvl = ErrorCorrectionLevel.LOW     ;
 		else if (queryInput("#errcorlvl-medium"  ).checked)  errCorrLvl = ErrorCorrectionLevel.MEDIUM  ;
