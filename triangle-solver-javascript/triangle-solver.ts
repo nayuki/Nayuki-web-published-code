@@ -9,6 +9,14 @@
 
 /*---- HTML elements ----*/
 
+function initialize() {
+	let container: HTMLElement = queryHtml("article .program-container");
+	container.hidden = false;
+}
+
+setTimeout(initialize);
+
+
 let tableElem: HTMLElement = queryHtml("article form table");
 let sideAElems : [HTMLInputElement,[HTMLElement,HTMLElement]] = getIoElems("side-a" );
 let sideBElems : [HTMLInputElement,[HTMLElement,HTMLElement]] = getIoElems("side-b" );
@@ -39,12 +47,16 @@ function getOutElems(rowId: string): [HTMLElement,HTMLElement] {
 let solutions: Array<SolvedTriangle> = [];
 
 
-function doSolve(): void {
-	/*-- Clear outputs --*/
-	solutions = [];
+function doClearOutputs(): void {
 	tableElem.classList.remove("at-least-1-solutions", "at-least-2-solutions");
 	for (let elem of document.querySelectorAll("article output"))
 		elem.textContent = "";
+}
+
+
+function doSolve(): void {
+	doClearOutputs();
+	solutions = [];
 	
 	/*-- Get inputs and solve --*/
 	let status: string;

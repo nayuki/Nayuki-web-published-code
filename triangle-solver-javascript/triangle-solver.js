@@ -7,6 +7,11 @@
  */
 "use strict";
 /*---- HTML elements ----*/
+function initialize() {
+    let container = queryHtml("article .program-container");
+    container.hidden = false;
+}
+setTimeout(initialize);
 let tableElem = queryHtml("article form table");
 let sideAElems = getIoElems("side-a");
 let sideBElems = getIoElems("side-b");
@@ -27,12 +32,14 @@ function getOutElems(rowId) {
 }
 /*---- Main entry point ----*/
 let solutions = [];
-function doSolve() {
-    /*-- Clear outputs --*/
-    solutions = [];
+function doClearOutputs() {
     tableElem.classList.remove("at-least-1-solutions", "at-least-2-solutions");
     for (let elem of document.querySelectorAll("article output"))
         elem.textContent = "";
+}
+function doSolve() {
+    doClearOutputs();
+    solutions = [];
     /*-- Get inputs and solve --*/
     let status;
     try {

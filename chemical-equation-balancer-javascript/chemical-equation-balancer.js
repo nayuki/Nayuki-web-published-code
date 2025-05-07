@@ -7,13 +7,18 @@
  */
 "use strict";
 /*---- Entry point functions from HTML GUI ----*/
-const formulaElem = queryInput("#inputFormula");
+let container = queryHtml("article .program-container");
+let formulaElem = subqueryElem(container, "#inputFormula", HTMLInputElement);
+function initialize() {
+    container.hidden = false;
+}
+setTimeout(initialize);
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function doBalance() {
     // Clear output
-    const msgElem = queryHtml("#message");
-    const balancedElem = queryHtml("#balanced");
-    const codeOutElem = queryHtml("#codeOutput");
+    const msgElem = subqueryElem(container, "#message", HTMLElement);
+    const balancedElem = subqueryElem(container, "#balanced", HTMLElement);
+    const codeOutElem = subqueryElem(container, "#codeOutput", HTMLElement);
     msgElem.textContent = "";
     while (balancedElem.firstChild !== null)
         balancedElem.removeChild(balancedElem.firstChild);
@@ -672,9 +677,15 @@ function gcd(x, y) {
     }
     return x;
 }
-/*---- Miscellaneous code ----*/
-// Unicode character constants (because this script file's character encoding is unspecified)
-const MINUS = "\u2212"; // Minus sign
+function subqueryElem(root, query, type) {
+    let result = root.querySelector(query);
+    if (result instanceof type)
+        return result;
+    else if (result === null)
+        throw new Error("Element not found");
+    else
+        throw new TypeError("Invalid element type");
+}
 // Returns a new DOM element with the given tag name, with the optional given text content.
 function createElem(tagName, text) {
     let result = document.createElement(tagName);
@@ -688,3 +699,5 @@ function createSpan(cls, text) {
     result.classList.add(cls);
     return result;
 }
+// Unicode character constants (because this script file's character encoding is unspecified)
+const MINUS = "\u2212"; // Minus sign

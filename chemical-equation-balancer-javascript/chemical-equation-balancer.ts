@@ -9,15 +9,23 @@
 
 /*---- Entry point functions from HTML GUI ----*/
 
-const formulaElem: HTMLInputElement = queryInput("#inputFormula");
+let container: HTMLElement = queryHtml("article .program-container");
+let formulaElem: HTMLInputElement = subqueryElem(container, "#inputFormula", HTMLInputElement);
+
+
+function initialize(): void {
+	container.hidden = false;
+}
+
+setTimeout(initialize);
 
 
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.
 function doBalance(): void {
 	// Clear output
-	const msgElem: HTMLElement = queryHtml("#message");
-	const balancedElem: HTMLElement = queryHtml("#balanced");
-	const codeOutElem : HTMLElement = queryHtml("#codeOutput");
+	const msgElem: HTMLElement = subqueryElem(container, "#message", HTMLElement);
+	const balancedElem: HTMLElement = subqueryElem(container, "#balanced", HTMLElement);
+	const codeOutElem : HTMLElement = subqueryElem(container, "#codeOutput", HTMLElement);
 	msgElem.textContent = "";
 	while (balancedElem.firstChild !== null)
 		balancedElem.removeChild(balancedElem.firstChild);
@@ -792,8 +800,17 @@ function gcd(x: number, y: number): number {
 
 /*---- Miscellaneous code ----*/
 
-// Unicode character constants (because this script file's character encoding is unspecified)
-const MINUS: string = "\u2212";  // Minus sign
+type Constructor<T> = { new(...args: Array<any>): T };
+
+function subqueryElem<T>(root: HTMLElement|Document, query: string, type: Constructor<T>): T {
+	let result: Element|null = root.querySelector(query);
+	if (result instanceof type)
+		return result;
+	else if (result === null)
+		throw new Error("Element not found");
+	else
+		throw new TypeError("Invalid element type");
+}
 
 
 // Returns a new DOM element with the given tag name, with the optional given text content.
@@ -811,3 +828,7 @@ function createSpan(cls: string, text?: string): HTMLElement {
 	result.classList.add(cls);
 	return result;
 }
+
+
+// Unicode character constants (because this script file's character encoding is unspecified)
+const MINUS: string = "\u2212";  // Minus sign

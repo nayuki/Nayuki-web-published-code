@@ -11,10 +11,17 @@
 
 const app = new function() {
 	
-	let textElem = document.getElementById("text");
-	let shiftElem = document.getElementById("shift");
-	let guessesElem = document.getElementById("guesses");
+	let container = document.querySelector("article .program-container");
+	let textElem = container.querySelector("#text");
+	let shiftElem = container.querySelector("#shift");
+	let guessesElem = container.querySelector("#guesses");
 	
+	
+	function initialize() {
+		container.hidden = false;
+	}
+	
+	setTimeout(initialize);
 	
 	
 	/*---- User interaction functions ----*/
