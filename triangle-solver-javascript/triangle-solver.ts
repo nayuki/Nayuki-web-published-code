@@ -284,52 +284,41 @@ function initImageMap(): void {
 			throw new RangeError("Invalid unit");
 	}
 	
-	let container: HTMLElement = queryHtml("article #diagram-container");
-	const containerWidth: number = parseEm(container.style.width);
-	let hoverTextElem: HTMLElement = queryHtml("#diagram-container output");
+	let container: HTMLElement = queryHtml("article .program-container");
+	let hoverTextElem: HTMLElement = queryHtml("article .program-container output");
 	
-	// Each entry is (left, top, width, height, extractor)
-	const RECTANGLES: Array<[number,number,number,number,((t:SolvedTriangle)=>number)]> = [
-		[0.4922, 0.4419, 0.0227, 0.0229, t => t.sideA ],
-		[0.1784, 0.1789, 0.0221, 0.0339, t => t.sideB ],
-		[0.6424, 0.1754, 0.0201, 0.0229, t => t.sideC ],
-		[0.3492, 0.0964, 0.0322, 0.0333, t => t.angleA],
-		[0.7803, 0.3531, 0.0330, 0.0326, t => t.angleB],
-		[0.1393, 0.3504, 0.0322, 0.0340, t => t.angleC],
+	let rectElems: NodeListOf<HTMLElement> = document.querySelectorAll("article .program-container svg > g:nth-child(3) > rect");
+	const EXTRACTORS: Array<(t:SolvedTriangle)=>number> = [
+		t => t.sideA,
+		t => t.sideB,
+		t => t.sideC,
+		t => t.angleA,
+		t => t.angleB,
+		t => t.angleC,
 	];
-	const RECT_PADDED_SIZE: number = 0.0720;
-	
-	RECTANGLES.forEach((rect, i) => {
-		let highlightElem: HTMLAnchorElement = document.createElement("a");
-		container.insertBefore(highlightElem, hoverTextElem);
-		highlightElem.href = "#";
-		highlightElem.style.left = (rect[0] - (RECT_PADDED_SIZE - rect[2]) / 2) * containerWidth + "em";
-		highlightElem.style.top  = (rect[1] - (RECT_PADDED_SIZE - rect[3]) / 2) * containerWidth + "em";
-		highlightElem.style.width = highlightElem.style.height = RECT_PADDED_SIZE * containerWidth + "em";
-		
-		const extractor: (t:SolvedTriangle)=>number = rect[4];
-		highlightElem.onmouseover = () => {
+	rectElems.forEach((rectElem, i) => {
+		const extractor: (t:SolvedTriangle)=>number = EXTRACTORS[i];
+		rectElem.onmouseover = () => {
 			if (solutions.length == 0)
 				return;
-			
 			const suffix: string = 3 <= i && i < 6 ? DEGREE : "";
 			let text: string = formatNumber(extractor(solutions[0])) + suffix;
 			if (solutions.length == 2 && extractor(solutions[0]) != extractor(solutions[1]))
 				text += " or\n" + formatNumber(extractor(solutions[1])) + suffix;
 			hoverTextElem.textContent = text;
 			
-			// Set hover element style
+			const divBox: DOMRect = (hoverTextElem.parentElement as HTMLElement).getBoundingClientRect();
+			const rectBox: DOMRect = rectElem.getBoundingClientRect();
 			hoverTextElem.hidden = false;
-			hoverTextElem.style.left = rect[0] * containerWidth + "em";
-			hoverTextElem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
+			hoverTextElem.style.left = `calc(${rectBox.x-divBox.x}px + 1.0em)`;
+			hoverTextElem.style.bottom = `calc(${divBox.y+divBox.height-rectBox.y-rectBox.height}px + 2.0em)`;
 		};
 		
-		highlightElem.onmouseout = () => {
+		rectElem.onmouseout = () => {
 			hoverTextElem.textContent = "";
 			hoverTextElem.hidden = true;
 		};
-		highlightElem.onclick = ev => {
-			ev.preventDefault();
+		rectElem.onclick = () => {
 			[sideAElems, sideBElems, sideCElems, angleAElems, angleBElems, angleCElems][i][0].select();
 		};
 	});

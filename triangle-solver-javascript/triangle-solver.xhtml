@@ -66,13 +66,12 @@
 				font-family: serif;
 				font-style: italic;
 			}
-			article #diagram-container a {
-				display: block;
-				position: absolute;
-				border-radius: 10%;
+			article .program-container svg > g:nth-child(3) > rect {
+				pointer-events: all;
 			}
-			article #diagram-container a:hover {
-				background-color: rgba(128,128,128,0.25);
+			article .program-container svg > g:nth-child(3) > rect:hover {
+				fill: rgba(128,128,128,0.25);
+				cursor: pointer;
 			}
 			article table:not(.at-least-1-solutions) tr > *:nth-child(3) > * {
 				display: none;
@@ -104,20 +103,26 @@
 			
 			<form class="program-container" hidden="hidden" onsubmit="event.preventDefault(); doSolve();" onreset="doClearOutputs();">
 				<div style="position:relative">
-					<div id="diagram-container" style="width:32em; margin:0em auto; position:relative">
-						<svg xmlns="http://www.w3.org/2000/svg" style="display:block; width:100%" viewBox="0 0 18000 9000" fill="none" stroke="none">
-							<path stroke="#000000" stroke-width="100" stroke-linejoin="round" d="M1160,7405L16964,7405,6522,914,1160,7405Z"/>
-							<g fill="#000000">
-								<path d="M9266,7960l-84,286l-9,35c-1,4,-1,7,-1,9c0,4,1,7,3,10c3,2,5,3,8,3c5,0,14,-4,24,-13c4,-4,14,-17,31,-40l15,8c-21,37,-42,64,-65,81c-23,17,-48,26,-75,26c-16,0,-29,-4,-37,-13c-9,-8,-13,-19,-13,-32c0,-11,5,-32,14,-62l11,-35c-34,57,-66,98,-97,121c-18,14,-37,21,-57,21c-26,0,-45,-11,-57,-32c-12,-22,-18,-47,-18,-74c0,-40,12,-87,37,-139c25,-52,58,-95,98,-126c34,-27,65,-40,94,-40c16,0,29,5,39,14c10,9,17,26,22,51l16,-53l101,-6z m-138,82c0,-23,-3,-40,-11,-50c-5,-7,-12,-11,-21,-11c-9,0,-18,4,-27,13c-20,18,-40,54,-63,108c-22,54,-33,101,-33,141c0,15,2,26,7,33c5,7,11,10,17,10c13,0,26,-7,39,-22c19,-22,36,-48,51,-78c27,-54,41,-102,41,-144z"/>
-								<path d="M3486,3220l-77,260c22,-25,40,-41,54,-49c15,-8,31,-12,48,-12c33,0,57,12,74,37c16,25,24,54,24,86c0,78,-28,147,-83,208c-48,53,-104,80,-166,80c-47,0,-96,-14,-147,-42l133,-453c6,-22,10,-37,10,-46c0,-8,-3,-14,-9,-18c-9,-6,-22,-9,-40,-8l4,-17l148,-26l27,0z m-169,572c13,9,24,13,35,13c14,0,27,-3,36,-9c16,-10,32,-27,50,-53c17,-26,31,-56,43,-93c11,-36,17,-72,17,-108c0,-20,-4,-35,-13,-46c-8,-11,-18,-16,-30,-16c-18,0,-35,10,-49,30c-9,13,-19,41,-30,83l-59,199z"/>
-								<path d="M11872,3454l13,12c-28,33,-55,57,-82,72c-36,21,-73,31,-112,31c-26,0,-49,-6,-69,-17c-20,-11,-34,-26,-44,-46c-9,-20,-14,-40,-14,-61c0,-47,13,-94,38,-139c26,-46,60,-82,102,-108c42,-27,83,-40,123,-40c33,0,57,7,73,21c17,15,25,33,25,54c0,19,-6,35,-19,49c-12,13,-26,20,-41,20c-13,0,-24,-4,-33,-13c-9,-8,-13,-19,-13,-30c0,-16,8,-29,23,-41c11,-8,16,-15,16,-21c0,-5,-2,-9,-6,-12c-6,-5,-13,-7,-23,-7c-24,0,-47,10,-68,29c-28,26,-50,59,-65,98c-15,40,-22,77,-22,113c0,28,8,50,23,67c15,17,33,25,54,25c19,0,39,-5,60,-14c21,-9,42,-23,61,-42z"/>
-								<path d="M6693,2146l-181,0l-36,45l-42,49c-8,11,-14,21,-18,29c-3,7,-4,14,-4,20c0,7,4,14,11,20c7,6,19,9,36,10l0,15l-174,0l4,-15c16,-3,30,-8,42,-17c16,-11,39,-35,69,-71l415,-495l19,0l-20,479c-1,25,-1,40,-1,45c0,20,4,34,12,43c8,9,21,15,39,16l-4,15l-253,0l5,-15c25,-2,39,-4,43,-6c8,-4,15,-13,22,-26c7,-13,11,-35,12,-67l4,-74z m0,-37l11,-189l-161,189l150,0z"/>
-								<path d="M14204,6356l232,0c51,0,88,3,110,8c29,7,52,21,68,41c16,20,24,42,24,68c0,20,-6,42,-19,63c-13,22,-32,40,-57,54c-26,14,-65,26,-117,38c54,15,93,35,114,59c21,24,32,51,32,83c0,30,-10,59,-31,88c-21,29,-48,50,-83,63c-34,13,-97,20,-188,20l-243,0l5,-15c24,0,41,-2,51,-6c10,-5,18,-11,24,-21c7,-9,14,-28,22,-56l104,-360c10,-38,16,-62,16,-75c0,-10,-5,-18,-13,-25c-9,-7,-27,-11,-55,-12l4,-15z m132,259c39,-1,69,-7,91,-19c23,-11,40,-31,54,-58c13,-27,20,-52,20,-76c0,-22,-7,-41,-21,-55c-14,-14,-32,-21,-55,-20l-24,1l-65,227z m-9,32l-75,261c14,1,25,1,32,1c64,0,108,-18,133,-54c25,-36,37,-74,37,-115c0,-20,-5,-37,-14,-53c-10,-15,-22,-25,-37,-31c-15,-6,-41,-9,-76,-9z"/>
-								<path d="M3086,6308l-43,186l-15,0c-2,-51,-15,-89,-38,-114c-23,-25,-53,-38,-90,-38c-40,0,-80,17,-120,51c-40,34,-74,86,-101,156c-23,56,-34,112,-34,168c0,49,12,87,37,113c24,26,58,39,100,39c34,0,66,-7,94,-22c28,-15,57,-39,86,-73l21,0c-36,54,-71,91,-108,113c-36,21,-80,32,-133,32c-70,0,-127,-21,-170,-64c-43,-43,-64,-98,-64,-167c0,-64,17,-126,51,-184c35,-59,84,-106,148,-142c64,-36,128,-54,192,-54c24,0,54,5,90,15c18,5,31,7,38,7c15,0,29,-7,44,-22l15,0z"/>
-							</g>
-						</svg>
-						<output hidden="hidden" style="position:absolute; padding:0.5em; background-color:#FFFFFF; border:0.06em solid #A0A0A0; border-radius:0.2em; white-space:pre"></output>
-					</div>
+					<svg style="display:block; max-width:30em; margin-left:auto; margin-right:auto" xmlns="http://www.w3.org/2000/svg" version="1.2" viewBox="0 0 16030 7690" stroke="none" fill="none">
+						<path stroke="#000000" stroke-width="100" stroke-linejoin="round" d="M110,6595l15804,0l-10442,-6491z"/>
+						<g fill="#000000">
+							<path d="M8219,6878l-84,286l-9,35c-1,4,-1,7,-1,9c0,4,1,7,3,10c3,2,5,3,8,3c5,0,14,-4,24,-13c4,-4,14,-17,31,-40l15,8c-21,37,-42,64,-65,81c-23,17,-48,26,-75,26c-16,0,-29,-4,-37,-13c-9,-8,-13,-19,-13,-32c0,-11,5,-32,14,-62l11,-35c-34,57,-66,98,-97,121c-18,14,-37,21,-57,21c-26,0,-45,-11,-57,-32c-12,-22,-18,-47,-18,-74c0,-40,12,-87,37,-139c25,-52,58,-95,98,-126c34,-27,65,-40,94,-40c16,0,29,5,39,14c10,9,17,26,22,51l16,-53l101,-6z m-138,82c0,-23,-3,-40,-11,-50c-5,-7,-12,-11,-21,-11c-9,0,-18,4,-27,13c-20,18,-40,54,-63,108c-22,54,-33,101,-33,141c0,15,2,26,7,33c5,7,11,10,17,10c13,0,26,-7,39,-22c19,-22,36,-48,51,-78c27,-54,41,-102,41,-144z"/>
+							<path d="M2572,2533l-77,260c22,-25,40,-41,54,-49c15,-8,31,-12,48,-12c33,0,57,12,74,37c16,25,24,54,24,86c0,78,-28,147,-83,208c-48,53,-104,80,-166,80c-47,0,-96,-14,-147,-42l133,-453c6,-22,10,-37,10,-46c0,-8,-3,-14,-9,-18c-9,-6,-22,-9,-40,-8l4,-17l148,-26l27,0z m-169,572c13,9,24,13,35,13c14,0,27,-3,36,-9c16,-10,32,-27,50,-53c17,-26,31,-56,43,-93c11,-36,17,-72,17,-108c0,-20,-4,-35,-13,-46c-8,-11,-18,-16,-30,-16c-18,0,-35,10,-49,30c-9,13,-19,41,-30,83l-59,199z"/>
+							<path d="M11145,3038l13,12c-28,33,-55,57,-82,72c-36,21,-73,31,-112,31c-26,0,-49,-6,-69,-17c-20,-11,-34,-26,-44,-46c-9,-20,-14,-40,-14,-61c0,-47,13,-94,38,-139c26,-46,60,-82,102,-108c42,-27,83,-40,123,-40c33,0,57,7,73,21c17,15,25,33,25,54c0,19,-6,35,-19,49c-12,13,-26,20,-41,20c-13,0,-24,-4,-33,-13c-9,-8,-13,-19,-13,-30c0,-16,8,-29,23,-41c11,-8,16,-15,16,-21c0,-5,-2,-9,-6,-12c-6,-5,-13,-7,-23,-7c-24,0,-47,10,-68,29c-28,26,-50,59,-65,98c-15,40,-22,77,-22,113c0,28,8,50,23,67c15,17,33,25,54,25c19,0,39,-5,60,-14c21,-9,42,-23,61,-42z"/>
+							<path d="M5566,1057l-181,0l-36,45l-42,49c-8,11,-14,21,-18,29c-3,7,-4,14,-4,20c0,7,4,14,11,20c7,6,19,9,36,10l0,15l-174,0l4,-15c16,-3,30,-8,42,-17c16,-11,39,-35,69,-71l415,-495l19,0l-20,479c-1,25,-1,40,-1,45c0,20,4,34,12,43c8,9,21,15,39,16l-4,15l-253,0l5,-15c25,-2,39,-4,43,-6c8,-4,15,-13,22,-26c7,-13,11,-35,12,-67l4,-74z m0,-37l11,-189l-161,189l150,0z"/>
+							<path d="M13581,5718l232,0c51,0,88,3,110,8c29,7,52,21,68,41c16,20,24,42,24,68c0,20,-6,42,-19,63c-13,22,-32,40,-57,54c-26,14,-65,26,-117,38c54,15,93,35,114,59c21,24,32,51,32,83c0,30,-10,59,-31,88c-21,29,-48,50,-83,63c-34,13,-97,20,-188,20l-243,0l5,-15c24,0,41,-2,51,-6c10,-5,18,-11,24,-21c7,-9,14,-28,22,-56l104,-360c10,-38,16,-62,16,-75c0,-10,-5,-18,-13,-25c-9,-7,-27,-11,-55,-12l4,-15z m132,259c39,-1,69,-7,91,-19c23,-11,40,-31,54,-58c13,-27,20,-52,20,-76c0,-22,-7,-41,-21,-55c-14,-14,-32,-21,-55,-20l-24,1l-65,227z m-9,32l-75,261c14,1,25,1,32,1c64,0,108,-18,133,-54c25,-36,37,-74,37,-115c0,-20,-5,-37,-14,-53c-10,-15,-22,-25,-37,-31c-15,-6,-41,-9,-76,-9z"/>
+							<path d="M1838,5630l-43,186l-15,0c-2,-51,-15,-89,-38,-114c-23,-25,-53,-38,-90,-38c-40,0,-80,17,-120,51c-40,34,-74,86,-101,156c-23,56,-34,112,-34,168c0,49,12,87,37,113c24,26,58,39,100,39c34,0,66,-7,94,-22c28,-15,57,-39,86,-73l21,0c-36,54,-71,91,-108,113c-36,21,-80,32,-133,32c-70,0,-127,-21,-170,-64c-43,-43,-64,-98,-64,-167c0,-64,17,-126,51,-184c35,-59,84,-106,148,-142c64,-36,128,-54,192,-54c24,0,54,5,90,15c18,5,31,7,38,7c15,0,29,-7,44,-22l15,0z"/>
+						</g>
+						<g>
+							<rect x="7461" y="6526" width="1100" height="1100" rx="150"/>
+							<rect x="1934" y="2284" width="1100" height="1100" rx="150"/>
+							<rect x="10462" y="2400" width="1100" height="1100" rx="150"/>
+							<rect x="4907" y="397" width="1100" height="1100" rx="150"/>
+							<rect x="13167" y="5462" width="1100" height="1100" rx="150"/>
+							<rect x="1004" y="5383" width="1100" height="1100" rx="150"/>
+						</g>
+					</svg>
+					<output hidden="hidden" style="position:absolute; padding:0.5em; background-color:#FFFFFF; border:0.06em solid #A0A0A0; border-radius:0.2em; white-space:pre"></output>
 				</div>
 				
 				<table style="margin-left:auto; margin-right:auto">
@@ -534,28 +539,20 @@ function initImageMap() {
         else
             throw new RangeError("Invalid unit");
     }
-    let container = queryHtml("article #diagram-container");
-    const containerWidth = parseEm(container.style.width);
-    let hoverTextElem = queryHtml("#diagram-container output");
-    // Each entry is (left, top, width, height, extractor)
-    const RECTANGLES = [
-        [0.4922, 0.4419, 0.0227, 0.0229, t => t.sideA],
-        [0.1784, 0.1789, 0.0221, 0.0339, t => t.sideB],
-        [0.6424, 0.1754, 0.0201, 0.0229, t => t.sideC],
-        [0.3492, 0.0964, 0.0322, 0.0333, t => t.angleA],
-        [0.7803, 0.3531, 0.0330, 0.0326, t => t.angleB],
-        [0.1393, 0.3504, 0.0322, 0.0340, t => t.angleC],
+    let container = queryHtml("article .program-container");
+    let hoverTextElem = queryHtml("article .program-container output");
+    let rectElems = document.querySelectorAll("article .program-container svg > g:nth-child(3) > rect");
+    const EXTRACTORS = [
+        t => t.sideA,
+        t => t.sideB,
+        t => t.sideC,
+        t => t.angleA,
+        t => t.angleB,
+        t => t.angleC,
     ];
-    const RECT_PADDED_SIZE = 0.0720;
-    RECTANGLES.forEach((rect, i) => {
-        let highlightElem = document.createElement("a");
-        container.insertBefore(highlightElem, hoverTextElem);
-        highlightElem.href = "#";
-        highlightElem.style.left = (rect[0] - (RECT_PADDED_SIZE - rect[2]) / 2) * containerWidth + "em";
-        highlightElem.style.top = (rect[1] - (RECT_PADDED_SIZE - rect[3]) / 2) * containerWidth + "em";
-        highlightElem.style.width = highlightElem.style.height = RECT_PADDED_SIZE * containerWidth + "em";
-        const extractor = rect[4];
-        highlightElem.onmouseover = () => {
+    rectElems.forEach((rectElem, i) => {
+        const extractor = EXTRACTORS[i];
+        rectElem.onmouseover = () => {
             if (solutions.length == 0)
                 return;
             const suffix = 3 <= i && i < 6 ? DEGREE : "";
@@ -563,17 +560,17 @@ function initImageMap() {
             if (solutions.length == 2 && extractor(solutions[0]) != extractor(solutions[1]))
                 text += " or\n" + formatNumber(extractor(solutions[1])) + suffix;
             hoverTextElem.textContent = text;
-            // Set hover element style
+            const divBox = hoverTextElem.parentElement.getBoundingClientRect();
+            const rectBox = rectElem.getBoundingClientRect();
             hoverTextElem.hidden = false;
-            hoverTextElem.style.left = rect[0] * containerWidth + "em";
-            hoverTextElem.style.bottom = ((0.5 - rect[1]) * containerWidth + 0.5) + "em";
+            hoverTextElem.style.left = `calc(${rectBox.x - divBox.x}px + 1.0em)`;
+            hoverTextElem.style.bottom = `calc(${divBox.y + divBox.height - rectBox.y - rectBox.height}px + 2.0em)`;
         };
-        highlightElem.onmouseout = () => {
+        rectElem.onmouseout = () => {
             hoverTextElem.textContent = "";
             hoverTextElem.hidden = true;
         };
-        highlightElem.onclick = ev => {
-            ev.preventDefault();
+        rectElem.onclick = () => {
             [sideAElems, sideBElems, sideCElems, angleAElems, angleBElems, angleCElems][i][0].select();
         };
     });
