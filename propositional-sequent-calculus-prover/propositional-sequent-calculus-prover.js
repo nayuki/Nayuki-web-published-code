@@ -6,6 +6,11 @@
  * https://www.nayuki.io/page/propositional-sequent-calculus-prover
  */
 "use strict";
+let container = queryHtml("article .program-container");
+function initialize() {
+    container.hidden = false;
+}
+setTimeout(initialize);
 function doProve(inputSequent) {
     queryInput("#inputSequent").value = inputSequent;
     let msgElem = queryHtml("#message");
@@ -17,7 +22,7 @@ function doProve(inputSequent) {
     try {
         const seq = parseSequent(new Tokenizer(inputSequent));
         let proof = prove(seq);
-        msgElem.textContent = "Proof:";
+        msgElem.textContent = "Output proof:";
         proofElem.append(proof.toHtml());
     }
     catch (e) {

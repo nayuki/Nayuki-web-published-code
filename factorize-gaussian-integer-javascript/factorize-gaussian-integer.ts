@@ -9,6 +9,15 @@
 
 namespace app {
 	
+	let container: HTMLElement = queryHtml("article .program-container");
+	
+	function initialize(): void {
+		container.hidden = false;
+	}
+	
+	setTimeout(initialize);
+	
+	
 	/* 
 	 * Handles the HTML input/output for factoring a Gaussian integer.
 	 */

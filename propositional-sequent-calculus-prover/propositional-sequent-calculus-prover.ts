@@ -7,6 +7,15 @@
  */
 
 
+let container: HTMLElement = queryHtml("article .program-container");
+
+function initialize(): void {
+	container.hidden = false;
+}
+
+setTimeout(initialize);
+
+
 function doProve(inputSequent: string): void {
 	queryInput("#inputSequent").value = inputSequent;
 	
@@ -20,7 +29,7 @@ function doProve(inputSequent: string): void {
 	try {
 		const seq: Sequent = parseSequent(new Tokenizer(inputSequent));
 		let proof: Tree = prove(seq);
-		msgElem.textContent = "Proof:";
+		msgElem.textContent = "Output proof:";
 		proofElem.append(proof.toHtml());
 		
 	} catch (e: unknown) {

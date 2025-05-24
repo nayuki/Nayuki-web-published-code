@@ -1,7 +1,7 @@
 /* 
  * Resizing images by area
  * 
- * Copyright (c) 2022 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/resizing-images-by-area
  */
@@ -11,9 +11,22 @@
 
 const app = new function() {
 	
+	let container = document.querySelector("article .program-container");
+	let resizedDimensions = container.querySelector("#resized-dimensions");
+	let resizedAreaOutput = container.querySelector("#resized-area-output");
+	let aspectRatio       = container.querySelector("#aspect-ratio");
+	
+	
+	function initialize() {
+		container.hidden = false;
+	}
+	
+	setTimeout(initialize);
+	
+	
 	this.doCalculate = function() {
 		function parseNumber(nodeId) {
-			let text = document.getElementById(nodeId).value;
+			let text = container.querySelector("#" + nodeId).value;
 			text = text.replace(/^\s+|\s+$/g, "");  // Trim whitespace
 			const result = parseFloat(text);
 			if (result <= 0)
@@ -25,9 +38,6 @@ const app = new function() {
 		}
 		
 		// Clear outputs
-		let resizedDimensions = document.getElementById("resized-dimensions");
-		let resizedAreaOutput = document.getElementById("resized-area-output");
-		let aspectRatio       = document.getElementById("aspect-ratio");
 		resizedDimensions.textContent = "";
 		resizedAreaOutput.textContent = "";
 		aspectRatio      .textContent = "";

@@ -8,6 +8,11 @@
 "use strict";
 var app;
 (function (app) {
+    let container = queryHtml("article .program-container");
+    function initialize() {
+        container.hidden = false;
+    }
+    setTimeout(initialize);
     /*
      * Handles the HTML input/output for factoring a Gaussian integer.
      */

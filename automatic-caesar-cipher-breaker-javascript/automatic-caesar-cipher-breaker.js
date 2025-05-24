@@ -60,7 +60,7 @@ const app = new function() {
 		
 		outputState.shift = mod(outputState.shift + delta, 26);
 		textElem.value = decrypt(outputState.inputText, outputState.shift);
-		shiftElem.textContent = outputState.shift.toString();
+		shiftElem.textContent = outputState.shift.toString().padStart(2, "\u2007");
 		
 		// Build table of best guesses
 		guessesElem.replaceChildren();
