@@ -63,8 +63,7 @@ var app;
         let table = queryHtml("article table#output");
         table.classList.remove("errors");
         let tbody = requireType(table.querySelector("tbody"), HTMLElement);
-        while (tbody.firstChild !== null)
-            tbody.removeChild(tbody.firstChild);
+        tbody.replaceChildren();
         const parts = parseFile(fileBytes, checkIdats);
         let summary = "";
         for (let i = 0; i < parts.length; i++) {

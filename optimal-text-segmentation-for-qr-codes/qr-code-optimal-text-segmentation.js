@@ -52,10 +52,8 @@ var app;
         // Clear container elements
         const textOut = queryHtml("#text-split");
         const tableOut = queryHtml("#segment-details tbody");
-        while (textOut.firstChild !== null)
-            textOut.removeChild(textOut.firstChild);
-        while (tableOut.firstChild !== null)
-            tableOut.removeChild(tableOut.firstChild);
+        textOut.replaceChildren();
+        tableOut.replaceChildren();
         // Process the optimal segmentation algorithm
         const optimalInfo = makeSegmentsOptimally(codePoints, errCorrLvl, minVersion, 40);
         if (optimalInfo === null) {

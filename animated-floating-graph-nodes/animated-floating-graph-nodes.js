@@ -243,8 +243,7 @@ var app;
             let svg = this.svgElem;
             // Clear movable objects
             let gElem = svg.querySelector("g");
-            while (gElem.firstChild !== null)
-                gElem.removeChild(gElem.firstChild);
+            gElem.replaceChildren();
             function createSvgElem(tag, attribs) {
                 let result = document.createElementNS(svg.namespaceURI, tag);
                 for (const key in attribs)

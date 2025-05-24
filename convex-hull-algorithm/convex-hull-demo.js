@@ -157,10 +157,8 @@ var movingDemo;
 function showPointsAndHull() {
     let onHullGroupElem = svgElem.querySelectorAll("g")[1];
     let offHullGroupElem = svgElem.querySelectorAll("g")[0];
-    while (offHullGroupElem.firstChild !== null)
-        offHullGroupElem.removeChild(offHullGroupElem.firstChild);
-    while (onHullGroupElem.firstChild !== null)
-        onHullGroupElem.removeChild(onHullGroupElem.firstChild);
+    offHullGroupElem.replaceChildren();
+    onHullGroupElem.replaceChildren();
     const hull = convexhull.makeHull(points);
     let hullSet = new Set();
     for (const point of hull)

@@ -30,8 +30,7 @@ var app;
     // HTML elements to this page in order to represent the data structure.
     function render() {
         let rootElem = queryHtml("article #file-dissection");
-        while (rootElem.firstChild !== null)
-            rootElem.removeChild(rootElem.firstChild);
+        rootElem.replaceChildren();
         const files = fileElem.files;
         if (files === null)
             return;

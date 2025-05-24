@@ -1340,8 +1340,7 @@ var app;
         border += 0.2;
         const a = -border, b = qr.size + border * 2;
         svg.setAttribute("viewBox", `${a} ${a} ${b} ${b}`);
-        while (svg.firstChild !== null)
-            svg.removeChild(svg.firstChild);
+        svg.replaceChildren();
         const hasUnfilled = qr.modules.some(col => col.some(cell => cell instanceof UnfilledModule));
         if (hasUnfilled) {
             let rect = svgAppendNewElem(svg, "rect", "gray");

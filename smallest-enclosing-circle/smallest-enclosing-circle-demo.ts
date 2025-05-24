@@ -171,10 +171,8 @@ namespace movingDemo {
 function showPointsAndCircle(): void {
 	let offCircleGroupElem: Element = svgElem.querySelectorAll("g")[0];
 	let onCircleGroupElem : Element = svgElem.querySelectorAll("g")[1];
-	while (offCircleGroupElem.firstChild !== null)
-		offCircleGroupElem.removeChild(offCircleGroupElem.firstChild);
-	while (onCircleGroupElem.firstChild !== null)
-		onCircleGroupElem.removeChild(onCircleGroupElem.firstChild);
+	offCircleGroupElem.replaceChildren();
+	onCircleGroupElem.replaceChildren();
 	
 	let circle: Circle|null = makeCircle(points as Array<Point>);
 	let circleElem = svgElem.querySelector("circle") as Element;

@@ -78,8 +78,7 @@ namespace app {
 		let table: HTMLElement = queryHtml("article table#output");
 		table.classList.remove("errors");
 		let tbody = requireType(table.querySelector("tbody"), HTMLElement);
-		while (tbody.firstChild !== null)
-			tbody.removeChild(tbody.firstChild);
+		tbody.replaceChildren();
 		
 		const parts: Array<FilePart> = parseFile(fileBytes, checkIdats);
 		let summary: string = "";

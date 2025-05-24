@@ -23,8 +23,7 @@ namespace app {
 	 */
 	export function doFactor(): void {
 		let outElem: HTMLElement = queryHtml("#factorization");
-		while (outElem.firstChild !== null)
-			outElem.removeChild(outElem.firstChild);
+		outElem.replaceChildren();
 		const input = queryInput("#number").value;
 		if (/^\s*$/.test(input)) {  // Blank input
 			outElem.textContent = NBSP;

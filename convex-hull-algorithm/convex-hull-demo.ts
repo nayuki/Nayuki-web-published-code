@@ -171,10 +171,8 @@ namespace movingDemo {
 function showPointsAndHull(): void {
 	let onHullGroupElem : Element = svgElem.querySelectorAll("g")[1];
 	let offHullGroupElem: Element = svgElem.querySelectorAll("g")[0];
-	while (offHullGroupElem.firstChild !== null)
-		offHullGroupElem.removeChild(offHullGroupElem.firstChild);
-	while (onHullGroupElem.firstChild !== null)
-		onHullGroupElem.removeChild(onHullGroupElem.firstChild);
+	offHullGroupElem.replaceChildren();
+	onHullGroupElem.replaceChildren();
 	
 	const hull: Array<MovingPoint> = convexhull.makeHull(points);
 	let hullSet = new Set<MovingPoint>();

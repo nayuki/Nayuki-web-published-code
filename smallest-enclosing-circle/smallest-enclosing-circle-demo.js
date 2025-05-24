@@ -157,10 +157,8 @@ var movingDemo;
 function showPointsAndCircle() {
     let offCircleGroupElem = svgElem.querySelectorAll("g")[0];
     let onCircleGroupElem = svgElem.querySelectorAll("g")[1];
-    while (offCircleGroupElem.firstChild !== null)
-        offCircleGroupElem.removeChild(offCircleGroupElem.firstChild);
-    while (onCircleGroupElem.firstChild !== null)
-        onCircleGroupElem.removeChild(onCircleGroupElem.firstChild);
+    offCircleGroupElem.replaceChildren();
+    onCircleGroupElem.replaceChildren();
     let circle = makeCircle(points);
     let circleElem = svgElem.querySelector("circle");
     if (circle === null) {

@@ -18,8 +18,7 @@ var app;
      */
     function doFactor() {
         let outElem = queryHtml("#factorization");
-        while (outElem.firstChild !== null)
-            outElem.removeChild(outElem.firstChild);
+        outElem.replaceChildren();
         const input = queryInput("#number").value;
         if (/^\s*$/.test(input)) { // Blank input
             outElem.textContent = NBSP;

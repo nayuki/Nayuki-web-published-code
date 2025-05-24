@@ -20,10 +20,8 @@ function doBalance() {
     const balancedElem = subqueryElem(container, "#balanced", HTMLElement);
     const codeOutElem = subqueryElem(container, "#codeOutput", HTMLElement);
     msgElem.textContent = "";
-    while (balancedElem.firstChild !== null)
-        balancedElem.removeChild(balancedElem.firstChild);
-    while (codeOutElem.firstChild !== null)
-        codeOutElem.removeChild(codeOutElem.firstChild);
+    balancedElem.replaceChildren();
+    codeOutElem.replaceChildren();
     codeOutElem.textContent = " ";
     // Parse equation
     const formulaStr = formulaElem.value;

@@ -46,8 +46,7 @@ const app = new function() {
 		
 		clear() {
 			this.nextText = null;
-			while (this.containerElem.firstChild !== null)
-				this.containerElem.removeChild(this.containerElem.firstChild);
+			this.containerElem.replaceChildren();
 			this.containerElem.append(document.createElement("span"));
 		}
 	}

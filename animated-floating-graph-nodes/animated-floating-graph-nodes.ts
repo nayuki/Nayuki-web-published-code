@@ -290,8 +290,7 @@ namespace app {
 			
 			// Clear movable objects
 			let gElem = svg.querySelector("g") as Element;
-			while (gElem.firstChild !== null)
-				gElem.removeChild(gElem.firstChild);
+			gElem.replaceChildren();
 			
 			function createSvgElem(tag: string, attribs: any): Element {
 				let result = document.createElementNS(svg.namespaceURI, tag);
