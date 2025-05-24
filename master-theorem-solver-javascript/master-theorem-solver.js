@@ -27,14 +27,15 @@ const app = new function() {
 		update() {
 			const text = this.nextText;
 			let oldSpanElem = this.containerElem.querySelector("span");
-			oldSpanElem.style.color = "#E0E0E0";
+			if (oldSpanElem !== null)
+				oldSpanElem.style.color = "#E0E0E0";
 			let newSpanElem = document.createElement("span");
 			newSpanElem.textContent = text;
 			newSpanElem.hidden = true;
 			this.containerElem.append(newSpanElem);
 			MathJax.Hub.Queue(["Typeset", MathJax.Hub, newSpanElem]);
 			MathJax.Hub.Queue(() => {
-				if (oldSpanElem.parentNode !== null)
+				if (oldSpanElem !== null)
 					oldSpanElem.remove();
 				newSpanElem.hidden = false;
 				if (this.nextText === text || this.nextText === null)
