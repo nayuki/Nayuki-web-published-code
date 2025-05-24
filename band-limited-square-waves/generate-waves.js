@@ -157,10 +157,7 @@ function frequencyNumberChanged() {
 
 function updateNumHarmonics() {
 	const freq = parseFloat(document.getElementById("frequency-number").value);
-	let elem = document.getElementById("num-harmonics");
-	elem.replaceChildren();
-	const text = `floor(${SAMPLE_RATE / 2} / ${freq.toFixed(3)}) = ${Math.floor((SAMPLE_RATE / 2) / freq)}`;
-	elem.textContent = text;
+	document.getElementById("num-harmonics").textContent = `floor(${SAMPLE_RATE / 2} / ${freq.toFixed(3)}) = ${Math.floor((SAMPLE_RATE / 2) / freq)}`;
 }
 
 

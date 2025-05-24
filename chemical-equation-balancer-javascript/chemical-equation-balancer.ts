@@ -28,8 +28,7 @@ function doBalance(): void {
 	const codeOutElem : HTMLElement = subqueryElem(container, "#codeOutput", HTMLElement);
 	msgElem.textContent = "";
 	balancedElem.replaceChildren();
-	codeOutElem.replaceChildren();
-	codeOutElem.textContent = " ";
+	codeOutElem.replaceChildren(" ");
 	
 	// Parse equation
 	const formulaStr: string = formulaElem.value;
