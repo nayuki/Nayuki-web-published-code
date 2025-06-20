@@ -36,7 +36,7 @@ namespace app {
 			if (s.charAt(s.length - 1) != "i")
 				outElem.append(s);
 			else {
-				let varElem = document.createElement("var");
+				let varElem: HTMLElement = document.createElement("var");
 				varElem.textContent = "i";
 				outElem.append(s.substring(0, s.length - 1));
 				outElem.append(varElem);
@@ -75,8 +75,8 @@ namespace app {
 		else if (type < 0.3)
 			str = randInt() + "i";
 		else {
-			const real = randInt();
-			const imag = randInt();
+			const real: number = randInt();
+			const imag: number = randInt();
 			str = real + (imag >= 0 ? " + " : " - ") + Math.abs(imag) + "i";
 		}
 		queryInput("#number").value = str;
@@ -128,7 +128,7 @@ namespace app {
 			let temp: GaussianInteger = this;
 			let check = new GaussianInteger(1, 0);
 			while (temp.norm() > 1) {
-				const factor = temp.findPrimeFactor();
+				const factor: GaussianInteger = temp.findPrimeFactor();
 				result.push(factor);
 				temp = temp.divide(factor);
 				check = check.multiply(factor);
@@ -140,11 +140,12 @@ namespace app {
 				result.push(temp);
 			
 			result.sort((x, y) => {
-				if      (x.norm() < y.norm()) return -1;
-				else if (x.norm() > y.norm()) return +1;
-				else if (x.real > y.real) return -1;
-				else if (x.real < y.real) return +1;
-				else return 0;
+				if (x.norm() != y.norm())
+					return x.norm() - y.norm();
+				else if (x.real != y.real)
+					return x.real - y.real;
+				else
+					return 0;
 			});
 			return result;
 		}
@@ -204,7 +205,7 @@ namespace app {
 			str = str.replace(/j/g, "i");
 			
 			function checkedParseInt(s: string): number {
-				const n = parseInt(s, 10);
+				const n: number = parseInt(s, 10);
 				if (Math.abs(n) >= 67108864)
 					throw new RangeError("Number is too large");
 				return n;

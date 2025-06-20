@@ -11,7 +11,7 @@
  * - Command line: java FactorizeGaussianInteger "5 + 9i"
  *   Output: (1 + 1i)(7 + 2i)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/factorize-gaussian-integer-javascript
  */
@@ -27,10 +27,10 @@ import java.util.regex.Pattern;
 public final class FactorizeGaussianInteger {
 	
 	public static void main(String[] args) {
-		GaussianInteger num = new GaussianInteger(args[0]);
+		var num = new GaussianInteger(args[0]);
 		List<GaussianInteger> factorization = num.factorize();
 		for (GaussianInteger factor : factorization)
-			System.out.print("(" + factor.toString() + ")");
+			System.out.printf("(%s)", factor);
 		System.out.println();
 	}
 	
@@ -59,8 +59,8 @@ final class GaussianInteger {
 	
 	
 	private GaussianInteger(long real, long imag) {
-		if (real <= Integer.MIN_VALUE || real > Integer.MAX_VALUE ||
-		    imag <= Integer.MIN_VALUE || imag > Integer.MAX_VALUE)
+		if (!(Integer.MIN_VALUE < real && real <= Integer.MAX_VALUE &&
+		      Integer.MIN_VALUE < imag && imag <= Integer.MAX_VALUE))
 			throw new IllegalArgumentException("Value out of range");
 		this.real = (int)real;
 		this.imag = (int)imag;
@@ -142,7 +142,7 @@ final class GaussianInteger {
 		}
 		
 		GaussianInteger temp = this;
-		GaussianInteger check = new GaussianInteger(1, 0);
+		var check = new GaussianInteger(1, 0);
 		while (temp.norm() > 1) {
 			GaussianInteger factor = temp.findPrimeFactor();
 			result.add(factor);
@@ -155,14 +155,13 @@ final class GaussianInteger {
 		if (temp.real != 1)  // -1, i, -i
 			result.add(temp);
 		
-		Collections.sort(result, new Comparator<GaussianInteger>() {
-			public int compare(GaussianInteger x, GaussianInteger y) {
-				if      (x.norm() < y.norm()) return -1;
-				else if (x.norm() > y.norm()) return +1;
-				else if (x.real > y.real) return -1;
-				else if (x.real < y.real) return +1;
-				else return 0;
-			}
+		result.sort((x, y) -> {
+			if (x.norm() != y.norm())
+				return Long.compare(x.norm(), y.norm());
+			else if (x.real != y.real)
+				return Integer.compare(x.real, y.real);
+			else
+				return 0;
 		});
 		return result;
 	}

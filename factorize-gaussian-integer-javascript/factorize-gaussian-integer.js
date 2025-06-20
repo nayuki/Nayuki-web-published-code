@@ -113,14 +113,10 @@ var app;
             if (temp.real != 1) // -1, i, -i
                 result.push(temp);
             result.sort((x, y) => {
-                if (x.norm() < y.norm())
-                    return -1;
-                else if (x.norm() > y.norm())
-                    return +1;
-                else if (x.real > y.real)
-                    return -1;
-                else if (x.real < y.real)
-                    return +1;
+                if (x.norm() != y.norm())
+                    return x.norm() - y.norm();
+                else if (x.real != y.real)
+                    return x.real - y.real;
                 else
                     return 0;
             });
