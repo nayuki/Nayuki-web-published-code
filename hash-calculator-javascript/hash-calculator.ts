@@ -39,6 +39,7 @@ namespace app {
 	let results: Array<Result> = [];
 	
 	async function doCalculate(): Promise<void> {
+		calculateButton.disabled = true;
 		let funcSet: Set<hashlib.HashFunction> = new Set();
 		for (const [func, inputName] of HASH_FUNCTIONS) {
 			if (queryInput("article .program-container input#function-" + inputName).checked)
@@ -46,7 +47,41 @@ namespace app {
 		}
 		
 		if (textRadio.checked) {
-			
+			let text: string = textTextarea.value;
+			let bytes: Uint8Array;
+			switch (textConversionSelect.value) {
+				case "Base64": {
+					let temp: string;
+					try {
+						temp = window.atob(text);
+					} catch (e) {
+						alert("Invalid format");
+						return;
+					}
+					bytes = new Uint8Array(temp.length);
+					for (let i = 0; i < bytes.length; i++)
+						bytes[i] = temp.charCodeAt(i);
+					break;
+				}
+				case "Hexadecimal": {
+					if (!/^\s*([0-9a-fA-F]{2}\s*)*$/.test(text)) {
+						alert("Invalid format");
+						return;
+					}
+					text = text.replace(/\s/g, "");
+					bytes = new Uint8Array(text.length / 2);
+					for (let i = 0; i < bytes.length; i++)
+						bytes[i] = parseInt(text.substring(i * 2, (i + 1) * 2), 16);
+					break;
+				}
+				case "UTF-8": {
+					bytes = new TextEncoder().encode(text);
+					break;
+				}
+				default:
+					throw new RangeError("Unreachable");
+			}
+			results.push(await doHash(funcSet, "(Text string)", new Blob([bytes]).stream()));
 		}
 		if (fileRadio.checked) {
 			const files: FileList|null = fileInput.files;
@@ -66,7 +101,7 @@ namespace app {
 			}
 		}
 		
-		let headings: Array<string> = ["Description"];
+		let headings: Array<string> = ["File name"];
 		if (miscellaneousLengthInput.checked)
 			headings.push("Length");
 		for (const func of funcList)
@@ -85,7 +120,7 @@ namespace app {
 		for (const result of results) {
 			let tr: HTMLElement = outputTbody.appendChild(document.createElement("tr"));
 			let cells: Array<[string,Array<string>]> = [];
-			cells.push([result.description, []]);
+			cells.push([result.fileName, []]);
 			if (miscellaneousLengthInput.checked)
 				cells.push([result.lengthBytes.toString(), ["number"]]);
 			for (const func of funcList) {
@@ -106,10 +141,11 @@ namespace app {
 		
 		outputEmptyElem.hidden = true;
 		outputTable.hidden = false;
+		calculateButton.disabled = false;
 	}
 	
 	
-	async function doHash(funcs: Set<hashlib.HashFunction>, description: string, stream: ReadableStream): Promise<Result> {
+	async function doHash(funcs: Set<hashlib.HashFunction>, fileName: string, stream: ReadableStream): Promise<Result> {
 		let reader: ReadableStreamDefaultReader = stream.getReader();
 		const startTime: number = performance.now();
 		let length: number = 0;
@@ -130,14 +166,14 @@ namespace app {
 		let hashes: Map<hashlib.HashFunction,ArrayBuffer> = new Map();
 		for (let [func, hasher] of hashers.entries())
 			hashes.set(func, hasher.getHashDestructively());
-		return new Result(description, length, performance.now() - startTime, hashes);
+		return new Result(fileName, length, performance.now() - startTime, hashes);
 	}
 	
 	
 	
 	class Result {
 		public constructor(
-			public description: string,
+			public fileName: string,
 			public lengthBytes: number,
 			public elapsedTimeMs: number,
 			public hashes: Map<hashlib.HashFunction,ArrayBuffer>) {}
@@ -147,6 +183,8 @@ namespace app {
 	
 	const HASH_FUNCTIONS: Array<[hashlib.HashFunction,string]> = [
 		[hashlib.Crc32, "crc-32"],
+		[hashlib.Sha1, "sha-1"],
+		[hashlib.Sha256, "sha-256"],
 	];
 	
 }

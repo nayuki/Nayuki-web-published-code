@@ -32,12 +32,49 @@ var app;
     setTimeout(initialize);
     let results = [];
     async function doCalculate() {
+        calculateButton.disabled = true;
         let funcSet = new Set();
         for (const [func, inputName] of HASH_FUNCTIONS) {
             if (queryInput("article .program-container input#function-" + inputName).checked)
                 funcSet.add(func);
         }
         if (textRadio.checked) {
+            let text = textTextarea.value;
+            let bytes;
+            switch (textConversionSelect.value) {
+                case "Base64": {
+                    let temp;
+                    try {
+                        temp = window.atob(text);
+                    }
+                    catch (e) {
+                        alert("Invalid format");
+                        return;
+                    }
+                    bytes = new Uint8Array(temp.length);
+                    for (let i = 0; i < bytes.length; i++)
+                        bytes[i] = temp.charCodeAt(i);
+                    break;
+                }
+                case "Hexadecimal": {
+                    if (!/^\s*([0-9a-fA-F]{2}\s*)*$/.test(text)) {
+                        alert("Invalid format");
+                        return;
+                    }
+                    text = text.replace(/\s/g, "");
+                    bytes = new Uint8Array(text.length / 2);
+                    for (let i = 0; i < bytes.length; i++)
+                        bytes[i] = parseInt(text.substring(i * 2, (i + 1) * 2), 16);
+                    break;
+                }
+                case "UTF-8": {
+                    bytes = new TextEncoder().encode(text);
+                    break;
+                }
+                default:
+                    throw new RangeError("Unreachable");
+            }
+            results.push(await doHash(funcSet, "(Text string)", new Blob([bytes]).stream()));
         }
         if (fileRadio.checked) {
             const files = fileInput.files;
@@ -55,7 +92,7 @@ var app;
                 }
             }
         }
-        let headings = ["Description"];
+        let headings = ["File name"];
         if (miscellaneousLengthInput.checked)
             headings.push("Length");
         for (const func of funcList)
@@ -73,7 +110,7 @@ var app;
         for (const result of results) {
             let tr = outputTbody.appendChild(document.createElement("tr"));
             let cells = [];
-            cells.push([result.description, []]);
+            cells.push([result.fileName, []]);
             if (miscellaneousLengthInput.checked)
                 cells.push([result.lengthBytes.toString(), ["number"]]);
             for (const func of funcList) {
@@ -93,8 +130,9 @@ var app;
         }
         outputEmptyElem.hidden = true;
         outputTable.hidden = false;
+        calculateButton.disabled = false;
     }
-    async function doHash(funcs, description, stream) {
+    async function doHash(funcs, fileName, stream) {
         let reader = stream.getReader();
         const startTime = performance.now();
         let length = 0;
@@ -113,11 +151,11 @@ var app;
         let hashes = new Map();
         for (let [func, hasher] of hashers.entries())
             hashes.set(func, hasher.getHashDestructively());
-        return new Result(description, length, performance.now() - startTime, hashes);
+        return new Result(fileName, length, performance.now() - startTime, hashes);
     }
     class Result {
-        constructor(description, lengthBytes, elapsedTimeMs, hashes) {
-            this.description = description;
+        constructor(fileName, lengthBytes, elapsedTimeMs, hashes) {
+            this.fileName = fileName;
             this.lengthBytes = lengthBytes;
             this.elapsedTimeMs = elapsedTimeMs;
             this.hashes = hashes;
@@ -125,5 +163,7 @@ var app;
     }
     const HASH_FUNCTIONS = [
         [hashlib.Crc32, "crc-32"],
+        [hashlib.Sha1, "sha-1"],
+        [hashlib.Sha256, "sha-256"],
     ];
 })(app || (app = {}));
