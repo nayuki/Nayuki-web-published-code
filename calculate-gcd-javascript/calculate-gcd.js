@@ -13,6 +13,7 @@ var app;
     let inputBElem = queryInput("article .program-container #number-b");
     function initialize() {
         container.hidden = false;
+        inputAElem.focus();
     }
     setTimeout(initialize);
     /*---- Entry points from HTML page ----*/

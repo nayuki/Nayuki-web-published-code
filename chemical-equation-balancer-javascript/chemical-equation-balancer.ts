@@ -15,6 +15,7 @@ let formulaElem: HTMLInputElement = subqueryElem(container, "#inputFormula", HTM
 
 function initialize(): void {
 	container.hidden = false;
+	formulaElem.focus();
 }
 
 setTimeout(initialize);

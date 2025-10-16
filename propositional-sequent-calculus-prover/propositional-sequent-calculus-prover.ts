@@ -11,6 +11,7 @@ let container: HTMLElement = queryHtml("article .program-container");
 
 function initialize(): void {
 	container.hidden = false;
+	queryInput("#inputSequent").focus();
 }
 
 setTimeout(initialize);

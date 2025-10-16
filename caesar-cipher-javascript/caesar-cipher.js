@@ -17,6 +17,7 @@ const app = new function() {
 	function initialize() {
 		container.hidden = false;
 		container.style.display = "grid";
+		container.querySelector("#text").focus();
 	}
 	
 	setTimeout(initialize);

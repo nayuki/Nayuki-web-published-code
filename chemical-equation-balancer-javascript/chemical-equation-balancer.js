@@ -11,6 +11,7 @@ let container = queryHtml("article .program-container");
 let formulaElem = subqueryElem(container, "#inputFormula", HTMLInputElement);
 function initialize() {
     container.hidden = false;
+    formulaElem.focus();
 }
 setTimeout(initialize);
 // Balances the given formula string and sets the HTML output on the page. Returns nothing.

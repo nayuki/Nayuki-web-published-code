@@ -17,6 +17,7 @@ namespace app {
 	
 	function initialize(): void {
 		container.hidden = false;
+		inputAElem.focus();
 	}
 	
 	setTimeout(initialize);

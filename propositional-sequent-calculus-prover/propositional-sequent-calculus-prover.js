@@ -9,6 +9,7 @@
 let container = queryHtml("article .program-container");
 function initialize() {
     container.hidden = false;
+    queryInput("#inputSequent").focus();
 }
 setTimeout(initialize);
 function doProve(inputSequent) {

@@ -11,6 +11,7 @@ var app;
     let container = queryHtml("article .program-container");
     function initialize() {
         container.hidden = false;
+        queryInput("#number").focus();
     }
     setTimeout(initialize);
     /*

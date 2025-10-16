@@ -13,6 +13,7 @@ namespace app {
 	
 	function initialize(): void {
 		container.hidden = false;
+		queryInput("#number").focus();
 	}
 	
 	setTimeout(initialize);

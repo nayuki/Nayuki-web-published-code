@@ -18,6 +18,7 @@ const app = new function() {
 	
 	function initialize() {
 		container.hidden = false;
+		numberElem.focus();
 	}
 	
 	setTimeout(initialize);

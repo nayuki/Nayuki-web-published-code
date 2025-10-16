@@ -13,6 +13,7 @@ var app;
     let previousInput = "";
     function initialize() {
         container.hidden = false;
+        numberElem.focus();
     }
     setTimeout(initialize);
     function doRandom() {
