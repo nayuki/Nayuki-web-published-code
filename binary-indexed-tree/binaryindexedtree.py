@@ -35,12 +35,9 @@ class BinaryIndexedTree:
 		else:
 			self.sumtree = list(arg)
 			for (i, val) in enumerate(self.sumtree):
-				# For each consecutive 1 in the lowest order bits of i
-				j: int = 1
-				while i & j != 0:
-					val += self.sumtree[i ^ j]
-					j <<= 1
-				self.sumtree[i] = val
+				inc: int = (i + 1) & ~i  # Lowest 1 bit of i+1
+				if i + inc < len(self.sumtree):
+					self.sumtree[i + inc] += val
 	
 	
 	def __len__(self) -> int:

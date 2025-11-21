@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree (C++)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,11 +51,9 @@ class BinaryIndexedTree final {
 	public: explicit BinaryIndexedTree(const T vals[], std::size_t len) :
 			sumTree(vals, vals + len) {
 		for (std::size_t i = 0; i < sumTree.size(); i++) {
-			T val = sumTree.at(i);
-			// For each consecutive 1 in the lowest order bits of i
-			for (std::size_t j = 1; (i & j) != 0; j <<= 1)
-				val += sumTree.at(i ^ j);
-			sumTree.at(i) = val;
+			std::size_t inc = (i + 1) & ~i;  // Lowest 1 bit of i+1
+			if (inc < len - i)
+				sumTree.at(i + inc) += sumTree.at(i);
 		}
 	}
 	

@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree (Rust)
  * 
- * Copyright (c) 2020 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,14 +49,10 @@ impl<T: num_traits::identities::Zero +
 	pub fn new_array(vals: &[T]) -> Self {
 		let mut sumtree = vals.to_vec();
 		for i in 0 .. sumtree.len() {
-			let mut val = sumtree[i];
-			// For each consecutive 1 in the lowest order bits of i
-			let mut j: usize = 1;
-			while i & j != 0 {
-				val += sumtree[i ^ j];
-				j <<= 1;
+			let inc: usize = (i + 1) & ~i;  // Lowest 1 bit of i+1
+			if inc < sumtree.len() - i {
+				sumtree[i + inc] += sumtree[i];
 			}
-			sumtree[i] = val;
 		}
 		Self { sum_tree: sumtree }
 	}

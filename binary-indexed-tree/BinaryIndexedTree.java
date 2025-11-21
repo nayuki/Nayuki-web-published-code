@@ -1,7 +1,7 @@
 /* 
  * Binary indexed tree (Java)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,11 +43,10 @@ public final class BinaryIndexedTree {
 		Objects.requireNonNull(vals);
 		sumTree = vals.clone();
 		for (int i = 0; i < sumTree.length; i++) {
-			long val = sumTree[i];
-			// For each consecutive 1 in the lowest order bits of i
-			for (int j = 1; (i & j) != 0; j <<= 1)
-				val += sumTree[i ^ j];
-			sumTree[i] = val;
+			int inc = (i + 1) & ~i;
+			// Equivalently: int inc = Integer.lowestOneBit(i + 1);
+			if (inc < sumTree.length - i)
+				sumTree[i + inc] += sumTree[i];
 		}
 	}
 	

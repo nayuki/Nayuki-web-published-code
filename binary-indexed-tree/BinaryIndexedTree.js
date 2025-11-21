@@ -1,7 +1,7 @@
 /*
  * Binary indexed tree (compiled from TypeScript)
  *
- * Copyright (c) 2022 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/binary-indexed-tree
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,10 +34,9 @@ class BinaryIndexedTree {
         else if (arg instanceof Array) {
             this.sumTree = arg.slice();
             this.sumTree.forEach((val, i) => {
-                // For each consecutive 1 in the lowest order bits of i
-                for (let j = 1; (i & j) != 0; j <<= 1)
-                    val += this.sumTree[i ^ j];
-                this.sumTree[i] = val;
+                const inc = (i + 1) & ~i; // Lowest 1 bit of i+1
+                if (inc < this.sumTree.length - i)
+                    this.sumTree[i + inc] += val;
             });
         }
         else
