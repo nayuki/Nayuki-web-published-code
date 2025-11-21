@@ -1,7 +1,7 @@
 /* 
  * Panel de Pon puzzle solver (Java)
  * 
- * Copyright (c) 2017 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/paneldepon-puzzle-solver-javascript
  */
@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.zip.DataFormatException;
 
@@ -333,15 +334,15 @@ public final class PaneldeponPuzzleSolver {
 		
 		
 		private static byte gridGet(byte[] grid, int x, int y) {
-			if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
-				throw new IndexOutOfBoundsException();
+			Objects.checkIndex(x, WIDTH);
+			Objects.checkIndex(y, HEIGHT);
 			return grid[y * WIDTH + x];
 		}
 		
 		
 		private static void gridSet(byte[] grid, int x, int y, byte val) {
-			if (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT)
-				throw new IndexOutOfBoundsException();
+			Objects.checkIndex(x, WIDTH);
+			Objects.checkIndex(y, HEIGHT);
 			grid[y * WIDTH + x] = val;
 		}
 		

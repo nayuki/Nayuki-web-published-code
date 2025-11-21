@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Simple library (Java)
  * 
- * Copyright (c) 2017 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,6 +20,8 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
+
+import java.util.Objects;
 
 
 /* 
@@ -57,8 +59,7 @@ public final class SimpleDisjointSet {
 	
 	// Returns the representative node for the set containing the given element. Also performs path compression on nodes.
 	private Node find(int elemIndex) {
-		if (elemIndex < 0 || elemIndex >= nodes.length)
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(elemIndex, nodes.length);
 		return find(nodes[elemIndex]);
 	}
 	

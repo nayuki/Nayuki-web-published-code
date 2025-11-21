@@ -1,7 +1,7 @@
 /* 
  * AVL tree list (Java)
  * 
- * Copyright (c) 2018 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/avl-tree-list
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -63,15 +63,13 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	
 	public E get(int index) {
-		if (index < 0 || index >= size())
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(index, size());
 		return root.getNodeAt(index).value;
 	}
 	
 	
 	public E set(int index, E val) {
-		if (index < 0 || index >= size())
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(index, size());
 		Node<E> node = root.getNodeAt(index);
 		E result = node.value;
 		node.value = val;
@@ -80,17 +78,15 @@ public final class AvlTreeList<E> extends AbstractList<E> {
 	
 	
 	public void add(int index, E val) {
-		if (index < 0 || index > size())  // Different constraint than the other methods
-			throw new IndexOutOfBoundsException();
 		if (size() == Integer.MAX_VALUE)
 			throw new IllegalStateException("Maximum size reached");
+		Objects.checkIndex(index, size() + 1);  // Different constraint than the other methods
 		root = root.insertAt(index, val);
 	}
 	
 	
 	public E remove(int index) {
-		if (index < 0 || index >= size())
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(index, size());
 		E result = get(index);
 		root = root.removeAt(index);
 		return result;

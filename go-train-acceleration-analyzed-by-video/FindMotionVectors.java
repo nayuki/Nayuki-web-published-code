@@ -1,7 +1,7 @@
 /* 
  * Find motion vectors
  * 
- * Copyright (c) 2016 Project Nayuki
+ * Copyright (c) 2025 Project Nayuki
  * All rights reserved. Contact Nayuki for licensing.
  * https://www.nayuki.io/page/go-train-acceleration-analyzed-by-video
  */
@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.imageio.ImageIO;
 
@@ -170,9 +171,10 @@ public final class FindMotionVectors {
 	private static long getSubimageDifference(int[] pix0, int[] pix1, int x0, int y0, int x1, int y1, int w, int h) {
 		if (pix0.length != pix1.length || pix0.length != IMAGE_WIDTH * IMAGE_HEIGHT)
 			throw new IllegalArgumentException();
-		if (x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0 || w < 0 || h < 0 ||
-				x0 + w > IMAGE_WIDTH || x1 + w > IMAGE_WIDTH || y0 + h > IMAGE_HEIGHT || y1 + h > IMAGE_HEIGHT)
-			throw new IndexOutOfBoundsException();
+		Objects.checkFromIndexSize(x0, w, IMAGE_WIDTH);
+		Objects.checkFromIndexSize(x1, w, IMAGE_WIDTH);
+		Objects.checkFromIndexSize(y0, h, IMAGE_HEIGHT);
+		Objects.checkFromIndexSize(y1, h, IMAGE_HEIGHT);
 		
 		long result = 0;
 		for (int y = 0; y < h; y++) {
@@ -192,9 +194,8 @@ public final class FindMotionVectors {
 	// Basically, the answer is IMAGE_WIDTH for most of the video, excep the last hundred frames where the result
 	// linearly decreases to zero because the train moves leftward and uncovers the non-moving background. Pure function.
 	private static int getValidImageWidth(int frameNum) {
-		if (frameNum < 0 || frameNum >= NUM_FRAMES)
-			throw new IndexOutOfBoundsException();
-		else if (frameNum < 909)
+		Objects.checkIndex(frameNum, NUM_FRAMES);
+		if (frameNum < 909)
 			return IMAGE_WIDTH;
 		else {
 			int sf = 909;
@@ -215,8 +216,7 @@ public final class FindMotionVectors {
 	
 	// Returns a read-only array of RGB pixels for the given frame number. Pure function and thread-safe.
 	private static int[] getFramePixels(int frameNum) throws IOException {
-		if (frameNum < 0 || frameNum >= NUM_FRAMES)
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(frameNum, NUM_FRAMES);
 		
 		// Search the cache
 		synchronized(FindMotionVectors.class) {

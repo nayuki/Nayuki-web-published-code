@@ -1,7 +1,7 @@
 /* 
  * Disjoint-set data structure - Library (Java)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2025 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/disjoint-set-data-structure
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,6 +20,8 @@
  *   out of or in connection with the Software or the use or other dealings in the
  *   Software.
  */
+
+import java.util.Objects;
 
 
 /* 
@@ -79,8 +81,7 @@ public final class DisjointSet {
 	// known as "find" in the literature. Also performs path compression, which alters the internal state to
 	// improve the speed of future queries, but has no externally visible effect on the values returned.
 	private int getRepr(int elemIndex) {
-		if (elemIndex < 0 || elemIndex >= parents.length)
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(elemIndex, parents.length);
 		// Follow parent pointers until we reach a representative
 		int parent = parents[elemIndex];
 		while (true) {

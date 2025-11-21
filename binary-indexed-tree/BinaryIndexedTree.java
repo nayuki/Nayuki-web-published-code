@@ -60,8 +60,7 @@ public final class BinaryIndexedTree {
 	
 	
 	public long get(int index) {
-		if (!(0 <= index && index < length()))
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(index, length());
 		long result = sumTree[index];
 		// For each consecutive 1 in the lowest order bits of index
 		for (int i = 1; (index & i) != 0; i <<= 1)
@@ -71,15 +70,13 @@ public final class BinaryIndexedTree {
 	
 	
 	public void set(int index, long val) {
-		if (!(0 <= index && index < length()))
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(index, length());
 		add(index, val - get(index));
 	}
 	
 	
 	public void add(int index, long delta) {
-		if (!(0 <= index && index < length()))
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(index, length());
 		do {
 			sumTree[index] += delta;
 			index |= index + 1;  // Set lowest 0 bit; strictly increasing
@@ -94,8 +91,7 @@ public final class BinaryIndexedTree {
 	
 	
 	public long getPrefixSum(int end) {
-		if (!(0 <= end && end <= length()))
-			throw new IndexOutOfBoundsException();
+		Objects.checkIndex(end, length());
 		long result = 0;
 		while (end > 0) {
 			result += sumTree[end - 1];
@@ -107,8 +103,7 @@ public final class BinaryIndexedTree {
 	
 	
 	public long getRangeSum(int start, int end) {
-		if (!(0 <= start && start <= end && end <= length()))
-			throw new IndexOutOfBoundsException();
+		Objects.checkFromToIndex(start, end, length());
 		return getPrefixSum(end) - getPrefixSum(start);
 	}
 	
