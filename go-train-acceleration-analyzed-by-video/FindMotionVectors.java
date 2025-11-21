@@ -191,7 +191,7 @@ public final class FindMotionVectors {
 	
 	
 	// Returns how many leftmost pixels of the given frame number is valid. The result is in the range [0, IMAGE_WIDTH].
-	// Basically, the answer is IMAGE_WIDTH for most of the video, excep the last hundred frames where the result
+	// Basically, the answer is IMAGE_WIDTH for most of the video, except the last hundred frames where the result
 	// linearly decreases to zero because the train moves leftward and uncovers the non-moving background. Pure function.
 	private static int getValidImageWidth(int frameNum) {
 		Objects.checkIndex(frameNum, NUM_FRAMES);

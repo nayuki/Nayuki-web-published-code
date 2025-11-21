@@ -79,7 +79,7 @@ fn test_all_ones() {
 		let mut bt;
 		let mode = modedist.ind_sample(rng);
 		if mode == 0 {
-			bt = BinaryIndexedTree::<T>::new_array(&vec![1; len]);
+			bt = BinaryIndexedTree::<T>::new_array(vec![1; len]);
 		} else {
 			bt = BinaryIndexedTree::<T>::new_size(len);
 			let p: f64 = match mode {
@@ -137,7 +137,7 @@ fn test_array_constructor_randomly() {
 			cmls.push(y + x);
 		}
 		
-		let bt = BinaryIndexedTree::<T>::new_array(&vals);
+		let bt = BinaryIndexedTree::<T>::new_array(vals.clone());
 		assert_eq!(len, bt.len());
 		assert_eq!(cmls[len], bt.get_total());
 		
@@ -180,7 +180,7 @@ fn test_add_and_set_randomly() {
 			BinaryIndexedTree::<T>::new_size(len)
 		} else {
 			vals = (0 .. len).map(|_| std::num::Wrapping(rng.gen::<E>())).collect();
-			BinaryIndexedTree::<T>::new_array(&vals)
+			BinaryIndexedTree::<T>::new_array(vals.clone())
 		};
 		
 		let indexdist = Range::new(0, len.max(1));

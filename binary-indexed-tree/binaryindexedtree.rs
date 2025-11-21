@@ -46,15 +46,15 @@ impl<T: num_traits::identities::Zero +
 	}
 	
 	
-	pub fn new_array(vals: &[T]) -> Self {
-		let mut sumtree = vals.to_vec();
-		for i in 0 .. sumtree.len() {
-			let inc: usize = (i + 1) & ~i;  // Lowest 1 bit of i+1
-			if inc < sumtree.len() - i {
-				sumtree[i + inc] += sumtree[i];
+	pub fn new_array(mut vals: Vec<T>) -> Self {
+		for i in 0 .. vals.len() {
+			let inc: usize = (i + 1) & !i;  // Lowest 1 bit of i+1
+			if inc < vals.len() - i {
+				let temp: T = vals[i];
+				vals[i + inc] += temp;
 			}
 		}
-		Self { sum_tree: sumtree }
+		Self { sum_tree: vals }
 	}
 	
 	
