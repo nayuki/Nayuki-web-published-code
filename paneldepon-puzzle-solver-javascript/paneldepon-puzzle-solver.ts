@@ -11,6 +11,8 @@ namespace app {
 	
 	/*---- User interface ----*/
 	
+	let importExportElem: HTMLTextAreaElement = queryElem("#import-export", HTMLTextAreaElement)
+	
 	let pageGrid: Grid;
 	
 	// Either -1 if not showing a known example,
@@ -77,7 +79,7 @@ namespace app {
 	
 	
 	export function doImport(): void {
-		const lines: Array<string> = queryInput("#import-export").value.replace(/^\s+|\s+$/, "").split("\n");
+		const lines: Array<string> = importExportElem.value.replace(/^\s+|\s+$/, "").split("\n");
 		if (lines.length != Grid.HEIGHT + 1) {
 			alert(`Invalid number of lines (should be ${Grid.HEIGHT + 1})`);
 			return;
@@ -116,7 +118,7 @@ namespace app {
 		let index: number;
 		do index = Math.floor(Math.random() * EXAMPLE_PUZZLES.length);
 		while (index == currentExampleIndex);
-		queryInput("#import-export").value = EXAMPLE_PUZZLES[index];
+		importExportElem.value = EXAMPLE_PUZZLES[index];
 		doImport();
 		currentExampleIndex = index;
 	}
@@ -187,7 +189,7 @@ namespace app {
 					exportStr += String.fromCodePoint(("a".codePointAt(0) as number) + val - 1);
 			}
 		}
-		queryInput("#import-export").value = exportStr;
+		importExportElem.value = exportStr;
 		
 		clearSolution();
 		currentExampleIndex = -1;

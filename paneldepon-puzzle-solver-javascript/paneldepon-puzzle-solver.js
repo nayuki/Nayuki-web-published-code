@@ -9,6 +9,7 @@
 var app;
 (function (app) {
     /*---- User interface ----*/
+    let importExportElem = queryElem("#import-export", HTMLTextAreaElement);
     let pageGrid;
     // Either -1 if not showing a known example,
     // or an integer in the range [0, EXAMPLE_PUZZLES.length).
@@ -63,7 +64,7 @@ var app;
     }
     app.doSolve = doSolve;
     function doImport() {
-        const lines = queryInput("#import-export").value.replace(/^\s+|\s+$/, "").split("\n");
+        const lines = importExportElem.value.replace(/^\s+|\s+$/, "").split("\n");
         if (lines.length != Grid.HEIGHT + 1) {
             alert(`Invalid number of lines (should be ${Grid.HEIGHT + 1})`);
             return;
@@ -101,7 +102,7 @@ var app;
         do
             index = Math.floor(Math.random() * EXAMPLE_PUZZLES.length);
         while (index == currentExampleIndex);
-        queryInput("#import-export").value = EXAMPLE_PUZZLES[index];
+        importExportElem.value = EXAMPLE_PUZZLES[index];
         doImport();
         currentExampleIndex = index;
     }
@@ -168,7 +169,7 @@ var app;
                     exportStr += String.fromCodePoint("a".codePointAt(0) + val - 1);
             }
         }
-        queryInput("#import-export").value = exportStr;
+        importExportElem.value = exportStr;
         clearSolution();
         currentExampleIndex = -1;
     }
