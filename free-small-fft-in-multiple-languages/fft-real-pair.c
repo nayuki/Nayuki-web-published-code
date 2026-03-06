@@ -1,7 +1,7 @@
 /* 
  * Free FFT and convolution (C)
  * 
- * Copyright (c) 2021 Project Nayuki. (MIT License)
+ * Copyright (c) 2026 Project Nayuki. (MIT License)
  * https://www.nayuki.io/page/free-small-fft-in-multiple-languages
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -60,9 +60,9 @@ bool Fft_transformRadix2(double real[restrict], double imag[restrict], size_t n)
 	// Trigonometric tables
 	if (SIZE_MAX / sizeof(double) < n / 2)
 		return false;
-	size_t size = (n / 2) * sizeof(double);
-	double *cos_table = malloc(size);
-	double *sin_table = malloc(size);
+	size_t tablesize = (n / 2) * sizeof(double);
+	double *cos_table = malloc(tablesize);
+	double *sin_table = malloc(tablesize);
 	if (cos_table == NULL || sin_table == NULL)
 		goto cleanup;
 	for (size_t i = 0; i < n / 2; i++) {
